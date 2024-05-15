@@ -160,11 +160,14 @@ class HiveRxUser extends RxUser {
     _remoteSubscription = StreamQueue(
       _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
     );
-    await _remoteSubscription!.execute(_userEvent);
+    await _remoteSubscription!.execute(userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
-  Future<void> _userEvent(UserEvents events) async {
+  Future<void> userEvent(
+    UserEvents events, {
+    bool updateVersion = true,
+  }) async {
     switch (events.kind) {
       case UserEventsKind.initialized:
         Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
@@ -191,12 +194,15 @@ class HiveRxUser extends RxUser {
           return;
         }
 
+        if (updateVersion) {
+          userEntity.ver = versioned.ver;
+        }
+
         Log.debug(
           '_userEvent(${events.kind}): ${versioned.events.map((e) => e.kind)}',
           '$runtimeType($id)',
         );
 
-        userEntity.ver = versioned.ver;
         for (var event in versioned.events) {
           switch (event.kind) {
             case UserEventKind.avatarDeleted:
@@ -264,7 +270,7 @@ class HiveRxUser extends RxUser {
               break;
           }
 
-          _userLocal.put(userEntity);
+          await _userLocal.put(userEntity);
         }
         break;
 
@@ -278,7 +284,7 @@ class HiveRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          _userLocal.put(event.user);
+          await _userLocal.put(event.user);
         }
         break;
 
@@ -292,9 +298,12 @@ class HiveRxUser extends RxUser {
             break;
           }
 
+          if (updateVersion) {
+            userEntity.blockedVer = versioned.ver;
+          }
+
           userEntity.value.isBlocked = versioned.record;
-          userEntity.blockedVer = versioned.ver;
-          _userLocal.put(userEntity);
+          await _userLocal.put(userEntity);
         }
         break;
     }

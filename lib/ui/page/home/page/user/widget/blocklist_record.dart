@@ -53,17 +53,15 @@ class BlocklistRecordWidget extends StatelessWidget {
             ),
           ),
         ],
-        if (onUnblock != null) ...[
-          const SizedBox(height: 16),
-          SelectionContainer.disabled(
-            child: ActionButton(
-              key: const Key('Unblock'),
-              text: 'btn_unblock'.l10n,
-              onPressed: onUnblock,
-              trailing: const SvgIcon(SvgIcons.unblock),
-            ),
+        const SizedBox(height: 16),
+        SelectionContainer.disabled(
+          child: ActionButton(
+            key: const Key('Unblock'),
+            text: 'btn_unblock'.l10n,
+            onPressed: onUnblock,
+            trailing: const SvgIcon(SvgIcons.unblock),
           ),
-        ],
+        ),
       ],
     );
   }

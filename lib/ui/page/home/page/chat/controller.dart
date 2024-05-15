@@ -407,6 +407,17 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Indicates whether the [user] in being [block]ed or [unblock]ed.
+  ///
+  /// Should be used to disable the [block] and [unblock] buttons when `true`.
+  bool get isBlocking {
+    if (user != null) {
+      return _userService.blockingUsers.contains(user!.id);
+    }
+
+    return false;
+  }
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {

@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:mutex/mutex.dart';
 
 /// Helper guarding synchronized access for processing [T] objects.
@@ -41,14 +43,10 @@ class EventPool<T> {
   ///
   /// If [repeat] is provided, then the [callback] will be invoked in loop,
   /// while [repeat] returns `true`.
-  ///
-  /// If [values] are provided, then [lockedWith] shall return `true` only if
-  /// [values] contain the specified there value.
   Future<void> protect(
     T tag,
     Future<void> Function() callback, {
-    bool Function()? repeat,
-    List<Object?> values = const [],
+    FutureOr<bool> Function()? repeat,
   }) async {
     _PoolMutex? mutex = _mutexes[tag];
     if (mutex == null) {
@@ -57,10 +55,9 @@ class EventPool<T> {
     }
 
     if (!mutex.isLocked) {
-      mutex.values = values;
       do {
         await mutex.protect(callback);
-      } while (!_disposed && repeat?.call() == true);
+      } while (!_disposed && await repeat?.call() == true);
     }
   }
 
@@ -77,6 +74,14 @@ class EventPool<T> {
     return mutex != null &&
         mutex.isLocked == true &&
         mutex.values.contains(value);
+  }
+
+  /// Locks the provided [tag] with the provided [values].
+  void lock(T tag, List<Object?> values) {
+    final _PoolMutex? mutex = _mutexes[tag];
+    if (mutex != null) {
+      mutex.values = values;
+    }
   }
 }
 

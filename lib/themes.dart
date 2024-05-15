@@ -46,6 +46,7 @@ part 'themes.g.dart';
       'primary',
       'primaryHighlightLightest',
       'secondary',
+      'secondaryHighlightDarkest',
     ],
   },
   'normal': {

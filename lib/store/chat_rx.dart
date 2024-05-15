@@ -56,6 +56,7 @@ import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/ui/page/home/page/chat/controller.dart' show ChatViewExt;
 import '/util/awaitable_timer.dart';
+import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/obs/obs.dart';
@@ -117,12 +118,15 @@ class HiveRxChat extends RxChat {
   @override
   final RxInt unreadCount;
 
-  /// [ChatVersion] of this [HiveRxChat].
-  ChatVersion? ver;
-
   @override
   late final RxBool inCall =
       RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
+
+  /// [ChatVersion] of this [HiveRxChat].
+  ChatVersion? ver;
+
+  /// [EventPool] debouncing [ChatField] related [ChatEvents] handling.
+  EventPool<ChatField> eventPool = EventPool();
 
   /// [ChatRepository] used to cooperate with the other [HiveRxChat]s.
   final ChatRepository _chatRepository;
@@ -1504,7 +1508,7 @@ class HiveRxChat extends RxChat {
       );
 
       await _remoteSubscription!.execute(
-        _chatEvent,
+        chatEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
             await clear();
@@ -1518,7 +1522,10 @@ class HiveRxChat extends RxChat {
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
-  Future<void> _chatEvent(ChatEvents event) async {
+  Future<void> chatEvent(
+    ChatEvents event, {
+    bool updateVersion = true,
+  }) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
@@ -1564,13 +1571,20 @@ class HiveRxChat extends RxChat {
             return;
           }
 
+          // If [updateVersion] is `true`, then those events are processed and
+          // should be removed from the [eventPool], or added to it otherwise to
+          // prevent events overwriting each other's actions.
+          if (updateVersion) {
+            chatEntity.ver = versioned.ver;
+            versioned.events.removeWhere(eventPool.processed);
+          } else {
+            versioned.events.forEach(eventPool.add);
+          }
+
           Log.debug(
             '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
             '$runtimeType($id)',
           );
-
-          chatEntity.ver = versioned.ver;
-
           // Use the [chat] value instead of [chatEntity], when in
           // [WebUtils.isPopup], as in such cases we can't rely on [Hive] having
           // actual data (especially when multiple events are received one after
