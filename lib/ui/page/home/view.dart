@@ -151,6 +151,7 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         signedUp: widget.signedUp,
         link: widget.link,
+        context: context,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
