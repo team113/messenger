@@ -66,7 +66,11 @@ class AppDatabase extends _$AppDatabase {
     Log.warning('reset()', '$runtimeType');
 
     for (var e in allSchemaEntities) {
-      await createMigrator().drop(e);
+      if (e is TableInfo) {
+        await e.deleteAll();
+      } else {
+        await createMigrator().drop(e);
+      }
     }
 
     await createMigrator().createAll();

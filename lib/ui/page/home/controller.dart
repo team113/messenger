@@ -174,9 +174,8 @@ class HomeController extends GetxController {
   }
 
   /// Returns corrected according to the side bar constraints [width] value.
-  double applySideBarWidth(double width) {
-    double maxWidth = ((context ?? router.context)?.width ?? width) *
-        sideBarMaxWidthPercentage;
+  double applySideBarWidth(BuildContext context, double width) {
+    double maxWidth = context.width * sideBarMaxWidthPercentage;
 
     if (maxWidth < sideBarMinWidth) {
       maxWidth = sideBarMinWidth;
