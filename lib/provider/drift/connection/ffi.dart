@@ -49,3 +49,8 @@ QueryExecutor connect() {
     );
   });
 }
+
+/// Obtains an in-memory database connection for running `drift`.
+QueryExecutor inMemory() {
+  return NativeDatabase.memory();
+}

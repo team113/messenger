@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -60,7 +59,7 @@ import 'chat_rename_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_rename_unit');
 

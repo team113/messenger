@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -79,7 +78,7 @@ import 'chat_hide_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_hide_widget');
 

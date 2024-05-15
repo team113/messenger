@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -48,7 +47,7 @@ import 'my_profile_emails_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/my_profile_emails_unit');
 

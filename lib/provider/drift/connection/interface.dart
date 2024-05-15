@@ -21,3 +21,10 @@ import 'package:drift/drift.dart';
 QueryExecutor connect() {
   throw UnsupportedError('`drift` isn\'t supported on this platform.');
 }
+
+/// Obtains an in-memory database connection for running `drift`.
+QueryExecutor inMemory() {
+  throw UnsupportedError(
+    'In-memory database isn\'t supported on this platform.',
+  );
+}

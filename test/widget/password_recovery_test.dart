@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
@@ -52,7 +51,7 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
 
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/password_recovery');
 

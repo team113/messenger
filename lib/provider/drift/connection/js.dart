@@ -39,3 +39,10 @@ QueryExecutor connect() {
     return result.resolvedExecutor;
   }));
 }
+
+/// Obtains an in-memory database connection for running `drift`.
+QueryExecutor inMemory() {
+  throw UnsupportedError(
+    'In-memory database isn\'t supported on this platform.',
+  );
+}

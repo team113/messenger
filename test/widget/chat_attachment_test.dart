@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 
-import 'package:drift/native.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -94,7 +93,7 @@ void main() async {
   AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_attachment_widget');
 

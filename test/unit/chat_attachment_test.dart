@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:typed_data';
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -65,7 +64,7 @@ import 'chat_attachment_test.mocks.dart';
 void main() async {
   Get.reset();
 
-  final DriftProvider database = DriftProvider(NativeDatabase.memory());
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_attachment_unit');
 

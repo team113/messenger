@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
@@ -132,7 +131,7 @@ void main() async {
       (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
     );
 
-    Get.put(DriftProvider(NativeDatabase.memory()));
+    Get.put(DriftProvider.memory());
 
     Hive.init('./test/.temp_hive/chat_direct_link_unit');
     await Get.put(ChatHiveProvider()).init();

@@ -96,7 +96,11 @@ Future<void> main() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
-    Get.putOrGet(DriftProvider(), permanent: true);
+    Get.put(
+      DriftProvider.from(
+        Get.putOrGet(() => AppDatabase(), permanent: true),
+      ),
+    );
 
     await _initHive();
 

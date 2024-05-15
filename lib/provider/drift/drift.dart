@@ -71,7 +71,11 @@ class AppDatabase extends _$AppDatabase {
 
 /// [AppDatabase] provider.
 final class DriftProvider extends DisposableInterface {
-  DriftProvider([QueryExecutor? e]) : db = AppDatabase(e);
+  /// Constructs a [DriftProvider] with the in-memory database.
+  DriftProvider.memory() : db = AppDatabase(inMemory());
+
+  /// Constructs a [DriftProvider] with the provided [db].
+  DriftProvider.from(this.db);
 
   /// [AppDatabase] itself.
   ///
@@ -81,19 +85,13 @@ final class DriftProvider extends DisposableInterface {
   @override
   void onInit() async {
     Log.debug('onInit()', '$runtimeType');
-
-    if (db != null) {
-      await db?.executor.ensureOpen(db!);
-    }
-
     super.onInit();
   }
 
   @override
   void onClose() async {
     Log.debug('onClose()', '$runtimeType');
-
-    await close();
+    db = null;
     super.onClose();
   }
 

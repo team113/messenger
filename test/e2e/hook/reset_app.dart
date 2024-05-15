@@ -50,8 +50,6 @@ class ResetAppHook extends Hook {
     await Get.deleteAll();
     Get.reset();
 
-    await drift?.close();
-
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
@@ -77,4 +75,9 @@ class ResetAppHook extends Hook {
     Iterable<Tag> tags,
   ) =>
       onBeforeScenario(config, scenario, tags);
+
+  @override
+  Future<void> onAfterRun(TestConfiguration config) async {
+    await Get.findOrNull<AppDatabase>()?.close();
+  }
 }

@@ -30,11 +30,15 @@ extension GetExtension on GetInterface {
   }
 
   /// Puts the [dependency], if it isn't [Inst.isRegistered].
-  S? putOrGet<S>(S dependency, {String? tag, bool permanent = false}) {
+  S putOrGet<S>(
+    S Function() dependency, {
+    String? tag,
+    bool permanent = false,
+  }) {
     if (isRegistered<S>(tag: tag)) {
       return find<S>(tag: tag);
     }
 
-    return put<S>(dependency, tag: tag, permanent: permanent);
+    return put<S>(dependency(), tag: tag, permanent: permanent);
   }
 }
