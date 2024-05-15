@@ -96,7 +96,7 @@ Future<void> main() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
-    Get.put(DriftProvider());
+    Get.putOrGet(DriftProvider(), permanent: true);
 
     await _initHive();
 

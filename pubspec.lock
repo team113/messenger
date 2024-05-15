@@ -842,10 +842,10 @@ packages:
   hive:
     dependency: "direct main"
     description:
-      path: "."
+      path: hive
       ref: HEAD
-      resolved-ref: "63c3b810f66fce0eb845503106ffa920e043852e"
-      url: "https://github.com/krida2000/git-hive.git"
+      resolved-ref: "89a8ad3dff3f3d9e6d55a9c46d73b3c06071a906"
+      url: "https://github.com/SleepySquash/hive.git"
     source: git
     version: "2.2.3"
   hive_flutter:

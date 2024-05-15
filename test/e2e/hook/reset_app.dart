@@ -47,7 +47,7 @@ class ResetAppHook extends Hook {
     final drift = Get.findOrNull<DriftProvider>();
     await drift?.clear();
 
-    await Get.deleteAll(force: true);
+    await Get.deleteAll();
     Get.reset();
 
     await drift?.close();

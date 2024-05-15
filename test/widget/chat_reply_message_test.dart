@@ -30,7 +30,6 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -348,35 +347,6 @@ void main() async {
   final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-
-  accountProvider.set(const UserId('me'));
-  credentialsProvider.put(
-    Credentials(
-      AccessToken(
-        const AccessTokenSecret('token'),
-        PreciseDateTime.now().add(const Duration(days: 1)),
-      ),
-      RefreshToken(
-        const RefreshTokenSecret('token'),
-        PreciseDateTime.now().add(const Duration(days: 1)),
-      ),
-      const UserId('me'),
-    ),
-  );
-
-  AuthService authService = AuthService(
-    AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ),
-    credentialsProvider,
-    accountProvider,
-  );
-
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -423,35 +393,56 @@ void main() async {
   await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
 
+  accountProvider.set(const UserId('me'));
+  credentialsProvider.put(
+    Credentials(
+      AccessToken(
+        const AccessTokenSecret('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RefreshToken(
+        const RefreshTokenSecret('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
+  final AuthService authService = Get.put(
+    AuthService(
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
+      credentialsProvider,
+      accountProvider,
+    ),
+  );
+  authService.init();
+
+  router = RouterState(authService);
+  router.provider = MockPlatformRouteInformationProvider();
+
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets('ChatView successfully replies to a message',
       (WidgetTester tester) async {
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
     authService.init();
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
@@ -460,7 +451,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
         applicationSettingsProvider,
@@ -476,7 +467,8 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -503,7 +495,7 @@ void main() async {
     );
     Get.put(ContactService(contactRepository));
 
-    MyUserRepository myUserRepository = MyUserRepository(
+    final MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blocklistRepository,
@@ -564,10 +556,9 @@ void main() async {
 
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
+    await database.close();
     await Get.deleteAll(force: true);
   });
-
-  tearDown(() async => await database.close());
 }
 
 final userData = {

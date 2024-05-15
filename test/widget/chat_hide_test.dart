@@ -263,7 +263,8 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
     when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
         IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
@@ -416,10 +417,9 @@ void main() async {
       ),
     );
 
+    await database.close();
     await Get.deleteAll(force: true);
   });
-
-  tearDown(() async => await database.close());
 
   await contactProvider.clear();
 }

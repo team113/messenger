@@ -392,13 +392,14 @@ void main() async {
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets('ChatView successfully sends a message with an attachment',
@@ -553,6 +554,7 @@ void main() async {
 
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
+    await database.close();
     await Get.deleteAll(force: true);
 
     for (int i = 0; i < 25; i++) {
@@ -560,8 +562,6 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
   });
-
-  tearDown(() async => await database.close());
 }
 
 final chatData = {

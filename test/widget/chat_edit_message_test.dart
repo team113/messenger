@@ -484,10 +484,9 @@ void main() async {
     );
     expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
+    await database.close();
     await Get.deleteAll(force: true);
   });
-
-  tearDown(() async => await database.close());
 }
 
 final chatData = {

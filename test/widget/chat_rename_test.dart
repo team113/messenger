@@ -201,19 +201,24 @@ void main() async {
       any,
     )).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider
-            .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer(
-            (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+    when(
+      graphQlProvider.getChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ),
+    ).thenAnswer(
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+    );
 
     when(graphQlProvider.chatItems(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       last: 50,
-    )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-          'chat': {
-            'items': {'edges': []}
-          }
-        })));
+    )).thenAnswer(
+      (_) => Future.value(GetMessages$Query.fromJson({
+        'chat': {
+          'items': {'edges': []}
+        }
+      })),
+    );
 
     when(graphQlProvider.recentChats(
       first: anyNamed('first'),
@@ -230,7 +235,8 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
@@ -288,19 +294,21 @@ void main() async {
     when(graphQlProvider.chatMembers(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       first: anyNamed('first'),
-    )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
-          'chat': {
-            'members': {
-              'edges': [],
-              'pageInfo': {
-                'endCursor': 'endCursor',
-                'hasNextPage': false,
-                'startCursor': 'startCursor',
-                'hasPreviousPage': false,
-              }
+    )).thenAnswer(
+      (_) => Future.value(GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
             }
           }
-        })));
+        }
+      })),
+    );
 
     when(graphQlProvider.myUserEvents(any))
         .thenAnswer((_) => const Stream.empty());
@@ -415,10 +423,9 @@ void main() async {
 
     expect(find.text('newname'), findsNWidgets(2));
 
+    await database.close();
     await Get.deleteAll(force: true);
   });
-
-  tearDown(() async => await database.close());
 
   await myUserProvider.clear();
   await contactProvider.clear();
