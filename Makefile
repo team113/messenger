@@ -137,11 +137,6 @@ flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
 endif
-ifeq ($(platform),web)
-ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.worker dockerized=$(dockerized)
-endif
-endif
 ifeq ($(dockerized),yes)
 ifeq ($(platform),macos)
 	$(error Dockerized macOS build is not supported)
@@ -250,31 +245,9 @@ flutter.run:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
 endif
-ifeq ($(device),web)
-ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.worker dockerized=$(dockerized)
-endif
-endif
 	flutter run $(if $(call eq,$(debug),no),--release,) \
 		$(if $(call eq,$(device),),,-d $(device)) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
-
-
-# Compiles JavaScript code for `drift` web worker from Dart sources.
-#
-# Usage:
-#	make flutter.worker [dockerized=(no|yes)]
-
-flutter.worker:
-ifeq ($(dockerized),yes)
-	docker run --rm --network=host -v "$(PWD)":/app -w /app \
-	           -v "$(HOME)/.pub-cache":/usr/local/flutter/.pub-cache \
-		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
-			make flutter.worker dockerized=no
-else
-	dart compile js web/worker.dart -o web/worker.dart.js -O4
-	rm -f web/worker.dart.js.deps web/worker.dart.js.map
-endif
 
 
 ####################
@@ -298,11 +271,6 @@ endif
 ifneq ($(gen),no)
 ifeq ($(wildcard test/e2e/*.g.dart),)
 	@make flutter.gen overwrite=yes dockerized=$(dockerized)
-endif
-ifneq (,$(filter $(or $(device),chrome),chrome web-server))
-ifeq ($(wildcard web/worker.dart.js),)
-	@make flutter.worker dockerized=$(dockerized)
-endif
 endif
 endif
 ifeq ($(start-app),yes)
@@ -967,7 +935,7 @@ sentry.upload:
         docs.dart \
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.pub flutter.run flutter.worker\
+        flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
