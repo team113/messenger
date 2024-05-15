@@ -109,7 +109,7 @@ final class DriftProvider extends DisposableInterface {
     await future;
   }
 
-  /// Resets the [AppDatabase ]and closes this [DriftProvider].
+  /// Resets the [AppDatabase] and closes this [DriftProvider].
   Future<void> reset() async {
     final Future<void>? future = db?.reset();
     db = null;

@@ -61,7 +61,7 @@ class Users extends Table {
 class UserDriftProvider extends DriftProviderBase {
   UserDriftProvider(super.database);
 
-  /// [StreamController] emitting [DtoUser]s in [watch]
+  /// [StreamController] emitting [DtoUser]s in [watch].
   final Map<UserId, StreamController<DtoUser?>> _controllers = {};
 
   /// Creates or updates the provided [user] in the database.
