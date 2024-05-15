@@ -51,10 +51,13 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     router.home();
 
     // Ensure business logic is initialized.
-    await context.world.appDriver.waitUntil(() async {
-      return Get.isRegistered<ChatService>() &&
-          Get.isRegistered<MyUserService>();
-    });
+    await context.world.appDriver.waitUntil(
+      () async {
+        return Get.isRegistered<ChatService>() &&
+            Get.isRegistered<MyUserService>();
+      },
+      timeout: const Duration(seconds: 30),
+    );
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
