@@ -46,6 +46,9 @@ class BlocklistService extends DisposableService {
   /// Indicator whether a next page of the [blocklist] is loading.
   RxBool get nextLoading => _blocklistRepo.nextLoading;
 
+  /// Returns the count of added [RxUser]s per single [next] or [around] invoke.
+  int get perPage => _blocklistRepo.perPage;
+
   /// Fetches the initial [blocklist].
   Future<void> around() {
     Log.debug('around()', '$runtimeType');

@@ -45,10 +45,9 @@ class ResetAppHook extends Hook {
     FocusManager.instance.primaryFocus?.unfocus();
 
     final drift = Get.findOrNull<DriftProvider>();
-    await drift?.clear();
+    await drift?.reset();
 
     await Get.deleteAll();
-    Get.reset();
 
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
@@ -78,6 +77,6 @@ class ResetAppHook extends Hook {
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
-    await Get.findOrNull<AppDatabase>()?.close();
+    await Get.deleteAll(force: true);
   }
 }

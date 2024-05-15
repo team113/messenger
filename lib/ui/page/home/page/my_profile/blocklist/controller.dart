@@ -154,7 +154,8 @@ class BlocklistController extends GetxController {
             hasNext.isTrue &&
             _blocklistService.nextLoading.isFalse &&
             scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500) {
+                scrollController.position.maxScrollExtent - 500 &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           _blocklistService.next();
         }
       });
@@ -180,7 +181,8 @@ class BlocklistController extends GetxController {
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
-            _blocklistService.nextLoading.isFalse) {
+            _blocklistService.nextLoading.isFalse &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           await _blocklistService.next();
           _ensureScrollable();
         }

@@ -30,7 +30,9 @@ part 'drift.g.dart';
 /// [DriftDatabase] storing data locally.
 @DriftDatabase(tables: [Users])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? e]) : super(e ?? connect());
+  AppDatabase([QueryExecutor? e]) : super(e ?? connect()) {
+    Log.warning('================ AppDatabase() ============');
+  }
 
   @override
   int get schemaVersion => 1;
@@ -59,13 +61,15 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  /// Drops everything.
-  Future<void> drop() async {
-    Log.warning('drop()', '$runtimeType');
+  /// Resets everything, meaning dropping and re-creating every table.
+  Future<void> reset() async {
+    Log.warning('reset()', '$runtimeType');
 
     for (var e in allSchemaEntities) {
       await createMigrator().drop(e);
     }
+
+    await createMigrator().createAll();
   }
 }
 
@@ -95,16 +99,19 @@ final class DriftProvider extends DisposableInterface {
     super.onClose();
   }
 
-  /// Closes the [AppDatabase].
+  /// Closes this [DriftProvider].
   @visibleForTesting
   Future<void> close() async {
-    await db?.close();
+    final Future<void>? future = db?.close();
     db = null;
+    await future;
   }
 
-  /// Clears the [AppDatabase].
-  Future<void> clear() async {
-    await db?.drop();
+  /// Resets the [AppDatabase ]and closes this [DriftProvider].
+  Future<void> reset() async {
+    final Future<void>? future = db?.reset();
+    db = null;
+    await future;
   }
 }
 

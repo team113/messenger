@@ -37,6 +37,9 @@ abstract class AbstractBlocklistRepository {
   /// Indicator whether a next page of the [blocklist] is loading.
   RxBool get nextLoading;
 
+  /// Returns the count of added [RxUser]s per single [next] or [around] invoke.
+  int get perPage;
+
   /// Fetches the initial [blocklist] page.
   Future<void> around();
 

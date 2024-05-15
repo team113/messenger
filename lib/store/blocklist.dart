@@ -92,6 +92,9 @@ class BlocklistRepository extends DisposableInterface
   RxBool get nextLoading => _pagination.nextLoading;
 
   @override
+  int get perPage => _pagination.perPage;
+
+  @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
