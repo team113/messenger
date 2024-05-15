@@ -15,34 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:get/get.dart';
-
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/util/obs/obs.dart';
+import 'paginated.dart';
 
 /// [MyUser]'s blocklist repository interface.
 abstract class AbstractBlocklistRepository {
-  /// Returns [User]s blocked by the authenticated [MyUser].
-  RxObsMap<UserId, RxUser> get blocklist;
-
-  /// Returns the initialization [RxStatus] of this repository and its
-  /// [blocklist].
-  Rx<RxStatus> get status;
-
-  /// Indicates whether the [blocklist] have next page.
-  RxBool get hasNext;
-
-  /// Indicator whether a next page of the [blocklist] is loading.
-  RxBool get nextLoading;
-
-  /// Returns the count of added [RxUser]s per single [next] or [around] invoke.
-  int get perPage;
-
-  /// Fetches the initial [blocklist] page.
-  Future<void> around();
-
-  /// Fetches the next [blocklist] page.
-  Future<void> next();
+  /// Returns [Paginated] of [User]s blocked by the authenticated [MyUser].
+  Paginated<UserId, RxUser> get blocklist;
 }

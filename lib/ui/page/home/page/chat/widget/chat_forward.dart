@@ -1227,7 +1227,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (string?.isNotEmpty == true) {
           _text[forward.value.id] = string!.parseLinks(
             _recognizers,
-            Theme.of(router.context!).style.linkStyle,
+            router.context == null
+                ? null
+                : Theme.of(router.context!).style.linkStyle,
           );
         }
       }
@@ -1239,7 +1241,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       if (string?.isNotEmpty == true) {
         _text[item.id] = string!.parseLinks(
           _recognizers,
-          Theme.of(router.context!).style.linkStyle,
+          router.context == null
+              ? null
+              : Theme.of(router.context!).style.linkStyle,
         );
       }
     }

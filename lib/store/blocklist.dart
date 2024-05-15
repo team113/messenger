@@ -35,12 +35,14 @@ import '/provider/hive/session_data.dart';
 import '/store/pagination/hive.dart';
 import '/store/pagination/hive_graphql.dart';
 import '/util/log.dart';
-import '/util/obs/obs.dart';
-import '/util/web/web_utils.dart';
 import 'model/my_user.dart';
+import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
+
+typedef BlocklistPaginated
+    = RxPaginatedImpl<UserId, RxUser, HiveBlocklistRecord, BlocklistCursor>;
 
 /// [MyUser]'s blocklist repository.
 class BlocklistRepository extends DisposableInterface
@@ -49,200 +51,14 @@ class BlocklistRepository extends DisposableInterface
     this._graphQlProvider,
     this._blocklistLocal,
     this._blocklistSortingLocal,
-    this._userRepo,
+    this._userRepository,
     this._sessionLocal,
   );
 
   @override
-  final RxObsMap<UserId, RxUser> blocklist = RxObsMap<UserId, RxUser>();
-
-  @override
-  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
-
-  /// GraphQL API provider.
-  final GraphQlProvider _graphQlProvider;
-
-  /// Blocked [User]s local [Hive] storage.
-  final BlocklistHiveProvider _blocklistLocal;
-
-  /// [UserId]s sorted by [PreciseDateTime] representing [BlocklistRecord]s
-  /// [Hive] storage.
-  final BlocklistSortingHiveProvider _blocklistSortingLocal;
-
-  /// [User]s repository, used to put the fetched [User]s into it.
-  final UserRepository _userRepo;
-
-  /// [SessionDataHiveProvider] used to store blocked [User]s list related data.
-  final SessionDataHiveProvider _sessionLocal;
-
-  /// [BlocklistHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
-
-  /// [Pagination] loading [blocklist] with pagination.
-  late final Pagination<HiveBlocklistRecord, BlocklistCursor, UserId>
-      _pagination;
-
-  /// Subscription to the [Pagination.items] changes.
-  StreamSubscription? _paginationSubscription;
-
-  @override
-  RxBool get hasNext => _pagination.hasNext;
-
-  @override
-  RxBool get nextLoading => _pagination.nextLoading;
-
-  @override
-  int get perPage => _pagination.perPage;
-
-  @override
-  void onInit() {
-    Log.debug('onInit()', '$runtimeType');
-
-    _initLocalSubscription();
-    _initRemotePagination();
-
-    super.onInit();
-  }
-
-  @override
-  void onClose() {
-    Log.debug('onClose()', '$runtimeType');
-
-    _localSubscription?.cancel();
-    _paginationSubscription?.cancel();
-    _pagination.dispose();
-
-    super.onClose();
-  }
-
-  @override
-  Future<void> around() async {
-    Log.debug('around()', '$runtimeType');
-
-    if (status.value.isSuccess) {
-      return;
-    }
-
-    await _pagination.around();
-
-    status.value = RxStatus.success();
-  }
-
-  @override
-  Future<void> next() {
-    Log.debug('next()', '$runtimeType');
-    return _pagination.next();
-  }
-
-  /// Puts the provided [record] to [Pagination] and [Hive].
-  Future<void> put(
-    HiveBlocklistRecord record, {
-    bool pagination = false,
-  }) async {
-    Log.debug('put($record, $pagination)', '$runtimeType');
-
-    // [pagination] is `true`, if the [user] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
-    if (!pagination) {
-      await _pagination.put(record);
-    } else {
-      await Future.wait([
-        _add(record.value.userId),
-
-        // TODO: https://github.com/team113/messenger/issues/27
-        // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-        // synchronization, thus writes from multiple applications may lead to
-        // missing events.
-        if (!WebUtils.isPopup) _blocklistLocal.put(record),
-      ]);
-    }
-  }
-
-  /// Removes a [User] identified by the provided [userId] from the [blocklist].
-  Future<void> remove(UserId userId) {
-    Log.debug('remove($userId)', '$runtimeType');
-    return _blocklistLocal.remove(userId);
-  }
-
-  /// Resets this [BlocklistRepository].
-  Future<void> reset() async {
-    Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.setBlocklistSynchronized(false);
-    await _pagination.clear();
-    await _pagination.around();
-  }
-
-  /// Fetches blocked [User]s with pagination.
-  Future<Page<HiveBlocklistRecord, BlocklistCursor>> _blocklist({
-    int? first,
-    BlocklistCursor? after,
-    int? last,
-    BlocklistCursor? before,
-  }) async {
-    Log.debug('_blocklist($first, $after, $last, $before)', '$runtimeType');
-
-    final query = await _graphQlProvider.getBlocklist(
-      first: first,
-      after: after,
-      last: last,
-      before: before,
-    );
-
-    final users = RxList(query.edges.map((e) => e.node.user.toDto()).toList());
-
-    // Ensure all [users] are stored in [_userRepo].
-    await Future.wait(users.map(_userRepo.put));
-
-    return Page(
-      query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
-      query.pageInfo.toModel((c) => BlocklistCursor(c)),
-    );
-  }
-
-  /// Adds the [User] with the specified [userId] to the [blocklist].
-  Future<void> _add(UserId userId) async {
-    Log.debug('_add($userId)', '$runtimeType');
-
-    final RxUser? user = blocklist[userId];
-    if (user == null) {
-      final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
-
-      if (userOrFuture is RxUser?) {
-        if (userOrFuture != null) {
-          blocklist[userId] = userOrFuture;
-        }
-      } else {
-        final user = await userOrFuture;
-        if (user != null) {
-          blocklist[userId] = user;
-        }
-      }
-    }
-  }
-
-  /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    Log.debug('_initLocalSubscription()', '$runtimeType');
-
-    _localSubscription = StreamIterator(_blocklistLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      final BoxEvent event = _localSubscription!.current;
-      final UserId userId = UserId(event.key);
-      if (event.deleted) {
-        blocklist.remove(userId);
-        _blocklistSortingLocal.remove(userId);
-      } else {
-        _blocklistSortingLocal.put(event.value.value.at, userId);
-      }
-    }
-  }
-
-  /// Initializes the [_pagination].
-  void _initRemotePagination() {
-    Log.debug('_initRemotePagination()', '$runtimeType');
-
-    _pagination = Pagination(
-      onKey: (e) => e.value.userId,
+  late final BlocklistPaginated blocklist = BlocklistPaginated(
+    pagination: Pagination(
+      onKey: (e) => e.userId,
       perPage: 15,
       provider: HiveGraphQlPageProvider(
         hiveProvider: HivePageProvider(
@@ -274,19 +90,75 @@ class BlocklistRepository extends DisposableInterface
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
+    ),
+    transform: ({required HiveBlocklistRecord data, RxUser? previous}) {
+      return previous ?? _userRepository.get(data.userId);
+    },
+  );
+
+  /// GraphQL API provider.
+  final GraphQlProvider _graphQlProvider;
+
+  /// Blocked [User]s local [Hive] storage.
+  final BlocklistHiveProvider _blocklistLocal;
+
+  /// [UserId]s sorted by [PreciseDateTime] representing [BlocklistRecord]s
+  /// [Hive] storage.
+  final BlocklistSortingHiveProvider _blocklistSortingLocal;
+
+  /// [User]s repository, used to put the fetched [User]s into it.
+  final UserRepository _userRepository;
+
+  /// [SessionDataHiveProvider] used to store blocked [User]s list related data.
+  final SessionDataHiveProvider _sessionLocal;
+
+  /// Puts the provided [record] to [Pagination] and [Hive].
+  Future<void> put(
+    HiveBlocklistRecord record, {
+    bool pagination = false,
+  }) async {
+    Log.debug('put($record, $pagination)', '$runtimeType');
+    await blocklist.put(record);
+  }
+
+  /// Removes a [User] identified by the provided [userId] from the [blocklist].
+  Future<void> remove(UserId userId) {
+    Log.debug('remove($userId)', '$runtimeType');
+    return blocklist.remove(userId);
+  }
+
+  /// Resets this [BlocklistRepository].
+  Future<void> reset() async {
+    Log.debug('reset()', '$runtimeType');
+    await _sessionLocal.setBlocklistSynchronized(false);
+    await blocklist.clear();
+    await blocklist.around();
+  }
+
+  /// Fetches blocked [User]s with pagination.
+  Future<Page<HiveBlocklistRecord, BlocklistCursor>> _blocklist({
+    int? first,
+    BlocklistCursor? after,
+    int? last,
+    BlocklistCursor? before,
+  }) async {
+    Log.debug('_blocklist($first, $after, $last, $before)', '$runtimeType');
+
+    final query = await _graphQlProvider.getBlocklist(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
     );
 
-    _paginationSubscription = _pagination.changes.listen((event) async {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          await put(event.value!, pagination: true);
-          break;
+    final users = RxList(query.edges.map((e) => e.node.user.toDto()).toList());
 
-        case OperationKind.removed:
-          await remove(event.key!);
-          break;
-      }
-    });
+    // Ensure all [users] are stored in [_userRepository].
+    await Future.wait(users.map(_userRepository.put));
+
+    return Page(
+      query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
+      query.pageInfo.toModel((c) => BlocklistCursor(c)),
+    );
   }
 }

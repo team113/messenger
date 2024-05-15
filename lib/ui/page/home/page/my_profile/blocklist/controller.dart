@@ -83,7 +83,8 @@ class BlocklistController extends GetxController {
     blocklist.value = _blocklistService.blocklist.values.toList();
     _sort();
 
-    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+    _blocklistSubscription =
+        _blocklistService.blocklist.items.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           blocklist.add(e.value!);

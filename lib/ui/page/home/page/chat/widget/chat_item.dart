@@ -1804,7 +1804,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       } else {
         _text = string?.parseLinks(
           _recognizers,
-          Theme.of(router.context!).style.linkStyle,
+          router.context == null
+              ? null
+              : Theme.of(router.context!).style.linkStyle,
         );
       }
     } else if (msg is ChatForward) {

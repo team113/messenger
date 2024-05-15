@@ -27,7 +27,7 @@ Feature: Chats pagination
     Then I wait until `Chats` is present
     And I see 15 chats
 
-    Given I have Internet with delay of 3 seconds
+    Given I have Internet with delay of 5 seconds
     When I scroll `Chats` until `ChatsLoading` is present
     Then I wait until `ChatsLoading` is absent
     And I see 16 chats
