@@ -66,9 +66,13 @@ class UserDriftProvider extends DriftProviderBase {
 
   /// Creates or updates the provided [user] in the database.
   Future<DtoUser> upsert(DtoUser user) async {
+    if (db == null) {
+      return user;
+    }
+
     final DtoUser stored = _UserDb.fromDb(
-      await db
-          .into(db.users)
+      await db!
+          .into(db!.users)
           .insertReturning(user.toDb(), mode: InsertMode.replace),
     );
 
@@ -80,7 +84,11 @@ class UserDriftProvider extends DriftProviderBase {
   /// Returns the [DtoUser] stored in the database by the provided [id], if
   /// any.
   Future<DtoUser?> read(UserId id) async {
-    final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+    if (db == null) {
+      return null;
+    }
+
+    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
     final UserRow? row = await stmt.getSingleOrNull();
 
     if (row == null) {
@@ -92,19 +100,33 @@ class UserDriftProvider extends DriftProviderBase {
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.
   Future<void> delete(UserId id) async {
-    final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
+    if (db == null) {
+      return;
+    }
+
+    final stmt = db!.delete(db!.users)..where((e) => e.id.equals(id.val));
     await stmt.go();
 
     _controllers[id]?.add(null);
   }
 
   /// Deletes all the [DtoUser]s stored in the database.
-  Future<void> clear() async => await db.delete(db.users).go();
+  Future<void> clear() async {
+    if (db == null) {
+      return;
+    }
+
+    await db!.delete(db!.users).go();
+  }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]
   /// identified by the provided [id].
   Stream<DtoUser?> watch(UserId id) {
-    final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+    if (db == null) {
+      return const Stream.empty();
+    }
+
+    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
 
     StreamController<DtoUser?>? controller = _controllers[id];
     if (controller == null) {

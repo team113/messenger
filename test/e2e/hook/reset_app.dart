@@ -23,7 +23,9 @@ import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
+import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 import 'package:universal_io/io.dart';
 
@@ -41,6 +43,10 @@ class ResetAppHook extends Hook {
     Iterable<Tag> tags,
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
+
+    final drift = Get.findOrNull<DriftProvider>();
+    await drift?.clear();
+    await drift?.close();
 
     await Get.deleteAll(force: true);
     Get.reset();

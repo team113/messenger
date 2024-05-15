@@ -39,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (m, a, b) async {
-        Log.debug('onUpgrade($a, $b)', 'MigrationStrategy');
+        Log.debug('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -51,10 +51,21 @@ class AppDatabase extends _$AppDatabase {
         await m.createAll();
       },
       beforeOpen: (_) async {
-        Log.debug('beforeOpen()', 'MigrationStrategy');
+        Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
+
         await customStatement('PRAGMA foreign_keys = ON');
+        await createMigrator().createAll();
       },
     );
+  }
+
+  /// Drops everything.
+  Future<void> drop() async {
+    Log.debug('drop()', '$runtimeType');
+
+    for (var e in allSchemaEntities) {
+      await createMigrator().drop(e);
+    }
   }
 }
 
@@ -63,18 +74,34 @@ final class DriftProvider extends DisposableInterface {
   DriftProvider([QueryExecutor? e]) : db = AppDatabase(e);
 
   /// [AppDatabase] itself.
-  final AppDatabase db;
+  ///
+  /// `null` here means the database is closed.
+  AppDatabase? db;
 
-  /// Closes the [AppDatabase].
-  @visibleForTesting
-  Future<void> close() async {
-    await db.close();
+  @override
+  void onInit() async {
+    Log.info('onInit()', '$runtimeType');
+    super.onInit();
   }
 
   @override
   void onClose() async {
+    Log.info('onClose()', '$runtimeType');
+
     await close();
     super.onClose();
+  }
+
+  /// Closes the [AppDatabase].
+  @visibleForTesting
+  Future<void> close() async {
+    await db?.close();
+    db = null;
+  }
+
+  /// Clears the [AppDatabase].
+  Future<void> clear() async {
+    await db?.drop();
   }
 }
 
@@ -86,10 +113,12 @@ abstract class DriftProviderBase {
   final DriftProvider _provider;
 
   /// Returns the [AppDatabase].
-  AppDatabase get db => _provider.db;
+  ///
+  /// `null` here means the database is closed.
+  AppDatabase? get db => _provider.db;
 
   /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    await db.transaction(action);
+    await db?.transaction(action);
   }
 }
