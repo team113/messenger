@@ -30,9 +30,7 @@ part 'drift.g.dart';
 /// [DriftDatabase] storing data locally.
 @DriftDatabase(tables: [Users])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase([QueryExecutor? e]) : super(e ?? connect()) {
-    Log.warning('================ AppDatabase() ============');
-  }
+  AppDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
   int get schemaVersion => 1;
@@ -63,7 +61,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Resets everything, meaning dropping and re-creating every table.
   Future<void> reset() async {
-    Log.warning('reset()', '$runtimeType');
+    Log.debug('reset()', '$runtimeType');
 
     for (var e in allSchemaEntities) {
       if (e is TableInfo) {
