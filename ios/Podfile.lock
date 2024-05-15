@@ -315,7 +315,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
-  image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   instrumentisto-libwebrtc-bin: 295e1721ff9a8ccfc030c0de5f095c7d6b3e53ce
   integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa

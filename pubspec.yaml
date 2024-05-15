@@ -15,7 +15,10 @@ dependencies:
   back_button_interceptor: ^7.0.0
   collection: ^1.17.2
   crypto: ^3.0.3
-  desktop_drop: ^0.4.1
+  desktop_drop:
+    git:
+      url: https://github.com/MixinNetwork/flutter-plugins
+      path: packages/desktop_drop
   device_info_plus: ^10.1.0
   dio: ^5.1.2
   dough:
@@ -56,16 +59,14 @@ dependencies:
   http: ^0.13.6
   http_parser: ^4.0.2
   image_gallery_saver: ^2.0.3
-  image_picker:
-    git:
-      url: https://github.com/krida2000/image_picker.git
+  image_picker: ^1.1.1
   intl: ^0.17.0
   js: ^0.6.5
-  just_audio: ^0.9.36
+  just_audio: ^0.9.37
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
-  medea_jason: 0.5.0-dev+rev.3be6cab97a20c0ed382caf381ad4b44f65f9c97a
+  medea_jason: 0.5.0-dev+rev.251b8abfcd67b4d60821ed1f7c15484c29b640a9
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -149,6 +150,10 @@ dependency_overrides:
       url: https://github.com/krida2000/git-hive.git
   # TODO: Remove when `artemis` updates.
   http: ^1.1.0
+  image_picker_ios:
+    git:
+      url: https://github.com/SleepySquash/image_picker.git
+      path: packages/image_picker/image_picker_ios
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
   # TODO: Remove when `medea_jason` updates.
