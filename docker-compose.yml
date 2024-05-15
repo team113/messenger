@@ -2,6 +2,8 @@
 # - `z` makes bind mount content shared among multiple containers.
 # - `Z` makes bind mount content private and unshared.
 
+version: "2.4"
+
 services:
   frontend:
     container_name: ${COMPOSE_PROJECT_NAME}-frontend
