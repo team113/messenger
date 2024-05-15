@@ -39,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
   MigrationStrategy get migration {
     return MigrationStrategy(
       onUpgrade: (m, a, b) async {
-        Log.debug('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+        Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -61,7 +61,7 @@ class AppDatabase extends _$AppDatabase {
 
   /// Drops everything.
   Future<void> drop() async {
-    Log.debug('drop()', '$runtimeType');
+    Log.warning('drop()', '$runtimeType');
 
     for (var e in allSchemaEntities) {
       await createMigrator().drop(e);
@@ -80,13 +80,18 @@ final class DriftProvider extends DisposableInterface {
 
   @override
   void onInit() async {
-    Log.info('onInit()', '$runtimeType');
+    Log.debug('onInit()', '$runtimeType');
+
+    if (db != null) {
+      await db?.executor.ensureOpen(db!);
+    }
+
     super.onInit();
   }
 
   @override
   void onClose() async {
-    Log.info('onClose()', '$runtimeType');
+    Log.debug('onClose()', '$runtimeType');
 
     await close();
     super.onClose();
@@ -120,5 +125,16 @@ abstract class DriftProviderBase {
   /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await db?.transaction(action);
+  }
+
+  /// Runs the [callback] through a non-closed [AppDatabase], or returns `null`.
+  ///
+  /// [AppDatabase] may be closed, for example, between E2E tests.
+  Future<T?> safe<T>(Future<T> Function(AppDatabase db) callback) async {
+    if (db == null) {
+      return null;
+    }
+
+    return await callback(db!);
   }
 }

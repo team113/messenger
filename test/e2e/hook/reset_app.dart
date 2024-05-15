@@ -46,10 +46,11 @@ class ResetAppHook extends Hook {
 
     final drift = Get.findOrNull<DriftProvider>();
     await drift?.clear();
-    await drift?.close();
 
     await Get.deleteAll(force: true);
     Get.reset();
+
+    await drift?.close();
 
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);

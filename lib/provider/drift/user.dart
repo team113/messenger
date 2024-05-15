@@ -66,57 +66,51 @@ class UserDriftProvider extends DriftProviderBase {
 
   /// Creates or updates the provided [user] in the database.
   Future<DtoUser> upsert(DtoUser user) async {
-    if (db == null) {
-      return user;
-    }
+    final result = await safe((db) async {
+      final DtoUser stored = _UserDb.fromDb(
+        await db
+            .into(db.users)
+            .insertReturning(user.toDb(), mode: InsertMode.replace),
+      );
 
-    final DtoUser stored = _UserDb.fromDb(
-      await db!
-          .into(db!.users)
-          .insertReturning(user.toDb(), mode: InsertMode.replace),
-    );
+      _controllers[stored.id]?.add(stored);
 
-    _controllers[stored.id]?.add(stored);
+      return stored;
+    });
 
-    return stored;
+    return result ?? user;
   }
 
   /// Returns the [DtoUser] stored in the database by the provided [id], if
   /// any.
   Future<DtoUser?> read(UserId id) async {
-    if (db == null) {
-      return null;
-    }
+    return await safe<DtoUser?>((db) async {
+      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+      final UserRow? row = await stmt.getSingleOrNull();
 
-    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
-    final UserRow? row = await stmt.getSingleOrNull();
+      if (row == null) {
+        return null;
+      }
 
-    if (row == null) {
-      return null;
-    }
-
-    return _UserDb.fromDb(row);
+      return _UserDb.fromDb(row);
+    });
   }
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.
   Future<void> delete(UserId id) async {
-    if (db == null) {
-      return;
-    }
+    await safe((db) async {
+      final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
+      await stmt.go();
 
-    final stmt = db!.delete(db!.users)..where((e) => e.id.equals(id.val));
-    await stmt.go();
-
-    _controllers[id]?.add(null);
+      _controllers[id]?.add(null);
+    });
   }
 
   /// Deletes all the [DtoUser]s stored in the database.
   Future<void> clear() async {
-    if (db == null) {
-      return;
-    }
-
-    await db!.delete(db!.users).go();
+    await safe((db) async {
+      await db.delete(db.users).go();
+    });
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]
