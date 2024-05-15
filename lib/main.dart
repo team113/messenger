@@ -157,8 +157,7 @@ Future<void> main() async {
       options.dsn = Config.sentryDsn;
       options.tracesSampleRate = 1.0;
       options.sampleRate = 1.0;
-      options.release =
-          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
+      options.release = '${Pubspec.name}@${Pubspec.ref}';
       options.debug = true;
       options.diagnosticLevel = SentryLevel.info;
       options.enablePrintBreadcrumbs = true;

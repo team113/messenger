@@ -30,19 +30,19 @@ import 'routes.dart';
 /// Configuration of this application.
 class Config {
   /// Backend's HTTP URL.
-  static late String url;
+  static String url = 'http://localhost';
 
   /// Backend's HTTP port.
-  static late int port;
+  static int port = 80;
 
   /// GraphQL API endpoint of HTTP backend server.
-  static late String graphql;
+  static String graphql = '/api/graphql';
 
   /// Backend's WebSocket URL.
-  static late String ws;
+  static String ws = 'ws://localhost';
 
   /// File storage HTTP URL.
-  static late String files;
+  static String files = 'http://localhost/files';
 
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
@@ -60,8 +60,22 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// Indicator whether download links should be present within application.
+  ///
+  /// Should be `false` for builds uploaded to application stores, as usually
+  /// those prohibit such links being present.
+  static bool downloadable = true;
+
+  /// URL of the application entry in App Store.
+  static String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
+
+  /// URL of the application entry in Google Play.
+  static String googlePlayUrl =
+      'https://play.google.com/store/apps/details?id=com.team113.messenger';
+
   /// VAPID (Voluntary Application Server Identification) key for Web Push.
-  static String vapidKey = '';
+  static String vapidKey =
+      'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
 
   /// Indicator whether all looped animations should be disabled.
   ///
@@ -69,13 +83,13 @@ class Config {
   static bool disableInfiniteAnimations = false;
 
   /// Product identifier of `User-Agent` header to put in network queries.
-  static String userAgentProduct = '';
+  static String userAgentProduct = 'Gapopa';
 
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
   /// Unique identifier of Windows application.
-  static late String clsid;
+  static String clsid = '';
 
   /// Version of the application, used to clear cache if mismatch is detected.
   ///
@@ -124,19 +138,19 @@ class Config {
 
     graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
         ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
-        : (document['server']?['http']?['graphql'] ?? '/api/graphql');
+        : (document['server']?['http']?['graphql'] ?? graphql);
 
     port = const bool.hasEnvironment('SOCAPP_HTTP_PORT')
         ? const int.fromEnvironment('SOCAPP_HTTP_PORT')
-        : (document['server']?['http']?['port'] ?? 80);
+        : (document['server']?['http']?['port'] ?? port);
 
     url = const bool.hasEnvironment('SOCAPP_HTTP_URL')
         ? const String.fromEnvironment('SOCAPP_HTTP_URL')
-        : (document['server']?['http']?['url'] ?? 'http://localhost');
+        : (document['server']?['http']?['url'] ?? url);
 
     String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
         ? const String.fromEnvironment('SOCAPP_WS_URL')
-        : (document['server']?['ws']?['url'] ?? 'ws://localhost');
+        : (document['server']?['ws']?['url'] ?? ws);
 
     int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
         ? const int.fromEnvironment('SOCAPP_WS_PORT')
@@ -144,42 +158,52 @@ class Config {
 
     files = const bool.hasEnvironment('SOCAPP_FILES_URL')
         ? const String.fromEnvironment('SOCAPP_FILES_URL')
-        : (document['files']?['url'] ?? 'http://localhost/files');
+        : (document['files']?['url'] ?? files);
 
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
-        : (document['sentry']?['dsn'] ?? '');
+        : (document['sentry']?['dsn'] ?? sentryDsn);
 
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        : (document['downloads']?['directory'] ?? '');
+        : (document['downloads']?['directory'] ?? downloads);
+
+    downloadable = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+        ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+        : (document['downloads']?['downloadable'] ?? downloadable);
+
+    appStoreUrl = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        : (document['downloads']?['app_store_url'] ?? appStoreUrl);
+
+    googlePlayUrl =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            ? const String.fromEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            : (document['downloads']?['google_play_url'] ?? googlePlayUrl);
 
     userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
-        : (document['user']?['agent']?['product'] ?? 'Gapopa');
+        : (document['user']?['agent']?['product'] ?? userAgentProduct);
 
     String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
         : (document['user']?['agent']?['version'] ?? '');
 
-    userAgentVersion = version.isNotEmpty
-        ? version
-        : (Pubspec.ref ?? Config.version ?? Pubspec.version);
+    userAgentVersion = version.isNotEmpty ? version : Pubspec.ref;
 
     clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
         ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
-        : (document['windows']?['clsid'] ?? '');
+        : (document['windows']?['clsid'] ?? clsid);
 
     vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
         ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
-        : (document['fcm']?['vapidKey'] ??
-            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
+        : (document['fcm']?['vapidKey'] ?? vapidKey);
 
     origin = url;
 
     link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
         ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
-        : (document['link']?['prefix'] ?? '');
+        : (document['link']?['prefix'] ?? link);
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')

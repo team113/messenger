@@ -625,7 +625,7 @@ label_avatar_updated = {$author} обновил аватар
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
-label_background = Бэкграунд
+label_background = Фон
 label_besides_freelance_is_an_option_too1 = Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Заблокировать
@@ -713,6 +713,7 @@ label_count_seconds = {$count} { $count ->
        [few] секунды
        *[other] секунд
    }
+label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)

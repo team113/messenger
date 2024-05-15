@@ -688,6 +688,7 @@ label_count_seconds = {$count} { $count ->
        [1] second
        *[other] seconds
    }
+label_critical_update_is_available = Current version is no longer supported
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
