@@ -158,6 +158,7 @@ enum WidgetKey {
   ShowBlocklist,
   SignInButton,
   Signing,
+  SkipButton,
   StartButton,
   SuccessStage,
   Unblock,
@@ -169,8 +170,9 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
-  UserScrollable,
+  UpgradePopup,
   UsernameField,
+  UserScrollable,
   VerifyEmail,
   VerifyPhone,
 }
