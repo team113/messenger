@@ -113,7 +113,7 @@ dev_dependencies:
   artemis: ^7.13.1
   build: ^2.4.1
   build_runner: ^2.4.6
-  dartdoc: ^8.0.5
+  dartdoc: 8.0.8 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
