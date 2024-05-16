@@ -19,6 +19,7 @@ import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
+import '/domain/model/chat_item.dart';
 import '/util/new_type.dart';
 import 'chat_item.dart';
 

@@ -308,12 +308,12 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
 }
 
 extension _RxUint8List on Rx {
-  static Rx<Uint8List?> fromValue(Uint8List? val) => Rx(val);
+  static Uint8List? fromValue(Uint8List? val) => val;
   static Uint8List? toValue(Rx<Uint8List?> val) => val.value;
 }
 
 extension _RxSize on Rx {
-  static Rx<Size?> fromValue(Size? val) => Rx(val);
+  static Size? fromValue(Size? val) => val;
   static Size? toValue(Rx<Size?> val) => val.value;
 }
 

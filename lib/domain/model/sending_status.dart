@@ -38,6 +38,6 @@ enum SendingStatus {
   @HiveField(2)
   error;
 
-  /// Returns an [int] representing the [value].
-  static int toJson(Rx<SendingStatus> value) => value.value.index;
+  /// Returns a [String] representing the [value].
+  static String toJson(Rx<SendingStatus> value) => value.value.name;
 }

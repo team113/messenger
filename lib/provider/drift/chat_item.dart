@@ -99,8 +99,10 @@ class ChatItemDriftProvider extends DriftProviderBase {
   }
 
   Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
-    ChatId chatId,
-  ) {
+    ChatId chatId, {
+    int? limit,
+    int? offset,
+  }) {
     if (db == null) {
       return const Stream.empty();
     }
@@ -108,6 +110,10 @@ class ChatItemDriftProvider extends DriftProviderBase {
     final stmt = db!.select(db!.chatItems);
     stmt.where((u) => u.chatId.equals(chatId.val));
     stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
+
+    if (limit != null) {
+      stmt.limit(limit, offset: offset);
+    }
 
     return stmt
         .watch()
@@ -131,7 +137,7 @@ extension _ChatItemDb on DtoChatItem {
       authorId: value.author.id.val,
       at: value.at,
       status: value.status.value,
-      data: jsonEncode(value.toJson()),
+      data: jsonEncode(toJson()),
       cursor: cursor?.val,
       ver: ver.val,
     );

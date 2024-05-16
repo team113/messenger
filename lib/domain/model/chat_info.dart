@@ -49,7 +49,8 @@ class ChatInfo extends ChatItem {
 
   /// Returns a [Map] representing this [ChatInfo].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoToJson(this)..['runtimeType'] = 'ChatInfo';
 }
 
 /// Possible kinds of a [ChatInfoAction].
@@ -118,7 +119,8 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionAvatarUpdated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionAvatarUpdatedToJson(this);
+  Map<String, dynamic> toJson() => _$ChatInfoActionAvatarUpdatedToJson(this)
+    ..['runtimeType'] = 'ChatInfoActionAvatarUpdated';
 }
 
 /// [ChatInfoAction] about a [Chat] being created.
@@ -140,7 +142,8 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionCreated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionCreatedToJson(this);
+  Map<String, dynamic> toJson() => _$ChatInfoActionCreatedToJson(this)
+    ..['runtimeType'] = 'ChatInfoActionCreated';
 }
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
@@ -169,7 +172,8 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionMemberAdded].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionMemberAddedToJson(this);
+  Map<String, dynamic> toJson() => _$ChatInfoActionMemberAddedToJson(this)
+    ..['runtimeType'] = 'ChatInfoActionMemberAdded';
 }
 
 /// [ChatInfoAction] about a [ChatMember] being removed from a [Chat].
@@ -194,7 +198,8 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionMemberRemoved].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionMemberRemovedToJson(this);
+  Map<String, dynamic> toJson() => _$ChatInfoActionMemberRemovedToJson(this)
+    ..['runtimeType'] = 'ChatInfoActionMemberRemoved';
 }
 
 /// [ChatInfoAction] about a [ChatName] being updated.
@@ -218,5 +223,6 @@ class ChatInfoActionNameUpdated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionNameUpdated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionNameUpdatedToJson(this);
+  Map<String, dynamic> toJson() => _$ChatInfoActionNameUpdatedToJson(this)
+    ..['runtimeType'] = 'ChatInfoActionNameUpdated';
 }
