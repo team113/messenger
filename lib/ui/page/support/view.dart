@@ -53,7 +53,7 @@ class SupportView extends StatelessWidget {
                 onPressed: () async {
                   await _mail(
                     context,
-                    subject: '[App] Report a concern',
+                    subject: '[Concern] Report a concern',
                     body: 'label_replace_this_text_with_concern'.l10n,
                   );
                 },
@@ -73,7 +73,7 @@ class SupportView extends StatelessWidget {
                 onPressed: () async {
                   await _mail(
                     context,
-                    subject: '[App] Feedback',
+                    subject: '[Feedback] Feedback',
                     body: 'label_replace_this_text_with_feedback'.l10n,
                   );
                 },

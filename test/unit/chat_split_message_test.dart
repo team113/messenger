@@ -33,6 +33,8 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -49,7 +51,6 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -65,14 +66,18 @@ import 'chat_split_message_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
+  final DriftProvider database = DriftProvider.memory();
+
+  Hive.init('./test/.temp_hive/chat_split_message_unit');
+
   PlatformUtils = PlatformUtilsMock();
   CacheWorker(null, null);
-  Hive.init('./test/.temp_hive/chat_split_message_unit');
   Config.files = 'test';
 
   const int maxText = ChatMessageText.maxLength;
 
   final graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final myUserProvider = MyUserHiveProvider();
@@ -84,9 +89,7 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = Get.put(DraftHiveProvider(), permanent: true);
   await draftProvider.init();
-  var userProvider = Get.put(UserHiveProvider(), permanent: true);
-  await userProvider.init();
-  await userProvider.clear();
+  final userProvider = Get.put(UserDriftProvider(database), permanent: true);
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -700,4 +703,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     )).called(1);
   });
+
+  tearDown(() async => await database.close());
 }

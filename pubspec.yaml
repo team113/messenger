@@ -25,6 +25,7 @@ dependencies:
     git:
       url: https://github.com/krida2000/dough
       path: packages/dough/
+  drift: ^2.18.0
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^8.0.3
@@ -62,6 +63,7 @@ dependencies:
   image_picker: ^1.1.1
   intl: ^0.17.0
   js: ^0.6.5
+  json_annotation: ^4.9.0
   just_audio: ^0.9.37
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
@@ -95,6 +97,8 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
   qr_flutter: ^4.1.0
+  sqlite3: ^2.4.3
+  sqlite3_flutter_libs: ^0.5.21
   stdlibc: ^0.1.4
   toml: ^0.15.0
   universal_io: ^2.2.2
@@ -114,6 +118,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.6
   dartdoc: 8.0.6 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
+  drift_dev: ^2.18.0
   flutter_driver:
     sdk: flutter
   flutter_gherkin:

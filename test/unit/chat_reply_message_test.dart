@@ -28,6 +28,8 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -45,7 +47,6 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -60,9 +61,12 @@ import 'chat_reply_message_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
+  final DriftProvider database = DriftProvider.memory();
+
   Hive.init('./test/.temp_hive/chat_reply_message_unit');
 
   final graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final myUserProvider = MyUserHiveProvider();
@@ -73,8 +77,7 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  final userProvider = UserDriftProvider(database);
   await userProvider.clear();
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
@@ -425,4 +428,6 @@ void main() async {
       repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
     ));
   });
+
+  tearDown(() async => await database.close());
 }

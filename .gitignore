@@ -28,9 +28,10 @@ devtools_options.yaml
 /build/
 /doc/
 
-# GraphQL generation related
+# Generation related
 /lib/**/*.g.dart
 /lib/api/backend/*.dart
+/web/worker.dart.js
 
 # Symbolication and obfuscation related
 /debug/

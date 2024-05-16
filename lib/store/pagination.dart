@@ -164,16 +164,16 @@ class Pagination<T, C, K> {
   /// Fetches the [Page] around the provided [item] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
-  Future<void> around({K? key, C? cursor}) {
+  Future<Page<T, C>?> around({K? key, C? cursor}) {
     if (_disposed) {
-      return Future.value();
+      return Future.value(null);
     }
 
     final bool locked = _guard.isLocked;
 
     return _guard.protect(() async {
       if ((locked && !isEmpty) || _disposed) {
-        return;
+        return null;
       }
 
       Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
@@ -205,11 +205,15 @@ class Pagination<T, C, K> {
           'around(key: $key, cursor: $cursor)... done',
           '$runtimeType',
         );
+
+        return page;
       } catch (e) {
         if (e is! OperationCanceledException) {
           rethrow;
         }
       }
+
+      return null;
     });
   }
 

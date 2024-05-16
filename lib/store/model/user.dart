@@ -17,20 +17,60 @@
 
 import 'package:hive/hive.dart';
 
-import '/util/new_type.dart';
 import '/domain/model_type_id.dart';
+import '/domain/model/user.dart';
+import '/util/new_type.dart';
+import 'my_user.dart';
 import 'version.dart';
 
 part 'user.g.dart';
+
+/// Persisted in storage [User]'s [value].
+class DtoUser {
+  DtoUser(this.value, this.ver, this.blockedVer);
+
+  /// Persisted [User] model.
+  User value;
+
+  /// Version of this [User]'s state.
+  ///
+  /// It increases monotonically, so may be used (and is intended to) for
+  /// tracking state's actuality.
+  UserVersion ver;
+
+  /// Version of the authenticated [MyUser]'s blocklist state.
+  ///
+  /// It increases monotonically, so may be used (and is intended to) for
+  /// tracking state's actuality.
+  MyUserVersion blockedVer;
+
+  /// Returns the [UserId] of [value].
+  UserId get id => value.id;
+
+  @override
+  String toString() => '$runtimeType($value, $ver, $blockedVer)';
+}
 
 /// Version of an [User]'s state.
 @HiveType(typeId: ModelTypeId.userVersion)
 class UserVersion extends Version {
   UserVersion(super.val);
+
+  /// Constructs a [UsersCursor] from the provided [val].
+  factory UserVersion.fromJson(String val) = UserVersion;
+
+  /// Returns a [String] representing this [UserId].
+  String toJson() => val;
 }
 
 /// Cursor used for [User]s pagination.
 @HiveType(typeId: ModelTypeId.usersCursor)
 class UsersCursor extends NewType<String> {
   UsersCursor(super.val);
+
+  /// Constructs a [UsersCursor] from the provided [val].
+  factory UsersCursor.fromJson(String val) = UsersCursor;
+
+  /// Returns a [String] representing this [UsersCursor].
+  String toJson() => val;
 }

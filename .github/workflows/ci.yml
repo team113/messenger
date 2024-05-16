@@ -591,7 +591,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(60603\\)] ",
+              ":INFO:CONSOLE\\(60621\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

@@ -84,4 +84,7 @@ class HiveBlocklistRecord {
   /// Cursor of the [value].
   @HiveField(1)
   final BlocklistCursor? cursor;
+
+  /// Returns the [UserId] of the [value].
+  UserId get userId => value.userId;
 }

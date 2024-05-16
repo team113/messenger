@@ -53,6 +53,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'provider/drift/drift.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -94,6 +95,12 @@ Future<void> main() async {
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
+
+    Get.put(
+      DriftProvider.from(
+        Get.putOrGet(() => AppDatabase(), permanent: true),
+      ),
+    );
 
     await _initHive();
 

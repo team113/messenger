@@ -17,6 +17,7 @@
 
 import 'package:intl/intl.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import '/config.dart';
@@ -104,6 +105,7 @@ abstract class StorageFile extends HiveObject {
 }
 
 /// Plain-[StorageFile] on a file storage.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.plainFile)
 class PlainFile extends StorageFile {
   PlainFile({
@@ -111,9 +113,17 @@ class PlainFile extends StorageFile {
     super.checksum,
     super.size,
   });
+
+  /// Constructs a [PlainFile] from the provided [json].
+  factory PlainFile.fromJson(Map<String, dynamic> json) =>
+      _$PlainFileFromJson(json);
+
+  /// Returns a [Map] representing this [PlainFile].
+  Map<String, dynamic> toJson() => _$PlainFileToJson(this);
 }
 
 /// Image-[StorageFile] on a file storage.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.imageFile)
 class ImageFile extends StorageFile {
   ImageFile({
@@ -124,6 +134,10 @@ class ImageFile extends StorageFile {
     this.height,
     this.thumbhash,
   });
+
+  /// Constructs an [ImageFile] from the provided [json].
+  factory ImageFile.fromJson(Map<String, dynamic> json) =>
+      _$ImageFileFromJson(json);
 
   /// Width of this [ImageFile] in pixels.
   @HiveField(3)
@@ -136,13 +150,24 @@ class ImageFile extends StorageFile {
   /// [ThumbHash] of this [ImageFile].
   @HiveField(5)
   final ThumbHash? thumbhash;
+
+  /// Returns a [Map] representing this [ImageFile].
+  Map<String, dynamic> toJson() => _$ImageFileToJson(this);
 }
 
 /// [Base64URL][1]-encoded [ThumbHash][2].
 ///
 /// [1]: https://base64.guru/standards/base64url
 /// [2]: https://evanw.github.io/thumbhash/
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.thumbhash)
 class ThumbHash extends NewType<String> {
   const ThumbHash(super.val);
+
+  /// Constructs a [ThumbHash] from the provided [json].
+  factory ThumbHash.fromJson(Map<String, dynamic> json) =>
+      _$ThumbHashFromJson(json);
+
+  /// Returns a [Map] representing this [ThumbHash].
+  Map<String, dynamic> toJson() => _$ThumbHashToJson(this);
 }

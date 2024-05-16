@@ -151,13 +151,15 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         signedUp: widget.signedUp,
         link: widget.link,
+        context: context,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
-          c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
+          c.sideBarWidth.value =
+              c.applySideBarWidth(context, c.sideBarAllowedWidth);
         }
 
         // Side bar uses a little trick to be responsive:
@@ -293,9 +295,9 @@ class _HomeViewState extends State<HomeView> {
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
                     onDragStart: (_) => c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value),
+                        c.applySideBarWidth(context, c.sideBarWidth.value),
                     onDragUpdate: (dx, _) => c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value + dx),
+                        c.applySideBarWidth(context, c.sideBarWidth.value + dx),
                     onDragEnd: (_) => c.setSideBarWidth(),
                     width: 7,
                     height: context.height,

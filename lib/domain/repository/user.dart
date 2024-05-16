@@ -30,13 +30,6 @@ abstract class AbstractUserRepository {
   /// Returns reactive map of [User]s.
   RxMap<UserId, RxUser> get users;
 
-  /// Indicates whether this repository was initialized and [users] can be
-  /// used.
-  RxBool get isReady;
-
-  /// Clears the stored [users].
-  Future<void> clearCache();
-
   /// Searches [User]s by the given criteria.
   Paginated<UserId, RxUser> search({
     UserNum? num,
