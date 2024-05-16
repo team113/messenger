@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   connectivity_plus
   desktop_drop
+  file_selector_windows
   firebase_core
   flutter_custom_cursor
   medea_flutter_webrtc

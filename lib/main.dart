@@ -172,7 +172,7 @@ Future<void> main() async {
       options.enableTimeToFullDisplayTracing = true;
       options.enableAppHangTracking = true;
       options.enableTracing = true;
-      options.beforeSend = (SentryEvent event, {Hint? hint}) {
+      options.beforeSend = (SentryEvent event, Hint? hint) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
         // Connection related exceptions shouldn't be logged.
@@ -232,6 +232,9 @@ Future<void> main() async {
     AppStartInfo(
       AppStartType.cold,
       start: DateTime.now().subtract(watch.elapsed),
+      pluginRegistration: DateTime.now().subtract(watch.elapsed),
+      sentrySetupStart: DateTime.now().subtract(watch.elapsed),
+      nativeSpanTimes: [],
       end: DateTime.now(),
     ),
   );

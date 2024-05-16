@@ -346,9 +346,9 @@ class Themes {
       ),
       scrollbarTheme: theme.scrollbarTheme.copyWith(
         interactive: true,
-        thickness: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.dragged) ||
-              states.contains(MaterialState.hovered)) {
+        thickness: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.dragged) ||
+              states.contains(WidgetState.hovered)) {
             return 6;
           }
 
@@ -356,8 +356,8 @@ class Themes {
         }),
       ),
       radioTheme: theme.radioTheme.copyWith(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
 

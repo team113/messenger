@@ -299,23 +299,23 @@ class WebUtils {
         String? architecture;
 
         switch (lpSystemInfo.ref.Anonymous.Anonymous.wProcessorArchitecture) {
-          case PROCESSOR_ARCHITECTURE_AMD64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_AMD64:
             architecture = 'x64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_ARM:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_ARM:
             architecture = 'ARM';
             break;
 
-          case PROCESSOR_ARCHITECTURE_ARM64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_ARM64:
             architecture = 'ARM64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_IA64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_IA64:
             architecture = 'IA64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_INTEL:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_INTEL:
             architecture = 'x86';
             break;
         }
