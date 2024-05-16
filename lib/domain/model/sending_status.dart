@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
@@ -35,5 +36,8 @@ enum SendingStatus {
 
   /// Error occurred.
   @HiveField(2)
-  error
+  error;
+
+  /// Returns an [int] representing the [value].
+  static int toJson(Rx<SendingStatus> value) => value.value.index;
 }

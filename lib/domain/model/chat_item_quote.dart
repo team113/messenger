@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'attachment.dart';
@@ -65,6 +66,15 @@ abstract class ChatItemQuote {
     throw Exception('$item is not supported to be quoted');
   }
 
+  /// Constructs a [ChatItemQuote] from the provided [json].
+  factory ChatItemQuote.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ChatMessageQuote' => ChatMessageQuote.fromJson(json),
+        'ChatCallQuote' => ChatCallQuote.fromJson(json),
+        'ChatInfoQuote' => ChatInfoQuote.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// Quoted [ChatItem].
   ///
   /// `null` if the original [ChatItem] was deleted or is unavailable for the
@@ -79,9 +89,18 @@ abstract class ChatItemQuote {
   /// [PreciseDateTime] when the quoted [ChatItem] was created.
   @HiveField(2)
   final PreciseDateTime at;
+
+  /// Returns a [Map] representing this [ChatItemQuote].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (ChatMessageQuote) => (this as ChatMessageQuote).toJson(),
+        const (ChatCallQuote) => (this as ChatCallQuote).toJson(),
+        const (ChatInfoQuote) => (this as ChatInfoQuote).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// [ChatItemQuote] of a [ChatMessage].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMessageQuote)
 class ChatMessageQuote extends ChatItemQuote {
   ChatMessageQuote({
@@ -92,6 +111,10 @@ class ChatMessageQuote extends ChatItemQuote {
     this.attachments = const [],
   });
 
+  /// Constructs a [ChatMessageQuote] from the provided [json].
+  factory ChatMessageQuote.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageQuoteFromJson(json);
+
   /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
   /// was made.
   @HiveField(3)
@@ -101,9 +124,15 @@ class ChatMessageQuote extends ChatItemQuote {
   /// made.
   @HiveField(4)
   final List<Attachment> attachments;
+
+  /// Returns a [Map] representing this [ChatMessageQuote].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatMessageQuoteToJson(this)..['runtimeType'] = 'ChatMessageQuote';
 }
 
 /// [ChatItemQuote] of a [ChatCall].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatCallQuote)
 class ChatCallQuote extends ChatItemQuote {
   ChatCallQuote({
@@ -111,9 +140,19 @@ class ChatCallQuote extends ChatItemQuote {
     required super.author,
     required super.at,
   });
+
+  /// Constructs a [ChatCallQuote] from the provided [json].
+  factory ChatCallQuote.fromJson(Map<String, dynamic> json) =>
+      _$ChatCallQuoteFromJson(json);
+
+  /// Returns a [Map] representing this [ChatCallQuote].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatCallQuoteToJson(this)..['runtimeType'] = 'ChatCallQuote';
 }
 
 /// [ChatItemQuote] of a [ChatInfo].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoQuote)
 class ChatInfoQuote extends ChatItemQuote {
   ChatInfoQuote({
@@ -123,8 +162,17 @@ class ChatInfoQuote extends ChatItemQuote {
     required this.action,
   });
 
+  /// Constructs a [ChatInfoQuote] from the provided [json].
+  factory ChatInfoQuote.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoQuoteFromJson(json);
+
   /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
   /// was made.
   @HiveField(3)
   final ChatInfoAction? action;
+
+  /// Returns a [Map] representing this [ChatInfoQuote].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoQuoteToJson(this)..['runtimeType'] = 'ChatInfoQuote';
 }

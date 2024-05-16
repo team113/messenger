@@ -164,7 +164,7 @@ class User extends HiveObject {
 class UserId extends NewType<String> implements Comparable<UserId> {
   const UserId(super.val);
 
-  /// Constructs a [UserId] from the provided [json].
+  /// Constructs a [UserId] from the provided [val].
   factory UserId.fromJson(String val) = UserId;
 
   /// Returns a [String] representing this [UserId].

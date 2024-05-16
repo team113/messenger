@@ -33,6 +33,14 @@ abstract class StorageFile extends HiveObject {
     this.size,
   });
 
+  /// Constructs a [StorageFile] from the provided [json].
+  factory StorageFile.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'PlainFile' => PlainFile.fromJson(json),
+        'ImageFile' => ImageFile.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// Relative reference to this [StorageFile] on a file storage.
   ///
   /// Prepend it with a file storage URL to obtain the full link to this
@@ -102,6 +110,13 @@ abstract class StorageFile extends HiveObject {
 
     return result;
   }
+
+  /// Returns a [Map] representing this [StorageFile].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (PlainFile) => (this as PlainFile).toJson(),
+        const (ImageFile) => (this as ImageFile).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// Plain-[StorageFile] on a file storage.
@@ -119,7 +134,9 @@ class PlainFile extends StorageFile {
       _$PlainFileFromJson(json);
 
   /// Returns a [Map] representing this [PlainFile].
-  Map<String, dynamic> toJson() => _$PlainFileToJson(this);
+  @override
+  Map<String, dynamic> toJson() =>
+      _$PlainFileToJson(this)..['runtimeType'] = 'PlainFile';
 }
 
 /// Image-[StorageFile] on a file storage.
@@ -152,7 +169,9 @@ class ImageFile extends StorageFile {
   final ThumbHash? thumbhash;
 
   /// Returns a [Map] representing this [ImageFile].
-  Map<String, dynamic> toJson() => _$ImageFileToJson(this);
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ImageFileToJson(this)..['runtimeType'] = 'ImageFile';
 }
 
 /// [Base64URL][1]-encoded [ThumbHash][2].
