@@ -117,16 +117,13 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       child,
     );
 
-    final bool linear =
-        CupertinoRouteTransitionMixin.isPopGestureInProgress(route);
-
     if (widget is CupertinoPageTransition) {
       return SlideTransition(
         position: Tween(
           begin: Offset.zero,
           end: const Offset(-1.0, 0.0),
         ).animate(
-          linear
+          route.popGestureInProgress
               ? animation
               : CurvedAnimation(
                   parent: animation,
@@ -139,7 +136,7 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
             begin: const Offset(1.0, 0.0),
             end: Offset.zero,
           ).animate(
-            linear
+            route.popGestureInProgress
                 ? secondaryAnimation
                 : CurvedAnimation(
                     parent: secondaryAnimation,
