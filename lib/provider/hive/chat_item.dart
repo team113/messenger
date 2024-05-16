@@ -18,22 +18,19 @@
 import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
+import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
 import '/util/log.dart';
 import 'base.dart';
-
-part 'chat_item.g.dart';
 
 /// [Hive] storage for [ChatItem]s.
 class ChatItemHiveProvider extends HiveLazyProvider<DtoChatItem>

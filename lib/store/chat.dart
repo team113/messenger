@@ -55,7 +55,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';

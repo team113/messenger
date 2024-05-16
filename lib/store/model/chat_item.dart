@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
@@ -26,6 +27,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/util/new_type.dart';
+import 'chat_call.dart';
 import 'version.dart';
 
 part 'chat_item.g.dart';
@@ -33,6 +35,16 @@ part 'chat_item.g.dart';
 /// Persisted in [Hive] storage [ChatItem]'s [value].
 abstract class DtoChatItem extends HiveObject {
   DtoChatItem(this.value, this.cursor, this.ver);
+
+  /// Constructs a [DtoChatItem] from the provided [json].
+  factory DtoChatItem.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'DtoChatMessage' => DtoChatMessage.fromJson(json),
+        'DtoChatCall' => DtoChatCall.fromJson(json),
+        'DtoChatInfo' => DtoChatInfo.fromJson(json),
+        'DtoChatForward' => DtoChatForward.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
 
   /// Persisted [ChatItem] model.
   @HiveField(0)
@@ -51,15 +63,35 @@ abstract class DtoChatItem extends HiveObject {
 
   @override
   String toString() => '$runtimeType($value, $cursor, $ver)';
+
+  /// Returns a [Map] representing this [DtoChatItem].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (DtoChatMessage) => (this as DtoChatMessage).toJson(),
+        const (DtoChatCall) => (this as DtoChatCall).toJson(),
+        const (DtoChatInfo) => (this as DtoChatInfo).toJson(),
+        const (DtoChatForward) => (this as DtoChatForward).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// Persisted in [Hive] storage [ChatInfo]'s [value].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatInfo)
 class DtoChatInfo extends DtoChatItem {
   DtoChatInfo(super.value, super.cursor, super.ver);
+
+  /// Constructs a [DtoChatCall] from the provided [json].
+  factory DtoChatInfo.fromJson(Map<String, dynamic> json) =>
+      _$DtoChatInfoFromJson(json);
+
+  /// Returns a [Map] representing this [DtoChatInfo].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$DtoChatInfoToJson(this)..['runtimeType'] = 'DtoChatInfo';
 }
 
 /// Persisted in [Hive] storage [ChatMessage]'s [value].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatMessage)
 class DtoChatMessage extends DtoChatItem {
   DtoChatMessage(
@@ -95,6 +127,10 @@ class DtoChatMessage extends DtoChatItem {
         [],
       );
 
+  /// Constructs a [DtoChatMessage] from the provided [json].
+  factory DtoChatMessage.fromJson(Map<String, dynamic> json) =>
+      _$DtoChatMessageFromJson(json);
+
   /// Cursors of the [ChatMessage.repliesTo] list.
   @HiveField(3)
   List<ChatItemsCursor?>? repliesToCursors;
@@ -113,9 +149,15 @@ class DtoChatMessage extends DtoChatItem {
       repliesToCursors ?? this.repliesToCursors,
     );
   }
+
+  /// Returns a [Map] representing this [DtoChatMessage].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$DtoChatMessageToJson(this)..['runtimeType'] = 'DtoChatMessage';
 }
 
 /// Persisted in [Hive] storage [ChatForward]'s [value].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatForward)
 class DtoChatForward extends DtoChatItem {
   DtoChatForward(
@@ -125,9 +167,18 @@ class DtoChatForward extends DtoChatItem {
     this.quoteCursor,
   );
 
+  /// Constructs a [DtoChatForward] from the provided [json].
+  factory DtoChatForward.fromJson(Map<String, dynamic> json) =>
+      _$DtoChatForwardFromJson(json);
+
   /// Cursor of a [ChatForward.quote].
   @HiveField(3)
   ChatItemsCursor? quoteCursor;
+
+  /// Returns a [Map] representing this [DtoChatForward].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$DtoChatForwardToJson(this)..['runtimeType'] = 'DtoChatForward';
 }
 
 /// Persisted in [Hive] storage [ChatItemQuote]'s [value].
@@ -147,10 +198,22 @@ class DtoChatItemQuote {
 @HiveType(typeId: ModelTypeId.chatItemVersion)
 class ChatItemVersion extends Version {
   ChatItemVersion(super.val);
+
+  /// Constructs a [ChatItemVersion] from the provided [val].
+  factory ChatItemVersion.fromJson(String val) = ChatItemVersion;
+
+  /// Returns a [String] representing this [ChatItemVersion].
+  String toJson() => val;
 }
 
 /// Cursor of a [ChatItem].
 @HiveType(typeId: ModelTypeId.chatItemsCursor)
 class ChatItemsCursor extends NewType<String> {
   const ChatItemsCursor(super.val);
+
+  /// Constructs a [ChatItemsCursor] from the provided [val].
+  factory ChatItemsCursor.fromJson(String val) = ChatItemsCursor;
+
+  /// Returns a [String] representing this [ChatItemsCursor].
+  String toJson() => val;
 }

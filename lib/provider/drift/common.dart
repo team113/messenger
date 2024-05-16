@@ -18,6 +18,7 @@
 import 'package:drift/drift.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/util/obs/obs.dart';
 
 /// [TypeConverter] for [PreciseDateTime].
 class PreciseDateTimeConverter extends TypeConverter<PreciseDateTime, int> {
@@ -29,4 +30,40 @@ class PreciseDateTimeConverter extends TypeConverter<PreciseDateTime, int> {
 
   @override
   int toSql(PreciseDateTime value) => value.microsecondsSinceEpoch;
+}
+
+/// Extension adding an ability to get [MapChangeNotification]s from [Stream].
+extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
+  /// Gets [MapChangeNotification]s from [Stream].
+  Stream<List<MapChangeNotification<K, T>>> changes() {
+    Map<K, T> last = {};
+
+    return asyncExpand((e) async* {
+      final List<MapChangeNotification<K, T>> changed = [];
+
+      for (final MapEntry<K, T> entry in e.entries) {
+        final T? item = last[entry.key];
+        if (item == null) {
+          changed.add(MapChangeNotification.added(entry.key, entry.value));
+        } else {
+          if (entry.value != item) {
+            changed.add(
+              MapChangeNotification.updated(entry.key, entry.key, entry.value),
+            );
+          }
+        }
+      }
+
+      for (final MapEntry<K, T> entry in last.entries) {
+        final T? item = e[entry.key];
+        if (item == null) {
+          changed.add(MapChangeNotification.removed(entry.key, entry.value));
+        }
+      }
+
+      last = e;
+
+      yield changed;
+    });
+  }
 }

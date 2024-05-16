@@ -26,7 +26,6 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/store/model/chat_item.dart';
 import 'package:messenger/store/model/page_info.dart';
 import 'package:messenger/store/pagination.dart';

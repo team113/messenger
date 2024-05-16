@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:messenger/store/model/chat_item.dart';
 
-import '../../util/obs/obs.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/sending_status.dart';
+import '/store/model/chat_item.dart';
+import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -22,6 +22,8 @@ class ChatItems extends Table {
   IntColumn get at => integer().map(const PreciseDateTimeConverter())();
   IntColumn get status => intEnum<SendingStatus>()();
   TextColumn get data => text()();
+  TextColumn get cursor => text().nullable()();
+  TextColumn get ver => text()();
 }
 
 @DataClassName('ChatItemViewRow')
@@ -96,31 +98,21 @@ class ChatItemDriftProvider extends DriftProviderBase {
     });
   }
 
-  Stream<List<MapChangeNotification<ChatItemId, ChatItem>>> watch(
-      ChatId chatId) {
+  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
+    ChatId chatId,
+  ) {
     if (db == null) {
       return const Stream.empty();
     }
 
     final stmt = db!.select(db!.chatItems);
     stmt.where((u) => u.chatId.equals(chatId.val));
-
     stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
-
-    if (limit != null) {
-      stmt.limit(limit, offset: offset);
-    }
-
-    print('[built] ${stmt.constructQuery().buffer.toString()}');
 
     return stmt
         .watch()
-        .map((items) => {for (var e in items.map(_ChatItemDb.fromDb)) e.id: e})
+        .map((i) => {for (var e in i.map(_ChatItemDb.fromDb)) e.value.id: e})
         .changes();
-  }
-
-  Future<void> txn<T>(Future<T> Function() action) async {
-    await _database.transaction(action);
   }
 }
 
@@ -128,36 +120,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
 extension _ChatItemDb on DtoChatItem {
   /// Returns the [DtoChatItem] from the provided [UserRow].
   static DtoChatItem fromDb(ChatItemRow e) {
-    return DtoChatItem(
-      ChatItem(
-        UserId(e.id),
-        UserNum(e.num),
-        name: e.name == null ? null : UserName(e.name!),
-        bio: e.bio == null ? null : UserBio(e.bio!),
-        avatar: e.avatar == null
-            ? null
-            : UserAvatar.fromJson(jsonDecode(e.avatar!)),
-        callCover: e.callCover == null
-            ? null
-            : UserCallCover.fromJson(jsonDecode(e.callCover!)),
-        mutualContactsCount: e.mutualContactsCount,
-        online: e.online,
-        presenceIndex: e.presenceIndex,
-        status: e.status == null ? null : UserTextStatus(e.status!),
-        isDeleted: e.isDeleted,
-        dialog: e.dialog == null ? null : ChatId(e.dialog!),
-        isBlocked: e.isBlocked == null
-            ? null
-            : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
-        lastSeenAt: e.lastSeenAt,
-        contacts: (jsonDecode(e.contacts) as List)
-            .map((e) => NestedChatContact.fromJson(e))
-            .cast<NestedChatContact>()
-            .toList(),
-      ),
-      UserVersion(e.ver),
-      MyUserVersion(e.blockedVer),
-    );
+    return DtoChatItem.fromJson(jsonDecode(e.data));
   }
 
   /// Returns the [UserRow] from this [DtoChatItem].
@@ -169,6 +132,8 @@ extension _ChatItemDb on DtoChatItem {
       at: value.at,
       status: value.status.value,
       data: jsonEncode(value.toJson()),
+      cursor: cursor?.val,
+      ver: ver.val,
     );
   }
 }

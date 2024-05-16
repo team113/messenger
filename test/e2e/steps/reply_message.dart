@@ -20,7 +20,7 @@ import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
+import 'package:messenger/store/model/chat_item.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';

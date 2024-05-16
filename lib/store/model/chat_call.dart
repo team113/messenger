@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
@@ -24,9 +25,19 @@ import 'chat_item.dart';
 part 'chat_call.g.dart';
 
 /// Persisted in [Hive] storage [ChatCall]'s [value].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatCall)
 class DtoChatCall extends DtoChatItem {
   DtoChatCall(super.value, super.cursor, super.ver);
+
+  /// Constructs a [DtoChatCall] from the provided [json].
+  factory DtoChatCall.fromJson(Map<String, dynamic> json) =>
+      _$DtoChatCallFromJson(json);
+
+  /// Returns a [Map] representing this [DtoChatCall].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$DtoChatCallToJson(this)..['runtimeType'] = 'DtoChatCall';
 }
 
 /// Cursor of an [OngoingCall] position.
