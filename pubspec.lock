@@ -837,7 +837,7 @@ packages:
     description:
       path: hive
       ref: HEAD
-      resolved-ref: 2eb95a3febe4192aebfab97611399ee6787b910b
+      resolved-ref: "2eb95a3febe4192aebfab97611399ee6787b910b"
       url: "https://github.com/SleepySquash/hive.git"
     source: git
     version: "2.2.3"
