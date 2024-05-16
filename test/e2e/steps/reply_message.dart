@@ -42,13 +42,13 @@ final StepDefinitionGeneric repliesToMessage =
 
     // TODO: Should use `searchItems` query or something, when backend
     //       introduces such a query.
-    final HiveChatMessage message =
+    final DtoChatMessage message =
         (await provider.chatItems(chatId, first: 120))
             .chat!
             .items
             .edges
             .map((e) => e.toHive())
-            .whereType<HiveChatMessage>()
+            .whereType<DtoChatMessage>()
             .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 
     await provider.postChatMessage(

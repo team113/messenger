@@ -1047,7 +1047,7 @@ class ChatRepository extends DisposableInterface
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
   /// posting time with pagination.
-  Future<Page<HiveChatItem, ChatItemsCursor>> messages(
+  Future<Page<DtoChatItem, ChatItemsCursor>> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -1107,14 +1107,14 @@ class ChatRepository extends DisposableInterface
     );
   }
 
-  /// Fetches the [HiveChatItem] with the provided [id].
-  Future<HiveChatItem?> message(ChatItemId id) async {
+  /// Fetches the [DtoChatItem] with the provided [id].
+  Future<DtoChatItem?> message(ChatItemId id) async {
     Log.debug('message($id)', '$runtimeType');
     return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
   }
 
   /// Fetches the [Attachment]s of the provided [item].
-  Future<List<Attachment>> attachments(HiveChatItem item) async {
+  Future<List<Attachment>> attachments(DtoChatItem item) async {
     Log.debug('attachments($item)', '$runtimeType');
 
     final response = await _graphQlProvider.attachments(item.value.id);
@@ -2442,11 +2442,11 @@ class ChatData {
   /// [HiveChat] returned from the [Chat] fetching.
   final HiveChat chat;
 
-  /// [HiveChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastItem;
+  /// [DtoChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
+  final DtoChatItem? lastItem;
 
-  /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastReadItem;
+  /// [DtoChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
+  final DtoChatItem? lastReadItem;
 
   @override
   String toString() =>

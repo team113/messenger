@@ -75,10 +75,10 @@ class ModelTypeId {
   static const imageAttachment = 53;
   static const fileAttachment = 54;
   static const chatItemsCursor = 55;
-  static const hiveChatInfo = 56;
-  static const hiveChatCall = 57;
-  static const hiveChatMessage = 58;
-  static const hiveChatForward = 59;
+  static const dtoChatInfo = 56;
+  static const dtoChatCall = 57;
+  static const dtoChatMessage = 58;
+  static const dtoChatForward = 59;
   static const incomingChatCallsCursor = 60;
   static const mediaSettings = 61;
   static const chatCallDeviceId = 62;

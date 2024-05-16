@@ -73,7 +73,7 @@ abstract class Attachment extends HiveObject {
   DownloadStatus get downloadStatus =>
       downloading?.status.value ?? DownloadStatus.notStarted;
 
-  /// Returns a [Map] representing this [AttachmentId].
+  /// Returns a [Map] representing this [Attachment].
   Map<String, dynamic> toJson() => switch (runtimeType) {
         const (ImageAttachment) => (this as ImageAttachment).toJson(),
         const (FileAttachment) => (this as FileAttachment).toJson(),

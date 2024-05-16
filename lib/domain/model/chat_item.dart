@@ -45,6 +45,16 @@ abstract class ChatItem {
           status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
         );
 
+  /// Constructs a [ChatItem] from the provided [json].
+  factory ChatItem.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ChatMessage' => ChatMessage.fromJson(json),
+        'ChatCall' => ChatCall.fromJson(json),
+        'ChatInfo' => ChatInfo.fromJson(json),
+        'ChatForward' => ChatForward.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// Unique ID of this [ChatItem].
   @HiveField(0)
   final ChatItemId id;
@@ -73,15 +83,7 @@ abstract class ChatItem {
   @override
   String toString() => '$runtimeType($id, $chatId)';
 
-  factory ChatItem.fromJson(Map<String, dynamic> json) =>
-      switch (json['runtimeType']) {
-        'ChatMessage' => ChatMessage.fromJson(json),
-        'ChatCall' => ChatCall.fromJson(json),
-        'ChatInfo' => ChatInfo.fromJson(json),
-        'ChatForward' => ChatForward.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
-      };
-
+  /// Returns a [Map] representing this [ChatItem].
   Map<String, dynamic> toJson() => switch (runtimeType) {
         const (ChatMessage) => (this as ChatMessage).toJson(),
         const (ChatCall) => (this as ChatCall).toJson(),
@@ -92,6 +94,7 @@ abstract class ChatItem {
 }
 
 /// Message in a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMessage)
 class ChatMessage extends ChatItem {
   ChatMessage(
@@ -105,6 +108,10 @@ class ChatMessage extends ChatItem {
     this.editedAt,
     this.attachments = const [],
   });
+
+  /// Constructs a [ChatMessage] from the provided [json].
+  factory ChatMessage.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageFromJson(json);
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
@@ -145,9 +152,15 @@ class ChatMessage extends ChatItem {
           ),
         );
   }
+
+  /// Returns a [Map] representing this [ChatMessage].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatMessageToJson(this)..['runtimeType'] = 'ChatMessage';
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatForward)
 class ChatForward extends ChatItem {
   ChatForward(

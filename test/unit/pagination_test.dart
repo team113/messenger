@@ -204,11 +204,11 @@ void main() async {
       after: const ChatItemsCursor('90'),
     )).thenAnswer((_) => chatItems(first: 10, after: 90));
 
-    final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination =
+    final Pagination<DtoChatItem, ChatItemsCursor, ChatItemKey> pagination =
         Pagination(
       perPage: 10,
       onKey: (i) => i.value.key,
-      provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      provider: GraphQlPageProvider<DtoChatItem, ChatItemsCursor, ChatItemKey>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(
             chatId,

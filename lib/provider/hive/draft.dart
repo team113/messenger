@@ -19,23 +19,23 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/file.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/store/model/chat.dart';
+import '/domain/model/user.dart';
+import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/chat.dart';
 import '/util/log.dart';
 import 'base.dart';
-import 'chat_item.dart';
 
 /// [Hive] storage for [ChatMessage]s being [RxChat.draft]s.
 class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
@@ -76,10 +76,10 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(HiveChatCallAdapter());
-    Hive.maybeRegisterAdapter(HiveChatForwardAdapter());
-    Hive.maybeRegisterAdapter(HiveChatInfoAdapter());
-    Hive.maybeRegisterAdapter(HiveChatMessageAdapter());
+    Hive.maybeRegisterAdapter(DtoChatCallAdapter());
+    Hive.maybeRegisterAdapter(DtoChatForwardAdapter());
+    Hive.maybeRegisterAdapter(DtoChatInfoAdapter());
+    Hive.maybeRegisterAdapter(DtoChatMessageAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());

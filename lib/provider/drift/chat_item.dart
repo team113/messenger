@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:messenger/store/model/chat_item.dart';
 
+import '../../util/obs/obs.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/sending_status.dart';
@@ -9,7 +12,6 @@ import 'common.dart';
 import 'drift.dart';
 
 @DataClassName('ChatItemRow')
-@TableIndex(name: 'chat_id', columns: {#chatId})
 class ChatItems extends Table {
   @override
   Set<Column> get primaryKey => {id};
@@ -23,7 +25,6 @@ class ChatItems extends Table {
 }
 
 @DataClassName('ChatItemViewRow')
-@TableIndex(name: 'chat_id', columns: {#chatId})
 class ChatItemViews extends Table {
   @override
   Set<Column> get primaryKey => {chatId, chatItemId, at};
@@ -33,55 +34,75 @@ class ChatItemViews extends Table {
   IntColumn get at => integer().map(const PreciseDateTimeConverter())();
 }
 
-class ChatItemDriftProvider {
-  ChatItemDriftProvider(this._database);
+class ChatItemDriftProvider extends DriftProviderBase {
+  ChatItemDriftProvider(super.database);
 
-  final DriftProvider _database;
+  /// [StreamController] emitting [DtoChatItem]s in [watch].
+  final Map<ChatId,
+          StreamController<MapChangeNotification<ChatItemId, DtoChatItem>>>
+      _controllers = {};
 
-  Future<List<ChatItem>> items(
-    ChatId chatId, {
-    int? limit,
-    int? offset,
-  }) async {
-    final stmt = _database.select(_database.chatItems);
-    stmt.where((u) => u.chatId.equals(chatId.val));
+  /// Creates or updates the provided [item] in the database.
+  Future<DtoChatItem> upsert(DtoChatItem item) async {
+    final result = await safe((db) async {
+      final DtoChatItem stored = _ChatItemDb.fromDb(
+        await db
+            .into(db.chatItems)
+            .insertReturning(item.toDb(), mode: InsertMode.replace),
+      );
 
-    stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
+      _controllers[stored.value.chatId]
+          ?.add(MapChangeNotification.added(stored.value.id, stored));
 
-    if (limit != null) {
-      stmt.limit(limit, offset: offset);
-    }
+      return stored;
+    });
 
-    final response = await stmt.get();
-    return response.map(_ChatItemDb.fromDb).toList();
+    return result ?? item;
   }
 
-  Future<void> create(ChatItem item) async {
-    await _database.into(_database.chatItems).insert(item.toDb());
+  /// Returns the [DtoChatItem] stored in the database by the provided [id], if
+  /// any.
+  Future<DtoChatItem?> read(ChatItemId id) async {
+    return await safe<DtoChatItem?>((db) async {
+      final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
+      final ChatItemRow? row = await stmt.getSingleOrNull();
+
+      if (row == null) {
+        return null;
+      }
+
+      return _ChatItemDb.fromDb(row);
+    });
   }
 
-  Future<void> update(ChatItem item) async {
-    final stmt = _database.update(_database.chatItems);
-    await stmt.replace(item.toDb());
-  }
-
+  /// Deletes the [DtoChatItem] identified by the provided [id] from the database.
   Future<void> delete(ChatItemId id) async {
-    final stmt = _database.delete(_database.chatItems)
-      ..where((e) => e.id.equals(id.val));
+    await safe((db) async {
+      final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
+      final response = await stmt.goAndReturn();
 
-    await stmt.go();
+      for (var e in response) {
+        final DtoChatItem dto = _ChatItemDb.fromDb(e);
+        _controllers[id]?.add(MapChangeNotification.removed(dto.value.id, dto));
+      }
+    });
   }
 
+  /// Deletes all the [DtoChatItem]s stored in the database.
   Future<void> clear() async {
-    await _database.delete(_database.chatItems).go();
+    await safe((db) async {
+      await db.delete(db.chatItems).go();
+      await db.delete(db.chatItemViews).go();
+    });
   }
 
   Stream<List<MapChangeNotification<ChatItemId, ChatItem>>> watch(
-    ChatId chatId, {
-    int? limit,
-    int? offset,
-  }) {
-    final stmt = _database.select(_database.chatItems);
+      ChatId chatId) {
+    if (db == null) {
+      return const Stream.empty();
+    }
+
+    final stmt = db!.select(db!.chatItems);
     stmt.where((u) => u.chatId.equals(chatId.val));
 
     stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
@@ -103,19 +124,51 @@ class ChatItemDriftProvider {
   }
 }
 
-extension _ChatItemDb on ChatItem {
-  static ChatItem fromDb(ChatItemRow e) {
-    return ChatItem.fromJson(jsonDecode(e.data));
+/// Extension adding conversion methods from [UserRow] to [DtoUser].
+extension _ChatItemDb on DtoChatItem {
+  /// Returns the [DtoChatItem] from the provided [UserRow].
+  static DtoChatItem fromDb(ChatItemRow e) {
+    return DtoChatItem(
+      ChatItem(
+        UserId(e.id),
+        UserNum(e.num),
+        name: e.name == null ? null : UserName(e.name!),
+        bio: e.bio == null ? null : UserBio(e.bio!),
+        avatar: e.avatar == null
+            ? null
+            : UserAvatar.fromJson(jsonDecode(e.avatar!)),
+        callCover: e.callCover == null
+            ? null
+            : UserCallCover.fromJson(jsonDecode(e.callCover!)),
+        mutualContactsCount: e.mutualContactsCount,
+        online: e.online,
+        presenceIndex: e.presenceIndex,
+        status: e.status == null ? null : UserTextStatus(e.status!),
+        isDeleted: e.isDeleted,
+        dialog: e.dialog == null ? null : ChatId(e.dialog!),
+        isBlocked: e.isBlocked == null
+            ? null
+            : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
+        lastSeenAt: e.lastSeenAt,
+        contacts: (jsonDecode(e.contacts) as List)
+            .map((e) => NestedChatContact.fromJson(e))
+            .cast<NestedChatContact>()
+            .toList(),
+      ),
+      UserVersion(e.ver),
+      MyUserVersion(e.blockedVer),
+    );
   }
 
+  /// Returns the [UserRow] from this [DtoChatItem].
   ChatItemRow toDb() {
     return ChatItemRow(
-      id: id.val,
-      chatId: chatId.val,
-      authorId: authorId.val,
-      at: at,
-      status: status.value,
-      data: jsonEncode(toJson()),
+      id: value.id.val,
+      chatId: value.chatId.val,
+      authorId: value.author.id.val,
+      at: value.at,
+      status: value.status.value,
+      data: jsonEncode(value.toJson()),
     );
   }
 }

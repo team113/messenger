@@ -24,6 +24,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
 
@@ -31,7 +32,10 @@ import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
+part 'native_file.g.dart';
+
 /// Native file representation.
+@JsonSerializable()
 class NativeFile {
   NativeFile({
     required this.name,
@@ -81,6 +85,10 @@ class NativeFile {
         stream: file.openRead().asBroadcastStream(),
       );
 
+  /// Constructs a [NativeFile] from the provided [json].
+  factory NativeFile.fromJson(Map<String, dynamic> json) =>
+      _$NativeFileFromJson(json);
+
   /// Absolute path for a cached copy of this file.
   final String? path;
 
@@ -88,6 +96,7 @@ class NativeFile {
   final String name;
 
   /// Byte data of this file.
+  @JsonKey(fromJson: _RxUint8List.fromValue, toJson: _RxUint8List.toValue)
   final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
@@ -97,15 +106,18 @@ class NativeFile {
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
+  @JsonKey(fromJson: _MediaType.fromValue, toJson: _MediaType.toValue)
   MediaType? mime;
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
+  @JsonKey(fromJson: _RxSize.fromValue, toJson: _RxSize.toValue)
   final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
 
   /// Content of this file as a stream.
+  @JsonKey(fromJson: _StreamListInt.fromValue, toJson: _StreamListInt.toValue)
   Stream<List<int>>? _readStream;
 
   /// Merged stream of [bytes] and [_readStream] representing the whole file.
@@ -162,6 +174,7 @@ class NativeFile {
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.
+  @JsonKey(fromJson: _StreamListInt.fromValue, toJson: _StreamListInt.toValue)
   Stream<List<int>>? get stream {
     if (_readStream == null) return null;
 
@@ -172,6 +185,9 @@ class NativeFile {
 
     return _mergedStream;
   }
+
+  /// Returns a [Map] representing this [NativeFile].
+  Map<String, dynamic> toJson() => _$NativeFileToJson(this);
 
   /// Ensures [mime] is correctly assigned.
   ///
@@ -289,4 +305,25 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
       ..write(obj.size)
       ..write(obj.mime);
   }
+}
+
+extension _RxUint8List on Rx {
+  static Rx<Uint8List?> fromValue(Uint8List? val) => Rx(val);
+  static Uint8List? toValue(Rx<Uint8List?> val) => val.value;
+}
+
+extension _RxSize on Rx {
+  static Rx<Size?> fromValue(Size? val) => Rx(val);
+  static Size? toValue(Rx<Size?> val) => val.value;
+}
+
+extension _StreamListInt on Stream {
+  static Stream<List<int>>? fromValue(String? val) => null;
+  static String? toValue(Stream<List<int>>? val) => null;
+}
+
+extension _MediaType on MediaType {
+  static MediaType? fromValue(String? val) =>
+      val == null ? null : MediaType.parse(val);
+  static String? toValue(MediaType? val) => val?.toString();
 }

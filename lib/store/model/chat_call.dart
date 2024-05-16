@@ -19,8 +19,15 @@ import 'package:hive/hive.dart';
 
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
+import 'chat_item.dart';
 
 part 'chat_call.g.dart';
+
+/// Persisted in [Hive] storage [ChatCall]'s [value].
+@HiveType(typeId: ModelTypeId.dtoChatCall)
+class DtoChatCall extends DtoChatItem {
+  DtoChatCall(super.value, super.cursor, super.ver);
+}
 
 /// Cursor of an [OngoingCall] position.
 @HiveType(typeId: ModelTypeId.incomingChatCallsCursor)

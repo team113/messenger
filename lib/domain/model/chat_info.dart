@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'avatar.dart';
@@ -28,6 +29,7 @@ part 'chat_info.g.dart';
 
 /// Information about an action taken upon a [Chat].
 @HiveType(typeId: ModelTypeId.chatInfo)
+@JsonSerializable()
 class ChatInfo extends ChatItem {
   ChatInfo(
     super.id,
@@ -37,9 +39,17 @@ class ChatInfo extends ChatItem {
     required this.action,
   });
 
+  /// Constructs a [ChatInfo] from the provided [json].
+  factory ChatInfo.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoFromJson(json);
+
   /// [ChatInfoAction] taken upon the [Chat].
   @HiveField(5)
   final ChatInfoAction action;
+
+  /// Returns a [Map] representing this [ChatInfo].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoToJson(this);
 }
 
 /// Possible kinds of a [ChatInfoAction].
@@ -55,14 +65,47 @@ enum ChatInfoActionKind {
 abstract class ChatInfoAction {
   const ChatInfoAction();
 
+  /// Constructs a [ChatInfoAction] from the provided [json].
+  factory ChatInfoAction.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ChatInfoActionAvatarUpdated' =>
+          ChatInfoActionAvatarUpdated.fromJson(json),
+        'ChatInfoActionCreated' => ChatInfoActionCreated.fromJson(json),
+        'ChatInfoActionMemberAdded' => ChatInfoActionMemberAdded.fromJson(json),
+        'ChatInfoActionMemberRemoved' =>
+          ChatInfoActionMemberRemoved.fromJson(json),
+        'ChatInfoActionNameUpdated' => ChatInfoActionNameUpdated.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// [ChatInfoActionKind] of this event.
   ChatInfoActionKind get kind;
+
+  /// Returns a [Map] representing this [ChatInfoAction].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (ChatInfoActionAvatarUpdated) =>
+          (this as ChatInfoActionAvatarUpdated).toJson(),
+        const (ChatInfoActionCreated) =>
+          (this as ChatInfoActionCreated).toJson(),
+        const (ChatInfoActionMemberAdded) =>
+          (this as ChatInfoActionMemberAdded).toJson(),
+        const (ChatInfoActionMemberRemoved) =>
+          (this as ChatInfoActionMemberRemoved).toJson(),
+        const (ChatInfoActionNameUpdated) =>
+          (this as ChatInfoActionNameUpdated).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoActionAvatarUpdated)
 class ChatInfoActionAvatarUpdated implements ChatInfoAction {
   const ChatInfoActionAvatarUpdated(this.avatar);
+
+  /// Constructs a [ChatInfoActionAvatarUpdated] from the provided [json].
+  factory ChatInfoActionAvatarUpdated.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoActionAvatarUpdatedFromJson(json);
 
   /// New [ChatAvatar] of the [Chat].
   ///
@@ -72,12 +115,21 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.avatarUpdated;
+
+  /// Returns a [Map] representing this [ChatInfoActionAvatarUpdated].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoActionAvatarUpdatedToJson(this);
 }
 
 /// [ChatInfoAction] about a [Chat] being created.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoActionCreated)
 class ChatInfoActionCreated implements ChatInfoAction {
   const ChatInfoActionCreated(this.directLinkSlug);
+
+  /// Constructs a [ChatInfoActionCreated] from the provided [json].
+  factory ChatInfoActionCreated.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoActionCreatedFromJson(json);
 
   /// [ChatDirectLinkSlug] used to create the [Chat], if any.
   @HiveField(0)
@@ -85,12 +137,21 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.created;
+
+  /// Returns a [Map] representing this [ChatInfoActionCreated].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoActionCreatedToJson(this);
 }
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoActionMemberAdded)
 class ChatInfoActionMemberAdded implements ChatInfoAction {
   const ChatInfoActionMemberAdded(this.user, this.directLinkSlug);
+
+  /// Constructs a [ChatInfoActionMemberAdded] from the provided [json].
+  factory ChatInfoActionMemberAdded.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoActionMemberAddedFromJson(json);
 
   /// [User] who became a [ChatMember].
   ///
@@ -105,12 +166,21 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.memberAdded;
+
+  /// Returns a [Map] representing this [ChatInfoActionMemberAdded].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoActionMemberAddedToJson(this);
 }
 
 /// [ChatInfoAction] about a [ChatMember] being removed from a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoActionMemberRemoved)
 class ChatInfoActionMemberRemoved implements ChatInfoAction {
   const ChatInfoActionMemberRemoved(this.user);
+
+  /// Constructs a [ChatInfoActionMemberRemoved] from the provided [json].
+  factory ChatInfoActionMemberRemoved.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoActionMemberRemovedFromJson(json);
 
   /// [User] who was removed from the [Chat].
   ///
@@ -121,12 +191,21 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.memberRemoved;
+
+  /// Returns a [Map] representing this [ChatInfoActionMemberRemoved].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoActionMemberRemovedToJson(this);
 }
 
 /// [ChatInfoAction] about a [ChatName] being updated.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatInfoActionNameUpdated)
 class ChatInfoActionNameUpdated implements ChatInfoAction {
   const ChatInfoActionNameUpdated(this.name);
+
+  /// Constructs a [ChatInfoActionNameUpdated] from the provided [json].
+  factory ChatInfoActionNameUpdated.fromJson(Map<String, dynamic> json) =>
+      _$ChatInfoActionNameUpdatedFromJson(json);
 
   /// New [ChatName] of the [Chat].
   ///
@@ -136,4 +215,8 @@ class ChatInfoActionNameUpdated implements ChatInfoAction {
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.nameUpdated;
+
+  /// Returns a [Map] representing this [ChatInfoActionNameUpdated].
+  @override
+  Map<String, dynamic> toJson() => _$ChatInfoActionNameUpdatedToJson(this);
 }
