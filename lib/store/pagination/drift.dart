@@ -47,7 +47,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   }) fetch;
 
-  final Future<void> Function(Iterable<T> items)? add;
+  final Future<void> Function(Iterable<T> items, {bool toView})? add;
   final Future<void> Function(K key)? onNone;
   final Future<void> Function(K key)? delete;
   final Future<void> Function()? reset;
@@ -186,8 +186,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) async {
-    _after += 1;
-    await add?.call(items);
+    if (compare != null) {
+      _after += 1;
+    }
+
+    await add?.call(items, toView: compare == null);
   }
 
   @override

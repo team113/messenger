@@ -623,14 +623,14 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
-    await chats[chatId]?.read(untilId);
+    // await chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readUntil($chatId, $untilId)', '$runtimeType');
-    await _graphQlProvider.readChat(chatId, untilId);
+    // await _graphQlProvider.readChat(chatId, untilId);
   }
 
   @override
@@ -1880,7 +1880,7 @@ class ChatRepository extends DisposableInterface
 
     Log.debug('_initRemotePagination()', '$runtimeType');
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
+    final Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -1895,7 +1895,8 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites = Pagination(
+    final Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites =
+        Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: HiveGraphQlPageProvider(
@@ -1930,7 +1931,7 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
+    final Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -2187,11 +2188,9 @@ class ChatRepository extends DisposableInterface
         ignoreVersion: ignoreVersion,
       );
 
-      for (var item in [
-        if (data.lastItem != null) data.lastItem!,
-        if (data.lastReadItem != null) data.lastReadItem!,
-      ]) {
-        entry.put(item);
+      if (data.lastReadItem != null) {
+        entry.put(data.lastReadItem!, ignoreBounds: true);
+        entry.put(data.lastItem!);
       }
 
       _putEntryGuards.remove(chatId);

@@ -507,6 +507,10 @@ class HiveRxChat extends RxChat {
       '$runtimeType($id)',
     );
 
+    print(
+      'hello, world: $item, ${id.isLocal}, ${status.value.isSuccess}, ${hasNext.isFalse && hasPrevious.isFalse}',
+    );
+
     // Even if the [item] is within [_local], still create a [MessageFragment],
     // at it handles such cases as well.
     if (item != null) {
@@ -514,7 +518,8 @@ class HiveRxChat extends RxChat {
     }
 
     if (id.isLocal ||
-        status.value.isSuccess ||
+        //
+        // status.value.isSuccess ||
         (hasNext.isFalse && hasPrevious.isFalse)) {
       return null;
     }
@@ -785,7 +790,7 @@ class HiveRxChat extends RxChat {
     // if (!_local.keys.contains(item.value.id)) {
     //   await _local.put(item);
     // }
-    await _driftItems.upsert(item);
+    // await _driftItems.upsert(item);
   }
 
   @override
@@ -1046,7 +1051,8 @@ class HiveRxChat extends RxChat {
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.cursor,
-        add: (e) async => await _driftItems.upsertBulk(e, toView: true),
+        add: (e, {bool toView = true}) async =>
+            await _driftItems.upsertBulk(e, toView: toView),
         delete: (e) async => await _driftItems.delete(e),
         reset: () async => await _driftItems.clear(),
         isFirst: (e) {

@@ -886,7 +886,6 @@ class ChatController extends GetxController {
             final result = _calculateListViewIndex();
             initIndex = result.index;
             initOffset = result.offset;
-
             status.value = RxStatus.loadingMore();
           }
 

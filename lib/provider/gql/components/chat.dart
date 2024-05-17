@@ -545,7 +545,7 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
 
-    // return null;
+    return null;
 
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.mutate(

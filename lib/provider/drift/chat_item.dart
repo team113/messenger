@@ -113,7 +113,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
     bool toView = false,
   }) async {
     final result = await safe((db) async {
-      Log.info('upsertBulk($items) toView($toView)');
+      Log.info('upsertBulk(${items.length} items) toView($toView)');
 
       await db.batch((batch) {
         for (var item in items) {
@@ -205,7 +205,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
       return (await stmt.get()).map(_ChatItemDb.fromDb).toList();
     }
 
-    // SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id ORDER BY chat_item_views.at ASC;
+    // SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id ORDER BY chat_items.at ASC;
     final stmt = db!.select(db!.chatItemViews).join([
       innerJoin(
         db!.chatItems,
