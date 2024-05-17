@@ -80,6 +80,7 @@ class HiveRxChat extends RxChat {
     this._chatRepository,
     this._chatLocal,
     this._draftLocal,
+    this._driftItems,
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
@@ -87,7 +88,6 @@ class HiveRxChat extends RxChat {
         // _sorting = ChatItemSortingHiveProvider(hiveChat.value.id),
         _membersLocal = ChatMemberHiveProvider(hiveChat.value.id),
         _membersSorting = ChatMemberSortingHiveProvider(hiveChat.value.id),
-        _driftItems = Get.find(),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
         unreadCount = RxInt(hiveChat.value.unreadCount),
         ver = hiveChat.ver;

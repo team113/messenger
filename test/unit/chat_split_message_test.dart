@@ -257,6 +257,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -336,6 +337,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -423,6 +425,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -504,6 +507,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -577,6 +581,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -664,6 +669,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

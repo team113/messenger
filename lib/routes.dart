@@ -578,6 +578,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   Get.find(),
                   Get.find(),
+                  Get.find(),
                   callRepository,
                   Get.find(),
                   userRepository,
@@ -733,6 +734,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put<AbstractCallRepository>(callRepository);
             ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
+              Get.find(),
               Get.find(),
               Get.find(),
               Get.find(),

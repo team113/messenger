@@ -23,6 +23,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -85,6 +86,7 @@ class ChatRepository extends DisposableInterface
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
+    this._driftItems,
     this._recentLocal,
     this._favoriteLocal,
     this._callRepo,
@@ -116,6 +118,9 @@ class ChatRepository extends DisposableInterface
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [ChatItem]s local [DriftProvider] storage.
+  final ChatItemDriftProvider _driftItems;
 
   /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
   /// storage.
@@ -323,7 +328,13 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
+          chat = HiveRxChat(
+            this,
+            _chatLocal,
+            _draftLocal,
+            _driftItems,
+            hiveChat,
+          );
           chat!.init();
         }
 
@@ -623,14 +634,14 @@ class ChatRepository extends DisposableInterface
   @override
   Future<void> readChat(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
-    // await chats[chatId]?.read(untilId);
+    await chats[chatId]?.read(untilId);
   }
 
   /// Marks the specified [Chat] as read until the provided [ChatItemId] for the
   /// authenticated [MyUser].
   Future<void> readUntil(ChatId chatId, ChatItemId untilId) async {
     Log.debug('readUntil($chatId, $untilId)', '$runtimeType');
-    // await _graphQlProvider.readChat(chatId, untilId);
+    await _graphQlProvider.readChat(chatId, untilId);
   }
 
   @override
@@ -1623,7 +1634,13 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat)..init();
+      entry = HiveRxChat(
+        this,
+        _chatLocal,
+        _draftLocal,
+        _driftItems,
+        chat,
+      )..init();
       chats[chatId] = entry;
     } else {
       if (entry.chat.value.isMonolog) {

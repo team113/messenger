@@ -383,7 +383,7 @@ void main() async {
   await draftProvider.init();
   await draftProvider.clear();
   final userProvider = Get.put(UserDriftProvider(database));
-  Get.put(ChatItemDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -491,6 +491,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

@@ -369,6 +369,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

@@ -213,6 +213,7 @@ void main() async {
         Get.put<AbstractChatRepository>(ChatRepository(
       graphQlProvider,
       Get.find(),
+      Get.find(),
       recentChatProvider,
       favoriteChatProvider,
       callRepository,
@@ -303,6 +304,7 @@ void main() async {
         Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
+        Get.find(),
         Get.find(),
         recentChatProvider,
         favoriteChatProvider,

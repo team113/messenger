@@ -214,6 +214,7 @@ void main() async {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
         callRepository,
         Get.find(),
         userRepository,

@@ -254,7 +254,7 @@ void main() async {
 
     Get.put(chatProvider);
     final userProvider = UserDriftProvider(database);
-    Get.put(ChatItemDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -280,6 +280,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -335,7 +336,7 @@ void main() async {
 
     Get.put(chatProvider);
     final userProvider = UserDriftProvider(database);
-    Get.put(ChatItemDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -361,6 +362,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

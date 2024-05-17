@@ -120,18 +120,11 @@ class ChatItemDriftProvider extends DriftProviderBase {
           final ChatItemRow row = item.toDb();
           batch.insert(db.chatItems, row, onConflict: DoUpdate((_) => row));
         }
-      });
 
-      if (toView) {
-        await db.batch((batch) {
+        if (toView) {
           for (var item in items) {
             final ChatItemViewRow row = item.toView();
-
-            batch.insert(
-              db.chatItemViews,
-              row,
-              onConflict: DoUpdate((_) => row),
-            );
+            batch.insert(db.chatItemViews, row, onConflict: DoNothing());
           }
 
           for (var e in items) {
@@ -139,8 +132,23 @@ class ChatItemDriftProvider extends DriftProviderBase {
               MapChangeNotification.added(e.value.id, e),
             );
           }
-        });
-      }
+        }
+      });
+
+      // if (toView) {
+      //   await db.batch((batch) {
+      //     for (var item in items) {
+      //       final ChatItemViewRow row = item.toView();
+      //       batch.insert(db.chatItemViews, row, onConflict: DoNothing());
+      //     }
+
+      //     for (var e in items) {
+      //       _controllers[e.value.chatId]?.add(
+      //         MapChangeNotification.added(e.value.id, e),
+      //       );
+      //     }
+      //   });
+      // }
 
       return items.toList();
     });

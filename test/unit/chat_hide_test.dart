@@ -76,7 +76,7 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   final userProvider = UserDriftProvider(database);
-  Get.put(ChatItemDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -253,6 +253,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -323,6 +324,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

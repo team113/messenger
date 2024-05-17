@@ -76,7 +76,7 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   var userProvider = Get.put(UserDriftProvider(database));
-  Get.put(ChatItemDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   final callCredentialsProvider = CallCredentialsHiveProvider();
@@ -237,10 +237,12 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -251,7 +253,8 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService =
+        Get.put(ChatService(chatRepository, authService));
 
     when(graphQlProvider.editChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -280,7 +283,7 @@ void main() async {
   test(
       'ChatService throws a EditChatMessageException when editing a ChatMessage',
       () async {
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -289,7 +292,7 @@ void main() async {
       ),
     );
 
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(
           graphQlProvider,
@@ -302,7 +305,7 @@ void main() async {
     );
     authService.init();
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);
 
     final CallRepository callRepository = Get.put(
@@ -315,10 +318,12 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        chatItemProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

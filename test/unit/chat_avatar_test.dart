@@ -80,7 +80,7 @@ void main() async {
   await chatHiveProvider.init();
   await chatHiveProvider.clear();
   final userProvider = UserDriftProvider(database);
-  Get.put(ChatItemDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -195,6 +195,7 @@ void main() async {
     final ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      chatItemProvider,
       recentChatProvider,
       favoriteChatProvider,
       callRepository,
@@ -293,6 +294,7 @@ void main() async {
     final ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
       chatHiveProvider,
+      chatItemProvider,
       recentChatProvider,
       favoriteChatProvider,
       callRepository,
