@@ -160,6 +160,8 @@ class GraphQlClient {
     QueryOptions options, [
     Exception Function(Map<String, dynamic>)? handleException,
   ]) {
+    // throw ConnectionException(Exception());
+
     return _middleware(() async {
       return _transaction(options.operationName, () async {
         final QueryResult result = await _queryLimiter.execute(
@@ -182,6 +184,8 @@ class GraphQlClient {
     RawClientOptions? raw,
     Exception Function(Map<String, dynamic>)? onException,
   }) async {
+    // throw ConnectionException(Exception());
+
     if (raw != null) {
       return await _transaction(options.operationName, () async {
         final QueryResult result =
@@ -206,6 +210,8 @@ class GraphQlClient {
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
   }) {
+    // return SubscriptionHandle((_) => const Stream.empty(), options, ver: ver)
+    //     .stream;
     return SubscriptionHandle(_subscribe, options, ver: ver).stream;
   }
 

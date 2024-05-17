@@ -164,8 +164,7 @@ class HiveRxChat extends RxChat {
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// [PageProvider] fetching pages of [DtoChatItem]s.
-  late final DriftGraphQlPageProvider<DtoChatItem, ChatItemsCursor, ChatItemId>
-      _provider;
+  late final PageProvider<DtoChatItem, ChatItemsCursor, ChatItemId> _provider;
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
@@ -1011,12 +1010,7 @@ class HiveRxChat extends RxChat {
             last: last,
           );
 
-          final Page<DtoChatItem, ChatItemsCursor> page;
-          if (_provider.graphQlProvider.reversed) {
-            page = reversed.reversed();
-          } else {
-            page = reversed;
-          }
+          final Page<DtoChatItem, ChatItemsCursor> page = reversed.reversed();
 
           if (page.info.hasPrevious == false) {
             _chatLocal.txn((txn) async {
@@ -1036,54 +1030,32 @@ class HiveRxChat extends RxChat {
         },
       ),
       driftProvider: DriftPageProvider(
-        fetch: ({required limit, required offset}) {
-          // Must subscribe to the items fetched via `watch` somehow.
-          // Must be able to delete items easily and identify those in the list.
-          // Must be able to update/create items easily.
+        fetch: ({required after, required before, ChatItemId? around}) async {
+          PreciseDateTime? at;
 
-          int offset = 0;
+          if (around != null) {
+            final DtoChatItem? item = await get(around);
+            at = item?.value.at;
+          }
 
           final Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>>
-              result = _driftItems.watch(id, limit: limit, offset: offset);
+              result = _driftItems.watch(
+            id,
+            before: before,
+            after: after,
+            around: at,
+          );
 
           return result;
-
-          // return result.map((e) {
-          //   return e.map((m) {
-          //     return MapChangeNotification(
-          //       m.key!,
-          //       m.oldKey,
-          //       m.value,
-          //       m.op,
-          //     );
-          //   }).toList();
-          // });
         },
-        add: (e) async => await _driftItems.upsert(e),
+        onKey: (e) => e.value.id,
+        onCursor: (e) => e?.cursor,
+        add: (e) async => await _driftItems.upsertBulk(e),
         delete: (e) async => await _driftItems.delete(e),
         reset: () async => await _driftItems.clear(),
-        onKey: (e) => e.value.id,
-        // _local,
-        // getCursor: (e) => e?.cursor,
-        // getKey: (e) => e.value.id,
-        // orderBy: (_) => _sorting.values,
-        // isFirst: (e) =>
-        //     id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
-        // isLast: (e) =>
-        //     id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
-        // strategy: PaginationStrategy.fromEnd,
+        isFirst: (e) => e != null && chat.value.firstItem?.id == e.value.id,
+        isLast: (e) => e != null && chat.value.lastItem?.id == e.value.id,
       ),
-      // hiveProvider: HivePageProvider(
-      //   _local,
-      //   getCursor: (e) => e?.cursor,
-      //   getKey: (e) => e.value.id,
-      //   orderBy: (_) => _sorting.values,
-      //   isFirst: (e) =>
-      //       id.isLocal || (e != null && chat.value.firstItem?.id == e.value.id),
-      //   isLast: (e) =>
-      //       id.isLocal || (e != null && chat.value.lastItem?.id == e.value.id),
-      //   strategy: PaginationStrategy.fromEnd,
-      // ),
     );
 
     _pagination = Pagination(
@@ -1125,7 +1097,11 @@ class HiveRxChat extends RxChat {
     // [_pagination], as it fetches its items from [_local] by this method.
     if (chat.value.lastReadItem != null /*&& _local.keys.isNotEmpty*/) {
       item = await get(chat.value.lastReadItem!);
-      await _pagination.init(item?.value.id);
+      await _pagination.init(
+        chat.value.lastReadItem == chat.value.lastItem?.id
+            ? null
+            : item?.value.id,
+      );
     }
 
     if (_pagination.items.isNotEmpty) {

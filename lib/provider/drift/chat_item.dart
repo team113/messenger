@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -62,6 +63,29 @@ class ChatItemDriftProvider extends DriftProviderBase {
     return result ?? item;
   }
 
+  /// Creates or updates the provided [items] in the database.
+  Future<Iterable<DtoChatItem>> upsertBulk(Iterable<DtoChatItem> items) async {
+    final result = await safe((db) async {
+      await db.batch((batch) {
+        batch.insertAll(
+          db.chatItems,
+          items.map((e) => e.toDb()),
+          mode: InsertMode.replace,
+        );
+
+        for (var e in items) {
+          _controllers[e.value.chatId]?.add(
+            MapChangeNotification.added(e.value.id, e),
+          );
+        }
+      });
+
+      return items.toList();
+    });
+
+    return result ?? items;
+  }
+
   /// Returns the [DtoChatItem] stored in the database by the provided [id], if
   /// any.
   Future<DtoChatItem?> read(ChatItemId id) async {
@@ -100,19 +124,36 @@ class ChatItemDriftProvider extends DriftProviderBase {
 
   Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
     ChatId chatId, {
-    int? limit,
+    int? before,
+    int? after,
     int? offset,
+    PreciseDateTime? around,
   }) {
     if (db == null) {
       return const Stream.empty();
     }
 
+    if (around != null) {
+      final stmt = db!.chatItemsAround(
+        chatId.val,
+        around,
+        before ?? 50,
+        after ?? 50,
+      );
+
+      return stmt
+          .watch()
+          .map((i) => {for (var e in i.map(_ChatItemDb.fromDb)) e.value.id: e})
+          .changes();
+    }
+
     final stmt = db!.select(db!.chatItems);
     stmt.where((u) => u.chatId.equals(chatId.val));
+
     stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
 
-    if (limit != null) {
-      stmt.limit(limit, offset: offset);
+    if (after != null || before != null) {
+      stmt.limit((after ?? 0) + (before ?? 0), offset: offset);
     }
 
     return stmt

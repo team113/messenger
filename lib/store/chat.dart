@@ -2205,10 +2205,7 @@ class ChatRepository extends DisposableInterface
     RecentChatsCursor? recentCursor,
     FavoriteChatsCursor? favoriteCursor,
   }) {
-    Log.trace(
-      '_chat($q, $recentCursor, $favoriteCursor)',
-      '$runtimeType',
-    );
+    Log.trace('_chat($q, $recentCursor, $favoriteCursor)', '$runtimeType');
 
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toDto());

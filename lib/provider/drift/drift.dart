@@ -30,7 +30,23 @@ import 'user.dart';
 part 'drift.g.dart';
 
 /// [DriftDatabase] storing data locally.
-@DriftDatabase(tables: [Users, ChatItems, ChatItemViews])
+@DriftDatabase(
+  tables: [Users, ChatItems, ChatItemViews],
+  queries: {
+    'chatItemsAround': 'SELECT * FROM '
+        '(SELECT * from chat_items '
+        'WHERE chat_id = :chat_id AND at <= :at '
+        'ORDER BY at DESC LIMIT :before + 1) '
+        'as a '
+        'UNION '
+        'SELECT * FROM '
+        '(SELECT * from chat_items '
+        'WHERE chat_id = :chat_id AND at > :at '
+        'ORDER BY at ASC LIMIT :after) '
+        'as b '
+        'ORDER BY at ASC;',
+  },
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? connect());
 

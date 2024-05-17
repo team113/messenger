@@ -52,9 +52,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
 
-    for (T e in remote.edges) {
-      driftProvider.put(e);
-    }
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
@@ -69,9 +67,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
 
-    for (T e in remote.edges) {
-      await driftProvider.put(e);
-    }
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
@@ -86,16 +82,14 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
 
-    for (T e in remote.edges) {
-      await driftProvider.put(e);
-    }
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
 
   @override
-  Future<void> put(T item, {int Function(T, T)? compare}) =>
-      driftProvider.put(item, compare: compare);
+  Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) =>
+      driftProvider.put(items, compare: compare);
 
   @override
   Future<void> remove(K key) => driftProvider.remove(key);
