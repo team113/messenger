@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -87,7 +88,9 @@ class NativeFile {
 
   /// Constructs a [NativeFile] from the provided [json].
   factory NativeFile.fromJson(Map<String, dynamic> json) =>
-      _$NativeFileFromJson(json);
+      _$NativeFileFromJson(json)
+        ..dimensions.value = _SizeExtension.fromJson(json['dimensions'])
+        ..bytes.value = _Uint8ListExtension.fromJson(json['bytes']);
 
   /// Absolute path for a cached copy of this file.
   final String? path;
@@ -96,7 +99,7 @@ class NativeFile {
   final String name;
 
   /// Byte data of this file.
-  @JsonKey(fromJson: _RxUint8List.fromValue, toJson: _RxUint8List.toValue)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
@@ -110,14 +113,14 @@ class NativeFile {
   MediaType? mime;
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
-  @JsonKey(fromJson: _RxSize.fromValue, toJson: _RxSize.toValue)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
 
   /// Content of this file as a stream.
-  @JsonKey(fromJson: _StreamListInt.fromValue, toJson: _StreamListInt.toValue)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? _readStream;
 
   /// Merged stream of [bytes] and [_readStream] representing the whole file.
@@ -174,7 +177,7 @@ class NativeFile {
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.
-  @JsonKey(fromJson: _StreamListInt.fromValue, toJson: _StreamListInt.toValue)
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? get stream {
     if (_readStream == null) return null;
 
@@ -187,7 +190,9 @@ class NativeFile {
   }
 
   /// Returns a [Map] representing this [NativeFile].
-  Map<String, dynamic> toJson() => _$NativeFileToJson(this);
+  Map<String, dynamic> toJson() => _$NativeFileToJson(this)
+    ..['dimensions'] = dimensions.value?.toJson()
+    ..['bytes'] = bytes.value?.toJson();
 
   /// Ensures [mime] is correctly assigned.
   ///
@@ -307,23 +312,32 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
   }
 }
 
-extension _RxUint8List on Rx {
-  static Uint8List? fromValue(Uint8List? val) => val;
-  static Uint8List? toValue(Rx<Uint8List?> val) => val.value;
-}
-
-extension _RxSize on Rx {
-  static Size? fromValue(Size? val) => val;
-  static Size? toValue(Rx<Size?> val) => val.value;
-}
-
-extension _StreamListInt on Stream {
-  static Stream<List<int>>? fromValue(String? val) => null;
-  static String? toValue(Stream<List<int>>? val) => null;
-}
-
 extension _MediaType on MediaType {
   static MediaType? fromValue(String? val) =>
       val == null ? null : MediaType.parse(val);
   static String? toValue(MediaType? val) => val?.toString();
+}
+
+extension _SizeExtension on Size {
+  static Size? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+
+    return Size(json['width'] as double, json['height'] as double);
+  }
+
+  Map<String, dynamic> toJson() => {'width': width, 'height': height};
+}
+
+extension _Uint8ListExtension on Uint8List {
+  static Uint8List? fromJson(String? json) {
+    if (json == null) {
+      return null;
+    }
+
+    return utf8.encode(json);
+  }
+
+  String toJson() => utf8.decode(this);
 }

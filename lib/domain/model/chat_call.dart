@@ -97,7 +97,8 @@ class ChatCall extends ChatItem {
 
   /// Returns a [Map] representing this [ChatCall].
   @override
-  Map<String, dynamic> toJson() => _$ChatCallToJson(this);
+  Map<String, dynamic> toJson() =>
+      _$ChatCallToJson(this)..['runtimeType'] = 'ChatCall';
 }
 
 /// Member of a [ChatCall].
@@ -194,14 +195,15 @@ abstract class ChatMembersDialed {
   factory ChatMembersDialed.fromJson(Map<String, dynamic> json) =>
       switch (json['runtimeType']) {
         'ChatMembersDialedAll' => ChatMembersDialedAll.fromJson(json),
-        'ChatMembersDialedAll' => ChatMembersDialedAll.fromJson(json),
+        'ChatMembersDialedConcrete' => ChatMembersDialedConcrete.fromJson(json),
         _ => throw UnimplementedError(json['runtimeType'])
       };
 
   /// Returns a [Map] representing this [ChatMembersDialed].
   Map<String, dynamic> toJson() => switch (runtimeType) {
         const (ChatMembersDialedAll) => (this as ChatMembersDialedAll).toJson(),
-        const (ChatMembersDialedAll) => (this as ChatMembersDialedAll).toJson(),
+        const (ChatMembersDialedConcrete) =>
+          (this as ChatMembersDialedConcrete).toJson(),
         _ => throw UnimplementedError(runtimeType.toString()),
       };
 }
