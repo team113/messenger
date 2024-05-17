@@ -45,8 +45,6 @@ import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
 import '/provider/hive/base.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
-import '/provider/hive/chat_item_sorting.dart';
 import '/provider/hive/chat_member.dart';
 import '/provider/hive/chat_member_sorting.dart';
 import '/provider/hive/draft.dart';
@@ -884,11 +882,11 @@ class HiveRxChat extends RxChat {
       final Iterable<DtoChatItem> saved = _pagination.items.values
           .toList(growable: false); //await _driftItems.values;
 
-      final local = ChatItemHiveProvider(id);
-      await local.init(userId: me);
+      // final local = ChatItemHiveProvider(id);
+      // await local.init(userId: me);
 
-      final sorting = ChatItemSortingHiveProvider(id);
-      await sorting.init(userId: me);
+      // final sorting = ChatItemSortingHiveProvider(id);
+      // await sorting.init(userId: me);
 
       // Clear and close the current [Hive] providers.
       // await _local.clear();

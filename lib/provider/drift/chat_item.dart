@@ -33,7 +33,12 @@ class ChatItemViews extends Table {
   Set<Column> get primaryKey => {chatId, chatItemId, at};
 
   TextColumn get chatId => text()();
-  TextColumn get chatItemId => text().references(ChatItems, #id)();
+  TextColumn get chatItemId => text().references(
+        ChatItems,
+        #id,
+        onUpdate: KeyAction.cascade,
+        onDelete: KeyAction.cascade,
+      )();
   IntColumn get at => integer().map(const PreciseDateTimeConverter())();
 }
 

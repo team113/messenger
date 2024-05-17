@@ -28,6 +28,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -77,8 +78,6 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
-  final userProvider = UserDriftProvider(database);
-  await userProvider.clear();
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -271,6 +270,8 @@ void main() async {
     );
 
     Get.put(chatProvider);
+    final userProvider = UserDriftProvider(database);
+    Get.put(ChatItemDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -365,6 +366,8 @@ void main() async {
         const PostChatMessageException(PostChatMessageErrorCode.blocked));
 
     Get.put(chatProvider);
+    final userProvider = UserDriftProvider(database);
+    Get.put(ChatItemDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

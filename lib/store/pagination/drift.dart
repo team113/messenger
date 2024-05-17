@@ -56,8 +56,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _reset(around: key, count: count);
 
     final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.last) == true;
-    final bool hasLast = isLast?.call(edges.first) == true;
+    final bool hasFirst = isFirst?.call(edges.lastOrNull) == true;
+    final bool hasLast = isLast?.call(edges.firstOrNull) == true;
 
     Log.info(
       'init($key, $count) -> (${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
@@ -68,8 +68,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !hasLast,
         hasPrevious: !hasFirst,
-        startCursor: onCursor(edges.last),
-        endCursor: onCursor(edges.first),
+        startCursor: onCursor(edges.lastOrNull),
+        endCursor: onCursor(edges.firstOrNull),
       ),
     );
   }
@@ -80,8 +80,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.last) == true;
-    final bool hasLast = isLast?.call(edges.first) == true;
+    final bool hasFirst = isFirst?.call(edges.lastOrNull) == true;
+    final bool hasLast = isLast?.call(edges.firstOrNull) == true;
     final bool fulfilled = edges.length - edgesBefore >= count;
 
     Log.info(
@@ -93,8 +93,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !hasLast,
         hasPrevious: !hasFirst,
-        startCursor: onCursor(edges.last),
-        endCursor: onCursor(edges.first),
+        startCursor: onCursor(edges.lastOrNull),
+        endCursor: onCursor(edges.firstOrNull),
       ),
     );
   }
@@ -105,8 +105,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.first) == true;
-    final bool hasLast = isLast?.call(edges.last) == true;
+    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
+    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
     final bool fulfilled = hasLast || edges.length - edgesBefore >= count;
 
     Log.info(
@@ -118,8 +118,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !hasLast,
         hasPrevious: !hasFirst,
-        startCursor: onCursor(edges.last),
-        endCursor: onCursor(edges.first),
+        startCursor: onCursor(edges.lastOrNull),
+        endCursor: onCursor(edges.firstOrNull),
       ),
     );
   }
@@ -130,9 +130,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final RxObsList<T> edges = await _page();
-    final bool hasFirst = isLast?.call(edges.first) == true;
-    final bool hasLast =
-        isFirst?.call(edges.last) == true || isFirst?.call(edges.first) == true;
+    final bool hasFirst = isLast?.call(edges.firstOrNull) == true;
+    final bool hasLast = isFirst?.call(edges.lastOrNull) == true ||
+        isFirst?.call(edges.firstOrNull) == true;
     final bool fulfilled = hasLast || edges.length - edgesBefore >= count;
 
     Log.info(
@@ -144,8 +144,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !hasFirst,
         hasPrevious: !hasLast,
-        startCursor: onCursor(edges.last),
-        endCursor: onCursor(edges.first),
+        startCursor: onCursor(edges.lastOrNull),
+        endCursor: onCursor(edges.firstOrNull),
       ),
     );
   }

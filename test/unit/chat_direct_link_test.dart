@@ -29,6 +29,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -141,6 +142,7 @@ void main() async {
     await myUserProvider.clear();
     await Get.put(DraftHiveProvider()).init();
     Get.put(UserDriftProvider(Get.find()));
+    Get.put(ChatItemDriftProvider(Get.find()));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
     await Get.put(MediaSettingsHiveProvider()).init();

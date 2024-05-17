@@ -36,6 +36,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -48,7 +49,6 @@ import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
@@ -144,6 +144,7 @@ void main() async {
   await contactProvider.init();
   await contactProvider.clear();
   final userProvider = Get.put(UserDriftProvider(database));
+  Get.put(ChatItemDriftProvider(database));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -175,11 +176,6 @@ void main() async {
   await blocklistProvider.init();
   var blocklistSortingProvider = BlocklistSortingHiveProvider();
   await blocklistSortingProvider.init();
-
-  var messagesProvider = Get.put(ChatItemHiveProvider(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  ));
-  await messagesProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(

@@ -30,6 +30,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -75,6 +76,7 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   var userProvider = Get.put(UserDriftProvider(database));
+  Get.put(ChatItemDriftProvider(database));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   final callCredentialsProvider = CallCredentialsHiveProvider();
