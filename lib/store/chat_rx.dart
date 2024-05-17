@@ -1050,7 +1050,7 @@ class HiveRxChat extends RxChat {
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.cursor,
-        add: (e) async => await _driftItems.upsertBulk(e),
+        add: (e) async => await _driftItems.upsertBulk(e, toView: true),
         delete: (e) async => await _driftItems.delete(e),
         reset: () async => await _driftItems.clear(),
         isFirst: (e) => e != null && chat.value.firstItem?.id == e.value.id,

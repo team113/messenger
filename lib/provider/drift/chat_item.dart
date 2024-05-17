@@ -46,13 +46,19 @@ class ChatItemDriftProvider extends DriftProviderBase {
       _controllers = {};
 
   /// Creates or updates the provided [item] in the database.
-  Future<DtoChatItem> upsert(DtoChatItem item) async {
+  Future<DtoChatItem> upsert(DtoChatItem item, {bool toView = false}) async {
     final result = await safe((db) async {
       final DtoChatItem stored = _ChatItemDb.fromDb(
         await db
             .into(db.chatItems)
             .insertReturning(item.toDb(), mode: InsertMode.replace),
       );
+
+      if (toView) {
+        await db
+            .into(db.chatItemViews)
+            .insertReturning(item.toView(), mode: InsertMode.replace);
+      }
 
       _controllers[stored.value.chatId]
           ?.add(MapChangeNotification.added(stored.value.id, stored));
@@ -64,7 +70,10 @@ class ChatItemDriftProvider extends DriftProviderBase {
   }
 
   /// Creates or updates the provided [items] in the database.
-  Future<Iterable<DtoChatItem>> upsertBulk(Iterable<DtoChatItem> items) async {
+  Future<Iterable<DtoChatItem>> upsertBulk(
+    Iterable<DtoChatItem> items, {
+    bool toView = false,
+  }) async {
     final result = await safe((db) async {
       await db.batch((batch) {
         batch.insertAll(
@@ -72,6 +81,14 @@ class ChatItemDriftProvider extends DriftProviderBase {
           items.map((e) => e.toDb()),
           mode: InsertMode.replace,
         );
+
+        if (toView) {
+          batch.insertAll(
+            db.chatItemViews,
+            items.map((e) => e.toView()),
+            mode: InsertMode.replace,
+          );
+        }
 
         for (var e in items) {
           _controllers[e.value.chatId]?.add(
@@ -126,7 +143,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
     ChatId chatId, {
     int? before,
     int? after,
-    int? offset,
     PreciseDateTime? around,
   }) {
     if (db == null) {
@@ -137,7 +153,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
       final stmt = db!.chatItemsAround(
         chatId.val,
         around,
-        before ?? 50,
+        (before ?? 50).toDouble(),
         after ?? 50,
       );
 
@@ -153,7 +169,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
     stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
 
     if (after != null || before != null) {
-      stmt.limit((after ?? 0) + (before ?? 0), offset: offset);
+      stmt.limit((after ?? 0) + (before ?? 0));
     }
 
     return stmt
@@ -181,6 +197,15 @@ extension _ChatItemDb on DtoChatItem {
       data: jsonEncode(toJson()),
       cursor: cursor?.val,
       ver: ver.val,
+    );
+  }
+
+  /// Returns the [ChatItemViewRow] from this [DtoChatItem].
+  ChatItemViewRow toView() {
+    return ChatItemViewRow(
+      chatItemId: value.id.val,
+      chatId: value.chatId.val,
+      at: value.at,
     );
   }
 }
