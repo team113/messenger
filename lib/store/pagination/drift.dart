@@ -33,6 +33,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.reset,
     this.isFirst,
     this.isLast,
+    this.onNone,
   });
 
   final K Function(T) onKey;
@@ -40,13 +41,14 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T?) onCursor;
 
-  final FutureOr<Stream<List<MapChangeNotification<K, T>>>> Function({
+  final FutureOr<List<T>> Function({
     required int after,
     required int before,
     K? around,
   }) fetch;
 
   final Future<void> Function(Iterable<T> items)? add;
+  final Future<void> Function(K key)? onNone;
   final Future<void> Function(K key)? delete;
   final Future<void> Function()? reset;
 
@@ -56,7 +58,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called to indicate whether the provided [T] is the last.
   final bool Function(T? item)? isLast;
 
-  final RxObsList<T> _list = RxObsList();
+  List<T> _list = [];
   int _after = 0;
   int _before = 0;
   K? _around;
@@ -72,19 +74,27 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   Future<Page<T, C>> init(K? key, int count) async {
     _reset(around: key, count: count);
 
-    final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.lastOrNull) == true;
-    final bool hasLast = isLast?.call(edges.firstOrNull) == true;
+    final List<T> edges = await _page();
+    final bool hasFirst = isLast?.call(edges.firstOrNull) == true;
+    final bool hasLast = isFirst?.call(edges.lastOrNull) == true;
 
     Log.info(
       'init($key, $count) -> (${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
     );
 
+    print(
+      'edges: ${isLast?.call(edges.firstOrNull) == true}, ${isLast?.call(edges.lastOrNull) == true}, ${isFirst?.call(edges.firstOrNull) == true}, ${isFirst?.call(edges.lastOrNull) == true}',
+    );
+
+    if (edges.isEmpty && key != null) {
+      await onNone?.call(key);
+    }
+
     return Page(
       edges,
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !hasFirst,
+        hasPrevious: !hasLast,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -96,9 +106,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _reset(around: key, count: count);
 
     final int edgesBefore = _list.length;
-    final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.lastOrNull) == true;
-    final bool hasLast = isLast?.call(edges.firstOrNull) == true;
+    final List<T> edges = await _page();
+    final bool hasFirst = isLast?.call(edges.firstOrNull) == true;
+    final bool hasLast = isFirst?.call(edges.lastOrNull) == true;
     final bool fulfilled = edges.length - edgesBefore >= count;
 
     Log.info(
@@ -108,8 +118,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !hasFirst,
+        hasPrevious: !hasLast,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -121,20 +131,24 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _after += count;
 
     final int edgesBefore = _list.length;
-    final RxObsList<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
-    final bool fulfilled = hasLast || edges.length - edgesBefore >= count;
+    final List<T> edges = await _page();
+    final bool hasFirst = isLast?.call(edges.firstOrNull) == true;
+    final bool hasLast = isFirst?.call(edges.lastOrNull) == true;
+    final bool fulfilled = hasFirst || edges.length - edgesBefore >= count;
 
     Log.info(
-      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasLast}, hasPrevious: ${!hasFirst}',
+      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+    );
+
+    print(
+      'edges: ${isLast?.call(edges.firstOrNull) == true}, ${isLast?.call(edges.lastOrNull) == true}, ${isFirst?.call(edges.firstOrNull) == true}, ${isFirst?.call(edges.lastOrNull) == true}',
     );
 
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !hasFirst,
+        hasPrevious: !hasLast,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -146,14 +160,17 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _before += count;
 
     final int edgesBefore = _list.length;
-    final RxObsList<T> edges = await _page();
+    final List<T> edges = await _page();
     final bool hasFirst = isLast?.call(edges.firstOrNull) == true;
-    final bool hasLast = isFirst?.call(edges.lastOrNull) == true ||
-        isFirst?.call(edges.firstOrNull) == true;
+    final bool hasLast = isFirst?.call(edges.lastOrNull) == true;
     final bool fulfilled = hasLast || edges.length - edgesBefore >= count;
 
     Log.info(
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+    );
+
+    print(
+      'edges: ${isLast?.call(edges.firstOrNull) == true}, ${isLast?.call(edges.lastOrNull) == true}, ${isFirst?.call(edges.firstOrNull) == true}, ${isFirst?.call(edges.lastOrNull) == true}',
     );
 
     return Page(
@@ -191,47 +208,50 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _around = around;
   }
 
-  Future<RxObsList<T>> _page() async {
-    final Completer completer = Completer();
-
-    _subscription?.cancel();
-
-    final futureOrStream =
-        fetch(after: _after, before: _before, around: _around);
-    final stream =
-        futureOrStream is Future ? await futureOrStream : futureOrStream;
-
-    _subscription = stream.listen((e) {
-      Log.debug(
-        '_page(after: $_after, before: $_before) fired: ${e.length}',
-        '$runtimeType',
-      );
-
-      if (!completer.isCompleted) {
-        completer.complete();
-      }
-
-      for (var o in e) {
-        switch (o.op) {
-          case OperationKind.added:
-          case OperationKind.updated:
-            final int i = _list.indexWhere((m) => onKey(m) == o.key);
-            if (i == -1) {
-              _list.add(o.value as T);
-            } else {
-              _list[i] = o.value as T;
-            }
-            break;
-
-          case OperationKind.removed:
-            _list.removeWhere((m) => onKey(m) == o.key);
-            break;
-        }
-      }
-    });
-
-    await completer.future;
-
+  Future<List<T>> _page() async {
+    _list = await fetch(after: _after, before: _before, around: _around);
     return _list;
+
+    // final Completer completer = Completer();
+
+    // _subscription?.cancel();
+
+    // final futureOrStream =
+    //     fetch(after: _after, before: _before, around: _around);
+    // final stream =
+    //     futureOrStream is Future ? await futureOrStream : futureOrStream;
+
+    // _subscription = stream.listen((e) {
+    //   Log.debug(
+    //     '_page(after: $_after, before: $_before) fired: ${e.length}',
+    //     '$runtimeType',
+    //   );
+
+    //   if (!completer.isCompleted) {
+    //     completer.complete();
+    //   }
+
+    //   for (var o in e) {
+    //     switch (o.op) {
+    //       case OperationKind.added:
+    //       case OperationKind.updated:
+    //         final int i = _list.indexWhere((m) => onKey(m) == o.key);
+    //         if (i == -1) {
+    //           _list.add(o.value as T);
+    //         } else {
+    //           _list[i] = o.value as T;
+    //         }
+    //         break;
+
+    //       case OperationKind.removed:
+    //         _list.removeWhere((m) => onKey(m) == o.key);
+    //         break;
+    //     }
+    //   }
+    // });
+
+    // await completer.future;
+
+    // return _list;
   }
 }

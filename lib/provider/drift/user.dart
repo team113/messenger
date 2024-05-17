@@ -68,9 +68,10 @@ class UserDriftProvider extends DriftProviderBase {
   Future<DtoUser> upsert(DtoUser user) async {
     final result = await safe((db) async {
       final DtoUser stored = _UserDb.fromDb(
-        await db
-            .into(db.users)
-            .insertReturning(user.toDb(), mode: InsertMode.replace),
+        await db.into(db.users).insertReturning(
+              user.toDb(),
+              onConflict: DoUpdate((_) => user.toDb()),
+            ),
       );
 
       _controllers[stored.id]?.add(stored);

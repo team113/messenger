@@ -294,7 +294,7 @@ mixin ChatGraphQlMixin {
     bool onlyAttachments = false,
   }) async {
     Log.debug(
-      'chatItems($id, $first, $after, $last, $before, $onlyAttachments)',
+      'chatItems($id, first: $first, after: $after, last: $last, before: $before, onlyAttachments: $onlyAttachments)',
       '$runtimeType',
     );
 
@@ -544,6 +544,8 @@ mixin ChatGraphQlMixin {
     ChatItemId untilId,
   ) async {
     Log.debug('readChat($chatId, $untilId)', '$runtimeType');
+
+    // return null;
 
     final variables = ReadChatArguments(id: chatId, untilId: untilId);
     final QueryResult result = await client.mutate(

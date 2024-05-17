@@ -775,6 +775,7 @@ class HiveRxChat extends RxChat {
   /// Adds the provided [item] to the [Pagination]s.
   Future<void> put(DtoChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
+
     await _pagination.put(item, ignoreBounds: ignoreBounds);
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
@@ -1036,23 +1037,27 @@ class HiveRxChat extends RxChat {
             at = item?.value.at;
           }
 
-          final Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>>
-              result = _driftItems.watch(
+          return await _driftItems.view(
             id,
             before: before,
             after: after,
             around: at,
           );
-
-          return result;
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.cursor,
         add: (e) async => await _driftItems.upsertBulk(e, toView: true),
         delete: (e) async => await _driftItems.delete(e),
         reset: () async => await _driftItems.clear(),
-        isFirst: (e) => e != null && chat.value.firstItem?.id == e.value.id,
-        isLast: (e) => e != null && chat.value.lastItem?.id == e.value.id,
+        isFirst: (e) {
+          print('isFirst: ${chat.value.firstItem?.id} vs ${e?.value.id}');
+          return e != null && chat.value.firstItem?.id == e.value.id;
+        },
+        isLast: (e) {
+          print('isLast: ${chat.value.lastItem?.id} vs ${e?.value.id}');
+          return e != null && chat.value.lastItem?.id == e.value.id;
+        },
+        onNone: (k) async => await _driftItems.upsertView(id, k),
       ),
     );
 

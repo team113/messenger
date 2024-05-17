@@ -44,9 +44,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 
-    if (cached.edges.length >= count ||
-        !cached.info.hasNext ||
-        !cached.info.hasPrevious) {
+    if (cached.edges.isNotEmpty) {
       return cached;
     }
 

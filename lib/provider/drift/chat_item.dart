@@ -19,10 +19,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
-import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:log_me/log_me.dart';
 
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
 import '/util/obs/obs.dart';
@@ -47,7 +48,7 @@ class ChatItems extends Table {
 @DataClassName('ChatItemViewRow')
 class ChatItemViews extends Table {
   @override
-  Set<Column> get primaryKey => {chatId, chatItemId, at};
+  Set<Column> get primaryKey => {chatId, chatItemId};
 
   TextColumn get chatId => text()();
   TextColumn get chatItemId => text().references(
@@ -56,7 +57,6 @@ class ChatItemViews extends Table {
         onUpdate: KeyAction.cascade,
         onDelete: KeyAction.cascade,
       )();
-  IntColumn get at => integer().map(const PreciseDateTimeConverter())();
 }
 
 class ChatItemDriftProvider extends DriftProviderBase {
@@ -67,23 +67,39 @@ class ChatItemDriftProvider extends DriftProviderBase {
           StreamController<MapChangeNotification<ChatItemId, DtoChatItem>>>
       _controllers = {};
 
+  Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {
+    Log.info('upsertView($chatId, $chatItemId)');
+
+    await safe((db) async {
+      final view =
+          ChatItemViewRow(chatId: chatId.val, chatItemId: chatItemId.val);
+      await db
+          .into(db.chatItemViews)
+          .insert(view, onConflict: DoUpdate((_) => view));
+    });
+  }
+
   /// Creates or updates the provided [item] in the database.
   Future<DtoChatItem> upsert(DtoChatItem item, {bool toView = false}) async {
+    Log.info('upsert($item) toView($toView)');
+
     final result = await safe((db) async {
+      final ChatItemRow row = item.toDb();
       final DtoChatItem stored = _ChatItemDb.fromDb(
         await db
             .into(db.chatItems)
-            .insertReturning(item.toDb(), mode: InsertMode.replace),
+            .insertReturning(row, onConflict: DoUpdate((_) => row)),
       );
 
       if (toView) {
+        final ChatItemViewRow row = item.toView();
         await db
             .into(db.chatItemViews)
-            .insertReturning(item.toView(), mode: InsertMode.replace);
-      }
+            .insertReturning(row, onConflict: DoUpdate((_) => row));
 
-      _controllers[stored.value.chatId]
-          ?.add(MapChangeNotification.added(stored.value.id, stored));
+        _controllers[stored.value.chatId]
+            ?.add(MapChangeNotification.added(stored.value.id, stored));
+      }
 
       return stored;
     });
@@ -97,27 +113,34 @@ class ChatItemDriftProvider extends DriftProviderBase {
     bool toView = false,
   }) async {
     final result = await safe((db) async {
+      Log.info('upsertBulk($items) toView($toView)');
+
       await db.batch((batch) {
-        batch.insertAll(
-          db.chatItems,
-          items.map((e) => e.toDb()),
-          mode: InsertMode.replace,
-        );
-
-        if (toView) {
-          batch.insertAll(
-            db.chatItemViews,
-            items.map((e) => e.toView()),
-            mode: InsertMode.replace,
-          );
-        }
-
-        for (var e in items) {
-          _controllers[e.value.chatId]?.add(
-            MapChangeNotification.added(e.value.id, e),
-          );
+        for (var item in items) {
+          final ChatItemRow row = item.toDb();
+          batch.insert(db.chatItems, row, onConflict: DoUpdate((_) => row));
         }
       });
+
+      if (toView) {
+        await db.batch((batch) {
+          for (var item in items) {
+            final ChatItemViewRow row = item.toView();
+
+            batch.insert(
+              db.chatItemViews,
+              row,
+              onConflict: DoUpdate((_) => row),
+            );
+          }
+
+          for (var e in items) {
+            _controllers[e.value.chatId]?.add(
+              MapChangeNotification.added(e.value.id, e),
+            );
+          }
+        });
+      }
 
       return items.toList();
     });
@@ -161,14 +184,14 @@ class ChatItemDriftProvider extends DriftProviderBase {
     });
   }
 
-  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
+  Future<List<DtoChatItem>> view(
     ChatId chatId, {
     int? before,
     int? after,
     PreciseDateTime? around,
-  }) {
+  }) async {
     if (db == null) {
-      return const Stream.empty();
+      return [];
     }
 
     if (around != null) {
@@ -179,25 +202,28 @@ class ChatItemDriftProvider extends DriftProviderBase {
         after ?? 50,
       );
 
-      return stmt
-          .watch()
-          .map((i) => {for (var e in i.map(_ChatItemDb.fromDb)) e.value.id: e})
-          .changes();
+      return (await stmt.get()).map(_ChatItemDb.fromDb).toList();
     }
 
-    final stmt = db!.select(db!.chatItems);
-    stmt.where((u) => u.chatId.equals(chatId.val));
+    // SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id ORDER BY chat_item_views.at ASC;
+    final stmt = db!.select(db!.chatItemViews).join([
+      innerJoin(
+        db!.chatItems,
+        db!.chatItems.id.equalsExp(db!.chatItemViews.chatItemId),
+      ),
+    ]);
 
-    stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
+    stmt.where(db!.chatItemViews.chatId.equals(chatId.val));
+    stmt.orderBy([OrderingTerm.desc(db!.chatItems.at)]);
 
     if (after != null || before != null) {
       stmt.limit((after ?? 0) + (before ?? 0));
     }
 
-    return stmt
-        .watch()
-        .map((i) => {for (var e in i.map(_ChatItemDb.fromDb)) e.value.id: e})
-        .changes();
+    return (await stmt.get())
+        .map((rows) => rows.readTable(db!.chatItems))
+        .map(_ChatItemDb.fromDb)
+        .toList();
   }
 }
 
@@ -224,10 +250,6 @@ extension _ChatItemDb on DtoChatItem {
 
   /// Returns the [ChatItemViewRow] from this [DtoChatItem].
   ChatItemViewRow toView() {
-    return ChatItemViewRow(
-      chatItemId: value.id.val,
-      chatId: value.chatId.val,
-      at: value.at,
-    );
+    return ChatItemViewRow(chatItemId: value.id.val, chatId: value.chatId.val);
   }
 }

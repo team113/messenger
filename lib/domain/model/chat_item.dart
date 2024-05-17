@@ -153,6 +153,9 @@ class ChatMessage extends ChatItem {
         );
   }
 
+  @override
+  String toString() => '$runtimeType($id, $chatId, text: $text)';
+
   /// Returns a [Map] representing this [ChatMessage].
   @override
   Map<String, dynamic> toJson() =>

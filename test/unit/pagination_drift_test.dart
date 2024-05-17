@@ -239,7 +239,7 @@ void main() async {
             required int before,
             required int after,
           }) {
-            return itemDriftProvider.watch(
+            return itemDriftProvider.view(
               chatId,
               before: before,
               after: after,
