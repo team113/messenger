@@ -101,7 +101,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final List<T> edges = await _page();
     final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
     final bool hasLast = isLast?.call(edges.lastOrNull) == true;
-    final bool fulfilled = edges.length - edgesBefore >= count;
+    final bool fulfilled =
+        (hasFirst && hasLast) || edges.length - edgesBefore >= count ~/ 2;
 
     Log.info(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',

@@ -17,8 +17,6 @@
 
 import 'dart:async';
 
-import 'package:hive/hive.dart';
-
 import '/store/pagination.dart';
 import 'drift.dart';
 import 'graphql.dart';
@@ -31,7 +29,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
     required this.graphQlProvider,
   });
 
-  /// [DriftPageProvider] fetching elements from the [Hive].
+  /// [DriftPageProvider] fetching elements from the [DriftProvider].
   final DriftPageProvider<T, C, K> driftProvider;
 
   /// [GraphQlPageProvider] fetching elements from the remote.

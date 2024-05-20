@@ -336,8 +336,8 @@ extension _Uint8ListExtension on Uint8List {
       return null;
     }
 
-    return utf8.encode(json);
+    return base64.decode(json);
   }
 
-  String toJson() => utf8.decode(this);
+  String toJson() => base64.encode(this);
 }
