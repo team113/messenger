@@ -577,7 +577,7 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await database.close();
+    await tester.runAsync(() async => await database.close());
     await Get.deleteAll(force: true);
   });
 }
