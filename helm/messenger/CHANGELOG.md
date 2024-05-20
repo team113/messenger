@@ -6,6 +6,18 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.4] · 2024-??-??
+[0.1.4]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.4/helm/messenger
+
+### Fixed
+
+- Embedded resources missing `Cross-Origin-Embedder-Policy` header. ([#1011])
+
+[#1011]: https://github.com/team113/messenger/pull/1011
+
+
+
+
 ## [0.1.3] · 2024-05-17
 [0.1.3]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.3/helm/messenger
 
