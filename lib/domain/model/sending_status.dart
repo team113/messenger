@@ -15,7 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
 
@@ -35,5 +37,14 @@ enum SendingStatus {
 
   /// Error occurred.
   @HiveField(2)
-  error
+  error,
+}
+
+/// Extension adding methods to construct the [SendingStatus] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension SendingStatusJson on SendingStatus {
+  /// Returns a [String] representing the [value].
+  static String toJson(Rx<SendingStatus> value) => value.value.name;
 }

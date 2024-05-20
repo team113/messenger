@@ -17,88 +17,79 @@
 
 import 'dart:async';
 
-import 'package:hive/hive.dart';
-
-import '/provider/hive/base.dart';
 import '/store/pagination.dart';
+import 'drift.dart';
 import 'graphql.dart';
-import 'hive.dart';
 
-/// [HivePageProvider] and [GraphQlPageProvider] providers combined.
-class HiveGraphQlPageProvider<T extends Object, C, K>
+/// [DriftPageProvider] and [GraphQlPageProvider] providers combined.
+class DriftGraphQlPageProvider<T extends Object, C, K>
     implements PageProvider<T, C, K> {
-  const HiveGraphQlPageProvider({
-    required this.hiveProvider,
+  const DriftGraphQlPageProvider({
+    required this.driftProvider,
     required this.graphQlProvider,
   });
 
-  /// [HivePageProvider] fetching elements from the [Hive].
-  final HivePageProvider<T, C, K> hiveProvider;
+  /// [DriftPageProvider] fetching elements from the [DriftProvider].
+  final DriftPageProvider<T, C, K> driftProvider;
 
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C, K> graphQlProvider;
 
-  /// Makes the [hiveProvider] to use the provided [HiveLazyProvider].
-  set hive(IterableHiveProvider<T, K> provider) =>
-      hiveProvider.provider = provider;
-
   @override
-  Future<Page<T, C>> init(K? key, int count) => hiveProvider.init(key, count);
+  Future<Page<T, C>> init(K? key, int count) => driftProvider.init(key, count);
 
   @override
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
-    final Page<T, C> cached = await hiveProvider.around(key, cursor, count);
+    final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 
-    if (cached.edges.length >= count ||
-        !cached.info.hasNext ||
-        !cached.info.hasPrevious) {
+    if (cached.edges.isNotEmpty) {
       return cached;
     }
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
 
-    await hiveProvider.put(remote.edges);
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
 
   @override
   Future<Page<T, C>> after(K? key, C? cursor, int count) async {
-    final Page<T, C>? cached = await hiveProvider.after(key, cursor, count);
+    final Page<T, C> cached = await driftProvider.after(key, cursor, count);
 
-    if (cached != null && cached.edges.isNotEmpty) {
+    if (cached.edges.isNotEmpty) {
       return cached;
     }
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
 
-    await hiveProvider.put(remote.edges);
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
 
   @override
   Future<Page<T, C>> before(K? key, C? cursor, int count) async {
-    final Page<T, C>? cached = await hiveProvider.before(key, cursor, count);
+    final Page<T, C> cached = await driftProvider.before(key, cursor, count);
 
-    if (cached != null && cached.edges.isNotEmpty) {
+    if (cached.edges.isNotEmpty) {
       return cached;
     }
 
     final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
 
-    await hiveProvider.put(remote.edges);
+    await driftProvider.put(remote.edges);
 
     return remote;
   }
 
   @override
   Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) =>
-      hiveProvider.put(items, compare: compare);
+      driftProvider.put(items, compare: compare);
 
   @override
-  Future<void> remove(K key) => hiveProvider.remove(key);
+  Future<void> remove(K key) => driftProvider.remove(key);
 
   @override
-  Future<void> clear() => hiveProvider.clear();
+  Future<void> clear() => driftProvider.clear();
 }

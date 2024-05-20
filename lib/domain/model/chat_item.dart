@@ -21,12 +21,15 @@ import 'dart:ui';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
 import '../model_type_id.dart';
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
+import 'chat_call.dart';
+import 'chat_info.dart';
 import 'chat_item_quote.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'sending_status.dart';
@@ -46,6 +49,16 @@ abstract class ChatItem {
           status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
         );
 
+  /// Constructs a [ChatItem] from the provided [json].
+  factory ChatItem.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ChatMessage' => ChatMessage.fromJson(json),
+        'ChatCall' => ChatCall.fromJson(json),
+        'ChatInfo' => ChatInfo.fromJson(json),
+        'ChatForward' => ChatForward.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// Unique ID of this [ChatItem].
   @HiveField(0)
   final ChatItemId id;
@@ -63,6 +76,7 @@ abstract class ChatItem {
   PreciseDateTime at;
 
   /// [SendingStatus] of this [ChatItem].
+  @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
   /// Returns combined [at] and [id] unique identifier of this [ChatItem].
@@ -81,9 +95,19 @@ abstract class ChatItem {
 
   @override
   String toString() => '$runtimeType($id, $chatId)';
+
+  /// Returns a [Map] representing this [ChatItem].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (ChatMessage) => (this as ChatMessage).toJson(),
+        const (ChatCall) => (this as ChatCall).toJson(),
+        const (ChatInfo) => (this as ChatInfo).toJson(),
+        const (ChatForward) => (this as ChatForward).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// Message in a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMessage)
 class ChatMessage extends ChatItem {
   ChatMessage(
@@ -97,6 +121,10 @@ class ChatMessage extends ChatItem {
     this.editedAt,
     this.attachments = const [],
   });
+
+  /// Constructs a [ChatMessage] from the provided [json].
+  factory ChatMessage.fromJson(Map<String, dynamic> json) =>
+      _$ChatMessageFromJson(json);
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
   @HiveField(5)
@@ -137,9 +165,18 @@ class ChatMessage extends ChatItem {
           ),
         );
   }
+
+  @override
+  String toString() => '$runtimeType($id, $chatId, text: $text)';
+
+  /// Returns a [Map] representing this [ChatMessage].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatMessageToJson(this)..['runtimeType'] = 'ChatMessage';
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatForward)
 class ChatForward extends ChatItem {
   ChatForward(
@@ -150,12 +187,21 @@ class ChatForward extends ChatItem {
     required this.quote,
   });
 
+  /// Constructs a [ChatForward] from the provided [json].
+  factory ChatForward.fromJson(Map<String, dynamic> json) =>
+      _$ChatForwardFromJson(json);
+
   /// [ChatItemQuote] of the forwarded [ChatItem].
   ///
   /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
   /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
   @HiveField(5)
   final ChatItemQuote quote;
+
+  /// Returns a [Map] representing this [ChatForward].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatForwardToJson(this)..['runtimeType'] = 'ChatForward';
 }
 
 /// Unique ID of a [ChatItem].
@@ -166,8 +212,14 @@ class ChatItemId extends NewType<String> {
   /// Constructs a dummy [ChatItemId].
   factory ChatItemId.local() => ChatItemId('local.${const Uuid().v4()}');
 
+  /// Constructs a [ChatItemId] from the provided [val].
+  factory ChatItemId.fromJson(String val) = ChatItemId;
+
   /// Indicates whether this [ChatItemId] is a dummy ID.
   bool get isLocal => val.startsWith('local.');
+
+  /// Returns a [String] representing this [ChatItemId].
+  String toJson() => val;
 }
 
 class ChatBotText {
@@ -196,6 +248,9 @@ class ChatBotText {
 @HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(super.val);
+
+  /// Constructs a [ChatMessageText] from the provided [val].
+  factory ChatMessageText.fromJson(String val) = ChatMessageText;
 
   factory ChatMessageText.bot({
     String? title,
@@ -244,6 +299,9 @@ class ChatMessageText extends NewType<String> {
 
     return chunks.map((e) => ChatMessageText(e)).toList();
   }
+
+  /// Returns a [String] representing this [ChatMessageText].
+  String toJson() => val;
 }
 
 /// Combined [at] and [id] unique identifier of a [ChatItem].
@@ -264,6 +322,9 @@ class ChatItemKey implements Comparable<ChatItemKey> {
     );
   }
 
+  /// Constructs a [ChatItemKey] from the provided [val].
+  factory ChatItemKey.fromJson(String val) = ChatItemKey.fromString;
+
   /// [ChatItemId] part of this [ChatItemKey].
   final ChatItemId id;
 
@@ -272,6 +333,9 @@ class ChatItemKey implements Comparable<ChatItemKey> {
 
   @override
   String toString() => '${at.microsecondsSinceEpoch}_$id';
+
+  /// Returns a [String] representing this [ChatItemKey].
+  String toJson() => toString();
 
   @override
   bool operator ==(Object other) =>

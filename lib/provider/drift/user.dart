@@ -57,7 +57,7 @@ class Users extends Table {
   TextColumn get blockedVer => text()();
 }
 
-/// [DriftProviderBase] for manipulating the [User]s stored.
+/// [DriftProviderBase] for manipulating the persisted [User]s.
 class UserDriftProvider extends DriftProviderBase {
   UserDriftProvider(super.database);
 
@@ -68,9 +68,10 @@ class UserDriftProvider extends DriftProviderBase {
   Future<DtoUser> upsert(DtoUser user) async {
     final result = await safe((db) async {
       final DtoUser stored = _UserDb.fromDb(
-        await db
-            .into(db.users)
-            .insertReturning(user.toDb(), mode: InsertMode.replace),
+        await db.into(db.users).insertReturning(
+              user.toDb(),
+              onConflict: DoUpdate((_) => user.toDb()),
+            ),
       );
 
       _controllers[stored.id]?.add(stored);
@@ -139,7 +140,7 @@ class UserDriftProvider extends DriftProviderBase {
 
 /// Extension adding conversion methods from [UserRow] to [DtoUser].
 extension _UserDb on DtoUser {
-  /// Returns the [DtoUser] from the provided [UserRow].
+  /// Constructs a [DtoUser] from the provided [UserRow].
   static DtoUser fromDb(UserRow e) {
     return DtoUser(
       User(
@@ -173,7 +174,7 @@ extension _UserDb on DtoUser {
     );
   }
 
-  /// Returns the [UserRow] from this [DtoUser].
+  /// Constructs a [UserRow] from this [DtoUser].
   UserRow toDb() {
     return UserRow(
       id: value.id.val,
