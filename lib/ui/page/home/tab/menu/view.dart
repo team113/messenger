@@ -83,20 +83,14 @@ class MenuTabView extends StatelessWidget {
               ],
               child: Row(
                 children: [
-                  Material(
-                    elevation: 6,
-                    type: MaterialType.circle,
-                    shadowColor: style.colors.onBackgroundOpacity27,
-                    color: style.colors.onPrimary,
-                    child: Center(
-                      child: Obx(() {
-                        return AvatarWidget.fromMyUser(
-                          c.myUser.value,
-                          key: c.profileKey,
-                          radius: AvatarRadius.medium,
-                        );
-                      }),
-                    ),
+                  Center(
+                    child: Obx(() {
+                      return AvatarWidget.fromMyUser(
+                        c.myUser.value,
+                        key: c.profileKey,
+                        radius: AvatarRadius.medium,
+                      );
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Flexible(
