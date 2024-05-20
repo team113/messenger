@@ -33,17 +33,16 @@ part 'drift.g.dart';
 @DriftDatabase(
   tables: [Users, ChatItems, ChatItemViews],
   queries: {
-    'chatItemsAround': 'SELECT * FROM '
+    'chatItemsAround': ''
+        'SELECT * FROM '
         '(SELECT * from chat_items '
         'WHERE chat_id = :chat_id AND at <= :at '
-        'ORDER BY at DESC LIMIT :before + 1) '
-        'as a '
+        'ORDER BY at DESC LIMIT :before + 1) as a '
         'UNION '
         'SELECT * FROM '
         '(SELECT * from chat_items '
         'WHERE chat_id = :chat_id AND at > :at '
-        'ORDER BY at ASC LIMIT :after) '
-        'as b '
+        'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
   },
 )
