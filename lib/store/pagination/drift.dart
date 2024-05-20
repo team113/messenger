@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:log_me/log_me.dart';
 
+import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 
@@ -34,6 +35,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.isFirst,
     this.isLast,
     this.onNone,
+    this.compare,
   });
 
   final K Function(T) onKey;
@@ -62,6 +64,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// `null` returned means that the [T] shouldn't participant in such test.
   final bool? Function(T)? isLast;
 
+  final int Function(T, T)? compare;
+
   List<T> _list = [];
   int _after = 0;
   int _before = 0;
@@ -82,7 +86,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
 
     Log.info(
-      'init($key, $count) -> (${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
+      'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
 
     // print(
@@ -116,7 +120,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         (_hasFirst && _hasLast) || edges.length - edgesBefore >= count ~/ 2;
 
     Log.info(
-      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
+      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
 
     // print(
@@ -145,7 +149,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final bool fulfilled = _hasLast || edges.length - edgesBefore >= count;
 
     Log.info(
-      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
+      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
 
     // print(
@@ -174,7 +178,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final bool fulfilled = _hasFirst || edges.length - edgesBefore >= count;
 
     Log.info(
-      'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
+      'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
 
     // print(
@@ -198,7 +202,20 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       _after += 1;
     }
 
-    await add?.call(items, toView: compare == null);
+    final bool toView = compare == null;
+
+    if (toView) {
+      for (var item in items) {
+        final int i = _list.indexWhere((e) => onKey(e) == onKey(item));
+        if (i != -1) {
+          _list[i] = item;
+        } else {
+          _list.insertAfter(item, (e) => this.compare?.call(e, item) == 1);
+        }
+      }
+    }
+
+    await add?.call(items, toView: toView);
   }
 
   @override

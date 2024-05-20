@@ -35,13 +35,15 @@ part 'drift.g.dart';
   queries: {
     'chatItemsAround': ''
         'SELECT * FROM '
-        '(SELECT * from chat_items '
-        'WHERE chat_id = :chat_id AND at <= :at '
+        '(SELECT * FROM chat_item_views '
+        'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
+        'WHERE chat_item_views.chat_id = :chat_id AND at <= :at '
         'ORDER BY at DESC LIMIT :before + 1) as a '
         'UNION '
         'SELECT * FROM '
-        '(SELECT * from chat_items '
-        'WHERE chat_id = :chat_id AND at > :at '
+        '(SELECT * FROM chat_item_views '
+        'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
+        'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
   },

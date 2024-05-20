@@ -203,6 +203,16 @@ class ChatItemDriftProvider extends DriftProviderBase {
     }
 
     if (around != null) {
+      // SELECT * FROM
+      // (SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id
+      // WHERE chat_item_views.chat_id = "7ed1c9dd-516d-4cf4-aec7-8e13e48d2861" AND at <= 1715962374040881
+      // ORDER BY at DESC LIMIT 25 + 1) as a
+      // UNION
+      // SELECT * FROM
+      // (SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id
+      // WHERE chat_item_views.chat_id = "7ed1c9dd-516d-4cf4-aec7-8e13e48d2861" AND at > 1715962374040881
+      // ORDER BY at ASC LIMIT 50) as b
+      // ORDER BY at ASC;
       final stmt = db!.chatItemsAround(
         chatId.val,
         around,
@@ -210,7 +220,21 @@ class ChatItemDriftProvider extends DriftProviderBase {
         after ?? 50,
       );
 
-      return (await stmt.get()).map(_ChatItemDb.fromDb).toList();
+      return (await stmt.get())
+          .map(
+            (r) => ChatItemRow(
+              id: r.id,
+              chatId: r.chatId,
+              authorId: r.authorId,
+              at: r.at,
+              status: r.status,
+              data: r.data,
+              cursor: r.cursor,
+              ver: r.ver,
+            ),
+          )
+          .map(_ChatItemDb.fromDb)
+          .toList();
     }
 
     // SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id ORDER BY chat_items.at ASC;

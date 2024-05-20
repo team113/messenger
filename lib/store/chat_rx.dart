@@ -161,9 +161,6 @@ class HiveRxChat extends RxChat {
   /// [reads].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
-  /// [PageProvider] fetching pages of [DtoChatItem]s.
-  late final PageProvider<DtoChatItem, ChatItemsCursor, ChatItemId> _provider;
-
   /// [Worker] reacting on the [User] changes updating the [avatar].
   Worker? _userWorker;
 
@@ -366,6 +363,8 @@ class HiveRxChat extends RxChat {
   Future<void> init() async {
     Log.debug('init()', '$runtimeType($id)');
 
+    print('======== FIRST IS: ${chat.value.firstItem}');
+
     if (status.value.isSuccess) {
       return Future.value();
     }
@@ -505,10 +504,6 @@ class HiveRxChat extends RxChat {
     Log.debug(
       'around(item: $item, reply: $reply, forward: $forward)',
       '$runtimeType($id)',
-    );
-
-    print(
-      'hello, world: $item, ${id.isLocal}, ${status.value.isSuccess}, ${hasNext.isFalse && hasPrevious.isFalse}',
     );
 
     // Even if the [item] is within [_local], still create a [MessageFragment],
@@ -1001,89 +996,90 @@ class HiveRxChat extends RxChat {
 
   /// Initializes the messages [_pagination].
   Future<void> _initMessagesPagination() async {
-    _provider = DriftGraphQlPageProvider(
-      graphQlProvider: GraphQlPageProvider(
-        reversed: true,
-        fetch: ({after, before, first, last}) async {
-          final Page<DtoChatItem, ChatItemsCursor> reversed =
-              await _chatRepository.messages(
-            chat.value.id,
-            after: after,
-            first: first,
-            before: before,
-            last: last,
-          );
-
-          final Page<DtoChatItem, ChatItemsCursor> page = reversed.reversed();
-
-          if (page.info.hasPrevious == false) {
-            _chatLocal.txn((txn) async {
-              final HiveChat? chatEntity = await txn.get(id.val);
-              final ChatItem? firstItem = page.edges.firstOrNull?.value;
-
-              if (chatEntity != null &&
-                  firstItem != null &&
-                  chatEntity.value.firstItem != firstItem) {
-                chatEntity.value.firstItem = firstItem;
-                await _putChat(chatEntity, txn);
-              }
-            });
-          }
-
-          return reversed;
-        },
-      ),
-      driftProvider: DriftPageProvider(
-        fetch: ({required after, required before, ChatItemId? around}) async {
-          PreciseDateTime? at;
-
-          if (around != null) {
-            final DtoChatItem? item = await get(around);
-            at = item?.value.at;
-          }
-
-          return await _driftItems.view(
-            id,
-            before: before,
-            after: after,
-            around: at,
-          );
-        },
-        onKey: (e) => e.value.id,
-        onCursor: (e) => e?.cursor,
-        add: (e, {bool toView = true}) async =>
-            await _driftItems.upsertBulk(e, toView: toView),
-        delete: (e) async => await _driftItems.delete(e),
-        reset: () async => await _driftItems.clear(),
-        isFirst: (e) {
-          print(
-            'isFirst: ${chat.value.firstItem?.id} vs ${e.value.id} -> ${chat.value.firstItem?.id == e.value.id}',
-          );
-
-          if (e.value.id.isLocal) {
-            return null;
-          }
-
-          return chat.value.firstItem?.id == e.value.id;
-        },
-        isLast: (e) {
-          print(
-            'isLast: ${chat.value.lastItem?.id} vs ${e.value.id} -> ${chat.value.lastItem?.id == e.value.id}',
-          );
-
-          if (e.value.id.isLocal) {
-            return null;
-          }
-
-          return chat.value.lastItem?.id == e.value.id;
-        },
-        onNone: (k) async => await _driftItems.upsertView(id, k),
-      ),
-    );
-
     _pagination = Pagination(
       onKey: (e) => e.value.id,
-      provider: _provider,
+      provider: DriftGraphQlPageProvider(
+        graphQlProvider: GraphQlPageProvider(
+          reversed: true,
+          fetch: ({after, before, first, last}) async {
+            final Page<DtoChatItem, ChatItemsCursor> reversed =
+                await _chatRepository.messages(
+              chat.value.id,
+              after: after,
+              first: first,
+              before: before,
+              last: last,
+            );
+
+            final Page<DtoChatItem, ChatItemsCursor> page = reversed.reversed();
+
+            if (page.info.hasPrevious == false) {
+              // [PageInfo.hasPrevious] is `false`, when querying `before` only.
+              if (before == null || after != null) {
+                print(
+                  '========= page.info.hasPrevious == `false`, SO UPDATING LAST ITEM...',
+                );
+                _chatLocal.txn((txn) async {
+                  final HiveChat? chatEntity = await txn.get(id.val);
+                  final ChatItem? firstItem = page.edges.firstOrNull?.value;
+
+                  print(
+                    '========= page.info.hasPrevious == `false`, SO UPDATING LAST ITEM... TO $firstItem',
+                  );
+
+                  if (chatEntity != null &&
+                      firstItem != null &&
+                      chatEntity.value.firstItem != firstItem) {
+                    chatEntity.value.firstItem = firstItem;
+                    await _putChat(chatEntity, txn);
+                  }
+                });
+              }
+            }
+
+            return reversed;
+          },
+        ),
+        driftProvider: DriftPageProvider(
+          fetch: ({required after, required before, ChatItemId? around}) async {
+            PreciseDateTime? at;
+
+            if (around != null) {
+              final DtoChatItem? item = await get(around);
+              at = item?.value.at;
+            }
+
+            return await _driftItems.view(
+              id,
+              before: before,
+              after: after,
+              around: at,
+            );
+          },
+          onKey: (e) => e.value.id,
+          onCursor: (e) => e?.cursor,
+          add: (e, {bool toView = true}) async =>
+              await _driftItems.upsertBulk(e, toView: toView),
+          delete: (e) async => await _driftItems.delete(e),
+          reset: () async => await _driftItems.clear(),
+          isFirst: (e) {
+            if (e.value.id.isLocal) {
+              return null;
+            }
+
+            return chat.value.firstItem?.id == e.value.id;
+          },
+          isLast: (e) {
+            if (e.value.id.isLocal) {
+              return null;
+            }
+
+            return chat.value.lastItem?.id == e.value.id;
+          },
+          onNone: (k) async => await _driftItems.upsertView(id, k),
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+        ),
+      ),
       compare: (a, b) => a.value.key.compareTo(b.value.key),
     );
 
@@ -1298,7 +1294,21 @@ class HiveRxChat extends RxChat {
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
-          provider: _provider,
+          provider: GraphQlPageProvider(
+            reversed: true,
+            fetch: ({after, before, first, last}) async {
+              final Page<DtoChatItem, ChatItemsCursor> reversed =
+                  await _chatRepository.messages(
+                chat.value.id,
+                after: after ?? before,
+                first: first,
+                before: before ?? after,
+                last: last,
+              );
+
+              return reversed;
+            },
+          ),
           perPage: perPage,
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
