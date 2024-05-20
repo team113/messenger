@@ -220,7 +220,7 @@ void main() async {
           final PageInfo<ChatItemsCursor> info =
               q.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c));
           return Page(
-            RxList(q.chat!.items.edges.map((e) => e.toHive()).toList()),
+            RxList(q.chat!.items.edges.map((e) => e.toDto()).toList()),
             PageInfo<ChatItemsCursor>(
               hasNext: info.hasNext,
               hasPrevious: info.hasPrevious,

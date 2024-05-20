@@ -32,7 +32,7 @@ import 'version.dart';
 
 part 'chat_item.g.dart';
 
-/// Persisted in [Hive] storage [ChatItem]'s [value].
+/// Persisted in storage [ChatItem]'s [value].
 abstract class DtoChatItem extends HiveObject {
   DtoChatItem(this.value, this.cursor, this.ver);
 
@@ -74,7 +74,7 @@ abstract class DtoChatItem extends HiveObject {
       };
 }
 
-/// Persisted in [Hive] storage [ChatInfo]'s [value].
+/// Persisted in storage [ChatInfo]'s [value].
 @JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatInfo)
 class DtoChatInfo extends DtoChatItem {
@@ -90,7 +90,7 @@ class DtoChatInfo extends DtoChatItem {
       _$DtoChatInfoToJson(this)..['runtimeType'] = 'DtoChatInfo';
 }
 
-/// Persisted in [Hive] storage [ChatMessage]'s [value].
+/// Persisted in storage [ChatMessage]'s [value].
 @JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatMessage)
 class DtoChatMessage extends DtoChatItem {
@@ -156,7 +156,7 @@ class DtoChatMessage extends DtoChatItem {
       _$DtoChatMessageToJson(this)..['runtimeType'] = 'DtoChatMessage';
 }
 
-/// Persisted in [Hive] storage [ChatForward]'s [value].
+/// Persisted in storage [ChatForward]'s [value].
 @JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatForward)
 class DtoChatForward extends DtoChatItem {
@@ -181,7 +181,7 @@ class DtoChatForward extends DtoChatItem {
       _$DtoChatForwardToJson(this)..['runtimeType'] = 'DtoChatForward';
 }
 
-/// Persisted in [Hive] storage [ChatItemQuote]'s [value].
+/// Persisted in storage [ChatItemQuote]'s [value].
 class DtoChatItemQuote {
   DtoChatItemQuote(this.value, this.cursor);
 

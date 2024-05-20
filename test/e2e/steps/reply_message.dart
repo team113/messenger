@@ -47,7 +47,7 @@ final StepDefinitionGeneric repliesToMessage =
             .chat!
             .items
             .edges
-            .map((e) => e.toHive())
+            .map((e) => e.toDto())
             .whereType<DtoChatMessage>()
             .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 

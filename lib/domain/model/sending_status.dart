@@ -39,7 +39,10 @@ enum SendingStatus {
   error,
 }
 
-/// Extension adding methods to retrieve values passed to [JsonKey].
+/// Extension adding methods to construct the [SendingStatus] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
 extension SendingStatusJson on SendingStatus {
   /// Returns a [String] representing the [value].
   static String toJson(Rx<SendingStatus> value) => value.value.name;

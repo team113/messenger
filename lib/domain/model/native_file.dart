@@ -312,13 +312,24 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
   }
 }
 
+/// Extension adding methods to construct the [MediaType] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
 extension _MediaType on MediaType {
+  /// Returns a [MediaType] constructed from the provided [val].
   static MediaType? fromValue(String? val) =>
       val == null ? null : MediaType.parse(val);
+
+  /// Returns a [String] representing this [MediaType].
   static String? toValue(MediaType? val) => val?.toString();
 }
 
+/// Extension adding methods to construct the [Size] to/from primitive types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
 extension _SizeExtension on Size {
+  /// Returns a [Size] constructed from the provided [json].
   static Size? fromJson(Map<String, dynamic>? json) {
     if (json == null) {
       return null;
@@ -327,17 +338,24 @@ extension _SizeExtension on Size {
     return Size(json['width'] as double, json['height'] as double);
   }
 
+  /// Returns a [String] representing this [Size].
   Map<String, dynamic> toJson() => {'width': width, 'height': height};
 }
 
+/// Extension adding methods to construct the [Uint8List] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
 extension _Uint8ListExtension on Uint8List {
-  static Uint8List? fromJson(String? json) {
-    if (json == null) {
+  /// Returns a [Uint8List] constructed from the provided [val].
+  static Uint8List? fromJson(String? val) {
+    if (val == null) {
       return null;
     }
 
-    return base64.decode(json);
+    return base64.decode(val);
   }
 
+  /// Returns a [String] representing this [Uint8List].
   String toJson() => base64.encode(this);
 }

@@ -1078,7 +1078,7 @@ class ChatRepository extends DisposableInterface
     );
 
     return Page(
-      RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
+      RxList(query.chat!.items.edges.map((e) => e.toDto()).toList()),
       query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
     );
   }
@@ -1120,7 +1120,7 @@ class ChatRepository extends DisposableInterface
   /// Fetches the [DtoChatItem] with the provided [id].
   Future<DtoChatItem?> message(ChatItemId id) async {
     Log.debug('message($id)', '$runtimeType');
-    return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
+    return (await _graphQlProvider.chatItem(id)).chatItem?.toDto();
   }
 
   /// Fetches the [Attachment]s of the provided [item].
@@ -1354,16 +1354,10 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatItemPosted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
-      return EventChatItemPosted(
-        e.chatId,
-        node.item.toHive(),
-      );
+      return EventChatItemPosted(e.chatId, node.item.toDto());
     } else if (e.$$typename == 'EventChatLastItemUpdated') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
-      return EventChatLastItemUpdated(
-        e.chatId,
-        node.lastItem?.toHive(),
-      );
+      return EventChatLastItemUpdated(e.chatId, node.lastItem?.toDto());
     } else if (e.$$typename == 'EventChatItemHidden') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
       return EventChatItemHidden(
@@ -1405,7 +1399,7 @@ class ChatRepository extends DisposableInterface
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
-        node.repliesTo?.changed.map((e) => e.toHive()).toList(),
+        node.repliesTo?.changed.map((e) => e.toDto()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;

@@ -26,10 +26,10 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
-import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
+/// [ChatItem] to be stored in a [Table].
 @DataClassName('ChatItemRow')
 class ChatItems extends Table {
   @override
@@ -45,6 +45,7 @@ class ChatItems extends Table {
   TextColumn get ver => text()();
 }
 
+/// [Table] for [RxChat.messages] history retrieving.
 @DataClassName('ChatItemViewRow')
 class ChatItemViews extends Table {
   @override
@@ -59,14 +60,11 @@ class ChatItemViews extends Table {
       )();
 }
 
+/// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
 class ChatItemDriftProvider extends DriftProviderBase {
   ChatItemDriftProvider(super.database);
 
-  /// [StreamController] emitting [DtoChatItem]s in [watch].
-  final Map<ChatId,
-          StreamController<MapChangeNotification<ChatItemId, DtoChatItem>>>
-      _controllers = {};
-
+  /// Creates or updates the a view for the provided [chatItemId] in [chatId].
   Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {
     Log.info('upsertView($chatId, $chatItemId)');
 
@@ -80,6 +78,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
   }
 
   /// Creates or updates the provided [item] in the database.
+  ///
+  /// If [toView] is `true`, then also adds a view to the [ChatItemViews].
   Future<DtoChatItem> upsert(DtoChatItem item, {bool toView = false}) async {
     Log.info('upsert($item) toView($toView)');
 
@@ -96,9 +96,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
         await db
             .into(db.chatItemViews)
             .insertReturning(row, onConflict: DoUpdate((_) => row));
-
-        _controllers[stored.value.chatId]
-            ?.add(MapChangeNotification.added(stored.value.id, stored));
       }
 
       return stored;
@@ -108,6 +105,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
   }
 
   /// Creates or updates the provided [items] in the database.
+  ///
+  /// If [toView] is `true`, then also adds the views to the [ChatItemViews].
   Future<Iterable<DtoChatItem>> upsertBulk(
     Iterable<DtoChatItem> items, {
     bool toView = false,
@@ -126,29 +125,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
             final ChatItemViewRow row = item.toView();
             batch.insert(db.chatItemViews, row, onConflict: DoNothing());
           }
-
-          for (var e in items) {
-            _controllers[e.value.chatId]?.add(
-              MapChangeNotification.added(e.value.id, e),
-            );
-          }
         }
       });
-
-      // if (toView) {
-      //   await db.batch((batch) {
-      //     for (var item in items) {
-      //       final ChatItemViewRow row = item.toView();
-      //       batch.insert(db.chatItemViews, row, onConflict: DoNothing());
-      //     }
-
-      //     for (var e in items) {
-      //       _controllers[e.value.chatId]?.add(
-      //         MapChangeNotification.added(e.value.id, e),
-      //       );
-      //     }
-      //   });
-      // }
 
       return items.toList();
     });
@@ -171,16 +149,12 @@ class ChatItemDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the [DtoChatItem] identified by the provided [id] from the database.
+  /// Deletes the [DtoChatItem] identified by the provided [id] from the
+  /// database.
   Future<void> delete(ChatItemId id) async {
     await safe((db) async {
       final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
-      final response = await stmt.goAndReturn();
-
-      for (var e in response) {
-        final DtoChatItem dto = _ChatItemDb.fromDb(e);
-        _controllers[id]?.add(MapChangeNotification.removed(dto.value.id, dto));
-      }
+      await stmt.goAndReturn();
     });
   }
 
@@ -192,6 +166,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
     });
   }
 
+  /// Returns the [DtoChatItem]s being in a historical view order of the
+  /// provided [chatId].
   Future<List<DtoChatItem>> view(
     ChatId chatId, {
     int? before,
@@ -203,16 +179,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
     }
 
     if (around != null) {
-      // SELECT * FROM
-      // (SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id
-      // WHERE chat_item_views.chat_id = "7ed1c9dd-516d-4cf4-aec7-8e13e48d2861" AND at <= 1715962374040881
-      // ORDER BY at DESC LIMIT 25 + 1) as a
-      // UNION
-      // SELECT * FROM
-      // (SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id
-      // WHERE chat_item_views.chat_id = "7ed1c9dd-516d-4cf4-aec7-8e13e48d2861" AND at > 1715962374040881
-      // ORDER BY at ASC LIMIT 50) as b
-      // ORDER BY at ASC;
       final stmt = db!.chatItemsAround(
         chatId.val,
         around,
@@ -237,7 +203,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
           .toList();
     }
 
-    // SELECT * FROM chat_item_views INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id ORDER BY chat_items.at ASC;
     final stmt = db!.select(db!.chatItemViews).join([
       innerJoin(
         db!.chatItems,
@@ -259,14 +224,14 @@ class ChatItemDriftProvider extends DriftProviderBase {
   }
 }
 
-/// Extension adding conversion methods from [UserRow] to [DtoUser].
+/// Extension adding conversion methods from [ChatItemRow] to [DtoChatItem].
 extension _ChatItemDb on DtoChatItem {
-  /// Returns the [DtoChatItem] from the provided [UserRow].
+  /// Returns the [DtoChatItem] from the provided [ChatItemRow].
   static DtoChatItem fromDb(ChatItemRow e) {
     return DtoChatItem.fromJson(jsonDecode(e.data));
   }
 
-  /// Returns the [UserRow] from this [DtoChatItem].
+  /// Constructs a [ChatItemRow] from this [DtoChatItem].
   ChatItemRow toDb() {
     return ChatItemRow(
       id: value.id.val,
@@ -280,7 +245,7 @@ extension _ChatItemDb on DtoChatItem {
     );
   }
 
-  /// Returns the [ChatItemViewRow] from this [DtoChatItem].
+  /// Constructs a [ChatItemViewRow] from this [DtoChatItem].
   ChatItemViewRow toView() {
     return ChatItemViewRow(chatItemId: value.id.val, chatId: value.chatId.val);
   }

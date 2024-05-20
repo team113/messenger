@@ -25,7 +25,7 @@ import 'chat_item.dart';
 
 part 'chat_call.g.dart';
 
-/// Persisted in [Hive] storage [ChatCall]'s [value].
+/// Persisted in storage [ChatCall]'s [value].
 @JsonSerializable()
 @HiveType(typeId: ModelTypeId.dtoChatCall)
 class DtoChatCall extends DtoChatItem {

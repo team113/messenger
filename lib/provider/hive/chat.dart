@@ -83,14 +83,14 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Hive.maybeRegisterAdapter(ChatNameAdapter());
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
-    Hive.maybeRegisterAdapter(FavoriteChatsCursorAdapter());
-    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
-    Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(HiveChatAdapter());
     Hive.maybeRegisterAdapter(DtoChatCallAdapter());
     Hive.maybeRegisterAdapter(DtoChatForwardAdapter());
     Hive.maybeRegisterAdapter(DtoChatInfoAdapter());
     Hive.maybeRegisterAdapter(DtoChatMessageAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsCursorAdapter());
+    Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
+    Hive.maybeRegisterAdapter(FileAttachmentAdapter());
+    Hive.maybeRegisterAdapter(HiveChatAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());

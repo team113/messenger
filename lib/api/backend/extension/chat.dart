@@ -64,8 +64,8 @@ extension ChatConversion on ChatMixin {
         lastReads:
             lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
         lastDelivery: lastDelivery,
-        lastItem: lastItem?.toHive().value,
-        lastReadItem: lastReadItem?.toHive().value.id,
+        lastItem: lastItem?.toDto().value,
+        lastReadItem: lastReadItem?.toDto().value.id,
         unreadCount: unreadCount,
         totalCount: totalCount,
         ongoingCall: ongoingCall?.toModel(),
@@ -86,8 +86,8 @@ extension ChatConversion on ChatMixin {
 
   /// Constructs a new [ChatData] from this [ChatMixin].
   ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
-    var lastItem = this.lastItem?.toHive();
-    var lastReadItem = this.lastReadItem?.toHive();
+    var lastItem = this.lastItem?.toDto();
+    var lastReadItem = this.lastReadItem?.toDto();
 
     return ChatData(
       toHive(recent, favorite),
@@ -109,7 +109,7 @@ extension ChatInfoConversion on ChatInfoMixin {
       );
 
   /// Constructs a new [DtoChatInfo] from this [ChatInfoMixin].
-  DtoChatInfo toHive(ChatItemsCursor cursor) =>
+  DtoChatInfo toDto(ChatItemsCursor cursor) =>
       DtoChatInfo(toModel(), cursor, ver);
 }
 
@@ -144,15 +144,15 @@ extension ChatInfoActionConversion on ChatInfoMixin$Action {
 /// Extension adding models construction from [ChatCallMixin].
 extension ChatCallConversion on ChatCallMixin {
   /// Constructs a new [DtoChatCall] from this [ChatCallMixin].
-  DtoChatCall toHive(ChatItemsCursor cursor) =>
+  DtoChatCall toDto(ChatItemsCursor cursor) =>
       DtoChatCall(toModel(), cursor, ver);
 }
 
 /// Extension adding models construction from [ChatMessageMixin].
 extension ChatMessageConversion on ChatMessageMixin {
   /// Constructs a new [DtoChatItem]s from this [ChatMessageMixin].
-  DtoChatItem toHive(ChatItemsCursor cursor) {
-    List<DtoChatItemQuote> items = repliesTo.map((e) => e.toHive()).toList();
+  DtoChatItem toDto(ChatItemsCursor cursor) {
+    List<DtoChatItemQuote> items = repliesTo.map((e) => e.toDto()).toList();
 
     return DtoChatMessage(
       ChatMessage(
@@ -187,7 +187,7 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
       );
 
   /// Constructs a new [DtoChatMessage] from this [NestedChatMessageMixin].
-  DtoChatMessage toHive(ChatItemsCursor cursor) => DtoChatMessage(
+  DtoChatMessage toDto(ChatItemsCursor cursor) => DtoChatMessage(
         toModel(),
         cursor,
         ver,
@@ -198,8 +198,8 @@ extension NestedChatMessageConversion on NestedChatMessageMixin {
 /// Extension adding models construction from [ChatForwardMixin].
 extension ChatForwardConversion on ChatForwardMixin {
   /// Constructs the new [DtoChatItem]s from this [ChatForwardMixin].
-  DtoChatItem toHive(ChatItemsCursor cursor) {
-    final DtoChatItemQuote item = quote.toHive();
+  DtoChatItem toDto(ChatItemsCursor cursor) {
+    final DtoChatItemQuote item = quote.toDto();
     return DtoChatForward(
       ChatForward(
         id,
@@ -218,8 +218,8 @@ extension ChatForwardConversion on ChatForwardMixin {
 /// Extension adding models construction from [NestedChatForwardMixin].
 extension NestedChatForwardConversion on NestedChatForwardMixin {
   /// Constructs the new [DtoChatForward]s from this [NestedChatForwardMixin].
-  DtoChatForward toHive(ChatItemsCursor cursor) {
-    final DtoChatItemQuote item = quote.toHive();
+  DtoChatForward toDto(ChatItemsCursor cursor) {
+    final DtoChatItemQuote item = quote.toDto();
 
     return DtoChatForward(
       ChatForward(
@@ -239,7 +239,7 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
 /// Extension adding models construction from [NestedChatForwardMixin$Quote].
 extension NestedChatForwardItemConversion on NestedChatForwardMixin$Quote {
   /// Constructs a new [DtoChatItem]s from this [NestedChatForwardMixin$Quote].
-  DtoChatItemQuote toHive() {
+  DtoChatItemQuote toDto() {
     if ($$typename == 'ChatMessageQuote') {
       final q = this as NestedChatForwardMixin$Quote$ChatMessageQuote;
       return DtoChatItemQuote(
@@ -322,32 +322,32 @@ extension NestedChatForwardChatInfoQuoteActionConversion
 extension GetMessagesConversion on GetMessages$Query$Chat$Items$Edges {
   /// Constructs the new [DtoChatItem]s from this
   /// [GetMessages$Query$Chat$Items$Edges].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastItem].
 extension ChatLastItemConversion on ChatMixin$LastItem {
   /// Constructs the new [DtoChatItem]s from this [ChatMixin$LastItem].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastReadItem].
 extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
   /// Constructs the new [DtoChatItem]s from this [ChatMixin$LastReadItem].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatForwardMixin$Quote].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
   /// Constructs the new [DtoChatItemQuote]s from this [ChatForwardMixin$Quote].
-  DtoChatItemQuote toHive() => _chatItemQuote(this);
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from [ChatMessageMixin$RepliesTo].
 extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
   /// Constructs the new [DtoChatItemQuote] from this
   /// [ChatMessageMixin$RepliesTo].
-  DtoChatItemQuote toHive() => _chatItemQuote(this);
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from
@@ -356,7 +356,7 @@ extension EventChatItemEditedRepliesToConversion
     on ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed {
   /// Constructs the new [DtoChatItemQuote]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
-  DtoChatItemQuote toHive() => _chatItemQuote(this);
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from
@@ -365,7 +365,7 @@ extension EventChatItemPostedConversion
     on ChatEventsVersionedMixin$Events$EventChatItemPosted$Item {
   /// Constructs the new [DtoChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from
@@ -374,7 +374,7 @@ extension EventChatLastItemUpdatedConversion
     on ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem {
   /// Constructs the new [DtoChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMessageQuoteMixin].
@@ -391,7 +391,7 @@ extension ChatMessageQuoteConversion on ChatMessageQuoteMixin {
       );
 
   /// Constructs a new [DtoChatItemQuote] from this [ChatMessageQuoteMixin].
-  DtoChatItemQuote toHive() => DtoChatItemQuote(
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
         toModel(),
         original == null
             ? null
@@ -411,7 +411,7 @@ extension ChatCallQuoteConversion on ChatCallQuoteMixin {
       );
 
   /// Constructs a new [DtoChatItemQuote] from this [ChatCallQuoteMixin].
-  DtoChatItemQuote toHive() => DtoChatItemQuote(
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
         toModel(),
         original == null
             ? null
@@ -432,7 +432,7 @@ extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
       );
 
   /// Constructs a new [DtoChatItemQuote] from this [ChatInfoQuoteMixin].
-  DtoChatItemQuote toHive() => DtoChatItemQuote(
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
         toModel(),
         original == null
             ? null
@@ -443,7 +443,7 @@ extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
 /// Extension adding models construction from [GetMessage$Query$ChatItem].
 extension GetMessageConversion on GetMessage$Query$ChatItem {
   /// Constructs a new [DtoChatItem] from this [GetMessage$Query$ChatItem].
-  DtoChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatInfoQuoteMixin$Action].
@@ -680,17 +680,17 @@ Attachment _attachment(dynamic node) {
 /// Constructs a new [DtoChatItem]s based on the [node] and [cursor].
 DtoChatItem _chatItem(dynamic node, ChatItemsCursor cursor) {
   if (node is ChatInfoMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatCallMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatMessageMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is NestedChatMessageMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatForwardMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is NestedChatForwardMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   }
 
   throw UnimplementedError('$node is not implemented');
@@ -699,11 +699,11 @@ DtoChatItem _chatItem(dynamic node, ChatItemsCursor cursor) {
 /// Constructs a new [DtoChatItemQuote] based on the [node].
 DtoChatItemQuote _chatItemQuote(dynamic node) {
   if (node is ChatMessageQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   } else if (node is ChatInfoQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   } else if (node is ChatCallQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   }
 
   throw UnimplementedError('$node is not implemented');

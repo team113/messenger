@@ -295,4 +295,3 @@ class ChatItemKey implements Comparable<ChatItemKey> {
   @override
   int get hashCode => Object.hash(id, at);
 }
-

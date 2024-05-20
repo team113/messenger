@@ -75,11 +75,11 @@ class DraftHiveProvider extends HiveBaseProvider<ChatMessage> {
     Hive.maybeRegisterAdapter(ChatNameAdapter());
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
-    Hive.maybeRegisterAdapter(FileAttachmentAdapter());
     Hive.maybeRegisterAdapter(DtoChatCallAdapter());
     Hive.maybeRegisterAdapter(DtoChatForwardAdapter());
     Hive.maybeRegisterAdapter(DtoChatInfoAdapter());
     Hive.maybeRegisterAdapter(DtoChatMessageAdapter());
+    Hive.maybeRegisterAdapter(FileAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LocalAttachmentAdapter());

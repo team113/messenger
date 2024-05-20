@@ -24,6 +24,7 @@ import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 
+/// [PageProvider] fetching items from the [DriftProvider].
 class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   DriftPageProvider({
     required this.onKey,
@@ -38,20 +39,30 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.compare,
   });
 
+  /// Callback, called when a [K] of the provided [T] is required.
   final K Function(T) onKey;
 
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T?) onCursor;
 
+  /// Callback, called when the [after] and [before] amounts of [T] items
+  /// [around] the provided [K] are required.
   final FutureOr<List<T>> Function({
     required int after,
     required int before,
     K? around,
   }) fetch;
 
+  /// Callback, called when the provided [items] should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
+
+  /// Callback, called when the provided [key] was invoked during [init].
   final Future<void> Function(K key)? onNone;
+
+  /// Callback, called when an item at the [key] should be deleted.
   final Future<void> Function(K key)? delete;
+
+  /// Callback, called when this provider should clear all its data.
   final Future<void> Function()? reset;
 
   /// Callback, called to indicate whether the provided [T] is the first.
@@ -64,16 +75,26 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// `null` returned means that the [T] shouldn't participant in such test.
   final bool? Function(T)? isLast;
 
+  /// Callback, called to compare the provided [T] items.
   final int Function(T, T)? compare;
 
+  /// Internal [List] of [T] items retrieved from the [fetch].
   List<T> _list = [];
+
+  /// Count of [T] items requested after the [_around].
   int _after = 0;
+
+  /// Count of [T] items requested before the [_around].
   int _before = 0;
+
+  /// Key [K], around which the [_list] should be [fetch]ed.
   K? _around;
 
+  /// Indicates whether the [_list] contain an item identified as the first.
   bool get _hasFirst =>
       _list.lastWhereOrNull((e) => isFirst?.call(e) == true) != null;
 
+  /// Indicates whether the [_list] contain an item identified as the last.
   bool get _hasLast =>
       _list.firstWhereOrNull((e) => isLast?.call(e) == true) != null;
 
@@ -82,16 +103,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _reset(around: key, count: count);
 
     final List<T> edges = await _page();
-    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
 
-    Log.info(
+    Log.debug(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
-
-    // print(
-    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
-    // );
 
     if (edges.isEmpty && key != null) {
       await onNone?.call(key);
@@ -114,18 +129,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
     final bool fulfilled =
         (_hasFirst && _hasLast) || edges.length - edgesBefore >= count ~/ 2;
 
-    Log.info(
+    Log.debug(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
-
-    // print(
-    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
-    // );
 
     return Page(
       fulfilled ? edges : [],
@@ -144,17 +153,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
     final bool fulfilled = _hasLast || edges.length - edgesBefore >= count;
 
-    Log.info(
+    Log.debug(
       'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
-
-    // print(
-    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
-    // );
 
     return Page(
       fulfilled ? edges : [],
@@ -173,17 +176,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
     final bool fulfilled = _hasFirst || edges.length - edgesBefore >= count;
 
-    Log.info(
+    Log.debug(
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
     );
-
-    // print(
-    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
-    // );
 
     return Page(
       fulfilled ? edges : [],
@@ -198,10 +195,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) async {
-    if (compare != null) {
-      _after += 1;
-    }
-
     final bool toView = compare == null;
 
     if (toView) {
@@ -228,6 +221,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     await reset?.call();
   }
 
+  /// Resets all the values to be [around].
   void _reset({K? around, int count = 50}) {
     _list.clear();
     _after = count ~/ 2;
@@ -235,6 +229,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _around = around;
   }
 
+  /// Returns the [T] items [fetch]ed.
   Future<List<T>> _page() async {
     _list = await fetch(after: _after, before: _before, around: _around);
     return _list;

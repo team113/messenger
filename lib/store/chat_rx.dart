@@ -84,8 +84,6 @@ class HiveRxChat extends RxChat {
     HiveChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
-        // _local = ChatItemHiveProvider(hiveChat.value.id),
-        // _sorting = ChatItemSortingHiveProvider(hiveChat.value.id),
         _membersLocal = ChatMemberHiveProvider(hiveChat.value.id),
         _membersSorting = ChatMemberSortingHiveProvider(hiveChat.value.id),
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
@@ -135,12 +133,6 @@ class HiveRxChat extends RxChat {
   /// [RxChat.draft]s local [Hive] storage.
   final DraftHiveProvider _draftLocal;
 
-  /// [ChatItem]s local [Hive] storage.
-  // ChatItemHiveProvider _local;
-
-  /// [Hive] storage for [ChatItemId]s sorted by [ChatItem.at].
-  // ChatItemSortingHiveProvider _sorting;
-
   /// [ChatMember]s local [Hive] storage.
   final ChatMemberHiveProvider _membersLocal;
 
@@ -148,7 +140,7 @@ class HiveRxChat extends RxChat {
   /// [ChatMember]s from [_membersLocal].
   final ChatMemberSortingHiveProvider _membersSorting;
 
-  /// [ChatItem]s local [Hive] storage.
+  /// [ChatItem]s local storage.
   final ChatItemDriftProvider _driftItems;
 
   /// [Pagination] loading [messages] with pagination.
@@ -363,8 +355,6 @@ class HiveRxChat extends RxChat {
   Future<void> init() async {
     Log.debug('init()', '$runtimeType($id)');
 
-    print('======== FIRST IS: ${chat.value.firstItem}');
-
     if (status.value.isSuccess) {
       return Future.value();
     }
@@ -435,8 +425,6 @@ class HiveRxChat extends RxChat {
     _callSubscription?.cancel();
     _membersSubscription?.cancel();
     _membersPaginationSubscription?.cancel();
-    // await _local.close();
-    // await _sorting.close();
     status.value = RxStatus.empty();
     _worker?.dispose();
     _userWorker?.dispose();
@@ -512,20 +500,13 @@ class HiveRxChat extends RxChat {
       return _paginateAround(item, reply: reply, forward: forward);
     }
 
-    if (id.isLocal ||
-        //
-        // status.value.isSuccess ||
-        (hasNext.isFalse && hasPrevious.isFalse)) {
+    if (id.isLocal || (hasNext.isFalse && hasPrevious.isFalse)) {
       return null;
     }
 
     if (!status.value.isLoading) {
       status.value = RxStatus.loadingMore();
     }
-
-    // Ensure [_local] and [_sorting] storages are initialized.
-    // await _local.init(userId: me);
-    // await _sorting.init(userId: me);
 
     // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
@@ -780,12 +761,6 @@ class HiveRxChat extends RxChat {
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
-
-    // Put [item] to the [_local] storage if it's not stored there yet.
-    // if (!_local.keys.contains(item.value.id)) {
-    //   await _local.put(item);
-    // }
-    // await _driftItems.upsert(item);
   }
 
   @override
@@ -880,26 +855,10 @@ class HiveRxChat extends RxChat {
       }
 
       // Retrieve all the [DtoChatItem]s to put them in the [newChat].
-      final Iterable<DtoChatItem> saved = _pagination.items.values
-          .toList(growable: false); //await _driftItems.values;
-
-      // final local = ChatItemHiveProvider(id);
-      // await local.init(userId: me);
-
-      // final sorting = ChatItemSortingHiveProvider(id);
-      // await sorting.init(userId: me);
-
-      // Clear and close the current [Hive] providers.
-      // await _local.clear();
-      // await _sorting.clear();
-      // _local.close();
-      // _sorting.close();
+      final Iterable<DtoChatItem> saved =
+          _pagination.items.values.toList(growable: false);
 
       await clear();
-
-      // _local = local;
-      // _sorting = sorting;
-      // _provider.hive = _local;
 
       for (var e in saved.whereType<DtoChatMessage>()) {
         // Copy the [DtoChatMessage] to the new [ChatItemHiveProvider].
@@ -927,9 +886,6 @@ class HiveRxChat extends RxChat {
     _fragments.clear();
 
     await _pagination.clear();
-
-    // await _local.clear();
-    // await _sorting.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -1016,16 +972,9 @@ class HiveRxChat extends RxChat {
             if (page.info.hasPrevious == false) {
               // [PageInfo.hasPrevious] is `false`, when querying `before` only.
               if (before == null || after != null) {
-                print(
-                  '========= page.info.hasPrevious == `false`, SO UPDATING LAST ITEM...',
-                );
                 _chatLocal.txn((txn) async {
                   final HiveChat? chatEntity = await txn.get(id.val);
                   final ChatItem? firstItem = page.edges.firstOrNull?.value;
-
-                  print(
-                    '========= page.info.hasPrevious == `false`, SO UPDATING LAST ITEM... TO $firstItem',
-                  );
 
                   if (chatEntity != null &&
                       firstItem != null &&
@@ -1095,10 +1044,6 @@ class HiveRxChat extends RxChat {
         case OperationKind.updated:
           final ChatItem item = event.value!.value;
           _add(item);
-
-          // if (!_sorting.keys.contains(item.key)) {
-          //   _sorting.put(item.key);
-          // }
           break;
 
         case OperationKind.removed:
@@ -1107,14 +1052,9 @@ class HiveRxChat extends RxChat {
       }
     });
 
-    // await _local.init(userId: me);
-    // await _sorting.init(userId: me);
-
     DtoChatItem? item;
 
-    // If [_local] storage is empty, then there's no need to initialize the
-    // [_pagination], as it fetches its items from [_local] by this method.
-    if (chat.value.lastReadItem != null /*&& _local.keys.isNotEmpty*/) {
+    if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
       await _pagination.init(
         chat.value.lastReadItem == chat.value.lastItem?.id
@@ -1224,7 +1164,7 @@ class HiveRxChat extends RxChat {
     Log.debug('_paginateAround($item, $reply, $forward)', '$runtimeType($id)');
 
     // Retrieve the [item] itself pointed around.
-    final DtoChatItem? hiveItem = await get(item);
+    final DtoChatItem? dto = await get(item);
 
     final ChatItemsCursor? cursor;
     final ChatItemId key = forward ?? reply ?? item;
@@ -1232,7 +1172,7 @@ class HiveRxChat extends RxChat {
     // If [reply] or [forward] is provided, then the [item] should contain it,
     // let's try to retrieve the key and cursor to paginate around it.
     if (reply != null) {
-      if (hiveItem is! DtoChatMessage) {
+      if (dto is! DtoChatMessage) {
         throw ArgumentError.value(
           item,
           'item',
@@ -1240,16 +1180,16 @@ class HiveRxChat extends RxChat {
         );
       }
 
-      final ChatMessage message = hiveItem.value as ChatMessage;
+      final ChatMessage message = dto.value as ChatMessage;
       final int replyIndex =
           message.repliesTo.indexWhere((e) => e.original?.id == reply);
       if (replyIndex == -1) {
         throw ArgumentError.value(reply, 'reply', 'Not found.');
       }
 
-      cursor = hiveItem.repliesToCursors?.elementAt(replyIndex);
+      cursor = dto.repliesToCursors?.elementAt(replyIndex);
     } else if (forward != null) {
-      if (hiveItem is! DtoChatForward) {
+      if (dto is! DtoChatForward) {
         throw ArgumentError.value(
           item,
           'item',
@@ -1257,9 +1197,9 @@ class HiveRxChat extends RxChat {
         );
       }
 
-      cursor = hiveItem.quoteCursor;
+      cursor = dto.quoteCursor;
     } else {
-      cursor = hiveItem?.cursor;
+      cursor = dto?.cursor;
     }
 
     // Try to find any [MessagesPaginated] already containing the item requested.
@@ -1870,19 +1810,6 @@ class HiveRxChat extends RxChat {
                     reads.add(LastChatRead(event.byUser.id, at));
                   } else {
                     read.at = at;
-                  }
-
-                  if (event.byUser.id == me) {
-                    // final ChatItemKey? key =
-                    //     _sorting.keys.lastWhereOrNull((e) => e.at == at);
-                    // if (key != null) {
-                    //   final DtoChatItem? item = await _local.get(key.id);
-                    //   if (item != null) {
-                    //     chatEntity.lastReadItemCursor = item.cursor!;
-                    //     chatEntity.value.lastReadItem = item.value.id;
-                    //     _lastReadItemCursor = item.cursor!;
-                    //   }
-                    // }
                   }
                 }
 
