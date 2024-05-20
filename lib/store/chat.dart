@@ -23,7 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -48,6 +47,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/chat_item.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,

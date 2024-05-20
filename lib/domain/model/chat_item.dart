@@ -72,7 +72,7 @@ abstract class ChatItem {
   PreciseDateTime at;
 
   /// [SendingStatus] of this [ChatItem].
-  @JsonKey(toJson: SendingStatus.toJson)
+  @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
   /// Returns combined [at] and [id] unique identifier of this [ChatItem].
@@ -295,3 +295,4 @@ class ChatItemKey implements Comparable<ChatItemKey> {
   @override
   int get hashCode => Object.hash(id, at);
 }
+

@@ -36,8 +36,11 @@ enum SendingStatus {
 
   /// Error occurred.
   @HiveField(2)
-  error;
+  error,
+}
 
+/// Extension adding methods to retrieve values passed to [JsonKey].
+extension SendingStatusJson on SendingStatus {
   /// Returns a [String] representing the [value].
   static String toJson(Rx<SendingStatus> value) => value.value.name;
 }

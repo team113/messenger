@@ -230,7 +230,7 @@ class LocalAttachment extends Attachment {
   NativeFile file;
 
   /// [SendingStatus] of this [LocalAttachment].
-  @JsonKey(toJson: SendingStatus.toJson)
+  @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
   /// Upload progress of this [LocalAttachment].

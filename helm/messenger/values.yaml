@@ -89,8 +89,6 @@ ingress:
   annotations:
     kubernetes.io/ingress.class: nginx
     nginx.ingress.kubernetes.io/proxy-body-size: "30m"
-    nginx.ingress.kubernetes.io/configuration-snippet: |
-      more_set_headers "Cross-Origin-Embedder-Policy: require-corp";
 
 
 sftp:
