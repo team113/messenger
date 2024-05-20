@@ -126,7 +126,6 @@ class MyProfileView extends StatelessWidget {
                           child: Column(
                             children: [
                               block(
-                                title: 'label_avatar'.l10n,
                                 children: [
                                   Obx(() {
                                     return BigAvatarWidget.myUser(

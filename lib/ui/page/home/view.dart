@@ -21,17 +21,15 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/link/view.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
@@ -40,9 +38,7 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
-import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
-import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -209,8 +205,8 @@ class _HomeViewState extends State<HomeView> {
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
                       children: const [
-                        KeepAlivePage(child: WorkTabView()),
-                        KeepAlivePage(child: ContactsTabView()),
+                        // KeepAlivePage(child: LinkTabView()),
+                        SizedBox(),
                         KeepAlivePage(child: ChatsTabView()),
                         KeepAlivePage(child: MenuTabView()),
                       ],
@@ -218,8 +214,7 @@ class _HomeViewState extends State<HomeView> {
                     extendBody: true,
                     bottomNavigationBar: SafeArea(
                       child: Obx(() {
-                        final List<HomeTab> tabs =
-                            c.tabs.where((e) => e != HomeTab.contacts).toList();
+                        final List<HomeTab> tabs = c.tabs;
 
                         return AnimatedSlider(
                           duration: 300.milliseconds,
@@ -230,12 +225,8 @@ class _HomeViewState extends State<HomeView> {
                             key: c.panelKey,
                             items: tabs.map((e) {
                               switch (e) {
-                                case HomeTab.work:
-                                  return const CustomNavigationBarItem.work();
-
-                                case HomeTab.contacts:
-                                  return const CustomNavigationBarItem
-                                      .contacts();
+                                case HomeTab.link:
+                                  return const CustomNavigationBarItem.link();
 
                                 case HomeTab.chats:
                                   return Obx(() {
@@ -257,32 +248,19 @@ class _HomeViewState extends State<HomeView> {
                                       onAvatar: c.updateAvatar,
                                       selector: c.panelKey,
                                       myUser: c.myUser.value,
-                                      actions: [
-                                        ContextMenuBuilder(
-                                          (_) => Obx(() {
-                                            final hasWork = c.settings.value
-                                                    ?.workWithUsTabEnabled ==
-                                                true;
-
-                                            return ContextMenuTile(
-                                              asset: SvgIcons.partner,
-                                              label: 'label_work_with_us'.l10n,
-                                              pinned: hasWork,
-                                              onPressed: (_) =>
-                                                  c.setWorkWithUsTabEnabled(
-                                                !hasWork,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                        const ContextMenuDivider(),
-                                      ],
                                     );
                                   });
                               }
                             }).toList(),
                             currentIndex: tabs.indexOf(router.tab),
-                            onTap: (i) => c.pages.jumpToPage(tabs[i].index),
+                            onTap: (i) {
+                              if (i == 0) {
+                                return LinkView.show(context);
+                                // return router.link();
+                              }
+
+                              c.pages.jumpToPage(tabs[i].index);
+                            },
                           ),
                         );
                       }),

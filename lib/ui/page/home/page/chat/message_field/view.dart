@@ -66,6 +66,7 @@ class MessageFieldView extends StatelessWidget {
     this.canForward = false,
     this.canAttach = true,
     this.constraints,
+    this.more = const [],
   });
 
   /// Optionally provided external [MessageFieldController].
@@ -95,6 +96,8 @@ class MessageFieldView extends StatelessWidget {
 
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
+
+  final List<BotAction> more;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
   static ThemeData theme(BuildContext context) {

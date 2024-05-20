@@ -1521,94 +1521,92 @@ class ChatView extends StatelessWidget {
         );
       }
 
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Obx(() {
-            final e = c.botInfo.value;
-            if (e == null) {
-              return const SizedBox();
-            }
+      return Obx(() {
+        final e = c.botInfo.value;
 
-            const Color color = Color.fromARGB(255, 149, 209, 149);
+        const Color color = Color.fromARGB(255, 149, 209, 149);
 
-            return SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 4),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (c.botInfo.value!.string != null)
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: color, width: 0.5),
-                          gradient: const LinearGradient(
-                            stops: [0, 1],
-                            colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (e != null)
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (c.botInfo.value!.string != null)
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: color, width: 0.5),
+                            gradient: const LinearGradient(
+                              stops: [0, 1],
+                              colors: [Color(0xFFE1F0F3), Color(0xFFBDF4FF)],
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            c.botInfo.value!.string!,
+                            style: style.fonts.small.regular.secondary,
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 4,
-                        ),
-                        child: Text(
-                          c.botInfo.value!.string!,
-                          style: style.fonts.small.regular.secondary,
-                        ),
-                      ),
-                    if (c.botInfo.value!.string != null && e.actions.isNotEmpty)
-                      const SizedBox(width: 8),
-                    ...e.actions.map((e) {
-                      return WidgetButton(
-                        onPressed: () => c.postCommand(e.command),
-                        child: Stack(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(6),
-                                border: Border.all(
-                                  color: const Color(0xFFD3E3E6),
-                                  width: 1,
+                      if (c.botInfo.value!.string != null &&
+                          e.actions.isNotEmpty)
+                        const SizedBox(width: 8),
+                      ...e.actions.map((e) {
+                        return WidgetButton(
+                          onPressed: () => c.postCommand(e.command),
+                          child: Stack(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 6,
                                 ),
-                                color: const Color(0xFFddf1f4),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(6),
+                                  border: Border.all(
+                                    color: const Color(0xFFD3E3E6),
+                                    width: 1,
+                                  ),
+                                  color: const Color(0xFFddf1f4),
+                                ),
+                                child: Text(
+                                  e.text,
+                                  style: style.fonts.small.regular.primary,
+                                ),
                               ),
-                              child: Text(
-                                e.text,
-                                style: style.fonts.small.regular.primary,
-                              ),
-                            ),
-                          ],
-                        ),
-                      );
-                    }).between((a, b) => const SizedBox(width: 8)),
-                  ],
+                            ],
+                          ),
+                        );
+                      }).between((a, b) => const SizedBox(width: 8)),
+                    ],
+                  ),
                 ),
               ),
-            );
-          }),
-          MessageFieldView(
-            key: const Key('SendField'),
-            controller: c.send,
-            onChanged:
-                c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
-            onItemPressed: (item) =>
-                c.animateTo(item.id, item: item, addToHistory: false),
-            canForward: true,
-            onAttachmentError: c.chat?.updateAttachments,
-            // symbols: c.hasBot,
-          ),
-        ],
-      );
+            MessageFieldView(
+              key: const Key('SendField'),
+              controller: c.send,
+              onChanged:
+                  c.chat?.chat.value.isMonolog == true ? null : c.updateTyping,
+              onItemPressed: (item) =>
+                  c.animateTo(item.id, item: item, addToHistory: false),
+              canForward: true,
+              onAttachmentError: c.chat?.updateAttachments,
+            ),
+          ],
+        );
+      });
     });
   }
 

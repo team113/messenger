@@ -99,6 +99,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
+import 'message_field/widget/buttons.dart';
 import 'view.dart';
 import 'widget/chat_gallery.dart';
 
@@ -2147,6 +2148,8 @@ class ChatController extends GetxController {
   final Rx<BotInfoElement?> botInfo = Rx(null);
 
   void _addBotInfo(RxUser e) {
+    Log.info('_addBotInfo($e)');
+
     if ((e.user.value.bio?.val.length ?? 0) > 'bot '.length) {
       final String? about = e.user.value.bio?.val.substring('bot '.length);
 
@@ -2161,6 +2164,8 @@ class ChatController extends GetxController {
           decoded?[L10n.chosen.value!.toString()]?['text'] ?? decoded?['text'];
       final actions = decoded?[L10n.chosen.value!.toString()]?['actions'] ??
           decoded?['actions'];
+      final more =
+          decoded?[L10n.chosen.value!.toString()]?['more'] ?? decoded?['more'];
 
       botInfo.value = BotInfoElement(
         text,
@@ -2169,7 +2174,30 @@ class ChatController extends GetxController {
               return BotAction(text: e['text'], command: e['command']);
             }).toList() ??
             [],
+        more: (more as List?)?.map((e) {
+              return BotAction(
+                text: e['text'],
+                command: e['command'],
+                icon: e['icon'],
+              );
+            }).toList() ??
+            [],
       );
+
+      send.panel.insertAll(
+        0,
+        botInfo.value!.more.map(
+          (e) {
+            return CustomChatButton(
+              hint: e.text,
+              onPressed: () {
+                postCommand(e.command);
+              },
+            );
+          },
+        ),
+      );
+
       // elements[botInfo.id] = botInfo;
     }
   }
@@ -2546,12 +2574,14 @@ class BotInfoElement extends ListElement {
     this.string, {
     required PreciseDateTime at,
     this.actions = const [],
+    this.more = const [],
   }) : super(ListElementId(at, const ChatItemId('0')));
 
   /// [String] of this [BotInfoElement].
   final String? string;
 
   final List<BotAction> actions;
+  final List<BotAction> more;
 }
 
 /// [ListElement] representing a [ChatInfo].

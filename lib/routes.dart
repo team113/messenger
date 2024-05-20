@@ -101,6 +101,7 @@ class Routes {
   static const contacts = '/contacts';
   static const erase = '/erase';
   static const home = '/';
+  static const link = '/link';
   static const me = '/me';
   static const menu = '/menu';
   static const support = '/support';
@@ -119,7 +120,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { work, contacts, chats, menu }
+enum HomeTab { link, chats, menu }
 
 /// List of [Routes.work] page sections.
 enum WorkTab { frontend, backend, freelance }
@@ -347,11 +348,7 @@ class AppRouteInformationParser
     String route = routeInformation.uri.path;
     HomeTab? tab;
 
-    if (route.startsWith(Routes.work)) {
-      tab = HomeTab.work;
-    } else if (route.startsWith(Routes.contacts)) {
-      tab = HomeTab.contacts;
-    } else if (route.startsWith(Routes.chats)) {
+    if (route.startsWith(Routes.chats)) {
       tab = HomeTab.chats;
     } else if (route.startsWith(Routes.menu) || route == Routes.me) {
       tab = HomeTab.menu;
@@ -380,12 +377,8 @@ class AppRouteInformationParser
     // If logged in and on [Routes.home] page, then modify the URL's route.
     if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
-        case HomeTab.work:
-          route = Routes.work;
-          break;
-
-        case HomeTab.contacts:
-          route = Routes.contacts;
+        case HomeTab.link:
+          route = Routes.link;
           break;
 
         case HomeTab.chats:
@@ -848,6 +841,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.support) ||
+        _state.route == Routes.link ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -894,15 +888,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
-        case HomeTab.work:
-          WebUtils.title('$prefix${'label_work_with_us'.l10n}');
-          break;
-
-        case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
-          break;
-
         case HomeTab.chats:
+        case HomeTab.link:
           WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
 
@@ -990,6 +977,9 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.nowhere] page.
   void nowhere() => go(Routes.nowhere);
+
+  /// Changes router location to the [Routes.link] page.
+  void link() => go(Routes.link);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

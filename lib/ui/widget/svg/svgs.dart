@@ -1916,4 +1916,10 @@ class SvgIcons {
     width: 21.48,
     height: 21,
   );
+
+  static const SvgData directLink = SvgData(
+    'assets/icons/direct_link.svg',
+    width: 32.04,
+    height: 33.5,
+  );
 }

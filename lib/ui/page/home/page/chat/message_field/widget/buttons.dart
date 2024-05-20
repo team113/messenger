@@ -224,3 +224,20 @@ class VideoCallButton extends ChatButton {
   @override
   SvgData get disabled => SvgIcons.chatVideoCallDisabled;
 }
+
+/// Custom [ChatButton].
+class CustomChatButton extends ChatButton {
+  const CustomChatButton({
+    void Function()? onPressed,
+    required this.hint,
+    this.icon,
+  }) : super(onPressed);
+
+  @override
+  final String hint;
+
+  final String? icon;
+
+  @override
+  SvgData get asset => SvgIcons.chatVideoCall;
+}

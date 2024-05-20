@@ -407,7 +407,11 @@ class BotInfo extends ChatItem {
           text: text == null ? null : ChatMessageText(text),
           repliesTo: msg.repliesTo.firstOrNull,
           actions: (actions as List?)?.map((e) {
-            return BotAction(text: e['text'], command: e['command']);
+            return BotAction(
+              text: e['text'],
+              command: e['command'],
+              icon: e['icon'],
+            );
           }).toList(),
           title: title ?? 'Bot',
         );
@@ -417,16 +421,12 @@ class BotInfo extends ChatItem {
     return null;
   }
 
-  @HiveField(5)
   ChatItemQuote? repliesTo;
 
-  @HiveField(6)
   ChatMessageText? text;
 
-  @HiveField(7)
   List<BotAction>? actions;
 
-  @HiveField(8)
   String title;
 }
 
@@ -434,11 +434,12 @@ class BotAction {
   const BotAction({
     required this.text,
     required this.command,
+    this.icon,
   });
 
-  @HiveField(0)
   final String text;
 
-  @HiveField(1)
   final String command;
+
+  final String? icon;
 }
