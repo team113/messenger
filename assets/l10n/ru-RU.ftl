@@ -714,6 +714,7 @@ label_count_seconds = {$count} { $count ->
        [few] секунды
        *[other] секунд
    }
+label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)

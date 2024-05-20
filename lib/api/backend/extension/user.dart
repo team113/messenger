@@ -18,9 +18,9 @@
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/crop_area.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
+import '/domain/model/user.dart';
+import '/store/model/user.dart';
 import 'file.dart';
 
 /// Extension adding models construction from an [UserMixin].
@@ -46,8 +46,8 @@ extension UserConversion on UserMixin {
         isBlocked: isBlocked.record?.toModel(id),
       );
 
-  /// Constructs a new [HiveUser] from this [UserMixin].
-  HiveUser toHive() => HiveUser(toModel(), ver, isBlocked.ver);
+  /// Constructs a new [DtoUser] from this [UserMixin].
+  DtoUser toDto() => DtoUser(toModel(), ver, isBlocked.ver);
 }
 
 /// Extension adding models construction from a

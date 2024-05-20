@@ -356,7 +356,7 @@ class UserController extends GetxController {
           scheme: 'mailto',
           path: Config.support,
           query: encodeQueryParameters({
-            'subject': '[App] Report on UserId($id)',
+            'subject': '[Abuse] Report on UserId($id)',
             'body': '${reporting.text}\n\n',
           }),
         ),

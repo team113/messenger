@@ -31,6 +31,8 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -48,7 +50,6 @@ import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -61,7 +62,9 @@ import 'chat_attachment_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  setUp(Get.reset);
+  Get.reset();
+
+  final DriftProvider database = DriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_attachment_unit');
 
@@ -72,8 +75,7 @@ void main() async {
   await chatHiveProvider.init();
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
+  final userProvider = Get.put(UserDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -101,57 +103,6 @@ void main() async {
   final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
 
-  var chatData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-    'name': null,
-    'avatar': null,
-    'members': {'nodes': [], 'totalCount': 0},
-    'kind': 'GROUP',
-    'isHidden': false,
-    'muted': null,
-    'directLink': null,
-    'createdAt': '2021-12-15T15:11:18.316846+00:00',
-    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-    'lastReads': [],
-    'lastDelivery': '1970-01-01T00:00:00+00:00',
-    'lastItem': null,
-    'lastReadItem': null,
-    'unreadCount': 0,
-    'totalCount': 0,
-    'ongoingCall': null,
-    'ver': '0'
-  };
-
-  var recentChats = {
-    'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      }
-    }
-  };
-
-  var favoriteChats = {
-    'favoriteChats': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0'
-    }
-  };
-
   when(graphQlProvider.recentChatsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
@@ -170,7 +121,7 @@ void main() async {
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  AuthService authService = Get.put(
+  final AuthService authService = Get.put(
     AuthService(
       Get.put<AbstractAuthRepository>(AuthRepository(
         graphQlProvider,
@@ -199,12 +150,14 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer(
-        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+    );
 
     when(graphQlProvider.uploadAttachment(
       any,
@@ -226,12 +179,14 @@ void main() async {
       ),
     );
 
-    when(graphQlProvider.favoriteChatsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
+      (_) => const Stream.empty(),
+    );
 
+    Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(chatHiveProvider);
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -240,7 +195,7 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
     final CallRepository callRepository = Get.put(
       CallRepository(
@@ -252,7 +207,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository =
+    final AbstractChatRepository chatRepository =
         Get.put<AbstractChatRepository>(ChatRepository(
       graphQlProvider,
       Get.find(),
@@ -265,7 +220,9 @@ void main() async {
       monologProvider,
       me: const UserId('me'),
     ));
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
 
     await chatService.uploadAttachment(
       LocalAttachment(
@@ -277,8 +234,10 @@ void main() async {
       ),
     );
 
-    verify(graphQlProvider.uploadAttachment(any,
-        onSendProgress: anyNamed('onSendProgress')));
+    verify(graphQlProvider.uploadAttachment(
+      any,
+      onSendProgress: anyNamed('onSendProgress'),
+    ));
   });
 
   test('ChatService throws an UploadAttachmentException', () async {
@@ -297,12 +256,14 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
     when(graphQlProvider.getChat(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenAnswer(
-        (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+    );
 
     when(graphQlProvider.uploadAttachment(
       any,
@@ -311,9 +272,10 @@ void main() async {
       const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
     );
 
+    Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(chatHiveProvider);
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         mediaSettingsProvider,
         applicationSettingsProvider,
@@ -322,7 +284,7 @@ void main() async {
       ),
     );
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
     final CallRepository callRepository = Get.put(
       CallRepository(
@@ -334,7 +296,9 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         Get.find(),
@@ -348,9 +312,12 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
 
-    var attachment = LocalAttachment(
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
+
+    final attachment = LocalAttachment(
       NativeFile(
         bytes: Uint8List.fromList([1, 1]),
         size: 2,
@@ -371,4 +338,57 @@ void main() async {
       ),
     );
   });
+
+  tearDown(() async => await database.close());
 }
+
+final chatData = {
+  'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+  'name': null,
+  'avatar': null,
+  'members': {'nodes': [], 'totalCount': 0},
+  'kind': 'GROUP',
+  'isHidden': false,
+  'muted': null,
+  'directLink': null,
+  'createdAt': '2021-12-15T15:11:18.316846+00:00',
+  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+  'lastReads': [],
+  'lastDelivery': '1970-01-01T00:00:00+00:00',
+  'lastItem': null,
+  'lastReadItem': null,
+  'unreadCount': 0,
+  'totalCount': 0,
+  'ongoingCall': null,
+  'ver': '0'
+};
+
+final recentChats = {
+  'recentChats': {
+    'edges': [
+      {
+        'node': chatData,
+        'cursor': 'cursor',
+      }
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  }
+};
+
+final favoriteChats = {
+  'favoriteChats': {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    },
+    'ver': '0'
+  }
+};

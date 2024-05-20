@@ -83,7 +83,8 @@ class BlocklistController extends GetxController {
     blocklist.value = _blocklistService.blocklist.values.toList();
     _sort();
 
-    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+    _blocklistSubscription =
+        _blocklistService.blocklist.items.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
           blocklist.add(e.value!);
@@ -154,7 +155,8 @@ class BlocklistController extends GetxController {
             hasNext.isTrue &&
             _blocklistService.nextLoading.isFalse &&
             scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500) {
+                scrollController.position.maxScrollExtent - 500 &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           _blocklistService.next();
         }
       });
@@ -180,7 +182,8 @@ class BlocklistController extends GetxController {
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
-            _blocklistService.nextLoading.isFalse) {
+            _blocklistService.nextLoading.isFalse &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           await _blocklistService.next();
           _ensureScrollable();
         }

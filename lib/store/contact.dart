@@ -38,7 +38,6 @@ import '/provider/hive/contact.dart';
 import '/provider/hive/contact_sorting.dart';
 import '/provider/hive/favorite_contact.dart';
 import '/provider/hive/session_data.dart';
-import '/provider/hive/user.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
@@ -48,6 +47,7 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'model/user.dart';
 import 'paginated.dart';
 import 'pagination/combined_pagination.dart';
 import 'pagination/hive_graphql.dart';
@@ -805,7 +805,7 @@ class ContactRepository extends DisposableInterface
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
                 for (var e in entity.value.users) {
-                  _userRepo.addContact(entity.value, e.id);
+                  await _userRepo.addContact(entity.value, e.id);
                 }
                 break;
 
@@ -829,7 +829,7 @@ class ContactRepository extends DisposableInterface
 
                 // Add the [entity.value] to the [node.user], as [User] has no
                 // events about its [User.contacts] list changes.
-                _userRepo.addContact(entity.value, node.user.id);
+                await _userRepo.addContact(entity.value, node.user.id);
                 break;
 
               case ChatContactEventKind.userRemoved:
@@ -838,7 +838,7 @@ class ContactRepository extends DisposableInterface
 
                 // Remove the [node.contactId] from the [node.userId], as [User]
                 // has no events about its [User.contacts] list changes.
-                _userRepo.removeContact(node.contactId, node.userId);
+                await _userRepo.removeContact(node.contactId, node.userId);
                 break;
 
               case ChatContactEventKind.created:
@@ -898,7 +898,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<HiveUser> users = c.node.getHiveUsers();
+      final List<DtoUser> users = c.node.getDtoUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -935,7 +935,7 @@ class ContactRepository extends DisposableInterface
     _sessionLocal.setChatContactsListVersion(query.ver);
 
     for (var c in query.edges) {
-      final List<HiveUser> users = c.node.getHiveUsers();
+      final List<DtoUser> users = c.node.getDtoUsers();
       for (var user in users) {
         _userRepo.put(user);
       }
@@ -1046,7 +1046,7 @@ class ContactRepository extends DisposableInterface
     } else if (e.$$typename == 'EventChatContactUserAdded') {
       var node =
           e as ChatContactEventsVersionedMixin$Events$EventChatContactUserAdded;
-      _userRepo.put(e.user.toHive());
+      _userRepo.put(e.user.toDto());
 
       return EventChatContactUserAdded(
         node.contactId,

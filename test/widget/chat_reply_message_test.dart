@@ -29,7 +29,6 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -38,6 +37,8 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/application_settings.dart';
@@ -60,7 +61,6 @@ import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -87,110 +87,10 @@ void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   AudioUtils = AudioUtilsMock();
+
+  final DriftProvider database = DriftProvider.memory();
+
   Hive.init('./test/.temp_hive/chat_reply_message_widget');
-
-  var userData = {
-    'id': 'me',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'online': {'__typename': 'UserOnline'},
-    'presence': 'AWAY',
-  };
-
-  var chatData = {
-    'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-    'name': 'startname',
-    'avatar': null,
-    'members': {'nodes': [], 'totalCount': 0},
-    'kind': 'GROUP',
-    'isHidden': false,
-    'muted': null,
-    'directLink': null,
-    'createdAt': '2021-12-15T15:11:18.316846+00:00',
-    'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-    'lastReads': [
-      {'memberId': 'me', 'at': '2022-01-01T07:27:30.151628+00:00'},
-    ],
-    'lastDelivery': '1970-01-01T00:00:00+00:00',
-    'lastItem': null,
-    'lastReadItem': null,
-    'unreadCount': 0,
-    'totalCount': 0,
-    'ongoingCall': null,
-    'ver': '0'
-  };
-
-  var recentChats = {
-    'recentChats': {
-      'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
-      ],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      }
-    }
-  };
-
-  var favoriteChats = {
-    'favoriteChats': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0'
-    }
-  };
-
-  var chatContacts = {
-    'chatContacts': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0',
-    }
-  };
-
-  var favoriteChatContacts = {
-    'favoriteChatContacts': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0',
-    }
-  };
-
-  var blacklist = {
-    'edges': [],
-    'pageInfo': {
-      'endCursor': 'endCursor',
-      'hasNextPage': false,
-      'startCursor': 'startCursor',
-      'hasPreviousPage': false,
-    }
-  };
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
@@ -446,41 +346,10 @@ void main() async {
   final myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-
-  accountProvider.set(const UserId('me'));
-  credentialsProvider.put(
-    Credentials(
-      AccessToken(
-        const AccessTokenSecret('token'),
-        PreciseDateTime.now().add(const Duration(days: 1)),
-      ),
-      RefreshToken(
-        const RefreshTokenSecret('token'),
-        PreciseDateTime.now().add(const Duration(days: 1)),
-      ),
-      const UserId('me'),
-    ),
-  );
-
-  AuthService authService = AuthService(
-    AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ),
-    credentialsProvider,
-    accountProvider,
-  );
-
-  router = RouterState(authService);
-  router.provider = MockPlatformRouteInformationProvider();
-
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var userProvider = Get.put(UserHiveProvider());
-  await userProvider.init();
-  await userProvider.clear();
+  final userProvider = Get.put(UserDriftProvider(database));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -523,35 +392,56 @@ void main() async {
   await messagesProvider.init(userId: const UserId('me'));
   await messagesProvider.clear();
 
+  accountProvider.set(const UserId('me'));
+  credentialsProvider.put(
+    Credentials(
+      AccessToken(
+        const AccessTokenSecret('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      RefreshToken(
+        const RefreshTokenSecret('token'),
+        PreciseDateTime.now().add(const Duration(days: 1)),
+      ),
+      const UserId('me'),
+    ),
+  );
+
+  final AuthService authService = Get.put(
+    AuthService(
+      AuthRepository(
+        graphQlProvider,
+        myUserProvider,
+        credentialsProvider,
+      ),
+      credentialsProvider,
+      accountProvider,
+    ),
+  );
+  authService.init();
+
+  router = RouterState(authService);
+  router.provider = MockPlatformRouteInformationProvider();
+
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets('ChatView successfully replies to a message',
       (WidgetTester tester) async {
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
     authService.init();
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
-    BlocklistRepository blocklistRepository = Get.put(
+    final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
         blockedUsersProvider,
@@ -560,7 +450,7 @@ void main() async {
         sessionProvider,
       ),
     );
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         settingsProvider,
         applicationSettingsProvider,
@@ -576,7 +466,8 @@ void main() async {
       settingsRepository,
       me: const UserId('me'),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
@@ -603,7 +494,7 @@ void main() async {
     );
     Get.put(ContactService(contactRepository));
 
-    MyUserRepository myUserRepository = MyUserRepository(
+    final MyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blocklistRepository,
@@ -664,6 +555,110 @@ void main() async {
 
     expect(find.richText('reply message', skipOffstage: false), findsOneWidget);
 
+    await database.close();
     await Get.deleteAll(force: true);
   });
 }
+
+final userData = {
+  'id': 'me',
+  'num': '1234567890123456',
+  'login': 'login',
+  'name': 'name',
+  'emails': {'confirmed': [], 'unconfirmed': null},
+  'phones': {'confirmed': [], 'unconfirmed': null},
+  'hasPassword': true,
+  'unreadChatsCount': 0,
+  'ver': '0',
+  'online': {'__typename': 'UserOnline'},
+  'presence': 'AWAY',
+};
+
+final chatData = {
+  'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+  'name': 'startname',
+  'avatar': null,
+  'members': {'nodes': [], 'totalCount': 0},
+  'kind': 'GROUP',
+  'isHidden': false,
+  'muted': null,
+  'directLink': null,
+  'createdAt': '2021-12-15T15:11:18.316846+00:00',
+  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+  'lastReads': [
+    {'memberId': 'me', 'at': '2022-01-01T07:27:30.151628+00:00'},
+  ],
+  'lastDelivery': '1970-01-01T00:00:00+00:00',
+  'lastItem': null,
+  'lastReadItem': null,
+  'unreadCount': 0,
+  'totalCount': 0,
+  'ongoingCall': null,
+  'ver': '0'
+};
+
+final recentChats = {
+  'recentChats': {
+    'edges': [
+      {
+        'node': chatData,
+        'cursor': 'cursor',
+      }
+    ],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    }
+  }
+};
+
+final favoriteChats = {
+  'favoriteChats': {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    },
+    'ver': '0'
+  }
+};
+
+final chatContacts = {
+  'chatContacts': {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    },
+    'ver': '0',
+  }
+};
+
+final favoriteChatContacts = {
+  'favoriteChatContacts': {
+    'edges': [],
+    'pageInfo': {
+      'endCursor': 'endCursor',
+      'hasNextPage': false,
+      'startCursor': 'startCursor',
+      'hasPreviousPage': false,
+    },
+    'ver': '0',
+  }
+};
+
+final blacklist = {
+  'edges': [],
+  'pageInfo': {
+    'endCursor': 'endCursor',
+    'hasNextPage': false,
+    'startCursor': 'startCursor',
+    'hasPreviousPage': false,
+  }
+};

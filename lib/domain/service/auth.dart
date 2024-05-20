@@ -38,12 +38,13 @@ import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'disposable_service.dart';
 
 /// Authentication service exposing [credentials] of the authenticated session.
 ///
 /// It contains all the required methods to do the authentication process and
 /// exposes [credentials] (a session and an user) of the authorized session.
-class AuthService extends GetxService {
+class AuthService extends DisposableService {
   AuthService(
     this._authRepository,
     this._credentialsProvider,

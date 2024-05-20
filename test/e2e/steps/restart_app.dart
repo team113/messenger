@@ -40,8 +40,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
     final MockGraphQlProvider provider =
         Get.find<GraphQlProvider>() as MockGraphQlProvider;
 
-    await Get.deleteAll(force: true);
-    Get.reset();
+    await Get.deleteAll();
 
     await Future.delayed(Duration.zero);
     await Hive.close();

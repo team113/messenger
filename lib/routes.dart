@@ -42,6 +42,7 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
@@ -60,7 +61,6 @@ import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/recent_chat.dart';
 import 'provider/hive/session_data.dart';
-import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -521,7 +521,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(RecentChatHiveProvider()).init(userId: me),
                 deps.put(FavoriteChatHiveProvider()).init(userId: me),
                 deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(UserHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(BlocklistSortingHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
@@ -536,6 +535,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
+
+              deps.put(UserDriftProvider(Get.find()));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -656,7 +657,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(RecentChatHiveProvider()).init(userId: me),
               deps.put(FavoriteChatHiveProvider()).init(userId: me),
               deps.put(SessionDataHiveProvider()).init(userId: me),
-              deps.put(UserHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(BlocklistSortingHiveProvider()).init(userId: me),
               deps.put(ContactHiveProvider()).init(userId: me),
@@ -671,6 +671,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
+
+            deps.put(UserDriftProvider(Get.find()));
 
             GraphQlProvider graphQlProvider = Get.find();
 

@@ -17,7 +17,9 @@
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/scheduler.dart';
+import 'package:pub_semver/pub_semver.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
@@ -48,7 +50,7 @@ class UpgradeWorker extends DisposableService {
 
     // Web gets its updates out of the box with a simple page refresh.
     if (!PlatformUtils.isWeb) {
-      _fetchUpdates();
+      fetchUpdates();
     }
 
     super.onReady();
@@ -62,8 +64,9 @@ class UpgradeWorker extends DisposableService {
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
-  Future<void> _fetchUpdates() async {
-    Log.debug('_fetchUpdates()', '$runtimeType');
+  @visibleForTesting
+  Future<void> fetchUpdates() async {
+    Log.debug('fetchUpdates()', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
       return;
@@ -95,9 +98,41 @@ class UpgradeWorker extends DisposableService {
             '$runtimeType',
           );
 
-          final bool skipped = _skippedLocal?.get() == release.name;
-          if (release.name != Pubspec.ref && !skipped) {
-            _schedulePopup(release);
+          if (release.name != Pubspec.ref) {
+            Version? ours;
+            try {
+              ours = VersionExtension.parse(Pubspec.ref);
+            } catch (e) {
+              // No-op.
+            }
+
+            Version? their;
+            try {
+              their = VersionExtension.parse(release.name);
+            } catch (e) {
+              // No-op.
+            }
+
+            // Shouldn't prompt user with versions lower than current.
+            final bool lower = ours != null && their != null
+                ? ours < their
+                : Pubspec.ref.compareTo(release.name) == -1;
+            Log.debug(
+              'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
+              '$runtimeType',
+            );
+
+            // Critical releases must always be displayed and can't be skipped.
+            final bool critical = ours?.isCritical(their) ?? false;
+            Log.debug(
+              'Whether `$ours` is considered critical relative to `$their`: $critical',
+              '$runtimeType',
+            );
+
+            final bool skipped = _skippedLocal?.get() == release.name;
+            if (critical || (lower && !skipped && Config.downloadable)) {
+              _schedulePopup(release, critical: critical);
+            }
           }
         }
       }
@@ -107,12 +142,16 @@ class UpgradeWorker extends DisposableService {
   }
 
   /// Schedules an [UpgradePopupView] prompt displaying.
-  void _schedulePopup(Release release) {
+  void _schedulePopup(Release release, {bool critical = false}) {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future.delayed(_popupDelay, () {
       SchedulerBinding.instance.addPostFrameCallback((_) async {
-        await UpgradePopupView.show(router.context!, release: release);
+        await UpgradePopupView.show(
+          router.context!,
+          release: release,
+          critical: critical,
+        );
       });
     });
   }
@@ -147,11 +186,12 @@ class Release {
               (e) => e.attributes.any(
                 (p) =>
                     p.name.qualified == 'xml:lang' &&
-                    p.value == language?.locale.languageCode,
+                    p.value == language?.toString(),
               ),
             )
             ?.innerText ??
         xml.findElements('description').firstOrNull?.innerText;
+
     final String date = xml.findElements('pubDate').first.innerText;
     final List<ReleaseArtifact> assets = xml
         .findElements('enclosure')
@@ -160,7 +200,7 @@ class Release {
 
     return Release(
       name: title,
-      description: (description?.isEmpty ?? true) ? null : description,
+      description: (description?.isEmpty ?? true) ? null : description?.trim(),
       publishedAt: Rfc822ToDateTime.tryParse(date) ?? DateTime.now(),
       assets: assets,
     );
@@ -264,5 +304,183 @@ extension Rfc822ToDateTime on DateTime {
     final String zone = splits.elementAtOrNull(i + 4) ?? '+0000';
 
     return DateTime.tryParse('$year-$month-$day $time $zone');
+  }
+}
+
+/// Extension adding ability to determine critical [Version]s, the ones user
+/// can't skip.
+extension CriticalVersionExtension on Version {
+  /// Indicates whether this [Version] is considered critical compared to the
+  /// [other], meaning the one user can't skip.
+  ///
+  /// Algorithm determining whether the [other] is consider critical follows the
+  /// rules, which is easier to demonstrate with the following examples:
+  /// - `0.1.0` -> `0.1.1` => `false`;
+  /// - `0.1.0` -> `0.2.0` => `true`;
+  /// - `0.1.0` -> `1.0.0` => `true`;
+  /// - `1.0.0` -> `1.0.1` => `false`;
+  /// - `1.0.0` -> `1.1.0` => `false`.
+  ///
+  /// And the suffixes:
+  /// - `0.1.0-alpha` -> `0.1.0` => `true`;
+  /// - `0.1.0-alpha` -> `0.1.0.alpha.1` => `true`;
+  /// - `0.1.0-alpha.1` -> `0.1.0.alpha.2` => `true`;
+  /// - `0.1.0-alpha.2` -> `0.1.0.alpha.2.1` => `false`;
+  /// - `0.1.0-alpha.2.1` -> `0.1.0.alpha.2.16` => `false`;
+  /// - `0.1.0-alpha.3` -> `0.1.0.beta.3` => `true`;
+  /// - `0.1.0` -> `0.2.0-rc` => `false`;
+  /// - `0.1.0` -> `1.0.0-beta` => `false`;
+  /// - `1.0.0-beta` -> `1.0.0-rc` => `true`.
+  bool isCritical(Version? other) {
+    if (other == null) {
+      return false;
+    }
+
+    // If ours version is higher than the [other], then this isn't a critical
+    // release.
+    if (this > other) {
+      return false;
+    }
+
+    // First of all, compare pre-releases.
+    if (preRelease.isEmpty && other.preRelease.isNotEmpty) {
+      // If the compared version is a pre-release and ours isn't, then the
+      // compared is never critical, as we shouldn't update to pre-releases from
+      // stable versions.
+      //
+      // Example: `1.0.0` -> `2.0.0-alpha.1` => `false`.
+      return false;
+    } else if (preRelease.isNotEmpty && other.preRelease.isEmpty) {
+      // If our version is a pre-release and the compared one isn't, then the
+      // compared is considered critical.
+      //
+      // Example: `1.0.0-alpha.1` -> `1.0.0` => `true`.
+      return true;
+    } else if (preRelease.isNotEmpty && other.preRelease.isNotEmpty) {
+      // Both versions contain pre-release labels, thus compare their respective
+      // major/minor numbers first.
+      //
+      // Differences in major number are always considered critical.
+      //
+      // Example: `1.0.0-alpha` -> `2.0.0-alpha` => `true`.
+      if (major < other.major) {
+        return true;
+      }
+
+      if (major == 0) {
+        // If major is `0`, then differences in minor number are considered
+        // critical.
+        //
+        // Example: `0.1.0-alpha` -> `0.2.0-alpha` => `true`.
+        if (minor < other.minor) {
+          return true;
+        }
+      }
+
+      // If both versions are different patches and have pre-releases, then this
+      // is a critical release.
+      //
+      // Example: `0.1.0-alpha.1` -> `0.1.1-alpha.1` => `true`.
+      if (patch != other.patch) {
+        return true;
+      }
+
+      // If pre-releases are equal to each other, then this isn't a critical
+      // release.
+      if (const ListEquality().equals(preRelease, other.preRelease)) {
+        return false;
+      }
+
+      final ourFirst = preRelease.first;
+      final theirFirst = other.preRelease.first;
+
+      if (ourFirst is Comparable && theirFirst is Comparable) {
+        // First pre-release parts are equal (`alpha` and `alpha`, for example).
+        if (ourFirst == theirFirst) {
+          final ourSecond = preRelease.elementAtOrNull(1);
+          final theirSecond = other.preRelease.elementAtOrNull(1);
+
+          if (ourSecond is Comparable && theirSecond is Comparable) {
+            // Second pre-release parts are equal (`1` and `1`, for example).
+            if (ourSecond == theirSecond) {
+              // If the second parts are equal, then the deeper parts are
+              // different, which isn't considered a critical release.
+              //
+              // Example: `0.1.0-alpha.1` -> `0.1.0-alpha.1.1` => `false`.
+              // Example: `0.1.0-alpha.1.1.2` -> `0.1.0-alpha.1.1.3` => `false`.
+              // Example: `0.1.0-alpha.1.5` -> `0.1.0-alpha.1.6` => `false`.
+              return false;
+            } else {
+              // If our second pre-release part is lower than the second
+              // pre-release part of the other version, then this is critical.
+              //
+              // Example: `0.1.0-alpha.1` -> `0.1.0-alpha.2` => `true`.
+              return ourSecond.compareTo(theirSecond) < 0;
+            }
+          }
+        } else {
+          // If our first pre-release part is lower than the first pre-release
+          // part of the other version, then this is critical.
+          //
+          // Example: `0.1.0-alpha` -> `0.1.0-beta` => `true`.
+          return ourFirst.compareTo(theirFirst) < 0;
+        }
+      }
+    }
+
+    // If the compared versions contain no pre-releases, then proceed comparing
+    // major/minor numbers.
+    //
+    // Differences in major number are always considered critical.
+    //
+    // Example: `1.0.0` -> `2.0.0` => `true`.
+    if (major < other.major) {
+      return true;
+    }
+
+    if (major == 0) {
+      // If major is `0`, then differences in minor number are considered
+      // critical.
+      //
+      // Example: `0.1.0` -> `0.2.0` => `true`.
+      if (minor < other.minor) {
+        return true;
+      }
+    }
+
+    // Otherwise this isn't a critical release.
+    //
+    // Example: `0.1.0` -> `0.1.1` => `false`.
+    // Example: `1.0.0` -> `1.0.1` => `false`.
+    // Example: `1.0.0` -> `1.2.3` => `false`.
+    return false;
+  }
+}
+
+/// Extension adding [Version]s parsing with hyphens in pre-releases parsed as
+/// separate parts.
+extension VersionExtension on Version {
+  /// Returns the [Version] parsed from the [text] with the hyphens in
+  /// pre-releases being parsed as a separate parts, if any.
+  ///
+  /// Example: `0.1.0-alpha.13-5-qwe` -> `preRelease: ['alpha', 13, 5, 'qwe']`.
+  ///
+  /// This is required due to [PubspecBuilder] using `git describe --tags`,
+  /// which returns hyphens instead of dots, and replacing that behavior seems a
+  /// bigger evil than this.
+  static Version parse(String text) {
+    final Version parsed = Version.parse(text);
+
+    return Version(
+      parsed.major,
+      parsed.minor,
+      parsed.patch,
+      pre: parsed.preRelease.isEmpty
+          ? null
+          : parsed.preRelease
+              .map((e) => e is String ? e.replaceAll('-', '.') : e)
+              .join('.'),
+      build: parsed.build.isEmpty ? null : parsed.build.join('.'),
+    );
   }
 }

@@ -98,6 +98,7 @@ class ChatView extends StatelessWidget {
         Get.find(),
         itemId: itemId,
         welcome: welcome,
+        onContext: () => context,
       ),
       tag: id.val,
       global: !Get.isRegistered<ChatController>(tag: id.val),

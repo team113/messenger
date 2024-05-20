@@ -116,6 +116,7 @@ class ChatController extends GetxController {
     this._contactService, {
     this.itemId,
     this.welcome,
+    this.onContext,
   });
 
   /// ID of this [Chat].
@@ -230,6 +231,10 @@ class ChatController extends GetxController {
 
   /// [ListElement]s selected during [selecting] mode.
   final RxList<ListElement> selected = RxList();
+
+  /// Callback, called to retrieve the [BuildContext] that [ChatView] is built
+  /// onto.
+  final BuildContext Function()? onContext;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -440,7 +445,7 @@ class ChatController extends GetxController {
             }
 
             await ChatForwardView.show(
-              router.context!,
+              onContext?.call() ?? router.context!,
               id,
               send.replied
                   .map((e) => ChatItemQuoteInput(item: e.value))
@@ -2095,7 +2100,9 @@ class ChatController extends GetxController {
 
       if (_history.isNotEmpty ||
           listController.position.pixels >
-              MediaQuery.of(router.context!).size.height * 2 + 200) {
+              MediaQuery.of(onContext?.call() ?? router.context!).size.height *
+                      2 +
+                  200) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -2126,7 +2133,9 @@ class ChatController extends GetxController {
           showSticky.value = false;
         } else {
           showSticky.value = (listController.offset +
-                      MediaQuery.of(router.context!).size.height) -
+                      MediaQuery.of(onContext?.call() ?? router.context!)
+                          .size
+                          .height) -
                   offset >
               170;
         }
@@ -2298,7 +2307,10 @@ class ChatController extends GetxController {
         });
         if (i != -1) {
           index = i;
-          offset = (MediaQuery.of(router.context!).size.height) / 3;
+          offset = (MediaQuery.of(onContext?.call() ?? router.context!)
+                  .size
+                  .height) /
+              3;
         }
       }
     }

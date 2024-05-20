@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'crop_area.dart';
@@ -66,7 +67,8 @@ abstract class Avatar {
   final CropArea? crop;
 }
 
-/// [Avatar] of an [User].
+/// [Avatar] of a [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.userAvatar)
 class UserAvatar extends Avatar {
   UserAvatar({
@@ -77,9 +79,17 @@ class UserAvatar extends Avatar {
     required super.original,
     super.crop,
   });
+
+  /// Constructs a [UserAvatar] from the provided [json].
+  factory UserAvatar.fromJson(Map<String, dynamic> json) =>
+      _$UserAvatarFromJson(json);
+
+  /// Returns a [Map] representing this [UserAvatar].
+  Map<String, dynamic> toJson() => _$UserAvatarToJson(this);
 }
 
 /// [Avatar] of a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatAvatar)
 class ChatAvatar extends Avatar {
   ChatAvatar({
@@ -90,4 +100,11 @@ class ChatAvatar extends Avatar {
     required super.original,
     super.crop,
   });
+
+  /// Constructs a [ChatAvatar] from the provided [json].
+  factory ChatAvatar.fromJson(Map<String, dynamic> json) =>
+      _$ChatAvatarFromJson(json);
+
+  /// Returns a [Map] representing this [ChatAvatar].
+  Map<String, dynamic> toJson() => _$ChatAvatarToJson(this);
 }

@@ -18,7 +18,8 @@ Feature: Chat members pagination
     And I sign in as Alice
     And I am in "Members" group
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     And I open chat's info
     Then I see 15 chat members
 

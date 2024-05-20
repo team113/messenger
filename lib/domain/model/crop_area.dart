@@ -16,9 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model_type_id.dart';
-import '/api/backend/schema.dart';
+import '/api/backend/schema.dart' show Angle;
 
 part 'crop_area.g.dart';
 
@@ -27,6 +28,7 @@ part 'crop_area.g.dart';
 /// Top left corner of the rotated by angle image is considered as `(0, 0)`
 /// coordinates start point. So, obviously, [CropArea.bottomRight] point's
 /// coordinates should be bigger than the ones of [CropArea.topLeft] point.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.cropArea)
 class CropArea {
   CropArea({
@@ -34,6 +36,10 @@ class CropArea {
     required this.bottomRight,
     this.angle,
   });
+
+  /// Constructs a [CropArea] from the provided [json].
+  factory CropArea.fromJson(Map<String, dynamic> json) =>
+      _$CropAreaFromJson(json);
 
   /// Point of a top left corner of this [CropArea].
   @HiveField(0)
@@ -56,12 +62,20 @@ class CropArea {
 
   @override
   int get hashCode => Object.hash(topLeft, bottomRight, angle);
+
+  /// Returns a [Map] representing this [CropArea].
+  Map<String, dynamic> toJson() => _$CropAreaToJson(this);
 }
 
 /// Point in `(X, Y)` coordinates for an image cropping.
 @HiveType(typeId: ModelTypeId.cropPoint)
+@JsonSerializable()
 class CropPoint {
   CropPoint({required this.x, required this.y});
+
+  /// Constructs a [CropPoint] from the provided [json].
+  factory CropPoint.fromJson(Map<String, dynamic> json) =>
+      _$CropPointFromJson(json);
 
   /// X coordinate of this [CropPoint] in pixels.
   @HiveField(0)
@@ -77,4 +91,7 @@ class CropPoint {
 
   @override
   int get hashCode => Object.hash(x, y);
+
+  /// Returns a [Map] representing this [CropPoint].
+  Map<String, dynamic> toJson() => _$CropPointToJson(this);
 }

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '/config.dart';
 import '/l10n/l10n.dart';
@@ -28,45 +29,51 @@ import '/util/platform_utils.dart';
 /// [PrefixButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
 class DownloadButton extends StatelessWidget {
-  const DownloadButton({
-    super.key,
-    this.asset,
-    required this.title,
-    this.link,
-  });
-
   /// Constructs a [DownloadButton] for downloading the Windows application.
   const DownloadButton.windows({super.key, this.link = 'messenger-windows.zip'})
       : asset = SvgIcons.windows,
-        title = 'Windows';
+        title = 'Windows',
+        download = true;
 
   /// Constructs a [DownloadButton] for downloading the macOS application.
   const DownloadButton.macos({super.key, this.link = 'messenger-macos.zip'})
       : asset = SvgIcons.apple,
-        title = 'macOS';
+        title = 'macOS',
+        download = true;
 
   /// Constructs a [DownloadButton] for downloading the Linux application.
   const DownloadButton.linux({super.key, this.link = 'messenger-linux.zip'})
       : asset = SvgIcons.linux,
-        title = 'Linux';
+        title = 'Linux',
+        download = true;
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
-  const DownloadButton.appStore({super.key, this.link = 'messenger-ios.zip'})
+  const DownloadButton.ios({super.key, this.link = 'messenger-ios.zip'})
       : asset = SvgIcons.appStore,
-        title = 'App Store';
+        title = 'iOS',
+        download = true;
 
-  /// Constructs a [DownloadButton] for downloading the Android application from
-  /// Google Play.
-  const DownloadButton.googlePlay({
-    super.key,
-    this.link = 'messenger-android.apk',
-  })  : asset = SvgIcons.googlePlay,
-        title = 'Google Play';
+  /// Constructs a [DownloadButton] for downloading the iOS application from App
+  /// Store.
+  DownloadButton.appStore({super.key})
+      : asset = SvgIcons.appStore,
+        title = 'App Store',
+        link = Config.appStoreUrl,
+        download = false;
 
   /// Constructs a [DownloadButton] for downloading the Android application.
   const DownloadButton.android({super.key, this.link = 'messenger-android.apk'})
       : asset = SvgIcons.android,
-        title = 'Android';
+        title = 'Android',
+        download = true;
+
+  /// Constructs a [DownloadButton] for downloading the Android application from
+  /// Google Play.
+  DownloadButton.googlePlay({super.key})
+      : asset = SvgIcons.googlePlay,
+        title = 'Google Play',
+        link = Config.googlePlayUrl,
+        download = false;
 
   /// Asset to display as a prefix to this [DownloadButton].
   final SvgData? asset;
@@ -77,6 +84,10 @@ class DownloadButton extends StatelessWidget {
   /// Relative link to the downloadable asset.
   final String? link;
 
+  /// Indicator whether whatever hosted at [link] should be downloaded, or
+  /// simply launched otherwise.
+  final bool download;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -85,18 +96,20 @@ class DownloadButton extends StatelessWidget {
       title: title,
       onPressed: link == null
           ? null
-          : () async {
-              String url = link!;
+          : download
+              ? () async {
+                  String url = link!;
 
-              if (!url.startsWith('http')) {
-                url = '${Config.origin}/artifacts/$url';
-              }
+                  if (!url.startsWith('http')) {
+                    url = '${Config.origin}/artifacts/$url';
+                  }
 
-              final file = await PlatformUtils.saveTo(url);
-              if (file != null) {
-                MessagePopup.success('label_file_downloaded'.l10n);
-              }
-            },
+                  final file = await PlatformUtils.saveTo(url);
+                  if (file != null) {
+                    MessagePopup.success('label_file_downloaded'.l10n);
+                  }
+                }
+              : () => launchUrlString(link!),
       prefix: asset == null
           ? null
           : Padding(

@@ -108,8 +108,14 @@ class ChatContactId extends NewType<String>
     implements Comparable<ChatContactId> {
   const ChatContactId(super.val);
 
+  /// Constructs a [ChatContactId] from the provided [val].
+  factory ChatContactId.fromJson(String val) = ChatContactId;
+
   @override
   int compareTo(ChatContactId other) => val.compareTo(other.val);
+
+  /// Returns a [String] representing this [ChatContactId].
+  String toJson() => val;
 }
 
 /// Position of a [ChatContact] in a favorites list of the authenticated

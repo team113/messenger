@@ -53,6 +53,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'provider/drift/drift.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -94,6 +95,12 @@ Future<void> main() async {
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
+
+    Get.put(
+      DriftProvider.from(
+        Get.putOrGet(() => AppDatabase(), permanent: true),
+      ),
+    );
 
     await _initHive();
 
@@ -157,8 +164,7 @@ Future<void> main() async {
       options.dsn = Config.sentryDsn;
       options.tracesSampleRate = 1.0;
       options.sampleRate = 1.0;
-      options.release =
-          '${Pubspec.name}@${Pubspec.ref ?? Config.version ?? Pubspec.version}';
+      options.release = '${Pubspec.name}@${Pubspec.ref}';
       options.debug = true;
       options.diagnosticLevel = SentryLevel.info;
       options.enablePrintBreadcrumbs = true;
@@ -166,7 +172,7 @@ Future<void> main() async {
       options.enableTimeToFullDisplayTracing = true;
       options.enableAppHangTracking = true;
       options.enableTracing = true;
-      options.beforeSend = (SentryEvent event, {Hint? hint}) {
+      options.beforeSend = (SentryEvent event, Hint? hint) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 
         // Connection related exceptions shouldn't be logged.
@@ -226,6 +232,9 @@ Future<void> main() async {
     AppStartInfo(
       AppStartType.cold,
       start: DateTime.now().subtract(watch.elapsed),
+      pluginRegistration: DateTime.now().subtract(watch.elapsed),
+      sentrySetupStart: DateTime.now().subtract(watch.elapsed),
+      nativeSpanTimes: [],
       end: DateTime.now(),
     ),
   );
