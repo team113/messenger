@@ -1057,17 +1057,25 @@ class HiveRxChat extends RxChat {
         reset: () async => await _driftItems.clear(),
         isFirst: (e) {
           print(
-            'isFirst: ${chat.value.firstItem?.id} vs ${e?.value.id} -> ${e != null && chat.value.firstItem?.id == e.value.id}',
+            'isFirst: ${chat.value.firstItem?.id} vs ${e.value.id} -> ${chat.value.firstItem?.id == e.value.id}',
           );
 
-          return e != null && chat.value.firstItem?.id == e.value.id;
+          if (e.value.id.isLocal) {
+            return null;
+          }
+
+          return chat.value.firstItem?.id == e.value.id;
         },
         isLast: (e) {
           print(
-            'isLast: ${chat.value.lastItem?.id} vs ${e?.value.id} -> ${e != null && chat.value.lastItem?.id == e.value.id}',
+            'isLast: ${chat.value.lastItem?.id} vs ${e.value.id} -> ${chat.value.lastItem?.id == e.value.id}',
           );
 
-          return e != null && chat.value.lastItem?.id == e.value.id;
+          if (e.value.id.isLocal) {
+            return null;
+          }
+
+          return chat.value.lastItem?.id == e.value.id;
         },
         onNone: (k) async => await _driftItems.upsertView(id, k),
       ),

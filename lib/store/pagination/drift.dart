@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:log_me/log_me.dart';
 
 import '/store/model/page_info.dart';
@@ -52,31 +53,41 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   final Future<void> Function()? reset;
 
   /// Callback, called to indicate whether the provided [T] is the first.
-  final bool Function(T? item)? isFirst;
+  ///
+  /// `null` returned means that the [T] shouldn't participant in such test.
+  final bool? Function(T)? isFirst;
 
   /// Callback, called to indicate whether the provided [T] is the last.
-  final bool Function(T? item)? isLast;
+  ///
+  /// `null` returned means that the [T] shouldn't participant in such test.
+  final bool? Function(T)? isLast;
 
   List<T> _list = [];
   int _after = 0;
   int _before = 0;
   K? _around;
 
+  bool get _hasFirst =>
+      _list.lastWhereOrNull((e) => isFirst?.call(e) == true) != null;
+
+  bool get _hasLast =>
+      _list.firstWhereOrNull((e) => isLast?.call(e) == true) != null;
+
   @override
   Future<Page<T, C>> init(K? key, int count) async {
     _reset(around: key, count: count);
 
     final List<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
+    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
+    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
 
     Log.info(
-      'init($key, $count) -> (${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+      'init($key, $count) -> (${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
     );
 
-    print(
-      'edges: ${isLast?.call(edges.firstOrNull) == true}, ${isLast?.call(edges.lastOrNull) == true}, ${isFirst?.call(edges.firstOrNull) == true}, ${isFirst?.call(edges.lastOrNull) == true}',
-    );
+    // print(
+    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
+    // );
 
     if (edges.isEmpty && key != null) {
       await onNone?.call(key);
@@ -85,8 +96,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     return Page(
       edges,
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !_hasLast,
+        hasPrevious: !_hasFirst,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -99,20 +110,24 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
+    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
+    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
     final bool fulfilled =
-        (hasFirst && hasLast) || edges.length - edgesBefore >= count ~/ 2;
+        (_hasFirst && _hasLast) || edges.length - edgesBefore >= count ~/ 2;
 
     Log.info(
-      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
     );
+
+    // print(
+    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
+    // );
 
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !_hasLast,
+        hasPrevious: !_hasFirst,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -125,23 +140,23 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
-    final bool fulfilled = hasLast || edges.length - edgesBefore >= count;
+    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
+    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
+    final bool fulfilled = _hasLast || edges.length - edgesBefore >= count;
 
     Log.info(
-      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+      'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
     );
 
-    print(
-      'edges: ${isLast?.call(edges.firstOrNull) == true}, ${isLast?.call(edges.lastOrNull) == true}, ${isFirst?.call(edges.firstOrNull) == true}, ${isFirst?.call(edges.lastOrNull) == true}',
-    );
+    // print(
+    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
+    // );
 
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !_hasLast,
+        hasPrevious: !_hasFirst,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
@@ -154,23 +169,23 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
-    final bool hasLast = isLast?.call(edges.lastOrNull) == true;
-    final bool fulfilled = hasFirst || edges.length - edgesBefore >= count;
+    // final bool hasFirst = isFirst?.call(edges.firstOrNull) == true;
+    // final bool hasLast = isLast?.call(edges.lastOrNull) == true;
+    final bool fulfilled = _hasFirst || edges.length - edgesBefore >= count;
 
     Log.info(
-      'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!hasFirst}, hasPrevious: ${!hasLast}',
+      'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasFirst}, hasPrevious: ${!_hasLast}',
     );
 
-    print(
-      'edges: (${isLast?.call(edges.firstOrNull) == true}), (${isLast?.call(edges.lastOrNull) == true}), (${isFirst?.call(edges.firstOrNull) == true}), (${isFirst?.call(edges.lastOrNull) == true})',
-    );
+    // print(
+    //   'edges: ${isLast?.call(edges.firstOrNull)}, ${isLast?.call(edges.lastOrNull)}, ${isFirst?.call(edges.firstOrNull)}, ${isFirst?.call(edges.lastOrNull)}',
+    // );
 
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !hasLast,
-        hasPrevious: !hasFirst,
+        hasNext: !_hasLast,
+        hasPrevious: !_hasFirst,
         startCursor: onCursor(edges.lastOrNull),
         endCursor: onCursor(edges.firstOrNull),
       ),
