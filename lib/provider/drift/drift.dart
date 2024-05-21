@@ -72,7 +72,8 @@ class AppDatabase extends _$AppDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON');
+        await customStatement('PRAGMA foreign_keys = ON;');
+        await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
   }
