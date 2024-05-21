@@ -73,9 +73,14 @@ class AppDatabase extends _$AppDatabase {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
         await customStatement('PRAGMA foreign_keys = ON');
-        await createMigrator().createAll();
       },
     );
+  }
+
+  /// Creates all tables, triggers, views, indexes and everything else defined
+  /// in the database, if they don't exist.
+  Future<void> create() async {
+    await createMigrator().createAll();
   }
 
   /// Resets everything, meaning dropping and re-creating every table.
@@ -110,6 +115,7 @@ final class DriftProvider extends DisposableInterface {
   @override
   void onInit() async {
     Log.debug('onInit()', '$runtimeType');
+    await db?.create();
     super.onInit();
   }
 
