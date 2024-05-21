@@ -55,6 +55,28 @@ Widget svgFromAsset(
       width: width,
     );
 
+Widget svgFromUrl(
+  String url, {
+  Alignment alignment = Alignment.center,
+  bool excludeFromSemantics = false,
+  BoxFit fit = BoxFit.contain,
+  double? height,
+  Key? key,
+  WidgetBuilder? placeholderBuilder,
+  String? semanticsLabel,
+  double? width,
+}) =>
+    SvgPicture.network(
+      url,
+      alignment: Alignment.center,
+      excludeFromSemantics: excludeFromSemantics,
+      fit: fit,
+      height: height,
+      key: key,
+      semanticsLabel: semanticsLabel,
+      width: width,
+    );
+
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
 /// Either the [width] and [height] arguments should be specified, or the widget

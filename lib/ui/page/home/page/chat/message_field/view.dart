@@ -24,6 +24,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
+import 'package:rfw/rfw.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
@@ -356,7 +357,8 @@ class MessageFieldView extends StatelessWidget {
               curve: Curves.ease,
               child: Container(
                 width: double.infinity,
-                padding: c.replied.isNotEmpty ||
+                padding: c.actions.isNotEmpty ||
+                        c.replied.isNotEmpty ||
                         c.attachments.isNotEmpty ||
                         c.edited.value != null
                     ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
@@ -420,7 +422,11 @@ class MessageFieldView extends StatelessWidget {
                           ),
                         ),
                       ),
-                    ]
+                    ],
+                    if (c.actions.isNotEmpty) ...[
+                      const SizedBox(height: 4),
+                      ...c.actions.map((e) => _buildAction(context, e, c))
+                    ],
                   ],
                 ),
               ),
@@ -535,6 +541,82 @@ class MessageFieldView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  Widget _buildRfw(
+    BuildContext context,
+    RfwAttachment action,
+    MessageFieldController c,
+  ) {
+    if (action.runtime == null) {
+      return Text('Attached ${action.description}');
+    }
+
+    return RemoteWidget(
+      runtime: action.runtime!,
+      data: action.data!,
+      widget: const FullyQualifiedWidgetName(RfwAttachment.mainName, 'root'),
+      onEvent: (String name, DynamicMap arguments) {
+        debugPrint('user triggered event "$name" with data: $arguments');
+      },
+    );
+  }
+
+  Widget _buildAction(
+    BuildContext context,
+    RfwAttachment action,
+    MessageFieldController c,
+  ) {
+    final style = Theme.of(context).style;
+
+    return Dismissible(
+      key: Key(action.id),
+      direction: DismissDirection.horizontal,
+      onDismissed: (_) {
+        c.actions.remove(action);
+      },
+      child: MouseRegion(
+        opaque: false,
+        onEnter: (d) => c.hoveredAction.value = action,
+        onExit: (d) => c.hoveredAction.value = null,
+        child: Container(
+          margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
+          decoration: BoxDecoration(
+            color: style.colors.secondaryHighlight,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: _buildRfw(context, action, c),
+                ),
+              ),
+              Obx(() {
+                return AnimatedOpacity(
+                  duration: 200.milliseconds,
+                  opacity:
+                      c.hoveredAction.value == action || PlatformUtils.isMobile
+                          ? 1
+                          : 0,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
+                    child: CloseButton(
+                      key: const Key('CancelReplyButton'),
+                      onPressed: () {
+                        c.actions.remove(action);
+                      },
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   /// Returns a visual representation of the provided [Attachment].

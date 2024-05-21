@@ -24,6 +24,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:rfw/formats.dart';
+import 'package:rfw/rfw.dart';
+import 'package:uuid/uuid.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -176,6 +179,9 @@ class MessageFieldController extends GetxController {
 
   /// [ChatItemQuoteInput]s to be forwarded.
   late final RxList<ChatItemQuoteInput> quotes;
+
+  final RxList<RfwAttachment> actions = RxList();
+  final Rx<RfwAttachment?> hoveredAction = Rx(null);
 
   /// [ChatItem] being edited.
   final Rx<ChatMessage?> edited = Rx<ChatMessage?>(null);
@@ -507,4 +513,27 @@ class MessageFieldController extends GetxController {
 
     return persisted ?? [];
   }
+}
+
+class RfwAttachment {
+  RfwAttachment(String? rfw, {this.description}) {
+    if (rfw != null) {
+      runtime = Runtime();
+      data = DynamicContent();
+
+      runtime?.update(coreName, createCoreWidgets());
+      runtime?.update(mainName, parseLibraryFile(rfw));
+      data?.update('description', description ?? '');
+    }
+  }
+
+  final String id = const Uuid().v4();
+
+  final String? description;
+
+  Runtime? runtime;
+  DynamicContent? data;
+
+  static const LibraryName coreName = LibraryName(<String>['core', 'widgets']);
+  static const LibraryName mainName = LibraryName(<String>['main']);
 }

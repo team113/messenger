@@ -2156,7 +2156,8 @@ class ChatController extends GetxController {
       Map<String, dynamic>? decoded;
       try {
         decoded = jsonDecode(about!.substring('[@bot]'.length));
-      } catch (_) {
+      } catch (e) {
+        print('error: $e');
         // No-op.
       }
 
@@ -2170,30 +2171,35 @@ class ChatController extends GetxController {
       botInfo.value = BotInfoElement(
         text,
         at: PreciseDateTime.now(),
-        actions: (actions as List?)?.map((e) {
-              return BotAction(text: e['text'], command: e['command']);
-            }).toList() ??
-            [],
-        more: (more as List?)?.map((e) {
-              return BotAction(
-                text: e['text'],
-                command: e['command'],
-                icon: e['icon'],
-              );
-            }).toList() ??
-            [],
+        actions:
+            (actions as List?)?.map((e) => BotAction.fromJson(e)).toList() ??
+                [],
+        more: (more as List?)?.map((e) => BotMenu.fromJson(e)).toList() ?? [],
       );
+
+      Log.info('more: ${botInfo.value!.more}');
 
       send.panel.insertAll(
         0,
         botInfo.value!.more.map(
           (e) {
-            return CustomChatButton(
-              hint: e.text,
-              onPressed: () {
-                postCommand(e.command);
-              },
-            );
+            return e.toChatButton(onPressed: (a) {
+              if (a.command != null) {
+                postCommand(a.command!);
+              } else if (a.action != null) {
+                switch (a.action?.type) {
+                  case 'attach':
+                    send.attachments;
+                    send.actions.add(
+                      RfwAttachment(
+                        a.action?.rfw ?? e.rfw,
+                        description: a.action?.description,
+                      ),
+                    );
+                    break;
+                }
+              }
+            });
           },
         ),
       );
@@ -2581,7 +2587,7 @@ class BotInfoElement extends ListElement {
   final String? string;
 
   final List<BotAction> actions;
-  final List<BotAction> more;
+  final List<BotMenu> more;
 }
 
 /// [ListElement] representing a [ChatInfo].
@@ -2768,4 +2774,16 @@ class _ListViewIndexCalculationResult {
 
   /// Initial [FlutterListView] offset.
   final double offset;
+}
+
+extension on BotMenu {
+  CustomChatButton toChatButton({void Function(BotMenu)? onPressed}) {
+    return CustomChatButton(
+      hint: text,
+      icon: icon,
+      onPressed: onPressed == null ? null : () => onPressed(this),
+      buttons: more.map((e) => e.toChatButton(onPressed: onPressed)).toList(),
+      trailing: trailing?.toChatButton(onPressed: onPressed),
+    );
+  }
 }

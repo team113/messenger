@@ -154,7 +154,7 @@ else
 			                   dockerized=no
 endif
 else
-	flutter build $(or $(platform),apk) \
+	flutter build $(or $(platform),apk) --no-tree-shake-icons \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \

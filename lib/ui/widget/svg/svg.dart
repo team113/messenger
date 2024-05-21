@@ -55,6 +55,21 @@ class SvgImage extends StatelessWidget {
     this.semanticsLabel,
     this.excludeFromSemantics = false,
   })  : file = null,
+        url = null,
+        bytes = null;
+
+  const SvgImage.network(
+    this.url, {
+    super.key,
+    this.alignment = Alignment.center,
+    this.fit = BoxFit.contain,
+    this.width,
+    this.height,
+    this.placeholderBuilder,
+    this.semanticsLabel,
+    this.excludeFromSemantics = false,
+  })  : asset = null,
+        file = null,
         bytes = null;
 
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
@@ -74,6 +89,7 @@ class SvgImage extends StatelessWidget {
     this.semanticsLabel,
     this.excludeFromSemantics = false,
   })  : file = null,
+        url = null,
         asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [File].
@@ -93,6 +109,7 @@ class SvgImage extends StatelessWidget {
     this.semanticsLabel,
     this.excludeFromSemantics = false,
   })  : bytes = null,
+        url = null,
         asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [SvgData].
@@ -109,11 +126,13 @@ class SvgImage extends StatelessWidget {
   })  : asset = data.asset,
         file = null,
         bytes = null,
+        url = null,
         width = width ?? data.width,
         height = height ?? data.height;
 
   /// Path to an asset containing an SVG image to display.
   final String? asset;
+  final String? url;
 
   /// [File] representing an SVG image to display.
   final File? file;
@@ -161,6 +180,17 @@ class SvgImage extends StatelessWidget {
     } else if (bytes != null) {
       return svgFromBytes(
         bytes!,
+        alignment: alignment!,
+        fit: fit!,
+        width: width,
+        height: height,
+        placeholderBuilder: placeholderBuilder,
+        semanticsLabel: semanticsLabel,
+        excludeFromSemantics: excludeFromSemantics!,
+      );
+    } else if (url != null) {
+      return svgFromUrl(
+        url!,
         alignment: alignment!,
         fit: fit!,
         width: width,

@@ -24,6 +24,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import 'buttons.dart';
+import 'chat_button.dart';
 
 /// [AnimatedButton] with an [icon].
 class ChatMoreWidget extends StatefulWidget {
@@ -36,20 +37,18 @@ class ChatMoreWidget extends StatefulWidget {
     void Function()? onPressed,
   })  : label = button.hint,
         offset = button.offsetMini,
-        icon = SvgIcon(button.assetMini ?? button.asset) {
-    this.onPressed = button.onPressed == null
-        ? null
-        : () {
-            onPressed?.call();
-            button.onPressed?.call();
-          };
-  }
+        icon = button.icon == null
+            ? SvgIcon(button.assetMini ?? button.asset)
+            : SvgImage.network(button.icon!),
+        trailing = button.trailing,
+        onDismiss = onPressed,
+        onPressed = button.onPressed;
 
   /// Callback, called when this [ChatMoreWidget] is pressed.
   late final void Function()? onPressed;
 
   /// Indicator whether this [ChatMoreWidget] is pinned.
-  final bool pinned;
+  final bool? pinned;
 
   /// Callback, called when this [ChatMoreWidget] is pinned.
   final void Function()? onPin;
@@ -62,6 +61,10 @@ class ChatMoreWidget extends StatefulWidget {
 
   /// Icon to display.
   final Widget icon;
+
+  final ChatButton? trailing;
+
+  final void Function()? onDismiss;
 
   @override
   State<ChatMoreWidget> createState() => _ChatMoreWidgetState();
@@ -85,7 +88,13 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
         onExit: (_) => setState(() => _hovered = false),
         opaque: false,
         child: WidgetButton(
-          onPressed: widget.onPressed,
+          onPressed: disabled
+              ? null
+              : () {
+                  widget.onPressed?.call();
+                  widget.onDismiss?.call();
+                },
+          behavior: HitTestBehavior.deferToChild,
           child: Container(
             width: double.infinity,
             color: (_hovered && !disabled)
@@ -119,29 +128,42 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                 ),
                 const Spacer(),
                 const SizedBox(width: 16),
-                WidgetButton(
-                  onPressed: widget.onPin ?? () {},
-                  child: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: SafeAnimatedSwitcher(
-                          duration: 100.milliseconds,
-                          child: widget.pinned
-                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                              : Opacity(
-                                  key: const Key('Pin'),
-                                  opacity: widget.onPin == null || disabled
-                                      ? 0.6
-                                      : 1,
-                                  child: const SvgIcon(SvgIcons.pin),
-                                ),
+                if (widget.trailing != null)
+                  ChatButtonWidget(
+                    widget.trailing!,
+                    onPressed: () {
+                      widget.trailing?.onPressed?.call();
+                      widget.onDismiss?.call();
+                    },
+                  ),
+                if (widget.pinned != null) ...[
+                  WidgetButton(
+                    onPressed: widget.onPin ?? () {},
+                    child: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: AnimatedButton(
+                          child: SafeAnimatedSwitcher(
+                            duration: 100.milliseconds,
+                            child: widget.pinned!
+                                ? const SvgIcon(
+                                    SvgIcons.unpin,
+                                    key: Key('Unpin'),
+                                  )
+                                : Opacity(
+                                    key: const Key('Pin'),
+                                    opacity: widget.onPin == null || disabled
+                                        ? 0.6
+                                        : 1,
+                                    child: const SvgIcon(SvgIcons.pin),
+                                  ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

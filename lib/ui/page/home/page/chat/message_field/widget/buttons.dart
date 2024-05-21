@@ -47,6 +47,11 @@ abstract class ChatButton {
   /// Asset offset of this [ChatButton] in mini mode.
   Offset get offsetMini => Offset.zero;
 
+  String? get icon => null;
+
+  List<ChatButton> get buttons => const [];
+  ChatButton? get trailing => null;
+
   @override
   int get hashCode => runtimeType.hashCode;
 
@@ -231,13 +236,22 @@ class CustomChatButton extends ChatButton {
     void Function()? onPressed,
     required this.hint,
     this.icon,
+    this.buttons = const [],
+    this.trailing,
   }) : super(onPressed);
 
   @override
   final String hint;
 
+  @override
   final String? icon;
 
   @override
   SvgData get asset => SvgIcons.chatVideoCall;
+
+  @override
+  final List<ChatButton> buttons;
+
+  @override
+  final ChatButton? trailing;
 }

@@ -437,9 +437,75 @@ class BotAction {
     this.icon,
   });
 
+  factory BotAction.fromJson(Map<String, dynamic> json) {
+    return BotAction(
+      text: json['text'],
+      command: json['command'] ?? '',
+      icon: json['icon'],
+    );
+  }
+
   final String text;
-
   final String command;
-
   final String? icon;
+}
+
+class BotMenu {
+  const BotMenu({
+    required this.text,
+    this.command,
+    this.action,
+    this.icon,
+    this.more = const [],
+    this.trailing,
+    this.rfw,
+  });
+
+  factory BotMenu.fromJson(Map<String, dynamic> json) {
+    final more = json[L10n.chosen.value!.toString()]?['more'] ?? json['more'];
+
+    return BotMenu(
+      text: json['text'],
+      command: json['command'],
+      icon: json['icon'],
+      action: json['action'] == null
+          ? null
+          : BotMenuAction.fromJson(json['action']),
+      more: (more as List?)?.map((e) => BotMenu.fromJson(e)).toList() ?? [],
+      trailing:
+          json['trailing'] == null ? null : BotMenu.fromJson(json['trailing']),
+      rfw: json['rfw'],
+    );
+  }
+
+  final String text;
+  final String? command;
+  final BotMenuAction? action;
+  final String? icon;
+  final List<BotMenu> more;
+  final BotMenu? trailing;
+  final String? rfw;
+}
+
+class BotMenuAction {
+  BotMenuAction({
+    required this.type,
+    required this.command,
+    this.description,
+    this.rfw,
+  });
+
+  factory BotMenuAction.fromJson(Map<String, dynamic> json) {
+    return BotMenuAction(
+      type: json['type'],
+      command: json['command'],
+      description: json['description'],
+      rfw: json['rfw'],
+    );
+  }
+
+  final String? type;
+  final String? command;
+  final String? description;
+  final String? rfw;
 }

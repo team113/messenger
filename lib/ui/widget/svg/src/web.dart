@@ -23,10 +23,12 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:js' as js;
 
+import 'package:dio/dio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../util/platform_utils.dart';
 import '/util/log.dart';
 
 /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
@@ -55,6 +57,30 @@ Widget svgFromAsset(
   return _BrowserSvg(
     key: key,
     loader: _AssetSvgLoader(path),
+    alignment: alignment,
+    excludeFromSemantics: excludeFromSemantics,
+    fit: fit,
+    height: height,
+    placeholderBuilder: placeholderBuilder,
+    semanticsLabel: semanticsLabel,
+    width: width,
+  );
+}
+
+Widget svgFromUrl(
+  String url, {
+  Key? key,
+  Alignment alignment = Alignment.center,
+  bool excludeFromSemantics = false,
+  BoxFit fit = BoxFit.contain,
+  double? height,
+  WidgetBuilder? placeholderBuilder,
+  String? semanticsLabel,
+  double? width,
+}) {
+  return _BrowserSvg(
+    key: key,
+    loader: _NetworkSvgLoader(url),
     alignment: alignment,
     excludeFromSemantics: excludeFromSemantics,
     fit: fit,
@@ -170,6 +196,52 @@ class _AssetSvgLoader implements _SvgLoader {
 
   @override
   int get hashCode => asset.hashCode;
+}
+
+/// SVG picture loader from an asset.
+class _NetworkSvgLoader implements _SvgLoader {
+  const _NetworkSvgLoader(this.url);
+
+  /// Asset path of the SVG picture.
+  final String url;
+
+  /// Naive [LinkedHashMap]-based cache of [Uint8List]s.
+  ///
+  /// FIFO policy is used, meaning if [_cache] exceeds its [_cacheSize], then
+  /// the first inserted element is removed.
+  static final LinkedHashMap<String, Uint8List> _cache = LinkedHashMap();
+
+  /// Maximum allowed length of the [_cache].
+  static const _cacheSize = 50;
+
+  @override
+  FutureOr<Uint8List> load() {
+    if (_cache[url] != null) {
+      return _cache[url]!;
+    }
+
+    return Future(() async {
+      final response = await (await PlatformUtils.dio).get(
+        url,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      final Uint8List bytes = response.data;
+
+      _cache[url] = bytes;
+      if (_cache.length > _cacheSize) {
+        _cache.remove(_cache.keys.first);
+      }
+
+      return bytes;
+    });
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      other is _NetworkSvgLoader && other.url == url;
+
+  @override
+  int get hashCode => url.hashCode;
 }
 
 /// SVG picture loader from raw bytes.

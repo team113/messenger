@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/widget/buttons.dart';
 
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
@@ -53,6 +54,8 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   /// [Worker] reacting on the [MessageFieldController.moreOpened] changes
   /// [dismiss]ing this [MessageFieldMore]
   Worker? _worker;
+
+  ChatButton? _button;
 
   @override
   void initState() {
@@ -94,9 +97,11 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
           ? 0
           : (constraints.maxHeight - rect.bottom + rect.height);
 
+      final List<ChatButton> buttons = _button?.buttons ?? widget.c.panel;
+
       final List<Widget> widgets = [];
-      for (int i = 0; i < widget.c.panel.length; ++i) {
-        final e = widget.c.panel.elementAt(i);
+      for (int i = 0; i < buttons.length; ++i) {
+        final e = buttons.elementAt(i);
 
         widgets.add(
           Obx(() {
@@ -104,9 +109,15 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
 
             return ChatMoreWidget(
               e,
-              pinned: contains,
-              onPressed: dismiss,
-              onPin: contains || widget.c.canPin.value
+              pinned: _button == null ? contains : null,
+              onPressed: () {
+                if (e.buttons.isNotEmpty) {
+                  setState(() => _button = e);
+                } else {
+                  dismiss();
+                }
+              },
+              onPin: _button == null && (contains || widget.c.canPin.value)
                   ? () {
                       if (widget.c.buttons.contains(e)) {
                         widget.c.buttons.remove(e);
