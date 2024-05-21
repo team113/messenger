@@ -23,9 +23,9 @@ import 'package:log_me/log_me.dart';
 QueryExecutor connect() {
   return DatabaseConnection.delayed(Future(() async {
     final result = await WasmDatabase.open(
-      databaseName: 'my_app_db',
+      databaseName: 'drift',
       sqlite3Uri: Uri.parse('sqlite3.wasm'),
-      driftWorkerUri: Uri.parse('drift_worker.dart.js'),
+      driftWorkerUri: Uri.parse('drift_worker.js'),
     );
 
     Log.info('Using ${result.chosenImplementation} for `drift` backend.');
