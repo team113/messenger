@@ -1140,29 +1140,30 @@ class ChatView extends StatelessWidget {
     }
   }
 
+  // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.
-  Future<void> _removeFromContacts(
-    ChatController c,
-    BuildContext context,
-  ) async {
-    final style = Theme.of(context).style;
+  // Future<void> _removeFromContacts(
+  //   ChatController c,
+  //   BuildContext context,
+  // ) async {
+  //   final style = Theme.of(context).style;
 
-    final bool? result = await MessagePopup.alert(
-      'label_delete_contact'.l10n,
-      description: [
-        TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
-      ],
-    );
+  //   final bool? result = await MessagePopup.alert(
+  //     'label_delete_contact'.l10n,
+  //     description: [
+  //       TextSpan(text: 'alert_contact_will_be_removed1'.l10n),
+  //       TextSpan(
+  //         text: c.user?.title,
+  //         style: style.fonts.normal.regular.onBackground,
+  //       ),
+  //       TextSpan(text: 'alert_contact_will_be_removed2'.l10n),
+  //     ],
+  //   );
 
-    if (result == true) {
-      await c.removeFromContacts();
-    }
-  }
+  //   if (result == true) {
+  //     await c.removeFromContacts();
+  //   }
+  // }
 
   /// Returns a bottom bar of this [ChatView] to display under the messages list
   /// containing a send/edit field.
