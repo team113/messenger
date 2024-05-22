@@ -27,6 +27,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -77,6 +78,7 @@ void main() async {
   await credentialsProvider.init();
   final userProvider = UserDriftProvider(database);
   final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -254,6 +256,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -325,6 +328,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

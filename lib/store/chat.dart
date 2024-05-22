@@ -48,6 +48,7 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/chat_item.dart';
+import '/provider/drift/chat_member.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -56,7 +57,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
 import '/provider/hive/monolog.dart';
@@ -78,6 +78,7 @@ import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
+import 'model/chat_member.dart';
 import 'pagination.dart';
 
 /// Implementation of an [AbstractChatRepository].
@@ -87,6 +88,7 @@ class ChatRepository extends DisposableInterface
     this._graphQlProvider,
     this._chatLocal,
     this._driftItems,
+    this._driftMembers,
     this._recentLocal,
     this._favoriteLocal,
     this._callRepo,
@@ -108,10 +110,10 @@ class ChatRepository extends DisposableInterface
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   @override
-  final RxObsMap<ChatId, HiveRxChat> chats = RxObsMap<ChatId, HiveRxChat>();
+  final RxObsMap<ChatId, RxChatImpl> chats = RxObsMap<ChatId, RxChatImpl>();
 
   @override
-  final RxObsMap<ChatId, HiveRxChat> paginated = RxObsMap<ChatId, HiveRxChat>();
+  final RxObsMap<ChatId, RxChatImpl> paginated = RxObsMap<ChatId, RxChatImpl>();
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
@@ -121,6 +123,9 @@ class ChatRepository extends DisposableInterface
 
   /// [ChatItem]s local [DriftProvider] storage.
   final ChatItemDriftProvider _driftItems;
+
+  /// [ChatMember]s local [DriftProvider] storage.
+  final ChatMemberDriftProvider _driftMembers;
 
   /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
   /// storage.
@@ -307,10 +312,10 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  FutureOr<HiveRxChat?> get(ChatId id) {
+  FutureOr<RxChatImpl?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
-    HiveRxChat? chat = chats[id];
+    RxChatImpl? chat = chats[id];
     if (chat != null) {
       return chat;
     }
@@ -328,11 +333,12 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat = HiveRxChat(
+          chat = RxChatImpl(
             this,
             _chatLocal,
             _draftLocal,
             _driftItems,
+            _driftMembers,
             hiveChat,
           );
           chat!.init();
@@ -363,7 +369,7 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Ensures the provided [Chat] is remotely accessible.
-  Future<HiveRxChat?> ensureRemoteDialog(ChatId chatId) async {
+  Future<RxChatImpl?> ensureRemoteDialog(ChatId chatId) async {
     Log.debug('ensureRemoteDialog($chatId)', '$runtimeType');
 
     if (chatId.isLocal) {
@@ -382,7 +388,7 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Ensures the provided [Chat]-monolog is remotely accessible.
-  Future<HiveRxChat> ensureRemoteMonolog({
+  Future<RxChatImpl> ensureRemoteMonolog({
     ChatName? name,
     bool? isHidden,
   }) async {
@@ -391,7 +397,7 @@ class ChatRepository extends DisposableInterface
     final ChatData chatData = _chat(
       await _graphQlProvider.createMonologChat(name: name),
     );
-    final HiveRxChat chat = await _putEntry(chatData);
+    final RxChatImpl chat = await _putEntry(chatData);
 
     if (!isClosed) {
       await _monologLocal.set(chat.id);
@@ -401,7 +407,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<HiveRxChat> createGroupChat(
+  Future<RxChatImpl> createGroupChat(
     List<UserId> memberIds, {
     ChatName? name,
   }) async {
@@ -424,7 +430,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    HiveRxChat? rxChat = chats[chatId] ?? await get(chatId);
+    RxChatImpl? rxChat = chats[chatId] ?? await get(chatId);
     ChatItem? local;
 
     if (chatId.isLocal) {
@@ -486,7 +492,7 @@ class ChatRepository extends DisposableInterface
   Future<void> resendChatItem(ChatItem item) async {
     Log.debug('resendChatItem($item)', '$runtimeType');
 
-    HiveRxChat? rxChat = chats[item.chatId];
+    RxChatImpl? rxChat = chats[item.chatId];
 
     // TODO: Account [ChatForward]s.
     if (item is ChatMessage) {
@@ -524,7 +530,7 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final ChatName? previous = chat?.chat.value.name;
 
     chat?.chat.update((c) => c?.name = name);
@@ -541,14 +547,15 @@ class ChatRepository extends DisposableInterface
   Future<void> addChatMember(ChatId chatId, UserId userId) async {
     Log.debug('addChatMember($chatId, $userId)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[chatId];
+    final RxChatImpl? chat = chats[chatId];
     final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
     final RxUser? user =
         userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
     if (user != null) {
-      final member = HiveChatMember(
-        ChatMember(user.user.value, PreciseDateTime.now()),
+      final member = DtoChatMember(
+        user.user.value,
+        PreciseDateTime.now(),
         null,
       );
 
@@ -575,8 +582,8 @@ class ChatRepository extends DisposableInterface
   Future<void> removeChatMember(ChatId chatId, UserId userId) async {
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[chatId];
-    final HiveChatMember? member = chat?.members.pagination?.items[userId];
+    final RxChatImpl? chat = chats[chatId];
+    final DtoChatMember? member = chat?.members.pagination?.items[userId];
 
     chat?.members.remove(userId);
 
@@ -597,7 +604,7 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChat(ChatId id) async {
     Log.debug('hideChat($id)', '$runtimeType');
 
-    HiveRxChat? chat = chats[id];
+    RxChatImpl? chat = chats[id];
     ChatData? monologData;
 
     chat?.chat.update((c) => c?.isHidden = true);
@@ -620,7 +627,7 @@ class ChatRepository extends DisposableInterface
         await unfavoriteChat(id);
       }
 
-      // [Chat.isHidden] will be changed by [HiveRxChat]'s own remote event
+      // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
       // handler. Chat will be removed from [paginated] on [BoxEvent] from the
       // [_localSubscription].
       await _graphQlProvider.hideChat(id);
@@ -739,7 +746,7 @@ class ChatRepository extends DisposableInterface
   Future<void> deleteChatMessage(ChatMessage message) async {
     Log.debug('deleteChatMessage($message)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[message.chatId];
+    final RxChatImpl? chat = chats[message.chatId];
 
     if (message.status.value != SendingStatus.sent) {
       chat?.remove(message.id);
@@ -774,7 +781,7 @@ class ChatRepository extends DisposableInterface
   Future<void> deleteChatForward(ChatForward forward) async {
     Log.debug('deleteChatForward($forward)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[forward.chatId];
+    final RxChatImpl? chat = chats[forward.chatId];
 
     if (forward.status.value != SendingStatus.sent) {
       chat?.remove(forward.id);
@@ -809,7 +816,7 @@ class ChatRepository extends DisposableInterface
   Future<void> hideChatItem(ChatId chatId, ChatItemId id) async {
     Log.debug('hideChatItem($chatId, $id)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[chatId];
+    final RxChatImpl? chat = chats[chatId];
 
     Rx<ChatItem>? item =
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
@@ -911,7 +918,7 @@ class ChatRepository extends DisposableInterface
     // link right away.
     await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
 
-    final HiveRxChat? chat = chats[chatId];
+    final RxChatImpl? chat = chats[chatId];
     chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
   }
 
@@ -919,7 +926,7 @@ class ChatRepository extends DisposableInterface
   Future<void> deleteChatDirectLink(ChatId groupId) async {
     Log.debug('deleteChatDirectLink($groupId)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[groupId];
+    final RxChatImpl? chat = chats[groupId];
     final ChatDirectLink? link = chat?.chat.value.directLink;
 
     chat?.chat.update((c) => c?.directLink = null);
@@ -1009,7 +1016,7 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final ChatAvatar? avatar = chat?.chat.value.avatar;
 
     if (file == null) {
@@ -1038,7 +1045,7 @@ class ChatRepository extends DisposableInterface
   Future<void> toggleChatMute(ChatId id, MuteDuration? mute) async {
     Log.debug('toggleChatMute($id, $mute)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final MuteDuration? muted = chat?.chat.value.muted;
 
     final Muting? muting = mute == null
@@ -1085,7 +1092,7 @@ class ChatRepository extends DisposableInterface
 
   /// Fetches [ChatMember]s of the [Chat] with the provided [id] ordered by
   /// their joining time with pagination.
-  Future<Page<HiveChatMember, ChatMembersCursor>> members(
+  Future<Page<DtoChatMember, ChatMembersCursor>> members(
     ChatId id, {
     int? first,
     ChatMembersCursor? after,
@@ -1111,7 +1118,7 @@ class ChatRepository extends DisposableInterface
 
     return Page(
       RxList(
-        query.chat!.members.edges.map((e) => e.node.toHive(e.cursor)).toList(),
+        query.chat!.members.edges.map((e) => e.node.toDto(e.cursor)).toList(),
       ),
       query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );
@@ -1214,12 +1221,12 @@ class ChatRepository extends DisposableInterface
   Future<void> favoriteChat(ChatId id, ChatFavoritePosition? position) async {
     Log.debug('favoriteChat($id, $position)', '$runtimeType');
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
     final ChatFavoritePosition newPosition;
 
     if (position == null) {
-      final List<HiveRxChat> favorites = chats.values
+      final List<RxChatImpl> favorites = chats.values
           .where((e) => e.chat.value.favoritePosition != null)
           .toList();
 
@@ -1251,7 +1258,7 @@ class ChatRepository extends DisposableInterface
         id = monolog.chat.value.id;
         await _monologLocal.set(id);
       } else if (id.isLocal) {
-        final HiveRxChat? chat = await ensureRemoteDialog(id);
+        final RxChatImpl? chat = await ensureRemoteDialog(id);
         if (chat != null) {
           id = chat.id;
         }
@@ -1279,7 +1286,7 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final ChatFavoritePosition? oldPosition = chat?.chat.value.favoritePosition;
 
     chat?.chat.update((c) => c?.favoritePosition = null);
@@ -1303,7 +1310,7 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    final HiveRxChat? chat = chats[id];
+    final RxChatImpl? chat = chats[id];
     final ChatItem? lastItem = chat?.chat.value.lastItem;
     final ChatItemId? until = untilId ?? lastItem?.id;
 
@@ -1536,7 +1543,7 @@ class ChatRepository extends DisposableInterface
   ///
   /// Note, that if [chat] isn't stored, then this always puts it and stores the
   /// version, despite the parameters.
-  Future<HiveRxChat> put(
+  Future<RxChatImpl> put(
     HiveChat chat, {
     bool pagination = false,
     bool updateVersion = true,
@@ -1548,7 +1555,7 @@ class ChatRepository extends DisposableInterface
     );
 
     final ChatId chatId = chat.value.id;
-    final HiveRxChat? saved = chats[chatId];
+    final RxChatImpl? saved = chats[chatId];
 
     // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
     chat.value.firstItem ??= saved?.chat.value.firstItem;
@@ -1566,7 +1573,7 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    final HiveRxChat rxChat = _add(chat, pagination: pagination);
+    final RxChatImpl rxChat = _add(chat, pagination: pagination);
 
     // TODO: https://github.com/team113/messenger/issues/27
     // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
@@ -1621,18 +1628,19 @@ class ChatRepository extends DisposableInterface
 
   /// Adds the provided [HiveChat] to the [chats] and optionally to the
   /// [paginated].
-  HiveRxChat _add(HiveChat chat, {bool pagination = false}) {
+  RxChatImpl _add(HiveChat chat, {bool pagination = false}) {
     Log.trace('_add($chat, $pagination)', '$runtimeType');
 
     final ChatId chatId = chat.value.id;
-    HiveRxChat? entry = chats[chatId];
+    RxChatImpl? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(
+      entry = RxChatImpl(
         this,
         _chatLocal,
         _draftLocal,
         _driftItems,
+        _driftMembers,
         chat,
       )..init();
       chats[chatId] = entry;
@@ -1673,7 +1681,7 @@ class ChatRepository extends DisposableInterface
       final ChatId chatId = ChatId(event.key);
 
       if (event.deleted) {
-        final HiveRxChat? chat = chats.remove(chatId);
+        final RxChatImpl? chat = chats.remove(chatId);
         await chat?.clear();
         chat?.dispose();
 
@@ -1683,7 +1691,7 @@ class ChatRepository extends DisposableInterface
         _recentLocal.remove(chatId);
         _favoriteLocal.remove(chatId);
       } else {
-        final HiveRxChat? existing = chats[chatId];
+        final RxChatImpl? existing = chats[chatId];
         final Chat chat = event.value.value as Chat;
 
         // If this [BoxEvent] is about a [Chat] not contained in [chats], or the
@@ -1720,7 +1728,7 @@ class ChatRepository extends DisposableInterface
       if (event.deleted) {
         chats[chatId]?.draft.value = null;
       } else {
-        final HiveRxChat? chat = chats[chatId];
+        final RxChatImpl? chat = chats[chatId];
         if (chat != null) {
           chat.draft.value = event.value;
           chat.draft.refresh();
@@ -2127,7 +2135,7 @@ class ChatRepository extends DisposableInterface
   ///
   /// Note, that if [data] isn't stored, then this always puts it and stores the
   /// version, despite the parameters.
-  Future<HiveRxChat> _putEntry(
+  Future<RxChatImpl> _putEntry(
     ChatData data, {
     bool pagination = false,
     bool updateVersion = true,
@@ -2147,7 +2155,7 @@ class ChatRepository extends DisposableInterface
     }
 
     // If the [data] is already in [chats], then don't invoke [_putEntry] again.
-    final HiveRxChat? saved = chats[chatId];
+    final RxChatImpl? saved = chats[chatId];
     if (saved != null) {
       return put(
         data.chat,
@@ -2163,7 +2171,7 @@ class ChatRepository extends DisposableInterface
     }
 
     return await mutex.protect(() async {
-      HiveRxChat? entry = chats[chatId];
+      RxChatImpl? entry = chats[chatId];
 
       if (entry == null) {
         // If [data] is a remote [Chat]-dialog, then try to replace the existing
@@ -2175,7 +2183,7 @@ class ChatRepository extends DisposableInterface
 
           if (member != null) {
             final ChatId localId = ChatId.local(member.user.id);
-            final HiveRxChat? localChat = chats[localId];
+            final RxChatImpl? localChat = chats[localId];
 
             if (localChat != null) {
               await localChat.updateChat(data.chat);
@@ -2357,9 +2365,9 @@ class ChatRepository extends DisposableInterface
     }
   }
 
-  /// Returns a [HiveRxChat] being a local [Chat]-dialog between the given
+  /// Returns a [RxChatImpl] being a local [Chat]-dialog between the given
   /// [responderId] and the authenticated [MyUser].
-  Future<HiveRxChat> _createLocalDialog(UserId responderId) async {
+  Future<RxChatImpl> _createLocalDialog(UserId responderId) async {
     Log.debug('_createLocalDialog($responderId)', '$runtimeType');
 
     final ChatId chatId = ChatId.local(responderId);
@@ -2427,7 +2435,7 @@ class ChatRepository extends DisposableInterface
         if (maybeMonolog != null) {
           // If the [monolog] was fetched, then update [_monologLocal].
           final ChatData monologChatData = _chat(maybeMonolog);
-          final HiveRxChat monolog = await _putEntry(monologChatData);
+          final RxChatImpl monolog = await _putEntry(monologChatData);
 
           await _monologLocal.set(monolog.id);
         } else if (!isStored) {

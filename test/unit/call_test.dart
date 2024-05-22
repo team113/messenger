@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -107,6 +108,7 @@ void main() async {
   test('CallService registers and handles all ongoing call events', () async {
     final userProvider = Get.put(UserDriftProvider(database));
     Get.put(ChatItemDriftProvider(database));
+    Get.put(ChatMemberDriftProvider(database));
 
     accountProvider.set(const UserId('me'));
     credentialsProvider.put(
@@ -184,6 +186,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         Get.find(),
         recentChatProvider,
         favoriteChatProvider,
@@ -287,6 +290,7 @@ void main() async {
   test('CallService registers and successfully answers the call', () async {
     final userProvider = Get.put(UserDriftProvider(database));
     Get.put(ChatItemDriftProvider(database));
+    Get.put(ChatMemberDriftProvider(database));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -328,6 +332,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         Get.find(),
         recentChatProvider,
         favoriteChatProvider,
@@ -376,6 +381,7 @@ void main() async {
   test('CallService registers and successfully starts the call', () async {
     final userProvider = Get.put(UserDriftProvider(database));
     Get.put(ChatItemDriftProvider(database));
+    Get.put(ChatMemberDriftProvider(database));
 
     final graphQlProvider = _FakeGraphQlProvider();
 
@@ -416,6 +422,7 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
+        Get.find(),
         Get.find(),
         recentChatProvider,
         favoriteChatProvider,

@@ -25,12 +25,12 @@ import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat_member.dart';
 import '/provider/hive/chat.dart';
 import '/store/chat.dart';
 import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
+import '/store/model/chat_member.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';
@@ -659,9 +659,10 @@ extension ChatMemberConversion on ChatMemberMixin {
   /// Constructs a new [ChatMember] from this [ChatMemberMixin].
   ChatMember toModel() => ChatMember(user.toModel(), joinedAt);
 
-  /// Constructs a new [HiveChatMember] from this [ChatMemberMixin].
-  HiveChatMember toHive(ChatMembersCursor? cursor) => HiveChatMember(
-        toModel(),
+  /// Constructs a new [DtoChatMember] from this [ChatMemberMixin].
+  DtoChatMember toDto(ChatMembersCursor? cursor) => DtoChatMember(
+        user.toModel(),
+        joinedAt,
         cursor,
       );
 }
