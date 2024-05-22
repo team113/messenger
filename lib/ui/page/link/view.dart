@@ -75,7 +75,6 @@ class LinkView extends StatelessWidget {
                     background: c.background.value,
                   );
                 }),
-                // const SizedBox(height: 25),
                 const SizedBox(height: 14),
                 Row(
                   children: [
