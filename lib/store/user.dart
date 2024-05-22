@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
@@ -42,7 +43,6 @@ import '/util/log.dart';
 import '/util/new_type.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
-import 'model/page_info.dart';
 import 'paginated.dart';
 
 /// Implementation of an [AbstractUserRepository].
@@ -403,49 +403,46 @@ class UserRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    return Page([], PageInfo());
+    const maxInt = 120;
+    final response = await _graphQlProvider.searchUsers(
+      num: num,
+      name: name,
+      login: login,
+      link: link,
+      after: after,
+      first: first ?? maxInt,
+    );
 
-    // TODO: Uncomment, when searching is implemented.
-    // const maxInt = 120;
-    // final response = await _graphQlProvider.searchUsers(
-    //   num: num,
-    //   name: name,
-    //   login: login,
-    //   link: link,
-    //   after: after,
-    //   first: first ?? maxInt,
-    // );
-    //
-    // final List<DtoUser> dtoUsers =
-    //     response.searchUsers.edges.map((c) => c.node.toDto()).toList();
-    //
-    // dtoUsers.forEach(put);
-    //
-    // // We are waiting for a dummy [Future] here because [put] updates
-    // // [boxEvents] by scheduling a microtask, so we can use [get] method (after
-    // // this `await` expression) on the next Event Loop iteration.
-    // await Future.delayed(Duration.zero);
-    //
-    // final List<RxUser> users = [];
-    // final List<Future<RxUser?>> futures = [];
-    //
-    // for (final dto in dtoUsers) {
-    //   final FutureOr<RxUser?> rxUser = get(dto.value.id);
-    //   if (rxUser is RxUser?) {
-    //     if (rxUser != null) {
-    //       users.add(rxUser);
-    //     }
-    //   } else {
-    //     futures.add(rxUser);
-    //   }
-    // }
-    //
-    // users.addAll((await Future.wait(futures)).whereNotNull());
-    //
-    // return Page(
-    //   RxList(users),
-    //   response.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
-    // );
+    final List<DtoUser> dtoUsers =
+        response.searchUsers.edges.map((c) => c.node.toDto()).toList();
+
+    dtoUsers.forEach(put);
+
+    // We are waiting for a dummy [Future] here because [put] updates
+    // [boxEvents] by scheduling a microtask, so we can use [get] method (after
+    // this `await` expression) on the next Event Loop iteration.
+    await Future.delayed(Duration.zero);
+
+    final List<RxUser> users = [];
+    final List<Future<RxUser?>> futures = [];
+
+    for (final dto in dtoUsers) {
+      final FutureOr<RxUser?> rxUser = get(dto.value.id);
+      if (rxUser is RxUser?) {
+        if (rxUser != null) {
+          users.add(rxUser);
+        }
+      } else {
+        futures.add(rxUser);
+      }
+    }
+
+    users.addAll((await Future.wait(futures)).whereNotNull());
+
+    return Page(
+      RxList(users),
+      response.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
+    );
   }
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].

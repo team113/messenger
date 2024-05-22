@@ -889,9 +889,7 @@ class ChatController extends GetxController {
             status.value = RxStatus.loadingMore();
           }
 
-          Log.info('[debug] await chat!.around()...');
           await chat!.around();
-          Log.info('[debug] await chat!.around()... done!');
 
           // Required in order for [Hive.boxEvents] to add the messages.
           await Future.delayed(Duration.zero);
