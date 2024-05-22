@@ -24,7 +24,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/controller.dart';
 import 'package:messenger/ui/widget/markdown.dart';
+import 'package:rfw/rfw.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../../../domain/service/chat.dart';
@@ -437,6 +439,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   void didUpdateWidget(covariant ChatItemWidget oldWidget) {
     if (oldWidget.item != widget.item) {
       _populateWorker();
+    } else if (oldWidget.infos != widget.infos) {
+      _populateInfos();
     }
 
     super.didUpdateWidget(oldWidget);
@@ -845,6 +849,21 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
             ),
           ),
         );
+      },
+    );
+  }
+
+  Widget _rfw(BuildContext context, RfwAttachment e) {
+    if (e.runtime == null) {
+      return Text('Attached ${e.description}');
+    }
+
+    return RemoteWidget(
+      runtime: e.runtime!,
+      data: e.data!,
+      widget: const FullyQualifiedWidgetName(RfwAttachment.mainName, 'root'),
+      onEvent: (String name, DynamicMap arguments) {
+        debugPrint('user triggered event "$name" with data: $arguments');
       },
     );
   }
@@ -1259,7 +1278,10 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         )
                     ],
                   ),
-                  ...widget.infos.map((e) => _botInfo(context, e)),
+                  ...widget.infos
+                      .where((e) => e.rfw == null)
+                      .map((e) => _botInfo(context, e)),
+                  ..._rfws.map((e) => _rfw(context, e)),
                 ],
               ),
             ),
@@ -1997,15 +2019,19 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     });
   }
 
+  RxList<RfwAttachment> _rfws = RxList();
+
   /// Populates the [_worker] invoking the [_populateSpans] and
   /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
   void _populateWorker() {
     _worker?.dispose();
     _populateGlobalKeys(widget.item.value);
     _populateSpans(widget.item.value);
+    _populateInfos();
 
     ChatMessageText? text;
     int attachments = 0;
+    int infos = widget.infos.length;
 
     if (widget.item.value is ChatMessage) {
       final msg = widget.item.value as ChatMessage;
@@ -2038,8 +2064,22 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           _populateSpans(item);
           text = item.text;
         }
+
+        if (widget.infos.length != infos) {
+          _populateInfos();
+          infos = widget.infos.length;
+        }
       }
     });
+  }
+
+  void _populateInfos() {
+    _rfws.clear();
+    for (var e in widget.infos) {
+      if (e.rfw != null) {
+        _rfws.add(RfwAttachment(e.rfw!, description: e.text?.val));
+      }
+    }
   }
 
   /// Populates the [_galleryKeys] from the provided [ChatMessage.attachments].

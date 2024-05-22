@@ -337,6 +337,7 @@ class MessageFieldController extends GetxController {
     forwarding.value = false;
     field.clear(unfocus: unfocus);
     field.unsubmit();
+    actions.clear();
     onChanged?.call();
   }
 
@@ -516,20 +517,20 @@ class MessageFieldController extends GetxController {
 }
 
 class RfwAttachment {
-  RfwAttachment(String? rfw, {this.description}) {
+  RfwAttachment(String? rfw, {this.description, this.command}) {
     if (rfw != null) {
       runtime = Runtime();
       data = DynamicContent();
 
       runtime?.update(coreName, createCoreWidgets());
       runtime?.update(mainName, parseLibraryFile(rfw));
-      data?.update('description', description ?? '');
+      data?.update('description', description ?? '\$1.00');
     }
   }
 
   final String id = const Uuid().v4();
-
   final String? description;
+  final String? command;
 
   Runtime? runtime;
   DynamicContent? data;

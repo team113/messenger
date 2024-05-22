@@ -460,6 +460,8 @@ class ChatController extends GetxController {
           if (send.field.text.trim().isNotEmpty ||
               send.attachments.isNotEmpty ||
               send.replied.isNotEmpty) {
+            final List<RfwAttachment> actions = send.actions.toList();
+
             _chatService
                 .sendChatMessage(
               chat?.chat.value.id ?? id,
@@ -470,10 +472,18 @@ class ChatController extends GetxController {
               attachments: send.attachments.map((e) => e.value).toList(),
             )
                 .then(
-              (_) {
+              (item) {
                 AudioUtils.once(
                   AudioSource.asset('audio/message_sent.mp3'),
                 );
+
+                if (item != null) {
+                  for (var e in actions) {
+                    if (e.command != null) {
+                      postCommand(e.command!, repliesTo: item);
+                    }
+                  }
+                }
               },
             ).onError<PostChatMessageException>(
               (_, __) {
@@ -1143,6 +1153,24 @@ class ChatController extends GetxController {
           ),
           repliesTo: [repliesTo],
         );
+      } else if (command.startsWith('/donate')) {
+        final double? sum =
+            double.tryParse(command.substring('/donate'.length));
+
+        if (sum != null) {
+          await _chatService.sendChatMessage(
+            id,
+            text: ChatMessageText.bot(
+              text: ChatBotText(
+                title: 'Donate',
+                text: '\$${sum.toStringAsFixed(2)}',
+                rfw:
+                    "import core.widgets; widget root = Container( constraints: { 'minWidth': 300.0 }, height: 104.0, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Center( child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Text( text: [data.description], textDirection: 'ltr', ), ), ), ), );",
+              ),
+            ),
+            repliesTo: [repliesTo],
+          );
+        }
       }
     } else {
       if (command.startsWith('/donate')) {
@@ -2194,6 +2222,7 @@ class ChatController extends GetxController {
                       RfwAttachment(
                         a.action?.rfw ?? e.rfw,
                         description: a.action?.description,
+                        command: a.action?.command,
                       ),
                     );
                     break;

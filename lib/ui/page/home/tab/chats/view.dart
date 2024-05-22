@@ -241,31 +241,30 @@ class ChatsTabView extends StatelessWidget {
                         );
                       }
 
-                      // TODO: Uncomment, when searching is supported.
-                      // if (c.searching.value || c.groupCreating.value) {
-                      //   return AnimatedButton(
-                      //     key: c.searching.value
-                      //         ? const Key('CloseSearchButton')
-                      //         : const Key('SearchButton'),
-                      //     onPressed: c.searching.value
-                      //         ? () => c.closeSearch(c.groupCreating.isFalse)
-                      //         : () => c.startSearch(),
-                      //     decorator: (child) {
-                      //       return Container(
-                      //         padding:
-                      //             const EdgeInsets.only(left: 20, right: 6),
-                      //         width: 46,
-                      //         height: double.infinity,
-                      //         child: child,
-                      //       );
-                      //     },
-                      //     child: Center(
-                      //       child: c.groupCreating.value && c.searching.value
-                      //           ? const SvgIcon(SvgIcons.back)
-                      //           : const SvgIcon(SvgIcons.search),
-                      //     ),
-                      //   );
-                      // }
+                      if (c.searching.value || c.groupCreating.value) {
+                        return AnimatedButton(
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
+                              : () => c.startSearch(),
+                          decorator: (child) {
+                            return Container(
+                              padding:
+                                  const EdgeInsets.only(left: 20, right: 6),
+                              width: 46,
+                              height: double.infinity,
+                              child: child,
+                            );
+                          },
+                          child: Center(
+                            child: c.groupCreating.value && c.searching.value
+                                ? const SvgIcon(SvgIcons.back)
+                                : const SvgIcon(SvgIcons.search),
+                          ),
+                        );
+                      }
 
                       return const SizedBox(width: 21);
                     }),

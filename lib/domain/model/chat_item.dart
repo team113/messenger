@@ -226,20 +226,21 @@ class ChatBotText {
   const ChatBotText({
     this.title,
     this.text,
+    this.rfw,
     this.actions = const [],
   });
 
   final String? title;
   final String? text;
+  final String? rfw;
   final List<BotAction> actions;
 
   Map<String, dynamic> toMap() {
     return {
       if (title != null) 'title': title,
       if (text != null) 'text': text,
-      if (actions.isNotEmpty)
-        'actions':
-            actions.map((e) => {'text': e.text, 'command': e.command}).toList(),
+      if (rfw != null) 'rfw': rfw,
+      if (actions.isNotEmpty) 'actions': actions.map((e) => e.toJson).toList(),
     };
   }
 }
@@ -379,6 +380,7 @@ class BotInfo extends ChatItem {
     required this.title,
     this.text,
     this.actions,
+    this.rfw,
   });
 
   static BotInfo? parse(ChatMessage msg) {
@@ -406,6 +408,7 @@ class BotInfo extends ChatItem {
           msg.at,
           text: text == null ? null : ChatMessageText(text),
           repliesTo: msg.repliesTo.firstOrNull,
+          rfw: decoded['rfw'],
           actions: (actions as List?)?.map((e) {
             return BotAction(
               text: e['text'],
@@ -428,6 +431,7 @@ class BotInfo extends ChatItem {
   List<BotAction>? actions;
 
   String title;
+  final String? rfw;
 }
 
 class BotAction {
@@ -443,6 +447,14 @@ class BotAction {
       command: json['command'] ?? '',
       icon: json['icon'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'text': text,
+      'command': command,
+      if (icon != null) 'icon': icon,
+    };
   }
 
   final String text;

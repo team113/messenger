@@ -1002,26 +1002,9 @@ class HiveRxChat extends RxChat {
                     'Translation service is enabled. Certificated translators in real-time. [Terms and services](https://google.com)',
               ),
               const Locale('ru', 'RU'): const ChatBotText(
-                title: 'Перевод',
-                text:
-                    'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени. [Условия использования](https://google.com)',
-              ),
-            },
-          ),
-        );
-      } else if (user.user.value.name?.val == 'Donation Service') {
-        await postChatMessage(
-          text: ChatMessageText.bot(
-            localized: {
-              const Locale('en', 'US'): const ChatBotText(
                 title: 'Translation',
                 text:
-                    'Donation service is enabled. [Terms and services](https://google.com)',
-              ),
-              const Locale('ru', 'RU'): const ChatBotText(
-                title: 'Перевод',
-                text:
-                    'Подключен сервис донатов. [Условия использования](https://google.com)',
+                    'Подключен переводческий сервис. Сертифицированные переводчики в режиме реального времени. [Условия использования](https://google.com)',
               ),
             },
           ),
@@ -2024,7 +2007,10 @@ class HiveRxChat extends RxChat {
                     if (msg.text?.val.startsWith('[@bot]') == true) {
                       final userService = Get.findOrNull<UserService>();
 
-                      if (userService != null) {
+                      final bool isTranslate =
+                          msg.text?.val.contains('Translation') == true;
+
+                      if (isTranslate && userService != null) {
                         final search =
                             userService.search(login: UserLogin('translateit'));
                         search.around().then((_) {

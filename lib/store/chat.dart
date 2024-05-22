@@ -413,7 +413,7 @@ class ChatRepository extends DisposableInterface
   }
 
   @override
-  Future<void> sendChatMessage(
+  Future<ChatItem?> sendChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
@@ -442,7 +442,7 @@ class ChatRepository extends DisposableInterface
       }
     }
 
-    await rxChat?.postChatMessage(
+    return await rxChat?.postChatMessage(
       existingId: local?.id,
       existingDateTime: local?.at,
       text: text,

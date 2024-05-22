@@ -194,6 +194,7 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
                   end: 1.0,
                 ).animate(_animation),
                 child: Container(
+                  constraints: const BoxConstraints(minWidth: 240),
                   margin: EdgeInsets.only(bottom: bottom + 10),
                   decoration: BoxDecoration(
                     color: style.colors.onPrimary,

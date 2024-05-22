@@ -117,12 +117,12 @@ class ChatService extends DisposableService {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> sendChatMessage(
+  Future<ChatItem?> sendChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
     List<ChatItem> repliesTo = const [],
-  }) {
+  }) async {
     Log.debug(
       'sendChatMessage($chatId, $text, $attachments, $repliesTo)',
       '$runtimeType',
@@ -139,15 +139,19 @@ class ChatService extends DisposableService {
         final List<ChatMessageText> chunks = text.split();
         int i = 0;
 
-        return Future.forEach<ChatMessageText>(
-          chunks,
-          (text) => _chatRepository.sendChatMessage(
-            chatId,
-            text: text,
-            attachments: i++ != chunks.length - 1 ? null : attachments,
-            repliesTo: repliesTo,
-          ),
-        );
+        final List<ChatItem?> results = [];
+        for (var e in chunks) {
+          results.add(
+            await _chatRepository.sendChatMessage(
+              chatId,
+              text: e,
+              attachments: i++ != chunks.length - 1 ? null : attachments,
+              repliesTo: repliesTo,
+            ),
+          );
+        }
+
+        return results.firstOrNull;
       }
     }
 

@@ -96,7 +96,7 @@ abstract class AbstractChatRepository {
   ///
   /// Specify [repliesTo] argument if the posted [ChatMessage] is going to be a
   /// reply to some other [ChatItem].
-  Future<void> sendChatMessage(
+  Future<ChatItem?> sendChatMessage(
     ChatId chatId, {
     ChatMessageText? text,
     List<Attachment>? attachments,
