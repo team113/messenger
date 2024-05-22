@@ -36,6 +36,7 @@ import 'user_call_cover.dart';
 part 'user.g.dart';
 
 /// User of a system impersonating a real person.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.user)
 class User extends HiveObject {
   User(
@@ -55,6 +56,9 @@ class User extends HiveObject {
     this.lastSeenAt,
     this.contacts = const [],
   }) : _dialog = dialog;
+
+  /// Constructs a [User] from the provided [json].
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
 
   /// Unique ID of this [User].
   ///
@@ -155,6 +159,9 @@ class User extends HiveObject {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  /// Returns a [Map] representing this [User].
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
 /// Unique ID of an [User].
@@ -164,7 +171,7 @@ class User extends HiveObject {
 class UserId extends NewType<String> implements Comparable<UserId> {
   const UserId(super.val);
 
-  /// Constructs a [UserId] from the provided [json].
+  /// Constructs a [UserId] from the provided [val].
   factory UserId.fromJson(String val) = UserId;
 
   /// Returns a [String] representing this [UserId].

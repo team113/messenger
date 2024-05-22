@@ -1178,19 +1178,13 @@ Widget _bar(MyProfileController c, BuildContext context) {
         children: [
           const SizedBox(width: 4),
           const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: Center(
-              child: Obx(() {
-                return AvatarWidget.fromMyUser(
-                  c.myUser.value,
-                  radius: AvatarRadius.medium,
-                );
-              }),
-            ),
+          Center(
+            child: Obx(() {
+              return AvatarWidget.fromMyUser(
+                c.myUser.value,
+                radius: AvatarRadius.medium,
+              );
+            }),
           ),
           const SizedBox(width: 10),
           Flexible(

@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart';
@@ -28,6 +29,7 @@ import 'user.dart';
 part 'chat_call.g.dart';
 
 /// Call in a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatCall)
 class ChatCall extends ChatItem {
   ChatCall(
@@ -43,6 +45,10 @@ class ChatCall extends ChatItem {
     this.joinLink,
     this.dialed,
   });
+
+  /// Constructs a [ChatCall] from the provided [json].
+  factory ChatCall.fromJson(Map<String, dynamic> json) =>
+      _$ChatCallFromJson(json);
 
   /// Indicator whether this [ChatCall] is intended to start with video.
   @HiveField(5)
@@ -88,9 +94,15 @@ class ChatCall extends ChatItem {
   set finishReason(ChatCallFinishReason? reason) {
     finishReasonIndex = reason?.index;
   }
+
+  /// Returns a [Map] representing this [ChatCall].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ChatCallToJson(this)..['runtimeType'] = 'ChatCall';
 }
 
 /// Member of a [ChatCall].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatCallMember)
 class ChatCallMember {
   ChatCallMember({
@@ -98,6 +110,10 @@ class ChatCallMember {
     required this.handRaised,
     required this.joinedAt,
   });
+
+  /// Constructs a [ChatCallMember] from the provided [json].
+  factory ChatCallMember.fromJson(Map<String, dynamic> json) =>
+      _$ChatCallMemberFromJson(json);
 
   /// [User] representing this [ChatCallMember].
   @HiveField(0)
@@ -110,6 +126,9 @@ class ChatCallMember {
   /// [PreciseDateTime] when this [ChatCallMember] joined the [ChatCall].
   @HiveField(2)
   final PreciseDateTime joinedAt;
+
+  /// Returns a [Map] representing this [ChatCallMember].
+  Map<String, dynamic> toJson() => _$ChatCallMemberToJson(this);
 }
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
@@ -117,6 +136,9 @@ class ChatCallMember {
 @HiveType(typeId: ModelTypeId.chatCallCredentials)
 class ChatCallCredentials extends HiveObject {
   ChatCallCredentials(this.val);
+
+  /// Constructs the [ChatCallCredentials] from the provided [val].
+  factory ChatCallCredentials.fromJson(String val) = ChatCallCredentials;
 
   /// Actual value of these [ChatCallCredentials].
   @HiveField(0)
@@ -136,46 +158,97 @@ class ChatCallCredentials extends HiveObject {
   /// Returns a copy of these [ChatCallCredentials] with the given [val].
   ChatCallCredentials copyWith({String? val}) =>
       ChatCallCredentials(val ?? this.val);
+
+  /// Returns a [String] representing these [ChatCallCredentials].
+  String toJson() => val;
 }
 
 /// Link for joining a [ChatCall] room on a media server.
 @HiveType(typeId: ModelTypeId.chatCallRoomJoinLink)
 class ChatCallRoomJoinLink extends NewType<String> {
   const ChatCallRoomJoinLink(super.val);
+
+  /// Constructs a [ChatCallRoomJoinLink] from the provided [val].
+  factory ChatCallRoomJoinLink.fromJson(String val) = ChatCallRoomJoinLink;
+
+  /// Returns a [String] representing this [ChatCallRoomJoinLink].
+  String toJson() => val;
 }
 
 /// ID of the device the authenticated [MyUser] starts a [ChatCall] from.
 @HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
   const ChatCallDeviceId(super.val);
+
+  /// Constructs a [ChatCallDeviceId] from the provided [val].
+  factory ChatCallDeviceId.fromJson(String val) = ChatCallDeviceId;
+
+  /// Returns a [String] representing this [ChatCallDeviceId].
+  String toJson() => val;
 }
 
 /// [ChatMember]s being dialed by a [ChatCall].
 abstract class ChatMembersDialed {
   const ChatMembersDialed();
+
+  /// Constructs a [ChatMembersDialed] from the provided [json].
+  factory ChatMembersDialed.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ChatMembersDialedAll' => ChatMembersDialedAll.fromJson(json),
+        'ChatMembersDialedConcrete' => ChatMembersDialedConcrete.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
+  /// Returns a [Map] representing this [ChatMembersDialed].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (ChatMembersDialedAll) => (this as ChatMembersDialedAll).toJson(),
+        const (ChatMembersDialedConcrete) =>
+          (this as ChatMembersDialedConcrete).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
 /// by a [ChatCall].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMembersDialedAll)
 class ChatMembersDialedAll implements ChatMembersDialed {
   const ChatMembersDialedAll(this.answeredMembers);
+
+  /// Constructs a [ChatMembersDialedAll] from the provided [json].
+  factory ChatMembersDialedAll.fromJson(Map<String, dynamic> json) =>
+      _$ChatMembersDialedAllFromJson(json);
 
   /// [ChatMember]s who answered (joined or declined) the [ChatCall] already, so
   /// are not dialed anymore.
   @HiveField(0)
   final List<ChatMember> answeredMembers;
+
+  /// Returns a [Map] representing this [ChatMembersDialedAll].
+  @override
+  Map<String, dynamic> toJson() => _$ChatMembersDialedAllToJson(this)
+    ..['runtimeType'] = 'ChatMembersDialedAll';
 }
 
 /// Information about concrete [ChatMember]s of a [Chat] being dialed (or
 /// redialed) by a [ChatCall].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMembersDialedConcrete)
 class ChatMembersDialedConcrete implements ChatMembersDialed {
   const ChatMembersDialedConcrete(this.members);
+
+  /// Constructs a [ChatMembersDialedConcrete] from the provided [json].
+  factory ChatMembersDialedConcrete.fromJson(Map<String, dynamic> json) =>
+      _$ChatMembersDialedConcreteFromJson(json);
 
   /// Concrete [ChatMember]s who are dialed (or redialed) by the [ChatCall].
   ///
   /// Guaranteed to be non-empty.
   @HiveField(0)
   final List<ChatMember> members;
+
+  /// Returns a [Map] representing this [ChatMembersDialedConcrete].
+  @override
+  Map<String, dynamic> toJson() => _$ChatMembersDialedConcreteToJson(this)
+    ..['runtimeType'] = 'ChatMembersDialedConcrete';
 }

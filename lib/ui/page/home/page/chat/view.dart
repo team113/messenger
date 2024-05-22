@@ -158,19 +158,12 @@ class ChatView extends StatelessWidget {
                     appBar: CustomAppBar(
                       title: Row(
                         children: [
-                          Material(
-                            elevation: 6,
-                            type: MaterialType.circle,
-                            shadowColor: style.colors.onBackgroundOpacity27,
-                            color: style.colors.onPrimary,
-                            child: InkWell(
-                              customBorder: const CircleBorder(),
-                              onTap: onDetailsTap,
-                              child: Center(
-                                child: AvatarWidget.fromRxChat(
-                                  c.chat,
-                                  radius: AvatarRadius.medium,
-                                ),
+                          WidgetButton(
+                            onPressed: onDetailsTap,
+                            child: Center(
+                              child: AvatarWidget.fromRxChat(
+                                c.chat,
+                                radius: AvatarRadius.medium,
                               ),
                             ),
                           ),

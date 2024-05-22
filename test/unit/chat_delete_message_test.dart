@@ -30,6 +30,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -93,6 +94,7 @@ void main() async {
     ),
   );
   final userProvider = UserDriftProvider(database);
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   final callCredentialsProvider = CallCredentialsHiveProvider();
@@ -196,12 +198,14 @@ void main() async {
     last: null,
     before: null,
   )).thenAnswer(
-      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+    (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+  );
 
   when(graphQlProvider.getChat(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
   )).thenAnswer(
-      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+    (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+  );
 
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
     (_) => const Stream.empty(),
@@ -235,7 +239,7 @@ void main() async {
   );
   authService.init();
 
-  UserRepository userRepository =
+  final UserRepository userRepository =
       Get.put(UserRepository(graphQlProvider, userProvider));
   final CallRepository callRepository = Get.put(
     CallRepository(
@@ -247,10 +251,11 @@ void main() async {
       me: const UserId('me'),
     ),
   );
-  AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+  final AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
     ChatRepository(
       graphQlProvider,
       chatProvider,
+      Get.find(),
       recentChatProvider,
       favoriteChatProvider,
       callRepository,
@@ -261,7 +266,8 @@ void main() async {
       me: const UserId('me'),
     ),
   );
-  ChatService chatService = Get.put(ChatService(chatRepository, authService));
+  final ChatService chatService =
+      Get.put(ChatService(chatRepository, authService));
 
   test('ChatService successfully deletes chat message', () async {
     when(graphQlProvider.deleteChatMessage(
@@ -269,6 +275,7 @@ void main() async {
     )).thenAnswer((_) => Future.value());
 
     Get.put(chatProvider);
+    Get.put(chatItemProvider);
 
     await chatService.deleteChatItem(
       ChatMessage(
@@ -289,9 +296,14 @@ void main() async {
       () async {
     when(graphQlProvider.deleteChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(const DeleteChatMessageException(
-        DeleteChatMessageErrorCode.unknownChatItem));
+    )).thenThrow(
+      const DeleteChatMessageException(
+        DeleteChatMessageErrorCode.unknownChatItem,
+      ),
+    );
+
     Get.put(chatProvider);
+    Get.put(chatItemProvider);
 
     expect(
       () async => await chatService.deleteChatItem(ChatMessage(
@@ -315,6 +327,7 @@ void main() async {
     )).thenAnswer((_) => Future.value());
 
     Get.put(chatProvider);
+    Get.put(chatItemProvider);
 
     await chatService.hideChatItem(ChatMessage(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -334,9 +347,11 @@ void main() async {
     when(graphQlProvider.hideChatItem(
       const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     )).thenThrow(
-        const HideChatItemException(HideChatItemErrorCode.unknownChatItem));
+      const HideChatItemException(HideChatItemErrorCode.unknownChatItem),
+    );
 
     Get.put(chatProvider);
+    Get.put(chatItemProvider);
 
     expect(
       () async => await chatService.hideChatItem(ChatMessage(

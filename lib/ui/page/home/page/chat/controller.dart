@@ -826,6 +826,22 @@ class ChatController extends GetxController {
           }
         });
 
+        _bottomLoaderStartTimer = Timer(
+          const Duration(seconds: 2),
+          () {
+            if ((!status.value.isSuccess || status.value.isLoadingMore) &&
+                elements.isNotEmpty) {
+              _bottomLoader = LoaderElement.bottom(
+                (chat?.messages.lastOrNull?.value.at
+                        .add(const Duration(microseconds: 1)) ??
+                    PreciseDateTime.now()),
+              );
+
+              elements[_bottomLoader!.id] = _bottomLoader!;
+            }
+          },
+        );
+
         // If [RxChat.status] is not successful yet, populate the
         // [_messageInitializedWorker] to determine the initial messages list
         // index and offset.
@@ -850,30 +866,7 @@ class ChatController extends GetxController {
               }
             }
           });
-        } else {
-          _determineFirstUnread();
-          final result = _calculateListViewIndex();
-          initIndex = result.index;
-          initOffset = result.offset;
-
-          status.value = RxStatus.loadingMore();
         }
-
-        _bottomLoaderStartTimer = Timer(
-          const Duration(seconds: 2),
-          () {
-            if ((!status.value.isSuccess || status.value.isLoadingMore) &&
-                elements.isNotEmpty) {
-              _bottomLoader = LoaderElement.bottom(
-                (chat?.messages.lastOrNull?.value.at
-                        .add(const Duration(microseconds: 1)) ??
-                    PreciseDateTime.now()),
-              );
-
-              elements[_bottomLoader!.id] = _bottomLoader!;
-            }
-          },
-        );
 
         span.finish();
         span = _ready.startChild('around');
@@ -888,12 +881,20 @@ class ChatController extends GetxController {
 
           _subscribeFor(chat: chat);
 
+          if (chat!.status.value.isSuccess) {
+            _determineFirstUnread();
+            final result = _calculateListViewIndex();
+            initIndex = result.index;
+            initOffset = result.offset;
+            status.value = RxStatus.loadingMore();
+          }
+
           await chat!.around();
 
           // Required in order for [Hive.boxEvents] to add the messages.
           await Future.delayed(Duration.zero);
 
-          Rx<ChatItem>? firstUnread = _firstUnread;
+          final Rx<ChatItem>? firstUnread = _firstUnread;
           _determineFirstUnread();
 
           // Scroll to the last read message if [_firstUnread] was updated.
@@ -2080,7 +2081,7 @@ class ChatController extends GetxController {
         index = 0;
         offset = 0;
       } else if (_firstUnread != null) {
-        int i = elements.values.toList().indexWhere((e) {
+        final int i = elements.values.toList().indexWhere((e) {
           if (e is ChatForwardElement) {
             if (e.note.value?.value.id == _firstUnread!.value.id) {
               return true;
@@ -2093,6 +2094,7 @@ class ChatController extends GetxController {
 
           return e.id.id == _firstUnread!.value.id;
         });
+
         if (i != -1) {
           index = i;
           offset = (MediaQuery.of(onContext?.call() ?? router.context!)

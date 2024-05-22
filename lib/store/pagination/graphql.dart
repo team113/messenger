@@ -81,7 +81,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
   @override
   Future<void> put(
-    T item, {
+    Iterable<T> items, {
     bool ignoreBounds = false,
     int Function(T, T)? compare,
   }) async {

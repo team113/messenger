@@ -15,28 +15,86 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 import 'package:log_me/log_me.dart';
 
+import '/util/web/web.dart';
+
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect() {
   return DatabaseConnection.delayed(Future(() async {
-    final result = await WasmDatabase.open(
-      databaseName: 'my_app_db',
+    // TODO: Uncomment, when [WasmStorageImplementation.opfsLocks] doesn't throw
+    //       file I/O errors in Chromium browsers.
+    // final result = await WasmDatabase.open(
+    //   databaseName: 'drift',
+    //   sqlite3Uri: Uri.parse('sqlite3.wasm'),
+    //   driftWorkerUri: Uri.parse('drift_worker.js'),
+    // );
+    //
+    // Log.info('Using ${result.chosenImplementation} for `drift` backend.');
+    //
+    // if (result.missingFeatures.isNotEmpty) {
+    //   Log.warning(
+    //     'Browser misses the following features in order for `drift` to be as performant as possible: ${result.missingFeatures}',
+    //   );
+    // }
+    //
+    // return result.resolvedExecutor;
+
+    final WasmProbeResult probed = await WasmDatabase.probe(
       sqlite3Uri: Uri.parse('sqlite3.wasm'),
-      driftWorkerUri: Uri.parse('drift_worker.dart.js'),
+      driftWorkerUri: Uri.parse('drift_worker.js'),
+      databaseName: 'drift',
     );
 
-    Log.info('Using ${result.chosenImplementation} for `drift` backend.');
+    final List<WasmStorageImplementation> available =
+        probed.availableStorages.toList();
 
-    if (result.missingFeatures.isNotEmpty) {
+    if (!WebUtils.isSafari && !WebUtils.isFirefox) {
+      available.remove(WasmStorageImplementation.opfsLocks);
+    }
+
+    checkExisting:
+    for (final (location, name) in probed.existingDatabases) {
+      if (name == 'drift') {
+        final implementationsForStorage = switch (location) {
+          WebStorageApi.indexedDb => const [
+              WasmStorageImplementation.sharedIndexedDb,
+              WasmStorageImplementation.unsafeIndexedDb
+            ],
+          WebStorageApi.opfs => const [
+              WasmStorageImplementation.opfsShared,
+              WasmStorageImplementation.opfsLocks,
+            ],
+        };
+
+        // If any of the implementations for this location is still available,
+        // we want to use it instead of another location.
+        if (implementationsForStorage.any(available.contains)) {
+          available.removeWhere((i) => !implementationsForStorage.contains(i));
+          break checkExisting;
+        }
+      }
+    }
+
+    // Enum values are ordered by preferability, so just pick the best option
+    // left.
+    available.sortBy<num>((element) => element.index);
+
+    final best = available.firstOrNull ?? WasmStorageImplementation.inMemory;
+    final DatabaseConnection connection = await probed.open(best, 'drift');
+
+    Log.info('Using $best for `drift` backend.');
+
+    if (probed.missingFeatures.isNotEmpty) {
       Log.warning(
-        'Browser misses the following features in order for `drift` to be as performant as possible: ${result.missingFeatures}',
+        'Browser misses the following features in order for `drift` to be as performant as possible: ${probed.missingFeatures}',
       );
     }
 
-    return result.resolvedExecutor;
+    return connection;
   }));
 }
 

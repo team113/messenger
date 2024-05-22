@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
 
@@ -24,6 +25,7 @@ import 'package:get/get.dart';
 import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
 
@@ -31,7 +33,10 @@ import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
+part 'native_file.g.dart';
+
 /// Native file representation.
+@JsonSerializable()
 class NativeFile {
   NativeFile({
     required this.name,
@@ -81,6 +86,12 @@ class NativeFile {
         stream: file.openRead().asBroadcastStream(),
       );
 
+  /// Constructs a [NativeFile] from the provided [json].
+  factory NativeFile.fromJson(Map<String, dynamic> json) =>
+      _$NativeFileFromJson(json)
+        ..dimensions.value = _SizeExtension.fromJson(json['dimensions'])
+        ..bytes.value = _Uint8ListExtension.fromJson(json['bytes']);
+
   /// Absolute path for a cached copy of this file.
   final String? path;
 
@@ -88,6 +99,7 @@ class NativeFile {
   final String name;
 
   /// Byte data of this file.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
@@ -97,15 +109,18 @@ class NativeFile {
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
+  @JsonKey(fromJson: _MediaType.fromValue, toJson: _MediaType.toValue)
   MediaType? mime;
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
 
   /// Content of this file as a stream.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? _readStream;
 
   /// Merged stream of [bytes] and [_readStream] representing the whole file.
@@ -162,6 +177,7 @@ class NativeFile {
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? get stream {
     if (_readStream == null) return null;
 
@@ -172,6 +188,11 @@ class NativeFile {
 
     return _mergedStream;
   }
+
+  /// Returns a [Map] representing this [NativeFile].
+  Map<String, dynamic> toJson() => _$NativeFileToJson(this)
+    ..['dimensions'] = dimensions.value?.toJson()
+    ..['bytes'] = bytes.value?.toJson();
 
   /// Ensures [mime] is correctly assigned.
   ///
@@ -289,4 +310,52 @@ class NativeFileAdapter extends TypeAdapter<NativeFile> {
       ..write(obj.size)
       ..write(obj.mime);
   }
+}
+
+/// Extension adding methods to construct the [MediaType] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _MediaType on MediaType {
+  /// Returns a [MediaType] constructed from the provided [val].
+  static MediaType? fromValue(String? val) =>
+      val == null ? null : MediaType.parse(val);
+
+  /// Returns a [String] representing this [MediaType].
+  static String? toValue(MediaType? val) => val?.toString();
+}
+
+/// Extension adding methods to construct the [Size] to/from primitive types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _SizeExtension on Size {
+  /// Returns a [Size] constructed from the provided [json].
+  static Size? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
+
+    return Size(json['width'] as double, json['height'] as double);
+  }
+
+  /// Returns a [String] representing this [Size].
+  Map<String, dynamic> toJson() => {'width': width, 'height': height};
+}
+
+/// Extension adding methods to construct the [Uint8List] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _Uint8ListExtension on Uint8List {
+  /// Returns a [Uint8List] constructed from the provided [val].
+  static Uint8List? fromJson(String? val) {
+    if (val == null) {
+      return null;
+    }
+
+    return base64.decode(val);
+  }
+
+  /// Returns a [String] representing this [Uint8List].
+  String toJson() => base64.encode(this);
 }

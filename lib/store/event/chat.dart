@@ -17,14 +17,14 @@
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
+import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
@@ -305,8 +305,8 @@ class EventChatItemEdited extends ChatEvent {
   /// Edited [Attachment]s of the [ChatItem].
   final List<Attachment>? attachments;
 
-  /// [HiveChatItemQuote]s the edited [ChatItem] replies to.
-  final List<HiveChatItemQuote>? quotes;
+  /// [DtoChatItemQuote]s the edited [ChatItem] replies to.
+  final List<DtoChatItemQuote>? quotes;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemEdited;
@@ -395,7 +395,7 @@ class EventChatLastItemUpdated extends ChatEvent {
   const EventChatLastItemUpdated(super.chatId, this.lastItem);
 
   /// Updated last [ChatItem].
-  final HiveChatItem? lastItem;
+  final DtoChatItem? lastItem;
 
   @override
   ChatEventKind get kind => ChatEventKind.lastItemUpdated;
@@ -453,7 +453,7 @@ class EventChatItemPosted extends ChatEvent {
   const EventChatItemPosted(super.chatId, this.item);
 
   /// New [ChatItem].
-  final HiveChatItem item;
+  final DtoChatItem item;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemPosted;

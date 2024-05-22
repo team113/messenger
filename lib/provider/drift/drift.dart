@@ -21,6 +21,8 @@ import 'package:get/get.dart' show DisposableInterface;
 import 'package:log_me/log_me.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
+import 'chat_item.dart';
 import 'common.dart';
 import 'connection/connection.dart';
 import 'user.dart';
@@ -28,12 +30,29 @@ import 'user.dart';
 part 'drift.g.dart';
 
 /// [DriftDatabase] storing data locally.
-@DriftDatabase(tables: [Users])
+@DriftDatabase(
+  tables: [Users, ChatItems, ChatItemViews],
+  queries: {
+    'chatItemsAround': ''
+        'SELECT * FROM '
+        '(SELECT * FROM chat_item_views '
+        'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
+        'WHERE chat_item_views.chat_id = :chat_id AND at <= :at '
+        'ORDER BY at DESC LIMIT :before + 1) as a '
+        'UNION '
+        'SELECT * FROM '
+        '(SELECT * FROM chat_item_views '
+        'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
+        'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
+        'ORDER BY at ASC LIMIT :after) as b '
+        'ORDER BY at ASC;',
+  },
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -53,10 +72,16 @@ class AppDatabase extends _$AppDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON');
-        await createMigrator().createAll();
+        await customStatement('PRAGMA foreign_keys = ON;');
+        await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
+  }
+
+  /// Creates all tables, triggers, views, indexes and everything else defined
+  /// in the database, if they don't exist.
+  Future<void> create() async {
+    await createMigrator().createAll();
   }
 
   /// Resets everything, meaning dropping and re-creating every table.
@@ -91,6 +116,7 @@ final class DriftProvider extends DisposableInterface {
   @override
   void onInit() async {
     Log.debug('onInit()', '$runtimeType');
+    await db?.create();
     super.onInit();
   }
 

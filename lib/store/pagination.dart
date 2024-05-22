@@ -161,7 +161,7 @@ class Pagination<T, C, K> {
     });
   }
 
-  /// Fetches the [Page] around the provided [item] or [cursor].
+  /// Fetches the [Page] around the provided [key] or [cursor].
   ///
   /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
   Future<Page<T, C>?> around({K? key, C? cursor}) {
@@ -356,7 +356,7 @@ class Pagination<T, C, K> {
       items[onKey(item)] = item;
     }
 
-    await provider.put(item, compare: put ? null : compare);
+    await provider.put([item], compare: put ? null : compare);
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
@@ -414,19 +414,19 @@ abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(K? key, int count);
 
-  /// Fetches the [Page] around the provided [item] or [cursor].
+  /// Fetches the [Page] around the provided [key] or [cursor].
   ///
-  /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
+  /// If neither [key] nor [cursor] is provided, then fetches the first [Page].
   FutureOr<Page<T, C>?> around(K? key, C? cursor, int count);
 
-  /// Fetches the [Page] after the provided [item] or [cursor].
+  /// Fetches the [Page] after the provided [key] or [cursor].
   FutureOr<Page<T, C>?> after(K? key, C? cursor, int count);
 
-  /// Fetches the [Page] before the provided [item] or [cursor].
+  /// Fetches the [Page] before the provided [key] or [cursor].
   FutureOr<Page<T, C>?> before(K? key, C? cursor, int count);
 
-  /// Adds the provided [item] to this [PageProvider].
-  Future<void> put(T item, {int Function(T, T)? compare});
+  /// Adds the provided [items] to this [PageProvider].
+  Future<void> put(Iterable<T> items, {int Function(T, T)? compare});
 
   /// Removes the item specified by its [key] from this [PageProvider].
   Future<void> remove(K key);

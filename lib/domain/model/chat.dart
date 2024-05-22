@@ -18,6 +18,7 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;
@@ -299,9 +300,14 @@ class Chat extends HiveObject implements Comparable<Chat> {
 }
 
 /// Member of a [Chat].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.chatMember)
 class ChatMember implements Comparable<ChatMember> {
   ChatMember(this.user, this.joinedAt);
+
+  /// Constructs a [ChatMember] from the provided [json].
+  factory ChatMember.fromJson(Map<String, dynamic> json) =>
+      _$ChatMemberFromJson(json);
 
   /// [User] represented by this [ChatMember].
   @HiveField(0)
@@ -320,6 +326,9 @@ class ChatMember implements Comparable<ChatMember> {
 
     return result;
   }
+
+  /// Returns a [Map] representing this [ChatMember].
+  Map<String, dynamic> toJson() => _$ChatMemberToJson(this);
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].
@@ -345,6 +354,9 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
   /// local [Chat] is created.
   factory ChatId.local(UserId id) => ChatId('local_${id.val}');
 
+  /// Constructs a [ChatId] from the provided [val].
+  factory ChatId.fromJson(String val) = ChatId;
+
   /// Indicates whether this [ChatId] is a dummy ID.
   bool get isLocal => val.startsWith('local_');
 
@@ -359,6 +371,9 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 
   @override
   int compareTo(ChatId other) => val.compareTo(other.val);
+
+  /// Returns a [String] representing this [ChatId].
+  String toJson() => val;
 }
 
 /// Name of a [Chat].
@@ -377,6 +392,9 @@ class ChatName extends NewType<String> {
   /// Creates a [ChatName] without any validation.
   const factory ChatName.unchecked(String val) = ChatName._;
 
+  /// Constructs a [ChatName] from the provided [val].
+  factory ChatName.fromJson(String val) = ChatName.unchecked;
+
   /// Regular expression for a [ChatName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
 
@@ -389,6 +407,9 @@ class ChatName extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [ChatName].
+  String toJson() => val;
 }
 
 /// Position of this [Chat] in the favorites list of the authenticated [MyUser].

@@ -47,6 +47,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/chat_item.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -55,7 +56,6 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
 import '/provider/hive/chat_member.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
@@ -86,6 +86,7 @@ class ChatRepository extends DisposableInterface
   ChatRepository(
     this._graphQlProvider,
     this._chatLocal,
+    this._driftItems,
     this._recentLocal,
     this._favoriteLocal,
     this._callRepo,
@@ -117,6 +118,9 @@ class ChatRepository extends DisposableInterface
 
   /// [Chat]s local [Hive] storage.
   final ChatHiveProvider _chatLocal;
+
+  /// [ChatItem]s local [DriftProvider] storage.
+  final ChatItemDriftProvider _driftItems;
 
   /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
   /// storage.
@@ -324,7 +328,13 @@ class ChatRepository extends DisposableInterface
       if (chat == null) {
         final HiveChat? hiveChat = await _chatLocal.get(id);
         if (hiveChat != null) {
-          chat = HiveRxChat(this, _chatLocal, _draftLocal, hiveChat);
+          chat = HiveRxChat(
+            this,
+            _chatLocal,
+            _draftLocal,
+            _driftItems,
+            hiveChat,
+          );
           chat!.init();
         }
 
@@ -1047,7 +1057,7 @@ class ChatRepository extends DisposableInterface
 
   /// Fetches [ChatItem]s of the [Chat] with the provided [id] ordered by their
   /// posting time with pagination.
-  Future<Page<HiveChatItem, ChatItemsCursor>> messages(
+  Future<Page<DtoChatItem, ChatItemsCursor>> messages(
     ChatId id, {
     int? first,
     ChatItemsCursor? after,
@@ -1068,7 +1078,7 @@ class ChatRepository extends DisposableInterface
     );
 
     return Page(
-      RxList(query.chat!.items.edges.map((e) => e.toHive()).toList()),
+      RxList(query.chat!.items.edges.map((e) => e.toDto()).toList()),
       query.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c)),
     );
   }
@@ -1107,14 +1117,14 @@ class ChatRepository extends DisposableInterface
     );
   }
 
-  /// Fetches the [HiveChatItem] with the provided [id].
-  Future<HiveChatItem?> message(ChatItemId id) async {
+  /// Fetches the [DtoChatItem] with the provided [id].
+  Future<DtoChatItem?> message(ChatItemId id) async {
     Log.debug('message($id)', '$runtimeType');
-    return (await _graphQlProvider.chatItem(id)).chatItem?.toHive();
+    return (await _graphQlProvider.chatItem(id)).chatItem?.toDto();
   }
 
   /// Fetches the [Attachment]s of the provided [item].
-  Future<List<Attachment>> attachments(HiveChatItem item) async {
+  Future<List<Attachment>> attachments(DtoChatItem item) async {
     Log.debug('attachments($item)', '$runtimeType');
 
     final response = await _graphQlProvider.attachments(item.value.id);
@@ -1344,16 +1354,10 @@ class ChatRepository extends DisposableInterface
       );
     } else if (e.$$typename == 'EventChatItemPosted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatItemPosted;
-      return EventChatItemPosted(
-        e.chatId,
-        node.item.toHive(),
-      );
+      return EventChatItemPosted(e.chatId, node.item.toDto());
     } else if (e.$$typename == 'EventChatLastItemUpdated') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatLastItemUpdated;
-      return EventChatLastItemUpdated(
-        e.chatId,
-        node.lastItem?.toHive(),
-      );
+      return EventChatLastItemUpdated(e.chatId, node.lastItem?.toDto());
     } else if (e.$$typename == 'EventChatItemHidden') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatItemHidden;
       return EventChatItemHidden(
@@ -1395,7 +1399,7 @@ class ChatRepository extends DisposableInterface
         node.itemId,
         node.text == null ? null : EditedMessageText(node.text!.changed),
         node.attachments?.changed.map((e) => e.toModel()).toList(),
-        node.repliesTo?.changed.map((e) => e.toHive()).toList(),
+        node.repliesTo?.changed.map((e) => e.toDto()).toList(),
       );
     } else if (e.$$typename == 'EventChatCallStarted') {
       var node = e as ChatEventsVersionedMixin$Events$EventChatCallStarted;
@@ -1624,7 +1628,13 @@ class ChatRepository extends DisposableInterface
     HiveRxChat? entry = chats[chatId];
 
     if (entry == null) {
-      entry = HiveRxChat(this, _chatLocal, _draftLocal, chat)..init();
+      entry = HiveRxChat(
+        this,
+        _chatLocal,
+        _draftLocal,
+        _driftItems,
+        chat,
+      )..init();
       chats[chatId] = entry;
     } else {
       if (entry.chat.value.isMonolog) {
@@ -1881,7 +1891,7 @@ class ChatRepository extends DisposableInterface
 
     Log.debug('_initRemotePagination()', '$runtimeType');
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
+    final Pagination<HiveChat, RecentChatsCursor, ChatId> calls = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -1896,7 +1906,8 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites = Pagination(
+    final Pagination<HiveChat, FavoriteChatsCursor, ChatId> favorites =
+        Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: HiveGraphQlPageProvider(
@@ -1931,7 +1942,7 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
+    final Pagination<HiveChat, RecentChatsCursor, ChatId> recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
@@ -2188,11 +2199,9 @@ class ChatRepository extends DisposableInterface
         ignoreVersion: ignoreVersion,
       );
 
-      for (var item in [
-        if (data.lastItem != null) data.lastItem!,
-        if (data.lastReadItem != null) data.lastReadItem!,
-      ]) {
-        entry.put(item);
+      if (data.lastReadItem != null) {
+        entry.put(data.lastReadItem!, ignoreBounds: true);
+        entry.put(data.lastItem!);
       }
 
       _putEntryGuards.remove(chatId);
@@ -2206,10 +2215,7 @@ class ChatRepository extends DisposableInterface
     RecentChatsCursor? recentCursor,
     FavoriteChatsCursor? favoriteCursor,
   }) {
-    Log.trace(
-      '_chat($q, $recentCursor, $favoriteCursor)',
-      '$runtimeType',
-    );
+    Log.trace('_chat($q, $recentCursor, $favoriteCursor)', '$runtimeType');
 
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toDto());
@@ -2442,11 +2448,11 @@ class ChatData {
   /// [HiveChat] returned from the [Chat] fetching.
   final HiveChat chat;
 
-  /// [HiveChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastItem;
+  /// [DtoChatItem] of a [Chat.lastItem] returned from the [Chat] fetching.
+  final DtoChatItem? lastItem;
 
-  /// [HiveChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
-  final HiveChatItem? lastReadItem;
+  /// [DtoChatItem] of a [Chat.lastReadItem] returned from the [Chat] fetching.
+  final DtoChatItem? lastReadItem;
 
   @override
   String toString() =>
