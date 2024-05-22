@@ -137,7 +137,7 @@ class UserRepository extends DisposableInterface
   }
 
   @override
-  FutureOr<RxUser?> get(UserId id) {
+  FutureOr<RxUserImpl?> get(UserId id) {
     // Return the stored user instance, if it exists.
     final RxUserImpl? user = users[id];
     if (user != null) {

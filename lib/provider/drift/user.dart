@@ -67,7 +67,7 @@ class UserDriftProvider extends DriftProviderBase {
   /// Creates or updates the provided [user] in the database.
   Future<DtoUser> upsert(DtoUser user) async {
     final result = await safe((db) async {
-      final DtoUser stored = _UserDb.fromDb(
+      final DtoUser stored = UserDb.fromDb(
         await db.into(db.users).insertReturning(
               user.toDb(),
               onConflict: DoUpdate((_) => user.toDb()),
@@ -93,7 +93,7 @@ class UserDriftProvider extends DriftProviderBase {
         return null;
       }
 
-      return _UserDb.fromDb(row);
+      return UserDb.fromDb(row);
     });
   }
 
@@ -132,14 +132,14 @@ class UserDriftProvider extends DriftProviderBase {
     return StreamGroup.merge(
       [
         controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : _UserDb.fromDb(e.first)),
+        stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
       ],
     );
   }
 }
 
 /// Extension adding conversion methods from [UserRow] to [DtoUser].
-extension _UserDb on DtoUser {
+extension UserDb on DtoUser {
   /// Constructs a [DtoUser] from the provided [UserRow].
   static DtoUser fromDb(UserRow e) {
     return DtoUser(

@@ -98,6 +98,14 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   bool get _hasLast =>
       _list.firstWhereOrNull((e) => isLast?.call(e) == true) != null;
 
+  /// Returns the last non-`null` [C] cursor from the [_list].
+  C? get _lastCursor =>
+      onCursor(_list.lastWhereOrNull((e) => onCursor(e) != null));
+
+  /// Returns the first non-`null` [C] cursor from the [_list].
+  C? get _firstCursor =>
+      onCursor(_list.firstWhereOrNull((e) => onCursor(e) != null));
+
   @override
   Future<Page<T, C>> init(K? key, int count) async {
     _reset(around: key, count: count);
@@ -109,7 +117,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     );
 
     if (edges.isEmpty && key != null) {
-      await onNone?.call(key);
+      try {
+        await onNone?.call(key);
+      } catch (e) {
+        Log.warning('Failed to `onNone`: $e', '$runtimeType');
+      }
     }
 
     return Page(
@@ -117,8 +129,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: onCursor(edges.lastOrNull),
-        endCursor: onCursor(edges.firstOrNull),
+        startCursor: _lastCursor,
+        endCursor: _firstCursor,
       ),
     );
   }
@@ -141,8 +153,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: onCursor(edges.lastOrNull),
-        endCursor: onCursor(edges.firstOrNull),
+        startCursor: _lastCursor,
+        endCursor: _firstCursor,
       ),
     );
   }
@@ -164,8 +176,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: onCursor(edges.lastOrNull),
-        endCursor: onCursor(edges.firstOrNull),
+        startCursor: _lastCursor,
+        endCursor: _firstCursor,
       ),
     );
   }
@@ -187,8 +199,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: onCursor(edges.lastOrNull),
-        endCursor: onCursor(edges.firstOrNull),
+        startCursor: _lastCursor,
+        endCursor: _firstCursor,
       ),
     );
   }
