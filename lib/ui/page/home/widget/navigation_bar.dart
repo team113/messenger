@@ -166,7 +166,7 @@ class CustomNavigationBarItem extends StatelessWidget {
     required this.child,
   });
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.work].
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.link].
   const CustomNavigationBarItem.link({Key? key})
       : this._(
           key: key,
@@ -174,7 +174,7 @@ class CustomNavigationBarItem extends StatelessWidget {
           child: const SvgIcon(SvgIcons.directLink, key: Key('LinkButton')),
         );
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.work].
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.work`.
   const CustomNavigationBarItem.work({Key? key})
       : this._(
           key: key,
@@ -182,7 +182,7 @@ class CustomNavigationBarItem extends StatelessWidget {
           child: const SvgIcon(SvgIcons.partner, key: Key('WorkButton')),
         );
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.contacts].
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.contacts`.
   const CustomNavigationBarItem.contacts({Key? key})
       : this._(
           key: key,
