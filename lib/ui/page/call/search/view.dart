@@ -137,7 +137,7 @@ class SearchView extends StatelessWidget {
                     } else if (c.searchStatus.value.isEmpty) {
                       return Center(
                         child: Text(
-                          'label_use_search'.l10n,
+                          'label_use_direct_links_to_find_users'.l10n,
                           textAlign: TextAlign.center,
                         ),
                       );

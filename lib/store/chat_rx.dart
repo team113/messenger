@@ -760,9 +760,6 @@ class RxChatImpl extends RxChat {
     for (var e in _fragments) {
       e.pagination?.remove(itemId);
     }
-    // for (var e in _sorting.keys.where((e) => e.id == itemId)) {
-    //   _sorting.remove(e);
-    // }
 
     _chatLocal.txn((txn) async {
       final HiveChat? chatEntity = await txn.get(id.val);
@@ -803,7 +800,11 @@ class RxChatImpl extends RxChat {
       }
 
       if (item != null) {
-        await put(item);
+        // Don't await [put] here, as [get] should react as quick as possible.
+        //
+        // Also this may cause deadlocks during fetching around a [ChatItem] in
+        // [DriftProvider].
+        put(item);
       }
     }
 

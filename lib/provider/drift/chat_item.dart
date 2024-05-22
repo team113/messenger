@@ -64,6 +64,9 @@ class ChatItemViews extends Table {
 class ChatItemDriftProvider extends DriftProviderBase {
   ChatItemDriftProvider(super.database);
 
+  /// [DtoChatItem]s that have started the [upsert]ing, but not yet finished it.
+  final Map<ChatItemId, DtoChatItem> _cache = {};
+
   /// Creates or updates the a view for the provided [chatItemId] in [chatId].
   Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {
     Log.debug('upsertView($chatId, $chatItemId)');
@@ -83,6 +86,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
   Future<DtoChatItem> upsert(DtoChatItem item, {bool toView = false}) async {
     Log.debug('upsert($item) toView($toView)');
 
+    _cache[item.value.id] = item;
+
     final result = await safe((db) async {
       final ChatItemRow row = item.toDb();
       final DtoChatItem stored = _ChatItemDb.fromDb(
@@ -101,6 +106,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
       return stored;
     });
 
+    _cache.remove(item.value.id);
+
     return result ?? item;
   }
 
@@ -111,6 +118,10 @@ class ChatItemDriftProvider extends DriftProviderBase {
     Iterable<DtoChatItem> items, {
     bool toView = false,
   }) async {
+    for (var e in items) {
+      _cache[e.value.id] = e;
+    }
+
     final result = await safe((db) async {
       Log.debug('upsertBulk(${items.length} items) toView($toView)');
 
@@ -131,12 +142,21 @@ class ChatItemDriftProvider extends DriftProviderBase {
       return items.toList();
     });
 
+    for (var e in items) {
+      _cache.remove(e.value.id);
+    }
+
     return result ?? items;
   }
 
   /// Returns the [DtoChatItem] stored in the database by the provided [id], if
   /// any.
   Future<DtoChatItem?> read(ChatItemId id) async {
+    final DtoChatItem? existing = _cache[id];
+    if (existing != null) {
+      return existing;
+    }
+
     return await safe<DtoChatItem?>((db) async {
       final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
       final ChatItemRow? row = await stmt.getSingleOrNull();
@@ -152,6 +172,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
   /// database.
   Future<void> delete(ChatItemId id) async {
+    _cache.remove(id);
+
     await safe((db) async {
       final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
@@ -160,6 +182,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
 
   /// Deletes all the [DtoChatItem]s stored in the database.
   Future<void> clear() async {
+    _cache.clear();
+
     await safe((db) async {
       await db.delete(db.chatItems).go();
       await db.delete(db.chatItemViews).go();

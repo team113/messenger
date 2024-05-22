@@ -50,7 +50,7 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of the [HomeTab.contacts] tab.
+/// Controller of the `HomeTab.contacts` tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,

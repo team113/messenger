@@ -64,8 +64,13 @@ class UserDriftProvider extends DriftProviderBase {
   /// [StreamController] emitting [DtoUser]s in [watch].
   final Map<UserId, StreamController<DtoUser?>> _controllers = {};
 
+  /// [DtoUser]s that have started the [upsert]ing, but not yet finished it.
+  final Map<UserId, DtoUser> _cache = {};
+
   /// Creates or updates the provided [user] in the database.
   Future<DtoUser> upsert(DtoUser user) async {
+    _cache[user.id] = user;
+
     final result = await safe((db) async {
       final DtoUser stored = UserDb.fromDb(
         await db.into(db.users).insertReturning(
@@ -79,12 +84,19 @@ class UserDriftProvider extends DriftProviderBase {
       return stored;
     });
 
+    _cache.remove(user.id);
+
     return result ?? user;
   }
 
   /// Returns the [DtoUser] stored in the database by the provided [id], if
   /// any.
   Future<DtoUser?> read(UserId id) async {
+    final DtoUser? existing = _cache[id];
+    if (existing != null) {
+      return existing;
+    }
+
     return await safe<DtoUser?>((db) async {
       final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
       final UserRow? row = await stmt.getSingleOrNull();
@@ -99,6 +111,8 @@ class UserDriftProvider extends DriftProviderBase {
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.
   Future<void> delete(UserId id) async {
+    _cache.remove(id);
+
     await safe((db) async {
       final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
       await stmt.go();
@@ -109,6 +123,8 @@ class UserDriftProvider extends DriftProviderBase {
 
   /// Deletes all the [DtoUser]s stored in the database.
   Future<void> clear() async {
+    _cache.clear();
+
     await safe((db) async {
       await db.delete(db.users).go();
     });

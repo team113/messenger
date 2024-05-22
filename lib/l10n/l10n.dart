@@ -304,7 +304,6 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.language => 'label_language'.l10n,
       ProfileTab.blocklist => 'label_blocked_users'.l10n,
       ProfileTab.devices => 'label_linked_devices'.l10n,
-      ProfileTab.sections => 'label_show_sections'.l10n,
       ProfileTab.download => 'label_download'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
       ProfileTab.legal => 'label_legal_information'.l10n,
