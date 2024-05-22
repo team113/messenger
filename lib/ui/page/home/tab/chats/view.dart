@@ -806,9 +806,6 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: (clear) => c.hideChat(e.id, clear),
-                                inContacts: e.chat.value.isDialog
-                                    ? () => c.inContacts(e)
-                                    : null,
                                 onMute: e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
                                     ? null
@@ -826,9 +823,15 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
-                                onContact: (b) => b
-                                    ? c.addToContacts(e)
-                                    : c.removeFromContacts(e),
+
+                                // TODO: Uncomment, when contacts are implemented.
+                                // onContact: (b) => b
+                                //     ? c.addToContacts(e)
+                                //     : c.removeFromContacts(e),
+                                // inContacts: e.chat.value.isDialog
+                                //     ? () => c.inContacts(e)
+                                //     : null,
+
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,

@@ -311,9 +311,11 @@ class ChatView extends StatelessWidget {
                                 final bool favorite =
                                     c.chat?.chat.value.favoritePosition != null;
 
-                                final bool contact =
-                                    c.user?.user.value.contacts.isNotEmpty ??
-                                        false;
+                                // TODO: Uncomment, when contacts are
+                                //       implemented.
+                                // final bool contact =
+                                //     c.user?.user.value.contacts.isNotEmpty ??
+                                //         false;
 
                                 final Widget child;
 
@@ -372,33 +374,34 @@ class ChatView extends StatelessWidget {
                                           ),
                                         ),
                                       ],
-                                      if (dialog)
-                                        ContextMenuButton(
-                                          key: Key(
-                                            contact
-                                                ? 'DeleteFromContactsButton'
-                                                : 'AddToContactsButton',
-                                          ),
-                                          label: contact
-                                              ? 'btn_delete_from_contacts'.l10n
-                                              : 'btn_add_to_contacts'.l10n,
-                                          trailing: SvgIcon(
-                                            contact
-                                                ? SvgIcons.deleteContact
-                                                : SvgIcons.addContact,
-                                          ),
-                                          inverted: SvgIcon(
-                                            contact
-                                                ? SvgIcons.deleteContactWhite
-                                                : SvgIcons.addContactWhite,
-                                          ),
-                                          onPressed: contact
-                                              ? () => _removeFromContacts(
-                                                    c,
-                                                    context,
-                                                  )
-                                              : c.addToContacts,
-                                        ),
+                                      // TODO: Uncomment, when contacts are implemented.
+                                      // if (dialog)
+                                      //   ContextMenuButton(
+                                      //     key: Key(
+                                      //       contact
+                                      //           ? 'DeleteFromContactsButton'
+                                      //           : 'AddToContactsButton',
+                                      //     ),
+                                      //     label: contact
+                                      //         ? 'btn_delete_from_contacts'.l10n
+                                      //         : 'btn_add_to_contacts'.l10n,
+                                      //     trailing: SvgIcon(
+                                      //       contact
+                                      //           ? SvgIcons.deleteContact
+                                      //           : SvgIcons.addContact,
+                                      //     ),
+                                      //     inverted: SvgIcon(
+                                      //       contact
+                                      //           ? SvgIcons.deleteContactWhite
+                                      //           : SvgIcons.addContactWhite,
+                                      //     ),
+                                      //     onPressed: contact
+                                      //         ? () => _removeFromContacts(
+                                      //               c,
+                                      //               context,
+                                      //             )
+                                      //         : c.addToContacts,
+                                      //   ),
                                       ContextMenuButton(
                                         key: Key(
                                           favorite

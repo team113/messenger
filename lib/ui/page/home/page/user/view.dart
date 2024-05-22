@@ -290,9 +290,11 @@ class UserView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     final Widget moreButton = Obx(key: const Key('MoreButton'), () {
-      final bool contact = c.contactId != null;
-      final bool favorite =
-          c.contact.value?.contact.value.favoritePosition != null;
+      // TODO: Uncomment, when contacts are implemented.
+      // final bool contact = c.contactId != null;
+      // final bool favorite =
+      //     c.contact.value?.contact.value.favoritePosition != null;
+
       final RxChat? dialog = c.user?.dialog.value;
       final bool isMuted = dialog?.chat.value.muted != null;
 
@@ -304,45 +306,46 @@ class UserView extends StatelessWidget {
           enablePrimaryTap: true,
           margin: const EdgeInsets.only(bottom: 4, left: 5),
           actions: [
-            ContextMenuButton(
-              key: contact
-                  ? const Key('DeleteFromContactsButton')
-                  : const Key('AddToContactsButton'),
-              label: contact
-                  ? 'btn_delete_from_contacts'.l10n
-                  : 'btn_add_to_contacts'.l10n,
-              onPressed: contact ? c.removeFromContacts : c.addToContacts,
-              trailing: SvgIcon(
-                contact ? SvgIcons.deleteContact : SvgIcons.addContact,
-              ),
-              inverted: SvgIcon(
-                contact
-                    ? SvgIcons.deleteContactWhite
-                    : SvgIcons.addContactWhite,
-              ),
-            ),
-            ContextMenuButton(
-              key: favorite
-                  ? const Key('DeleteFromFavoriteButton')
-                  : const Key('AddToFavoriteButton'),
-              label: favorite
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
-              onPressed: favorite
-                  ? c.unfavoriteContact
-                  : () async {
-                      await c.addToContacts();
-                      await c.favoriteContact();
-                    },
-              trailing: SvgIcon(
-                favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
-              ),
-              inverted: SvgIcon(
-                favorite
-                    ? SvgIcons.favoriteSmallWhite
-                    : SvgIcons.unfavoriteSmallWhite,
-              ),
-            ),
+            // TODO: Uncomment, when contacts are implemented.
+            // ContextMenuButton(
+            //   key: contact
+            //       ? const Key('DeleteFromContactsButton')
+            //       : const Key('AddToContactsButton'),
+            //   label: contact
+            //       ? 'btn_delete_from_contacts'.l10n
+            //       : 'btn_add_to_contacts'.l10n,
+            //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
+            //   trailing: SvgIcon(
+            //     contact ? SvgIcons.deleteContact : SvgIcons.addContact,
+            //   ),
+            //   inverted: SvgIcon(
+            //     contact
+            //         ? SvgIcons.deleteContactWhite
+            //         : SvgIcons.addContactWhite,
+            //   ),
+            // ),
+            // ContextMenuButton(
+            //   key: favorite
+            //       ? const Key('DeleteFromFavoriteButton')
+            //       : const Key('AddToFavoriteButton'),
+            //   label: favorite
+            //       ? 'btn_delete_from_favorites'.l10n
+            //       : 'btn_add_to_favorites'.l10n,
+            //   onPressed: favorite
+            //       ? c.unfavoriteContact
+            //       : () async {
+            //           await c.addToContacts();
+            //           await c.favoriteContact();
+            //         },
+            //   trailing: SvgIcon(
+            //     favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
+            //   ),
+            //   inverted: SvgIcon(
+            //     favorite
+            //         ? SvgIcons.favoriteSmallWhite
+            //         : SvgIcons.unfavoriteSmallWhite,
+            //   ),
+            // ),
             if (dialog?.id.isLocal == false) ...[
               ContextMenuButton(
                 label: isMuted ? 'btn_unmute_chat'.l10n : 'btn_mute_chat'.l10n,
@@ -460,33 +463,38 @@ class UserView extends StatelessWidget {
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
     return Obx(() {
-      final bool contact = c.contact.value != null;
-      final bool favorite =
-          c.contact.value?.contact.value.favoritePosition != null;
+      // TODO: Uncomment, when contacts are implemented.
+      // final bool contact = c.contact.value != null;
+      // final bool favorite =
+      //     c.contact.value?.contact.value.favoritePosition != null;
+
       final RxChat? dialog = c.user?.dialog.value;
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 8),
-          ActionButton(
-            text: contact
-                ? 'btn_delete_from_contacts'.l10n
-                : 'btn_add_to_contacts'.l10n,
-            onPressed: contact ? c.removeFromContacts : c.addToContacts,
-            trailing: SvgIcon(
-              contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
-            ),
-          ),
-          ActionButton(
-            text: favorite
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
-            trailing: SvgIcon(
-              favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
-            ),
-          ),
+
+          // TODO: Uncomment, when contacts are implemented.
+          // ActionButton(
+          //   text: contact
+          //       ? 'btn_delete_from_contacts'.l10n
+          //       : 'btn_add_to_contacts'.l10n,
+          //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
+          //   trailing: SvgIcon(
+          //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
+          //   ),
+          // ),
+          // ActionButton(
+          //   text: favorite
+          //       ? 'btn_delete_from_favorites'.l10n
+          //       : 'btn_add_to_favorites'.l10n,
+          //   onPressed: favorite ? c.unfavoriteContact : c.favoriteContact,
+          //   trailing: SvgIcon(
+          //     favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+          //   ),
+          // ),
+
           if (dialog?.id.isLocal == false) ...[
             Obx(() {
               final bool isMuted = dialog?.chat.value.muted != null;
