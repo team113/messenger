@@ -64,20 +64,6 @@ class ChatMemberDriftProvider extends DriftProviderBase {
     return members;
   }
 
-  /// Creates or updates the provided [member] in the database.
-  Future<DtoChatMember> upsert(ChatId chatId, DtoChatMember member) async {
-    Log.debug('upsert($chatId, $member)');
-
-    await safe((db) async {
-      await db.batch((batch) {
-        final ChatMemberRow row = member.toDb(chatId);
-        batch.insert(db.chatMembers, row, onConflict: DoUpdate((_) => row));
-      });
-    });
-
-    return member;
-  }
-
   /// Returns the [DtoChatMember] stored in the database by the provided
   /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
