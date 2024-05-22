@@ -25,7 +25,6 @@ import 'package:mutex/mutex.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
-import 'model/chat_item.dart';
 import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
@@ -179,10 +178,6 @@ class Pagination<T, C, K> {
 
       Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
-      if (T is DtoChatItem) {
-        Log.info('around($key)...', '$runtimeType');
-      }
-
       try {
         final Page<T, C>? page = await Backoff.run(
           () => provider.around(key, cursor, perPage),
@@ -211,10 +206,6 @@ class Pagination<T, C, K> {
           'around(key: $key, cursor: $cursor)... done',
           '$runtimeType',
         );
-
-        if (T is DtoChatItem) {
-          Log.info('around($key)... done', '$runtimeType');
-        }
 
         return page;
       } catch (e) {
