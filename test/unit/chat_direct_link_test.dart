@@ -30,6 +30,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -143,6 +144,7 @@ void main() async {
     await Get.put(DraftHiveProvider()).init();
     Get.put(UserDriftProvider(Get.find()));
     Get.put(ChatItemDriftProvider(Get.find()));
+    Get.put(ChatMemberDriftProvider(Get.find()));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
     await Get.put(MediaSettingsHiveProvider()).init();
@@ -211,6 +213,7 @@ void main() async {
         Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),

@@ -29,6 +29,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
@@ -272,6 +273,7 @@ void main() async {
     Get.put(chatProvider);
     final userProvider = UserDriftProvider(database);
     Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -298,6 +300,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         Get.find(),
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -369,6 +372,7 @@ void main() async {
     Get.put(chatProvider);
     final userProvider = UserDriftProvider(database);
     Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -395,6 +399,7 @@ void main() async {
         graphQlProvider,
         chatProvider,
         Get.find(),
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
