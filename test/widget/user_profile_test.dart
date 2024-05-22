@@ -33,6 +33,7 @@ import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -120,7 +121,8 @@ void main() async {
   await contactProvider.init();
   await contactProvider.clear();
   final userProvider = UserDriftProvider(database);
-  Get.put(ChatItemDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -450,7 +452,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
-        Get.find(),
+        chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,

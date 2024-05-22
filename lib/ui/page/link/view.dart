@@ -21,7 +21,6 @@ import 'package:get/get.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/widget/modal_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of a [DirectLinkField].
@@ -38,15 +37,9 @@ class LinkView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: LinkController(
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        pop: context.popModal,
-      ),
+      init: LinkController(Get.find(), Get.find()),
       builder: (LinkController c) {
         return Column(
-          key: Key(c.screen.value.toString()),
           mainAxisSize: MainAxisSize.min,
           children: [
             ModalPopupHeader(text: 'label_your_direct_link'.l10n),
