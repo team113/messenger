@@ -19,6 +19,7 @@ class DtoChatMember extends HiveObject implements Comparable<DtoChatMember> {
     UserId? userId,
   }) : id = userId ?? user!.id;
 
+  /// [UserId] of the [User] this [ChatMember] is about.
   @HiveField(0)
   UserId id;
 

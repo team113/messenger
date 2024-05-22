@@ -934,10 +934,7 @@ class RxChatImpl extends RxChat {
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
   /// Puts the provided [member] to the [members].
-  Future<void> _putMember(
-    DtoChatMember member, {
-    bool ignoreBounds = false,
-  }) =>
+  Future<void> _putMember(DtoChatMember member, {bool ignoreBounds = false}) =>
       members.put(member, ignoreBounds: ignoreBounds);
 
   /// Initializes the messages [_pagination].

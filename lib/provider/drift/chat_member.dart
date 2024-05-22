@@ -45,7 +45,7 @@ class ChatMembers extends Table {
 class ChatMemberDriftProvider extends DriftProviderBase {
   ChatMemberDriftProvider(super.database);
 
-  /// Creates or updates the provided [member] in the database.
+  /// Creates or updates the provided [members] in the database.
   Future<Iterable<DtoChatMember>> upsertBulk(
     ChatId chatId,
     Iterable<DtoChatMember> members,
@@ -78,8 +78,8 @@ class ChatMemberDriftProvider extends DriftProviderBase {
     return member;
   }
 
-  /// Returns the [DtoChatMember] stored in the database by the provided [id],
-  /// if any.
+  /// Returns the [DtoChatMember] stored in the database by the provided
+  /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
     return await safe<DtoChatMember?>((db) async {
       final stmt = db.select(db.chatMembers).join([
@@ -104,8 +104,8 @@ class ChatMemberDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the [DtoChatItem] identified by the provided [id] from the
-  /// database.
+  /// Deletes the [DtoChatItem] identified by the provided [chatId] and [userId]
+  /// from the database.
   Future<void> delete(ChatId chatId, UserId userId) async {
     await safe((db) async {
       final stmt = db.delete(db.chatMembers);
@@ -153,7 +153,7 @@ class ChatMemberDriftProvider extends DriftProviderBase {
 
 /// Extension adding conversion methods from [ChatMemberRow] to [DtoChatMember].
 extension _ChatMemberDb on DtoChatMember {
-  /// Returns the [DtoChatItem] from the provided [ChatItemRow].
+  /// Returns the [DtoChatMember] from the provided [ChatMemberRow].
   static DtoChatMember fromDb(ChatMemberRow m, UserRow? u) {
     return DtoChatMember(
       u == null ? null : UserDb.fromDb(u).value,
@@ -163,7 +163,7 @@ extension _ChatMemberDb on DtoChatMember {
     );
   }
 
-  /// Constructs a [ChatItemRow] from this [DtoChatMember].
+  /// Constructs a [ChatMemberRow] from this [DtoChatMember].
   ChatMemberRow toDb(ChatId chatId) {
     return ChatMemberRow(
       userId: id.val,

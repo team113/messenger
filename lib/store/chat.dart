@@ -1118,7 +1118,7 @@ class ChatRepository extends DisposableInterface
 
     return Page(
       RxList(
-        query.chat!.members.edges.map((e) => e.node.toHive(e.cursor)).toList(),
+        query.chat!.members.edges.map((e) => e.node.toDto(e.cursor)).toList(),
       ),
       query.chat!.members.pageInfo.toModel((c) => ChatMembersCursor(c)),
     );

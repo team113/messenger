@@ -660,7 +660,7 @@ extension ChatMemberConversion on ChatMemberMixin {
   ChatMember toModel() => ChatMember(user.toModel(), joinedAt);
 
   /// Constructs a new [DtoChatMember] from this [ChatMemberMixin].
-  DtoChatMember toHive(ChatMembersCursor? cursor) => DtoChatMember(
+  DtoChatMember toDto(ChatMembersCursor? cursor) => DtoChatMember(
         user.toModel(),
         joinedAt,
         cursor,
