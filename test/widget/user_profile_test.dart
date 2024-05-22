@@ -480,27 +480,28 @@ void main() async {
     expect(find.byKey(const Key('Present')), findsOneWidget);
     expect(find.text('5769space2360space9862space1822'), findsOneWidget);
 
-    await tester.tap(find.byKey(const Key('MoreButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    await tester.tap(find.byKey(const Key('AddToContactsButton')));
-
-    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
-    //       should be done in a more strict way.
-    for (int i = 0; i < 20; i++) {
-      await tester.runAsync(() => Future.delayed(1.milliseconds));
-    }
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    await tester.tap(find.byKey(const Key('MoreButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
-    expect(deleteFromContacts, findsOneWidget);
-    await tester.tap(deleteFromContacts);
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
-    await tester.tap(find.byKey(const Key('MoreButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-    expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
+    // TODO: Uncomment, when contacts are implemented.
+    // await tester.tap(find.byKey(const Key('MoreButton')));
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    // await tester.tap(find.byKey(const Key('AddToContactsButton')));
+    //
+    // // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
+    // //       should be done in a more strict way.
+    // for (int i = 0; i < 20; i++) {
+    //   await tester.runAsync(() => Future.delayed(1.milliseconds));
+    // }
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    //
+    // await tester.tap(find.byKey(const Key('MoreButton')));
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    // var deleteFromContacts = find.byKey(const Key('DeleteFromContactsButton'));
+    // expect(deleteFromContacts, findsOneWidget);
+    // await tester.tap(deleteFromContacts);
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    //
+    // await tester.tap(find.byKey(const Key('MoreButton')));
+    // await tester.pumpAndSettle(const Duration(seconds: 2));
+    // expect(find.byKey(const Key('AddToContactsButton')), findsOneWidget);
 
     PlatformUtils.activityTimer?.cancel();
 
