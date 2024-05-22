@@ -234,6 +234,7 @@ btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_open_separately = open separately
+btn_or_input_someones_link = Input someone's link
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -887,6 +888,7 @@ label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
 label_open_chat = Open chat
+label_or = Or
 label_or_register = or register
 label_outgoing_call = Calling
 label_participants = Participants: {$count}
@@ -1069,11 +1071,13 @@ label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
+label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
 label_update_is_available = Update is available
+label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
 label_user = User
 label_user_added_user = {$author} added {$user}

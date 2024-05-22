@@ -789,7 +789,7 @@ class ChatController extends GetxController {
             if (_lastVisibleItem != null &&
                 status.value.isSuccess &&
                 !status.value.isLoadingMore) {
-              ListElement element =
+              final ListElement element =
                   elements.values.elementAt(_lastVisibleItem!.index);
 
               // If the [_lastVisibleItem] is posted after the [_lastSeenItem],

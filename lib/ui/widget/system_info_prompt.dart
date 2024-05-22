@@ -16,16 +16,34 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-/// Controller of the `HomeTab.work` tab.
-class WorkTabController extends GetxController {
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
+import '/themes.dart';
+
+/// Rounded [Container] with [Style.systemMessageColor] displaying the [text].
+class SystemInfoPrompt extends StatelessWidget {
+  const SystemInfoPrompt(this.text, {super.key});
+
+  /// Text to display in the prompt.
+  final String text;
 
   @override
-  void onClose() {
-    scrollController.dispose();
-    super.onClose();
+  Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 300),
+      margin: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(15),
+        border: style.systemMessageBorder,
+        color: style.systemMessageColor,
+      ),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: style.fonts.small.regular.onBackground,
+      ),
+    );
   }
 }

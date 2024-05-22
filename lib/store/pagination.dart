@@ -163,7 +163,7 @@ class Pagination<T, C, K> {
 
   /// Fetches the [Page] around the provided [key] or [cursor].
   ///
-  /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
+  /// If neither [key] nor [cursor] is provided, then fetches the first [Page].
   Future<Page<T, C>?> around({K? key, C? cursor}) {
     if (_disposed) {
       return Future.value(null);
@@ -183,6 +183,7 @@ class Pagination<T, C, K> {
           () => provider.around(key, cursor, perPage),
           _cancelToken,
         );
+
         Log.debug(
           'around(key: $key, cursor: $cursor)... \n'
               '\tFetched ${page?.edges.length} items\n'
