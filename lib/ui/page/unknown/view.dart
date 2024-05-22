@@ -16,48 +16,27 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
-import '/routes.dart';
+import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
-import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/system_info_prompt.dart';
-import 'controller.dart';
 
-/// View of the [Routes.chatDirectLink] page.
-class ChatDirectLinkView extends StatelessWidget {
-  const ChatDirectLinkView(this._slug, {super.key});
-
-  /// [String] to be parsed as a [ChatDirectLinkSlug] of this page.
-  final String _slug;
+/// View for displaying not found page routes.
+class UnknownView extends StatelessWidget {
+  const UnknownView({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return GetBuilder(
-      init: ChatDirectLinkController(_slug, Get.find()),
-      builder: (ChatDirectLinkController c) {
-        return Scaffold(
-          appBar: ModalRoute.of(context)?.canPop == true
-              ? const CustomAppBar(leading: [StyledBackButton()])
-              : null,
-          body: Center(
-            child: Obx(() {
-              if (c.slug.value == null) {
-                return Center(
-                  child: SystemInfoPrompt(
-                    'label_unknown_chat_direct_link'.l10n,
-                  ),
-                );
-              }
+    final style = Theme.of(context).style;
 
-              return const CustomProgressIndicator.primary();
-            }),
-          ),
-        );
-      },
+    return Scaffold(
+      appBar: ModalRoute.of(context)?.canPop == true
+          ? const CustomAppBar(leading: [StyledBackButton()])
+          : null,
+      backgroundColor: style.colors.background,
+      body: Center(child: SystemInfoPrompt('label_unknown_page'.l10n)),
     );
   }
 }

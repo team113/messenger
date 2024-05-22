@@ -789,7 +789,7 @@ class ChatController extends GetxController {
             if (_lastVisibleItem != null &&
                 status.value.isSuccess &&
                 !status.value.isLoadingMore) {
-              ListElement element =
+              final ListElement element =
                   elements.values.elementAt(_lastVisibleItem!.index);
 
               // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
@@ -889,7 +889,9 @@ class ChatController extends GetxController {
             status.value = RxStatus.loadingMore();
           }
 
+          Log.info('[debug] await chat!.around()...');
           await chat!.around();
+          Log.info('[debug] await chat!.around()... done!');
 
           // Required in order for [Hive.boxEvents] to add the messages.
           await Future.delayed(Duration.zero);

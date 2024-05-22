@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:log_me/log_me.dart';
+
 import '/store/pagination.dart';
 import 'drift.dart';
 import 'graphql.dart';
@@ -40,6 +42,8 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
   @override
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
+    Log.info('around($key)...', '$runtimeType');
+
     final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 
     if (cached.edges.isNotEmpty) {

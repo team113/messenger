@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
@@ -51,6 +50,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/system_info_prompt.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
@@ -597,29 +597,11 @@ class ChatView extends StatelessWidget {
                                   c.chat!.status.value.isEmpty) &&
                               c.chat!.messages.isEmpty) {
                             return Center(
-                              child: Container(
-                                constraints:
-                                    const BoxConstraints(maxWidth: 300),
-                                margin: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 12,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(15),
-                                  border: style.systemMessageBorder,
-                                  color: style.systemMessageColor,
-                                ),
-                                child: Text(
-                                  key: const Key('NoMessages'),
-                                  isMonolog
-                                      ? 'label_chat_monolog_description'.l10n
-                                      : 'label_no_messages'.l10n,
-                                  textAlign: TextAlign.center,
-                                  style: style.fonts.small.regular.onBackground,
-                                ),
+                              child: SystemInfoPrompt(
+                                key: const Key('NoMessages'),
+                                isMonolog
+                                    ? 'label_chat_monolog_description'.l10n
+                                    : 'label_no_messages'.l10n,
                               ),
                             );
                           }

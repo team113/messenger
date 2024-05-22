@@ -335,19 +335,21 @@ class ChatsTabView extends StatelessWidget {
 
                       return Row(
                         children: [
-                          AnimatedButton(
-                            key: const Key('ContactsButton'),
-                            onPressed: () => router.tab = HomeTab.contacts,
-                            decorator: (child) {
-                              return Container(
-                                padding:
-                                    const EdgeInsets.only(left: 20, right: 12),
-                                height: double.infinity,
-                                child: child,
-                              );
-                            },
-                            child: const SvgIcon(SvgIcons.contactsSwitch),
-                          ),
+                          // TODO: Uncomment, when contacts are implemented.
+                          // AnimatedButton(
+                          //   key: const Key('ContactsButton'),
+                          //   onPressed: () => router.tab = HomeTab.contacts,
+                          //   decorator: (child) {
+                          //     return Container(
+                          //       padding:
+                          //           const EdgeInsets.only(left: 20, right: 12),
+                          //       height: double.infinity,
+                          //       child: child,
+                          //     );
+                          //   },
+                          //   child: const SvgIcon(SvgIcons.contactsSwitch),
+                          // ),
+
                           AnimatedButton(
                             key: const Key('SearchButton'),
                             onPressed: () => c.startSearch(),
@@ -709,9 +711,13 @@ class ChatsTabView extends StatelessWidget {
                         delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
-                          child: Text(
-                            'label_nothing_found'.l10n,
-                            style: style.fonts.small.regular.onBackground,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'label_nothing_found'.l10n,
+                              style: style.fonts.small.regular.onBackground,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       );

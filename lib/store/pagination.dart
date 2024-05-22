@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/util/backoff.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import 'model/chat_item.dart';
 import 'model/page_info.dart';
 
 /// [Page]s maintainer utility of the provided [T] values with the specified [K]
@@ -163,7 +164,7 @@ class Pagination<T, C, K> {
 
   /// Fetches the [Page] around the provided [key] or [cursor].
   ///
-  /// If neither [item] nor [cursor] is provided, then fetches the first [Page].
+  /// If neither [key] nor [cursor] is provided, then fetches the first [Page].
   Future<Page<T, C>?> around({K? key, C? cursor}) {
     if (_disposed) {
       return Future.value(null);
@@ -178,11 +179,16 @@ class Pagination<T, C, K> {
 
       Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
+      if (T is DtoChatItem) {
+        Log.info('around($key)...', '$runtimeType');
+      }
+
       try {
         final Page<T, C>? page = await Backoff.run(
           () => provider.around(key, cursor, perPage),
           _cancelToken,
         );
+
         Log.debug(
           'around(key: $key, cursor: $cursor)... \n'
               '\tFetched ${page?.edges.length} items\n'
@@ -205,6 +211,10 @@ class Pagination<T, C, K> {
           'around(key: $key, cursor: $cursor)... done',
           '$runtimeType',
         );
+
+        if (T is DtoChatItem) {
+          Log.info('around($key)... done', '$runtimeType');
+        }
 
         return page;
       } catch (e) {

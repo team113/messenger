@@ -208,12 +208,6 @@ class SvgIcons {
     height: 19,
   );
 
-  static const SvgData qrCode = SvgData(
-    'assets/icons/qr_code.svg',
-    width: 20,
-    height: 20,
-  );
-
   static const SvgData googlePlay = SvgData(
     'assets/icons/google_play.svg',
     width: 20.35,
@@ -334,40 +328,10 @@ class SvgIcons {
     height: 12,
   );
 
-  static const SvgData wallet = SvgData(
-    'assets/icons/wallet.svg',
-    width: 34.01,
-    height: 29.73,
-  );
-
-  static const SvgData walletOpened = SvgData(
-    'assets/icons/wallet_opened.svg',
-    width: 34.01,
-    height: 29.73,
-  );
-
-  static const SvgData walletClosed = SvgData(
-    'assets/icons/wallet_closed.svg',
-    width: 34.01,
-    height: 26,
-  );
-
   static const SvgData partner = SvgData(
     'assets/icons/partner.svg',
     width: 36,
     height: 28,
-  );
-
-  static const SvgData publics = SvgData(
-    'assets/icons/publics.svg',
-    width: 32,
-    height: 31,
-  );
-
-  static const SvgData publicsMuted = SvgData(
-    'assets/icons/publics_muted.svg',
-    width: 32,
-    height: 31,
   );
 
   static const SvgData chats = SvgData(
@@ -1903,5 +1867,11 @@ class SvgIcons {
     'assets/icons/logout_white.svg',
     width: 16.28,
     height: 19,
+  );
+
+  static const SvgData directLink = SvgData(
+    'assets/icons/direct_link.svg',
+    width: 32.04,
+    height: 33.5,
   );
 }

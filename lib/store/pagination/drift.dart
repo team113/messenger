@@ -104,8 +104,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final List<T> edges = await _page();
 
-    Log.debug(
+    Log.info(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     if (edges.isEmpty && key != null) {
@@ -128,12 +129,15 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _reset(around: key, count: count);
 
     final int edgesBefore = _list.length;
+    Log.info('around($key, $count)...', '$runtimeType');
     final List<T> edges = await _page();
+    Log.info('around($key, $count)... done!', '$runtimeType');
     final bool fulfilled =
         (_hasFirst && _hasLast) || edges.length - edgesBefore >= count ~/ 2;
 
-    Log.debug(
+    Log.info(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(
@@ -155,8 +159,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final List<T> edges = await _page();
     final bool fulfilled = _hasLast || edges.length - edgesBefore >= count;
 
-    Log.debug(
+    Log.info(
       'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(
@@ -178,8 +183,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final List<T> edges = await _page();
     final bool fulfilled = _hasFirst || edges.length - edgesBefore >= count;
 
-    Log.debug(
+    Log.info(
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(
