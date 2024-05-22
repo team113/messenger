@@ -106,6 +106,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     Log.debug(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     if (edges.isEmpty && key != null) {
@@ -134,6 +135,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     Log.debug(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(
@@ -157,6 +159,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     Log.debug(
       'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(
@@ -180,6 +183,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     Log.debug(
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      '$runtimeType',
     );
 
     return Page(

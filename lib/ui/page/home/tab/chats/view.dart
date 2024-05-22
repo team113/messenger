@@ -336,6 +336,34 @@ class ChatsTabView extends StatelessWidget {
 
                       return Row(
                         children: [
+                          // TODO: Uncomment, when contacts are implemented.
+                          // AnimatedButton(
+                          //   key: const Key('ContactsButton'),
+                          //   onPressed: () => router.tab = HomeTab.contacts,
+                          //   decorator: (child) {
+                          //     return Container(
+                          //       padding:
+                          //           const EdgeInsets.only(left: 20, right: 12),
+                          //       height: double.infinity,
+                          //       child: child,
+                          //     );
+                          //   },
+                          //   child: const SvgIcon(SvgIcons.contactsSwitch),
+                          // ),
+
+                          AnimatedButton(
+                            key: const Key('SearchButton'),
+                            onPressed: () => c.startSearch(),
+                            decorator: (child) {
+                              return Container(
+                                padding:
+                                    const EdgeInsets.only(left: 20, right: 12),
+                                height: double.infinity,
+                                child: child,
+                              );
+                            },
+                            child: const SvgIcon(SvgIcons.search),
+                          ),
                           ContextMenuRegion(
                             key: const Key('ChatsMenu'),
                             selector: c.moreKey,
@@ -684,9 +712,13 @@ class ChatsTabView extends StatelessWidget {
                         delay: const Duration(milliseconds: 300),
                         child: Center(
                           key: const Key('NothingFound'),
-                          child: Text(
-                            'label_nothing_found'.l10n,
-                            style: style.fonts.small.regular.onBackground,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Text(
+                              'label_nothing_found'.l10n,
+                              style: style.fonts.small.regular.onBackground,
+                              textAlign: TextAlign.center,
+                            ),
                           ),
                         ),
                       );
@@ -775,9 +807,6 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.leaveChat(e.id),
                                 onHide: (clear) => c.hideChat(e.id, clear),
-                                inContacts: e.chat.value.isDialog
-                                    ? () => c.inContacts(e)
-                                    : null,
                                 onMute: e.chat.value.isMonolog ||
                                         e.chat.value.id.isLocal
                                     ? null
@@ -795,9 +824,15 @@ class ChatsTabView extends StatelessWidget {
                                     ? null
                                     : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
-                                onContact: (b) => b
-                                    ? c.addToContacts(e)
-                                    : c.removeFromContacts(e),
+
+                                // TODO: Uncomment, when contacts are implemented.
+                                // onContact: (b) => b
+                                //     ? c.addToContacts(e)
+                                //     : c.removeFromContacts(e),
+                                // inContacts: e.chat.value.isDialog
+                                //     ? () => c.inContacts(e)
+                                //     : null,
+
                                 onTap: c.selecting.value
                                     ? () => c.selectChat(e)
                                     : null,

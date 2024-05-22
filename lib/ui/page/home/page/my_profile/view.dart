@@ -313,9 +313,6 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.devices:
                       return block(children: [_devices(context, c)]);
 
-                    case ProfileTab.sections:
-                      return block(children: [_sections(context, c)]);
-
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
@@ -915,23 +912,6 @@ Widget _devices(BuildContext context, MyProfileController c) {
           );
         }
       }),
-    ],
-  );
-}
-
-/// Returns the contents of a [ProfileTab.sections] section.
-Widget _sections(BuildContext context, MyProfileController c) {
-  return Column(
-    children: [
-      Paddings.dense(
-        Obx(() {
-          return SwitchField(
-            text: 'btn_work_with_us'.l10n,
-            value: c.settings.value?.workWithUsTabEnabled == true,
-            onChanged: c.setWorkWithUsTabEnabled,
-          );
-        }),
-      ),
     ],
   );
 }

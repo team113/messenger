@@ -20,7 +20,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 import 'package:log_me/log_me.dart';
 
-import '../../../util/web/web.dart';
+import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect() {
@@ -52,7 +52,6 @@ QueryExecutor connect() {
     final List<WasmStorageImplementation> available =
         probed.availableStorages.toList();
 
-    // TODO: Replace
     if (!WebUtils.isSafari && !WebUtils.isFirefox) {
       available.remove(WasmStorageImplementation.opfsLocks);
     }

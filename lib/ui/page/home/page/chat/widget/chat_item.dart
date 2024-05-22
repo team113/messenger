@@ -2306,6 +2306,16 @@ extension LinkParsingExtension on String {
                 uri = Uri.parse(
                   !link.startsWith('http') ? 'https://$link' : link,
                 );
+
+                final String url = uri.toString();
+                final List<String> origins = [Config.origin, Config.link];
+
+                for (var e in origins) {
+                  if (url.startsWith(e)) {
+                    router.push(url.replaceFirst(e, ''));
+                    return;
+                  }
+                }
               }
 
               if (await canLaunchUrl(uri)) {

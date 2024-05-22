@@ -235,6 +235,7 @@ btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_open_separately = открыть отдельно
+btn_or_input_someones_link = Ввести прямую ссылку
 btn_participants = Список участников
 btn_participants_desc =
     Список
@@ -916,6 +917,7 @@ label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
 label_open_chat = Открыть чат
+label_or = Или
 label_or_register = или регистрация
 label_outgoing_call = Звоним
 label_participants = Участников: {$count}
@@ -1101,12 +1103,14 @@ label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
+label_unknown_chat_direct_link = Данная прямая ссылка недействительна. Она могла быть удалена автором. Перепроверьте, пожалуйста, ссылку.
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
     *[other] {$quantity} непрочитанных сообщений
 }
 label_update_is_available = Доступно обновление
+label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}

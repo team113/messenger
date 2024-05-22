@@ -205,7 +205,6 @@ class _HomeViewState extends State<HomeView> {
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
                       children: const [
-                        // KeepAlivePage(child: LinkTabView()),
                         SizedBox(),
                         KeepAlivePage(child: ChatsTabView()),
                         KeepAlivePage(child: MenuTabView()),
@@ -256,7 +255,6 @@ class _HomeViewState extends State<HomeView> {
                             onTap: (i) {
                               if (i == 0) {
                                 return LinkView.show(context);
-                                // return router.link();
                               }
 
                               c.pages.jumpToPage(tabs[i].index);

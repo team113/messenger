@@ -77,6 +77,7 @@ import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/page/support/view.dart';
+import 'ui/page/unknown/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/widget/progress_indicator.dart';
@@ -139,7 +140,6 @@ enum ProfileTab {
   language,
   blocklist,
   devices,
-  sections,
   download,
   danger,
   legal,
@@ -294,7 +294,8 @@ class RouterState extends ChangeNotifier {
   String _guarded(String to) {
     if (to.startsWith(Routes.work) ||
         to.startsWith(Routes.erase) ||
-        to.startsWith(Routes.support)) {
+        to.startsWith(Routes.support) ||
+        to.startsWith(Routes.chatDirectLink)) {
       return to;
     }
 
@@ -378,9 +379,6 @@ class AppRouteInformationParser
     if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
         case HomeTab.link:
-          route = Routes.link;
-          break;
-
         case HomeTab.chats:
           route = Routes.chats;
           break;
@@ -453,10 +451,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   /// Unknown page view.
-  Page<dynamic> get _notFoundPage => MaterialPage(
-        key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.l10n))),
-      );
+  Page<dynamic> get _notFoundPage {
+    return const MaterialPage(key: ValueKey('404'), child: UnknownView());
+  }
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
@@ -486,15 +483,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.style,
           child: StyleView(),
         ),
-      ];
-    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
-      String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
-      return [
-        MaterialPage(
-          key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
-          child: ChatDirectLinkView(slug),
-        )
       ];
     } else if (_state.route.startsWith('${Routes.call}/')) {
       Uri uri = Uri.parse(_state.route);
@@ -827,6 +815,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: SupportView(),
         )
       ];
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
+      final String slug =
+          _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+      return [
+        MaterialPage(
+          key: ValueKey('ChatDirectLinkPage$slug'),
+          name: Routes.chatDirectLink,
+          child: ChatDirectLinkView(slug),
+        )
+      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -841,7 +839,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.support) ||
-        _state.route == Routes.link ||
+        _state.route.startsWith(Routes.chatDirectLink) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -888,6 +886,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
+        case HomeTab.link:
         case HomeTab.chats:
         case HomeTab.link:
           WebUtils.title('$prefix${'label_tab_chats'.l10n}');
@@ -978,8 +977,8 @@ extension RouteLinks on RouterState {
   /// Changes router location to the [Routes.nowhere] page.
   void nowhere() => go(Routes.nowhere);
 
-  /// Changes router location to the [Routes.link] page.
-  void link() => go(Routes.link);
+  /// Changes router location to the [Routes.chatDirectLink] page.
+  void link(ChatDirectLinkSlug slug) => go('${Routes.chatDirectLink}/$slug');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

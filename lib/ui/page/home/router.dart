@@ -17,7 +17,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/link/view.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/chat_item.dart';
@@ -25,6 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
+import '/ui/page/chat_direct_link/view.dart';
 import '/ui/page/erase/view.dart';
 import '/ui/page/support/view.dart';
 import '/ui/page/work/page/vacancy/view.dart';
@@ -128,11 +128,13 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           name: Routes.support,
           child: SupportView(),
         ));
-      } else if (route == Routes.link) {
-        pages.add(const CustomPage(
-          key: ValueKey('LinkPage'),
-          name: Routes.link,
-          child: LinkView(),
+      } else if (route.startsWith('${Routes.chatDirectLink}/')) {
+        final String slug =
+            _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+        pages.add(CustomPage(
+          key: ValueKey('ChatDirectLinkPage$slug'),
+          name: Routes.chatDirectLink,
+          child: ChatDirectLinkView(slug),
         ));
       }
     }

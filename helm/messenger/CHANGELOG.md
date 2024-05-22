@@ -11,7 +11,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- Set `Cross-Origin-Embedder-Policy` header to `credentialless` in Safari. ([#1004])
+- Set `Cross-Origin-Embedder-Policy` header to `credentialless` for Safari. ([#1004])
 
 [#1004]: https://github.com/team113/messenger/pull/1004
 

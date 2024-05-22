@@ -166,12 +166,28 @@ class CustomNavigationBarItem extends StatelessWidget {
     required this.child,
   });
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.work].
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.link].
   const CustomNavigationBarItem.link({Key? key})
       : this._(
           key: key,
           tab: HomeTab.link,
           child: const SvgIcon(SvgIcons.directLink, key: Key('LinkButton')),
+        );
+
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.work`.
+  const CustomNavigationBarItem.work({Key? key})
+      : this._(
+          key: key,
+          tab: HomeTab.chats,
+          child: const SvgIcon(SvgIcons.partner, key: Key('WorkButton')),
+        );
+
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.contacts`.
+  const CustomNavigationBarItem.contacts({Key? key})
+      : this._(
+          key: key,
+          tab: HomeTab.chats,
+          child: const SvgIcon(SvgIcons.contacts, key: Key('ContactsButton')),
         );
 
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.chats].
