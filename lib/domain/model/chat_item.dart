@@ -381,6 +381,7 @@ class BotInfo extends ChatItem {
     this.text,
     this.actions,
     this.rfw,
+    this.meta,
   });
 
   static BotInfo? parse(ChatMessage msg) {
@@ -409,6 +410,7 @@ class BotInfo extends ChatItem {
           text: text == null ? null : ChatMessageText(text),
           repliesTo: msg.repliesTo.firstOrNull,
           rfw: decoded['rfw'],
+          meta: decoded['meta'],
           actions: (actions as List?)?.map((e) {
             return BotAction(
               text: e['text'],
@@ -429,6 +431,7 @@ class BotInfo extends ChatItem {
   ChatMessageText? text;
 
   List<BotAction>? actions;
+  Map<String, dynamic>? meta;
 
   String title;
   final String? rfw;
@@ -477,7 +480,7 @@ class BotMenu {
     final more = json[L10n.chosen.value!.toString()]?['more'] ?? json['more'];
 
     return BotMenu(
-      text: json['text'],
+      text: json['text'] ?? '',
       command: json['command'],
       icon: json['icon'],
       action: json['action'] == null
@@ -504,6 +507,7 @@ class BotMenuAction {
     required this.type,
     required this.command,
     this.description,
+    this.meta,
     this.rfw,
   });
 
@@ -512,6 +516,7 @@ class BotMenuAction {
       type: json['type'],
       command: json['command'],
       description: json['description'],
+      meta: json['meta'],
       rfw: json['rfw'],
     );
   }
@@ -519,5 +524,6 @@ class BotMenuAction {
   final String? type;
   final String? command;
   final String? description;
+  final Map<String, dynamic>? meta;
   final String? rfw;
 }

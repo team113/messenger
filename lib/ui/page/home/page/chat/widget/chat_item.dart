@@ -459,6 +459,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           }
 
           if (_bot != null) {
+            if (_rfwAttachment != null) {
+              return _rounded(
+                context,
+                (_, __) {
+                  return _rfw(context, _rfwAttachment!);
+                },
+              );
+            }
             return _renderAsBotInfo(context);
           }
 
@@ -2020,6 +2028,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   }
 
   RxList<RfwAttachment> _rfws = RxList();
+  RfwAttachment? _rfwAttachment;
 
   /// Populates the [_worker] invoking the [_populateSpans] and
   /// [_populateGlobalKeys] on the [ChatItemWidget.item] changes.
@@ -2050,6 +2059,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       } else if (msg.repliesTo.isEmpty &&
           (text?.val.startsWith('[@bot]') ?? false)) {
         _bot = BotInfo.parse(msg);
+        if (_bot?.rfw != null) {
+          _rfwAttachment = RfwAttachment(
+            _bot?.rfw,
+            description: {
+              ..._bot?.meta ?? {},
+              'name': widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.toString(),
+              'description': _bot?.text?.val,
+            },
+          );
+        }
       }
     }
 
@@ -2077,7 +2097,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     _rfws.clear();
     for (var e in widget.infos) {
       if (e.rfw != null) {
-        _rfws.add(RfwAttachment(e.rfw!, description: e.text?.val));
+        _rfws.add(
+          RfwAttachment(
+            e.rfw!,
+            description: {
+              ...e.meta ?? {},
+              'name': widget.user?.user.value.name?.val ??
+                  widget.user?.user.value.num.toString(),
+              'description': e.text?.val,
+            },
+          ),
+        );
       }
     }
   }

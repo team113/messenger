@@ -215,8 +215,8 @@ class MessageFieldController extends GetxController {
       AttachmentButton(pickFile),
     if (_settings?.value?.callButtonsPosition == CallButtonsPosition.more &&
         onCall != null) ...[
-      AudioCallButton(() => onCall?.call(false)),
-      VideoCallButton(() => onCall?.call(true)),
+      AudioCallButton((_) => onCall?.call(false)),
+      VideoCallButton((_) => onCall?.call(true)),
     ],
   ]);
 
@@ -364,7 +364,7 @@ class MessageFieldController extends GetxController {
 
   /// Opens a media choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickMedia() {
+  Future<void> pickMedia(Map<String, dynamic>? _) {
     field.focus.unfocus();
     return _pickAttachment(
       PlatformUtils.isIOS ? FileType.media : FileType.image,
@@ -372,7 +372,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Opens the camera app and adds the captured image to the [attachments].
-  Future<void> pickImageFromCamera() async {
+  Future<void> pickImageFromCamera(Map<String, dynamic>? _) async {
     field.focus.unfocus();
 
     // TODO: Remove the limitations when bigger files are supported on backend.
@@ -389,7 +389,7 @@ class MessageFieldController extends GetxController {
   }
 
   /// Opens the camera app and adds the captured video to the [attachments].
-  Future<void> pickVideoFromCamera() async {
+  Future<void> pickVideoFromCamera(Map<String, dynamic>? _) async {
     field.focus.unfocus();
 
     // TODO: Remove the limitations when bigger files are supported on backend.
@@ -405,7 +405,7 @@ class MessageFieldController extends GetxController {
 
   /// Opens a file choose popup and adds the selected files to the
   /// [attachments].
-  Future<void> pickFile() {
+  Future<void> pickFile(Map<String, dynamic>? _) {
     field.focus.unfocus();
     return _pickAttachment(FileType.any);
   }
@@ -488,11 +488,11 @@ class MessageFieldController extends GetxController {
   void _updateButtons(bool inCall) {
     panel.value = panel.map((button) {
       if (button is AudioCallButton) {
-        return AudioCallButton(inCall ? null : () => onCall?.call(false));
+        return AudioCallButton(inCall ? null : (_) => onCall?.call(false));
       }
 
       if (button is VideoCallButton) {
-        return VideoCallButton(inCall ? null : () => onCall?.call(true));
+        return VideoCallButton(inCall ? null : (_) => onCall?.call(true));
       }
 
       return button;
@@ -524,12 +524,17 @@ class RfwAttachment {
 
       runtime?.update(coreName, createCoreWidgets());
       runtime?.update(mainName, parseLibraryFile(rfw));
-      data?.update('description', description ?? '\$1.00');
+
+      if (description != null) {
+        for (var d in description!.entries) {
+          data?.update(d.key, d.value);
+        }
+      }
     }
   }
 
   final String id = const Uuid().v4();
-  final String? description;
+  final Map<String, dynamic>? description;
   final String? command;
 
   Runtime? runtime;

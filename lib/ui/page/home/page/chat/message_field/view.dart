@@ -101,7 +101,7 @@ class MessageFieldView extends StatelessWidget {
   final List<BotAction> more;
 
   /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
-  static ThemeData theme(BuildContext context) {
+  static ThemeData theme(BuildContext context, {EdgeInsets? contentPadding}) {
     final style = Theme.of(context).style;
 
     final OutlineInputBorder border = OutlineInputBorder(
@@ -124,12 +124,13 @@ class MessageFieldView extends StatelessWidget {
             hoverColor: style.colors.transparent,
             filled: true,
             isDense: true,
-            contentPadding: EdgeInsets.fromLTRB(
-              15,
-              PlatformUtils.isDesktop ? 30 : 23,
-              15,
-              0,
-            ),
+            contentPadding: contentPadding ??
+                EdgeInsets.fromLTRB(
+                  15,
+                  PlatformUtils.isDesktop ? 30 : 23,
+                  15,
+                  0,
+                ),
           ),
     );
   }
@@ -519,7 +520,7 @@ class MessageFieldView extends StatelessWidget {
                             ? const Key('Forward')
                             : sendKey ?? const Key('Send'),
                         forwarding: c.forwarding.value,
-                        onPressed: c.field.submit,
+                        onPressed: (_) => c.field.submit(),
                         onLongPress: canForward ? c.forwarding.toggle : null,
                       ),
                     );

@@ -27,7 +27,7 @@ abstract class ChatButton {
   const ChatButton([this.onPressed]);
 
   /// Callback, called when this [ChatButton] is pressed.
-  final void Function()? onPressed;
+  final void Function(Map<String, dynamic>? arguments)? onPressed;
 
   /// Returns a text-represented hint for this [ChatButton].
   String get hint;
@@ -51,6 +51,8 @@ abstract class ChatButton {
 
   List<ChatButton> get buttons => const [];
   ChatButton? get trailing => null;
+
+  CustomInputParameters? get input => null;
 
   @override
   int get hashCode => runtimeType.hashCode;
@@ -233,11 +235,12 @@ class VideoCallButton extends ChatButton {
 /// Custom [ChatButton].
 class CustomChatButton extends ChatButton {
   const CustomChatButton({
-    void Function()? onPressed,
+    void Function(Map<String, dynamic>? arguments)? onPressed,
     required this.hint,
     this.icon,
     this.buttons = const [],
     this.trailing,
+    this.input,
   }) : super(onPressed);
 
   @override
@@ -254,4 +257,12 @@ class CustomChatButton extends ChatButton {
 
   @override
   final ChatButton? trailing;
+
+  @override
+  final CustomInputParameters? input;
+}
+
+class CustomInputParameters {
+  const CustomInputParameters({this.min = 0});
+  final double min;
 }

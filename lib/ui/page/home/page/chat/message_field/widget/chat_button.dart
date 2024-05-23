@@ -27,7 +27,9 @@ class ChatButtonWidget extends StatelessWidget {
   ChatButtonWidget(
     ChatButton button, {
     super.key,
-    void Function()? onPressed,
+    this.enabled = true,
+    this.height = 56,
+    void Function(Map<String, dynamic>? arguments)? onPressed,
   })  : onPressed = onPressed ?? button.onPressed,
         onLongPress = null,
         icon = Transform.translate(
@@ -38,7 +40,9 @@ class ChatButtonWidget extends StatelessWidget {
         ),
         disabledIcon = Transform.translate(
           offset: button.offset,
-          child: SvgIcon(button.disabled ?? button.asset),
+          child: button.icon == null
+              ? SvgIcon(button.disabled ?? button.asset)
+              : Opacity(opacity: 0.7, child: SvgImage.network(button.icon!)),
         );
 
   /// Constructs a send/forward [ChatButtonWidget].
@@ -48,10 +52,12 @@ class ChatButtonWidget extends StatelessWidget {
     this.onPressed,
     this.onLongPress,
   })  : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send),
-        disabledIcon = null;
+        enabled = true,
+        disabledIcon = null,
+        height = 56;
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
-  final void Function()? onPressed;
+  final void Function(Map<String, dynamic>? arguments)? onPressed;
 
   /// Callback, called when this [ChatButtonWidget] is long-pressed.
   final void Function()? onLongPress;
@@ -62,17 +68,20 @@ class ChatButtonWidget extends StatelessWidget {
   /// Disabled icon to display.
   final Widget? disabledIcon;
 
+  final bool enabled;
+  final double height;
+
   @override
   Widget build(BuildContext context) {
-    final bool disabled = onPressed == null;
+    final bool disabled = !enabled || onPressed == null;
 
     return AnimatedButton(
-      onPressed: disabled ? null : onPressed,
+      onPressed: disabled ? null : () => onPressed?.call(null),
       onLongPress: onLongPress,
       enabled: !disabled,
       child: SizedBox(
         width: 50,
-        height: 56,
+        height: height,
         child: Center(child: disabled ? (disabledIcon ?? icon) : icon),
       ),
     );

@@ -30,6 +30,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/service/my_user.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
@@ -113,6 +114,7 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
+    this._myUserService,
     this._settingsRepository,
     this._contactService, {
     this.itemId,
@@ -306,6 +308,8 @@ class ChatController extends GetxController {
 
   /// [AuthService] used to get [me] value.
   final AuthService _authService;
+
+  final MyUserService _myUserService;
 
   /// [User]s service fetching the [User]s in [getUser] method.
   final UserService _userService;
@@ -1165,7 +1169,7 @@ class ChatController extends GetxController {
                 title: 'Donate',
                 text: '\$${sum.toStringAsFixed(2)}',
                 rfw:
-                    "import core.widgets; widget root = Container( constraints: { 'minWidth': 300.0 }, height: 104.0, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Center( child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Text( text: [data.description], textDirection: 'ltr', ), ), ), ), );",
+                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
               ),
             ),
             repliesTo: [repliesTo],
@@ -1181,16 +1185,22 @@ class ChatController extends GetxController {
           await _chatService.sendChatMessage(
             id,
             text: ChatMessageText.bot(
-              localized: {
-                const Locale('en', 'US'): ChatBotText(
-                  title: 'Donate',
-                  text: 'Donated \$${sum.toStringAsFixed(2)}',
-                ),
-                const Locale('ru', 'RU'): ChatBotText(
-                  title: 'Донат',
-                  text: 'Отправлен донат \$${sum.toStringAsFixed(2)}',
-                ),
-              },
+              text: ChatBotText(
+                title: 'Donate',
+                text: '\$${sum.toStringAsFixed(2)}',
+                rfw:
+                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
+              ),
+              // localized: {
+              //   const Locale('en', 'US'): ChatBotText(
+              //     title: 'Donate',
+              //     text: 'Donated \$${sum.toStringAsFixed(2)}',
+              //   ),
+              //   const Locale('ru', 'RU'): ChatBotText(
+              //     title: 'Донат',
+              //     text: 'Отправлен донат \$${sum.toStringAsFixed(2)}',
+              //   ),
+              // },
             ),
           );
         }
@@ -2211,9 +2221,22 @@ class ChatController extends GetxController {
         0,
         botInfo.value!.more.map(
           (e) {
-            return e.toChatButton(onPressed: (a) {
+            return e.toChatButton(onPressed: (a, args) {
+              String? withArgs(String? str) {
+                if (str == null) {
+                  return null;
+                }
+
+                if (args?.containsKey('number') == true) {
+                  return str.replaceAll('\$input',
+                      (args!['number']! as double).toStringAsFixed(2));
+                }
+
+                return str;
+              }
+
               if (a.command != null) {
-                postCommand(a.command!);
+                postCommand(withArgs(a.command!)!);
               } else if (a.action != null) {
                 switch (a.action?.type) {
                   case 'attach':
@@ -2221,7 +2244,12 @@ class ChatController extends GetxController {
                     send.actions.add(
                       RfwAttachment(
                         a.action?.rfw ?? e.rfw,
-                        description: a.action?.description,
+                        description: {
+                          ...a.action?.meta ?? {},
+                          'name': _myUserService.myUser.value?.name?.val ??
+                              _myUserService.myUser.value?.num.toString(),
+                          'description': withArgs(a.action?.description),
+                        },
                         command: a.action?.command,
                       ),
                     );
@@ -2806,13 +2834,40 @@ class _ListViewIndexCalculationResult {
 }
 
 extension on BotMenu {
-  CustomChatButton toChatButton({void Function(BotMenu)? onPressed}) {
+  CustomChatButton toChatButton({
+    void Function(BotMenu, Map<String, dynamic>? arguments)? onPressed,
+    BotMenu? parent,
+    String? parentIcon,
+  }) {
+    CustomInputParameters? input;
+
+    if (text.startsWith('\$input(')) {
+      double min = 0;
+      if (text.contains('min: ')) {
+        min = double.tryParse(
+              text.substring(text.indexOf('min: ') + 4, text.lastIndexOf(')')),
+            ) ??
+            0;
+      }
+
+      input = CustomInputParameters(min: min);
+    }
+
     return CustomChatButton(
       hint: text,
-      icon: icon,
-      onPressed: onPressed == null ? null : () => onPressed(this),
-      buttons: more.map((e) => e.toChatButton(onPressed: onPressed)).toList(),
+      icon: icon ?? parent?.icon ?? parentIcon,
+      onPressed: onPressed == null ? null : (args) => onPressed(this, args),
+      buttons: more
+          .map(
+            (e) => e.toChatButton(
+              onPressed: onPressed,
+              parentIcon: icon ?? parent?.icon ?? parentIcon,
+              parent: this,
+            ),
+          )
+          .toList(),
       trailing: trailing?.toChatButton(onPressed: onPressed),
+      input: input,
     );
   }
 }
