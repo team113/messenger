@@ -165,6 +165,10 @@ dependency_overrides:
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
+  drift:
+    git:
+      url: https://github.com/simolus3/drift.git
+      path: drift
 
 flutter:
   uses-material-design: true

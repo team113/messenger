@@ -88,7 +88,7 @@ class ChatEventsChat extends ChatEvents {
   const ChatEventsChat(this.chat);
 
   /// Initial state itself.
-  final HiveChat chat;
+  final DtoChat chat;
 
   @override
   ChatEventsKind get kind => ChatEventsKind.chat;

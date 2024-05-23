@@ -17,7 +17,6 @@
 
 import 'package:hive_flutter/hive_flutter.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat_call.dart';
@@ -38,11 +37,9 @@ import '/store/model/chat.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-part 'chat.g.dart';
-
 /// [Hive] storage for [Chat]s.
-class ChatHiveProvider extends HiveLazyProvider<HiveChat>
-    implements IterableHiveProvider<HiveChat, ChatId> {
+class ChatHiveProvider extends HiveLazyProvider<DtoChat>
+    implements IterableHiveProvider<DtoChat, ChatId> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -83,6 +80,7 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Hive.maybeRegisterAdapter(ChatNameAdapter());
     Hive.maybeRegisterAdapter(ChatVersionAdapter());
     Hive.maybeRegisterAdapter(CropAreaAdapter());
+    Hive.maybeRegisterAdapter(DtoChatAdapter());
     Hive.maybeRegisterAdapter(DtoChatCallAdapter());
     Hive.maybeRegisterAdapter(DtoChatForwardAdapter());
     Hive.maybeRegisterAdapter(DtoChatInfoAdapter());
@@ -90,7 +88,6 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Hive.maybeRegisterAdapter(FavoriteChatsCursorAdapter());
     Hive.maybeRegisterAdapter(FavoriteChatsListVersionAdapter());
     Hive.maybeRegisterAdapter(FileAttachmentAdapter());
-    Hive.maybeRegisterAdapter(HiveChatAdapter());
     Hive.maybeRegisterAdapter(ImageAttachmentAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(LastChatReadAdapter());
@@ -110,16 +107,16 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
   Iterable<ChatId> get keys => keysSafe.map((e) => ChatId(e));
 
   @override
-  Future<Iterable<HiveChat>> get values => valuesSafe;
+  Future<Iterable<DtoChat>> get values => valuesSafe;
 
   @override
-  Future<void> put(HiveChat item) async {
+  Future<void> put(DtoChat item) async {
     Log.trace('put($item)', '$runtimeType');
     await putSafe(item.value.id.val, item);
   }
 
   @override
-  Future<HiveChat?> get(ChatId key) async {
+  Future<DtoChat?> get(ChatId key) async {
     Log.trace('get($key)', '$runtimeType');
     return await getSafe(key.val);
   }
@@ -129,48 +126,4 @@ class ChatHiveProvider extends HiveLazyProvider<HiveChat>
     Log.trace('remove($key)', '$runtimeType');
     await deleteSafe(key.val);
   }
-}
-
-/// Persisted in [Hive] storage [Chat]'s [value].
-@HiveType(typeId: ModelTypeId.hiveChat)
-class HiveChat extends HiveObject {
-  HiveChat(
-    this.value,
-    this.ver,
-    this.lastItemCursor,
-    this.lastReadItemCursor,
-    this.recentCursor,
-    this.favoriteCursor,
-  );
-
-  /// Persisted [Chat] model.
-  @HiveField(0)
-  Chat value;
-
-  /// Version of this [Chat]'s state.
-  ///
-  /// It increases monotonically, so may be used (and is intended to) for
-  /// tracking state's actuality.
-  @HiveField(1)
-  ChatVersion ver;
-
-  /// Cursor of a [Chat.lastItem].
-  @HiveField(2)
-  ChatItemsCursor? lastItemCursor;
-
-  /// Cursor of a [Chat.lastReadItem].
-  @HiveField(3)
-  ChatItemsCursor? lastReadItemCursor;
-
-  /// Cursor of the [value] when paginating through recent [Chat]s.
-  @HiveField(4)
-  RecentChatsCursor? recentCursor;
-
-  /// Cursor of the [value] when paginating through favorite [Chat]s.
-  @HiveField(5)
-  FavoriteChatsCursor? favoriteCursor;
-
-  @override
-  String toString() =>
-      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
 }

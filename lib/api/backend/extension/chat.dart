@@ -73,9 +73,9 @@ extension ChatConversion on ChatMixin {
         membersCount: members.totalCount,
       );
 
-  /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
-      HiveChat(
+  /// Constructs a new [DtoChat] from this [ChatMixin].
+  DtoChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      DtoChat(
         toModel(),
         ver,
         lastItem?.cursor,

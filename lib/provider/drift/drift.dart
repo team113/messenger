@@ -22,6 +22,7 @@ import 'package:log_me/log_me.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
+import 'chat.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
@@ -32,7 +33,7 @@ part 'drift.g.dart';
 
 /// [DriftDatabase] storing data locally.
 @DriftDatabase(
-  tables: [Users, ChatItems, ChatItemViews, ChatMembers],
+  tables: [Users, ChatItems, ChatItemViews, ChatMembers, Chats],
   queries: {
     'chatItemsAround': ''
         'SELECT * FROM '

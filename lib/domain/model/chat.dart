@@ -332,9 +332,14 @@ class ChatMember implements Comparable<ChatMember> {
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.lastChatRead)
 class LastChatRead {
   LastChatRead(this.memberId, this.at);
+
+  /// Constructs a [LastChatRead] from the provided [json].
+  factory LastChatRead.fromJson(Map<String, dynamic> json) =>
+      _$LastChatReadFromJson(json);
 
   /// ID of the [User] who read the [Chat].
   @HiveField(0)
@@ -343,6 +348,9 @@ class LastChatRead {
   /// [PreciseDateTime] when the [Chat] was read last time.
   @HiveField(1)
   PreciseDateTime at;
+
+  /// Returns a [Map] representing this [LastChatRead].
+  Map<String, dynamic> toJson() => _$LastChatReadToJson(this);
 }
 
 /// Unique ID of a [Chat].

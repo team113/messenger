@@ -44,8 +44,7 @@ import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
-import '/provider/hive/base.dart';
-import '/provider/hive/chat.dart';
+import '/provider/drift/chat.dart';
 import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
@@ -76,11 +75,11 @@ typedef MembersPaginated
 class RxChatImpl extends RxChat {
   RxChatImpl(
     this._chatRepository,
-    this._chatLocal,
+    this._driftChat,
     this._draftLocal,
     this._driftItems,
     this._driftMembers,
-    HiveChat hiveChat,
+    DtoChat hiveChat,
   )   : chat = Rx<Chat>(hiveChat.value),
         _lastReadItemCursor = hiveChat.lastReadItemCursor,
         draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
@@ -124,8 +123,8 @@ class RxChatImpl extends RxChat {
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;
 
-  /// [Chat]s local [Hive] storage.
-  final ChatHiveProvider _chatLocal;
+  /// [Chat]s local storage.
+  final ChatDriftProvider _driftChat;
 
   /// [RxChat.draft]s local [Hive] storage.
   final DraftHiveProvider _draftLocal;
@@ -761,8 +760,8 @@ class RxChatImpl extends RxChat {
       e.pagination?.remove(itemId);
     }
 
-    _chatLocal.txn((txn) async {
-      final HiveChat? chatEntity = await txn.get(id.val);
+    _driftChat.txn(() async {
+      final DtoChat? chatEntity = await _driftChat.read(id);
       if (chatEntity?.value.lastItem?.id == itemId) {
         var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
 
@@ -775,7 +774,7 @@ class RxChatImpl extends RxChat {
           chatEntity?.lastItemCursor = null;
         }
 
-        await _putChat(chatEntity!, txn);
+        await _driftChat.upsert(chatEntity!);
       }
     });
   }
@@ -833,7 +832,7 @@ class RxChatImpl extends RxChat {
 
   /// Updates the [chat] and [chat]-related resources with the provided
   /// [newChat].
-  Future<void> updateChat(HiveChat newChat) async {
+  Future<void> updateChat(DtoChat newChat) async {
     Log.debug('updateChat($newChat)', '$runtimeType($id)');
 
     if (chat.value.id != newChat.value.id) {
@@ -917,15 +916,15 @@ class RxChatImpl extends RxChat {
 
     final ChatAvatar? avatar = await _chatRepository.avatar(id);
 
-    await _chatLocal.txn((txn) async {
-      final HiveChat? chatEntity = await txn.get(id.val);
+    await _driftChat.txn(() async {
+      final DtoChat? chatEntity = await _driftChat.read(id);
       if (chatEntity != null) {
         chatEntity.value.avatar = avatar;
 
         // TODO: Avatar should be updated by [Hive] subscription.
         this.avatar.value = avatar;
 
-        await _putChat(chatEntity, txn);
+        await _driftChat.upsert(chatEntity);
       }
     });
   }
@@ -959,15 +958,15 @@ class RxChatImpl extends RxChat {
             if (page.info.hasPrevious == false) {
               // [PageInfo.hasPrevious] is `false`, when querying `before` only.
               if (before == null || after != null) {
-                _chatLocal.txn((txn) async {
-                  final HiveChat? chatEntity = await txn.get(id.val);
+                _driftChat.txn(() async {
+                  final DtoChat? chatEntity = await _driftChat.read(id);
                   final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
                   if (chatEntity != null &&
                       firstItem != null &&
                       chatEntity.value.firstItem != firstItem) {
                     chatEntity.value.firstItem = firstItem;
-                    await _putChat(chatEntity, txn);
+                    await _driftChat.upsert(chatEntity);
                   }
                 });
               }
@@ -1286,11 +1285,11 @@ class RxChatImpl extends RxChat {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
         () async {
-          await _chatLocal.txn((txn) async {
-            final HiveChat? chat = await txn.get(id.val);
+          await _driftChat.txn(() async {
+            final DtoChat? chat = await _driftChat.read(id);
             if (chat != null) {
               chat.value.muted = null;
-              await _putChat(chat, txn);
+              await _driftChat.upsert(chat);
             }
           });
         },
@@ -1480,14 +1479,14 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         final node = event as ChatEventsChat;
-        await _chatLocal.txn((txn) async {
-          final HiveChat? chatEntity = await txn.get(id.val);
+        await _driftChat.txn(() async {
+          final DtoChat? chatEntity = await _driftChat.read(id);
           if (chatEntity != null) {
             chatEntity.value = node.chat.value;
             chatEntity.ver = node.chat.ver;
-            await _putChat(chatEntity, txn);
+            await _driftChat.upsert(chatEntity);
           } else {
-            await _putChat(node.chat, txn);
+            await _driftChat.upsert(node.chat);
           }
         });
 
@@ -1495,8 +1494,8 @@ class RxChatImpl extends RxChat {
         break;
 
       case ChatEventsKind.event:
-        await _chatLocal.txn((txn) async {
-          final HiveChat? chatEntity = await txn.get(id.val);
+        await _driftChat.txn(() async {
+          final DtoChat? chatEntity = await _driftChat.read(id);
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
@@ -1918,24 +1917,10 @@ class RxChatImpl extends RxChat {
           }
 
           if (shouldPutChat) {
-            await _putChat(chatEntity, txn);
+            await _driftChat.upsert(chatEntity);
           }
         });
         break;
-    }
-  }
-
-  /// Puts the provided [chat] to the [Hive] using the provided [txn].
-  Future<void> _putChat(HiveChat chat, HiveTransaction<HiveChat> txn) async {
-    // TODO: Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-    //       synchronization, thus writes from multiple applications may lead to
-    //       missing events:
-    //       https://github.com/team113/messenger/issues/27
-    if (WebUtils.isPopup) {
-      this.chat.value = chat.value;
-      this.chat.refresh();
-    } else {
-      await txn.put(chat.value.id.val, chat);
     }
   }
 }

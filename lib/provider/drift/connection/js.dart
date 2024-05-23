@@ -32,15 +32,15 @@ QueryExecutor connect() {
     //   sqlite3Uri: Uri.parse('sqlite3.wasm'),
     //   driftWorkerUri: Uri.parse('drift_worker.js'),
     // );
-    //
+
     // Log.info('Using ${result.chosenImplementation} for `drift` backend.');
-    //
+
     // if (result.missingFeatures.isNotEmpty) {
     //   Log.warning(
     //     'Browser misses the following features in order for `drift` to be as performant as possible: ${result.missingFeatures}',
     //   );
     // }
-    //
+
     // return result.resolvedExecutor;
 
     final WasmProbeResult probed = await WasmDatabase.probe(
