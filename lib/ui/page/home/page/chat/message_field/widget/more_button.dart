@@ -89,8 +89,7 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
     if (widget.button.input != null) {
       return Obx(() {
         final double sum = double.tryParse(_state.text) ?? 0;
-        final bool disabled =
-            _state.isEmpty.value || sum < widget.button.input!.min;
+        final bool disabled = _state.isEmpty.value;
 
         return Container(
           width: double.infinity,
@@ -132,7 +131,7 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                       key: _fieldState,
                       padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                       state: _state,
-                      hint: 'Min: ${widget.button.input?.min}',
+                      hint: '${widget.button.input?.hint}',
                       style: style.fonts.medium.regular.primary,
                     ),
                   ),

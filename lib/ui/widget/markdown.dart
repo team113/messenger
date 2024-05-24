@@ -48,6 +48,9 @@ class MarkdownWidget extends StatelessWidget {
           letterSpacing: 1.2,
           backgroundColor: style.colors.secondaryHighlight,
         ),
+        blockSpacing: 0,
+        listBulletPadding: EdgeInsets.zero,
+        blockquotePadding: EdgeInsets.zero,
         codeblockDecoration: BoxDecoration(
           color: style.colors.secondaryHighlight,
         ),

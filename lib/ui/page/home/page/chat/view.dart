@@ -65,6 +65,7 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
+import 'widget/disclaimer.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 
@@ -296,6 +297,31 @@ class ChatView extends StatelessWidget {
 
                           return Row(
                             children: [
+                              Obx(() {
+                                final BotBar? bar = c.botInfo.value?.bar;
+                                if (bar == null) {
+                                  return const SizedBox();
+                                }
+
+                                return AnimatedOpacity(
+                                  opacity: c.showInfo.value ? 0 : 1,
+                                  duration: 300.milliseconds,
+                                  child: AnimatedButton(
+                                    enabled: !c.showInfo.value,
+                                    onPressed: c.showInfo.toggle,
+                                    decorator: (child) => Padding(
+                                      padding: const EdgeInsets.fromLTRB(
+                                        16,
+                                        8,
+                                        28,
+                                        8,
+                                      ),
+                                      child: child,
+                                    ),
+                                    child: SvgImage.network(bar.icon),
+                                  ),
+                                );
+                              }),
                               ...children,
                               Obx(() {
                                 final bool muted =
@@ -677,6 +703,42 @@ class ChatView extends StatelessWidget {
                               );
                             }),
                           ),
+                        Obx(() {
+                          final BotBar? bar = c.botInfo.value?.bar;
+                          if (bar == null) {
+                            return const SizedBox();
+                          }
+
+                          final Widget child;
+
+                          if (c.showInfo.value) {
+                            child = Padding(
+                              padding: EdgeInsets.only(
+                                top: c.infoAlignment.value.y < 0 ? 8 : 8,
+                                bottom: c.infoAlignment.value.y > 0 ? 8 : 8,
+                              ),
+                              child: DisclaimerWidget(
+                                header: bar.header,
+                                description: bar.info,
+                                onPressed: () => c.showInfo.value = false,
+                              ),
+                            );
+                          } else {
+                            child = const SizedBox(
+                              key: Key('123'),
+                              width: double.infinity,
+                            );
+                          }
+
+                          return AnimatedAlign(
+                            duration: const Duration(
+                              milliseconds: 300,
+                            ),
+                            curve: Curves.ease,
+                            alignment: c.infoAlignment.value,
+                            child: AnimatedSizeAndFade(child: child),
+                          );
+                        }),
                       ],
                     ),
                     floatingActionButton: Obx(() {

@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:messenger/ui/page/link/view.dart';
+import 'package:messenger/ui/widget/safe_area_insets/safe_area_insets.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/user.dart';
@@ -211,7 +212,7 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                     extendBody: true,
-                    bottomNavigationBar: SafeArea(
+                    bottomNavigationBar: SafeAreaInsets(
                       child: Obx(() {
                         final List<HomeTab> tabs = c.tabs;
 

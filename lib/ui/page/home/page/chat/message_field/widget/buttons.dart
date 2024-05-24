@@ -263,6 +263,6 @@ class CustomChatButton extends ChatButton {
 }
 
 class CustomInputParameters {
-  const CustomInputParameters({this.min = 0});
-  final double min;
+  const CustomInputParameters({this.hint});
+  final String? hint;
 }

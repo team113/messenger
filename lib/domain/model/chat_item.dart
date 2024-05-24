@@ -418,7 +418,7 @@ class BotInfo extends ChatItem {
               icon: e['icon'],
             );
           }).toList(),
-          title: title ?? 'Bot',
+          title: title,
         );
       }
     }
@@ -433,7 +433,7 @@ class BotInfo extends ChatItem {
   List<BotAction>? actions;
   Map<String, dynamic>? meta;
 
-  String title;
+  String? title;
   final String? rfw;
 }
 
@@ -526,4 +526,37 @@ class BotMenuAction {
   final String? description;
   final Map<String, dynamic>? meta;
   final String? rfw;
+}
+
+class BotBar {
+  const BotBar({this.header, this.info, this.icon});
+
+  factory BotBar.fromJson(
+    Map<String, dynamic> json, {
+    Map<String, dynamic> args = const {},
+  }) {
+    String? info = json['info'];
+    for (var e in args.entries) {
+      info = info?.replaceAll('\$${e.key}', e.value);
+    }
+
+    String? header = json['header'];
+    for (var e in args.entries) {
+      header = header?.replaceAll('\$${e.key}', e.value);
+    }
+
+    return BotBar(info: info, header: header, icon: json['icon']);
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (icon != null) 'info': info,
+      if (header != null) 'header': header,
+      if (icon != null) 'icon': icon,
+    };
+  }
+
+  final String? info;
+  final String? header;
+  final String? icon;
 }

@@ -32,6 +32,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:uuid/uuid.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -463,42 +464,53 @@ class ChatController extends GetxController {
         } else {
           if (send.field.text.trim().isNotEmpty ||
               send.attachments.isNotEmpty ||
-              send.replied.isNotEmpty) {
+              send.replied.isNotEmpty ||
+              send.actions.isNotEmpty) {
             final List<RfwAttachment> actions = send.actions.toList();
 
-            _chatService
-                .sendChatMessage(
-              chat?.chat.value.id ?? id,
-              text: send.field.text.trim().isEmpty
-                  ? null
-                  : ChatMessageText(send.field.text.trim()),
-              repliesTo: send.replied.map((e) => e.value).toList(),
-              attachments: send.attachments.map((e) => e.value).toList(),
-            )
-                .then(
-              (item) {
-                AudioUtils.once(
-                  AudioSource.asset('audio/message_sent.mp3'),
-                );
+            if (send.field.text.trim().isNotEmpty ||
+                send.attachments.isNotEmpty ||
+                send.replied.isNotEmpty) {
+              _chatService
+                  .sendChatMessage(
+                chat?.chat.value.id ?? id,
+                text: send.field.text.trim().isEmpty
+                    ? null
+                    : ChatMessageText(send.field.text.trim()),
+                repliesTo: send.replied.map((e) => e.value).toList(),
+                attachments: send.attachments.map((e) => e.value).toList(),
+              )
+                  .then(
+                (item) {
+                  AudioUtils.once(
+                    AudioSource.asset('audio/message_sent.mp3'),
+                  );
 
-                if (item != null) {
-                  for (var e in actions) {
-                    if (e.command != null) {
-                      postCommand(e.command!, repliesTo: item);
+                  if (item != null) {
+                    for (var e in actions) {
+                      if (e.command != null) {
+                        postCommand(e.command!, repliesTo: item);
+                      }
                     }
                   }
+                },
+              ).onError<PostChatMessageException>(
+                (_, __) {
+                  _showBlockedPopup();
+                },
+                test: (e) => e.code == PostChatMessageErrorCode.blocked,
+              ).onError<UploadAttachmentException>(
+                (e, _) {
+                  MessagePopup.error(e);
+                },
+              ).onError<ConnectionException>((e, _) {});
+            } else if (actions.isNotEmpty) {
+              for (var e in actions) {
+                if (e.command != null) {
+                  postCommand(e.command!);
                 }
-              },
-            ).onError<PostChatMessageException>(
-              (_, __) {
-                _showBlockedPopup();
-              },
-              test: (e) => e.code == PostChatMessageErrorCode.blocked,
-            ).onError<UploadAttachmentException>(
-              (e, _) {
-                MessagePopup.error(e);
-              },
-            ).onError<ConnectionException>((e, _) {});
+              }
+            }
 
             send.clear(unfocus: false);
 
@@ -1166,7 +1178,6 @@ class ChatController extends GetxController {
             id,
             text: ChatMessageText.bot(
               text: ChatBotText(
-                title: 'Donate',
                 text: '\$${sum.toStringAsFixed(2)}',
                 rfw:
                     "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
@@ -1186,7 +1197,6 @@ class ChatController extends GetxController {
             id,
             text: ChatMessageText.bot(
               text: ChatBotText(
-                title: 'Donate',
                 text: '\$${sum.toStringAsFixed(2)}',
                 rfw:
                     "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
@@ -1924,7 +1934,7 @@ class ChatController extends GetxController {
               elements.entries.where((e) => e.key.id == quote.original?.id);
           for (var e in items.map((e) => e.value)) {
             if (e is ChatMessageElement) {
-              e.infos[info!.title] = info;
+              e.infos[info!.title ?? const Uuid().v4()] = info;
             }
           }
         }
@@ -2184,6 +2194,8 @@ class ChatController extends GetxController {
   }
 
   final Rx<BotInfoElement?> botInfo = Rx(null);
+  final RxBool showInfo = RxBool(false);
+  final Rx<Alignment> infoAlignment = Rx(Alignment.topCenter);
 
   void _addBotInfo(RxUser e) {
     Log.info('_addBotInfo($e)');
@@ -2205,6 +2217,8 @@ class ChatController extends GetxController {
           decoded?['actions'];
       final more =
           decoded?[L10n.chosen.value!.toString()]?['more'] ?? decoded?['more'];
+      final bar =
+          decoded?[L10n.chosen.value!.toString()]?['bar'] ?? decoded?['bar'];
 
       botInfo.value = BotInfoElement(
         text,
@@ -2213,7 +2227,19 @@ class ChatController extends GetxController {
             (actions as List?)?.map((e) => BotAction.fromJson(e)).toList() ??
                 [],
         more: (more as List?)?.map((e) => BotMenu.fromJson(e)).toList() ?? [],
+        bar: bar == null
+            ? null
+            : BotBar.fromJson(
+                bar,
+                args: {
+                  if (user != null) 'name': user?.title,
+                },
+              ),
       );
+
+      if (botInfo.value?.bar != null) {
+        showInfo.value = true;
+      }
 
       Log.info('more: ${botInfo.value!.more}');
 
@@ -2550,7 +2576,9 @@ class ChatMessageElement extends ListElement {
     List<BotInfo> infos = const [],
   })  : infos = RxMap.from(
           Map.fromEntries(
-            infos.map((e) => MapEntry(e.title, e)).toList(),
+            infos
+                .map((e) => MapEntry(e.title ?? const Uuid().v4(), e))
+                .toList(),
           ),
         ),
         super(ListElementId(item.value.at, item.value.id));
@@ -2638,6 +2666,7 @@ class BotInfoElement extends ListElement {
     required PreciseDateTime at,
     this.actions = const [],
     this.more = const [],
+    this.bar,
   }) : super(ListElementId(at, const ChatItemId('0')));
 
   /// [String] of this [BotInfoElement].
@@ -2645,6 +2674,7 @@ class BotInfoElement extends ListElement {
 
   final List<BotAction> actions;
   final List<BotMenu> more;
+  final BotBar? bar;
 }
 
 /// [ListElement] representing a [ChatInfo].
@@ -2842,15 +2872,9 @@ extension on BotMenu {
     CustomInputParameters? input;
 
     if (text.startsWith('\$input(')) {
-      double min = 0;
-      if (text.contains('min: ')) {
-        min = double.tryParse(
-              text.substring(text.indexOf('min: ') + 4, text.lastIndexOf(')')),
-            ) ??
-            0;
-      }
-
-      input = CustomInputParameters(min: min);
+      input = CustomInputParameters(
+        hint: text.substring(text.indexOf('(') + 1, text.lastIndexOf(')')),
+      );
     }
 
     return CustomChatButton(
