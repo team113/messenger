@@ -1615,14 +1615,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.27.7"
-  safe_area_insets:
-    dependency: "direct main"
-    description:
-      name: safe_area_insets
-      sha256: "7127fb7fbd7b1f6bef9c5ec028e3d50b95ec8a21abfe83c7b07c92f31962a6eb"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.3"
   safe_local_storage:
     dependency: transitive
     description:

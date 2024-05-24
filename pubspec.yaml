@@ -113,7 +113,6 @@ dependencies:
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
   xml: ^6.5.0
-  safe_area_insets: ^0.1.3
 
 dev_dependencies:
   artemis: ^7.13.1

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/widgets.dart';
-import 'package:safe_area_insets/safe_area_insets.dart';
 
 /// Wrapper to prevent a default web context menu over its [child].
 class SafeAreaInsets extends StatelessWidget {
@@ -27,6 +26,7 @@ class SafeAreaInsets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return WebSafeAreaInsets(child: child);
+    return SafeArea(child: child);
+    // return WebSafeAreaInsets(child: child);
   }
 }
