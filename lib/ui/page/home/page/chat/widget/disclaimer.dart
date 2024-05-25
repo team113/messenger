@@ -80,7 +80,7 @@ class DisclaimerWidget extends StatelessWidget {
                   child: WidgetButton(
                     onPressed: onPressed,
                     child: Text(
-                      action ?? 'btn_proceed'.l10n,
+                      action ?? 'btn_ok'.l10n,
                       style: style.systemMessageStyle
                           .copyWith(color: style.colors.primary),
                     ),
