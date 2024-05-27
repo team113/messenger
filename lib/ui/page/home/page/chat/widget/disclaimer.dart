@@ -39,57 +39,51 @@ class DisclaimerWidget extends StatelessWidget {
           CustomBoxShadow(blurRadius: 8, color: Color(0x22000000)),
         ],
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 250),
-            padding: const EdgeInsets.fromLTRB(
-              18,
-              18,
-              18,
-              18,
-            ),
-            decoration: BoxDecoration(
-              border: border,
-              borderRadius: style.cardRadius,
-              color: Colors.white,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (header != null)
-                  Center(
-                    child: MarkdownWidget(
-                      header!,
-                      style: style.systemMessageStyle,
-                    ),
-                  ),
-                if (header != null && description != null)
-                  const SizedBox(height: 8),
-                if (description != null)
-                  MarkdownWidget(
-                    description!,
-                    style: style.systemMessageStyle,
-                  ),
-                if (span != null)
-                  Text.rich(span!, style: style.systemMessageStyle),
-                const SizedBox(height: 8),
-                Center(
-                  child: WidgetButton(
-                    onPressed: onPressed,
-                    child: Text(
-                      action ?? 'btn_ok'.l10n,
-                      style: style.systemMessageStyle
-                          .copyWith(color: style.colors.primary),
-                    ),
-                  ),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(
+          18,
+          18,
+          18,
+          18,
+        ),
+        decoration: BoxDecoration(
+          border: border,
+          borderRadius: style.cardRadius,
+          color: Colors.white,
+        ),
+        width: 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (header != null)
+              Center(
+                child: MarkdownWidget(
+                  header!,
+                  style: style.systemMessageStyle,
                 ),
-              ],
+              ),
+            if (header != null && description != null)
+              const SizedBox(height: 8),
+            if (description != null)
+              MarkdownWidget(
+                description!,
+                style: style.systemMessageStyle,
+              ),
+            if (span != null) Text.rich(span!, style: style.systemMessageStyle),
+            const SizedBox(height: 8),
+            Center(
+              child: WidgetButton(
+                onPressed: onPressed,
+                child: Text(
+                  action ?? 'btn_ok'.l10n,
+                  style: style.systemMessageStyle
+                      .copyWith(color: style.colors.primary),
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

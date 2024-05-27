@@ -731,9 +731,7 @@ class ChatView extends StatelessWidget {
                           }
 
                           return AnimatedAlign(
-                            duration: const Duration(
-                              milliseconds: 300,
-                            ),
+                            duration: const Duration(milliseconds: 300),
                             curve: Curves.ease,
                             alignment: c.infoAlignment.value,
                             child: AnimatedSizeAndFade(child: child),
