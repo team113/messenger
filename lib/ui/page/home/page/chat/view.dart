@@ -726,7 +726,7 @@ class ChatView extends StatelessWidget {
                           } else {
                             child = const SizedBox(
                               key: Key('123'),
-                              width: double.infinity,
+                              width: 415,
                             );
                           }
 

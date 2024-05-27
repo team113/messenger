@@ -468,31 +468,85 @@ class ChatController extends GetxController {
               send.actions.isNotEmpty) {
             final List<RfwAttachment> actions = send.actions.toList();
 
+            final StringBuffer text = StringBuffer();
+            for (var e in actions) {
+              if (e.command != null) {
+                text.writeln(e.command!);
+              }
+
+              final String trimmed = send.field.text.trim();
+              if (trimmed.isNotEmpty) {
+                text.write(trimmed);
+              }
+
+              print('parsing ${e.command}...');
+              if (e.command?.startsWith('/donate') == true) {
+                final double? sum =
+                    double.tryParse(e.command!.substring('/donate'.length));
+
+                print('parsing ${e.command}... sum: $sum');
+                if (sum != null) {
+                  if (sum > 100) {
+                    await _chatService.sendChatMessage(
+                      id,
+                      text: ChatMessageText.bot(
+                        text: const ChatBotText(
+                          text:
+                              'Ваш [Assist] баланс: \$100.0.\n\nК сожалению, Ваш донат не может быть отправлен, на Вашем счету недостаточно денег. Пожалуйста, пополните свой счёт.',
+                        ),
+                      ),
+                    );
+
+                    return;
+                  }
+                }
+              }
+            }
+
             if (send.field.text.trim().isNotEmpty ||
                 send.attachments.isNotEmpty ||
                 send.replied.isNotEmpty) {
               _chatService
                   .sendChatMessage(
                 chat?.chat.value.id ?? id,
-                text: send.field.text.trim().isEmpty
-                    ? null
-                    : ChatMessageText(send.field.text.trim()),
+                text: text.isEmpty ? null : ChatMessageText(text.toString()),
                 repliesTo: send.replied.map((e) => e.value).toList(),
                 attachments: send.attachments.map((e) => e.value).toList(),
               )
                   .then(
-                (item) {
+                (item) async {
                   AudioUtils.once(
                     AudioSource.asset('audio/message_sent.mp3'),
                   );
 
-                  if (item != null) {
-                    for (var e in actions) {
-                      if (e.command != null) {
-                        postCommand(e.command!, repliesTo: item);
+                  for (var e in actions) {
+                    if (e.command?.startsWith('/donate') == true) {
+                      final double? sum = double.tryParse(
+                          e.command!.substring('/donate'.length));
+
+                      if (sum != null) {
+                        await _chatService.sendChatMessage(
+                          id,
+                          text: ChatMessageText.bot(
+                            text: ChatBotText(
+                              text: '\$${sum.toStringAsFixed(2)}',
+                              rfw:
+                                  "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 0.5, y: 0.5 }, blurRadius: 1.0, color: 0x99998200, }, { offset: { x: -0.3, y: -0.3 }, blurRadius: 1.5, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x66806C00, }, { offset: { x: 0.5, y: 0.5 }, blurRadius: 2.0, color: 0xE4998200, }, { offset: { x: -0.5, y: -0.5 }, blurRadius: 2.0, color: 0xE4FEFEF9, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, ), ), ], ), ), ), );",
+                            ),
+                          ),
+                          repliesTo: [item!],
+                        );
                       }
                     }
                   }
+
+                  // if (item != null) {
+                  //   for (var e in actions) {
+                  //     if (e.command != null) {
+                  //       postCommand(e.command!, repliesTo: item);
+                  //     }
+                  //   }
+                  // }
                 },
               ).onError<PostChatMessageException>(
                 (_, __) {
@@ -1144,14 +1198,10 @@ class ChatController extends GetxController {
           id,
           text: ChatMessageText.bot(
             localized: {
-              const Locale('en', 'US'): const ChatBotText(
-                title: 'Translation',
-                text: 'Translated ✅',
-              ),
-              const Locale('ru', 'RU'): const ChatBotText(
-                title: 'Перевод',
-                text: 'Переведено ✅',
-              ),
+              const Locale('en', 'US'):
+                  const ChatBotText(title: 'Translation', text: 'Translated ✅'),
+              const Locale('ru', 'RU'):
+                  const ChatBotText(title: 'Перевод', text: 'Переведено ✅'),
             },
           ),
           repliesTo: [repliesTo],
@@ -1180,7 +1230,7 @@ class ChatController extends GetxController {
               text: ChatBotText(
                 text: '\$${sum.toStringAsFixed(2)}',
                 rfw:
-                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
+                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 0.5, y: 0.5 }, blurRadius: 1.0, color: 0x99998200, }, { offset: { x: -0.3, y: -0.3 }, blurRadius: 1.5, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x66806C00, }, { offset: { x: 0.5, y: 0.5 }, blurRadius: 2.0, color: 0xE4998200, }, { offset: { x: -0.5, y: -0.5 }, blurRadius: 2.0, color: 0xE4FEFEF9, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, ), ), ], ), ), ), );",
               ),
             ),
             repliesTo: [repliesTo],
@@ -1193,24 +1243,28 @@ class ChatController extends GetxController {
             double.tryParse(command.substring('/donate'.length));
 
         if (sum != null) {
+          if (sum > 100) {
+            await _chatService.sendChatMessage(
+              id,
+              text: ChatMessageText.bot(
+                text: const ChatBotText(
+                  text:
+                      'Ваш [Assist] баланс: \$100.0.\n\nК сожалению, Ваш донат не может быть отправлен, на Вашем счету недостаточно денег. Пожалуйста, пополните свой счёт.',
+                ),
+              ),
+            );
+
+            return;
+          }
+
           await _chatService.sendChatMessage(
             id,
             text: ChatMessageText.bot(
               text: ChatBotText(
                 text: '\$${sum.toStringAsFixed(2)}',
                 rfw:
-                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', ), ), ], ), ), ), );",
+                    "import core.widgets; widget root = Container( height: 104.0, constraints: { minWidth: 300.0 }, padding: [4.0, 4.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: 0.0, y: -1.0 }, end: { x: 0.0, y: 1.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: Container( margin: [2.0, 2.0], decoration: { type: 'box', borderRadius: [{ x: 8.0, y: 8.0 }], gradient: { type: 'linear', begin: { x: -1.0, y: 0.0 }, end: { x: 1.0, y: 0.0 }, colors: [0xFFF9C924, 0xFFE4AF18, 0xFFFFF98C, 0xFFFFD440], stops: [0.0, 0.32, 0.68, 1.0], }, }, child: DefaultTextStyle( style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 0.5, y: 0.5 }, blurRadius: 1.0, color: 0x99998200, }, { offset: { x: -0.3, y: -0.3 }, blurRadius: 1.5, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x66806C00, }, { offset: { x: 0.5, y: 0.5 }, blurRadius: 2.0, color: 0xE4998200, }, { offset: { x: -0.5, y: -0.5 }, blurRadius: 2.0, color: 0xE4FEFEF9, }, { offset: { x: 1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, child: Stack( children: [ Align( alignment: { x: -1.0, y: -1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: [data.name], style: { fontSize: 17.0 }, textDirection: 'ltr', ), ), ), Align( alignment: { x: 1.0, y: 1.0 }, child: Padding( padding: [4.0, 4.0], child: Text( text: 'DONATION', style: { fontSize: 13.0 }, textDirection: 'ltr', ), ), ), Center( child: Text( text: [data.description], textDirection: 'ltr', style: { color: 0xFFF3CD01, fontSize: 32.0, shadows: [ { offset: { x: 1.0, y: 1.0 }, blurRadius: 3.0, color: 0xE4AC9200, }, { offset: { x: -1.0, y: -1.0 }, blurRadius: 2.0, color: 0xE4FFFF00, }, { offset: { x: 1.0, y: -1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, { offset: { x: -1.0, y: 1.0 }, blurRadius: 2.0, color: 0x33AC9200, }, ], }, ), ), ], ), ), ), );",
               ),
-              // localized: {
-              //   const Locale('en', 'US'): ChatBotText(
-              //     title: 'Donate',
-              //     text: 'Donated \$${sum.toStringAsFixed(2)}',
-              //   ),
-              //   const Locale('ru', 'RU'): ChatBotText(
-              //     title: 'Донат',
-              //     text: 'Отправлен донат \$${sum.toStringAsFixed(2)}',
-              //   ),
-              // },
             ),
           );
         }
@@ -2195,7 +2249,7 @@ class ChatController extends GetxController {
 
   final Rx<BotInfoElement?> botInfo = Rx(null);
   final RxBool showInfo = RxBool(false);
-  final Rx<Alignment> infoAlignment = Rx(Alignment.topCenter);
+  final Rx<Alignment> infoAlignment = Rx(Alignment.topRight);
 
   void _addBotInfo(RxUser e) {
     Log.info('_addBotInfo($e)');
@@ -2220,6 +2274,11 @@ class ChatController extends GetxController {
       final bar =
           decoded?[L10n.chosen.value!.toString()]?['bar'] ?? decoded?['bar'];
 
+      RxUser? recipient = user;
+      recipient ??=
+          chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user;
+      recipient ??= chat?.members.values.firstOrNull?.user;
+
       botInfo.value = BotInfoElement(
         text,
         at: PreciseDateTime.now(),
@@ -2232,7 +2291,10 @@ class ChatController extends GetxController {
             : BotBar.fromJson(
                 bar,
                 args: {
-                  if (user != null) 'name': user?.title,
+                  if (recipient != null) ...{
+                    'id': recipient.id.val,
+                    'name': recipient.title,
+                  },
                 },
               ),
       );
@@ -2254,8 +2316,10 @@ class ChatController extends GetxController {
                 }
 
                 if (args?.containsKey('number') == true) {
-                  return str.replaceAll('\$input',
-                      (args!['number']! as double).toStringAsFixed(2));
+                  return str.replaceAll(
+                    '\$input',
+                    (args!['number']! as double).toStringAsFixed(2),
+                  );
                 }
 
                 return str;
@@ -2276,7 +2340,9 @@ class ChatController extends GetxController {
                               _myUserService.myUser.value?.num.toString(),
                           'description': withArgs(a.action?.description),
                         },
-                        command: a.action?.command,
+                        command: a.action?.command != null
+                            ? withArgs(a.action?.command!)
+                            : null,
                       ),
                     );
                     break;

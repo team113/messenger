@@ -850,7 +850,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   },
                 ),
                 Text(
-                  '/${command.text}',
+                  '${command.text}',
                   style: style.fonts.smallest.regular.onBackground,
                 ),
               ],
@@ -2047,14 +2047,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       attachments = msg.attachments.length;
       text = msg.text;
 
-      if (text?.val.startsWith('/') ?? false) {
+      if (msg.isCommand) {
         _command = ChatCommand(
           msg.id,
           msg.chatId,
           msg.author,
           msg.at,
           repliesTo: msg.repliesTo.firstOrNull,
-          text: ChatMessageText(text!.val.substring(1)),
+          text: ChatMessageText(msg.commands.join('\n')),
         );
       } else if (msg.repliesTo.isEmpty &&
           (text?.val.startsWith('[@bot]') ?? false)) {

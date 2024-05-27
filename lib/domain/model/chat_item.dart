@@ -90,7 +90,8 @@ abstract class ChatItem {
     }
 
     final msg = this as ChatMessage;
-    return msg.text?.val.startsWith('/') == true;
+    return (msg.text == null || msg.text?.val.trim().isEmpty == true) &&
+        msg.commands.isNotEmpty;
   }
 
   @override
@@ -120,7 +121,21 @@ class ChatMessage extends ChatItem {
     this.text,
     this.editedAt,
     this.attachments = const [],
-  });
+  }) {
+    if (text != null) {
+      final StringBuffer result = StringBuffer();
+
+      for (var e in text!.val.split('\n')) {
+        if (e.startsWith('/')) {
+          commands.add(e);
+        } else {
+          result.writeln(e);
+        }
+      }
+
+      text = ChatMessageText(result.toString());
+    }
+  }
 
   /// Constructs a [ChatMessage] from the provided [json].
   factory ChatMessage.fromJson(Map<String, dynamic> json) =>
@@ -141,6 +156,8 @@ class ChatMessage extends ChatItem {
   /// [Attachment]s of this [ChatMessage].
   @HiveField(8)
   List<Attachment> attachments;
+
+  final List<String> commands = [];
 
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
   /// [author], [chatId] and [attachments] as this [ChatMessage].

@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:messenger/config.dart';
+import 'package:messenger/routes.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/themes.dart';
@@ -36,7 +38,20 @@ class MarkdownWidget extends StatelessWidget {
 
     return MarkdownBody(
       data: body,
-      onTapLink: (_, href, __) async => await launchUrlString(href!),
+      onTapLink: (_, href, __) async {
+        href = href?.startsWith('http') == false ? 'https://$href' : href;
+
+        final List<String> origins = [Config.origin, Config.link];
+
+        for (var e in origins) {
+          if (href?.startsWith(e) == true) {
+            router.push(href!.replaceFirst(e, ''));
+            return;
+          }
+        }
+
+        await launchUrlString(href!);
+      },
       styleSheet: MarkdownStyleSheet(
         h2Padding: const EdgeInsets.fromLTRB(0, 24, 0, 4),
 
