@@ -42,6 +42,7 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/chat.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
 import 'provider/drift/user.dart';
@@ -521,6 +522,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(UserDriftProvider(Get.find()));
               deps.put(ChatItemDriftProvider(Get.find()));
               deps.put(ChatMemberDriftProvider(Get.find()));
+              deps.put(ChatDriftProvider(Get.find()));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -661,6 +663,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             deps.put(UserDriftProvider(Get.find()));
             deps.put(ChatItemDriftProvider(Get.find()));
             deps.put(ChatMemberDriftProvider(Get.find()));
+            deps.put(ChatDriftProvider(Get.find()));
 
             GraphQlProvider graphQlProvider = Get.find();
 

@@ -23,7 +23,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
 import 'package:hive/hive.dart';
-import 'package:messenger/provider/drift/chat.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -48,6 +47,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
 import '/provider/gql/exceptions.dart'
@@ -57,7 +57,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/chat.dart';
 import '/provider/hive/draft.dart';
 import '/provider/hive/favorite_chat.dart';
 import '/provider/hive/monolog.dart';
@@ -67,8 +66,6 @@ import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
 import '/store/pagination/graphql.dart';
-import '/store/pagination/hive.dart';
-import '/store/pagination/hive_graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -153,9 +150,6 @@ class ChatRepository extends DisposableInterface
   /// [MonologHiveProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologHiveProvider _monologLocal;
 
-  /// [ChatHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
-
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _pagination;
 
@@ -238,7 +232,6 @@ class ChatRepository extends DisposableInterface
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
     if (!WebUtils.isPopup) {
-      _initLocalSubscription();
       _initDraftSubscription();
       _initRemoteSubscription();
       _initFavoriteSubscription();
@@ -277,7 +270,6 @@ class ChatRepository extends DisposableInterface
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _pagination?.dispose();
-    _localSubscription?.cancel();
     _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
@@ -631,8 +623,7 @@ class ChatRepository extends DisposableInterface
       }
 
       // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
-      // handler. Chat will be removed from [paginated] on [BoxEvent] from the
-      // [_localSubscription].
+      // handler. Chat will be removed from [paginated] via [RxChatImpl].
       await _graphQlProvider.hideChat(id);
     } catch (_) {
       chat?.chat.update((c) => c?.isHidden = false);
@@ -1578,14 +1569,9 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl rxChat = _add(chat, pagination: pagination);
 
-    // TODO: https://github.com/team113/messenger/issues/27
-    // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-    // synchronization, thus writes from multiple applications may lead to
-    // missing events.
-    //
     // Favorite [DtoChat]s will be putted to [Hive] through
     // [HiveGraphQlPageProvider].
-    if (!WebUtils.isPopup || chat.value.favoritePosition == null) {
+    if (chat.value.favoritePosition == null) {
       await _driftChat.txn(() async {
         DtoChat? saved;
 
@@ -1673,51 +1659,6 @@ class ChatRepository extends DisposableInterface
 
     return entry;
   }
-
-  /// Initializes [ChatHiveProvider.boxEvents] subscription.
-  // Future<void> _initLocalSubscription() async {
-  //   Log.debug('_initLocalSubscription()', '$runtimeType');
-
-  //   _localSubscription = StreamIterator(_chatLocal.boxEvents);
-  //   while (await _localSubscription!.moveNext()) {
-  //     final BoxEvent event = _localSubscription!.current;
-  //     final ChatId chatId = ChatId(event.key);
-
-  //     if (event.deleted) {
-  //       final RxChatImpl? chat = chats.remove(chatId);
-  //       await chat?.clear();
-  //       chat?.dispose();
-
-  //       paginated.remove(chatId);
-  //       _pagination?.remove(chatId);
-
-  //       _recentLocal.remove(chatId);
-  //       _favoriteLocal.remove(chatId);
-  //     } else {
-  //       final RxChatImpl? existing = chats[chatId];
-  //       final Chat chat = event.value.value as Chat;
-
-  //       // If this [BoxEvent] is about a [Chat] not contained in [chats], or the
-  //       // stored version is less or equal to the [chat], then add it.
-  //       if (existing == null ||
-  //           (existing.ver != null && existing.ver! <= event.value.ver)) {
-  //         _add(event.value);
-  //       }
-
-  //       if (chat.favoritePosition != null) {
-  //         _favoriteLocal.put(chat.favoritePosition!, chatId);
-  //         _recentLocal.remove(chatId);
-  //       } else {
-  //         _recentLocal.put(chat.updatedAt, chatId);
-  //         _favoriteLocal.remove(chatId);
-  //       }
-
-  //       if (chat.isHidden) {
-  //         paginated.remove(chatId);
-  //       }
-  //     }
-  //   }
-  // }
 
   /// Initializes [DraftHiveProvider.boxEvents] subscription.
   Future<void> _initDraftSubscription() async {
@@ -1817,14 +1758,21 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftPageProvider(
-        _chatLocal,
-        getCursor: (e) => e?.favoriteCursor,
-        getKey: (e) => e.value.id,
+        fetch: ({required after, required before, ChatId? around}) async {
+          return await _driftChat.favorite(limit: after + before);
+        },
+        onKey: (e) => e.value.id,
+        onCursor: (e) => e?.favoriteCursor,
+        add: (e, {bool toView = true}) async {
+          if (toView) {
+            await _driftChat.upsertBulk(e);
+          }
+        },
+        delete: (e) async => await _driftChat.delete(e),
+        reset: () async => await _driftChat.clear(),
         isLast: (_) => true,
         isFirst: (_) => true,
-        orderBy: (_) => _favoriteLocal.values,
-        strategy: PaginationStrategy.fromEnd,
-        reversed: true,
+        compare: (a, b) => a.value.compareTo(b.value),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
     );
@@ -1834,16 +1782,23 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftPageProvider(
-        _chatLocal,
-        getCursor: (e) => e?.recentCursor,
-        getKey: (e) => e.value.id,
+        fetch: ({required after, required before, ChatId? around}) async {
+          return await _driftChat.recent(limit: after + before);
+        },
+        onKey: (e) => e.value.id,
+        onCursor: (e) => e?.recentCursor,
+        add: (e, {bool toView = true}) async {
+          if (toView) {
+            await _driftChat.upsertBulk(e);
+          }
+        },
+        delete: (e) async => await _driftChat.delete(e),
+        reset: () async => await _driftChat.clear(),
         isLast: (_) => true,
         isFirst: (_) => true,
-        orderBy: (_) => _recentLocal.values,
-        strategy: PaginationStrategy.fromEnd,
-        reversed: true,
+        compare: (a, b) => a.value.compareTo(b.value),
       ),
-      compare: (a, b) => b.value.updatedAt.compareTo(a.value.updatedAt),
+      compare: (a, b) => a.value.compareTo(b.value),
     );
 
     _localPagination = CombinedPagination([
@@ -1896,6 +1851,8 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
+    // return;
+
     if (isClosed) {
       return;
     }
@@ -1923,14 +1880,21 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
-          _chatLocal,
-          getCursor: (e) => e?.favoriteCursor,
-          getKey: (e) => e.value.id,
-          orderBy: (_) => _favoriteLocal.values,
+          fetch: ({required after, required before, ChatId? around}) async {
+            return await _driftChat.favorite(limit: after + before);
+          },
+          onKey: (e) => e.value.id,
+          onCursor: (e) => e?.favoriteCursor,
+          add: (e, {bool toView = true}) async {
+            if (toView) {
+              await _driftChat.upsertBulk(e);
+            }
+          },
+          delete: (e) async => await _driftChat.delete(e),
+          reset: () async => await _driftChat.clear(),
           isLast: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
           isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
-          strategy: PaginationStrategy.fromEnd,
-          reversed: true,
+          compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {

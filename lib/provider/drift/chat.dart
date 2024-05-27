@@ -18,23 +18,23 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
-import 'package:messenger/domain/model/avatar.dart';
-import 'package:messenger/domain/model/chat_call.dart';
-import 'package:messenger/domain/model/mute_duration.dart';
-import 'package:messenger/domain/model/user.dart';
-import 'package:messenger/store/model/chat.dart';
 
+import '/domain/model/avatar.dart';
+import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/chat.dart';
 import 'common.dart';
 import 'drift.dart';
 
 /// [Chat] to be stored in a [Table].
-@TableIndex(name: 'me_index', columns: {#me})
 @DataClassName('ChatRow')
 class Chats extends Table {
   @override
@@ -58,6 +58,7 @@ class Chats extends Table {
   TextColumn get lastReads => text().withDefault(const Constant('[]'))();
   IntColumn get lastDelivery =>
       integer().map(const PreciseDateTimeConverter()).nullable()();
+  TextColumn get firstItem => text().nullable()();
   TextColumn get lastItem => text().nullable()();
   TextColumn get lastReadItem => text().nullable()();
   IntColumn get unreadCount => integer().withDefault(const Constant(0))();
@@ -70,7 +71,6 @@ class Chats extends Table {
   TextColumn get lastReadItemCursor => text().nullable()();
   TextColumn get recentCursor => text().nullable()();
   TextColumn get favoriteCursor => text().nullable()();
-  TextColumn get me => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
@@ -79,6 +79,9 @@ class ChatDriftProvider extends DriftProviderBase {
 
   /// [UserId] to retrieve [Chat]s for.
   final UserId? me;
+
+  /// [StreamController] emitting [DtoChat]s in [watch].
+  final Map<ChatId, StreamController<DtoChat?>> _controllers = {};
 
   /// [DtoChatItem]s that have started the [upsert]ing, but not yet finished it.
   final Map<ChatId, DtoChat> _cache = {};
@@ -96,6 +99,8 @@ class ChatDriftProvider extends DriftProviderBase {
             .into(db.chats)
             .insertReturning(row, onConflict: DoUpdate((_) => row)),
       );
+
+      _controllers[stored.id]?.add(stored);
 
       return stored;
     });
@@ -117,7 +122,7 @@ class ChatDriftProvider extends DriftProviderBase {
       await db.batch((batch) {
         for (var item in items) {
           final ChatRow row = item.toDb();
-          batch.insert(db.chatItems, row, onConflict: DoUpdate((_) => row));
+          batch.insert(db.chats, row, onConflict: DoUpdate((_) => row));
         }
       });
 
@@ -125,6 +130,7 @@ class ChatDriftProvider extends DriftProviderBase {
     });
 
     for (var e in items) {
+      _controllers[e.id]?.add(e);
       _cache.remove(e.value.id);
     }
 
@@ -157,6 +163,8 @@ class ChatDriftProvider extends DriftProviderBase {
     await safe((db) async {
       final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
+
+      _controllers[id]?.add(null);
     });
   }
 
@@ -169,16 +177,15 @@ class ChatDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Returns the [DtoChat]s being in a historical view order of the
-  /// provided [chatId].
-  Future<List<DtoChat>> recent(ChatId chatId, {int? limit}) async {
+  /// Returns the recent [DtoChat]s being in a historical view order.
+  Future<List<DtoChat>> recent({int? limit}) async {
     if (db == null) {
       return [];
     }
 
     final stmt = db!.select(db!.chats);
 
-    stmt.where((u) => u.id.equals(chatId.val) & u.isHidden.equals(false));
+    stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
     stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
     if (limit != null) {
@@ -186,6 +193,59 @@ class ChatDriftProvider extends DriftProviderBase {
     }
 
     return (await stmt.get()).map(_ChatDb.fromDb).toList();
+  }
+
+  /// Returns the favorite [DtoChat]s being in a historical view order.
+  Future<List<DtoChat>> favorite({int? limit}) async {
+    if (db == null) {
+      return [];
+    }
+
+    final stmt = db!.select(db!.chats);
+
+    stmt.where(
+      (u) =>
+          u.isHidden.equals(false) &
+          u.favoritePosition.isNotNull() &
+          u.id.like('local_%').not(),
+    );
+    stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
+
+    if (limit != null) {
+      stmt.limit(limit);
+    }
+
+    return (await stmt.get()).map(_ChatDb.fromDb).toList();
+  }
+
+  /// Returns the [Stream] of real-time changes happening with the [DtoChat]
+  /// identified by the provided [id].
+  Stream<DtoChat?> watch(ChatId id) {
+    if (db == null) {
+      return const Stream.empty();
+    }
+
+    final stmt = db!.select(db!.chats)..where((u) => u.id.equals(id.val));
+
+    StreamController<DtoChat?>? controller = _controllers[id];
+    if (controller == null) {
+      controller = StreamController<DtoChat?>.broadcast(sync: true);
+      _controllers[id] = controller;
+    }
+
+    DtoChat? last;
+
+    return StreamGroup.merge(
+      [
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : _ChatDb.fromDb(e.first)),
+      ],
+    ).asyncExpand((e) async* {
+      if (e != last) {
+        last = e;
+        yield e;
+      }
+    });
   }
 }
 
@@ -215,6 +275,9 @@ extension _ChatDb on DtoChat {
             .cast<LastChatRead>()
             .toList(),
         lastDelivery: e.lastDelivery,
+        firstItem: e.firstItem == null
+            ? null
+            : ChatItem.fromJson(jsonDecode(e.firstItem!)),
         lastItem: e.lastItem == null
             ? null
             : ChatItem.fromJson(jsonDecode(e.lastItem!)),
@@ -253,9 +316,12 @@ extension _ChatDb on DtoChat {
           ? null
           : jsonEncode(value.directLink?.toJson()),
       createdAt: value.createdAt,
-      updatedAt: value.createdAt,
+      updatedAt: value.updatedAt,
       lastReads: jsonEncode(value.lastReads.map((e) => e.toJson()).toList()),
       lastDelivery: value.lastDelivery,
+      firstItem: value.firstItem == null
+          ? null
+          : jsonEncode(value.firstItem?.toJson()),
       lastItem:
           value.lastItem == null ? null : jsonEncode(value.lastItem?.toJson()),
       lastReadItem: value.lastReadItem?.val,

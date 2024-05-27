@@ -40,4 +40,8 @@ class PageInfo<K> {
 
   /// Cursor of the last item in the [Page] this [PageInfo] is about.
   K? endCursor;
+
+  @override
+  String toString() =>
+      'Page(hasNext: $hasNext, hasPrevious: $hasPrevious, startCursor: $startCursor, endCursor: $endCursor)';
 }

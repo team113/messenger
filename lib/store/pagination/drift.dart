@@ -53,7 +53,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   }) fetch;
 
-  /// Callback, called when the provided [items] should be persisted.
+  /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
 
   /// Callback, called when the provided [key] was invoked during [init].

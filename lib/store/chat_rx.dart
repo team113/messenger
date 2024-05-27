@@ -159,6 +159,9 @@ class RxChatImpl extends RxChat {
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<ChatEvents>? _remoteSubscription;
 
+  /// [ChatDriftProvider.watch] subscription.
+  StreamSubscription? _localSubscription;
+
   /// [StreamController] for [updates] of this [RxChat].
   ///
   /// Behaves like a reference counter: when [updates] are listened to, this
@@ -354,6 +357,16 @@ class RxChatImpl extends RxChat {
       chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
     );
 
+    _localSubscription = _driftChat.watch(id).listen((e) {
+      Log.info('got: $e', '$runtimeType($id)');
+
+      if (e != null) {
+        chat.value = e.value;
+      } else {
+        // TODO: Hide chat in pagination.
+      }
+    });
+
     _initMessagesPagination();
     _initMembersPagination();
 
@@ -408,6 +421,8 @@ class RxChatImpl extends RxChat {
     _readTimer?.cancel();
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = null;
+    _localSubscription?.cancel();
+    _localSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
     _messagesSubscription?.cancel();

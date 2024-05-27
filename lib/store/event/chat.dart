@@ -23,7 +23,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
 

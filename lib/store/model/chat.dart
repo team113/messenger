@@ -70,6 +70,27 @@ class DtoChat extends HiveObject {
   @override
   String toString() =>
       '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChat &&
+        value == other.value &&
+        ver == other.ver &&
+        lastItemCursor == other.lastItemCursor &&
+        lastReadItemCursor == other.lastReadItemCursor &&
+        recentCursor == other.recentCursor &&
+        favoriteCursor == other.favoriteCursor;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        value,
+        ver,
+        lastItemCursor,
+        lastReadItemCursor,
+        recentCursor,
+        favoriteCursor,
+      );
 }
 
 /// Version of a [Chat]'s state.

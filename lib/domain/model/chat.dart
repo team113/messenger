@@ -50,6 +50,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     PreciseDateTime? updatedAt,
     this.lastReads = const [],
     PreciseDateTime? lastDelivery,
+    this.firstItem,
     this.lastItem,
     this.lastReadItem,
     this.unreadCount = 0,
@@ -297,6 +298,35 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is Chat && compareTo(other) == 0;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        avatar,
+        name,
+        members,
+        kindIndex,
+        isHidden,
+        muted,
+        directLink,
+        createdAt,
+        updatedAt,
+        lastReads,
+        lastDelivery,
+        firstItem,
+        lastItem,
+        lastReadItem,
+        unreadCount,
+        totalCount,
+        ongoingCall,
+        favoritePosition,
+        membersCount,
+      );
 }
 
 /// Member of a [Chat].

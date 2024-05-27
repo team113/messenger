@@ -25,7 +25,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat.dart';
 import '/store/chat.dart';
 import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
