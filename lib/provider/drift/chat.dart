@@ -43,6 +43,7 @@ class Chats extends Table {
   TextColumn get id => text()();
   TextColumn get avatar => text().nullable()();
   TextColumn get name => text().nullable()();
+  TextColumn get members => text().withDefault(const Constant('[]'))();
   IntColumn get kindIndex => integer().withDefault(const Constant(0))();
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   TextColumn get muted => text().nullable()();
@@ -260,6 +261,10 @@ extension _ChatDb on DtoChat {
             ? null
             : ChatAvatar.fromJson(jsonDecode(e.avatar!)),
         name: e.name == null ? null : ChatName(e.name!),
+        members: (jsonDecode(e.members) as List)
+            .map((e) => ChatMember.fromJson(e))
+            .cast<ChatMember>()
+            .toList(),
         kindIndex: e.kindIndex,
         isHidden: e.isHidden,
         muted: e.muted == null
@@ -309,6 +314,8 @@ extension _ChatDb on DtoChat {
       id: value.id.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
       name: value.name?.val,
+      members:
+          jsonEncode(value.members.take(3).map((e) => e.toJson()).toList()),
       kindIndex: value.kindIndex,
       isHidden: value.isHidden,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
