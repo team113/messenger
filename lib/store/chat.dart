@@ -58,9 +58,7 @@ import '/provider/gql/exceptions.dart'
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
 import '/provider/hive/draft.dart';
-import '/provider/hive/favorite_chat.dart';
 import '/provider/hive/monolog.dart';
-import '/provider/hive/recent_chat.dart';
 import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -89,8 +87,6 @@ class ChatRepository extends DisposableInterface
     this._driftChat,
     this._driftItems,
     this._driftMembers,
-    this._recentLocal,
-    this._favoriteLocal,
     this._callRepo,
     this._draftLocal,
     this._userRepo,
@@ -126,14 +122,6 @@ class ChatRepository extends DisposableInterface
 
   /// [ChatMember]s local [DriftProvider] storage.
   final ChatMemberDriftProvider _driftMembers;
-
-  /// [ChatId]s sorted by [PreciseDateTime] representing recent [Chat]s [Hive]
-  /// storage.
-  final RecentChatHiveProvider _recentLocal;
-
-  /// [ChatId]s sorted by [ChatFavoritePosition] representing favorite [Chat]s
-  /// [Hive] storage.
-  final FavoriteChatHiveProvider _favoriteLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
@@ -1584,12 +1572,6 @@ class ChatRepository extends DisposableInterface
             saved?.value.firstItem ?? rxChat.chat.value.firstItem;
 
         if (saved == null || (saved.ver <= chat.ver || ignoreVersion)) {
-          _recentLocal.put(chat.value.updatedAt, chatId);
-
-          if (chat.value.favoritePosition != null) {
-            _favoriteLocal.put(chat.value.favoritePosition!, chatId);
-          }
-
           // Set the version to the [saved] one, if not [updateVersion].
           if (saved != null && !updateVersion) {
             chat.ver = saved.ver;
@@ -2219,7 +2201,6 @@ class ChatRepository extends DisposableInterface
           status.value = RxStatus.loading();
 
           await _pagination?.clear();
-          await _favoriteLocal.clear();
           await _sessionLocal.setFavoriteChatsSynchronized(false);
 
           await _pagination?.around();

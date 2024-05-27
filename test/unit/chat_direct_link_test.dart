@@ -29,6 +29,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -42,15 +43,12 @@ import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -133,18 +131,18 @@ void main() async {
       (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
     );
 
-    Get.put(DriftProvider.memory());
+    final database = Get.put(DriftProvider.memory());
 
     Hive.init('./test/.temp_hive/chat_direct_link_unit');
-    await Get.put(ChatHiveProvider()).init();
     await Get.put(CredentialsHiveProvider()).init();
     final myUserProvider = Get.put(MyUserHiveProvider());
     await myUserProvider.init();
     await myUserProvider.clear();
     await Get.put(DraftHiveProvider()).init();
-    Get.put(UserDriftProvider(Get.find()));
-    Get.put(ChatItemDriftProvider(Get.find()));
-    Get.put(ChatMemberDriftProvider(Get.find()));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
     await Get.put(MediaSettingsHiveProvider()).init();
@@ -153,8 +151,6 @@ void main() async {
     await Get.put(BlocklistHiveProvider()).init();
     await Get.put(CallRectHiveProvider()).init();
     await Get.put(MonologHiveProvider()).init();
-    await Get.put(RecentChatHiveProvider()).init();
-    await Get.put(FavoriteChatHiveProvider()).init();
     await Get.put(SessionDataHiveProvider()).init();
     await Get.put(BlocklistSortingHiveProvider()).init();
     await Get.put(AccountHiveProvider()).init();
@@ -173,7 +169,7 @@ void main() async {
     authService.init();
 
     final UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, Get.find()));
+        Get.put(UserRepository(graphQlProvider, userProvider));
 
     final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -213,11 +209,9 @@ void main() async {
         Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
-        Get.find(),
+        chatProvider,
+        chatItemProvider,
+        chatMemberProvider,
         callRepository,
         Get.find(),
         userRepository,
