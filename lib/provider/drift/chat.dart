@@ -97,7 +97,7 @@ class ChatDriftProvider extends DriftProviderBase {
       final DtoChat stored = _ChatDb.fromDb(
         await db
             .into(db.chats)
-            .insertReturning(row, onConflict: DoUpdate((_) => row)),
+            .insertReturning(row, mode: InsertMode.insertOrReplace),
       );
 
       _controllers[stored.id]?.add(stored);
@@ -122,7 +122,7 @@ class ChatDriftProvider extends DriftProviderBase {
       await db.batch((batch) {
         for (var item in items) {
           final ChatRow row = item.toDb();
-          batch.insert(db.chats, row, onConflict: DoUpdate((_) => row));
+          batch.insert(db.chats, row, mode: InsertMode.insertOrReplace);
         }
       });
 

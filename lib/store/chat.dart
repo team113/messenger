@@ -200,9 +200,8 @@ class ChatRepository extends DisposableInterface
   ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
-  RxBool get hasNext => _localPagination == null
-      ? _pagination?.hasNext ?? RxBool(false)
-      : RxBool(true);
+  RxBool get hasNext =>
+      _pagination?.hasNext ?? _localPagination?.hasNext ?? RxBool(false);
 
   @override
   RxBool get nextLoading =>
@@ -1772,6 +1771,7 @@ class ChatRepository extends DisposableInterface
         reset: () async => await _driftChat.clear(),
         isLast: (_) => true,
         isFirst: (_) => true,
+        fulfilledWhenNone: true,
         compare: (a, b) => a.value.compareTo(b.value),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
@@ -1796,6 +1796,7 @@ class ChatRepository extends DisposableInterface
         reset: () async => await _driftChat.clear(),
         isLast: (_) => true,
         isFirst: (_) => true,
+        fulfilledWhenNone: true,
         compare: (a, b) => a.value.compareTo(b.value),
       ),
       compare: (a, b) => a.value.compareTo(b.value),

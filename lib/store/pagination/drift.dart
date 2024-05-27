@@ -37,6 +37,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.isLast,
     this.onNone,
     this.compare,
+    this.fulfilledWhenNone = false,
   });
 
   /// Callback, called when a [K] of the provided [T] is required.
@@ -77,6 +78,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Callback, called to compare the provided [T] items.
   final int Function(T, T)? compare;
+
+  /// Indicator whether the zero-item responses should be considered fulfilled.
+  final bool fulfilledWhenNone;
 
   /// Internal [List] of [T] items retrieved from the [fetch].
   List<T> _list = [];
@@ -150,11 +154,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       '$runtimeType',
     );
 
+    final bool zeroed = fulfilledWhenNone && edges.isEmpty;
+
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !_hasLast,
-        hasPrevious: !_hasFirst,
+        hasNext: !_hasLast && !zeroed,
+        hasPrevious: !_hasFirst && !zeroed,
         startCursor: _lastCursor,
         endCursor: _firstCursor,
       ),

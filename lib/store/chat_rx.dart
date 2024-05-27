@@ -1511,6 +1511,8 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.event:
         await _driftChat.txn(() async {
           final DtoChat? chatEntity = await _driftChat.read(id);
+          Log.info('reading DtoChat: $chatEntity, ${chatEntity?.value.avatar}');
+
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
           if (chatEntity == null ||
@@ -1932,6 +1934,9 @@ class RxChatImpl extends RxChat {
           }
 
           if (shouldPutChat) {
+            Log.info(
+              'writing DtoChat: $chatEntity, ${chatEntity.value.avatar}',
+            );
             await _driftChat.upsert(chatEntity);
           }
         });
