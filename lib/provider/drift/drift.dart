@@ -249,29 +249,67 @@ final class ScopedDriftProvider extends DisposableInterface {
 
 /// [DriftProvider] with common helper and utility methods over it.
 abstract class DriftProviderBase {
-  const DriftProviderBase(this._common);
+  const DriftProviderBase(this._provider);
 
   /// [CommonDriftProvider] itself.
-  final CommonDriftProvider _common;
+  final CommonDriftProvider _provider;
 
-  /// Returns the [AppDatabase].
+  /// Returns the [CommonDatabase].
   ///
   /// `null` here means the database is closed.
-  AppDatabase? get db => _provider.db;
+  CommonDatabase? get db => _provider.db;
 
   /// Completes the provided [action] as a transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await db?.transaction(action);
   }
 
-  /// Runs the [callback] through a non-closed [AppDatabase], or returns `null`.
+  /// Runs the [callback] through a non-closed [CommonDatabase], or returns
+  /// `null`.
   ///
   /// [AppDatabase] may be closed, for example, between E2E tests.
-  Future<T?> safe<T>(Future<T> Function(AppDatabase db) callback) async {
+  Future<T?> safe<T>(Future<T> Function(CommonDatabase db) callback) async {
     if (db == null) {
       return null;
     }
 
     return await callback(db!);
+  }
+}
+
+abstract class DriftProviderBaseWithScope {
+  const DriftProviderBaseWithScope(this._common, this._scoped);
+
+  /// [CommonDriftProvider] itself.
+  final CommonDriftProvider _common;
+
+  /// [ScopedDriftProvider] itself.
+  final ScopedDriftProvider _scoped;
+
+  /// Returns the [CommonDatabase].
+  ///
+  /// `null` here means the database is closed.
+  CommonDatabase? get common => _common.db;
+
+  /// Returns the [ScopedDatabase].
+  ///
+  /// `null` here means the database is closed.
+  ScopedDatabase? get scoped => _scoped.db;
+
+  /// Completes the provided [action] as a transaction.
+  Future<void> txn<T>(Future<T> Function() action) async {
+    await scoped?.transaction(action);
+  }
+
+  /// Runs the [callback] through a non-closed [CommonDatabase], or returns
+  /// `null`.
+  ///
+  /// [AppDatabase] may be closed, for example, between E2E tests.
+  Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
+    if (scoped == null) {
+      return null;
+    }
+
+    return await callback(scoped!);
   }
 }

@@ -29,12 +29,15 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
+import '/provider/drift/my_user.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/credentials.dart';
 import '/provider/hive/my_user.dart';
 import '/util/log.dart';
+import '/util/obs/obs.dart';
+import 'model/my_user.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -56,8 +59,8 @@ class AuthRepository extends DisposableInterface
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [MyUserHiveProvider] for removing [MyUser]s.
-  final MyUserHiveProvider _myUserProvider;
+  /// [MyUserDriftProvider] for removing [MyUser]s.
+  final MyUserDriftProvider _myUserProvider;
 
   /// [CredentialsHiveProvider] for removing [Credentials].
   final CredentialsHiveProvider _credentialsProvider;
@@ -68,9 +71,9 @@ class AuthRepository extends DisposableInterface
   Credentials? _signUpCredentials;
 
   // TODO: Temporary solution, wait for support from backend.
-  /// [HiveMyUser] created with [signUpWithEmail] and put to [Hive] in
+  /// [DtoMyUser] created with [signUpWithEmail] and put to [Hive] in
   /// successful [confirmSignUpEmail].
-  HiveMyUser? _signedUpUser;
+  DtoMyUser? _signedUpUser;
 
   /// [StreamSubscription] for the [MyUserHiveProvider.boxEvents].
   StreamSubscription? _profilesSubscription;
@@ -95,12 +98,23 @@ class AuthRepository extends DisposableInterface
 
   @override
   void onInit() {
-    profiles.addAll(_myUserProvider.myUsers.map((e) => e.value).toList());
-    _profilesSubscription = _myUserProvider.boxEvents.listen((e) {
-      if (e.deleted) {
-        profiles.removeWhere((m) => m.id.val == e.key);
-      } else {
-        profiles.addIf(profiles.none((m) => m.id.val == e.key), e.value.value);
+    // profiles.addAll(_myUserProvider.accounts.map((e) => e.value).toList());
+
+    _profilesSubscription = _myUserProvider.watch().listen((ops) {
+      for (var e in ops) {
+        switch (e.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            profiles.addIf(
+              profiles.none((m) => m.id.val == e.key?.val),
+              e.value!.value,
+            );
+            break;
+
+          case OperationKind.removed:
+            profiles.removeWhere((m) => m.id.val == e.oldKey?.val);
+            break;
+        }
       }
     });
 
@@ -125,7 +139,7 @@ class AuthRepository extends DisposableInterface
 
     final response = await _graphQlProvider.signUp();
 
-    _myUserProvider.put(response.createUser.user.toHive());
+    _myUserProvider.upsert(response.createUser.user.toDto());
 
     return response.toModel();
   }
@@ -146,7 +160,7 @@ class AuthRepository extends DisposableInterface
     final response =
         await _graphQlProvider.signIn(password, login, num, email, phone);
 
-    _myUserProvider.put(response.user.toHive());
+    _myUserProvider.upsert(response.user.toDto());
 
     return response.toModel();
   }
@@ -159,7 +173,7 @@ class AuthRepository extends DisposableInterface
 
     final response = await _graphQlProvider.signUp();
 
-    _signedUpUser = response.createUser.user.toHive();
+    _signedUpUser = response.createUser.user.toDto();
     _signUpCredentials = response.toModel();
 
     await _graphQlProvider.addUserEmail(
@@ -185,7 +199,7 @@ class AuthRepository extends DisposableInterface
       raw: RawClientOptions(_signUpCredentials!.access.secret),
     );
 
-    _myUserProvider.put(_signedUpUser!);
+    _myUserProvider.upsert(_signedUpUser!);
 
     return _signUpCredentials!;
   }
@@ -235,7 +249,7 @@ class AuthRepository extends DisposableInterface
     Log.debug('removeAccount($id)', '$runtimeType');
 
     await Future.wait([
-      if (!keepProfile) _myUserProvider.remove(id),
+      if (!keepProfile) _myUserProvider.delete(id),
       _credentialsProvider.remove(id),
     ]);
   }

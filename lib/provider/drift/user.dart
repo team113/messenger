@@ -58,8 +58,8 @@ class Users extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [User]s.
-class UserDriftProvider extends DriftProviderBase {
-  UserDriftProvider(super.database);
+class UserDriftProvider extends DriftProviderBaseWithScope {
+  UserDriftProvider(super.common, super.scoped);
 
   /// [StreamController] emitting [DtoUser]s in [watch].
   final Map<UserId, StreamController<DtoUser?>> _controllers = {};
@@ -133,11 +133,12 @@ class UserDriftProvider extends DriftProviderBase {
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]
   /// identified by the provided [id].
   Stream<DtoUser?> watch(UserId id) {
-    if (db == null) {
+    if (scoped == null) {
       return const Stream.empty();
     }
 
-    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
+    final stmt = scoped!.select(scoped!.users)
+      ..where((u) => u.id.equals(id.val));
 
     StreamController<DtoUser?>? controller = _controllers[id];
     if (controller == null) {

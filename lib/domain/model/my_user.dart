@@ -46,8 +46,8 @@ class MyUser extends HiveObject {
     this.chatDirectLink,
     this.unreadChatsCount = 0,
     this.status,
-    this.callCover,
     this.avatar,
+    this.callCover,
     required this.presenceIndex,
     required this.online,
     this.muted,
@@ -191,6 +191,7 @@ class MyUser extends HiveObject {
 }
 
 /// List of [UserPhone]s associated with [MyUser].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.myUserPhones)
 class MyUserPhones {
   MyUserPhones({

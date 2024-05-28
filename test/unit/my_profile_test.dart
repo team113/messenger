@@ -24,11 +24,11 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/auth.dart';
@@ -40,13 +40,13 @@ import 'package:messenger/store/user.dart';
 import '../mock/graphql_provider.dart';
 
 void main() async {
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/profile_unit');
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  final userProvider = UserDriftProvider(database);
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();
@@ -106,7 +106,7 @@ void main() async {
     assert(profileService.myUser.value == profileService.myUser.value);
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 class FakeGraphQlProvider extends MockedGraphQlProvider {
@@ -141,7 +141,9 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+  Future<Stream<QueryResult>> myUserEvents(
+    Future<MyUserVersion?> Function()? getVer,
+  ) async {
     return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,

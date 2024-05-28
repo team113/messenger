@@ -519,9 +519,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
 
-              deps.put(UserDriftProvider(Get.find()));
-              deps.put(ChatItemDriftProvider(Get.find()));
-              deps.put(ChatMemberDriftProvider(Get.find()));
+              final ScopedDriftProvider scoped = deps
+                  .put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+
+              deps.put(UserDriftProvider(Get.find(), scoped));
+              deps.put(ChatItemDriftProvider(Get.find(), scoped));
+              deps.put(ChatMemberDriftProvider(Get.find(), scoped));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -659,11 +662,12 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
-            deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+            final ScopedDriftProvider scoped =
+                deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
 
-            deps.put(UserDriftProvider(Get.find()));
-            deps.put(ChatItemDriftProvider(Get.find()));
-            deps.put(ChatMemberDriftProvider(Get.find()));
+            deps.put(UserDriftProvider(Get.find(), scoped));
+            deps.put(ChatItemDriftProvider(Get.find(), scoped));
+            deps.put(ChatMemberDriftProvider(Get.find(), scoped));
 
             GraphQlProvider graphQlProvider = Get.find();
 

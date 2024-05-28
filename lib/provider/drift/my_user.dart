@@ -22,11 +22,12 @@ import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/model/my_user.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
-import '/store/model/user.dart';
+import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -38,42 +39,43 @@ class MyUsers extends Table {
 
   TextColumn get id => text()();
   TextColumn get num => text().unique()();
+  TextColumn get login => text().nullable()();
   TextColumn get name => text().nullable()();
   TextColumn get bio => text().nullable()();
+  BoolColumn get hasPassword => boolean().withDefault(const Constant(false))();
+  TextColumn get emails => text()();
+  TextColumn get phones => text()();
+  TextColumn get chatDirectLink => text().nullable()();
+  IntColumn get unreadChatsCount => integer().withDefault(const Constant(0))();
+  TextColumn get status => text().nullable()();
   TextColumn get avatar => text().nullable()();
   TextColumn get callCover => text().nullable()();
-  IntColumn get mutualContactsCount =>
-      integer().withDefault(const Constant(0))();
+  IntColumn get presenceIndex => integer().withDefault(const Constant(0))();
   BoolColumn get online => boolean().withDefault(const Constant(false))();
-  IntColumn get presenceIndex => integer().nullable()();
-  TextColumn get status => text().nullable()();
-  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
-  TextColumn get dialog => text().nullable()();
-  TextColumn get isBlocked => text().nullable()();
+  TextColumn get muted => text().nullable()();
+  IntColumn get blocklistCount => integer().nullable()();
   IntColumn get lastSeenAt =>
       integer().nullable().map(const PreciseDateTimeConverter())();
-  TextColumn get contacts => text().withDefault(const Constant('[]'))();
   TextColumn get ver => text()();
-  TextColumn get blockedVer => text()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [User]s.
-class UserDriftProvider extends DriftProviderBase {
-  UserDriftProvider(super.database);
+class MyUserDriftProvider extends DriftProviderBase {
+  MyUserDriftProvider(super.database);
 
-  /// [StreamController] emitting [DtoUser]s in [watch].
-  final Map<UserId, StreamController<DtoUser?>> _controllers = {};
+  /// [StreamController] emitting [DtoMyUser]s in [watch].
+  final Map<UserId, StreamController<DtoMyUser?>> _controllers = {};
 
-  /// [DtoUser]s that have started the [upsert]ing, but not yet finished it.
-  final Map<UserId, DtoUser> _cache = {};
+  /// [DtoMyUser]s that have started the [upsert]ing, but not yet finished it.
+  final Map<UserId, DtoMyUser> _cache = {};
 
   /// Creates or updates the provided [user] in the database.
-  Future<DtoUser> upsert(DtoUser user) async {
+  Future<DtoMyUser> upsert(DtoMyUser user) async {
     _cache[user.id] = user;
 
     final result = await safe((db) async {
-      final DtoUser stored = UserDb.fromDb(
-        await db.into(db.users).insertReturning(
+      final DtoMyUser stored = _MyUserDb.fromDb(
+        await db.into(db.myUsers).insertReturning(
               user.toDb(),
               onConflict: DoUpdate((_) => user.toDb()),
             ),
@@ -84,136 +86,166 @@ class UserDriftProvider extends DriftProviderBase {
       return stored;
     });
 
-    _cache.remove(user.id);
-
     return result ?? user;
   }
 
-  /// Returns the [DtoUser] stored in the database by the provided [id], if
+  /// Returns the [DtoMyUser] stored in the database by the provided [id], if
   /// any.
-  Future<DtoUser?> read(UserId id) async {
-    final DtoUser? existing = _cache[id];
+  Future<DtoMyUser?> read(UserId id) async {
+    final DtoMyUser? existing = _cache[id];
     if (existing != null) {
       return existing;
     }
 
-    return await safe<DtoUser?>((db) async {
-      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
-      final UserRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoMyUser?>((db) async {
+      final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
+      final MyUserRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
         return null;
       }
 
-      return UserDb.fromDb(row);
+      return _MyUserDb.fromDb(row);
     });
   }
 
-  /// Deletes the [DtoUser] identified by the provided [id] from the database.
+  /// Deletes the [DtoMyUser] identified by the provided [id] from the database.
   Future<void> delete(UserId id) async {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
+      final stmt = db.delete(db.myUsers)..where((e) => e.id.equals(id.val));
       await stmt.go();
 
       _controllers[id]?.add(null);
     });
   }
 
-  /// Deletes all the [DtoUser]s stored in the database.
+  /// Deletes all the [DtoMyUser]s stored in the database.
   Future<void> clear() async {
     _cache.clear();
 
     await safe((db) async {
-      await db.delete(db.users).go();
+      await db.delete(db.myUsers).go();
     });
   }
 
-  /// Returns the [Stream] of real-time changes happening with the [DtoUser]
-  /// identified by the provided [id].
-  Stream<DtoUser?> watch(UserId id) {
+  /// Returns all the [DtoMyUser]s.
+  Future<List<DtoMyUser>> accounts({int? limit}) async {
+    if (db == null) {
+      return [];
+    }
+
+    final stmt = db!.select(db!.myUsers);
+    stmt.orderBy([(u) => OrderingTerm.desc(db!.myUsers.lastSeenAt)]);
+
+    if (limit != null) {
+      stmt.limit(limit);
+    }
+
+    return (await stmt.get()).map((row) => _MyUserDb.fromDb(row)).toList();
+  }
+
+  /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]s.
+  Stream<List<MapChangeNotification<UserId, DtoMyUser>>> watch() {
     if (db == null) {
       return const Stream.empty();
     }
 
-    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
+    return db!
+        .select(db!.myUsers)
+        .watch()
+        .map((items) => {for (var e in items.map(_MyUserDb.fromDb)) e.id: e})
+        .changes();
+  }
 
-    StreamController<DtoUser?>? controller = _controllers[id];
+  /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]
+  /// identified by the provided [id].
+  Stream<DtoMyUser?> watchSingle(UserId id) {
+    if (db == null) {
+      return const Stream.empty();
+    }
+
+    final stmt = db!.select(db!.myUsers)..where((u) => u.id.equals(id.val));
+
+    StreamController<DtoMyUser?>? controller = _controllers[id];
     if (controller == null) {
-      controller = StreamController<DtoUser?>.broadcast(sync: true);
+      controller = StreamController<DtoMyUser?>.broadcast(sync: true);
       _controllers[id] = controller;
     }
 
     return StreamGroup.merge(
       [
         controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
+        stmt.watch().map((e) => e.isEmpty ? null : _MyUserDb.fromDb(e.first)),
       ],
     );
   }
 }
 
-/// Extension adding conversion methods from [UserRow] to [DtoUser].
-extension UserDb on DtoUser {
-  /// Constructs a [DtoUser] from the provided [UserRow].
-  static DtoUser fromDb(UserRow e) {
-    return DtoUser(
-      User(
-        UserId(e.id),
-        UserNum(e.num),
+/// Extension adding conversion methods from [UserRow] to [DtoMyUser].
+extension _MyUserDb on DtoMyUser {
+  /// Constructs a [DtoMyUser] from the provided [UserRow].
+  static DtoMyUser fromDb(MyUserRow e) {
+    return DtoMyUser(
+      MyUser(
+        id: UserId(e.id),
+        num: UserNum(e.num),
+        login: e.login == null ? null : UserLogin(e.login!),
         name: e.name == null ? null : UserName(e.name!),
         bio: e.bio == null ? null : UserBio(e.bio!),
+        hasPassword: e.hasPassword,
+        emails: MyUserEmails.fromJson(jsonDecode(e.emails)),
+        phones: MyUserPhones.fromJson(jsonDecode(e.phones)),
+        chatDirectLink: e.chatDirectLink == null
+            ? null
+            : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
+        unreadChatsCount: e.unreadChatsCount,
+        status: e.status == null ? null : UserTextStatus(e.status!),
         avatar: e.avatar == null
             ? null
             : UserAvatar.fromJson(jsonDecode(e.avatar!)),
         callCover: e.callCover == null
             ? null
             : UserCallCover.fromJson(jsonDecode(e.callCover!)),
-        mutualContactsCount: e.mutualContactsCount,
-        online: e.online,
         presenceIndex: e.presenceIndex,
-        status: e.status == null ? null : UserTextStatus(e.status!),
-        isDeleted: e.isDeleted,
-        dialog: e.dialog == null ? null : ChatId(e.dialog!),
-        isBlocked: e.isBlocked == null
+        online: e.online,
+        muted: e.muted == null
             ? null
-            : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
+            : MuteDuration.fromJson(jsonDecode(e.muted!)),
+        blocklistCount: e.blocklistCount,
         lastSeenAt: e.lastSeenAt,
-        contacts: (jsonDecode(e.contacts) as List)
-            .map((e) => NestedChatContact.fromJson(e))
-            .cast<NestedChatContact>()
-            .toList(),
       ),
-      UserVersion(e.ver),
-      MyUserVersion(e.blockedVer),
+      MyUserVersion(e.ver),
     );
   }
 
-  /// Constructs a [UserRow] from this [DtoUser].
-  UserRow toDb() {
-    return UserRow(
+  /// Constructs a [MyUserRow] from this [DtoMyUser].
+  MyUserRow toDb() {
+    return MyUserRow(
       id: value.id.val,
       num: value.num.val,
+      login: value.login?.val,
       name: value.name?.val,
       bio: value.bio?.val,
+      hasPassword: value.hasPassword,
+      emails: jsonEncode(value.emails.toJson()),
+      phones: jsonEncode(value.phones.toJson()),
+      chatDirectLink: value.chatDirectLink == null
+          ? null
+          : jsonEncode(value.chatDirectLink?.toJson()),
+      unreadChatsCount: value.unreadChatsCount,
+      status: value.status == null ? null : jsonEncode(value.status?.toJson()),
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
       callCover: value.callCover == null
           ? null
           : jsonEncode(value.callCover?.toJson()),
-      mutualContactsCount: value.mutualContactsCount,
-      online: value.online,
       presenceIndex: value.presenceIndex,
-      status: value.status?.val,
-      isDeleted: value.isDeleted,
-      dialog: value.dialog.val,
-      isBlocked: value.isBlocked == null
-          ? null
-          : jsonEncode(value.isBlocked?.toJson()),
+      online: value.online,
+      muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
+      blocklistCount: value.blocklistCount,
       lastSeenAt: value.lastSeenAt,
-      contacts: jsonEncode(value.contacts.map((e) => e.toJson()).toList()),
       ver: ver.val,
-      blockedVer: blockedVer.val,
     );
   }
 }

@@ -42,8 +42,8 @@ class ChatMembers extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [DtoChatMember]s.
-class ChatMemberDriftProvider extends DriftProviderBase {
-  ChatMemberDriftProvider(super.database);
+class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
+  ChatMemberDriftProvider(super.common, super.scoped);
 
   /// Creates or updates the provided [members] in the database.
   Future<Iterable<DtoChatMember>> upsertBulk(
@@ -111,16 +111,19 @@ class ChatMemberDriftProvider extends DriftProviderBase {
 
   /// Returns the [DtoChatMember]s of the provided [chatId].
   Future<List<DtoChatMember>> members(ChatId chatId, {int? limit}) async {
-    if (db == null) {
+    if (scoped == null) {
       return [];
     }
 
-    final stmt = db!.select(db!.chatMembers).join([
-      innerJoin(db!.users, db!.users.id.equalsExp(db!.chatMembers.userId)),
+    final stmt = scoped!.select(scoped!.chatMembers).join([
+      innerJoin(
+        scoped!.users,
+        scoped!.users.id.equalsExp(scoped!.chatMembers.userId),
+      ),
     ]);
 
-    stmt.where(db!.chatMembers.chatId.equals(chatId.val));
-    stmt.orderBy([OrderingTerm.desc(db!.chatMembers.joinedAt)]);
+    stmt.where(scoped!.chatMembers.chatId.equals(chatId.val));
+    stmt.orderBy([OrderingTerm.desc(scoped!.chatMembers.joinedAt)]);
 
     if (limit != null) {
       stmt.limit(limit);
@@ -129,8 +132,8 @@ class ChatMemberDriftProvider extends DriftProviderBase {
     return (await stmt.get())
         .map(
           (rows) => _ChatMemberDb.fromDb(
-            rows.readTable(db!.chatMembers),
-            rows.readTableOrNull(db!.users),
+            rows.readTable(scoped!.chatMembers),
+            rows.readTableOrNull(scoped!.users),
           ),
         )
         .toList();
