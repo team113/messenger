@@ -41,6 +41,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -60,7 +61,6 @@ import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
@@ -249,7 +249,7 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((realInvocation) => const Stream.empty());
+      .thenAnswer((_) async => const Stream.empty());
 
   when(graphQlProvider.getBlocklist(
     first: anyNamed('first'),
@@ -307,9 +307,10 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -329,9 +330,6 @@ void main() async {
   await chatCredentialsProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -483,7 +481,7 @@ void main() async {
     );
     expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
-    await database.close();
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
 }

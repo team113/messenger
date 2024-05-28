@@ -71,7 +71,7 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,

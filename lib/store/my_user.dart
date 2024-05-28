@@ -636,7 +636,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     final UserId? id = _accountLocal.userId;
     if (id == null) {
-      Log.warning(
+      Log.debug(
         'Unexpected `null` when getting `_accountLocal.userId` for `_initLocalSubscription`',
         '$runtimeType',
       );

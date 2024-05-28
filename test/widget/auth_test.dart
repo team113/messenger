@@ -32,6 +32,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -47,7 +48,6 @@ import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
@@ -82,15 +82,13 @@ void main() async {
 
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   final graphQlProvider = _FakeGraphQlProvider();
 
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
-  final userProvider = UserDriftProvider(database);
+  final userProvider = UserDriftProvider(common, scoped);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();
@@ -202,6 +200,7 @@ void main() async {
 
     verify(router.go(Routes.home));
 
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
 

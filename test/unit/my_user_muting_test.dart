@@ -78,7 +78,7 @@ void main() async {
 
   test('MyUserService successfully mutes and unmutes MyUser', () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -161,7 +161,7 @@ void main() async {
   test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,

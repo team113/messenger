@@ -26,13 +26,13 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
@@ -65,11 +65,10 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
-  final userProvider = UserDriftProvider(database);
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
 
@@ -167,8 +166,7 @@ void main() async {
           ConfirmationCode('1234'), UserPassword('test123')),
     ]);
 
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
-
-  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
