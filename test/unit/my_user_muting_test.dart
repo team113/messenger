@@ -20,6 +20,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -46,6 +47,7 @@ import 'my_user_muting_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   final DriftProvider database = DriftProvider.memory();
+  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/my_user_muting_unit');
 
@@ -59,7 +61,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  final userProvider = UserDriftProvider(database);
+  final userProvider = Get.put(UserDriftProvider(database, me));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();

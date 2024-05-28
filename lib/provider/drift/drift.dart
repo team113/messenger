@@ -39,13 +39,13 @@ part 'drift.g.dart';
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
-        'WHERE chat_item_views.chat_id = :chat_id AND at <= :at '
+        'WHERE chat_item_views.chat_id = :chat_id AND at <= :at AND chat_item_views.me = :me '
         'ORDER BY at DESC LIMIT :before + 1) as a '
         'UNION '
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
-        'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
+        'WHERE chat_item_views.chat_id = :chat_id AND at > :at AND chat_item_views.me = :me '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
   },
@@ -54,7 +54,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration {

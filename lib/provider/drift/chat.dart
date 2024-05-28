@@ -35,11 +35,13 @@ import 'common.dart';
 import 'drift.dart';
 
 /// [Chat] to be stored in a [Table].
+@TableIndex(name: 'chat_me_index', columns: {#me})
 @DataClassName('ChatRow')
 class Chats extends Table {
   @override
-  Set<Column> get primaryKey => {id};
+  Set<Column> get primaryKey => {me, id};
 
+  TextColumn get me => text()();
   TextColumn get id => text()();
   TextColumn get avatar => text().nullable()();
   TextColumn get name => text().nullable()();
@@ -76,10 +78,10 @@ class Chats extends Table {
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
 class ChatDriftProvider extends DriftProviderBase {
-  ChatDriftProvider(super.database, {this.me});
+  ChatDriftProvider(super.database, this.me);
 
   /// [UserId] to retrieve [Chat]s for.
-  final UserId? me;
+  final UserId me;
 
   /// [StreamController] emitting [DtoChat]s in [watch].
   final Map<ChatId, StreamController<DtoChat?>> _controllers = {};
@@ -94,7 +96,7 @@ class ChatDriftProvider extends DriftProviderBase {
     _cache[chat.id] = chat;
 
     final result = await safe((db) async {
-      final ChatRow row = chat.toDb();
+      final ChatRow row = chat.toDb(me);
       final DtoChat stored = _ChatDb.fromDb(
         await db
             .into(db.chats)
@@ -122,7 +124,7 @@ class ChatDriftProvider extends DriftProviderBase {
 
       await db.batch((batch) {
         for (var item in items) {
-          final ChatRow row = item.toDb();
+          final ChatRow row = item.toDb(me);
           batch.insert(db.chats, row, mode: InsertMode.insertOrReplace);
         }
       });
@@ -146,7 +148,8 @@ class ChatDriftProvider extends DriftProviderBase {
     }
 
     return await safe<DtoChat?>((db) async {
-      final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
+      final stmt = db.select(db.chats)
+        ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
       final ChatRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
@@ -162,7 +165,8 @@ class ChatDriftProvider extends DriftProviderBase {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
+      final stmt = db.delete(db.chats)
+        ..where((e) => e.id.equals(id.val) & e.me.equals(me.val));
       await stmt.goAndReturn();
 
       _controllers[id]?.add(null);
@@ -174,7 +178,8 @@ class ChatDriftProvider extends DriftProviderBase {
     _cache.clear();
 
     await safe((db) async {
-      await db.delete(db.chats).go();
+      final stmt = db.delete(db.chats)..where((u) => u.me.equals(me.val));
+      await stmt.go();
     });
   }
 
@@ -186,7 +191,12 @@ class ChatDriftProvider extends DriftProviderBase {
 
     final stmt = db!.select(db!.chats);
 
-    stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
+    stmt.where(
+      (u) =>
+          u.isHidden.equals(false) &
+          u.id.like('local_%').not() &
+          u.me.equals(me.val),
+    );
     stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
     if (limit != null) {
@@ -208,7 +218,8 @@ class ChatDriftProvider extends DriftProviderBase {
       (u) =>
           u.isHidden.equals(false) &
           u.favoritePosition.isNotNull() &
-          u.id.like('local_%').not(),
+          u.id.like('local_%').not() &
+          u.me.equals(me.val),
     );
     stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
 
@@ -226,7 +237,8 @@ class ChatDriftProvider extends DriftProviderBase {
       return const Stream.empty();
     }
 
-    final stmt = db!.select(db!.chats)..where((u) => u.id.equals(id.val));
+    final stmt = db!.select(db!.chats)
+      ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
 
     StreamController<DtoChat?>? controller = _controllers[id];
     if (controller == null) {
@@ -309,8 +321,9 @@ extension _ChatDb on DtoChat {
   }
 
   /// Constructs a [ChatRow] from this [DtoChat].
-  ChatRow toDb() {
+  ChatRow toDb(UserId me) {
     return ChatRow(
+      me: me.val,
       id: value.id.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
       name: value.name?.val,

@@ -72,6 +72,7 @@ void main() async {
   await L10n.init();
 
   final DriftProvider database = DriftProvider.memory();
+  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/auth_widget');
 
@@ -89,7 +90,7 @@ void main() async {
 
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
-  final userProvider = UserDriftProvider(database);
+  final userProvider = Get.put(UserDriftProvider(database, me));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();

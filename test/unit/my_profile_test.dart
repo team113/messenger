@@ -21,6 +21,7 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -41,12 +42,13 @@ import '../mock/graphql_provider.dart';
 
 void main() async {
   final DriftProvider database = DriftProvider.memory();
+  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/profile_unit');
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  final userProvider = UserDriftProvider(database);
+  final userProvider = Get.put(UserDriftProvider(database, me));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();

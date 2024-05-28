@@ -52,6 +52,7 @@ void main() async {
   Config.disableInfiniteAnimations = true;
 
   final DriftProvider database = DriftProvider.memory();
+  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/password_recovery');
 
@@ -68,7 +69,7 @@ void main() async {
   await myUserProvider.init();
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
-  final userProvider = UserDriftProvider(database);
+  final userProvider = Get.put(UserDriftProvider(database, me));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
 

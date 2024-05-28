@@ -60,6 +60,7 @@ void main() async {
   setUp(Get.reset);
 
   final DriftProvider database = DriftProvider.memory();
+  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/toggle_chat_mute');
 
@@ -69,10 +70,10 @@ void main() async {
   await myUserProvider.init();
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  final userProvider = Get.put(UserDriftProvider(database));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
-  final chatProvider = Get.put(ChatDriftProvider(database));
+  final userProvider = Get.put(UserDriftProvider(database, me));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
+  final chatProvider = Get.put(ChatDriftProvider(database, me));
   final callCredentialsProvider = Get.put(CallCredentialsHiveProvider());
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();

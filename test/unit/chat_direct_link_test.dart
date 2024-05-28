@@ -132,6 +132,7 @@ void main() async {
     );
 
     final database = Get.put(DriftProvider.memory());
+    const me = UserId('me');
 
     Hive.init('./test/.temp_hive/chat_direct_link_unit');
     await Get.put(CredentialsHiveProvider()).init();
@@ -139,10 +140,10 @@ void main() async {
     await myUserProvider.init();
     await myUserProvider.clear();
     await Get.put(DraftHiveProvider()).init();
-    final userProvider = Get.put(UserDriftProvider(database));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
-    final chatProvider = Get.put(ChatDriftProvider(database));
+    final userProvider = Get.put(UserDriftProvider(database, me));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
+    final chatProvider = Get.put(ChatDriftProvider(database, me));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
     await Get.put(MediaSettingsHiveProvider()).init();
