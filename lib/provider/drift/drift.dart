@@ -247,7 +247,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   }
 }
 
-/// [DriftProvider] with common helper and utility methods over it.
+/// [CommonDriftProvider] with common helper and utility methods over it.
 abstract class DriftProviderBase {
   const DriftProviderBase(this._provider);
 
@@ -267,7 +267,7 @@ abstract class DriftProviderBase {
   /// Runs the [callback] through a non-closed [CommonDatabase], or returns
   /// `null`.
   ///
-  /// [AppDatabase] may be closed, for example, between E2E tests.
+  /// [CommonDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(CommonDatabase db) callback) async {
     if (db == null) {
       return null;
@@ -277,6 +277,7 @@ abstract class DriftProviderBase {
   }
 }
 
+/// [ScopedDriftProvider] with common helper and utility methods over it.
 abstract class DriftProviderBaseWithScope {
   const DriftProviderBaseWithScope(this._common, this._scoped);
 
@@ -301,10 +302,10 @@ abstract class DriftProviderBaseWithScope {
     await scoped?.transaction(action);
   }
 
-  /// Runs the [callback] through a non-closed [CommonDatabase], or returns
+  /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
   /// `null`.
   ///
-  /// [AppDatabase] may be closed, for example, between E2E tests.
+  /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
     if (scoped == null) {
       return null;

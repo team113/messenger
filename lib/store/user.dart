@@ -71,7 +71,7 @@ class UserRepository extends DisposableInterface
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [User]s local [DriftProvider] storage.
+  /// [User]s local storage.
   final UserDriftProvider _userLocal;
 
   /// [Mutex]es guarding access to the [get] method.
@@ -234,7 +234,7 @@ class UserRepository extends DisposableInterface
     }
   }
 
-  /// Puts the provided [user] into the local [DriftProvider] storage.
+  /// Puts the provided [user] into the local storage.
   Future<void> put(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
@@ -372,7 +372,7 @@ class UserRepository extends DisposableInterface
     });
   }
 
-  /// Puts the provided [user] to [DriftProvider].
+  /// Puts the provided [user] to local storage.
   Future<void> _putUser(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('_putUser($user, $ignoreVersion)', '$runtimeType');
 
