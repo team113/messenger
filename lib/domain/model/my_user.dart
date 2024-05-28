@@ -17,6 +17,7 @@
 
 import 'package:get/get_utils/get_utils.dart';
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/api/backend/schema.dart';
 import '/domain/model/avatar.dart';
@@ -30,6 +31,7 @@ import 'user.dart';
 part 'my_user.g.dart';
 
 /// `User` of an application being currently signed-in.
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.myUser)
 class MyUser extends HiveObject {
   MyUser({
@@ -52,6 +54,9 @@ class MyUser extends HiveObject {
     this.blocklistCount,
     this.lastSeenAt,
   });
+
+  /// Constructs a [MyUser] from the provided [json].
+  factory MyUser.fromJson(Map<String, dynamic> json) => _$MyUserFromJson(json);
 
   /// Unique ID of this [MyUser].
   ///
@@ -180,6 +185,9 @@ class MyUser extends HiveObject {
         blocklistCount: blocklistCount,
         lastSeenAt: lastSeenAt,
       );
+
+  /// Returns a [Map] representing this [MyUser].
+  Map<String, dynamic> toJson() => _$MyUserToJson(this);
 }
 
 /// List of [UserPhone]s associated with [MyUser].
@@ -189,6 +197,10 @@ class MyUserPhones {
     required this.confirmed,
     this.unconfirmed,
   });
+
+  /// Constructs the [MyUserPhones] from the provided [json].
+  factory MyUserPhones.fromJson(Map<String, dynamic> json) =>
+      _$MyUserPhonesFromJson(json);
 
   /// List of already confirmed phone numbers.
   ///
@@ -210,15 +222,23 @@ class MyUserPhones {
   /// Returns a copy of these [MyUserPhones].
   MyUserPhones copyWith() =>
       MyUserPhones(confirmed: confirmed, unconfirmed: unconfirmed);
+
+  /// Returns a [Map] representing these [MyUserPhones].
+  Map<String, dynamic> toJson() => _$MyUserPhonesToJson(this);
 }
 
 /// List of [UserEmail]s associated with [MyUser].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.myUserEmails)
 class MyUserEmails {
   MyUserEmails({
     required this.confirmed,
     this.unconfirmed,
   });
+
+  /// Constructs the [MyUserEmails] from the provided [json].
+  factory MyUserEmails.fromJson(Map<String, dynamic> json) =>
+      _$MyUserEmailsFromJson(json);
 
   /// List of already confirmed email addresses.
   ///
@@ -240,6 +260,9 @@ class MyUserEmails {
   /// Returns a copy of these [MyUserEmails].
   MyUserEmails copyWith() =>
       MyUserEmails(confirmed: confirmed, unconfirmed: unconfirmed);
+
+  /// Returns a [Map] representing these [MyUserEmails].
+  Map<String, dynamic> toJson() => _$MyUserEmailsToJson(this);
 }
 
 /// Confirmation code used by [MyUser].
@@ -257,6 +280,9 @@ class ConfirmationCode extends NewType<String> {
   /// Creates an object without any validation.
   const factory ConfirmationCode.unchecked(String val) = ConfirmationCode._;
 
+  /// Constructs a [ConfirmationCode] from the provided [val].
+  factory ConfirmationCode.fromJson(String val) = ConfirmationCode.unchecked;
+
   /// Parses the provided [val] as a [ConfirmationCode], if [val] meets the
   /// validation, or returns `null` otherwise.
   static ConfirmationCode? tryParse(String val) {
@@ -266,4 +292,7 @@ class ConfirmationCode extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [ConfirmationCode].
+  String toJson() => val;
 }
