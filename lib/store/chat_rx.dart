@@ -1515,20 +1515,11 @@ class RxChatImpl extends RxChat {
 
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
-          if (chatEntity == null ||
-              versioned.ver < chatEntity.ver ||
-              !subscribed) {
+          if (chatEntity == null || versioned.ver < ver || !subscribed) {
             Log.debug(
               '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
               '$runtimeType($id)',
             );
-
-            // Be sure to keep the [chat] up to date with the [chatEntity], when
-            // in [WebUtils.isPopup], as in such cases local Hive subscriptions
-            // might not work due to Hive restrictions in multiple Web tabs.
-            if (WebUtils.isPopup) {
-              chat.value = chatEntity?.value ?? chat.value;
-            }
 
             return;
           }
@@ -1538,14 +1529,9 @@ class RxChatImpl extends RxChat {
             '$runtimeType($id)',
           );
 
-          chatEntity.ver = versioned.ver;
-
-          // Use the [chat] value instead of [chatEntity], when in
-          // [WebUtils.isPopup], as in such cases we can't rely on [Hive] having
-          // actual data (especially when multiple events are received one after
-          // another).
-          if (WebUtils.isPopup) {
-            chatEntity.value = chat.value;
+          ver = versioned.ver;
+          if (chatEntity.ver < versioned.ver) {
+            chatEntity.ver = versioned.ver;
           }
 
           bool shouldPutChat = subscribed;
@@ -1569,12 +1555,12 @@ class RxChatImpl extends RxChat {
                 chatEntity.lastItemCursor = null;
                 chatEntity.lastReadItemCursor = null;
                 _lastReadItemCursor = null;
-                await clear();
+                clear();
                 break;
 
               case ChatEventKind.itemHidden:
                 event as EventChatItemHidden;
-                await remove(event.itemId);
+                remove(event.itemId);
                 break;
 
               case ChatEventKind.muted:
@@ -1606,7 +1592,7 @@ class RxChatImpl extends RxChat {
 
               case ChatEventKind.itemDeleted:
                 event as EventChatItemDeleted;
-                await remove(event.itemId);
+                remove(event.itemId);
                 break;
 
               case ChatEventKind.itemEdited:
@@ -1762,7 +1748,7 @@ class RxChatImpl extends RxChat {
                 chatEntity.value.updatedAt =
                     event.lastItem?.value.at ?? chatEntity.value.updatedAt;
                 if (event.lastItem != null) {
-                  await put(event.lastItem!);
+                  put(event.lastItem!);
                 }
                 break;
 
