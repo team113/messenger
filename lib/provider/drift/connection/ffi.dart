@@ -24,11 +24,15 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
+import '/domain/model/user.dart';
+
 /// Obtains a database connection for running `drift` in a Dart VM.
-QueryExecutor connect() {
+QueryExecutor connect([UserId? userId]) {
   return LazyDatabase(() async {
     final Directory dbFolder = await getApplicationDocumentsDirectory();
-    final File file = File(p.join(dbFolder.path, 'db.sqlite'));
+    final File file = File(
+      p.join(dbFolder.path, '${userId?.val ?? 'common'}.sqlite'),
+    );
 
     // Workaround limitations on old Android versions.
     if (Platform.isAndroid) {

@@ -44,6 +44,7 @@ import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
+import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
@@ -657,6 +658,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectHiveProvider()).init(userId: me),
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
+
+            deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
 
             deps.put(UserDriftProvider(Get.find()));
             deps.put(ChatItemDriftProvider(Get.find()));

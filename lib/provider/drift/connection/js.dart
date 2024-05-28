@@ -20,15 +20,18 @@ import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 import 'package:log_me/log_me.dart';
 
+import '/domain/model/user.dart';
 import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
-QueryExecutor connect() {
+QueryExecutor connect([UserId? userId]) {
   return DatabaseConnection.delayed(Future(() async {
+    final String dbName = userId?.val ?? 'common';
+
     // TODO: Uncomment, when [WasmStorageImplementation.opfsLocks] doesn't throw
     //       file I/O errors in Chromium browsers.
     // final result = await WasmDatabase.open(
-    //   databaseName: 'drift',
+    //   databaseName: dbName,
     //   sqlite3Uri: Uri.parse('sqlite3.wasm'),
     //   driftWorkerUri: Uri.parse('drift_worker.js'),
     // );
@@ -46,7 +49,7 @@ QueryExecutor connect() {
     final WasmProbeResult probed = await WasmDatabase.probe(
       sqlite3Uri: Uri.parse('sqlite3.wasm'),
       driftWorkerUri: Uri.parse('drift_worker.js'),
-      databaseName: 'drift',
+      databaseName: dbName,
     );
 
     final List<WasmStorageImplementation> available =
@@ -58,7 +61,7 @@ QueryExecutor connect() {
 
     checkExisting:
     for (final (location, name) in probed.existingDatabases) {
-      if (name == 'drift') {
+      if (name == dbName) {
         final implementationsForStorage = switch (location) {
           WebStorageApi.indexedDb => const [
               WasmStorageImplementation.sharedIndexedDb,
@@ -84,7 +87,7 @@ QueryExecutor connect() {
     available.sortBy<num>((element) => element.index);
 
     final best = available.firstOrNull ?? WasmStorageImplementation.inMemory;
-    final DatabaseConnection connection = await probed.open(best, 'drift');
+    final DatabaseConnection connection = await probed.open(best, dbName);
 
     Log.info('Using $best for `drift` backend.');
 

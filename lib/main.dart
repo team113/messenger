@@ -97,8 +97,8 @@ Future<void> main() async {
     WebUtils.setPathUrlStrategy();
 
     Get.put(
-      DriftProvider.from(
-        Get.putOrGet(() => AppDatabase(), permanent: true),
+      CommonDriftProvider.from(
+        Get.putOrGet(() => CommonDatabase(), permanent: true),
       ),
     );
 
