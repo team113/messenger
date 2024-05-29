@@ -60,6 +60,9 @@ class CommonDatabase extends _$CommonDatabase {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
         await customStatement('PRAGMA foreign_keys = ON;');
+
+        // Note, that WAL doesn't work in Web:
+        // https://github.com/simolus3/sqlite3.dart/issues/200
         await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
@@ -134,6 +137,9 @@ class ScopedDatabase extends _$ScopedDatabase {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
         await customStatement('PRAGMA foreign_keys = ON;');
+
+        // Note, that WAL doesn't work in Web:
+        // https://github.com/simolus3/sqlite3.dart/issues/200
         await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
