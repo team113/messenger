@@ -71,8 +71,7 @@ class AuthRepository extends DisposableInterface
   Credentials? _signUpCredentials;
 
   // TODO: Temporary solution, wait for support from backend.
-  /// [DtoMyUser] created with [signUpWithEmail] and put to [Hive] in
-  /// successful [confirmSignUpEmail].
+  /// [DtoMyUser] created with [signUpWithEmail].
   DtoMyUser? _signedUpUser;
 
   /// [StreamSubscription] for the [MyUserHiveProvider.boxEvents].
@@ -98,8 +97,6 @@ class AuthRepository extends DisposableInterface
 
   @override
   void onInit() {
-    // profiles.addAll(_myUserProvider.accounts.map((e) => e.value).toList());
-
     _profilesSubscription = _myUserProvider.watch().listen((ops) {
       for (var e in ops) {
         switch (e.op) {

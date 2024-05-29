@@ -76,6 +76,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
+  /// Local storage of the [MyUser]s.
   final MyUserDriftProvider _driftMyUser;
 
   /// [Hive] storage providing the [UserId] of the currently active [MyUser].
@@ -87,6 +88,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
 
+  /// [MyUserDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
 
   /// [_myUserRemoteEvents] subscription.
@@ -108,7 +110,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [EventPool] debouncing [MyUserField] related [MyUserEvent]s handling.
   final EventPool<MyUserField> _pool = EventPool();
 
-  /// Returns the currently active [DtoMyUser] from [Hive].
+  /// Returns the currently active [DtoMyUser] from the storage.
   Future<DtoMyUser?> get _active async {
     final UserId? userId = _accountLocal.userId;
     final DtoMyUser? saved =
@@ -127,7 +129,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser.value = (await _active)?.value;
+    _active.then((v) => myUser.value = v?.value ?? myUser.value);
 
     _initProfiles();
     _initLocalSubscription();
@@ -757,14 +759,16 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _setMyUser(DtoMyUser user, {bool ignoreVersion = false}) async {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
-    // Update the stored [MyUser], if the provided [user] has non-`null`
-    // blocklist count, which is different from the stored one.
-    final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != (await _active)?.value.blocklistCount;
-
-    if (user.ver >= (await _active)?.ver || blocklist || ignoreVersion) {
+    if (ignoreVersion || user.ver >= (await _active)?.ver) {
       user.value.blocklistCount ??= (await _active)?.value.blocklistCount;
-      _driftMyUser.upsert(user);
+      await _driftMyUser.upsert(user);
+    } else {
+      // Update the stored [MyUser], if the provided [user] has non-`null`
+      // blocklist count, which is different from the stored one.
+      if (user.value.blocklistCount != null &&
+          user.value.blocklistCount != (await _active)?.value.blocklistCount) {
+        await _driftMyUser.upsert(user);
+      }
     }
   }
 

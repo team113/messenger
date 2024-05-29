@@ -59,11 +59,11 @@ class MyUsers extends Table {
   TextColumn get ver => text()();
 }
 
-/// [DriftProviderBase] for manipulating the persisted [User]s.
+/// [DriftProviderBase] for manipulating the persisted [MyUser]s.
 class MyUserDriftProvider extends DriftProviderBase {
   MyUserDriftProvider(super.database);
 
-  /// [StreamController] emitting [DtoMyUser]s in [watch].
+  /// [StreamController] emitting [DtoMyUser]s in [watchSingle].
   final Map<UserId, StreamController<DtoMyUser?>> _controllers = {};
 
   /// [DtoMyUser]s that have started the [upsert]ing, but not yet finished it.
@@ -182,9 +182,9 @@ class MyUserDriftProvider extends DriftProviderBase {
   }
 }
 
-/// Extension adding conversion methods from [UserRow] to [DtoMyUser].
+/// Extension adding conversion methods from [MyUserRow] to [DtoMyUser].
 extension _MyUserDb on DtoMyUser {
-  /// Constructs a [DtoMyUser] from the provided [UserRow].
+  /// Constructs a [DtoMyUser] from the provided [MyUserRow].
   static DtoMyUser fromDb(MyUserRow e) {
     return DtoMyUser(
       MyUser(

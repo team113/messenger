@@ -34,7 +34,7 @@ class MuteDuration {
   factory MuteDuration.until(PreciseDateTime until) =>
       MuteDuration(until: until);
 
-  /// Constructs a [User] from the provided [json].
+  /// Constructs a [MuteDuration] from the provided [json].
   factory MuteDuration.fromJson(Map<String, dynamic> json) =>
       _$MuteDurationFromJson(json);
 

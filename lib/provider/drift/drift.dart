@@ -32,7 +32,7 @@ import 'user.dart';
 
 part 'drift.g.dart';
 
-/// [DriftDatabase] storing data locally.
+/// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
 @DriftDatabase(tables: [MyUsers])
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
@@ -86,7 +86,7 @@ class CommonDatabase extends _$CommonDatabase {
   }
 }
 
-/// [DriftDatabase] storing data locally.
+/// [DriftDatabase] storing [MyUser] scoped data.
 @DriftDatabase(
   tables: [Users, ChatItems, ChatItemViews, ChatMembers],
   queries: {
@@ -259,7 +259,7 @@ abstract class DriftProviderBase {
   /// `null` here means the database is closed.
   CommonDatabase? get db => _provider.db;
 
-  /// Completes the provided [action] as a transaction.
+  /// Completes the provided [action] as a [db] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await db?.transaction(action);
   }
@@ -297,7 +297,7 @@ abstract class DriftProviderBaseWithScope {
   /// `null` here means the database is closed.
   ScopedDatabase? get scoped => _scoped.db;
 
-  /// Completes the provided [action] as a transaction.
+  /// Completes the provided [action] as a [scoped] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await scoped?.transaction(action);
   }
