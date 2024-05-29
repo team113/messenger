@@ -21,7 +21,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/provider/hive/blocklist.dart';
-import '/provider/hive/my_user.dart';
 import '/store/model/my_user.dart';
 import 'user.dart';
 
@@ -65,18 +64,18 @@ extension MyUserConversion on MyUserMixin {
             : null,
       );
 
-  /// Constructs a new [HiveMyUser] from this [MyUserMixin].
-  HiveMyUser toHive() => HiveMyUser(toModel(), ver);
+  /// Constructs a new [DtoMyUser] from this [MyUserMixin].
+  DtoMyUser toDto() => DtoMyUser(toModel(), ver);
 }
 
 /// Extension adding models construction from a
 /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
 extension MyUserEventsMyUserConversion
     on MyUserEvents$Subscription$MyUserEvents$MyUser {
-  /// Constructs a new [HiveMyUser] from this
+  /// Constructs a new [DtoMyUser] from this
   /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
-  HiveMyUser toHive() =>
-      HiveMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
+  DtoMyUser toDto() =>
+      DtoMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
 }
 
 /// Extension adding models construction from a [BlocklistRecordMixin].

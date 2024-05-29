@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../model_type_id.dart';
 import 'precise_date_time/precise_date_time.dart';
@@ -23,8 +24,20 @@ import 'precise_date_time/precise_date_time.dart';
 part 'mute_duration.g.dart';
 
 /// Mute duration of a [Chat] or [MyUser].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.muteDuration)
 class MuteDuration {
+  MuteDuration({this.until, this.forever});
+
+  factory MuteDuration.forever() => MuteDuration(forever: true);
+
+  factory MuteDuration.until(PreciseDateTime until) =>
+      MuteDuration(until: until);
+
+  /// Constructs a [MuteDuration] from the provided [json].
+  factory MuteDuration.fromJson(Map<String, dynamic> json) =>
+      _$MuteDurationFromJson(json);
+
   /// Mute duration until an exact [PreciseDateTime].
   ///
   /// Once this [PreciseDateTime] pasts (or is in the past already), it should
@@ -36,21 +49,13 @@ class MuteDuration {
   @HiveField(1)
   bool? forever;
 
-  @HiveField(2)
-  MuteDuration({
-    this.until,
-    this.forever,
-  });
-
-  factory MuteDuration.forever() => MuteDuration(forever: true);
-
-  factory MuteDuration.until(PreciseDateTime until) =>
-      MuteDuration(until: until);
-
   @override
   bool operator ==(Object other) =>
       other is MuteDuration && until == other.until && forever == other.forever;
 
   @override
   int get hashCode => Object.hash(until, forever);
+
+  /// Returns a [Map] representing this [MuteDuration].
+  Map<String, dynamic> toJson() => _$MuteDurationToJson(this);
 }

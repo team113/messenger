@@ -31,6 +31,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -43,7 +44,6 @@ import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -63,7 +63,8 @@ import 'chat_reply_message_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_reply_message_unit');
 
@@ -71,8 +72,7 @@ void main() async {
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   var credentialsProvider = Get.put(CredentialsHiveProvider());
@@ -271,9 +271,9 @@ void main() async {
     );
 
     Get.put(chatProvider);
-    final userProvider = UserDriftProvider(database);
-    Get.put(ChatItemDriftProvider(database));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final userProvider = UserDriftProvider(common, scoped);
+    Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -370,9 +370,9 @@ void main() async {
         const PostChatMessageException(PostChatMessageErrorCode.blocked));
 
     Get.put(chatProvider);
-    final userProvider = UserDriftProvider(database);
-    Get.put(ChatItemDriftProvider(database));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final userProvider = UserDriftProvider(common, scoped);
+    Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -439,5 +439,5 @@ void main() async {
     ));
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

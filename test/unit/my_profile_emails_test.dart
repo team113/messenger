@@ -27,13 +27,13 @@ import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/auth.dart';
@@ -47,7 +47,8 @@ import 'my_profile_emails_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/my_profile_emails_unit');
 
@@ -58,10 +59,8 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await credentialsProvider.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
-  final userProvider = UserDriftProvider(database);
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();
@@ -83,7 +82,7 @@ void main() async {
       'MyUserService successfully adds, removes, confirms email and resends confirmation code',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -95,7 +94,7 @@ void main() async {
     );
 
     when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru'))).thenAnswer(
-      (_) => Future.value(AddUserEmail$Mutation.fromJson({
+      (_) async => AddUserEmail$Mutation.fromJson({
         'addUserEmail': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -107,17 +106,17 @@ void main() async {
             }
           ],
           'myUser': myUserData,
-          'ver': '${(myUserProvider.valuesSafe.first.ver.internal)}',
+          'ver': '${((await myUserProvider.accounts()).first.ver.internal)}',
         }
       }).addUserEmail
-          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned),
+          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.resendEmail()).thenAnswer((_) => Future.value());
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.confirmEmailCode(ConfirmationCode('1234'))).thenAnswer(
-      (_) => Future.value(ConfirmUserEmail$Mutation.fromJson({
+      (_) async => ConfirmUserEmail$Mutation.fromJson({
         'confirmUserEmail': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -130,14 +129,14 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
       }).confirmUserEmail
-          as ConfirmUserEmail$Mutation$ConfirmUserEmail$MyUserEventsVersioned),
+          as ConfirmUserEmail$Mutation$ConfirmUserEmail$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.deleteUserEmail(UserEmail('test@mail.ru'))).thenAnswer(
-      (_) => Future.value(DeleteUserEmail$Mutation.fromJson({
+      (_) async => DeleteUserEmail$Mutation.fromJson({
         'deleteUserEmail': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -150,9 +149,9 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
-      }).deleteUserEmail),
+      }).deleteUserEmail,
     );
 
     when(graphQlProvider.getBlocklist(
@@ -217,7 +216,7 @@ void main() async {
       'MyUserService throws AddUserEmailException, ResendUserEmailConfirmationException, ConfirmUserEmailException',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -292,7 +291,7 @@ void main() async {
     ]);
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 final myUserData = {

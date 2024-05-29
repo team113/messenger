@@ -803,7 +803,7 @@ class RxChatImpl extends RxChat {
         // Don't await [put] here, as [get] should react as quick as possible.
         //
         // Also this may cause deadlocks during fetching around a [ChatItem] in
-        // [DriftProvider].
+        // [CommonDriftProvider].
         put(item);
       }
     }

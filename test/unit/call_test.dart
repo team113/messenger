@@ -36,6 +36,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -50,7 +51,6 @@ import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
@@ -63,18 +63,18 @@ import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
 
-late DriftProvider database;
+late CommonDriftProvider common;
+late ScopedDriftProvider scoped;
 
 void main() async {
   setUp(() {
     Get.reset();
-    database = DriftProvider.memory();
+    common = CommonDriftProvider.memory();
+    scoped = ScopedDriftProvider.memory();
   });
 
   Hive.init('./test/.temp_hive/unit_call');
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
   var mediaSettingsProvider = MediaSettingsHiveProvider();
@@ -106,9 +106,10 @@ void main() async {
   await accountProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
-    final userProvider = Get.put(UserDriftProvider(database));
-    Get.put(ChatItemDriftProvider(database));
-    Get.put(ChatMemberDriftProvider(database));
+    final myUserProvider = Get.put(MyUserDriftProvider(common));
+    final userProvider = Get.put(UserDriftProvider(common, scoped));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
 
     accountProvider.set(const UserId('me'));
     credentialsProvider.put(
@@ -186,8 +187,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
-        Get.find(),
-        Get.find(),
+        chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -288,9 +289,10 @@ void main() async {
   });
 
   test('CallService registers and successfully answers the call', () async {
-    final userProvider = Get.put(UserDriftProvider(database));
-    Get.put(ChatItemDriftProvider(database));
-    Get.put(ChatMemberDriftProvider(database));
+    final myUserProvider = Get.put(MyUserDriftProvider(common));
+    final userProvider = Get.put(UserDriftProvider(common, scoped));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -332,8 +334,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
-        Get.find(),
-        Get.find(),
+        chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -379,9 +381,10 @@ void main() async {
   });
 
   test('CallService registers and successfully starts the call', () async {
-    final userProvider = Get.put(UserDriftProvider(database));
-    Get.put(ChatItemDriftProvider(database));
-    Get.put(ChatMemberDriftProvider(database));
+    final myUserProvider = Get.put(MyUserDriftProvider(common));
+    final userProvider = Get.put(UserDriftProvider(common, scoped));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
 
     final graphQlProvider = _FakeGraphQlProvider();
 
@@ -422,8 +425,8 @@ void main() async {
       ChatRepository(
         graphQlProvider,
         chatProvider,
-        Get.find(),
-        Get.find(),
+        chatItemProvider,
+        chatMemberProvider,
         recentChatProvider,
         favoriteChatProvider,
         callRepository,
@@ -523,7 +526,7 @@ void main() async {
     expect(callService.calls.length, 1);
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 class _FakeGraphQlProvider extends MockedGraphQlProvider {
