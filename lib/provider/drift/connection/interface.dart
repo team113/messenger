@@ -17,8 +17,10 @@
 
 import 'package:drift/drift.dart';
 
+import '/domain/model/user.dart';
+
 /// Obtains a database connection for running `drift`.
-QueryExecutor connect() {
+QueryExecutor connect([UserId? userId]) {
   throw UnsupportedError('`drift` isn\'t supported on this platform.');
 }
 

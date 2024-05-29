@@ -25,15 +25,12 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/my_user.dart';
 import '/util/log.dart';
 import 'base.dart';
 
-part 'my_user.g.dart';
-
 /// [Hive] storage for [MyUser].
-class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
+class MyUserHiveProvider extends HiveBaseProvider<DtoMyUser> {
   @override
   Stream<BoxEvent> get boxEvents => box.watch();
 
@@ -51,7 +48,7 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Hive.maybeRegisterAdapter(ChatDirectLinkSlugAdapter());
     Hive.maybeRegisterAdapter(ChatDirectLinkVersionAdapter());
     Hive.maybeRegisterAdapter(CropPointAdapter());
-    Hive.maybeRegisterAdapter(HiveMyUserAdapter());
+    Hive.maybeRegisterAdapter(DtoMyUserAdapter());
     Hive.maybeRegisterAdapter(ImageFileAdapter());
     Hive.maybeRegisterAdapter(MuteDurationAdapter());
     Hive.maybeRegisterAdapter(MyUserAdapter());
@@ -74,16 +71,16 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
   }
 
   /// Returns the stored [MyUser]s from [Hive].
-  Iterable<HiveMyUser> get myUsers => valuesSafe;
+  Iterable<DtoMyUser> get myUsers => valuesSafe;
 
   /// Saves the provided [MyUser] in [Hive].
-  Future<void> put(HiveMyUser user) async {
+  Future<void> put(DtoMyUser user) async {
     Log.trace('put($user)', '$runtimeType');
     await putSafe(user.value.id.val, user);
   }
 
   /// Returns the [MyUser] from [Hive] by its [id].
-  HiveMyUser? get(UserId id) {
+  DtoMyUser? get(UserId id) {
     Log.trace('get($id)', '$runtimeType');
     return getSafe(id.val);
   }
@@ -93,27 +90,4 @@ class MyUserHiveProvider extends HiveBaseProvider<HiveMyUser> {
     Log.trace('remove($id)', '$runtimeType');
     await deleteSafe(id.val);
   }
-}
-
-/// Persisted in [Hive] storage [MyUser]'s [value].
-@HiveType(typeId: ModelTypeId.hiveMyUser)
-class HiveMyUser extends HiveObject {
-  HiveMyUser(
-    this.value,
-    this.ver,
-  );
-
-  /// Persisted [MyUser] model.
-  @HiveField(0)
-  MyUser value;
-
-  /// Version of this [MyUser]'s state.
-  ///
-  /// It increases monotonically, so may be used (and is intended to) for
-  /// tracking state's actuality.
-  @HiveField(1)
-  MyUserVersion ver;
-
-  @override
-  String toString() => '$runtimeType($value, $ver)';
 }

@@ -61,8 +61,8 @@ class ChatItemViews extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
-class ChatItemDriftProvider extends DriftProviderBase {
-  ChatItemDriftProvider(super.database);
+class ChatItemDriftProvider extends DriftProviderBaseWithScope {
+  ChatItemDriftProvider(super.common, super.scoped);
 
   /// [DtoChatItem]s that have started the [upsert]ing, but not yet finished it.
   final Map<ChatItemId, DtoChatItem> _cache = {};
@@ -198,12 +198,12 @@ class ChatItemDriftProvider extends DriftProviderBase {
     int? after,
     PreciseDateTime? around,
   }) async {
-    if (db == null) {
+    if (scoped == null) {
       return [];
     }
 
     if (around != null) {
-      final stmt = db!.chatItemsAround(
+      final stmt = scoped!.chatItemsAround(
         chatId.val,
         around,
         (before ?? 50).toDouble(),
@@ -227,22 +227,22 @@ class ChatItemDriftProvider extends DriftProviderBase {
           .toList();
     }
 
-    final stmt = db!.select(db!.chatItemViews).join([
+    final stmt = scoped!.select(scoped!.chatItemViews).join([
       innerJoin(
-        db!.chatItems,
-        db!.chatItems.id.equalsExp(db!.chatItemViews.chatItemId),
+        scoped!.chatItems,
+        scoped!.chatItems.id.equalsExp(scoped!.chatItemViews.chatItemId),
       ),
     ]);
 
-    stmt.where(db!.chatItemViews.chatId.equals(chatId.val));
-    stmt.orderBy([OrderingTerm.desc(db!.chatItems.at)]);
+    stmt.where(scoped!.chatItemViews.chatId.equals(chatId.val));
+    stmt.orderBy([OrderingTerm.desc(scoped!.chatItems.at)]);
 
     if (after != null || before != null) {
       stmt.limit((after ?? 0) + (before ?? 0));
     }
 
     return (await stmt.get())
-        .map((rows) => rows.readTable(db!.chatItems))
+        .map((rows) => rows.readTable(scoped!.chatItems))
         .map(_ChatItemDb.fromDb)
         .toList();
   }

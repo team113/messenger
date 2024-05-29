@@ -33,6 +33,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -48,7 +49,6 @@ import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -69,7 +69,7 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -131,18 +131,17 @@ void main() async {
       (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
     );
 
-    final database = Get.put(DriftProvider.memory());
+    final common = Get.put(CommonDriftProvider.memory());
+    final scoped = Get.put(ScopedDriftProvider.memory());
 
     Hive.init('./test/.temp_hive/chat_direct_link_unit');
     await Get.put(CredentialsHiveProvider()).init();
-    final myUserProvider = Get.put(MyUserHiveProvider());
-    await myUserProvider.init();
-    await myUserProvider.clear();
     await Get.put(DraftHiveProvider()).init();
-    final userProvider = Get.put(UserDriftProvider(database));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
-    final chatProvider = Get.put(ChatDriftProvider(database));
+    final myUserProvider = Get.put(MyUserDriftProvider(common));
+    final userProvider = Get.put(UserDriftProvider(common, scoped));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+    final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
     await Get.put(MediaSettingsHiveProvider()).init();
@@ -451,7 +450,8 @@ void main() async {
   });
 
   tearDown(() async {
-    await Get.find<DriftProvider>().close();
+    await Get.find<CommonDriftProvider>().close();
+    await Get.find<ScopedDriftProvider>().close();
     await Get.deleteAll(force: true);
   });
 }

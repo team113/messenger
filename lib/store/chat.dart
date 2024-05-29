@@ -117,10 +117,10 @@ class ChatRepository extends DisposableInterface
   /// [Chat]s local [DriftProvider] storage.
   final ChatDriftProvider _driftChat;
 
-  /// [ChatItem]s local [DriftProvider] storage.
+  /// [ChatItem]s local storage.
   final ChatItemDriftProvider _driftItems;
 
-  /// [ChatMember]s local [DriftProvider] storage.
+  /// [ChatMember]s local storage.
   final ChatMemberDriftProvider _driftMembers;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.

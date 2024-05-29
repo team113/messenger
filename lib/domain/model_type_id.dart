@@ -52,7 +52,7 @@ class ModelTypeId {
   static const user = 29;
   static const chatContact = 30;
   static const hiveChatContact = 31;
-  static const hiveMyUser = 32;
+  static const dtoMyUser = 32;
   static const chatContactsListVersion = 34;
   static const sessionData = 35;
   static const recentChatsCursor = 36;

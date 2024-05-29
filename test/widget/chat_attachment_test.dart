@@ -46,6 +46,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -63,7 +64,6 @@ import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -92,7 +92,8 @@ void main() async {
   AudioUtils = AudioUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_attachment_widget');
 
@@ -285,7 +286,7 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((realInvocation) => const Stream.empty());
+      .thenAnswer((_) async => const Stream.empty());
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
@@ -345,10 +346,11 @@ void main() async {
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
-  final chatProvider = Get.put(ChatDriftProvider(database));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init();
   await settingsProvider.clear();
@@ -358,9 +360,6 @@ void main() async {
   await backgroundProvider.init();
   var callRectProvider = CallRectHiveProvider();
   await callRectProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
@@ -545,7 +544,7 @@ void main() async {
 
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 
-    await database.close();
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
 
     for (int i = 0; i < 25; i++) {

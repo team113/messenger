@@ -45,6 +45,7 @@ import 'main.dart' show handlePushNotification;
 import 'provider/drift/chat.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
+import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/application_settings.dart';
@@ -519,10 +520,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
 
-              deps.put(UserDriftProvider(Get.find()));
-              deps.put(ChatItemDriftProvider(Get.find()));
-              deps.put(ChatMemberDriftProvider(Get.find()));
-              deps.put(ChatDriftProvider(Get.find()));
+              final ScopedDriftProvider scoped = deps
+                  .put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+
+              deps.put(UserDriftProvider(Get.find(), scoped));
+              deps.put(ChatItemDriftProvider(Get.find(), scoped));
+              deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+              deps.put(ChatDriftProvider(Get.find(), scoped));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -658,10 +662,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
-            deps.put(UserDriftProvider(Get.find()));
-            deps.put(ChatItemDriftProvider(Get.find()));
-            deps.put(ChatMemberDriftProvider(Get.find()));
-            deps.put(ChatDriftProvider(Get.find()));
+            final ScopedDriftProvider scoped =
+                deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+
+            deps.put(UserDriftProvider(Get.find(), scoped));
+            deps.put(ChatItemDriftProvider(Get.find(), scoped));
+            deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+            deps.put(ChatDriftProvider(Get.find(), scoped));
 
             GraphQlProvider graphQlProvider = Get.find();
 
