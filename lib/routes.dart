@@ -59,11 +59,9 @@ import 'provider/hive/chat_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
-import 'provider/hive/favorite_chat.dart';
 import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
-import 'provider/hive/recent_chat.dart';
 import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -502,8 +500,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(RecentChatHiveProvider()).init(userId: me),
-                deps.put(FavoriteChatHiveProvider()).init(userId: me),
                 deps.put(SessionDataHiveProvider()).init(userId: me),
                 deps.put(BlocklistHiveProvider()).init(userId: me),
                 deps.put(BlocklistSortingHiveProvider()).init(userId: me),
@@ -521,7 +517,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ]);
 
               final ScopedDriftProvider scoped = deps
-                  .put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+                  .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
               deps.put(UserDriftProvider(Get.find(), scoped));
               deps.put(ChatItemDriftProvider(Get.find(), scoped));
@@ -644,8 +640,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             await Future.wait([
               deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(RecentChatHiveProvider()).init(userId: me),
-              deps.put(FavoriteChatHiveProvider()).init(userId: me),
               deps.put(SessionDataHiveProvider()).init(userId: me),
               deps.put(BlocklistHiveProvider()).init(userId: me),
               deps.put(BlocklistSortingHiveProvider()).init(userId: me),
@@ -662,8 +656,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MonologHiveProvider()).init(userId: me),
             ]);
 
-            final ScopedDriftProvider scoped =
-                deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+            final ScopedDriftProvider scoped = deps
+                .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
             deps.put(UserDriftProvider(Get.find(), scoped));
             deps.put(ChatItemDriftProvider(Get.find(), scoped));

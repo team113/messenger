@@ -345,7 +345,7 @@ class RxChatImpl extends RxChat {
 
   /// Initializes this [RxChatImpl].
   Future<void> init() async {
-    Log.debug('init()', '$runtimeType($id)');
+    Log.info('init($ver)', '$runtimeType($id)');
 
     if (status.value.isSuccess) {
       return Future.value();
@@ -1499,6 +1499,8 @@ class RxChatImpl extends RxChat {
           if (chatEntity != null) {
             chatEntity.value = node.chat.value;
             chatEntity.ver = node.chat.ver;
+            ver = node.chat.ver;
+            Log.info('_chatEvent(${event.kind}) -> $ver', '$runtimeType($id)');
             await _driftChat.upsert(chatEntity);
           } else {
             await _driftChat.upsert(node.chat);
@@ -1511,7 +1513,9 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.event:
         await _driftChat.txn(() async {
           final DtoChat? chatEntity = await _driftChat.read(id);
-          Log.info('reading DtoChat: $chatEntity, ${chatEntity?.value.avatar}');
+          Log.info(
+            'reading($ver) DtoChat: $chatEntity, ${chatEntity?.value.avatar}',
+          );
 
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
@@ -1921,7 +1925,7 @@ class RxChatImpl extends RxChat {
 
           if (shouldPutChat) {
             Log.info(
-              'writing DtoChat: $chatEntity, ${chatEntity.value.avatar}',
+              'writing($ver) DtoChat: $chatEntity, ${chatEntity.value.avatar}',
             );
             await _driftChat.upsert(chatEntity);
           }

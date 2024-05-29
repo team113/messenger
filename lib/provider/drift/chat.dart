@@ -75,8 +75,8 @@ class Chats extends Table {
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
-class ChatDriftProvider extends DriftProviderBase {
-  ChatDriftProvider(super.database);
+class ChatDriftProvider extends DriftProviderBaseWithScope {
+  ChatDriftProvider(super.common, super.scoped);
 
   /// [StreamController] emitting [DtoChat]s in [watch].
   final Map<ChatId, StreamController<DtoChat?>> _controllers = {};
@@ -177,11 +177,11 @@ class ChatDriftProvider extends DriftProviderBase {
 
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> recent({int? limit}) async {
-    if (db == null) {
+    if (scoped == null) {
       return [];
     }
 
-    final stmt = db!.select(db!.chats);
+    final stmt = scoped!.select(scoped!.chats);
 
     stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
     stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
@@ -195,11 +195,11 @@ class ChatDriftProvider extends DriftProviderBase {
 
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
-    if (db == null) {
+    if (scoped == null) {
       return [];
     }
 
-    final stmt = db!.select(db!.chats);
+    final stmt = scoped!.select(scoped!.chats);
 
     stmt.where(
       (u) =>
@@ -219,11 +219,12 @@ class ChatDriftProvider extends DriftProviderBase {
   /// Returns the [Stream] of real-time changes happening with the [DtoChat]
   /// identified by the provided [id].
   Stream<DtoChat?> watch(ChatId id) {
-    if (db == null) {
+    if (scoped == null) {
       return const Stream.empty();
     }
 
-    final stmt = db!.select(db!.chats)..where((u) => u.id.equals(id.val));
+    final stmt = scoped!.select(scoped!.chats)
+      ..where((u) => u.id.equals(id.val));
 
     StreamController<DtoChat?>? controller = _controllers[id];
     if (controller == null) {

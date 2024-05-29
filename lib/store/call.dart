@@ -766,6 +766,10 @@ class CallRepository extends DisposableInterface
           case IncomingChatCallsTopEventKind.list:
             e as IncomingChatCallsTop;
             e.list.forEach(add);
+
+            if (e.list.isEmpty) {
+              WebUtils.removeAllCalls();
+            }
             break;
 
           case IncomingChatCallsTopEventKind.added:

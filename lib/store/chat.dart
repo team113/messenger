@@ -1630,7 +1630,6 @@ class ChatRepository extends DisposableInterface
       }
 
       entry.chat.value = chat.value;
-      entry.ver = chat.ver;
       entry.chat.refresh();
     }
 

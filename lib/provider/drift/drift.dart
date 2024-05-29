@@ -228,6 +228,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   @override
   void onClose() async {
     Log.debug('onClose()', '$runtimeType');
+    close();
     db = null;
     super.onClose();
   }
