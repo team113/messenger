@@ -46,12 +46,11 @@ void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();

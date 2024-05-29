@@ -85,7 +85,6 @@ void main() async {
   Config.disableInfiniteAnimations = true;
 
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/chat_direct_link_widget');
 
@@ -149,10 +148,10 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database, me));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-  final chatProvider = Get.put(ChatDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final chatProvider = Get.put(ChatDriftProvider(database));
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();

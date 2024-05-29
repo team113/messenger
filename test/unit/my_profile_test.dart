@@ -42,13 +42,12 @@ import '../mock/graphql_provider.dart';
 
 void main() async {
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/profile_unit');
 
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
-  final userProvider = Get.put(UserDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();

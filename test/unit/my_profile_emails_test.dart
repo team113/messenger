@@ -48,7 +48,6 @@ import 'my_profile_emails_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/my_profile_emails_unit');
 
@@ -62,7 +61,7 @@ void main() async {
   var myUserProvider = MyUserHiveProvider();
   await myUserProvider.init();
   await myUserProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();

@@ -32,12 +32,10 @@ import 'drift.dart';
 
 /// [User] to be stored in a [Table].
 @DataClassName('UserRow')
-@TableIndex(name: 'user_me_index', columns: {#me})
 class Users extends Table {
   @override
-  Set<Column> get primaryKey => {id, me};
+  Set<Column> get primaryKey => {id};
 
-  TextColumn get me => text()();
   TextColumn get id => text()();
   TextColumn get num => text().unique()();
   TextColumn get name => text().nullable()();
@@ -61,9 +59,7 @@ class Users extends Table {
 
 /// [DriftProviderBase] for manipulating the persisted [User]s.
 class UserDriftProvider extends DriftProviderBase {
-  UserDriftProvider(super.database, this.me);
-
-  final UserId me;
+  UserDriftProvider(super.database);
 
   /// [StreamController] emitting [DtoUser]s in [watch].
   final Map<UserId, StreamController<DtoUser?>> _controllers = {};
@@ -77,9 +73,10 @@ class UserDriftProvider extends DriftProviderBase {
 
     final result = await safe((db) async {
       final DtoUser stored = UserDb.fromDb(
-        await db
-            .into(db.users)
-            .insertReturning(user.toDb(me), mode: InsertMode.insertOrReplace),
+        await db.into(db.users).insertReturning(
+              user.toDb(),
+              onConflict: DoUpdate((_) => user.toDb()),
+            ),
       );
 
       _controllers[stored.id]?.add(stored);
@@ -101,8 +98,7 @@ class UserDriftProvider extends DriftProviderBase {
     }
 
     return await safe<DtoUser?>((db) async {
-      final stmt = db.select(db.users)
-        ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
+      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
       final UserRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
@@ -118,8 +114,7 @@ class UserDriftProvider extends DriftProviderBase {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.users)
-        ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
+      final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
       await stmt.go();
 
       _controllers[id]?.add(null);
@@ -131,8 +126,7 @@ class UserDriftProvider extends DriftProviderBase {
     _cache.clear();
 
     await safe((db) async {
-      final stmt = db.delete(db.users)..where((u) => u.me.equals(me.val));
-      await stmt.go();
+      await db.delete(db.users).go();
     });
   }
 
@@ -143,8 +137,7 @@ class UserDriftProvider extends DriftProviderBase {
       return const Stream.empty();
     }
 
-    final stmt = db!.select(db!.users)
-      ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
+    final stmt = db!.select(db!.users)..where((u) => u.id.equals(id.val));
 
     StreamController<DtoUser?>? controller = _controllers[id];
     if (controller == null) {
@@ -198,9 +191,8 @@ extension UserDb on DtoUser {
   }
 
   /// Constructs a [UserRow] from this [DtoUser].
-  UserRow toDb(UserId me) {
+  UserRow toDb() {
     return UserRow(
-      me: me.val,
       id: value.id.val,
       num: value.num.val,
       name: value.name?.val,

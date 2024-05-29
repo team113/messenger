@@ -67,7 +67,6 @@ import 'chat_split_message_test.mocks.dart';
 @GenerateMocks([GraphQlProvider])
 void main() async {
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/chat_split_message_unit');
 
@@ -87,10 +86,10 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = Get.put(DraftHiveProvider(), permanent: true);
   await draftProvider.init();
-  final userProvider = Get.put(UserDriftProvider(database, me));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-  final chatProvider = Get.put(ChatDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final chatProvider = Get.put(ChatDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();

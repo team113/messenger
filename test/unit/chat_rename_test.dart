@@ -60,7 +60,6 @@ void main() async {
   setUp(Get.reset);
 
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/chat_rename_unit');
 
@@ -74,10 +73,10 @@ void main() async {
   await credentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
-  final userProvider = Get.put(UserDriftProvider(database, me));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-  final chatProvider = Get.put(ChatDriftProvider(database, me));
+  final userProvider = Get.put(UserDriftProvider(database));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final chatProvider = Get.put(ChatDriftProvider(database));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();

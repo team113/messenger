@@ -62,7 +62,6 @@ import 'package:messenger/store/user.dart';
 import '../mock/graphql_provider.dart';
 
 late DriftProvider database;
-const me = UserId('me');
 
 void main() async {
   setUp(() {
@@ -98,10 +97,10 @@ void main() async {
   await accountProvider.init();
 
   test('CallService registers and handles all ongoing call events', () async {
-    final userProvider = Get.put(UserDriftProvider(database, me));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-    final chatProvider = Get.put(ChatDriftProvider(database, me));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
 
     accountProvider.set(const UserId('me'));
     credentialsProvider.put(
@@ -279,10 +278,10 @@ void main() async {
   });
 
   test('CallService registers and successfully answers the call', () async {
-    final userProvider = Get.put(UserDriftProvider(database, me));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-    final chatProvider = Get.put(ChatDriftProvider(database, me));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -369,10 +368,10 @@ void main() async {
   });
 
   test('CallService registers and successfully starts the call', () async {
-    final userProvider = Get.put(UserDriftProvider(database, me));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-    final chatProvider = Get.put(ChatDriftProvider(database, me));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
 
     final graphQlProvider = _FakeGraphQlProvider();
 

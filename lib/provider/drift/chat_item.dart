@@ -25,19 +25,16 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
-import '/domain/model/user.dart';
 import '/store/model/chat_item.dart';
 import 'common.dart';
 import 'drift.dart';
 
 /// [ChatItem] to be stored in a [Table].
-@TableIndex(name: 'chat_item_me_index', columns: {#me})
 @DataClassName('ChatItemRow')
 class ChatItems extends Table {
   @override
-  Set<Column> get primaryKey => {me, id};
+  Set<Column> get primaryKey => {id};
 
-  TextColumn get me => text()();
   TextColumn get id => text()();
   TextColumn get chatId => text()();
   TextColumn get authorId => text()();
@@ -49,22 +46,23 @@ class ChatItems extends Table {
 }
 
 /// [Table] for [RxChat.messages] history retrieving.
-@TableIndex(name: 'chat_item_view_me_index', columns: {#me})
 @DataClassName('ChatItemViewRow')
 class ChatItemViews extends Table {
   @override
-  Set<Column> get primaryKey => {me, chatId, chatItemId};
+  Set<Column> get primaryKey => {chatId, chatItemId};
 
-  TextColumn get me => text()();
   TextColumn get chatId => text()();
-  TextColumn get chatItemId => text()();
+  TextColumn get chatItemId => text().references(
+        ChatItems,
+        #id,
+        onUpdate: KeyAction.cascade,
+        onDelete: KeyAction.cascade,
+      )();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
 class ChatItemDriftProvider extends DriftProviderBase {
-  ChatItemDriftProvider(super.database, this.me);
-
-  final UserId me;
+  ChatItemDriftProvider(super.database);
 
   /// [DtoChatItem]s that have started the [upsert]ing, but not yet finished it.
   final Map<ChatItemId, DtoChatItem> _cache = {};
@@ -74,12 +72,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
     Log.debug('upsertView($chatId, $chatItemId)');
 
     await safe((db) async {
-      final view = ChatItemViewRow(
-        chatId: chatId.val,
-        chatItemId: chatItemId.val,
-        me: me.val,
-      );
-
+      final view =
+          ChatItemViewRow(chatId: chatId.val, chatItemId: chatItemId.val);
       await db
           .into(db.chatItemViews)
           .insert(view, onConflict: DoUpdate((_) => view));
@@ -95,7 +89,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
     _cache[item.value.id] = item;
 
     final result = await safe((db) async {
-      final ChatItemRow row = item.toDb(me);
+      final ChatItemRow row = item.toDb();
       final DtoChatItem stored = _ChatItemDb.fromDb(
         await db
             .into(db.chatItems)
@@ -103,7 +97,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
       );
 
       if (toView) {
-        final ChatItemViewRow row = item.toView(me);
+        final ChatItemViewRow row = item.toView();
         await db
             .into(db.chatItemViews)
             .insertReturning(row, onConflict: DoUpdate((_) => row));
@@ -133,13 +127,13 @@ class ChatItemDriftProvider extends DriftProviderBase {
 
       await db.batch((batch) {
         for (var item in items) {
-          final ChatItemRow row = item.toDb(me);
+          final ChatItemRow row = item.toDb();
           batch.insert(db.chatItems, row, onConflict: DoUpdate((_) => row));
         }
 
         if (toView) {
           for (var item in items) {
-            final ChatItemViewRow row = item.toView(me);
+            final ChatItemViewRow row = item.toView();
             batch.insert(db.chatItemViews, row, onConflict: DoNothing());
           }
         }
@@ -164,8 +158,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
     }
 
     return await safe<DtoChatItem?>((db) async {
-      final stmt = db.select(db.chatItems)
-        ..where((u) => u.id.equals(id.val) & u.me.equals(me.val));
+      final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
       final ChatItemRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
@@ -182,8 +175,7 @@ class ChatItemDriftProvider extends DriftProviderBase {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.chatItems)
-        ..where((e) => e.id.equals(id.val) & e.me.equals(me.val));
+      final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
     });
   }
@@ -193,12 +185,8 @@ class ChatItemDriftProvider extends DriftProviderBase {
     _cache.clear();
 
     await safe((db) async {
-      final stmtA = db.delete(db.chatItems)..where((u) => u.me.equals(me.val));
-      await stmtA.go();
-
-      final stmtB = db.delete(db.chatItemViews)
-        ..where((u) => u.me.equals(me.val));
-      await stmtB.go();
+      await db.delete(db.chatItems).go();
+      await db.delete(db.chatItemViews).go();
     });
   }
 
@@ -218,7 +206,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
       final stmt = db!.chatItemsAround(
         chatId.val,
         around,
-        me.val,
         (before ?? 50).toDouble(),
         after ?? 50,
       );
@@ -226,7 +213,6 @@ class ChatItemDriftProvider extends DriftProviderBase {
       return (await stmt.get())
           .map(
             (r) => ChatItemRow(
-              me: r.me,
               id: r.id,
               chatId: r.chatId,
               authorId: r.authorId,
@@ -270,9 +256,8 @@ extension _ChatItemDb on DtoChatItem {
   }
 
   /// Constructs a [ChatItemRow] from this [DtoChatItem].
-  ChatItemRow toDb(UserId me) {
+  ChatItemRow toDb() {
     return ChatItemRow(
-      me: me.val,
       id: value.id.val,
       chatId: value.chatId.val,
       authorId: value.author.id.val,
@@ -285,11 +270,7 @@ extension _ChatItemDb on DtoChatItem {
   }
 
   /// Constructs a [ChatItemViewRow] from this [DtoChatItem].
-  ChatItemViewRow toView(UserId me) {
-    return ChatItemViewRow(
-      chatItemId: value.id.val,
-      chatId: value.chatId.val,
-      me: me.val,
-    );
+  ChatItemViewRow toView() {
+    return ChatItemViewRow(chatItemId: value.id.val, chatId: value.chatId.val);
   }
 }

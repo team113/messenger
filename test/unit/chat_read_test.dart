@@ -63,7 +63,6 @@ void main() async {
   setUp(Get.reset);
 
   final DriftProvider database = DriftProvider.memory();
-  const me = UserId('me');
 
   Hive.init('./test/.temp_hive/chat_read_unit');
 
@@ -246,10 +245,10 @@ void main() async {
           },
         )));
 
-    final userProvider = Get.put(UserDriftProvider(database, me));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-    final chatProvider = Get.put(ChatDriftProvider(database, me));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -328,10 +327,10 @@ void main() async {
       const ChatItemId('0'),
     )).thenThrow(const ReadChatException(ReadChatErrorCode.unknownChat));
 
-    final userProvider = Get.put(UserDriftProvider(database, me));
-    final chatItemProvider = Get.put(ChatItemDriftProvider(database, me));
-    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database, me));
-    final chatProvider = Get.put(ChatDriftProvider(database, me));
+    final userProvider = Get.put(UserDriftProvider(database));
+    final chatItemProvider = Get.put(ChatItemDriftProvider(database));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+    final chatProvider = Get.put(ChatDriftProvider(database));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
