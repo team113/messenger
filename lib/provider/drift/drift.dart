@@ -328,6 +328,10 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
     }
 
     return await WebUtils.protect(() async {
+      if (isClosed || scoped == null) {
+        return null;
+      }
+
       return await callback(scoped!);
     });
   }
