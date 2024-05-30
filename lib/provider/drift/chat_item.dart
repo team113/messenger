@@ -52,12 +52,7 @@ class ChatItemViews extends Table {
   Set<Column> get primaryKey => {chatId, chatItemId};
 
   TextColumn get chatId => text()();
-  TextColumn get chatItemId => text().references(
-        ChatItems,
-        #id,
-        onUpdate: KeyAction.cascade,
-        onDelete: KeyAction.cascade,
-      )();
+  TextColumn get chatItemId => text()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
