@@ -28,7 +28,6 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -55,8 +54,6 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
-  await chatHiveProvider.init();
   var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
   await sessionDataHiveProvider.init();
   var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
