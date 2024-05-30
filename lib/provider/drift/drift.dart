@@ -234,8 +234,12 @@ final class ScopedDriftProvider extends DisposableInterface {
   @override
   void onClose() async {
     Log.debug('onClose()', '$runtimeType');
-    close();
     db = null;
+
+    // Close the connection after some delay to ensure it isn't used by
+    // anything.
+    Future.delayed(const Duration(seconds: 10)).then((_) => close());
+
     super.onClose();
   }
 
@@ -256,8 +260,8 @@ final class ScopedDriftProvider extends DisposableInterface {
 }
 
 /// [CommonDriftProvider] with common helper and utility methods over it.
-abstract class DriftProviderBase {
-  const DriftProviderBase(this._provider);
+abstract class DriftProviderBase extends DisposableInterface {
+  DriftProviderBase(this._provider);
 
   /// [CommonDriftProvider] itself.
   final CommonDriftProvider _provider;
@@ -269,6 +273,10 @@ abstract class DriftProviderBase {
 
   /// Completes the provided [action] as a [db] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
+    if (isClosed || db == null) {
+      return;
+    }
+
     await db?.transaction(action);
   }
 
@@ -277,7 +285,7 @@ abstract class DriftProviderBase {
   ///
   /// [CommonDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(CommonDatabase db) callback) async {
-    if (db == null) {
+    if (isClosed || db == null) {
       return null;
     }
 
@@ -286,8 +294,8 @@ abstract class DriftProviderBase {
 }
 
 /// [ScopedDriftProvider] with common helper and utility methods over it.
-abstract class DriftProviderBaseWithScope {
-  const DriftProviderBaseWithScope(this._common, this._scoped);
+abstract class DriftProviderBaseWithScope extends DisposableInterface {
+  DriftProviderBaseWithScope(this._common, this._scoped);
 
   /// [CommonDriftProvider] itself.
   final CommonDriftProvider _common;
@@ -307,6 +315,10 @@ abstract class DriftProviderBaseWithScope {
 
   /// Completes the provided [action] as a [scoped] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
+    if (isClosed || scoped == null) {
+      return;
+    }
+
     await scoped?.transaction(action);
   }
 
@@ -315,7 +327,7 @@ abstract class DriftProviderBaseWithScope {
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
-    if (scoped == null) {
+    if (isClosed || scoped == null) {
       return null;
     }
 

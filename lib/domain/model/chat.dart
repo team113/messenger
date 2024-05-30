@@ -301,7 +301,28 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   bool operator ==(Object other) {
-    return other is Chat && compareTo(other) == 0;
+    return other is Chat &&
+        compareTo(other) == 0 &&
+        id == other.id &&
+        avatar == other.avatar &&
+        name == other.name &&
+        const ListEquality().equals(members, other.members) &&
+        kindIndex == other.kindIndex &&
+        isHidden == other.isHidden &&
+        muted == other.muted &&
+        directLink == other.directLink &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt &&
+        const ListEquality().equals(lastReads, other.lastReads) &&
+        lastDelivery == other.lastDelivery &&
+        firstItem == other.firstItem &&
+        lastItem == other.lastItem &&
+        lastReadItem == other.lastReadItem &&
+        unreadCount == other.unreadCount &&
+        totalCount == other.totalCount &&
+        ongoingCall == other.ongoingCall &&
+        favoritePosition == other.favoritePosition &&
+        membersCount == other.membersCount;
   }
 
   @override
@@ -359,6 +380,16 @@ class ChatMember implements Comparable<ChatMember> {
 
   /// Returns a [Map] representing this [ChatMember].
   Map<String, dynamic> toJson() => _$ChatMemberToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMember &&
+        user.id == other.user.id &&
+        joinedAt == other.joinedAt;
+  }
+
+  @override
+  int get hashCode => Object.hash(user, joinedAt);
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].
@@ -381,6 +412,16 @@ class LastChatRead {
 
   /// Returns a [Map] representing this [LastChatRead].
   Map<String, dynamic> toJson() => _$LastChatReadToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is LastChatRead &&
+        memberId == other.memberId &&
+        at == other.at;
+  }
+
+  @override
+  int get hashCode => Object.hash(memberId, at);
 }
 
 /// Unique ID of a [Chat].

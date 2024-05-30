@@ -361,7 +361,10 @@ class RxChatImpl extends RxChat {
       // Log.debug('got: $e', '$runtimeType($id)');
 
       if (e != null) {
+        final ChatItem? first = chat.value.firstItem;
+
         chat.value = e.value;
+        chat.value.firstItem = first ?? chat.value.firstItem;
       } else {
         // TODO: Hide chat in pagination.
       }
@@ -1775,7 +1778,7 @@ class RxChatImpl extends RxChat {
                   }
                 }
 
-                LastChatRead? lastRead = chatEntity.value.lastReads
+                final LastChatRead? lastRead = chatEntity.value.lastReads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
                 if (lastRead == null) {
                   chatEntity.value.lastReads
@@ -1924,7 +1927,7 @@ class RxChatImpl extends RxChat {
 
           if (shouldPutChat) {
             // Log.info(
-            //   'writing($ver) DtoChat: $chatEntity, ${chatEntity.value.avatar}',
+            //   'writing($ver) DtoChat: $chatEntity, ${chatEntity.value.lastReads.map((e) => e.at.toString())}',
             // );
             await _driftChat.upsert(chatEntity);
           }

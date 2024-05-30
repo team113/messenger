@@ -89,6 +89,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     Log.debug('upsert($chat)');
 
     _cache[chat.id] = chat;
+    _controllers[chat.id]?.add(chat);
 
     final result = await safe((db) async {
       final ChatRow row = chat.toDb();
@@ -97,8 +98,6 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
             .into(db.chats)
             .insertReturning(row, mode: InsertMode.insertOrReplace),
       );
-
-      _controllers[stored.id]?.add(stored);
 
       return stored;
     });
@@ -112,6 +111,10 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   Future<Iterable<DtoChat>> upsertBulk(Iterable<DtoChat> items) async {
     for (var e in items) {
       _cache[e.id] = e;
+    }
+
+    for (var e in items) {
+      _controllers[e.id]?.add(e);
     }
 
     final result = await safe((db) async {
@@ -128,7 +131,6 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     });
 
     for (var e in items) {
-      _controllers[e.id]?.add(e);
       _cache.remove(e.value.id);
     }
 
@@ -157,12 +159,11 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   /// Deletes the [DtoChat] identified by the provided [id] from the database.
   Future<void> delete(ChatId id) async {
     _cache.remove(id);
+    _controllers[id]?.add(null);
 
     await safe((db) async {
       final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
-
-      _controllers[id]?.add(null);
     });
   }
 
@@ -177,7 +178,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> recent({int? limit}) async {
-    if (scoped == null) {
+    if (isClosed || scoped == null) {
       return [];
     }
 
@@ -195,7 +196,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
-    if (scoped == null) {
+    if (isClosed || scoped == null) {
       return [];
     }
 
@@ -219,7 +220,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [Stream] of real-time changes happening with the [DtoChat]
   /// identified by the provided [id].
   Stream<DtoChat?> watch(ChatId id) {
-    if (scoped == null) {
+    if (isClosed || scoped == null) {
       return const Stream.empty();
     }
 
@@ -240,6 +241,10 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.watch().map((e) => e.isEmpty ? null : _ChatDb.fromDb(e.first)),
       ],
     ).asyncExpand((e) async* {
+      if (isClosed || scoped == null) {
+        return;
+      }
+
       if (e != last) {
         last = e;
         yield e;
