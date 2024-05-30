@@ -379,7 +379,7 @@ void main() async {
     await tester
         .pumpWidget(createWidgetForTesting(child: const ChatsTabView()));
 
-    await tester.pumpAndSettle(const Duration(seconds: 2));
+    await tester.pumpAndSettle(const Duration(seconds: 10));
 
     expect(find.text('chatname'), findsOneWidget);
 

@@ -1563,12 +1563,12 @@ class ChatRepository extends DisposableInterface
     // Favorite [DtoChat]s will be putted to [Hive] through
     // [HiveGraphQlPageProvider].
     if (chat.value.favoritePosition == null) {
-      await _driftChat.txn(() async {
+      await _driftChat.txn((db) async {
         DtoChat? saved;
 
         // If version is ignored, there's no need to retrieve the stored chat.
         if (!ignoreVersion || !updateVersion) {
-          saved = await _driftChat.read(chatId);
+          saved = await _driftChat.read(chatId, db: db);
         }
 
         // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
@@ -1586,7 +1586,7 @@ class ChatRepository extends DisposableInterface
             chat.value.membersCount = saved.value.membersCount;
           }
 
-          await _driftChat.upsert(chat);
+          await _driftChat.upsert(chat, db: db);
         }
       });
     }

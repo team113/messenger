@@ -85,13 +85,13 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   final Map<ChatId, DtoChat> _cache = {};
 
   /// Creates or updates the provided [chat] in the database.
-  Future<DtoChat> upsert(DtoChat chat) async {
+  Future<DtoChat> upsert(DtoChat chat, {ScopedDatabase? db}) async {
     Log.debug('upsert($chat)');
 
     _cache[chat.id] = chat;
     _controllers[chat.id]?.add(chat);
 
-    final result = await safe((db) async {
+    final result = await _wrap<DtoChat?>(db, (db) async {
       final ChatRow row = chat.toDb();
       final DtoChat stored = _ChatDb.fromDb(
         await db
@@ -138,13 +138,13 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   }
 
   /// Returns the [DtoChat] stored in the database by the provided [id], if any.
-  Future<DtoChat?> read(ChatId id) async {
+  Future<DtoChat?> read(ChatId id, {ScopedDatabase? db}) async {
     final DtoChat? existing = _cache[id];
     if (existing != null) {
       return existing;
     }
 
-    return await safe<DtoChat?>((db) async {
+    return await _wrap<DtoChat?>(db, (db) async {
       final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
       final ChatRow? row = await stmt.getSingleOrNull();
 
@@ -251,6 +251,17 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         yield e;
       }
     });
+  }
+
+  Future<T?> _wrap<T>(
+    ScopedDatabase? db,
+    Future<T> Function(ScopedDatabase db) callback,
+  ) async {
+    if (db != null) {
+      return await callback(db);
+    }
+
+    return await safe(callback);
   }
 }
 

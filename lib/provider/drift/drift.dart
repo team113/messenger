@@ -19,6 +19,7 @@ import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart' show DisposableInterface;
 import 'package:log_me/log_me.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
@@ -297,6 +298,9 @@ abstract class DriftProviderBase extends DisposableInterface {
 abstract class DriftProviderBaseWithScope extends DisposableInterface {
   DriftProviderBaseWithScope(this._common, this._scoped);
 
+  /// [Mutex] guarding [_scoped] access when a transaction is active.
+  final Mutex _transaction = Mutex();
+
   /// [CommonDriftProvider] itself.
   final CommonDriftProvider _common;
 
@@ -314,12 +318,18 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   ScopedDatabase? get scoped => _scoped.db;
 
   /// Completes the provided [action] as a [scoped] transaction.
-  Future<void> txn<T>(Future<T> Function() action) async {
+  Future<void> txn<T>(Future<T> Function(ScopedDatabase db) action) async {
     if (isClosed || scoped == null) {
       return;
     }
 
-    await scoped?.transaction(action);
+    await _transaction.protect(() async {
+      if (isClosed || scoped == null) {
+        return null;
+      }
+
+      await action(scoped!);
+    });
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
@@ -331,6 +341,12 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       return null;
     }
 
-    return await callback(scoped!);
+    return await _transaction.protect(() async {
+      if (isClosed || scoped == null) {
+        return null;
+      }
+
+      return await callback(scoped!);
+    });
   }
 }
