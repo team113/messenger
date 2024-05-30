@@ -358,7 +358,7 @@ class RxChatImpl extends RxChat {
     );
 
     _localSubscription = _driftChat.watch(id).listen((e) {
-      Log.info('got: $e', '$runtimeType($id)');
+      // Log.debug('got: $e', '$runtimeType($id)');
 
       if (e != null) {
         chat.value = e.value;
@@ -1500,7 +1500,6 @@ class RxChatImpl extends RxChat {
             chatEntity.value = node.chat.value;
             chatEntity.ver = node.chat.ver;
             ver = node.chat.ver;
-            Log.info('_chatEvent(${event.kind}) -> $ver', '$runtimeType($id)');
             await _driftChat.upsert(chatEntity);
           } else {
             await _driftChat.upsert(node.chat);
@@ -1513,9 +1512,9 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.event:
         await _driftChat.txn(() async {
           final DtoChat? chatEntity = await _driftChat.read(id);
-          Log.info(
-            'reading($ver) DtoChat: $chatEntity, ${chatEntity?.value.avatar}',
-          );
+          // Log.info(
+          //   'reading($ver) DtoChat: $chatEntity, ${chatEntity?.value.avatar}',
+          // );
 
           final ChatEventsVersioned versioned =
               (event as ChatEventsEvent).event;
@@ -1924,9 +1923,9 @@ class RxChatImpl extends RxChat {
           }
 
           if (shouldPutChat) {
-            Log.info(
-              'writing($ver) DtoChat: $chatEntity, ${chatEntity.value.avatar}',
-            );
+            // Log.info(
+            //   'writing($ver) DtoChat: $chatEntity, ${chatEntity.value.avatar}',
+            // );
             await _driftChat.upsert(chatEntity);
           }
         });

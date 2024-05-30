@@ -1739,7 +1739,7 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftPageProvider(
         fetch: ({required after, required before, ChatId? around}) async {
-          return await _driftChat.favorite(limit: after + before);
+          return await _driftChat.favorite(limit: after + before + 1);
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.favoriteCursor,
@@ -1764,7 +1764,7 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftPageProvider(
         fetch: ({required after, required before, ChatId? around}) async {
-          return await _driftChat.recent(limit: after + before);
+          return await _driftChat.recent(limit: after + before + 1);
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.recentCursor,
@@ -1775,7 +1775,7 @@ class ChatRepository extends DisposableInterface
         },
         delete: (e) async => await _driftChat.delete(e),
         reset: () async => await _driftChat.clear(),
-        isLast: (_) => true,
+        isLast: (_) => false,
         isFirst: (_) => true,
         fulfilledWhenNone: true,
         compare: (a, b) => a.value.compareTo(b.value),
@@ -1863,7 +1863,7 @@ class ChatRepository extends DisposableInterface
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
           fetch: ({required after, required before, ChatId? around}) async {
-            return await _driftChat.favorite(limit: after + before);
+            return await _driftChat.favorite(limit: after + before + 1);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.favoriteCursor,
