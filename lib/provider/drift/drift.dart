@@ -23,6 +23,7 @@ import 'package:log_me/log_me.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
@@ -326,6 +327,8 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       return null;
     }
 
-    return await callback(scoped!);
+    return await WebUtils.protect(() async {
+      return await callback(scoped!);
+    });
   }
 }
