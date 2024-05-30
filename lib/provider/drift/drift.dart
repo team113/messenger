@@ -236,7 +236,15 @@ final class ScopedDriftProvider extends DisposableInterface {
   @override
   void onClose() async {
     Log.debug('onClose()', '$runtimeType');
+
+    ScopedDatabase? connection = db;
     db = null;
+
+    // Need to find a way to `gracefully` close the connection here.
+    Future.delayed(const Duration(seconds: 10)).then(
+      (_) async => await connection?.close(),
+    );
+
     super.onClose();
   }
 
