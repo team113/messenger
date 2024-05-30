@@ -163,7 +163,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
-      await stmt.goAndReturn();
+      await stmt.go();
+      print('done, deleted chat');
     });
   }
 

@@ -357,19 +357,7 @@ class RxChatImpl extends RxChat {
       chat.value.lastReads.map((e) => LastChatRead(e.memberId, e.at)),
     );
 
-    _localSubscription = _driftChat.watch(id).listen((e) {
-      // Log.debug('got: $e', '$runtimeType($id)');
-
-      if (e != null) {
-        final ChatItem? first = chat.value.firstItem;
-
-        chat.value = e.value;
-        chat.value.firstItem = first ?? chat.value.firstItem;
-      } else {
-        // TODO: Hide chat in pagination.
-      }
-    });
-
+    _initLocalSubscription();
     _initMessagesPagination();
     _initMembersPagination();
 
@@ -857,6 +845,8 @@ class RxChatImpl extends RxChat {
       chat.value = newChat.value;
       ver = newChat.ver;
 
+      _initLocalSubscription();
+
       if (!_controller.isPaused && !_controller.isClosed) {
         _initRemoteSubscription();
       }
@@ -879,6 +869,7 @@ class RxChatImpl extends RxChat {
         put(copy, ignoreBounds: true);
       }
 
+      await _pagination.init(null);
       await _pagination.around();
     }
   }
@@ -1457,6 +1448,25 @@ class RxChatImpl extends RxChat {
       stored.value = item;
       put(stored);
     }
+  }
+
+  /// Initializes the [_localSubscription].
+  void _initLocalSubscription() {
+    _localSubscription?.cancel();
+    _localSubscription = _driftChat.watch(id).listen((e) {
+      Log.debug('got: $e', '$runtimeType($id)');
+
+      if (e != null) {
+        final ChatItem? first = chat.value.firstItem;
+
+        chat.value = e.value;
+        chat.value.firstItem = first ?? chat.value.firstItem;
+      } else {
+        if (me != null) {
+          _chatRepository.remove(id);
+        }
+      }
+    });
   }
 
   /// Initializes [ChatRepository.chatEvents] subscription.
