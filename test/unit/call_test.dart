@@ -21,6 +21,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:log_me/log_me.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
@@ -66,6 +67,8 @@ late ScopedDriftProvider scoped;
 
 void main() async {
   setUp(() {
+    Log.options = const LogOptions(level: LogLevel.all);
+
     Get.reset();
     common = CommonDriftProvider.memory();
     scoped = ScopedDriftProvider.memory();
