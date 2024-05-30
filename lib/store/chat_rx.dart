@@ -1454,7 +1454,7 @@ class RxChatImpl extends RxChat {
   void _initLocalSubscription() {
     _localSubscription?.cancel();
     _localSubscription = _driftChat.watch(id).listen((e) {
-      Log.debug('got: $e', '$runtimeType($id)');
+      // Log.debug('got: $e', '$runtimeType($id)');
 
       if (e != null) {
         final ChatItem? first = chat.value.firstItem;
