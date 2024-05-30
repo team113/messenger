@@ -240,6 +240,8 @@ final class ScopedDriftProvider extends DisposableInterface {
     ScopedDatabase? connection = db;
     db = null;
 
+    // Bad state: Tried to send Request (id = 208): NotifyTablesUpdated([]) over isolate channel, but the connection was closed!
+
     // Need to find a way to `gracefully` close the connection here.
     Future.delayed(const Duration(seconds: 10)).then(
       (_) async => await connection?.close(),
