@@ -45,12 +45,13 @@ import 'contact_rename_test.mocks.dart';
 void main() async {
   Hive.init('./test/.temp_hive/contact_rename_unit');
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
@@ -263,5 +264,5 @@ void main() async {
     );
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

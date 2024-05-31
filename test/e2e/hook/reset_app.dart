@@ -44,7 +44,7 @@ class ResetAppHook extends Hook {
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    final drift = Get.findOrNull<DriftProvider>();
+    final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
 
     await Get.deleteAll();

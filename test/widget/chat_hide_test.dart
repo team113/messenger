@@ -37,6 +37,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -56,7 +57,6 @@ import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
@@ -79,18 +79,17 @@ import 'chat_hide_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_hide_widget');
 
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -112,7 +111,7 @@ void main() async {
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+      .thenAnswer((_) async => const Stream.empty());
 
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
@@ -139,9 +138,9 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.clear();
   await contactProvider.init();
-  final userProvider = Get.put(UserDriftProvider(database));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -416,7 +415,7 @@ void main() async {
       ),
     );
 
-    await database.close();
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
 

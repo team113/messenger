@@ -138,16 +138,20 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
       });
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) =>
+  Future<Stream<QueryResult>> myUserEvents(
+    Future<MyUserVersion?> Function()? getVer,
+  ) async =>
       const Stream.empty();
 
   @override
   Stream<QueryResult> contactsEvents(
-          ChatContactsListVersion? Function()? getVer) =>
+    ChatContactsListVersion? Function()? getVer,
+  ) =>
       const Stream.empty();
 
   @override
   Stream<QueryResult> favoriteChatsEvents(
-          FavoriteChatsListVersion? Function()? getVer) =>
+    FavoriteChatsListVersion? Function()? getVer,
+  ) =>
       const Stream.empty();
 }

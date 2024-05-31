@@ -35,6 +35,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -54,7 +55,6 @@ import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
@@ -78,7 +78,8 @@ import 'user_profile_test.mocks.dart';
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/user_profile_widget');
 
@@ -86,8 +87,7 @@ void main() async {
   await credentialsProvider.init();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
 
   accountProvider.set(const UserId('me'));
 
@@ -120,9 +120,9 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init();
   await contactProvider.clear();
-  final userProvider = UserDriftProvider(database);
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   var chatProvider = ChatHiveProvider();
   await chatProvider.init();
   await chatProvider.clear();
@@ -211,7 +211,7 @@ void main() async {
     );
 
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => const Stream.empty(),
+      (_) async => const Stream.empty(),
     );
 
     when(graphQlProvider.recentChats(
@@ -229,7 +229,8 @@ void main() async {
       last: null,
       before: null,
     )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
     when(graphQlProvider.getBlocklist(
       first: anyNamed('first'),
@@ -241,7 +242,7 @@ void main() async {
     );
 
     when(graphQlProvider.myUserEvents(any))
-        .thenAnswer((realInvocation) => const Stream.empty());
+        .thenAnswer((_) async => const Stream.empty());
 
     when(graphQlProvider.userEvents(
       const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
@@ -260,7 +261,7 @@ void main() async {
     final StreamController<QueryResult> myUserEvents = StreamController();
     when(
       graphQlProvider.myUserEvents(any),
-    ).thenAnswer((_) => myUserEvents.stream);
+    ).thenAnswer((_) async => myUserEvents.stream);
 
     when(graphQlProvider.createChatContact(
       name: UserName('user name'),
@@ -508,7 +509,7 @@ void main() async {
 
     PlatformUtils.activityTimer?.cancel();
 
-    await database.close();
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
 }

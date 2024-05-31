@@ -24,7 +24,7 @@ import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
 
-/// [PageProvider] fetching items from the [DriftProvider].
+/// [PageProvider] fetching items from the [ScopedDriftProvider].
 class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   DriftPageProvider({
     required this.onKey,

@@ -39,6 +39,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
@@ -56,7 +57,6 @@ import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
@@ -82,18 +82,17 @@ void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
 
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/chat_rename_widget');
 
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   await credentialsProvider.clear();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
 
   accountProvider.set(const UserId('me'));
   credentialsProvider.put(
@@ -128,11 +127,7 @@ void main() async {
   );
 
   AuthService authService = AuthService(
-    AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ),
+    AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
     credentialsProvider,
     accountProvider,
   );
@@ -144,9 +139,9 @@ void main() async {
   var contactProvider = Get.put(ContactHiveProvider());
   await contactProvider.init();
   await contactProvider.clear();
-  final userProvider = Get.put(UserDriftProvider(database));
-  final chatItemProvider = Get.put(ChatItemDriftProvider(database));
-  final chatMemberProvider = Get.put(ChatMemberDriftProvider(database));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   var chatProvider = Get.put(ChatHiveProvider());
   await chatProvider.init();
   await chatProvider.clear();
@@ -308,7 +303,7 @@ void main() async {
     );
 
     when(graphQlProvider.myUserEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+        .thenAnswer((_) async => const Stream.empty());
 
     AuthService authService = Get.put(
       AuthService(
@@ -422,7 +417,7 @@ void main() async {
 
     expect(find.text('newname'), findsNWidgets(2));
 
-    await database.close();
+    await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
 

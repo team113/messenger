@@ -27,13 +27,13 @@ import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/auth.dart';
@@ -47,7 +47,8 @@ import 'my_profile_phones_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  final DriftProvider database = DriftProvider.memory();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Hive.init('./test/.temp_hive/my_profile_phones_unit');
 
@@ -58,10 +59,8 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   await credentialsProvider.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
-  final userProvider = UserDriftProvider(database);
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
   var blockedUsersProvider = BlocklistHiveProvider();
   await blockedUsersProvider.init();
   var sessionProvider = SessionDataHiveProvider();
@@ -83,7 +82,7 @@ void main() async {
       'MyUserService successfully adds, removes, confirms phone and resends confirmation code',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -97,7 +96,7 @@ void main() async {
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserPhone(UserPhone('+380999999999'))).thenAnswer(
-      (_) => Future.value(AddUserPhone$Mutation.fromJson({
+      (_) async => AddUserPhone$Mutation.fromJson({
         'addUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -110,16 +109,16 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.firstOrNull?.ver.internal ?? BigInt.zero + BigInt.one)}',
+              '${((await myUserProvider.accounts()).firstOrNull?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
       }).addUserPhone
-          as AddUserPhone$Mutation$AddUserPhone$MyUserEventsVersioned),
+          as AddUserPhone$Mutation$AddUserPhone$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.resendPhone()).thenAnswer((_) => Future.value());
 
     when(graphQlProvider.confirmPhoneCode(ConfirmationCode('1234'))).thenAnswer(
-      (_) => Future.value(ConfirmUserPhone$Mutation.fromJson({
+      (_) async => ConfirmUserPhone$Mutation.fromJson({
         'confirmUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -132,15 +131,15 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
       }).confirmUserPhone
-          as ConfirmUserPhone$Mutation$ConfirmUserPhone$MyUserEventsVersioned),
+          as ConfirmUserPhone$Mutation$ConfirmUserPhone$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.deleteUserPhone(UserPhone('+380999999999')))
         .thenAnswer(
-      (_) => Future.value(DeleteUserPhone$Mutation.fromJson({
+      (_) async => DeleteUserPhone$Mutation.fromJson({
         'deleteUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -153,9 +152,9 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
-      }).deleteUserPhone),
+      }).deleteUserPhone,
     );
 
     when(graphQlProvider.getBlocklist(
@@ -220,7 +219,7 @@ void main() async {
       'MyUserService throws AddUserPhoneException, ResendUserPhoneConfirmationErrorCode, ConfirmUserPhoneException',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -303,7 +302,7 @@ void main() async {
     ]);
   });
 
-  tearDown(() async => await database.close());
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 final myUserData = {

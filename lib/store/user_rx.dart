@@ -35,7 +35,7 @@ import '/util/new_type.dart';
 import '/util/stream_utils.dart';
 import 'model/user.dart';
 
-/// [RxUser] implementation backed by local [DriftProvider] storage.
+/// [RxUser] implementation backed by local [ScopedDriftProvider] storage.
 class RxUserImpl extends RxUser {
   RxUserImpl(
     this._userRepository,
@@ -102,7 +102,7 @@ class RxUserImpl extends RxUser {
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
-  /// [User]s local [DriftProvider] storage.
+  /// [User]s local storage.
   final UserDriftProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].

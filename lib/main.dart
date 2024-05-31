@@ -54,6 +54,7 @@ import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/drift.dart';
+import 'provider/drift/my_user.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -97,10 +98,12 @@ Future<void> main() async {
     WebUtils.setPathUrlStrategy();
 
     Get.put(
-      DriftProvider.from(
-        Get.putOrGet(() => AppDatabase(), permanent: true),
+      CommonDriftProvider.from(
+        Get.putOrGet(() => CommonDatabase(), permanent: true),
       ),
     );
+
+    final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
 
     await _initHive();
 
@@ -128,7 +131,7 @@ Future<void> main() async {
 
     final authRepository = Get.put<AbstractAuthRepository>(AuthRepository(
       graphQlProvider,
-      Get.find(),
+      myUserProvider,
       Get.find(),
     ));
     final authService = Get.put(

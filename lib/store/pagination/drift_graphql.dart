@@ -29,7 +29,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
     required this.graphQlProvider,
   });
 
-  /// [DriftPageProvider] fetching elements from the [DriftProvider].
+  /// [DriftPageProvider] fetching elements from the [ScopedDriftProvider].
   final DriftPageProvider<T, C, K> driftProvider;
 
   /// [GraphQlPageProvider] fetching elements from the remote.

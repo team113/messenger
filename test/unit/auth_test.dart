@@ -24,11 +24,12 @@ import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart'
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:mockito/annotations.dart';
@@ -38,11 +39,18 @@ import 'auth_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
+  final CommonDriftProvider common = Get.put(
+    CommonDriftProvider.memory(),
+    permanent: true,
+  );
+
+  Get.put(ScopedDriftProvider.memory(), permanent: true);
+
   Hive.init('./test/.temp_hive/unit_auth');
+
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credsProvider = CredentialsHiveProvider();
   final accountProvider = AccountHiveProvider();
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
   await credsProvider.init();
   await accountProvider.init();
 
@@ -57,9 +65,15 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(
-            UserPassword('123'), UserLogin('user'), null, null, null))
-        .thenAnswer(
+    when(
+      graphQlProvider.signIn(
+        UserPassword('123'),
+        UserLogin('user'),
+        null,
+        null,
+        null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(
         SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
           'session': {
