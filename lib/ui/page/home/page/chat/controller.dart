@@ -473,18 +473,18 @@ class ChatController extends GetxController {
               if (e.command != null) {
                 text.writeln(e.command!);
               }
+            }
 
-              final String trimmed = send.field.text.trim();
-              if (trimmed.isNotEmpty) {
-                text.write(trimmed);
-              }
+            final String trimmed = send.field.text.trim();
+            if (trimmed.isNotEmpty) {
+              text.write(trimmed);
+            }
 
-              print('parsing ${e.command}...');
+            for (var e in actions) {
               if (e.command?.startsWith('/donate') == true) {
                 final double? sum =
                     double.tryParse(e.command!.substring('/donate'.length));
 
-                print('parsing ${e.command}... sum: $sum');
                 if (sum != null) {
                   if (sum > 100) {
                     await _chatService.sendChatMessage(
@@ -503,7 +503,7 @@ class ChatController extends GetxController {
               }
             }
 
-            if (send.field.text.trim().isNotEmpty ||
+            if (text.isNotEmpty ||
                 send.attachments.isNotEmpty ||
                 send.replied.isNotEmpty) {
               _chatService
@@ -539,14 +539,6 @@ class ChatController extends GetxController {
                       }
                     }
                   }
-
-                  // if (item != null) {
-                  //   for (var e in actions) {
-                  //     if (e.command != null) {
-                  //       postCommand(e.command!, repliesTo: item);
-                  //     }
-                  //   }
-                  // }
                 },
               ).onError<PostChatMessageException>(
                 (_, __) {
