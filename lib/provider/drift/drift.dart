@@ -243,7 +243,6 @@ final class ScopedDriftProvider extends DisposableInterface {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    ScopedDatabase? connection = db;
     db = null;
 
     for (var e in _subscriptions) {
@@ -255,9 +254,12 @@ final class ScopedDriftProvider extends DisposableInterface {
       e.close();
     }
 
+    // TODO: Uncomment to close connections, however this should be done when
+    //       `TimeoutException(5 minutes)` is resolved, which happens after
+    //       `_newWebSocket` is invoked, or E2E tests will fail.
     // Wait for all operations to complete, disallowing new ones.
-    Future.wait(_completers.map((e) => e.future))
-        .then((_) async => await connection?.close());
+    // Future.wait(_completers.map((e) => e.future))
+    //     .then((_) async => await connection?.close());
 
     super.onClose();
   }
