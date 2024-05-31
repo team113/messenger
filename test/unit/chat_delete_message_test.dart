@@ -35,6 +35,7 @@ import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -93,6 +94,7 @@ void main() async {
       const UserId('me'),
     ),
   );
+  final settingsProvider = Get.put(SettingsDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
@@ -214,8 +216,8 @@ void main() async {
 
   AbstractSettingsRepository settingsRepository = Get.put(
     SettingsRepository(
-      mediaSettingsProvider,
-      applicationSettingsProvider,
+      const UserId('me'),
+      settingsProvider,
       backgroundProvider,
       callRectProvider,
     ),

@@ -34,6 +34,7 @@ import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -137,6 +138,7 @@ void main() async {
     Hive.init('./test/.temp_hive/chat_direct_link_unit');
     await Get.put(CredentialsHiveProvider()).init();
     await Get.put(DraftHiveProvider()).init();
+    final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
@@ -191,7 +193,12 @@ void main() async {
     Get.put(MyUserService(authService, myUserRepository));
 
     final AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(Get.find(), Get.find(), Get.find(), Get.find()),
+      SettingsRepository(
+        const UserId('me'),
+        settingsProvider,
+        Get.find(),
+        Get.find(),
+      ),
     );
 
     final CallRepository callRepository = Get.put(
