@@ -64,9 +64,9 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Creates or updates the a view for the provided [chatItemId] in [chatId].
   Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {
-    Log.debug('upsertView($chatId, $chatItemId)');
+    Log.debug('items.upsertView($chatId, $chatItemId)');
 
-    await safe((db) async {
+    await safe('upsertView', (db) async {
       final view =
           ChatItemViewRow(chatId: chatId.val, chatItemId: chatItemId.val);
       await db
@@ -83,7 +83,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
     _cache[item.value.id] = item;
 
-    final result = await safe((db) async {
+    final result = await safe('items.upsert', (db) async {
       final ChatItemRow row = item.toDb();
       final DtoChatItem stored = _ChatItemDb.fromDb(
         await db
@@ -117,7 +117,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       _cache[e.value.id] = e;
     }
 
-    final result = await safe((db) async {
+    final result = await safe('items.upsertBulk', (db) async {
       Log.debug('upsertBulk(${items.length} items) toView($toView)');
 
       await db.batch((batch) {
@@ -152,7 +152,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoChatItem?>((db) async {
+    return await safe<DtoChatItem?>('items.read', (db) async {
       final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
       final ChatItemRow? row = await stmt.getSingleOrNull();
 
@@ -169,7 +169,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   Future<void> delete(ChatItemId id) async {
     _cache.remove(id);
 
-    await safe((db) async {
+    await safe('items.delete', (db) async {
       final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
     });
@@ -179,7 +179,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   Future<void> clear() async {
     _cache.clear();
 
-    await safe((db) async {
+    await safe('items.clear', (db) async {
       await db.delete(db.chatItems).go();
       await db.delete(db.chatItemViews).go();
     });
@@ -193,7 +193,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     int? after,
     PreciseDateTime? around,
   }) async {
-    final result = await safe((db) async {
+    final result = await safe('items.view', (db) async {
       if (around != null) {
         final stmt = db.chatItemsAround(
           chatId.val,

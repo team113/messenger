@@ -401,13 +401,19 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// `null`.
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
-  Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
+  Future<T?> safe<T>(
+      String name, Future<T> Function(ScopedDatabase db) callback) async {
     if (PlatformUtils.isWeb) {
+      Log.warning('[safe] $name...');
+
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
-      return await WebUtils.protect(() async {
+      final result = await WebUtils.protect(() async {
         return await _scoped.wrapped(callback);
       });
+
+      Log.warning('[safe] $name... done');
+      return result;
     }
 
     return await _scoped.wrapped(callback);

@@ -52,7 +52,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   ) async {
     Log.debug('upsertBulk($chatId, $members)');
 
-    await safe((db) async {
+    await safe('chat_member.upsertBulk', (db) async {
       await db.batch((batch) {
         for (var member in members) {
           final ChatMemberRow row = member.toDb(chatId);
@@ -67,7 +67,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [DtoChatMember] stored in the database by the provided
   /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
-    return await safe<DtoChatMember?>((db) async {
+    return await safe<DtoChatMember?>('chat_member.read', (db) async {
       final stmt = db.select(db.chatMembers).join([
         innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),
       ]);
@@ -93,7 +93,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   /// Deletes the [DtoChatItem] identified by the provided [chatId] and [userId]
   /// from the database.
   Future<void> delete(ChatId chatId, UserId userId) async {
-    await safe((db) async {
+    await safe('chat_member.delete', (db) async {
       final stmt = db.delete(db.chatMembers);
       stmt.where(
         (u) => u.chatId.equals(chatId.val) & u.userId.equals(userId.val),
@@ -104,14 +104,14 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
 
   /// Deletes all the [DtoChatItem]s stored in the database.
   Future<void> clear() async {
-    await safe((db) async {
+    await safe('chat_member.clear', (db) async {
       await db.delete(db.chatMembers).go();
     });
   }
 
   /// Returns the [DtoChatMember]s of the provided [chatId].
   Future<List<DtoChatMember>> members(ChatId chatId, {int? limit}) async {
-    final result = await safe((db) async {
+    final result = await safe('chat_member.members', (db) async {
       final stmt = db.select(db.chatMembers).join([
         innerJoin(
           db.users,
