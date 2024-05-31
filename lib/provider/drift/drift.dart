@@ -228,8 +228,13 @@ final class ScopedDriftProvider extends DisposableInterface {
   /// `null` here means the database is closed.
   ScopedDatabase? db;
 
+  /// [Completer]s of [wrapped] operations to await in [onClose].
   final List<Completer> _completers = [];
+
+  /// [StreamController]s of [stream]s to cancel in [onClose].
   final List<StreamController> _controllers = [];
+
+  /// [StreamSubscription]s to executors of [stream]s to cancel in [onClose].
   final List<StreamSubscription> _subscriptions = [];
 
   @override
@@ -295,42 +300,42 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
-    if (!isClosed && db != null) {
-      StreamSubscription? subscription;
-      StreamController<T>? controller;
-
-      controller = StreamController(
-        onListen: () {
-          if (isClosed || db == null) {
-            return;
-          }
-
-          if (subscription != null) {
-            subscription?.cancel();
-            _subscriptions.remove(subscription);
-          }
-
-          subscription = executor(db!).listen(
-            controller?.add,
-            onError: controller?.addError,
-            onDone: () => controller?.close(),
-          );
-
-          _subscriptions.add(subscription!);
-        },
-        onCancel: () {
-          if (subscription != null) {
-            subscription?.cancel();
-            _subscriptions.remove(subscription);
-          }
-        },
-      );
-      _controllers.add(controller);
-
-      return controller.stream;
+    if (isClosed || db == null) {
+      return const Stream.empty();
     }
 
-    return const Stream.empty();
+    StreamSubscription? subscription;
+    StreamController<T>? controller;
+
+    controller = StreamController(
+      onListen: () {
+        if (isClosed || db == null) {
+          return;
+        }
+
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+
+        subscription = executor(db!).listen(
+          controller?.add,
+          onError: controller?.addError,
+          onDone: () => controller?.close(),
+        );
+
+        _subscriptions.add(subscription!);
+      },
+      onCancel: () {
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+      },
+    );
+    _controllers.add(controller);
+
+    return controller.stream;
   }
 }
 

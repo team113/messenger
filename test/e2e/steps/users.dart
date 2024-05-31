@@ -58,8 +58,6 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
       },
       timeout: const Duration(seconds: 30),
     );
-
-    print('[debug] iAm 5');
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),

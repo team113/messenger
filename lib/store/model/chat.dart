@@ -25,7 +25,7 @@ import 'version.dart';
 
 part 'chat.g.dart';
 
-/// Persisted in [Hive] storage [Chat]'s [value].
+/// Persisted in storage [Chat]'s [value].
 @HiveType(typeId: ModelTypeId.dtoChat)
 class DtoChat extends HiveObject {
   DtoChat(

@@ -71,7 +71,7 @@ typedef MessagesPaginated
 typedef MembersPaginated
     = RxPaginatedImpl<UserId, RxChatMember, DtoChatMember, ChatMembersCursor>;
 
-/// [RxChat] implementation backed by local [Hive] storage.
+/// [RxChat] implementation backed by local storage.
 class RxChatImpl extends RxChat {
   RxChatImpl(
     this._chatRepository,
@@ -79,12 +79,12 @@ class RxChatImpl extends RxChat {
     this._draftLocal,
     this._driftItems,
     this._driftMembers,
-    DtoChat hiveChat,
-  )   : chat = Rx<Chat>(hiveChat.value),
-        _lastReadItemCursor = hiveChat.lastReadItemCursor,
-        draft = Rx<ChatMessage?>(_draftLocal.get(hiveChat.value.id)),
-        unreadCount = RxInt(hiveChat.value.unreadCount),
-        ver = hiveChat.ver;
+    DtoChat dto,
+  )   : chat = Rx<Chat>(dto.value),
+        _lastReadItemCursor = dto.lastReadItemCursor,
+        draft = Rx<ChatMessage?>(_draftLocal.get(dto.value.id)),
+        unreadCount = RxInt(dto.value.unreadCount),
+        ver = dto.ver;
 
   @override
   final Rx<Chat> chat;
@@ -684,7 +684,7 @@ class RxChatImpl extends RxChat {
                   (a) {
                     attachments[i] = a;
 
-                    // Frequent [Hive] writes of byte data freezes the Web page.
+                    // Frequent writes of byte data freezes the Web page.
                     if (!PlatformUtils.isWeb) {
                       put(message);
                     }
@@ -858,7 +858,7 @@ class RxChatImpl extends RxChat {
       await clear();
 
       for (var e in saved.whereType<DtoChatMessage>()) {
-        // Copy the [DtoChatMessage] to the new [ChatItemHiveProvider].
+        // Copy the [DtoChatMessage] to the new [Pagination].
         final DtoChatMessage copy = e.copyWith()
           ..value.chatId = newChat.value.id;
 
@@ -930,7 +930,7 @@ class RxChatImpl extends RxChat {
       if (chatEntity != null) {
         chatEntity.value.avatar = avatar;
 
-        // TODO: Avatar should be updated by [Hive] subscription.
+        // TODO: Avatar should be updated by local subscription.
         this.avatar.value = avatar;
 
         await _driftChat.upsert(chatEntity);
