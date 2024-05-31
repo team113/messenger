@@ -105,7 +105,8 @@ class SettingsDriftProvider extends DriftProviderBase {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.myUsers)..where((e) => e.id.equals(id.val));
+      final stmt = db.delete(db.settings)
+        ..where((e) => e.userId.equals(id.val));
       await stmt.go();
 
       _controllers[id]?.add(null);
