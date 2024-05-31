@@ -178,77 +178,70 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> recent({int? limit}) async {
-    if (isClosed || scoped == null) {
-      return [];
-    }
+    final result = await safe((db) async {
+      final stmt = db.select(db.chats);
 
-    final stmt = scoped!.select(scoped!.chats);
+      stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
+      stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
-    stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
-    stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+      if (limit != null) {
+        stmt.limit(limit);
+      }
 
-    if (limit != null) {
-      stmt.limit(limit);
-    }
+      return (await stmt.get()).map(_ChatDb.fromDb).toList();
+    });
 
-    return (await stmt.get()).map(_ChatDb.fromDb).toList();
+    return result ?? [];
   }
 
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
-    if (isClosed || scoped == null) {
-      return [];
-    }
+    final result = await safe((db) async {
+      final stmt = db.select(db.chats);
 
-    final stmt = scoped!.select(scoped!.chats);
+      stmt.where(
+        (u) =>
+            u.isHidden.equals(false) &
+            u.favoritePosition.isNotNull() &
+            u.id.like('local_%').not(),
+      );
+      stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
 
-    stmt.where(
-      (u) =>
-          u.isHidden.equals(false) &
-          u.favoritePosition.isNotNull() &
-          u.id.like('local_%').not(),
-    );
-    stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
+      if (limit != null) {
+        stmt.limit(limit);
+      }
 
-    if (limit != null) {
-      stmt.limit(limit);
-    }
+      return (await stmt.get()).map(_ChatDb.fromDb).toList();
+    });
 
-    return (await stmt.get()).map(_ChatDb.fromDb).toList();
+    return result ?? [];
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoChat]
   /// identified by the provided [id].
   Stream<DtoChat?> watch(ChatId id) {
-    if (isClosed || scoped == null) {
-      return const Stream.empty();
-    }
+    return stream((db) {
+      final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
 
-    final stmt = scoped!.select(scoped!.chats)
-      ..where((u) => u.id.equals(id.val));
-
-    StreamController<DtoChat?>? controller = _controllers[id];
-    if (controller == null) {
-      controller = StreamController<DtoChat?>.broadcast(sync: true);
-      _controllers[id] = controller;
-    }
-
-    DtoChat? last;
-
-    return StreamGroup.merge(
-      [
-        controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : _ChatDb.fromDb(e.first)),
-      ],
-    ).asyncExpand((e) async* {
-      if (isClosed || scoped == null) {
-        return;
+      StreamController<DtoChat?>? controller = _controllers[id];
+      if (controller == null) {
+        controller = StreamController<DtoChat?>.broadcast(sync: true);
+        _controllers[id] = controller;
       }
 
-      if (e != last) {
-        last = e;
-        yield e;
-      }
+      DtoChat? last;
+
+      return StreamGroup.merge(
+        [
+          controller.stream,
+          stmt.watch().map((e) => e.isEmpty ? null : _ChatDb.fromDb(e.first)),
+        ],
+      ).asyncExpand((e) async* {
+        if (e != last) {
+          last = e;
+          yield e;
+        }
+      });
     });
   }
 }

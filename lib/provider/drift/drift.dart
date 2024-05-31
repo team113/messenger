@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart' show DisposableInterface;
@@ -226,6 +228,9 @@ final class ScopedDriftProvider extends DisposableInterface {
   /// `null` here means the database is closed.
   ScopedDatabase? db;
 
+  final List<Completer> _completers = [];
+  final List<StreamController> _controllers = [];
+
   @override
   void onInit() async {
     Log.debug('onInit()', '$runtimeType');
@@ -240,12 +245,16 @@ final class ScopedDriftProvider extends DisposableInterface {
     ScopedDatabase? connection = db;
     db = null;
 
+    // Close all the active streams.
+    for (var e in _controllers) {
+      e.close();
+    }
+
     // Bad state: Tried to send Request (id = 208): NotifyTablesUpdated([]) over isolate channel, but the connection was closed!
 
-    // Need to find a way to `gracefully` close the connection here.
-    Future.delayed(const Duration(seconds: 10)).then(
-      (_) async => await connection?.close(),
-    );
+    // Wait for all operations to complete, disallowing new ones.
+    await Future.wait(_completers.map((e) => e.future));
+    await connection?.close();
 
     super.onClose();
   }
@@ -263,6 +272,35 @@ final class ScopedDriftProvider extends DisposableInterface {
     final Future<void>? future = db?.reset();
     db = null;
     await future;
+  }
+
+  /// Completes the provided [action] in a wrapped safe environment.
+  Future<T?> wrapped<T>(Future<T?> Function(ScopedDatabase) action) async {
+    if (isClosed || db == null) {
+      return null;
+    }
+
+    final Completer completer = Completer();
+    _completers.add(completer);
+
+    try {
+      return await action(db!);
+    } finally {
+      completer.complete();
+      _completers.remove(completer);
+    }
+  }
+
+  /// Returns the [Stream] executed in a wrapped safe environment.
+  Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
+    if (!isClosed && db != null) {
+      final StreamController<T> controller = StreamController();
+      _controllers.add(controller);
+      controller.addStream(executor(db!));
+      return controller.stream;
+    }
+
+    return const Stream.empty();
   }
 }
 
@@ -318,15 +356,13 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// Returns the [ScopedDatabase].
   ///
   /// `null` here means the database is closed.
-  ScopedDatabase? get scoped => _scoped.db;
+  // ScopedDatabase? get scoped => _scoped.db;
 
   /// Completes the provided [action] as a [scoped] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    if (isClosed || scoped == null) {
-      return;
-    }
-
-    await scoped?.transaction(action);
+    await _scoped.wrapped((db) async {
+      await db.transaction(action);
+    });
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
@@ -334,20 +370,19 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
-    if (isClosed || scoped == null) {
-      return null;
-    }
-
     if (PlatformUtils.isWeb) {
       return await WebUtils.protect(() async {
-        if (isClosed || scoped == null) {
-          return null;
-        }
-
-        return await callback(scoped!);
+        return await _scoped.wrapped(callback);
       });
     }
 
-    return await callback(scoped!);
+    return await _scoped.wrapped(callback);
+  }
+
+  /// Listens to the [executor] through a non-closed [ScopedDatabase].
+  ///
+  /// [ScopedDatabase] may be closed, for example, between E2E tests.
+  Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
+    return _scoped.stream(executor);
   }
 }
