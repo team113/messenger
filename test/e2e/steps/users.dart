@@ -37,6 +37,8 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     var password = UserPassword('123');
 
+    print('[debug] iAm 1');
+
     final CustomUser me = await createUser(
       user: user,
       world: context.world,
@@ -44,23 +46,31 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
     context.world.me = me.userId;
 
+    print('[debug] iAm 2');
+
     final AuthService authService = Get.find<AuthService>();
     await authService.signInWith(await me.credentials);
     me.credentials = authService.credentials.value;
+
+    print('[debug] iAm 3');
 
     router.home();
 
     // Ensure business logic is initialized.
     await context.world.appDriver.waitUntil(
       () async {
+        print('[debug] iAm 4');
+
         return Get.isRegistered<ChatService>() &&
             Get.isRegistered<MyUserService>();
       },
       timeout: const Duration(seconds: 30),
     );
+
+    print('[debug] iAm 5');
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Signs in as the provided [TestUser] created earlier in the [iAm] step.
