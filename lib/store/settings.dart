@@ -25,8 +25,9 @@ import 'package:hive/hive.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
-import '/provider/hive/application_settings.dart';
+import '/provider/drift/settings.dart';
 import '/provider/hive/background.dart';
 import '/provider/hive/call_rect.dart';
 import '/provider/hive/media_settings.dart';
@@ -36,11 +37,13 @@ import '/util/log.dart';
 class SettingsRepository extends DisposableInterface
     implements AbstractSettingsRepository {
   SettingsRepository(
-    this._mediaLocal,
+    this.userId,
     this._settingsLocal,
     this._backgroundLocal,
     this._callRectLocal,
   );
+
+  final UserId userId;
 
   @override
   final Rx<MediaSettings?> mediaSettings = Rx(null);
@@ -51,11 +54,8 @@ class SettingsRepository extends DisposableInterface
   @override
   final Rx<Uint8List?> background = Rx(null);
 
-  /// [MediaSettings] local [Hive] storage.
-  final MediaSettingsHiveProvider _mediaLocal;
-
-  /// [ApplicationSettings] local [Hive] storage.
-  final ApplicationSettingsHiveProvider _settingsLocal;
+  /// [ApplicationSettings] and [MediaSettings] local storage.
+  final SettingsDriftProvider _settingsLocal;
 
   /// [HiveBackground] local [Hive] storage.
   final BackgroundHiveProvider _backgroundLocal;
@@ -67,8 +67,8 @@ class SettingsRepository extends DisposableInterface
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
 
-  /// [ApplicationSettingsHiveProvider.boxEvents] subscription.
-  StreamIterator? _settingsSubscription;
+  /// [SettingsDriftProvider.watch] subscription.
+  StreamSubscription? _settingsSubscription;
 
   /// [BackgroundHiveProvider.boxEvents] subscription.
   StreamIterator? _backgroundSubscription;
@@ -77,10 +77,13 @@ class SettingsRepository extends DisposableInterface
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    mediaSettings.value = _mediaLocal.settings;
-    applicationSettings.value = _settingsLocal.settings;
+    _settingsLocal.read(userId).then((v) {
+      mediaSettings.value = v?.media;
+      applicationSettings.value = v?.application;
+    });
+
     background.value = _backgroundLocal.bytes;
-    _initMediaSubscription();
+
     _initSettingsSubscription();
     _initBackgroundSubscription();
 
@@ -100,49 +103,49 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> clearCache() async {
     Log.debug('clearCache()', '$runtimeType');
-    await _mediaLocal.clear();
+    await _settingsLocal.clear();
   }
 
   @override
   Future<void> setVideoDevice(String id) async {
     Log.debug('setVideoDevice($id)', '$runtimeType');
-    await _mediaLocal.setVideoDevice(id);
+    await _set(media: (e) => e..videoDevice = id);
   }
 
   @override
   Future<void> setAudioDevice(String id) async {
     Log.debug('setAudioDevice($id)', '$runtimeType');
-    await _mediaLocal.setAudioDevice(id);
+    await _set(media: (e) => e..audioDevice = id);
   }
 
   @override
   Future<void> setOutputDevice(String id) async {
     Log.debug('setOutputDevice($id)', '$runtimeType');
-    await _mediaLocal.setOutputDevice(id);
+    await _set(media: (e) => e..outputDevice = id);
   }
 
   @override
   Future<void> setPopupsEnabled(bool enabled) async {
     Log.debug('setPopupsEnabled($enabled)', '$runtimeType');
-    await _settingsLocal.setPopupsEnabled(enabled);
+    await _set(settings: (e) => e..enablePopups = enabled);
   }
 
   @override
   Future<void> setLocale(String locale) async {
     Log.debug('setLocale($locale)', '$runtimeType');
-    await _settingsLocal.setLocale(locale);
+    await _set(settings: (e) => e..locale = locale);
   }
 
   @override
   Future<void> setShowIntroduction(bool show) async {
     Log.debug('setShowIntroduction($show)', '$runtimeType');
-    await _settingsLocal.setShowIntroduction(show);
+    await _set(settings: (e) => e..showIntroduction = show);
   }
 
   @override
   Future<void> setSideBarWidth(double width) async {
     Log.debug('setSideBarWidth($width)', '$runtimeType');
-    await _settingsLocal.setSideBarWidth(width);
+    await _set(settings: (e) => e..sideBarWidth = width);
   }
 
   @override
@@ -157,19 +160,21 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setCallButtons(List<String> buttons) async {
     Log.debug('setCallButtons($buttons)', '$runtimeType');
-    await _settingsLocal.setCallButtons(buttons);
+    await _set(settings: (e) => e..callButtons = buttons);
   }
 
   @override
   Future<void> setShowDragAndDropVideosHint(bool show) async {
     Log.debug('setShowDragAndDropVideosHint($show)', '$runtimeType');
-    await _settingsLocal.setShowDragAndDropVideosHint(show);
+
+    // No-op.
   }
 
   @override
   Future<void> setShowDragAndDropButtonsHint(bool show) async {
     Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
-    await _settingsLocal.setShowDragAndDropButtonsHint(show);
+
+    // No-op.
   }
 
   @override
@@ -187,51 +192,49 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setPinnedActions(List<String> buttons) async {
     Log.debug('setPinnedActions($buttons)', '$runtimeType');
-    await _settingsLocal.setPinnedActions(buttons);
+    await _set(settings: (e) => e..pinnedActions = buttons);
   }
 
   @override
   Future<void> setCallButtonsPosition(CallButtonsPosition position) async {
     Log.debug('setCallButtonsPosition($position)', '$runtimeType');
-    await _settingsLocal.setCallButtonsPosition(position);
+    await _set(settings: (e) => e..callButtonsPosition = position);
   }
 
   @override
   Future<void> setWorkWithUsTabEnabled(bool enabled) async {
     Log.debug('setWorkWithUsTabEnabled($enabled)', '$runtimeType');
-    await _settingsLocal.setWorkWithUsTabEnabled(enabled);
+    await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
   }
 
-  /// Initializes [MediaSettingsHiveProvider.boxEvents] subscription.
-  Future<void> _initMediaSubscription() async {
-    Log.debug('_initMediaSubscription()', '$runtimeType');
+  Future<void> _set({
+    ApplicationSettings? Function(ApplicationSettings)? settings,
+    MediaSettings? Function(MediaSettings)? media,
+  }) async {
+    applicationSettings.value =
+        settings?.call(applicationSettings.value ?? ApplicationSettings()) ??
+            applicationSettings.value;
 
-    _mediaSubscription = StreamIterator(_mediaLocal.boxEvents);
-    while (await _mediaSubscription!.moveNext()) {
-      BoxEvent event = _mediaSubscription!.current;
-      if (event.deleted) {
-        mediaSettings.value = null;
-      } else {
-        mediaSettings.value = event.value;
-        mediaSettings.refresh();
-      }
-    }
+    mediaSettings.value = media?.call(mediaSettings.value ?? MediaSettings()) ??
+        mediaSettings.value;
+
+    await _settingsLocal.upsert(
+      userId,
+      DtoSettings(
+        application: applicationSettings.value ?? ApplicationSettings(),
+        media: mediaSettings.value ?? MediaSettings(),
+      ),
+    );
   }
 
-  /// Initializes [ApplicationSettingsHiveProvider.boxEvents] subscription.
+  /// Initializes [SettingsDriftProvider.watch] subscription.
   Future<void> _initSettingsSubscription() async {
     Log.debug('_initSettingsSubscription()', '$runtimeType');
 
-    _settingsSubscription = StreamIterator(_settingsLocal.boxEvents);
-    while (await _settingsSubscription!.moveNext()) {
-      final BoxEvent event = _settingsSubscription!.current;
-      if (event.deleted) {
-        applicationSettings.value = null;
-      } else {
-        applicationSettings.value = event.value;
-        applicationSettings.refresh();
-      }
-    }
+    _settingsSubscription = _settingsLocal.watch(userId).listen((e) {
+      applicationSettings.value = e?.application;
+      mediaSettings.value = e?.media;
+    });
   }
 
   /// Initializes [BackgroundHiveProvider.boxEvents] subscription.
