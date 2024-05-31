@@ -1453,20 +1453,23 @@ class RxChatImpl extends RxChat {
   /// Initializes the [_localSubscription].
   void _initLocalSubscription() {
     _localSubscription?.cancel();
-    _localSubscription = _driftChat.watch(id).listen((e) {
-      // Log.debug('got: $e', '$runtimeType($id)');
+    _localSubscription = _driftChat.watch(id).listen(
+      (e) {
+        // Log.debug('got: $e', '$runtimeType($id)');
 
-      if (e != null) {
-        final ChatItem? first = chat.value.firstItem;
+        if (e != null) {
+          final ChatItem? first = chat.value.firstItem;
 
-        chat.value = e.value;
-        chat.value.firstItem = first ?? chat.value.firstItem;
-      } else {
-        if (me != null) {
-          _chatRepository.remove(id);
+          chat.value = e.value;
+          chat.value.firstItem = first ?? chat.value.firstItem;
+        } else {
+          if (me != null) {
+            _chatRepository.remove(id);
+          }
         }
-      }
-    });
+      },
+      onDone: () => Log.info('onDone', '$runtimeType($id)'),
+    );
   }
 
   /// Initializes [ChatRepository.chatEvents] subscription.

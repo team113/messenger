@@ -192,7 +192,7 @@ final class CommonDriftProvider extends DisposableInterface {
   }
 
   @override
-  void onClose() async {
+  void onClose() {
     Log.debug('onClose()', '$runtimeType');
     db = null;
     super.onClose();
@@ -240,7 +240,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   }
 
   @override
-  void onClose() async {
+  void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
     ScopedDatabase? connection = db;
@@ -255,11 +255,9 @@ final class ScopedDriftProvider extends DisposableInterface {
       e.close();
     }
 
-    // Bad state: Tried to send Request (id = 208): NotifyTablesUpdated([]) over isolate channel, but the connection was closed!
-
     // Wait for all operations to complete, disallowing new ones.
-    await Future.wait(_completers.map((e) => e.future));
-    await connection?.close();
+    Future.wait(_completers.map((e) => e.future))
+        .then((_) async => await connection?.close());
 
     super.onClose();
   }
@@ -391,7 +389,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// `null` here means the database is closed.
   // ScopedDatabase? get scoped => _scoped.db;
 
-  /// Completes the provided [action] as a [scoped] transaction.
+  /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await _scoped.wrapped((db) async {
       await db.transaction(action);
