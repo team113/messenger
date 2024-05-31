@@ -42,17 +42,21 @@ class ResetAppHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
+    print('onBeforeScenario() 1');
     FocusManager.instance.primaryFocus?.unfocus();
 
     final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
+    print('onBeforeScenario() 2');
 
     await Get.deleteAll();
+    print('onBeforeScenario() 3');
 
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
+    print('onBeforeScenario() 4');
 
     try {
       await Hive.close();
@@ -60,11 +64,15 @@ class ResetAppHook extends Hook {
       // `.lock` file might not exist here, so no-op.
     }
 
+    print('onBeforeScenario() 5');
+
     await Hive.clean('hive');
 
     svg.cache.clear();
 
     FIFOCache.clear();
+
+    print('onBeforeScenario() 6');
   }
 
   @override
