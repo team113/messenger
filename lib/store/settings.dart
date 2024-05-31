@@ -30,7 +30,6 @@ import '/domain/repository/settings.dart';
 import '/provider/drift/settings.dart';
 import '/provider/hive/background.dart';
 import '/provider/hive/call_rect.dart';
-import '/provider/hive/media_settings.dart';
 import '/util/log.dart';
 
 /// Application settings repository.
