@@ -74,7 +74,7 @@ class Chats extends Table {
   TextColumn get favoriteCursor => text().nullable()();
 }
 
-/// [DriftProviderBase] for manipulating the persisted [ChatItem]s.
+/// [DriftProviderBase] for manipulating the persisted [Chat]s.
 class ChatDriftProvider extends DriftProviderBaseWithScope {
   ChatDriftProvider(super.common, super.scoped);
 

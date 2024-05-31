@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:get/get.dart';
-import 'package:log_me/log_me.dart';
 
 import '/store/pagination.dart';
 import '/util/obs/obs.dart';
@@ -75,8 +74,6 @@ class CombinedPagination<T, K> {
         continue;
       }
     }
-
-    Log.info('around() -> hasNext: $hasNext');
   }
 
   /// Fetches the next page.

@@ -87,8 +87,8 @@ Future<void> main() async {
     level: Config.logLevel,
 
     // Browsers collect timestamps for log themselves.
-    timeStamp: !PlatformUtils.isWeb,
-    dateStamp: !PlatformUtils.isWeb,
+    // timeStamp: !PlatformUtils.isWeb,
+    // dateStamp: !PlatformUtils.isWeb,
   );
 
   // Initializes and runs the [App].

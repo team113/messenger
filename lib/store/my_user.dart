@@ -128,10 +128,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    _active.then((v) {
-      Log.info('_active.then -> $v');
-      myUser.value = v?.value ?? myUser.value;
-    });
+    _active.then((v) => myUser.value = v?.value ?? myUser.value);
 
     _initProfiles();
     _initLocalSubscription();
@@ -648,8 +645,6 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
 
     _localSubscription = _driftMyUser.watchSingle(id).listen((e) {
-      Log.debug('_driftMyUser.watchSingle($id) -> $e');
-
       final bool isCurrent =
           (e?.id ?? id) == (myUser.value?.id ?? _accountLocal.userId);
 

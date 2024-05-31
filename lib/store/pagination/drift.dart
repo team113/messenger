@@ -150,7 +150,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         (_hasFirst && _hasLast) ||
         edges.length - edgesBefore >= count ~/ 2;
 
-    Log.info(
+    Log.debug(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );

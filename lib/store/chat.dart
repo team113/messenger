@@ -1561,7 +1561,7 @@ class ChatRepository extends DisposableInterface
     final RxChatImpl rxChat = _add(chat, pagination: pagination);
 
     // Favorite [DtoChat]s will be putted to [Hive] through
-    // [HiveGraphQlPageProvider].
+    // [DriftGraphQlPageProvider].
     if (chat.value.favoritePosition == null) {
       await _driftChat.txn(() async {
         DtoChat? saved;
