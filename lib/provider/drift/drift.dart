@@ -230,6 +230,7 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   final List<Completer> _completers = [];
   final List<StreamController> _controllers = [];
+  final List<StreamSubscription> _subscriptions = [];
 
   @override
   void onInit() async {
@@ -244,6 +245,10 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     ScopedDatabase? connection = db;
     db = null;
+
+    for (var e in _subscriptions) {
+      e.cancel();
+    }
 
     // Close all the active streams.
     for (var e in _controllers) {
@@ -294,9 +299,37 @@ final class ScopedDriftProvider extends DisposableInterface {
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
     if (!isClosed && db != null) {
-      final StreamController<T> controller = StreamController();
+      StreamSubscription? subscription;
+      StreamController<T>? controller;
+
+      controller = StreamController(
+        onListen: () {
+          if (isClosed || db == null) {
+            return;
+          }
+
+          if (subscription != null) {
+            subscription?.cancel();
+            _subscriptions.remove(subscription);
+          }
+
+          subscription = executor(db!).listen(
+            controller?.add,
+            onError: controller?.addError,
+            onDone: () => controller?.close(),
+          );
+
+          _subscriptions.add(subscription!);
+        },
+        onCancel: () {
+          if (subscription != null) {
+            subscription?.cancel();
+            _subscriptions.remove(subscription);
+          }
+        },
+      );
       _controllers.add(controller);
-      controller.addStream(executor(db!));
+
       return controller.stream;
     }
 
