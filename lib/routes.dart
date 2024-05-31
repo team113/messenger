@@ -48,7 +48,6 @@ import 'provider/drift/chat_member.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/application_settings.dart';
 import 'provider/hive/background.dart';
 import 'provider/hive/blocklist.dart';
 import 'provider/hive/blocklist_sorting.dart';
@@ -59,7 +58,6 @@ import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
 import 'provider/hive/favorite_contact.dart';
-import 'provider/hive/media_settings.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
@@ -504,8 +502,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(FavoriteContactHiveProvider()).init(userId: me),
                 deps.put(ContactSortingHiveProvider()).init(userId: me),
-                deps.put(MediaSettingsHiveProvider()).init(userId: me),
-                deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
                 deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(CallCredentialsHiveProvider()).init(userId: me),
                 deps.put(ChatCredentialsHiveProvider()).init(userId: me),
@@ -524,12 +520,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                ),
+                SettingsRepository(me, Get.find(), Get.find(), Get.find()),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
@@ -644,9 +635,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final contactFavoriteProvider =
                 deps.put(FavoriteContactHiveProvider());
             final contactSortProvider = deps.put(ContactSortingHiveProvider());
-            final mediaSettingsProvider = deps.put(MediaSettingsHiveProvider());
-            final applicationSettingsProvider =
-                deps.put(ApplicationSettingsHiveProvider());
             final backgroundProvider = deps.put(BackgroundHiveProvider());
             final callCredsProvider = deps.put(CallCredentialsHiveProvider());
             final chatCredsProvider = deps.put(ChatCredentialsHiveProvider());
@@ -661,8 +649,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               contactProvider.init(userId: me),
               contactFavoriteProvider.init(userId: me),
               contactSortProvider.init(userId: me),
-              mediaSettingsProvider.init(userId: me),
-              applicationSettingsProvider.init(userId: me),
               backgroundProvider.init(userId: me),
               callCredsProvider.init(userId: me),
               chatCredsProvider.init(userId: me),
@@ -691,8 +677,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(
-                mediaSettingsProvider,
-                applicationSettingsProvider,
+                me,
+                Get.find(),
                 backgroundProvider,
                 callRectProvider,
               ),

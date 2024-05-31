@@ -55,6 +55,7 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
+import 'provider/drift/settings.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -103,6 +104,7 @@ Future<void> main() async {
     );
 
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
+    Get.put(SettingsDriftProvider(Get.find()));
 
     await _initHive();
 
