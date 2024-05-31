@@ -34,7 +34,6 @@ import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/credentials.dart';
-import '/provider/hive/my_user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/my_user.dart';

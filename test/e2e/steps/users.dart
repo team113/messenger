@@ -60,7 +60,7 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
     );
   },
   configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Signs in as the provided [TestUser] created earlier in the [iAm] step.

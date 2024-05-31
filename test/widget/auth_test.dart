@@ -42,7 +42,6 @@ import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -89,8 +88,6 @@ void main() async {
   var contactProvider = ContactHiveProvider();
   await contactProvider.init(userId: const UserId('me'));
   final userProvider = UserDriftProvider(common, scoped);
-  var chatProvider = ChatHiveProvider();
-  await chatProvider.init(userId: const UserId('me'));
   var settingsProvider = MediaSettingsHiveProvider();
   await settingsProvider.init(userId: const UserId('me'));
   var draftProvider = DraftHiveProvider();
@@ -127,7 +124,6 @@ void main() async {
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
-    Get.put(chatProvider);
     Get.put(draftProvider);
     Get.put(settingsProvider);
     Get.put(callCredentialsProvider);

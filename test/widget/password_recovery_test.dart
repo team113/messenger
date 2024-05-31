@@ -30,7 +30,6 @@ import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
@@ -69,8 +68,6 @@ void main() async {
   await contactProvider.init();
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
-  var chatProvider = ChatHiveProvider();
-  await chatProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -86,7 +83,6 @@ void main() async {
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
-    Get.put(chatProvider);
 
     AuthService authService = Get.put(
       AuthService(

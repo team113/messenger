@@ -38,6 +38,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -51,17 +52,14 @@ import 'package:messenger/provider/hive/blocklist.dart';
 import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -114,8 +112,10 @@ void main() async {
     after: null,
     last: null,
   )).thenAnswer(
-    (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
-        .favoriteChatContacts),
+    (_) => Future.value(
+      FavoriteContacts$Query.fromJson(favoriteChatContacts)
+          .favoriteChatContacts,
+    ),
   );
 
   when(graphQlProvider.chatContacts(
@@ -138,10 +138,11 @@ void main() async {
           .keepTyping(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
       .thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider
-          .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer(
-          (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+  when(
+    graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    ),
+  ).thenAnswer((_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
   when(graphQlProvider.readChat(
           const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -151,7 +152,9 @@ void main() async {
   when(graphQlProvider.chatItems(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     last: 50,
-  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
+  )).thenAnswer(
+    (_) => Future.value(GetMessages$Query.fromJson(
+      {
         'chat': {
           'items': {
             'edges': [
@@ -188,7 +191,9 @@ void main() async {
             }
           }
         }
-      })));
+      },
+    )),
+  );
 
   when(graphQlProvider.chatItem(any)).thenAnswer(
     (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
@@ -311,9 +316,7 @@ void main() async {
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
-  await chatProvider.clear();
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   var mediaSettingsProvider = Get.put(MediaSettingsHiveProvider());
   await mediaSettingsProvider.init();
   await mediaSettingsProvider.clear();
@@ -334,10 +337,6 @@ void main() async {
   await blockedUsersProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
   var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
@@ -409,8 +408,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,

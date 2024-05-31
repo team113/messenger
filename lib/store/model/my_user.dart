@@ -25,7 +25,7 @@ import 'version.dart';
 
 part 'my_user.g.dart';
 
-/// Persisted in [Hive] storage [MyUser]'s [value].
+/// Persisted in storage [MyUser]'s [value].
 @HiveType(typeId: ModelTypeId.dtoMyUser)
 class DtoMyUser extends HiveObject {
   DtoMyUser(this.value, this.ver);

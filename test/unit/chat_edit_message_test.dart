@@ -30,6 +30,7 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -43,13 +44,10 @@ import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/media_settings.dart';
 import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -79,8 +77,7 @@ void main() async {
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -97,10 +94,6 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
   final accountProvider = AccountHiveProvider();
@@ -246,8 +239,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -328,8 +319,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,

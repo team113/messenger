@@ -37,6 +37,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.isLast,
     this.onNone,
     this.compare,
+    this.fulfilledWhenNone = false,
   });
 
   /// Callback, called when a [K] of the provided [T] is required.
@@ -53,7 +54,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   }) fetch;
 
-  /// Callback, called when the provided [items] should be persisted.
+  /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
 
   /// Callback, called when the provided [key] was invoked during [init].
@@ -77,6 +78,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Callback, called to compare the provided [T] items.
   final int Function(T, T)? compare;
+
+  /// Indicator whether the zero-item responses should be considered fulfilled.
+  final bool fulfilledWhenNone;
 
   /// Internal [List] of [T] items retrieved from the [fetch].
   List<T> _list = [];
@@ -142,19 +146,22 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool fulfilled =
-        (_hasFirst && _hasLast) || edges.length - edgesBefore >= count ~/ 2;
+    final bool fulfilled = fulfilledWhenNone ||
+        (_hasFirst && _hasLast) ||
+        edges.length - edgesBefore >= count ~/ 2;
 
     Log.debug(
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
 
+    final bool zeroed = fulfilledWhenNone && edges.isEmpty;
+
     return Page(
       fulfilled ? edges : [],
       PageInfo(
-        hasNext: !_hasLast,
-        hasPrevious: !_hasFirst,
+        hasNext: !_hasLast && !zeroed,
+        hasPrevious: !_hasFirst && !zeroed,
         startCursor: _lastCursor,
         endCursor: _firstCursor,
       ),
@@ -167,7 +174,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool fulfilled = _hasLast || edges.length - edgesBefore >= count;
+    final bool fulfilled =
+        fulfilledWhenNone || _hasLast || edges.length - edgesBefore >= count;
 
     Log.debug(
       'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
@@ -191,7 +199,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool fulfilled = _hasFirst || edges.length - edgesBefore >= count;
+    final bool fulfilled =
+        fulfilledWhenNone || _hasFirst || edges.length - edgesBefore >= count;
 
     Log.debug(
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
