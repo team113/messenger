@@ -91,7 +91,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     _cache[chat.id] = chat;
     _controllers[chat.id]?.add(chat);
 
-    final result = await safe('chat.upsert', (db) async {
+    final result = await safe((db) async {
       final ChatRow row = chat.toDb();
       final DtoChat stored = _ChatDb.fromDb(
         await db
@@ -117,7 +117,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       _controllers[e.id]?.add(e);
     }
 
-    final result = await safe('chat.upsertBulk', (db) async {
+    final result = await safe((db) async {
       Log.debug('upsertBulk(${items.length} items)');
 
       await db.batch((batch) {
@@ -144,7 +144,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoChat?>('chat.read', (db) async {
+    return await safe<DtoChat?>((db) async {
       final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
       final ChatRow? row = await stmt.getSingleOrNull();
 
@@ -161,7 +161,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     _cache.remove(id);
     _controllers[id]?.add(null);
 
-    await safe('chat.delete', (db) async {
+    await safe((db) async {
       final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
       await stmt.go();
     });
@@ -171,14 +171,14 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   Future<void> clear() async {
     _cache.clear();
 
-    await safe('chat.clear', (db) async {
+    await safe((db) async {
       await db.delete(db.chats).go();
     });
   }
 
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> recent({int? limit}) async {
-    final result = await safe('chat.recent', (db) async {
+    final result = await safe((db) async {
       final stmt = db.select(db.chats);
 
       stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
@@ -196,7 +196,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
-    final result = await safe('chat.favorite', (db) async {
+    final result = await safe((db) async {
       final stmt = db.select(db.chats);
 
       stmt.where(

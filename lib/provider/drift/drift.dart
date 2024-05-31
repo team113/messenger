@@ -243,6 +243,7 @@ final class ScopedDriftProvider extends DisposableInterface {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
+    final ScopedDatabase? connection = db;
     db = null;
 
     // Close all the active streams.
@@ -253,12 +254,9 @@ final class ScopedDriftProvider extends DisposableInterface {
       e.close();
     }
 
-    // TODO: Uncomment to close connections, however this should be done when
-    //       `TimeoutException(5 minutes)` is resolved, which happens after
-    //       `_newWebSocket` is invoked, or E2E tests will fail.
     // Wait for all operations to complete, disallowing new ones.
-    // Future.wait(_completers.map((e) => e.future))
-    //     .then((_) async => await connection?.close());
+    Future.wait(_completers.map((e) => e.future))
+        .then((_) async => await connection?.close());
 
     super.onClose();
   }
@@ -385,11 +383,6 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// `null` here means the database is closed.
   CommonDatabase? get common => _common.db;
 
-  /// Returns the [ScopedDatabase].
-  ///
-  /// `null` here means the database is closed.
-  // ScopedDatabase? get scoped => _scoped.db;
-
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
     await _scoped.wrapped((db) async {
@@ -401,20 +394,14 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   /// `null`.
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
-  Future<T?> safe<T>(
-      String name, Future<T> Function(ScopedDatabase db) callback) async {
+  Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
     if (PlatformUtils.isWeb) {
-      Log.warning('[safe] $name...');
-
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
-      final result = await WebUtils.protect(
+      return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
         () async => await _scoped.wrapped(callback),
       );
-
-      Log.warning('[safe] $name... done');
-      return result;
     }
 
     return await _scoped.wrapped(callback);

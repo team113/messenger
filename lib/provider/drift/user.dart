@@ -71,7 +71,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
   Future<DtoUser> upsert(DtoUser user) async {
     _cache[user.id] = user;
 
-    final result = await safe('users.upsert', (db) async {
+    final result = await safe((db) async {
       final DtoUser stored = UserDb.fromDb(
         await db
             .into(db.users)
@@ -96,7 +96,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoUser?>('users.read', (db) async {
+    return await safe<DtoUser?>((db) async {
       final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
       final UserRow? row = await stmt.getSingleOrNull();
 
@@ -112,7 +112,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
   Future<void> delete(UserId id) async {
     _cache.remove(id);
 
-    await safe('users.delete', (db) async {
+    await safe((db) async {
       final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
       await stmt.go();
 
@@ -124,7 +124,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
   Future<void> clear() async {
     _cache.clear();
 
-    await safe('users.clear', (db) async {
+    await safe((db) async {
       await db.delete(db.users).go();
     });
   }
