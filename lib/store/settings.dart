@@ -42,6 +42,7 @@ class SettingsRepository extends DisposableInterface
     this._callRectLocal,
   );
 
+  /// [UserId] to track [ApplicationSettings] of.
   final UserId userId;
 
   @override
@@ -206,6 +207,8 @@ class SettingsRepository extends DisposableInterface
     await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
   }
 
+  /// Stores the provided [ApplicationSettings] and [MediaSettings] to the local
+  /// storage.
   Future<void> _set({
     ApplicationSettings? Function(ApplicationSettings)? settings,
     MediaSettings? Function(MediaSettings)? media,

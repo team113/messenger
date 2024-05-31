@@ -99,7 +99,8 @@ class SettingsDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the [DtoSettings] identified by the provided [id] from the database.
+  /// Deletes the [DtoSettings] identified by the provided [id] from the
+  /// database.
   Future<void> delete(UserId id) async {
     _cache.remove(id);
 
@@ -192,9 +193,13 @@ extension _SettingsDb on DtoSettings {
   }
 }
 
+/// Stored in the local storage [ApplicationSettings] and [MediaSettings].
 class DtoSettings {
   const DtoSettings({required this.application, required this.media});
 
+  /// [ApplicationSettings] themselves.
   final ApplicationSettings application;
+
+  /// [MediaSettings] themselves.
   final MediaSettings media;
 }
