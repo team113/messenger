@@ -111,32 +111,32 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [DtoChatMember]s of the provided [chatId].
   Future<List<DtoChatMember>> members(ChatId chatId, {int? limit}) async {
-    if (scoped == null) {
-      return [];
-    }
+    final result = await safe((db) async {
+      final stmt = db.select(db.chatMembers).join([
+        innerJoin(
+          db.users,
+          db.users.id.equalsExp(db.chatMembers.userId),
+        ),
+      ]);
 
-    final stmt = scoped!.select(scoped!.chatMembers).join([
-      innerJoin(
-        scoped!.users,
-        scoped!.users.id.equalsExp(scoped!.chatMembers.userId),
-      ),
-    ]);
+      stmt.where(db.chatMembers.chatId.equals(chatId.val));
+      stmt.orderBy([OrderingTerm.desc(db.chatMembers.joinedAt)]);
 
-    stmt.where(scoped!.chatMembers.chatId.equals(chatId.val));
-    stmt.orderBy([OrderingTerm.desc(scoped!.chatMembers.joinedAt)]);
+      if (limit != null) {
+        stmt.limit(limit);
+      }
 
-    if (limit != null) {
-      stmt.limit(limit);
-    }
+      return (await stmt.get())
+          .map(
+            (rows) => _ChatMemberDb.fromDb(
+              rows.readTable(db.chatMembers),
+              rows.readTableOrNull(db.users),
+            ),
+          )
+          .toList();
+    });
 
-    return (await stmt.get())
-        .map(
-          (rows) => _ChatMemberDb.fromDb(
-            rows.readTable(scoped!.chatMembers),
-            rows.readTableOrNull(scoped!.users),
-          ),
-        )
-        .toList();
+    return result ?? [];
   }
 }
 

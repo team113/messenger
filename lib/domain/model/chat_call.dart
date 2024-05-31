@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
@@ -99,6 +100,37 @@ class ChatCall extends ChatItem {
   @override
   Map<String, dynamic> toJson() =>
       _$ChatCallToJson(this)..['runtimeType'] = 'ChatCall';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatCall &&
+        id == other.id &&
+        chatId == other.chatId &&
+        author.id == other.author.id &&
+        at == other.at &&
+        const ListEquality().equals(members, other.members) &&
+        withVideo == other.withVideo &&
+        conversationStartedAt == other.conversationStartedAt &&
+        finishReasonIndex == other.finishReasonIndex &&
+        finishedAt == other.finishedAt &&
+        joinLink == other.joinLink &&
+        dialed == other.dialed;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        chatId,
+        author.id,
+        at,
+        members,
+        withVideo,
+        conversationStartedAt,
+        finishReasonIndex,
+        finishedAt,
+        joinLink,
+        dialed,
+      );
 }
 
 /// Member of a [ChatCall].
@@ -129,6 +161,17 @@ class ChatCallMember {
 
   /// Returns a [Map] representing this [ChatCallMember].
   Map<String, dynamic> toJson() => _$ChatCallMemberToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatCallMember &&
+        user.id == other.user.id &&
+        handRaised == other.handRaised &&
+        joinedAt == other.joinedAt;
+  }
+
+  @override
+  int get hashCode => Object.hash(user, handRaised, joinedAt);
 }
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
@@ -228,6 +271,15 @@ class ChatMembersDialedAll implements ChatMembersDialed {
   @override
   Map<String, dynamic> toJson() => _$ChatMembersDialedAllToJson(this)
     ..['runtimeType'] = 'ChatMembersDialedAll';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMembersDialedAll &&
+        const ListEquality().equals(answeredMembers, other.answeredMembers);
+  }
+
+  @override
+  int get hashCode => answeredMembers.hashCode;
 }
 
 /// Information about concrete [ChatMember]s of a [Chat] being dialed (or
@@ -251,4 +303,13 @@ class ChatMembersDialedConcrete implements ChatMembersDialed {
   @override
   Map<String, dynamic> toJson() => _$ChatMembersDialedConcreteToJson(this)
     ..['runtimeType'] = 'ChatMembersDialedConcrete';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMembersDialedConcrete &&
+        const ListEquality().equals(members, other.members);
+  }
+
+  @override
+  int get hashCode => members.hashCode;
 }

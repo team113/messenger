@@ -20,9 +20,78 @@ import 'package:hive/hive.dart';
 import '/domain/model/chat.dart';
 import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
+import 'chat_item.dart';
 import 'version.dart';
 
 part 'chat.g.dart';
+
+/// Persisted in storage [Chat]'s [value].
+@HiveType(typeId: ModelTypeId.dtoChat)
+class DtoChat extends HiveObject {
+  DtoChat(
+    this.value,
+    this.ver,
+    this.lastItemCursor,
+    this.lastReadItemCursor,
+    this.recentCursor,
+    this.favoriteCursor,
+  );
+
+  /// Persisted [Chat] model.
+  @HiveField(0)
+  Chat value;
+
+  /// Version of this [Chat]'s state.
+  ///
+  /// It increases monotonically, so may be used (and is intended to) for
+  /// tracking state's actuality.
+  @HiveField(1)
+  ChatVersion ver;
+
+  /// Cursor of a [Chat.lastItem].
+  @HiveField(2)
+  ChatItemsCursor? lastItemCursor;
+
+  /// Cursor of a [Chat.lastReadItem].
+  @HiveField(3)
+  ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value] when paginating through recent [Chat]s.
+  @HiveField(4)
+  RecentChatsCursor? recentCursor;
+
+  /// Cursor of the [value] when paginating through favorite [Chat]s.
+  @HiveField(5)
+  FavoriteChatsCursor? favoriteCursor;
+
+  /// Returns the [ChatId] of the [value].
+  ChatId get id => value.id;
+
+  @override
+  String toString() =>
+      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChat &&
+        value == other.value &&
+        ver == other.ver &&
+        lastItemCursor == other.lastItemCursor &&
+        lastReadItemCursor == other.lastReadItemCursor &&
+        recentCursor == other.recentCursor &&
+        favoriteCursor == other.favoriteCursor;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        value,
+        ver,
+        lastItemCursor,
+        lastReadItemCursor,
+        recentCursor,
+        favoriteCursor,
+      );
+}
 
 /// Version of a [Chat]'s state.
 @HiveType(typeId: ModelTypeId.chatVersion)

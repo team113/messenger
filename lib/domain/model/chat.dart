@@ -50,6 +50,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     PreciseDateTime? updatedAt,
     this.lastReads = const [],
     PreciseDateTime? lastDelivery,
+    this.firstItem,
     this.lastItem,
     this.lastReadItem,
     this.unreadCount = 0,
@@ -297,6 +298,56 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is Chat &&
+        compareTo(other) == 0 &&
+        id == other.id &&
+        avatar == other.avatar &&
+        name == other.name &&
+        const ListEquality().equals(members, other.members) &&
+        kindIndex == other.kindIndex &&
+        isHidden == other.isHidden &&
+        muted == other.muted &&
+        directLink == other.directLink &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt &&
+        const ListEquality().equals(lastReads, other.lastReads) &&
+        lastDelivery == other.lastDelivery &&
+        firstItem == other.firstItem &&
+        lastItem == other.lastItem &&
+        lastReadItem == other.lastReadItem &&
+        unreadCount == other.unreadCount &&
+        totalCount == other.totalCount &&
+        ongoingCall == other.ongoingCall &&
+        favoritePosition == other.favoritePosition &&
+        membersCount == other.membersCount;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        avatar,
+        name,
+        members,
+        kindIndex,
+        isHidden,
+        muted,
+        directLink,
+        createdAt,
+        updatedAt,
+        lastReads,
+        lastDelivery,
+        firstItem,
+        lastItem,
+        lastReadItem,
+        unreadCount,
+        totalCount,
+        ongoingCall,
+        favoritePosition,
+        membersCount,
+      );
 }
 
 /// Member of a [Chat].
@@ -329,12 +380,27 @@ class ChatMember implements Comparable<ChatMember> {
 
   /// Returns a [Map] representing this [ChatMember].
   Map<String, dynamic> toJson() => _$ChatMemberToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMember &&
+        user.id == other.user.id &&
+        joinedAt == other.joinedAt;
+  }
+
+  @override
+  int get hashCode => Object.hash(user, joinedAt);
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].
+@JsonSerializable()
 @HiveType(typeId: ModelTypeId.lastChatRead)
 class LastChatRead {
   LastChatRead(this.memberId, this.at);
+
+  /// Constructs a [LastChatRead] from the provided [json].
+  factory LastChatRead.fromJson(Map<String, dynamic> json) =>
+      _$LastChatReadFromJson(json);
 
   /// ID of the [User] who read the [Chat].
   @HiveField(0)
@@ -343,6 +409,19 @@ class LastChatRead {
   /// [PreciseDateTime] when the [Chat] was read last time.
   @HiveField(1)
   PreciseDateTime at;
+
+  /// Returns a [Map] representing this [LastChatRead].
+  Map<String, dynamic> toJson() => _$LastChatReadToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is LastChatRead &&
+        memberId == other.memberId &&
+        at == other.at;
+  }
+
+  @override
+  int get hashCode => Object.hash(memberId, at);
 }
 
 /// Unique ID of a [Chat].

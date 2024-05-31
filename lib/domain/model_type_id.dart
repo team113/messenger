@@ -64,7 +64,7 @@ class ModelTypeId {
   static const chatItemId = 42;
   static const chatCall = 43;
   static const chatMessageText = 44;
-  static const hiveChat = 45;
+  static const dtoChat = 45;
   static const chatCallRoomJoinLink = 46;
   static const chatCallMember = 47;
   static const chatItemVersion = 48;

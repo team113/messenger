@@ -39,7 +39,6 @@ import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/account.dart';
 import '/provider/hive/blocklist.dart';
-import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';

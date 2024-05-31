@@ -45,8 +45,8 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method.
+  static final Map<String, Mutex> _guards = {};
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -82,7 +82,7 @@ class WebUtils {
   static bool get isPopup => false;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -101,8 +101,18 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(Future<T> Function() callback) =>
-      _guard.protect(callback);
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    String tag = 'mutex',
+  }) {
+    Mutex? mutex = _guards[tag];
+    if (mutex == null) {
+      mutex = Mutex();
+      _guards[tag] = mutex;
+    }
+
+    return mutex.protect(callback);
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
