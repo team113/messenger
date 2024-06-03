@@ -996,7 +996,7 @@ List<String?>?
 // BlocklistReason
 
 BlocklistReason fromGraphQLBlocklistReasonToDartBlocklistReason(String v) =>
-    BlocklistReason(v);
+    BlocklistReason.unchecked(v);
 String fromDartBlocklistReasonToGraphQLBlocklistReason(BlocklistReason v) =>
     v.val;
 List<BlocklistReason> fromGraphQLListBlocklistReasonToDartListBlocklistReason(
@@ -1025,7 +1025,7 @@ List<String>?
 BlocklistReason?
     fromGraphQLBlocklistReasonNullableToDartBlocklistReasonNullable(
             String? v) =>
-        v == null ? null : BlocklistReason(v);
+        v == null ? null : BlocklistReason.unchecked(v);
 String? fromDartBlocklistReasonNullableToGraphQLBlocklistReasonNullable(
         BlocklistReason? v) =>
     v?.val;

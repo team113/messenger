@@ -38,7 +38,6 @@ import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/provider/hive/account.dart';
-import '/provider/hive/blocklist.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -47,6 +46,7 @@ import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
+import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'user.dart';
 
@@ -1011,7 +1011,7 @@ class MyUserRepository implements AbstractMyUserRepository {
                 userEntity.value.blocklistCount! + 1;
           }
           _blocklistRepo.put(
-            HiveBlocklistRecord(event.user.value.isBlocked!, null),
+            DtoBlocklistRecord(event.user.value.isBlocked!, null),
           );
           break;
 

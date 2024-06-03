@@ -53,6 +53,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'provider/drift/background.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
@@ -105,6 +106,7 @@ Future<void> main() async {
 
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
     Get.put(SettingsDriftProvider(Get.find()));
+    Get.put(BackgroundDriftProvider(Get.find()));
 
     await _initHive();
 

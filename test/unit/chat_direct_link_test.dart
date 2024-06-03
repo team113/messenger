@@ -29,6 +29,8 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
@@ -39,9 +41,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
@@ -142,14 +141,13 @@ void main() async {
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
     await Get.put(CallCredentialsHiveProvider()).init();
     await Get.put(ChatCredentialsHiveProvider()).init();
-    await Get.put(BackgroundHiveProvider()).init();
-    await Get.put(BlocklistHiveProvider()).init();
     await Get.put(CallRectHiveProvider()).init();
     await Get.put(MonologHiveProvider()).init();
     await Get.put(SessionDataHiveProvider()).init();
-    await Get.put(BlocklistSortingHiveProvider()).init();
     await Get.put(AccountHiveProvider()).init();
 
     final AuthService authService = Get.put(
@@ -171,10 +169,11 @@ void main() async {
     final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        Get.find(),
-        Get.find(),
+        blocklistProvider,
         userRepository,
         Get.find(),
+        myUserProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -192,7 +191,7 @@ void main() async {
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
-        Get.find(),
+        backgroundProvider,
         Get.find(),
       ),
     );

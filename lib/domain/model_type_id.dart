@@ -88,7 +88,7 @@ class ModelTypeId {
   static const nativeFile = 66;
   static const localAttachment = 67;
   static const mediaType = 68;
-  static const hiveBackground = 69;
+  static const dtoBackground = 69;
   static const plainFile = 70;
   static const chatCallCredentials = 71;
   static const chatFavoritePosition = 72;

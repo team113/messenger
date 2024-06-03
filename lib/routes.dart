@@ -42,15 +42,13 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/blocklist.dart';
 import 'provider/drift/chat.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/background.dart';
-import 'provider/hive/blocklist.dart';
-import 'provider/hive/blocklist_sorting.dart';
 import 'provider/hive/call_credentials.dart';
 import 'provider/hive/call_rect.dart';
 import 'provider/hive/chat_credentials.dart';
@@ -497,12 +495,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(BlocklistHiveProvider()).init(userId: me),
-                deps.put(BlocklistSortingHiveProvider()).init(userId: me),
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(FavoriteContactHiveProvider()).init(userId: me),
                 deps.put(ContactSortingHiveProvider()).init(userId: me),
-                deps.put(BackgroundHiveProvider()).init(userId: me),
                 deps.put(CallCredentialsHiveProvider()).init(userId: me),
                 deps.put(ChatCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
@@ -517,6 +512,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatItemDriftProvider(Get.find(), scoped));
               deps.put(ChatMemberDriftProvider(Get.find(), scoped));
               deps.put(ChatDriftProvider(Get.find(), scoped));
+              deps.put(BlocklistDriftProvider(Get.find(), scoped));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -576,9 +572,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               BlocklistRepository blocklistRepository = BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
-                Get.find(),
                 userRepository,
                 Get.find(),
+                Get.find(),
+                me: me,
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
               AbstractMyUserRepository myUserRepository =
@@ -628,14 +625,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final ScopedDependencies deps = ScopedDependencies();
 
             final sessionProvider = deps.put(SessionDataHiveProvider());
-            final blocklistProvider = deps.put(BlocklistHiveProvider());
-            final blocklistSortProvider =
-                deps.put(BlocklistSortingHiveProvider());
             final contactProvider = deps.put(ContactHiveProvider());
             final contactFavoriteProvider =
                 deps.put(FavoriteContactHiveProvider());
             final contactSortProvider = deps.put(ContactSortingHiveProvider());
-            final backgroundProvider = deps.put(BackgroundHiveProvider());
             final callCredsProvider = deps.put(CallCredentialsHiveProvider());
             final chatCredsProvider = deps.put(ChatCredentialsHiveProvider());
             final draftProvider = deps.put(DraftHiveProvider());
@@ -644,12 +637,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             await Future.wait([
               sessionProvider.init(userId: me),
-              blocklistProvider.init(userId: me),
-              blocklistSortProvider.init(userId: me),
               contactProvider.init(userId: me),
               contactFavoriteProvider.init(userId: me),
               contactSortProvider.init(userId: me),
-              backgroundProvider.init(userId: me),
               callCredsProvider.init(userId: me),
               chatCredsProvider.init(userId: me),
               draftProvider.init(userId: me),
@@ -668,6 +658,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatItemDriftProvider(common, scoped));
             final chatMemberProvider =
                 deps.put(ChatMemberDriftProvider(common, scoped));
+            final blocklistProvider =
+                deps.put(BlocklistDriftProvider(common, scoped));
 
             GraphQlProvider graphQlProvider = Get.find();
 
@@ -676,12 +668,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(
-                me,
-                Get.find(),
-                backgroundProvider,
-                callRectProvider,
-              ),
+              SettingsRepository(me, Get.find(), Get.find(), callRectProvider),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -754,9 +741,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               blocklistProvider,
-              blocklistSortProvider,
               userRepository,
               sessionProvider,
+              Get.find(),
+              me: me,
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
             AbstractMyUserRepository myUserRepository =

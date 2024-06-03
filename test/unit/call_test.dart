@@ -33,6 +33,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
@@ -42,7 +43,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/background.dart';
 import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/chat_credentials.dart';
@@ -74,8 +74,6 @@ void main() async {
 
   var credentialsProvider = CredentialsHiveProvider();
   await credentialsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
   final callCredentialsProvider = CallCredentialsHiveProvider();
   await callCredentialsProvider.init();
   final chatCredentialsProvider = ChatCredentialsHiveProvider();
@@ -98,6 +96,7 @@ void main() async {
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
 
     accountProvider.set(const UserId('me'));
     credentialsProvider.put(
@@ -281,6 +280,7 @@ void main() async {
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -373,6 +373,7 @@ void main() async {
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
 

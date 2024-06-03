@@ -1523,6 +1523,8 @@ class RxChatImpl extends RxChat {
         break;
 
       case ChatEventsKind.event:
+        final List<DtoChatItem> itemsToPut = [];
+
         await _driftChat.txn(() async {
           final DtoChat? chatEntity = await _driftChat.read(id);
           final ChatEventsVersioned versioned =
@@ -1622,7 +1624,7 @@ class RxChatImpl extends RxChat {
                   (item as DtoChatMessage).repliesToCursors =
                       event.quotes?.map((e) => e.cursor).toList() ??
                           item.repliesToCursors;
-                  put(item);
+                  itemsToPut.add(item);
                 }
 
                 if (chatEntity.value.lastItem?.id == event.itemId) {
@@ -1655,7 +1657,7 @@ class RxChatImpl extends RxChat {
                 if (message != null) {
                   event.call.at = message.value.at;
                   message.value = event.call;
-                  put(message);
+                  itemsToPut.add(message);
                 }
                 break;
 
@@ -1695,7 +1697,7 @@ class RxChatImpl extends RxChat {
                 if (message != null) {
                   event.call.at = message.value.at;
                   message.value = event.call;
-                  put(message);
+                  itemsToPut.add(message);
                 }
                 break;
 
@@ -1738,7 +1740,7 @@ class RxChatImpl extends RxChat {
                       if (message != null) {
                         call.at = message.value.at;
                         message.value = call;
-                        put(message);
+                        itemsToPut.add(message);
                       }
                     }
                   }
@@ -1760,7 +1762,7 @@ class RxChatImpl extends RxChat {
                 chatEntity.value.updatedAt =
                     event.lastItem?.value.at ?? chatEntity.value.updatedAt;
                 if (event.lastItem != null) {
-                  put(event.lastItem!);
+                  itemsToPut.add(event.lastItem!);
                 }
                 break;
 
@@ -1824,7 +1826,7 @@ class RxChatImpl extends RxChat {
                   }
                 }
 
-                put(item);
+                itemsToPut.add(item);
 
                 if (item.value is ChatInfo) {
                   final msg = item.value as ChatInfo;
@@ -1935,6 +1937,10 @@ class RxChatImpl extends RxChat {
             await _driftChat.upsert(chatEntity);
           }
         });
+
+        for (var e in itemsToPut) {
+          await put(e);
+        }
         break;
     }
   }
