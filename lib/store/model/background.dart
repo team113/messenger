@@ -19,7 +19,7 @@ import 'dart:typed_data';
 
 /// Persisted in storage background's [Uint8List] value.
 class DtoBackground {
-  DtoBackground(this.bytes);
+  const DtoBackground(this.bytes);
 
   /// Persisted background itself.
   final Uint8List bytes;

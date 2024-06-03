@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 
-import '../../util/log.dart';
 import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
@@ -50,8 +49,6 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
   Future<Iterable<DtoBlocklistRecord>> upsertBulk(
     Iterable<DtoBlocklistRecord> records,
   ) async {
-    Log.debug('upsertBulk(${records.length} items)', 'Blocklist');
-
     await safe((db) async {
       await db.batch((batch) {
         for (var record in records) {
