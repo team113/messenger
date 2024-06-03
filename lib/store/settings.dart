@@ -20,17 +20,17 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/provider/drift/background.dart';
 import '/provider/drift/settings.dart';
-import '/provider/hive/background.dart';
 import '/provider/hive/call_rect.dart';
 import '/util/log.dart';
+import 'model/background.dart';
 
 /// Application settings repository.
 class SettingsRepository extends DisposableInterface
@@ -57,8 +57,8 @@ class SettingsRepository extends DisposableInterface
   /// [ApplicationSettings] and [MediaSettings] local storage.
   final SettingsDriftProvider _settingsLocal;
 
-  /// [HiveBackground] local [Hive] storage.
-  final BackgroundHiveProvider _backgroundLocal;
+  /// [DtoBackground] local storage.
+  final BackgroundDriftProvider _backgroundLocal;
 
   /// [CallRectHiveProvider] persisting the [Rect] preferences of the
   /// [OngoingCall]s.
@@ -70,8 +70,8 @@ class SettingsRepository extends DisposableInterface
   /// [SettingsDriftProvider.watch] subscription.
   StreamSubscription? _settingsSubscription;
 
-  /// [BackgroundHiveProvider.boxEvents] subscription.
-  StreamIterator? _backgroundSubscription;
+  /// [BackgroundDriftProvider.watch] subscription.
+  StreamSubscription? _backgroundSubscription;
 
   @override
   void onInit() {
@@ -82,7 +82,9 @@ class SettingsRepository extends DisposableInterface
       applicationSettings.value = v?.application;
     });
 
-    background.value = _backgroundLocal.bytes;
+    _backgroundLocal.read(userId).then((v) {
+      background.value = v?.bytes;
+    });
 
     _initSettingsSubscription();
     _initBackgroundSubscription();
@@ -153,8 +155,8 @@ class SettingsRepository extends DisposableInterface
     Log.debug('setBackground(${bytes?.length})', '$runtimeType');
 
     bytes == null
-        ? await _backgroundLocal.delete()
-        : await _backgroundLocal.set(bytes);
+        ? await _backgroundLocal.delete(userId)
+        : await _backgroundLocal.upsert(userId, DtoBackground(bytes));
   }
 
   @override
@@ -243,15 +245,8 @@ class SettingsRepository extends DisposableInterface
   Future<void> _initBackgroundSubscription() async {
     Log.debug('_initBackgroundSubscription()', '$runtimeType');
 
-    _backgroundSubscription = StreamIterator(_backgroundLocal.boxEvents);
-    while (await _backgroundSubscription!.moveNext()) {
-      BoxEvent event = _backgroundSubscription!.current;
-      if (event.deleted) {
-        background.value = null;
-      } else {
-        background.value = event.value.bytes;
-        background.refresh();
-      }
-    }
+    _settingsSubscription = _backgroundLocal.watch(userId).listen((e) {
+      background.value = e?.bytes;
+    });
   }
 }

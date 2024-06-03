@@ -294,6 +294,10 @@ class UserController extends GetxController {
         reason.text.isEmpty ? null : BlocklistReason(reason.text),
       );
       reason.clear();
+    } on FormatException {
+      MessagePopup.error('err_blocklist_reason_does_not_meet_regexp'.l10n);
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
     } finally {
       blocklistStatus.value = RxStatus.empty();
     }

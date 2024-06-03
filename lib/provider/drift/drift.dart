@@ -27,6 +27,8 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'background.dart';
+import 'blocklist.dart';
 import 'chat.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
@@ -39,7 +41,7 @@ import 'user.dart';
 part 'drift.g.dart';
 
 /// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
-@DriftDatabase(tables: [Settings, MyUsers])
+@DriftDatabase(tables: [Background, Settings, MyUsers])
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
@@ -97,7 +99,7 @@ class CommonDatabase extends _$CommonDatabase {
 
 /// [DriftDatabase] storing [MyUser] scoped data.
 @DriftDatabase(
-  tables: [Chats, ChatItems, ChatItemViews, ChatMembers, Users],
+  tables: [Blocklist, Chats, ChatItems, ChatItemViews, ChatMembers, Users],
   queries: {
     'chatItemsAround': ''
         'SELECT * FROM '
@@ -261,8 +263,9 @@ final class ScopedDriftProvider extends DisposableInterface {
     }
 
     // Wait for all operations to complete, disallowing new ones.
-    Future.wait(_completers.map((e) => e.future))
-        .then((_) async => await connection?.close());
+    Future.wait(_completers.map((e) => e.future)).then((_) async {
+      await connection?.close();
+    });
 
     super.onClose();
   }

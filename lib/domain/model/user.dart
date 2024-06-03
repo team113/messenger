@@ -640,7 +640,19 @@ class BlocklistRecord implements Comparable<BlocklistRecord> {
 @JsonSerializable()
 @HiveType(typeId: ModelTypeId.blocklistReason)
 class BlocklistReason extends NewType<String> {
-  const BlocklistReason(super.val);
+  const BlocklistReason._(super.val);
+
+  BlocklistReason(String val) : super(val) {
+    if (!_regExp.hasMatch(val)) {
+      throw const FormatException('Does not match validation RegExp');
+    }
+  }
+
+  /// Creates an object without any validation.
+  const factory BlocklistReason.unchecked(String val) = BlocklistReason._;
+
+  /// Regular expression for basic [BlocklistReason] validation.
+  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
 
   /// Constructs a [BlocklistRecord] from the provided [val].
   factory BlocklistReason.fromJson(String val) = BlocklistReason;

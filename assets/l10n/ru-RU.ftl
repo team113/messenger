@@ -309,6 +309,7 @@ err_account_unavailable = Этот аккаунт недоступен. Пожа
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
 err_blocked_by_multiple = Один или несколько выбранных пользователей внесли Вас в чёрный список.
+err_blocklist_reason_does_not_meet_regexp = Причина блокировки должна содержать от 2 до 100 символов.
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне

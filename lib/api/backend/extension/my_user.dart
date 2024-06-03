@@ -20,7 +20,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/blocklist.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
 import 'user.dart';
 
@@ -87,9 +87,9 @@ extension BlocklistRecordConversion on BlocklistRecordMixin {
         at: at,
       );
 
-  /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
-  HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
-      HiveBlocklistRecord(toModel(), cursor);
+  /// Constructs a new [DtoBlocklistRecord] from this [BlocklistRecordMixin].
+  DtoBlocklistRecord toDto({BlocklistCursor? cursor}) =>
+      DtoBlocklistRecord(toModel(), cursor);
 }
 
 /// Extension adding [Session] model construction from a [SessionMixin].
