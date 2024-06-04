@@ -294,16 +294,16 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_confirmation_code =
+    Код подтверждения {$domain}: {$token}
+    Действителен до {$expiresAt}.
+    {$domain}
+email_confirmation_code_subject = Код подтверждения {$domain}
 email_password_recovery =
     Код восстановления {$domain}: {$token}
     Действителен до {$expiresAt}.
     {$domain}
 email_password_recovery_subject = Код восстановления {$domain}
-email_verification_code =
-    Код подтверждения {$domain}: {$token}
-    Действителен до {$expiresAt}.
-    {$domain}
-email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
@@ -526,6 +526,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } исключил Вас из группы
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
