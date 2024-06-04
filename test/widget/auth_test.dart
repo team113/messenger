@@ -193,7 +193,9 @@ void main() async {
 
     verify(router.go(Routes.home));
 
-    await Future.wait([common.close(), scoped.close()]);
+    await common.close();
+    await tester.runAsync(() async => await scoped.close());
+
     await Get.deleteAll(force: true);
   });
 
