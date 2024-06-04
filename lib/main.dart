@@ -54,13 +54,13 @@ import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/background.dart';
+import 'provider/drift/cache.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
-import 'provider/hive/cache.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
 import 'provider/hive/skipped_version.dart';
@@ -107,6 +107,10 @@ Future<void> main() async {
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
     Get.put(SettingsDriftProvider(Get.find()));
     Get.put(BackgroundDriftProvider(Get.find()));
+
+    if (!PlatformUtils.isWeb) {
+      Get.put(CacheDriftProvider(Get.find()));
+    }
 
     await _initHive();
 
@@ -477,7 +481,6 @@ Future<void> _initHive() async {
 
   if (!PlatformUtils.isWeb) {
     await Get.put(SkippedVersionHiveProvider()).init();
-    await Get.put(CacheInfoHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
 }
