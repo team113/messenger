@@ -43,15 +43,15 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
 import 'provider/drift/blocklist.dart';
+import 'provider/drift/call_credentials.dart';
 import 'provider/drift/chat.dart';
+import 'provider/drift/chat_credentials.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/call_credentials.dart';
 import 'provider/hive/call_rect.dart';
-import 'provider/hive/chat_credentials.dart';
 import 'provider/hive/contact.dart';
 import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
@@ -498,8 +498,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ContactHiveProvider()).init(userId: me),
                 deps.put(FavoriteContactHiveProvider()).init(userId: me),
                 deps.put(ContactSortingHiveProvider()).init(userId: me),
-                deps.put(CallCredentialsHiveProvider()).init(userId: me),
-                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(CallRectHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
@@ -513,6 +511,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(ChatMemberDriftProvider(Get.find(), scoped));
               deps.put(ChatDriftProvider(Get.find(), scoped));
               deps.put(BlocklistDriftProvider(Get.find(), scoped));
+              deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
 
               AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
@@ -629,8 +629,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final contactFavoriteProvider =
                 deps.put(FavoriteContactHiveProvider());
             final contactSortProvider = deps.put(ContactSortingHiveProvider());
-            final callCredsProvider = deps.put(CallCredentialsHiveProvider());
-            final chatCredsProvider = deps.put(ChatCredentialsHiveProvider());
             final draftProvider = deps.put(DraftHiveProvider());
             final callRectProvider = deps.put(CallRectHiveProvider());
             final monologProvider = deps.put(MonologHiveProvider());
@@ -640,8 +638,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               contactProvider.init(userId: me),
               contactFavoriteProvider.init(userId: me),
               contactSortProvider.init(userId: me),
-              callCredsProvider.init(userId: me),
-              chatCredsProvider.init(userId: me),
               draftProvider.init(userId: me),
               callRectProvider.init(userId: me),
               monologProvider.init(userId: me),
@@ -660,6 +656,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatMemberDriftProvider(common, scoped));
             final blocklistProvider =
                 deps.put(BlocklistDriftProvider(common, scoped));
+            final callCredsProvider =
+                deps.put(CallCredentialsDriftProvider(common, scoped));
+            final chatCredsProvider =
+                deps.put(ChatCredentialsDriftProvider(common, scoped));
 
             GraphQlProvider graphQlProvider = Get.find();
 

@@ -28,7 +28,9 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -38,9 +40,7 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -73,10 +73,6 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
   var draftProvider = DraftHiveProvider();
   await draftProvider.init();
   var callRectProvider = CallRectHiveProvider();
@@ -244,6 +240,10 @@ void main() async {
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -328,6 +328,10 @@ void main() async {
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
