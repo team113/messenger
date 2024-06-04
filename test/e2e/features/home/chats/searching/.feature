@@ -43,8 +43,9 @@ Feature: Chats searching
     Then I wait until `Search` is present
 
     Given I have Internet with delay of 2 seconds
-    When I scroll `SearchScrollable` until `SearchLoading` is present
-    Then I wait until `SearchLoading` is absent
+    When I scroll `SearchScrollable` to bottom
+    Then I wait until `SearchLoading` is present
+    And I wait until `SearchLoading` is absent
 
   Scenario: Dialog can be found by direct link
     Given I am Alice
