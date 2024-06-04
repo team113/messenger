@@ -32,6 +32,7 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
 import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
@@ -43,7 +44,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -147,7 +147,7 @@ void main() async {
         Get.put(CallCredentialsDriftProvider(common, scoped));
     final chatCredentialsProvider =
         Get.put(ChatCredentialsDriftProvider(common, scoped));
-    await Get.put(CallRectHiveProvider()).init();
+    final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     await Get.put(MonologHiveProvider()).init();
     await Get.put(SessionDataHiveProvider()).init();
     await Get.put(AccountHiveProvider()).init();
@@ -194,7 +194,7 @@ void main() async {
         const UserId('me'),
         settingsProvider,
         backgroundProvider,
-        Get.find(),
+        callRectProvider,
       ),
     );
 
