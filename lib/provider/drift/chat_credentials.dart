@@ -19,34 +19,34 @@ import 'dart:async';
 
 import 'package:drift/drift.dart';
 
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
-import '/domain/model/chat_item.dart';
 import 'drift.dart';
 
 /// [ChatCallCredentials] to be stored in a [Table].
-@DataClassName('CallCredentialsRow')
-class CallCredentials extends Table {
+@DataClassName('ChatCredentialsRow')
+class ChatCredentials extends Table {
   @override
-  Set<Column> get primaryKey => {callId};
+  Set<Column> get primaryKey => {chatId};
 
-  TextColumn get callId => text()();
+  TextColumn get chatId => text()();
   TextColumn get credentials => text()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [ChatCallCredentials].
-class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
-  CallCredentialsDriftProvider(super.common, super.scoped);
+class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
+  ChatCredentialsDriftProvider(super.common, super.scoped);
 
   /// [ChatCallCredentials] that have started the [upsert]ing, but not yet
   /// finished it.
-  final Map<ChatItemId, ChatCallCredentials> _cache = {};
+  final Map<ChatId, ChatCallCredentials> _cache = {};
 
   /// Creates or updates the provided [credentials] in the database.
-  Future<void> upsert(ChatItemId id, ChatCallCredentials credentials) async {
+  Future<void> upsert(ChatId id, ChatCallCredentials credentials) async {
     _cache[id] = credentials;
 
     await safe((db) async {
-      await db.into(db.callCredentials).insertReturning(
+      await db.into(db.chatCredentials).insertReturning(
             credentials.toDb(id),
             mode: InsertMode.insertOrReplace,
           );
@@ -57,16 +57,16 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [ChatCallCredentials] stored in the database by the provided
   /// [id], if any.
-  Future<ChatCallCredentials?> read(ChatItemId id) async {
+  Future<ChatCallCredentials?> read(ChatId id) async {
     final ChatCallCredentials? existing = _cache[id];
     if (existing != null) {
       return existing;
     }
 
     return await safe<ChatCallCredentials?>((db) async {
-      final stmt = db.select(db.callCredentials)
-        ..where((u) => u.callId.equals(id.val));
-      final CallCredentialsRow? row = await stmt.getSingleOrNull();
+      final stmt = db.select(db.chatCredentials)
+        ..where((u) => u.chatId.equals(id.val));
+      final ChatCredentialsRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
         return null;
@@ -77,12 +77,12 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.
-  Future<void> delete(ChatItemId id) async {
+  Future<void> delete(ChatId id) async {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.callCredentials)
-        ..where((e) => e.callId.equals(id.val));
+      final stmt = db.delete(db.chatCredentials)
+        ..where((e) => e.chatId.equals(id.val));
       await stmt.go();
     });
   }
@@ -92,20 +92,20 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
     _cache.clear();
 
     await safe((db) async {
-      await db.delete(db.callCredentials).go();
+      await db.delete(db.chatCredentials).go();
     });
   }
 }
 
-/// Extension adding conversion methods from [CallCredentialsRow] to [ChatCallCredentials].
+/// Extension adding conversion methods from [ChatCredentialsRow] to [ChatCallCredentials].
 extension _CallCredentialsDb on ChatCallCredentials {
-  /// Constructs a [ChatCallCredentials] from the provided [CallCredentialsRow].
-  static ChatCallCredentials fromDb(CallCredentialsRow e) {
+  /// Constructs a [ChatCallCredentials] from the provided [ChatCredentialsRow].
+  static ChatCallCredentials fromDb(ChatCredentialsRow e) {
     return ChatCallCredentials(e.credentials);
   }
 
-  /// Constructs a [CallCredentialsRow] from this [ChatCallCredentials].
-  CallCredentialsRow toDb(ChatItemId id) {
-    return CallCredentialsRow(callId: id.val, credentials: val);
+  /// Constructs a [ChatCredentialsRow] from this [ChatCallCredentials].
+  ChatCredentialsRow toDb(ChatId id) {
+    return ChatCredentialsRow(chatId: id.val, credentials: val);
   }
 }

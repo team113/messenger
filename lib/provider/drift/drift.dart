@@ -31,6 +31,7 @@ import 'background.dart';
 import 'blocklist.dart';
 import 'call_credentials.dart';
 import 'chat.dart';
+import 'chat_credentials.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
@@ -103,10 +104,11 @@ class CommonDatabase extends _$CommonDatabase {
   tables: [
     Blocklist,
     CallCredentials,
-    Chats,
+    ChatCredentials,
     ChatItems,
     ChatItemViews,
     ChatMembers,
+    Chats,
     Users,
   ],
   queries: {
