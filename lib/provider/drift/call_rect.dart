@@ -42,6 +42,19 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
   /// [Rect]s that have started the [upsert]ing, but not yet finished it.
   final Map<ChatId, Rect> _cache = {};
 
+  @override
+  void onInit() {
+    // Fetch the stored [Rect]s before, so that [OngoingCall] is displayed
+    // without any latencies.
+    _all().then((items) {
+      for (var e in items) {
+        _cache[e.$1] = e.$2;
+      }
+    });
+
+    super.onInit();
+  }
+
   /// Creates or updates the provided [rect] in the database.
   Future<void> upsert(ChatId chatId, Rect rect) async {
     _cache[chatId] = rect;
@@ -56,8 +69,6 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
 
       return stored;
     });
-
-    _cache.remove(chatId);
   }
 
   /// Returns the [Rect] stored in the database by the provided [id], if
@@ -100,6 +111,19 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
       await db.delete(db.callRectangles).go();
     });
   }
+
+  /// Returns all the [Rect] stored in the database.
+  Future<List<(ChatId, Rect)>> _all() async {
+    final result = await safe<List<(ChatId, Rect)>?>((db) async {
+      final result = await db.select(db.callRectangles).get();
+      return result
+          .map(
+              (e) => (ChatId(e.chatId), _RectJson.fromJson(jsonDecode(e.rect))))
+          .toList();
+    });
+
+    return result ?? [];
+  }
 }
 
 /// Extension adding conversion methods from [CallRectangleRow] to [Rect].
@@ -118,10 +142,10 @@ extension _RectDb on Rect {
 extension _RectJson on Rect {
   static Rect fromJson(Map<String, dynamic> json) {
     return Rect.fromLTRB(
-      double.tryParse(json['left']) ?? 0,
-      double.tryParse(json['top']) ?? 0,
-      double.tryParse(json['right']) ?? 0,
-      double.tryParse(json['bottom']) ?? 0,
+      json['left'],
+      json['top'],
+      json['right'],
+      json['bottom'],
     );
   }
 
