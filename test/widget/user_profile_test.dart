@@ -453,6 +453,9 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const UserView(UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')),
     ));
+
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 1)));
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('user name'), findsAny);
