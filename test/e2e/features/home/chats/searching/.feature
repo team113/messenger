@@ -42,9 +42,9 @@ Feature: Chats searching
     And I fill `SearchField` field with "Dave"
     Then I wait until `Search` is present
 
-    Given I have Internet with delay of 2 seconds
+    Given I have Internet with delay of 4 seconds
     When I scroll `SearchScrollable` until `SearchLoading` is present
-    Then I wait until `SearchLoading` is absent
+    And I wait until `SearchLoading` is absent
 
   Scenario: Dialog can be found by direct link
     Given I am Alice

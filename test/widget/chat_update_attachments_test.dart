@@ -44,6 +44,7 @@ import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/cache.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
@@ -55,7 +56,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/cache.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
@@ -388,6 +388,7 @@ void main() async {
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final cacheProvider = CacheDriftProvider(common);
   final callCredentialsProvider =
       Get.put(CallCredentialsDriftProvider(common, scoped));
   final chatCredentialsProvider =
@@ -396,8 +397,6 @@ void main() async {
   await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
-  var cacheInfoProvider = CacheInfoHiveProvider();
-  await cacheInfoProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
   var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
@@ -515,7 +514,7 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
-    Get.put(CacheWorker(cacheInfoProvider, null));
+    Get.put(CacheWorker(cacheProvider, null));
 
     Get.put(ContactService(contactRepository));
 
