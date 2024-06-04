@@ -64,7 +64,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
       );
 
       return true;
-    });
+    }, timeout: const Duration(seconds: 30));
 
     await context.world.appDriver.waitForAppToSettle();
   },
