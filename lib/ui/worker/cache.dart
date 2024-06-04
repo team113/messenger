@@ -34,7 +34,7 @@ import 'package:path/path.dart' as p;
 import '/domain/model/cache_info.dart';
 import '/domain/model/file.dart';
 import '/domain/service/disposable_service.dart';
-import '/provider/hive/cache.dart';
+import '/provider/drift/cache.dart';
 import '/provider/hive/download.dart';
 import '/util/backoff.dart';
 import '/util/obs/rxmap.dart';
@@ -58,10 +58,13 @@ class CacheWorker extends DisposableService {
       RxObsMap<String, Downloading>();
 
   /// [CacheInfo] describing the cache properties.
-  late final Rx<CacheInfo> info;
+  final Rx<CacheInfo> info = Rx(CacheInfo());
 
-  /// [CacheInfo] local [Hive] storage.
-  final CacheInfoHiveProvider? _cacheLocal;
+  /// Checksums of the stored caches.
+  final HashSet<String> hashes = HashSet();
+
+  /// [CacheInfo] local storage.
+  final CacheDriftProvider? _cacheLocal;
 
   /// Downloaded [File.path]s local [Hive] storage.
   final DownloadHiveProvider? _downloadLocal;
@@ -72,16 +75,14 @@ class CacheWorker extends DisposableService {
   /// [Directory.list] subscription used in [_updateInfo].
   StreamSubscription? _cacheSubscription;
 
-  /// [CacheInfoHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
-
   /// [Mutex] guarding access to [PlatformUtilsImpl.cacheDirectory].
   final Mutex _mutex = Mutex();
 
   @override
   Future<void> onInit() async {
-    info = Rx(_cacheLocal?.info ?? CacheInfo());
-    _initLocalSubscription();
+    _cacheLocal?.checksums().then((v) => hashes.addAll(v));
+
+    info.value = await _cacheLocal?.read() ?? info.value;
 
     final Directory? cache = await PlatformUtils.cacheDirectory;
 
@@ -220,7 +221,7 @@ class CacheWorker extends DisposableService {
 
   /// Returns the [ImageProvider] for the provided [thumbhash].
   ImageProvider getThumbhashProvider(ThumbHash thumbhash) {
-    ImageProvider thumbhashProvider = _thumbhashProviders[thumbhash] ??
+    final ImageProvider thumbhashProvider = _thumbhashProviders[thumbhash] ??
         (_thumbhashProviders[thumbhash] =
             t.ThumbHash.fromBase64(thumbhash.val).toImage());
 
@@ -253,11 +254,12 @@ class CacheWorker extends DisposableService {
         if (!(await file.exists())) {
           await file.writeAsBytes(data);
 
-          await _cacheLocal?.set(
-            checksums: info.value.checksums..add(checksum!),
-            size: info.value.size + data.length,
-            modified: (await cache.stat()).modified,
-          );
+          info.value.size = info.value.size + data.length;
+          info.value.modified = (await cache.stat()).modified;
+          info.refresh();
+          hashes.add('$checksum');
+          await _cacheLocal?.upsert(info.value);
+          await _cacheLocal?.register([checksum!]);
 
           _optimizeCache();
         }
@@ -364,7 +366,7 @@ class CacheWorker extends DisposableService {
 
   /// Indicates whether [checksum] is in the cache.
   bool exists(String checksum) =>
-      FIFOCache.exists(checksum) || info.value.checksums.contains(checksum);
+      FIFOCache.exists(checksum) || hashes.contains(checksum);
 
   /// Clears the cache in the cache directory.
   Future<void> clear() {
@@ -373,7 +375,7 @@ class CacheWorker extends DisposableService {
 
       if (cache != null) {
         final List<File> files =
-            info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
+            hashes.map((e) => File('${cache.path}/$e')).toList();
 
         final List<Future> futures = [];
         for (var file in files) {
@@ -398,30 +400,15 @@ class CacheWorker extends DisposableService {
   }
 
   /// Sets the maximum allowed size of the cache.
-  Future<void> setMaxSize(int? size) async =>
-      await _cacheLocal?.setMaxSize(size);
+  Future<void> setMaxSize(int? size) async {
+    info.value.maxSize = size;
+    info.refresh();
+    await _cacheLocal?.upsert(info.value);
+  }
 
   /// Waits for locking operations to release the lock.
   @visibleForTesting
   Future<void> ensureOptimized() => _mutex.protect(() async {});
-
-  /// Initializes [CacheInfoHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    if (_cacheLocal == null) {
-      return;
-    }
-
-    _localSubscription = StreamIterator(_cacheLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      final BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        info.value = CacheInfo();
-      } else {
-        info.value = event.value;
-        info.refresh();
-      }
-    }
-  }
 
   /// Deletes files from the cache directory, if it occupies more than
   /// [CacheInfo.maxSize].
@@ -441,7 +428,7 @@ class CacheWorker extends DisposableService {
         overflow += (info.value.maxSize! * 0.05).floor();
 
         final List<File> files =
-            info.value.checksums.map((e) => File('${cache.path}/$e')).toList();
+            hashes.map((e) => File('${cache.path}/$e')).toList();
         final List<String> removed = [];
 
         final Map<File, FileStat> stats = {};
@@ -476,12 +463,12 @@ class CacheWorker extends DisposableService {
           }
         }
 
-        await _cacheLocal?.set(
-          checksums: info.value.checksums
-            ..removeWhere((e) => removed.contains(e)),
-          size: info.value.size - deleted,
-          modified: (await cache.stat()).modified,
-        );
+        info.value.size = info.value.size - deleted;
+        info.value.modified = (await cache.stat()).modified;
+        info.refresh();
+        hashes.removeAll(removed);
+        await _cacheLocal?.upsert(info.value);
+        await _cacheLocal?.unregister(removed);
       }
     });
   }
@@ -504,11 +491,13 @@ class CacheWorker extends DisposableService {
           }
         },
         onDone: () async {
-          await _cacheLocal?.set(
-            checksums: checksums,
-            size: size,
-            modified: (await cache.stat()).modified,
-          );
+          await _cacheLocal?.clear();
+          info.value.size = size;
+          info.value.modified = (await cache.stat()).modified;
+          info.refresh();
+          hashes.addAll(checksums);
+          await _cacheLocal?.upsert(info.value);
+          await _cacheLocal?.register(checksums.toList());
 
           _optimizeCache();
 

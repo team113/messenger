@@ -1051,10 +1051,7 @@ class MyUserRepository implements AbstractMyUserRepository {
             as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'MyUser') {
-        Log.debug(
-          '_myUserRemoteEvents(ver): MyUser',
-          '$runtimeType',
-        );
+        Log.debug('_myUserRemoteEvents(ver): MyUser', '$runtimeType');
 
         events as MyUserEvents$Subscription$MyUserEvents$MyUser;
 
