@@ -31,7 +31,9 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
@@ -41,9 +43,7 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
 import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -143,8 +143,10 @@ void main() async {
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
     final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-    await Get.put(CallCredentialsHiveProvider()).init();
-    await Get.put(ChatCredentialsHiveProvider()).init();
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
     await Get.put(CallRectHiveProvider()).init();
     await Get.put(MonologHiveProvider()).init();
     await Get.put(SessionDataHiveProvider()).init();
@@ -200,8 +202,8 @@ void main() async {
       CallRepository(
         graphQlProvider,
         userRepository,
-        Get.find(),
-        Get.find(),
+        callCredentialsProvider,
+        chatCredentialsProvider,
         settingsRepository,
         me: const UserId('me'),
       ),
