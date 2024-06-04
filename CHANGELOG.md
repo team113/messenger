@@ -11,11 +11,18 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0-alpha.14) | [Milestone](/../../milestone/24)
 
+### BC Breaks
+
+- L10n:
+    - Replaced `email_verification_code` and `email_verification_code_subject` Fluent phrases with `email_confirmation_code` and `email_confirmation_code_subject` (#1022).
+
 ### Added
 
 - UI:
     - Home page:
         - Link tab. ([#1012])
+- L10n:
+    - `fcm_webpush_link` Fluent phrase (#1022).
 
 ### Changed
 
