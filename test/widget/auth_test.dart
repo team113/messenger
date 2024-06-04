@@ -33,14 +33,15 @@ import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -88,12 +89,13 @@ void main() async {
   final userProvider = UserDriftProvider(common, scoped);
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final callCredentialsProvider =
+      Get.put(CallCredentialsDriftProvider(common, scoped));
+  final chatCredentialsProvider =
+      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   var draftProvider = DraftHiveProvider();
   await draftProvider.init(userId: const UserId('me'));
-  var callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init(userId: const UserId('me'));
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init(userId: const UserId('me'));
   var monologProvider = MonologHiveProvider();
   await monologProvider.init(userId: const UserId('me'));
 
@@ -117,11 +119,13 @@ void main() async {
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
     Get.put(draftProvider);
-    Get.put(callCredentialsProvider);
     Get.put(NotificationService(graphQlProvider));
     Get.put(monologProvider);
     Get.put(backgroundProvider);
     Get.put(blocklistProvider);
+    Get.put(callCredentialsProvider);
+    Get.put(chatCredentialsProvider);
+    Get.put(callRectProvider);
 
     final AuthService authService = Get.put(
       AuthService(

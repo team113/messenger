@@ -585,8 +585,6 @@ class CallController extends GetxController {
 
     _currentCall.value.init(getChat: _chatService.get);
 
-    final Size size = router.context!.mediaQuerySize;
-
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
@@ -598,41 +596,15 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = PlatformUtils.isMobile;
 
-    final Rect? prefs =
-        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
-
-    if (isMobile) {
-      Size size = router.context!.mediaQuerySize;
-      width = RxDouble(prefs?.width ?? size.width);
-      height = RxDouble(prefs?.height ?? size.height);
-    } else {
-      width = RxDouble(
-        prefs?.width ??
-            min(
-              max(
-                min(
-                  500,
-                  size.shortestSide * _maxWidth,
-                ),
-                _minWidth,
-              ),
-              size.height * _maxHeight,
-            ),
-      );
-      height = RxDouble(prefs?.height ?? width.value);
-    }
+    _applyRect(null);
+    _settingsRepository
+        .getCallRect(_currentCall.value.chatId.value)
+        .then(_applyRect);
 
     final double secondarySize =
-        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
+        (size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
-
-    left = size.width - width.value - 50 > 0
-        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
-        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
-    top = height.value + 50 < size.height
-        ? RxDouble(prefs?.top ?? 50)
-        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
     _chatWorker = ever(
       _currentCall.value.chatId,
@@ -2265,6 +2237,39 @@ class CallController extends GetxController {
         _durationSubscription = duration.listen((_) => updateTitle());
       }
     }
+  }
+
+  /// Applies the [prefs] to form [width], [height], [left] and [top] positions.
+  void _applyRect(Rect? prefs) {
+    final Size size = router.context!.mediaQuerySize;
+
+    if (isMobile) {
+      final Size size = router.context!.mediaQuerySize;
+      width = RxDouble(prefs?.width ?? size.width);
+      height = RxDouble(prefs?.height ?? size.height);
+    } else {
+      width = RxDouble(
+        prefs?.width ??
+            min(
+              max(
+                min(
+                  500,
+                  size.shortestSide * _maxWidth,
+                ),
+                _minWidth,
+              ),
+              size.height * _maxHeight,
+            ),
+      );
+      height = RxDouble(prefs?.height ?? width.value);
+    }
+
+    left = size.width - width.value - 50 > 0
+        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
+        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
+    top = height.value + 50 < size.height
+        ? RxDouble(prefs?.top ?? 50)
+        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
   }
 }
 

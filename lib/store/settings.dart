@@ -27,8 +27,8 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/provider/drift/background.dart';
+import '/provider/drift/call_rect.dart';
 import '/provider/drift/settings.dart';
-import '/provider/hive/call_rect.dart';
 import '/util/log.dart';
 import 'model/background.dart';
 
@@ -60,9 +60,9 @@ class SettingsRepository extends DisposableInterface
   /// [DtoBackground] local storage.
   final BackgroundDriftProvider _backgroundLocal;
 
-  /// [CallRectHiveProvider] persisting the [Rect] preferences of the
+  /// [CallRectDriftProvider] persisting the [Rect] preferences of the
   /// [OngoingCall]s.
-  final CallRectHiveProvider _callRectLocal;
+  final CallRectDriftProvider _callRectLocal;
 
   /// [MediaSettingsHiveProvider.boxEvents] subscription.
   StreamIterator? _mediaSubscription;
@@ -182,13 +182,13 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) async {
     Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
-    await _callRectLocal.put(chatId, prefs);
+    await _callRectLocal.upsert(chatId, prefs);
   }
 
   @override
-  Rect? getCallRect(ChatId id) {
+  Future<Rect?> getCallRect(ChatId id) async {
     Log.debug('getCallRect($id)', '$runtimeType');
-    return _callRectLocal.get(id);
+    return await _callRectLocal.read(id);
   }
 
   @override
