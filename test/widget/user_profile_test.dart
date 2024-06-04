@@ -35,6 +35,7 @@ import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
 import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
@@ -45,7 +46,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
@@ -127,11 +127,10 @@ void main() async {
       Get.put(CallCredentialsDriftProvider(common, scoped));
   final chatCredentialsProvider =
       Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var sessionProvider = SessionDataHiveProvider();
@@ -454,6 +453,9 @@ void main() async {
     await tester.pumpWidget(createWidgetForTesting(
       child: const UserView(UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be')),
     ));
+
+    await tester.runAsync(() => Future.delayed(const Duration(seconds: 1)));
+
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(find.text('user name'), findsAny);
