@@ -29,6 +29,7 @@ import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'background.dart';
 import 'blocklist.dart';
+import 'call_credentials.dart';
 import 'chat.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
@@ -99,7 +100,15 @@ class CommonDatabase extends _$CommonDatabase {
 
 /// [DriftDatabase] storing [MyUser] scoped data.
 @DriftDatabase(
-  tables: [Blocklist, Chats, ChatItems, ChatItemViews, ChatMembers, Users],
+  tables: [
+    Blocklist,
+    CallCredentials,
+    Chats,
+    ChatItems,
+    ChatItemViews,
+    ChatMembers,
+    Users,
+  ],
   queries: {
     'chatItemsAround': ''
         'SELECT * FROM '
