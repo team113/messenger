@@ -74,7 +74,7 @@ class ContactRepository extends DisposableInterface
   final SessionDataHiveProvider _sessionLocal;
 
   /// [CombinedPagination] loading [paginated] with pagination.
-  late final CombinedPagination<DtoChatContact, ChatContactId> _pagination;
+  CombinedPagination<DtoChatContact, ChatContactId>? _pagination;
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
@@ -88,10 +88,10 @@ class ContactRepository extends DisposableInterface
   final Map<ChatContactId, Mutex> _getGuards = {};
 
   @override
-  RxBool get hasNext => _pagination.hasNext;
+  RxBool get hasNext => _pagination?.hasNext ?? RxBool(false);
 
   @override
-  RxBool get nextLoading => _pagination.nextLoading;
+  RxBool get nextLoading => _pagination?.nextLoading ?? RxBool(false);
 
   @override
   Future<void> onInit() async {
@@ -113,15 +113,15 @@ class ContactRepository extends DisposableInterface
     contacts.forEach((_, v) => v.dispose());
     _paginationSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _pagination.dispose();
+    _pagination?.dispose();
 
     super.onClose();
   }
 
   @override
-  Future<void> next() {
+  Future<void> next() async {
     Log.debug('next()', '$runtimeType');
-    return _pagination.next();
+    await _pagination?.next();
   }
 
   // TODO: Forbid creating multiple ChatContacts with the same User?
@@ -327,7 +327,7 @@ class ContactRepository extends DisposableInterface
         if (contact == null) {
           final query = (await _graphQlProvider.chatContact(id)).chatContact;
           if (query != null) {
-            contact = await _putChatContact(query.toHive());
+            contact = await _putChatContact(query.toDto());
           }
         }
 
@@ -389,7 +389,9 @@ class ContactRepository extends DisposableInterface
     paginated.emit(event);
   }
 
+  // TODO: Remove ignore, when contacts are implemented.
   /// Initializes the [_pagination].
+  // ignore: unused_element
   Future<void> _initPagination() async {
     Log.debug('_initPagination()', '$runtimeType');
 
@@ -452,7 +454,7 @@ class ContactRepository extends DisposableInterface
       ),
     ]);
 
-    _paginationSubscription = _pagination.changes.listen((event) async {
+    _paginationSubscription = _pagination?.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -465,7 +467,7 @@ class ContactRepository extends DisposableInterface
       }
     });
 
-    await _pagination.around();
+    await _pagination?.around();
 
     status.value = RxStatus.success();
   }
@@ -493,7 +495,7 @@ class ContactRepository extends DisposableInterface
     );
 
     final List<DtoChatContact> result =
-        query.searchChatContacts.edges.map((c) => c.node.toHive()).toList();
+        query.searchChatContacts.edges.map((c) => c.node.toDto()).toList();
 
     for (DtoChatContact user in result) {
       _putChatContact(user);
@@ -529,7 +531,7 @@ class ContactRepository extends DisposableInterface
         if (pagination) {
           paginated[contactId] ??= saved;
         } else {
-          await _pagination.put(contact);
+          await _pagination?.put(contact);
         }
 
         return saved;
@@ -541,7 +543,7 @@ class ContactRepository extends DisposableInterface
     // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
     if (!pagination) {
-      await _pagination.put(contact);
+      await _pagination?.put(contact);
     }
 
     return entry;
@@ -582,7 +584,9 @@ class ContactRepository extends DisposableInterface
     return entry;
   }
 
+  // TODO: Remove ignore, when contacts are implemented.
   /// Initializes [_chatContactsRemoteEvents] subscription.
+  // ignore: unused_element
   Future<void> _initRemoteSubscription() async {
     if (isClosed) {
       return;
@@ -601,11 +605,11 @@ class ContactRepository extends DisposableInterface
           contacts.clear();
           paginated.clear();
 
-          await _pagination.clear();
+          await _pagination?.clear();
           await _sessionLocal.setFavoriteContactsSynchronized(false);
           await _sessionLocal.setContactsSynchronized(false);
 
-          await _pagination.around();
+          await _pagination?.around();
         }
       },
     );
@@ -776,7 +780,7 @@ class ContactRepository extends DisposableInterface
 
     return mutex.protect(() async {
       final DtoChatContact? contact =
-          (await _graphQlProvider.chatContact(id)).chatContact?.toHive();
+          (await _graphQlProvider.chatContact(id)).chatContact?.toDto();
       if (contact != null) {
         _putChatContact(contact);
       }
@@ -817,7 +821,7 @@ class ContactRepository extends DisposableInterface
 
     return Page(
       RxList(
-        query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
+        query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList(),
       ),
       query.pageInfo.toModel((c) => ChatContactsCursor(c)),
     );
@@ -854,9 +858,7 @@ class ContactRepository extends DisposableInterface
 
     return Page(
       RxList(
-        query.edges
-            .map((e) => e.node.toHive(favoriteCursor: e.cursor))
-            .toList(),
+        query.edges.map((e) => e.node.toDto(favoriteCursor: e.cursor)).toList(),
       ),
       query.pageInfo.toModel((c) => FavoriteChatContactsCursor(c)),
     );

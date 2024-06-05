@@ -24,7 +24,7 @@ import 'version.dart';
 
 part 'contact.g.dart';
 
-/// Persisted in [Hive] storage [ChatContact]'s [value].
+/// Persisted in storage [ChatContact]'s [value].
 @HiveType(typeId: ModelTypeId.dtoChatContact)
 class DtoChatContact extends HiveObject {
   DtoChatContact(this.value, this.ver, this.cursor, this.favoriteCursor);

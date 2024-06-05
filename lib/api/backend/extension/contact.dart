@@ -39,7 +39,7 @@ extension ChatContactConversion on ChatContactMixin {
   List<DtoUser> getDtoUsers() => users.map((e) => e.toDto()).toList();
 
   /// Constructs a new [DtoChatContact] from this [ChatContactMixin].
-  DtoChatContact toHive({
+  DtoChatContact toDto({
     ChatContactsCursor? cursor,
     FavoriteChatContactsCursor? favoriteCursor,
   }) =>
