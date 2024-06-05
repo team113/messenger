@@ -38,6 +38,7 @@ import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -46,7 +47,6 @@ import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -148,7 +148,7 @@ void main() async {
     final chatCredentialsProvider =
         Get.put(ChatCredentialsDriftProvider(common, scoped));
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-    await Get.put(MonologHiveProvider()).init();
+    final monologProvider = Get.put(MonologDriftProvider(common));
     await Get.put(SessionDataHiveProvider()).init();
     await Get.put(AccountHiveProvider()).init();
 
@@ -219,7 +219,7 @@ void main() async {
         Get.find(),
         userRepository,
         Get.find(),
-        Get.find(),
+        monologProvider,
         me: const UserId('me'),
       ),
     );

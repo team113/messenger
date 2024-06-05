@@ -38,6 +38,7 @@ import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'monolog.dart';
 import 'my_user.dart';
 import 'settings.dart';
 import 'user.dart';
@@ -45,7 +46,16 @@ import 'user.dart';
 part 'drift.g.dart';
 
 /// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
-@DriftDatabase(tables: [Background, Cache, CacheSummary, Settings, MyUsers])
+@DriftDatabase(
+  tables: [
+    Background,
+    Cache,
+    CacheSummary,
+    Monologs,
+    MyUsers,
+    Settings,
+  ],
+)
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
