@@ -51,9 +51,9 @@ import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
 import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
+import 'provider/drift/monolog.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/monolog.dart';
 import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
@@ -492,7 +492,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(MonologHiveProvider()).init(userId: me),
               ]);
 
               final ScopedDriftProvider scoped = deps
@@ -506,6 +505,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
               deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
               deps.put(CallRectDriftProvider(Get.find(), scoped));
+              deps.put(MonologDriftProvider(Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
 
               AbstractSettingsRepository settingsRepository =
@@ -612,12 +612,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final ScopedDependencies deps = ScopedDependencies();
 
             final sessionProvider = deps.put(SessionDataHiveProvider());
-            final monologProvider = deps.put(MonologHiveProvider());
 
-            await Future.wait([
-              sessionProvider.init(userId: me),
-              monologProvider.init(userId: me),
-            ]);
+            await Future.wait([sessionProvider.init(userId: me)]);
 
             final ScopedDriftProvider scoped = deps
                 .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
@@ -638,6 +634,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(ChatCredentialsDriftProvider(common, scoped));
             final callRectProvider =
                 deps.put(CallRectDriftProvider(common, scoped));
+            final monologProvider = deps.put(MonologDriftProvider(common));
             final draftProvider = deps.put(DraftDriftProvider(common, scoped));
 
             GraphQlProvider graphQlProvider = Get.find();

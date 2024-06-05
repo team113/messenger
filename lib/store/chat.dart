@@ -51,6 +51,7 @@ import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
 import '/provider/drift/draft.dart';
+import '/provider/drift/monolog.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -58,7 +59,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/monolog.dart';
 import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
@@ -111,6 +111,9 @@ class ChatRepository extends DisposableInterface
   @override
   final RxObsMap<ChatId, RxChatImpl> paginated = RxObsMap<ChatId, RxChatImpl>();
 
+  @override
+  late ChatId monolog = ChatId.local(me);
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -135,8 +138,8 @@ class ChatRepository extends DisposableInterface
   /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
   final SessionDataHiveProvider _sessionLocal;
 
-  /// [MonologHiveProvider] storing a [ChatId] of the [Chat]-monolog.
-  final MonologHiveProvider _monologLocal;
+  /// [MonologDriftProvider] storing a [ChatId] of the [Chat]-monolog.
+  final MonologDriftProvider _monologLocal;
 
   /// [CombinedPagination] loading [chats] with pagination.
   CombinedPagination<DtoChat, ChatId>? _pagination;
@@ -180,9 +183,6 @@ class ChatRepository extends DisposableInterface
   /// Used to prevent [Chat]-monolog from being displayed as unfavorited after
   /// adding a local [Chat]-monolog to favorites.
   ChatFavoritePosition? _localMonologFavoritePosition;
-
-  @override
-  ChatId get monolog => _monologLocal.get() ?? ChatId.local(me);
 
   @override
   RxBool get hasNext =>
@@ -244,6 +244,8 @@ class ChatRepository extends DisposableInterface
 
       _initLocalPagination();
     }
+
+    _monologLocal.read(me).then((v) => monolog = v ?? monolog);
   }
 
   @override
@@ -381,7 +383,7 @@ class ChatRepository extends DisposableInterface
     final RxChatImpl chat = await _putEntry(chatData);
 
     if (!isClosed) {
-      await _monologLocal.set(chat.id);
+      await _monologLocal.upsert(me, monolog = chat.id);
     }
 
     return chat;
@@ -601,7 +603,7 @@ class ChatRepository extends DisposableInterface
         await remove(id);
 
         id = monologData.chat.value.id;
-        await _monologLocal.set(id);
+        await _monologLocal.upsert(me, monolog = id);
       }
 
       if (chat == null || chat.chat.value.favoritePosition != null) {
@@ -1236,7 +1238,7 @@ class ChatRepository extends DisposableInterface
             _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
-        await _monologLocal.set(id);
+        await _monologLocal.upsert(me, this.monolog = id);
       } else if (id.isLocal) {
         final RxChatImpl? chat = await ensureRemoteDialog(id);
         if (chat != null) {
@@ -1693,7 +1695,7 @@ class ChatRepository extends DisposableInterface
           if (chat.isMonolog) {
             if (monolog.isLocal) {
               // Keep track of the [monolog]'s [isLocal] status.
-              await _monologLocal.set(chat.id);
+              await _monologLocal.upsert(me, monolog = chat.id);
             }
           }
 
@@ -2344,7 +2346,7 @@ class ChatRepository extends DisposableInterface
       // [Pagination], then initialize local monolog or get a remote one.
       if (isLocal && !isPaginated && !canFetchMore) {
         // Whether [ChatId] of [MyUser]'s monolog is known for the given device.
-        final bool isStored = _monologLocal.get() != null;
+        final bool isStored = await _monologLocal.read(me) != null;
 
         if (isStored) {
           // Initialize local monolog, if its ID was saved. If `isStored`, local
@@ -2363,12 +2365,12 @@ class ChatRepository extends DisposableInterface
           final ChatData monologChatData = _chat(maybeMonolog);
           final RxChatImpl monolog = await _putEntry(monologChatData);
 
-          await _monologLocal.set(monolog.id);
+          await _monologLocal.upsert(me, this.monolog = monolog.id);
         } else if (!isStored) {
           // If remote monolog doesn't exist and local one is not stored, then
           // create it.
           await _createLocalDialog(me);
-          await _monologLocal.set(monolog);
+          await _monologLocal.upsert(me, monolog);
         }
       }
     });
