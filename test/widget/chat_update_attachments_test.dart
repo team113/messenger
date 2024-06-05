@@ -57,10 +57,7 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -374,9 +371,6 @@ void main() async {
     ),
   );
 
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
   var draftProvider = Get.put(DraftHiveProvider());
   await draftProvider.init();
   await draftProvider.clear();
@@ -398,10 +392,6 @@ void main() async {
   await monologProvider.init();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -484,14 +474,7 @@ void main() async {
     );
 
     final contactRepository = Get.put(
-      ContactRepository(
-        graphQlProvider,
-        contactProvider,
-        favoriteContactHiveProvider,
-        contactSortingHiveProvider,
-        userRepository,
-        sessionProvider,
-      ),
+      ContactRepository(graphQlProvider, userRepository, sessionProvider),
     );
 
     Get.put(

@@ -52,10 +52,7 @@ import 'provider/drift/chat_member.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/user.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/contact.dart';
-import 'provider/hive/contact_sorting.dart';
 import 'provider/hive/draft.dart';
-import 'provider/hive/favorite_contact.dart';
 import 'provider/hive/monolog.dart';
 import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
@@ -495,9 +492,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               await Future.wait([
                 deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(ContactHiveProvider()).init(userId: me),
-                deps.put(FavoriteContactHiveProvider()).init(userId: me),
-                deps.put(ContactSortingHiveProvider()).init(userId: me),
                 deps.put(DraftHiveProvider()).init(userId: me),
                 deps.put(MonologHiveProvider()).init(userId: me),
               ]);
@@ -558,14 +552,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
-                ContactRepository(
-                  graphQlProvider,
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  userRepository,
-                  Get.find(),
-                ),
+                ContactRepository(graphQlProvider, userRepository, Get.find()),
               );
               userRepository.getContact = contactRepository.get;
 
@@ -625,18 +612,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final ScopedDependencies deps = ScopedDependencies();
 
             final sessionProvider = deps.put(SessionDataHiveProvider());
-            final contactProvider = deps.put(ContactHiveProvider());
-            final contactFavoriteProvider =
-                deps.put(FavoriteContactHiveProvider());
-            final contactSortProvider = deps.put(ContactSortingHiveProvider());
             final draftProvider = deps.put(DraftHiveProvider());
             final monologProvider = deps.put(MonologHiveProvider());
 
             await Future.wait([
               sessionProvider.init(userId: me),
-              contactProvider.init(userId: me),
-              contactFavoriteProvider.init(userId: me),
-              contactSortProvider.init(userId: me),
               draftProvider.init(userId: me),
               monologProvider.init(userId: me),
             ]);
@@ -729,9 +709,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractContactRepository>(
               ContactRepository(
                 graphQlProvider,
-                contactProvider,
-                contactFavoriteProvider,
-                contactSortProvider,
                 userRepository,
                 sessionProvider,
               ),

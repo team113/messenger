@@ -51,7 +51,7 @@ class ModelTypeId {
   static const chatId = 28;
   static const user = 29;
   static const chatContact = 30;
-  static const hiveChatContact = 31;
+  static const dtoChatContact = 31;
   static const dtoMyUser = 32;
   static const chatContactsListVersion = 34;
   static const sessionData = 35;

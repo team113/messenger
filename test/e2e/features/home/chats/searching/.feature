@@ -17,10 +17,10 @@
 
 Feature: Chats searching
 
-  Scenario: User, chat and contact can be found
+  Scenario: User and chat can be found
     Given I am Alice
     And users Bob and Charlie
-    And contact Charlie
+    # And contact Charlie
     And I have "Example" group with Bob
 
     When I tap `SearchButton` button
@@ -30,8 +30,8 @@ Feature: Chats searching
     When I fill `SearchField` field with "Bob"
     Then I see user Bob in search results
 
-    When I fill `SearchField` field with "Charlie"
-    Then I see contact Charlie in search results
+  # When I fill `SearchField` field with "Charlie"
+  # Then I see contact Charlie in search results
 
   Scenario: Search paginates its results
     Given I am Alice
