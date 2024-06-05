@@ -28,10 +28,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
@@ -51,15 +48,8 @@ void main() async {
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
   final userProvider = Get.put(UserDriftProvider(common, scoped));
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
   var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
   await sessionDataHiveProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -70,7 +60,6 @@ void main() async {
   setUp(() async {
     Get.reset();
     await credentialsHiveProvider.clear();
-    await contactProvider.clear();
   });
 
   var chatContact = {
@@ -137,14 +126,7 @@ void main() async {
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(
-      ContactRepository(
-        graphQlProvider,
-        contactProvider,
-        favoriteContactHiveProvider,
-        contactSortingHiveProvider,
-        userRepo,
-        sessionDataHiveProvider,
-      ),
+      ContactRepository(graphQlProvider, userRepo, sessionDataHiveProvider),
     );
 
     return Get.put(ContactService(contactRepository));

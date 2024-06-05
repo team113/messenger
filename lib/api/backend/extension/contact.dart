@@ -18,7 +18,6 @@
 import '../schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/provider/hive/contact.dart';
 import '/store/model/contact.dart';
 import '/store/model/user.dart';
 import 'user.dart';
@@ -39,10 +38,10 @@ extension ChatContactConversion on ChatContactMixin {
   /// Constructs a new list of [DtoUser]s from this [ChatContactMixin].
   List<DtoUser> getDtoUsers() => users.map((e) => e.toDto()).toList();
 
-  /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
-  HiveChatContact toHive({
+  /// Constructs a new [DtoChatContact] from this [ChatContactMixin].
+  DtoChatContact toHive({
     ChatContactsCursor? cursor,
     FavoriteChatContactsCursor? favoriteCursor,
   }) =>
-      HiveChatContact(toModel(), ver, cursor, favoriteCursor);
+      DtoChatContact(toModel(), ver, cursor, favoriteCursor);
 }
