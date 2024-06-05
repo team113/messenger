@@ -746,6 +746,7 @@ class ChatController extends GetxController {
 
         unreadMessages = chat!.chat.value.unreadCount;
 
+        await chat!.ensureDraft();
         final ChatMessage? draft = chat!.draft.value;
 
         if (send.field.text.isEmpty) {

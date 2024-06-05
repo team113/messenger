@@ -36,6 +36,7 @@ import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/call_rect.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -43,7 +44,6 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -91,8 +91,7 @@ void main() async {
   final chatCredentialsProvider =
       Get.put(ChatCredentialsDriftProvider(common, scoped));
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
-  var draftProvider = DraftHiveProvider();
-  await draftProvider.init(userId: const UserId('me'));
+  final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   var monologProvider = MonologHiveProvider();
   await monologProvider.init(userId: const UserId('me'));
 

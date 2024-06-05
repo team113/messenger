@@ -34,6 +34,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -41,7 +42,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -73,8 +73,6 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
-  var draftProvider = DraftHiveProvider();
-  await draftProvider.init();
   var monologProvider = MonologHiveProvider();
   await monologProvider.init();
   var sessionProvider = SessionDataHiveProvider();
@@ -243,6 +241,7 @@ void main() async {
     final chatCredentialsProvider =
         Get.put(ChatCredentialsDriftProvider(common, scoped));
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -332,6 +331,7 @@ void main() async {
     final chatCredentialsProvider =
         Get.put(ChatCredentialsDriftProvider(common, scoped));
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

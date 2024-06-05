@@ -38,6 +38,7 @@ import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'draft.dart';
 import 'my_user.dart';
 import 'settings.dart';
 import 'user.dart';
@@ -112,6 +113,7 @@ class CommonDatabase extends _$CommonDatabase {
     ChatItemViews,
     ChatMembers,
     Chats,
+    Drafts,
     Users,
   ],
   queries: {

@@ -50,6 +50,7 @@ import '/domain/repository/user.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
+import '/provider/drift/draft.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -57,7 +58,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/draft.dart';
 import '/provider/hive/monolog.dart';
 import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
@@ -126,8 +126,8 @@ class ChatRepository extends DisposableInterface
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
 
-  /// [RxChat.draft] local [Hive] storage.
-  final DraftHiveProvider _draftLocal;
+  /// [RxChat.draft] local storage.
+  final DraftDriftProvider _draftLocal;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -146,9 +146,6 @@ class ChatRepository extends DisposableInterface
 
   /// Subscription to the [_pagination] changes.
   StreamSubscription? _paginationSubscription;
-
-  /// [DraftHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _draftSubscription;
 
   /// [_recentChatsRemoteEvents] subscription.
   ///
@@ -219,7 +216,6 @@ class ChatRepository extends DisposableInterface
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
     if (!WebUtils.isPopup) {
-      _initDraftSubscription();
       _initRemoteSubscription();
       _initFavoriteSubscription();
       _initRemotePagination();
@@ -257,7 +253,6 @@ class ChatRepository extends DisposableInterface
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _pagination?.dispose();
-    _draftSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
@@ -1644,27 +1639,6 @@ class ChatRepository extends DisposableInterface
     return entry;
   }
 
-  /// Initializes [DraftHiveProvider.boxEvents] subscription.
-  Future<void> _initDraftSubscription() async {
-    Log.debug('_initDraftSubscription()', '$runtimeType');
-
-    _draftSubscription = StreamIterator(_draftLocal.boxEvents);
-    while (await _draftSubscription!.moveNext()) {
-      final BoxEvent event = _draftSubscription!.current;
-      final ChatId chatId = ChatId(event.key);
-
-      if (event.deleted) {
-        chats[chatId]?.draft.value = null;
-      } else {
-        final RxChatImpl? chat = chats[chatId];
-        if (chat != null) {
-          chat.draft.value = event.value;
-          chat.draft.refresh();
-        }
-      }
-    }
-  }
-
   /// Initializes [_recentChatsRemoteEvents] subscription.
   Future<void> _initRemoteSubscription() async {
     if (isClosed) {
@@ -2147,7 +2121,7 @@ class ChatRepository extends DisposableInterface
               entry = localChat;
             }
 
-            _draftLocal.move(localId, chatId);
+            await _draftLocal.move(localId, chatId);
             remove(localId);
           }
         }
