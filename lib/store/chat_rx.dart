@@ -21,7 +21,6 @@ import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart'
@@ -42,10 +41,10 @@ import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
+import '/provider/drift/chat.dart';
+import '/provider/drift/draft.dart';
 import '/provider/gql/exceptions.dart'
     show ConnectionException, PostChatMessageException, StaleVersionException;
-import '/provider/drift/chat.dart';
-import '/provider/hive/draft.dart';
 import '/store/model/chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination.dart';
@@ -82,7 +81,6 @@ class RxChatImpl extends RxChat {
     DtoChat dto,
   )   : chat = Rx<Chat>(dto.value),
         _lastReadItemCursor = dto.lastReadItemCursor,
-        draft = Rx<ChatMessage?>(_draftLocal.get(dto.value.id)),
         unreadCount = RxInt(dto.value.unreadCount),
         ver = dto.ver;
 
@@ -105,7 +103,7 @@ class RxChatImpl extends RxChat {
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
   @override
-  final Rx<ChatMessage?> draft;
+  final Rx<ChatMessage?> draft = Rx(null);
 
   @override
   final RxList<LastChatRead> reads = RxList();
@@ -126,8 +124,8 @@ class RxChatImpl extends RxChat {
   /// [Chat]s local storage.
   final ChatDriftProvider _driftChat;
 
-  /// [RxChat.draft]s local [Hive] storage.
-  final DraftHiveProvider _draftLocal;
+  /// [RxChat.draft]s local storage.
+  final DraftDriftProvider _draftLocal;
 
   /// [ChatItem]s local storage.
   final ChatItemDriftProvider _driftItems;
@@ -161,6 +159,9 @@ class RxChatImpl extends RxChat {
 
   /// [ChatDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
+
+  /// [DraftDriftProvider.watch] subscription.
+  StreamSubscription? _draftSubscription;
 
   /// [StreamController] for [updates] of this [RxChat].
   ///
@@ -211,6 +212,9 @@ class RxChatImpl extends RxChat {
 
   /// Cursor of the last [ChatItem] read by the authenticated [MyUser].
   ChatItemsCursor? _lastReadItemCursor;
+
+  /// [Mutex] guarding reading of [draft] from local storage to [ensureDraft].
+  final Mutex _draftGuard = Mutex();
 
   @override
   UserId? get me => _chatRepository.me;
@@ -358,6 +362,7 @@ class RxChatImpl extends RxChat {
     );
 
     _initLocalSubscription();
+    _initDraftSubscription();
     _initMessagesPagination();
     _initMembersPagination();
 
@@ -396,6 +401,10 @@ class RxChatImpl extends RxChat {
       inCall.value =
           _chatRepository.calls[id] != null || WebUtils.containsCall(id);
     });
+
+    await _draftGuard.protect(() async {
+      draft.value = await _draftLocal.read(id);
+    });
   }
 
   /// Disposes this [RxChatImpl].
@@ -414,6 +423,8 @@ class RxChatImpl extends RxChat {
     _remoteSubscription = null;
     _localSubscription?.cancel();
     _localSubscription = null;
+    _draftSubscription?.cancel();
+    _draftSubscription = null;
     _paginationSubscription?.cancel();
     _pagination.dispose();
     _messagesSubscription?.cancel();
@@ -435,21 +446,30 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  void setDraft({
+  Future<void> ensureDraft() async {
+    Log.debug('ensureDraft()', '$runtimeType($id)');
+
+    if (_draftGuard.isLocked) {
+      await _draftGuard.protect(() async {});
+    }
+  }
+
+  @override
+  Future<void> setDraft({
     ChatMessageText? text,
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
-  }) {
+  }) async {
     Log.debug(
       'setDraft($text, $attachments, $repliesTo)',
       '$runtimeType($id)',
     );
 
-    ChatMessage? draft = _draftLocal.get(id);
+    ChatMessage? draft = await _draftLocal.read(id);
 
     if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
       if (draft != null) {
-        _draftLocal.remove(id);
+        await _draftLocal.delete(id);
       }
     } else {
       final bool repliesEqual = const IterableEquality().equals(
@@ -472,7 +492,7 @@ class RxChatImpl extends RxChat {
           repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
           attachments: attachments,
         );
-        _draftLocal.put(id, draft);
+        _draftLocal.upsert(id, draft);
       }
     }
   }
@@ -1467,6 +1487,12 @@ class RxChatImpl extends RxChat {
         }
       },
     );
+  }
+
+  /// Initializes the [_draftSubscription].
+  void _initDraftSubscription() {
+    _draftSubscription?.cancel();
+    _draftSubscription = _draftLocal.watch(id).listen((e) => draft.value = e);
   }
 
   /// Initializes [ChatRepository.chatEvents] subscription.

@@ -97,7 +97,8 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
   }
 }
 
-/// Extension adding conversion methods from [ChatCredentialsRow] to [ChatCallCredentials].
+/// Extension adding conversion methods from [ChatCredentialsRow] to
+/// [ChatCallCredentials].
 extension _CallCredentialsDb on ChatCallCredentials {
   /// Constructs a [ChatCallCredentials] from the provided [ChatCredentialsRow].
   static ChatCallCredentials fromDb(ChatCredentialsRow e) {
