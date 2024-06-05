@@ -30,7 +30,6 @@ import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -64,8 +63,6 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  var contactProvider = ContactHiveProvider();
-  await contactProvider.init();
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
 
@@ -79,7 +76,6 @@ void main() async {
   testWidgets('LoginView successfully recovers account access',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);

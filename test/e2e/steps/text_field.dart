@@ -170,7 +170,8 @@ Future<void> _fillField(
   await context.world.appDriver.waitUntil(() async {
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-    if (await context.world.appDriver.isPresent(finder)) {
+    if (await context.world.appDriver.isPresent(finder) &&
+        finder.tryEvaluate()) {
       await context.world.appDriver.waitForAppToSettle();
 
       await context.world.appDriver.waitForAppToSettle();

@@ -43,7 +43,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/routes.dart';
@@ -84,8 +83,6 @@ void main() async {
   final graphQlProvider = _FakeGraphQlProvider();
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
-  var contactProvider = ContactHiveProvider();
-  await contactProvider.init(userId: const UserId('me'));
   final userProvider = UserDriftProvider(common, scoped);
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
@@ -113,7 +110,6 @@ void main() async {
   testWidgets('AuthView logins a user and redirects to HomeView',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);

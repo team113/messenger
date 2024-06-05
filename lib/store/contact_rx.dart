@@ -24,15 +24,14 @@ import 'package:hive/hive.dart';
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
-import '/provider/hive/contact.dart';
 import '/store/model/contact.dart';
 import '/util/log.dart';
 
 /// [RxChatContact] implementation backed by local [Hive] storage.
 class HiveRxChatContact extends RxChatContact {
-  HiveRxChatContact(this._userRepository, HiveChatContact hiveChatContact)
-      : contact = Rx<ChatContact>(hiveChatContact.value),
-        ver = hiveChatContact.ver;
+  HiveRxChatContact(this._userRepository, DtoChatContact dto)
+      : contact = Rx<ChatContact>(dto.value),
+        ver = dto.ver;
 
   @override
   final Rx<ChatContact> contact;

@@ -51,7 +51,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -133,9 +132,6 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
@@ -400,7 +396,6 @@ void main() async {
   });
 
   await myUserProvider.clear();
-  await contactProvider.clear();
   await chatProvider.clear();
 }
 

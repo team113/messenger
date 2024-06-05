@@ -49,9 +49,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
 import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/monolog.dart';
 import 'package:messenger/provider/hive/credentials.dart';
@@ -85,9 +82,6 @@ void main() async {
   await credentialsProvider.clear();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.clear();
-  await contactProvider.init();
   final settingsProvider = Get.put(SettingsDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -107,10 +101,6 @@ void main() async {
   await monologProvider.clear();
   var sessionProvider = SessionDataHiveProvider();
   await sessionProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -323,9 +313,6 @@ void main() async {
         Get.put<AbstractContactRepository>(
           ContactRepository(
             graphQlProvider,
-            contactProvider,
-            favoriteContactHiveProvider,
-            contactSortingHiveProvider,
             userRepository,
             sessionProvider,
           ),
@@ -409,8 +396,6 @@ void main() async {
     await Future.wait([common.close(), scoped.close()]);
     await Get.deleteAll(force: true);
   });
-
-  await contactProvider.clear();
 }
 
 final chatData = {
