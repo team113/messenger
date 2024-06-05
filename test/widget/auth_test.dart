@@ -34,6 +34,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
@@ -41,7 +42,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/provider/hive/draft.dart';
 import 'package:messenger/provider/hive/monolog.dart';
@@ -90,10 +90,9 @@ void main() async {
       Get.put(CallCredentialsDriftProvider(common, scoped));
   final chatCredentialsProvider =
       Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   var draftProvider = DraftHiveProvider();
   await draftProvider.init(userId: const UserId('me'));
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init(userId: const UserId('me'));
   var monologProvider = MonologHiveProvider();
   await monologProvider.init(userId: const UserId('me'));
 
@@ -122,6 +121,7 @@ void main() async {
     Get.put(blocklistProvider);
     Get.put(callCredentialsProvider);
     Get.put(chatCredentialsProvider);
+    Get.put(callRectProvider);
 
     final AuthService authService = Get.put(
       AuthService(
@@ -189,7 +189,9 @@ void main() async {
 
     verify(router.go(Routes.home));
 
-    await Future.wait([common.close(), scoped.close()]);
+    await common.close();
+    await tester.runAsync(() async => await scoped.close());
+
     await Get.deleteAll(force: true);
   });
 

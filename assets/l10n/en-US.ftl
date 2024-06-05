@@ -294,16 +294,16 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_confirmation_code =
+    {$domain} confirmation code is: {$token}
+    Valid until {$expiresAt}.
+    {$domain}
+email_confirmation_code_subject = {$domain} confirmation code
 email_password_recovery =
     {$domain} recovery code is: {$token}
     Valid until {$expiresAt}.
     {$domain}
 email_password_recovery_subject = {$domain} recovery code
-email_verification_code =
-    {$domain} verification code is: {$token}
-    Valid until {$expiresAt}.
-    {$domain}
-email_verification_code_subject = {$domain} verification code
 err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
@@ -515,6 +515,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } removed you from group
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About

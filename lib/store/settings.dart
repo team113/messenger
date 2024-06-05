@@ -20,6 +20,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart' show Rect;
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/chat.dart';
@@ -27,8 +28,8 @@ import '/domain/model/media_settings.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/provider/drift/background.dart';
+import '/provider/drift/call_rect.dart';
 import '/provider/drift/settings.dart';
-import '/provider/hive/call_rect.dart';
 import '/util/log.dart';
 import 'model/background.dart';
 
@@ -60,12 +61,9 @@ class SettingsRepository extends DisposableInterface
   /// [DtoBackground] local storage.
   final BackgroundDriftProvider _backgroundLocal;
 
-  /// [CallRectHiveProvider] persisting the [Rect] preferences of the
+  /// [CallRectDriftProvider] persisting the [Rect] preferences of the
   /// [OngoingCall]s.
-  final CallRectHiveProvider _callRectLocal;
-
-  /// [MediaSettingsHiveProvider.boxEvents] subscription.
-  StreamIterator? _mediaSubscription;
+  final CallRectDriftProvider _callRectLocal;
 
   /// [SettingsDriftProvider.watch] subscription.
   StreamSubscription? _settingsSubscription;
@@ -73,17 +71,20 @@ class SettingsRepository extends DisposableInterface
   /// [BackgroundDriftProvider.watch] subscription.
   StreamSubscription? _backgroundSubscription;
 
+  /// [Mutex] guarding [_set]ting of the values before they were read.
+  final Mutex _guard = Mutex();
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    _settingsLocal.read(userId).then((v) {
-      mediaSettings.value = v?.media;
-      applicationSettings.value = v?.application;
-    });
+    _guard.protect(() async {
+      final DtoSettings? settings = await _settingsLocal.read(userId);
+      mediaSettings.value = settings?.media;
+      applicationSettings.value = settings?.application;
 
-    _backgroundLocal.read(userId).then((v) {
-      background.value = v?.bytes;
+      final DtoBackground? bytes = await _backgroundLocal.read(userId);
+      background.value = bytes?.bytes;
     });
 
     _initSettingsSubscription();
@@ -96,7 +97,6 @@ class SettingsRepository extends DisposableInterface
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _mediaSubscription?.cancel();
     _settingsSubscription?.cancel();
     _backgroundSubscription?.cancel();
     super.onClose();
@@ -182,13 +182,13 @@ class SettingsRepository extends DisposableInterface
   @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) async {
     Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
-    await _callRectLocal.put(chatId, prefs);
+    await _callRectLocal.upsert(chatId, prefs);
   }
 
   @override
-  Rect? getCallRect(ChatId id) {
+  Future<Rect?> getCallRect(ChatId id) async {
     Log.debug('getCallRect($id)', '$runtimeType');
-    return _callRectLocal.get(id);
+    return await _callRectLocal.read(id);
   }
 
   @override
@@ -215,6 +215,10 @@ class SettingsRepository extends DisposableInterface
     ApplicationSettings? Function(ApplicationSettings)? settings,
     MediaSettings? Function(MediaSettings)? media,
   }) async {
+    if (_guard.isLocked) {
+      await _guard.protect(() async {});
+    }
+
     applicationSettings.value =
         settings?.call(applicationSettings.value ?? ApplicationSettings()) ??
             applicationSettings.value;
@@ -241,7 +245,7 @@ class SettingsRepository extends DisposableInterface
     });
   }
 
-  /// Initializes [BackgroundHiveProvider.boxEvents] subscription.
+  /// Initializes [BackgroundDriftProvider.watch] subscription.
   Future<void> _initBackgroundSubscription() async {
     Log.debug('_initBackgroundSubscription()', '$runtimeType');
 
