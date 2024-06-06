@@ -64,7 +64,7 @@ class VersionDriftProvider extends DriftProviderBase {
     super.onInit();
   }
 
-  /// Pre-initializes the [data], so that is is accessible synchronously.
+  /// Pre-initializes the [data], so that it is accessible synchronously.
   Future<void> init() async {
     await _guard.protect(() async {
       if (_initialized) {
