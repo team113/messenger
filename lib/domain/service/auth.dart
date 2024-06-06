@@ -32,7 +32,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
-import '/provider/hive/account.dart';
+import '/provider/drift/account.dart';
 import '/provider/hive/credentials.dart';
 import '/routes.dart';
 import '/util/log.dart';
@@ -74,8 +74,8 @@ class AuthService extends DisposableService {
   /// [CredentialsHiveProvider] used to store user [Session].
   final CredentialsHiveProvider _credentialsProvider;
 
-  /// [AccountHiveProvider] storing the current user's [UserId].
-  final AccountHiveProvider _accountProvider;
+  /// [AccountDriftProvider] storing the current user's [UserId].
+  final AccountDriftProvider _accountProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -842,7 +842,7 @@ class AuthService extends DisposableService {
     Log.debug('_authorized($creds)', '$runtimeType');
 
     _credentialsProvider.put(creds);
-    _accountProvider.set(creds.userId);
+    _accountProvider.upsert(creds.userId);
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
@@ -869,7 +869,7 @@ class AuthService extends DisposableService {
       // rewritten the value in [_accountProvider] during switching to another
       // account but the tab this code is running on still uses the
       // [credentials] of an old one, which is an expected behavior.
-      _accountProvider.clear();
+      _accountProvider.delete();
     }
 
     _authRepository.token = null;

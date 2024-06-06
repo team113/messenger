@@ -35,28 +35,27 @@ class CallOverlayView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder<CallOverlayController>(
       init: CallOverlayController(Get.find(), Get.find()),
-      builder: (CallOverlayController c) => Obx(
-        () {
+      builder: (CallOverlayController c) {
+        return Obx(() {
           return Stack(
             children: [
               child,
-              ...c.calls.map(
-                (e) => Obx(
-                  () => e.call.value.state.value == OngoingCallState.ended
-                      ? const SizedBox()
-                      : Listener(
-                          onPointerDown: (_) => c.orderFirst(e),
-                          child: CallView(
-                            e.call,
-                            key: e.key,
-                          ),
-                        ),
-                ),
-              ),
+              ...c.calls.map((e) {
+                return Obx(() {
+                  if (e.call.value.state.value == OngoingCallState.ended) {
+                    return const SizedBox();
+                  }
+
+                  return Listener(
+                    onPointerDown: (_) => c.orderFirst(e),
+                    child: CallView(e.call, key: e.key),
+                  );
+                });
+              }),
             ],
           );
-        },
-      ),
+        });
+      },
     );
   }
 }

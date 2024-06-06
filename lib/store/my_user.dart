@@ -34,10 +34,10 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/account.dart';
 import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/account.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -78,8 +78,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Local storage of the [MyUser]s.
   final MyUserDriftProvider _driftMyUser;
 
-  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
-  final AccountHiveProvider _accountLocal;
+  /// Storage providing the [UserId] of the currently active [MyUser].
+  final AccountDriftProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -622,7 +622,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Populates the [profiles] with values stored in the [_myUserLocal].
+  /// Populates the [profiles] with values stored in the [_driftMyUser].
   Future<void> _initProfiles() async {
     Log.debug('_initProfiles()', '$runtimeType');
 
@@ -631,7 +631,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [MyUserHiveProvider.boxEvents] subscription.
+  /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
 

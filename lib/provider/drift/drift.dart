@@ -27,6 +27,7 @@ import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'account.dart';
 import 'background.dart';
 import 'blocklist.dart';
 import 'cache.dart';
@@ -52,6 +53,7 @@ part 'drift.g.dart';
 /// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
 @DriftDatabase(
   tables: [
+    Accounts,
     Background,
     Cache,
     CacheSummary,

@@ -53,6 +53,7 @@ import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
+import 'provider/drift/account.dart';
 import 'provider/drift/background.dart';
 import 'provider/drift/cache.dart';
 import 'provider/drift/drift.dart';
@@ -62,7 +63,6 @@ import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/account.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
 import 'pubspec.g.dart';
@@ -113,6 +113,9 @@ Future<void> main() async {
       Get.put(CacheDriftProvider(Get.find()));
       Get.put(SkippedVersionDriftProvider(Get.find()));
     }
+
+    final accountProvider = Get.put(AccountDriftProvider(Get.find()));
+    await accountProvider.init();
 
     await _initHive();
 
@@ -291,7 +294,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       message.data['chatId'] != null) {
     SharedPreferences? prefs;
     CredentialsHiveProvider? credentialsProvider;
-    AccountHiveProvider? accountProvider;
+    AccountDriftProvider? accountProvider;
     GraphQlProvider? provider;
     StreamSubscription? subscription;
 
@@ -357,7 +360,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await Config.init();
       await Hive.initFlutter('hive');
       credentialsProvider = CredentialsHiveProvider();
-      accountProvider = AccountHiveProvider();
+      accountProvider = AccountDriftProvider(
+        CommonDriftProvider.from(CommonDatabase()),
+      );
 
       await credentialsProvider.init();
       await accountProvider.init();
@@ -367,7 +372,6 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           userId != null ? credentialsProvider.get(userId) : null;
 
       await credentialsProvider.close();
-      await accountProvider.close();
 
       if (credentials != null) {
         provider = GraphQlProvider();
@@ -478,7 +482,6 @@ Future<void> _initHive() async {
     });
   }
 
-  await Get.put(AccountHiveProvider()).init();
   await Get.put(CredentialsHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {
