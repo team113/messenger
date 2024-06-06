@@ -29,11 +29,12 @@ import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/blocklist.dart';
 import '/provider/drift/my_user.dart';
+import '/provider/drift/version.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/session_data.dart';
 import '/util/log.dart';
 import 'model/blocklist.dart';
 import 'model/my_user.dart';
+import 'model/session_data.dart';
 import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/drift_graphql.dart';
@@ -78,10 +79,10 @@ class BlocklistRepository extends DisposableInterface
           delete: (e) async => await _blocklistLocal.delete(e),
           reset: () async => await _blocklistLocal.clear(),
           isFirst: (_) =>
-              _sessionLocal.getBlocklistSynchronized() == true &&
+              _sessionLocal.data[me]?.blocklistSynchronized == true &&
               blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           isLast: (_) =>
-              _sessionLocal.getBlocklistSynchronized() == true &&
+              _sessionLocal.data[me]?.blocklistSynchronized == true &&
               blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           compare: (a, b) => a.value.compareTo(b.value),
         ),
@@ -96,7 +97,10 @@ class BlocklistRepository extends DisposableInterface
             );
 
             if (page.info.hasNext == false) {
-              _sessionLocal.setBlocklistSynchronized(true);
+              _sessionLocal.upsert(
+                me,
+                SessionData(blocklistSynchronized: true),
+              );
             }
 
             return page;
@@ -119,8 +123,8 @@ class BlocklistRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepository;
 
-  /// [SessionDataHiveProvider] used to store blocked [User]s list related data.
-  final SessionDataHiveProvider _sessionLocal;
+  /// [VersionDriftProvider] used to store blocked [User]s list related data.
+  final VersionDriftProvider _sessionLocal;
 
   /// Local storage of the [MyUser]s.
   final MyUserDriftProvider _myUserLocal;
@@ -163,7 +167,7 @@ class BlocklistRepository extends DisposableInterface
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.setBlocklistSynchronized(false);
+    await _sessionLocal.upsert(me, SessionData(blocklistSynchronized: false));
     await blocklist.clear();
     await blocklist.around();
   }

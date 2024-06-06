@@ -32,9 +32,9 @@ import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
+import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart' show StaleVersionException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/session_data.dart';
 import '/store/contact_rx.dart';
 import '/store/pagination.dart';
 import '/store/pagination/graphql.dart';
@@ -44,6 +44,7 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'model/session_data.dart';
 import 'model/user.dart';
 import 'paginated.dart';
 import 'pagination/combined_pagination.dart';
@@ -52,7 +53,12 @@ import 'user.dart';
 /// Implementation of an [AbstractContactRepository].
 class ContactRepository extends DisposableInterface
     implements AbstractContactRepository {
-  ContactRepository(this._graphQlProvider, this._userRepo, this._sessionLocal);
+  ContactRepository(
+    this._graphQlProvider,
+    this._userRepo,
+    this._sessionLocal, {
+    required this.me,
+  });
 
   @override
   final Rx<RxStatus> status = Rx(RxStatus.empty());
@@ -63,15 +69,18 @@ class ContactRepository extends DisposableInterface
   @override
   final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
 
+  /// [UserId] of the currently authenticated [MyUser].
+  final UserId me;
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
   /// [User]s repository.
   final UserRepository _userRepo;
 
-  /// [SessionDataHiveProvider] for storing and accessing
+  /// [VersionDriftProvider] for storing and accessing
   /// [SessionData.favoriteContactsSynchronized].
-  final SessionDataHiveProvider _sessionLocal;
+  final VersionDriftProvider _sessionLocal;
 
   /// [CombinedPagination] loading [paginated] with pagination.
   CombinedPagination<DtoChatContact, ChatContactId>? _pagination;
@@ -410,7 +419,10 @@ class ContactRepository extends DisposableInterface
           );
 
           if (page.info.hasNext == false) {
-            _sessionLocal.setFavoriteContactsSynchronized(true);
+            _sessionLocal.upsert(
+              me,
+              SessionData(favoriteContactsSynchronized: true),
+            );
           }
 
           return page;
@@ -434,7 +446,7 @@ class ContactRepository extends DisposableInterface
           );
 
           if (page.info.hasNext == false) {
-            _sessionLocal.setContactsSynchronized(true);
+            _sessionLocal.upsert(me, SessionData(contactsSynchronized: true));
           }
 
           return page;
@@ -596,7 +608,9 @@ class ContactRepository extends DisposableInterface
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _chatContactsRemoteEvents(_sessionLocal.getChatContactsListVersion),
+      _chatContactsRemoteEvents(
+        () => _sessionLocal.data[me]?.chatContactsListVersion,
+      ),
     );
     await _remoteSubscription!.execute(
       _contactRemoteEvent,
@@ -606,8 +620,13 @@ class ContactRepository extends DisposableInterface
           paginated.clear();
 
           await _pagination?.clear();
-          await _sessionLocal.setFavoriteContactsSynchronized(false);
-          await _sessionLocal.setContactsSynchronized(false);
+          _sessionLocal.upsert(
+            me,
+            SessionData(
+              favoriteContactsSynchronized: false,
+              contactsSynchronized: false,
+            ),
+          );
 
           await _pagination?.around();
         }
@@ -632,7 +651,9 @@ class ContactRepository extends DisposableInterface
 
       case ChatContactsEventsKind.event:
         final versioned = (event as ChatContactsEventsEvent).event;
-        if (versioned.listVer < _sessionLocal.getChatContactsListVersion()) {
+        final listVer = _sessionLocal.data[me]?.chatContactsListVersion;
+
+        if (versioned.listVer < listVer) {
           Log.debug(
             '_contactRemoteEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
             '$runtimeType',
@@ -644,7 +665,10 @@ class ContactRepository extends DisposableInterface
           );
 
           if (updateVersion) {
-            _sessionLocal.setChatContactsListVersion(versioned.listVer);
+            _sessionLocal.upsert(
+              me,
+              SessionData(chatContactsListVersion: versioned.listVer),
+            );
           }
 
           final Map<ChatContactId, DtoChatContact> entities = {};
@@ -803,14 +827,15 @@ class ContactRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    Contacts$Query$ChatContacts query = (await _graphQlProvider.chatContacts(
+    final query = await _graphQlProvider.chatContacts(
       first: first,
       after: after,
       last: last,
       before: before,
       noFavorite: noFavorite,
-    ));
-    _sessionLocal.setChatContactsListVersion(query.ver);
+    );
+
+    _sessionLocal.upsert(me, SessionData(chatContactsListVersion: query.ver));
 
     for (var c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
@@ -840,14 +865,14 @@ class ContactRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    FavoriteContacts$Query$FavoriteChatContacts query =
-        (await _graphQlProvider.favoriteChatContacts(
+    final query = await _graphQlProvider.favoriteChatContacts(
       first: first,
       after: after,
       last: last,
       before: before,
-    ));
-    _sessionLocal.setChatContactsListVersion(query.ver);
+    );
+
+    _sessionLocal.upsert(me, SessionData(chatContactsListVersion: query.ver));
 
     for (var c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
