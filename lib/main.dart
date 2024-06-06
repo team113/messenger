@@ -55,6 +55,7 @@ import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/background.dart';
 import 'provider/drift/cache.dart';
+import 'provider/drift/download.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
@@ -63,7 +64,6 @@ import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
 import 'provider/hive/credentials.dart';
-import 'provider/hive/download.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -110,6 +110,7 @@ Future<void> main() async {
 
     if (!PlatformUtils.isWeb) {
       Get.put(CacheDriftProvider(Get.find()));
+      Get.put(DownloadDriftProvider(Get.find()));
       Get.put(SkippedVersionDriftProvider(Get.find()));
     }
 
@@ -479,10 +480,6 @@ Future<void> _initHive() async {
   await Get.put(AccountHiveProvider()).init();
   await Get.put(CredentialsHiveProvider()).init();
   await Get.put(WindowPreferencesHiveProvider()).init();
-
-  if (!PlatformUtils.isWeb) {
-    await Get.put(DownloadHiveProvider()).init();
-  }
 }
 
 /// Extension adding an ability to clean [Hive].

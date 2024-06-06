@@ -26,7 +26,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_thumbhash/flutter_thumbhash.dart' as t;
 import 'package:get/get.dart' hide Response;
-import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
@@ -35,7 +34,7 @@ import '/domain/model/cache_info.dart';
 import '/domain/model/file.dart';
 import '/domain/service/disposable_service.dart';
 import '/provider/drift/cache.dart';
-import '/provider/hive/download.dart';
+import '/provider/drift/download.dart';
 import '/util/backoff.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
@@ -66,8 +65,8 @@ class CacheWorker extends DisposableService {
   /// [CacheInfo] local storage.
   final CacheDriftProvider? _cacheLocal;
 
-  /// Downloaded [File.path]s local [Hive] storage.
-  final DownloadHiveProvider? _downloadLocal;
+  /// Downloaded [File.path]s local storage.
+  final DownloadDriftProvider? _downloadLocal;
 
   /// Cached thumbhash [ImageProvider]s.
   final Map<ThumbHash, ImageProvider> _thumbhashProviders = {};
@@ -288,7 +287,7 @@ class CacheWorker extends DisposableService {
         size,
         onDownloaded: (file) {
           if (checksum != null) {
-            _downloadLocal?.put(checksum, file.path);
+            _downloadLocal?.upsert(checksum, file.path);
           }
         },
       )..start(url, to: to);
@@ -315,14 +314,14 @@ class CacheWorker extends DisposableService {
 
     File? file;
     if (checksum != null) {
-      final String? path = await _downloadLocal?.get(checksum);
+      final String? path = await _downloadLocal?.read(checksum);
 
       if (path != null) {
         file = File(path);
 
         if (!await file.exists() || await file.length() != size) {
           file = null;
-          _downloadLocal?.remove(checksum);
+          _downloadLocal?.delete(checksum);
         }
       }
     } else {
@@ -335,10 +334,10 @@ class CacheWorker extends DisposableService {
         filename,
         size,
         file.path,
-        onDownloaded: (file) => _downloadLocal?.put(checksum, file.path),
+        onDownloaded: (file) => _downloadLocal?.upsert(checksum, file.path),
       );
 
-      _downloadLocal?.put(checksum, file.path);
+      _downloadLocal?.upsert(checksum, file.path);
     }
 
     return file;
@@ -357,7 +356,7 @@ class CacheWorker extends DisposableService {
         return true;
       } else {
         downloading.markAsNotStarted();
-        _downloadLocal?.remove(checksum!);
+        _downloadLocal?.delete(checksum!);
       }
     }
 
