@@ -38,6 +38,7 @@ import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'download.dart';
 import 'draft.dart';
 import 'monolog.dart';
 import 'my_user.dart';
@@ -55,6 +56,7 @@ part 'drift.g.dart';
     Background,
     Cache,
     CacheSummary,
+    Downloads,
     Monologs,
     MyUsers,
     Settings,
@@ -187,6 +189,11 @@ class ScopedDatabase extends _$ScopedDatabase {
   /// Creates all tables, triggers, views, indexes and everything else defined
   /// in the database, if they don't exist.
   Future<void> create() async {
+    // Don't warn about multiple [ScopedDatabase]s being created, as this is the
+    // expected behaviour: we open a new one for each authorized [UserId] to
+    // separate data of different [MyUser]s from each other.
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
     await createMigrator().createAll();
   }
 
