@@ -56,9 +56,9 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
@@ -349,11 +349,8 @@ void main() async {
       Get.put(ChatCredentialsDriftProvider(common, scoped));
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
-  await settingsProvider.clear();
-
   final monologProvider = Get.put(MonologDriftProvider(common));
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
+  final sessionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -445,6 +442,7 @@ void main() async {
         graphQlProvider,
         userRepository,
         sessionProvider,
+        me: const UserId('me'),
       ),
     );
     Get.put(ContactService(contactRepository));

@@ -26,10 +26,10 @@ import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -48,8 +48,7 @@ void main() async {
   await credentialsHiveProvider.init();
   await credentialsHiveProvider.clear();
   final userProvider = Get.put(UserDriftProvider(common, scoped));
-  var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
-  await sessionDataHiveProvider.init();
+  final sessionProvider = Get.put(VersionDriftProvider(common));
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -126,7 +125,12 @@ void main() async {
 
     AbstractContactRepository contactRepository =
         Get.put<AbstractContactRepository>(
-      ContactRepository(graphQlProvider, userRepo, sessionDataHiveProvider),
+      ContactRepository(
+        graphQlProvider,
+        userRepo,
+        sessionProvider,
+        me: const UserId('me'),
+      ),
     );
 
     return Get.put(ContactService(contactRepository));

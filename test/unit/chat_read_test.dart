@@ -40,10 +40,10 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
@@ -74,8 +74,6 @@ void main() async {
   var credentialsProvider = Get.put(CredentialsHiveProvider());
   await credentialsProvider.init();
   final monologProvider = Get.put(MonologDriftProvider(common));
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
   final accountProvider = AccountHiveProvider();
   await accountProvider.init();
 
@@ -103,10 +101,7 @@ void main() async {
   var recentChats = {
     'recentChats': {
       'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
+        {'node': chatData, 'cursor': 'cursor'}
       ],
       'pageInfo': {
         'endCursor': 'endCursor',
@@ -241,6 +236,7 @@ void main() async {
         Get.put(ChatCredentialsDriftProvider(common, scoped));
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -331,6 +327,7 @@ void main() async {
         Get.put(ChatCredentialsDriftProvider(common, scoped));
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
