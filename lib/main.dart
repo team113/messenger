@@ -58,6 +58,7 @@ import 'provider/drift/cache.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
+import 'provider/drift/skipped_version.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
@@ -109,6 +110,7 @@ Future<void> main() async {
 
     if (!PlatformUtils.isWeb) {
       Get.put(CacheDriftProvider(Get.find()));
+      Get.put(SkippedVersionDriftProvider(Get.find()));
     }
 
     await _initHive();
