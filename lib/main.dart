@@ -60,11 +60,11 @@ import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
+import 'provider/drift/window.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
 import 'provider/hive/credentials.dart';
-import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
@@ -109,6 +109,7 @@ Future<void> main() async {
     Get.put(BackgroundDriftProvider(Get.find()));
 
     if (!PlatformUtils.isWeb) {
+      Get.put(WindowRectDriftProvider(Get.find()));
       Get.put(CacheDriftProvider(Get.find()));
       Get.put(DownloadDriftProvider(Get.find()));
       Get.put(SkippedVersionDriftProvider(Get.find()));
@@ -120,8 +121,9 @@ Future<void> main() async {
       await windowManager.ensureInitialized();
       await windowManager.setMinimumSize(const Size(400, 400));
 
-      final WindowPreferencesHiveProvider preferences = Get.find();
-      final WindowPreferences? prefs = preferences.get();
+      final WindowRectDriftProvider? preferences =
+          Get.findOrNull<WindowRectDriftProvider>();
+      final WindowPreferences? prefs = await preferences?.read();
 
       if (prefs?.size != null) {
         await windowManager.setSize(prefs!.size!);
@@ -479,7 +481,6 @@ Future<void> _initHive() async {
 
   await Get.put(AccountHiveProvider()).init();
   await Get.put(CredentialsHiveProvider()).init();
-  await Get.put(WindowPreferencesHiveProvider()).init();
 }
 
 /// Extension adding an ability to clean [Hive].
