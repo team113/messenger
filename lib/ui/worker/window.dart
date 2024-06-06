@@ -18,28 +18,38 @@
 import 'dart:async';
 
 import '/domain/service/disposable_service.dart';
-import '/provider/hive/window.dart';
+import '/provider/drift/window.dart';
+import '/store/model/window_preferences.dart';
 import '/util/platform_utils.dart';
 
 /// Worker updating the [WindowPreferences] on the [WindowListener] changes.
 class WindowWorker extends DisposableService {
   WindowWorker(this._windowProvider);
 
-  /// [WindowPreferencesHiveProvider] maintaining the [WindowPreferences].
-  final WindowPreferencesHiveProvider _windowProvider;
+  /// [WindowRectDriftProvider] maintaining the [WindowPreferences].
+  final WindowRectDriftProvider? _windowProvider;
 
-  /// Subscription to the [PlatformUtils.onResized] updating the size.
+  /// Subscription to the [PlatformUtilsImpl.onResized] updating the size.
   late final StreamSubscription? _onResized;
 
-  /// Subscription to the [PlatformUtils.onMoved] updating the position.
+  /// Subscription to the [PlatformUtilsImpl.onMoved] updating the position.
   late final StreamSubscription? _onMoved;
 
   @override
   void onInit() {
-    _onResized = PlatformUtils.onResized
-        .listen((v) => _windowProvider.set(size: v.key, position: v.value));
-    _onMoved =
-        PlatformUtils.onMoved.listen((v) => _windowProvider.set(position: v));
+    _onResized = PlatformUtils.onResized.listen(
+      (v) => _windowProvider?.upsert(
+        WindowPreferences(
+          width: v.key.width,
+          height: v.key.height,
+          dx: v.value.dx,
+          dy: v.value.dy,
+        ),
+      ),
+    );
+    _onMoved = PlatformUtils.onMoved.listen(
+      (v) => _windowProvider?.upsert(WindowPreferences(dx: v.dx, dy: v.dy)),
+    );
     super.onInit();
   }
 

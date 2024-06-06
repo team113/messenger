@@ -42,8 +42,10 @@ import 'draft.dart';
 import 'monolog.dart';
 import 'my_user.dart';
 import 'settings.dart';
+import 'skipped_version.dart';
 import 'user.dart';
 import 'version.dart';
+import 'window.dart';
 
 part 'drift.g.dart';
 
@@ -56,7 +58,9 @@ part 'drift.g.dart';
     Monologs,
     MyUsers,
     Settings,
+    SkippedVersions,
     Versions,
+    WindowRectangles,
   ],
 )
 class CommonDatabase extends _$CommonDatabase {
