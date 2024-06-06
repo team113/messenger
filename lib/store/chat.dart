@@ -52,6 +52,7 @@ import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
 import '/provider/drift/draft.dart';
 import '/provider/drift/monolog.dart';
+import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart'
     show
         ConnectionException,
@@ -59,7 +60,6 @@ import '/provider/gql/exceptions.dart'
         StaleVersionException,
         UploadAttachmentException;
 import '/provider/gql/graphql.dart';
-import '/provider/hive/session_data.dart';
 import '/store/event/recent_chat.dart';
 import '/store/model/chat_item.dart';
 import '/store/pagination/combined_pagination.dart';
@@ -75,6 +75,7 @@ import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 import 'model/chat_member.dart';
+import 'model/session_data.dart';
 import 'pagination.dart';
 import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
@@ -135,8 +136,8 @@ class ChatRepository extends DisposableInterface
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
 
-  /// [SessionDataHiveProvider] storing a [FavoriteChatsListVersion].
-  final SessionDataHiveProvider _sessionLocal;
+  /// [VersionDriftProvider] storing a [FavoriteChatsListVersion].
+  final VersionDriftProvider _sessionLocal;
 
   /// [MonologDriftProvider] storing a [ChatId] of the [Chat]-monolog.
   final MonologDriftProvider _monologLocal;
@@ -1854,8 +1855,10 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _driftChat.delete(e),
           reset: () async => await _driftChat.clear(),
-          isLast: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
-          isFirst: (_) => _sessionLocal.getFavoriteChatsSynchronized() ?? false,
+          isLast: (_) =>
+              _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
+          isFirst: (_) =>
+              _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
@@ -1869,7 +1872,10 @@ class ChatRepository extends DisposableInterface
             );
 
             if (!page.info.hasNext) {
-              _sessionLocal.setFavoriteChatsSynchronized(true);
+              _sessionLocal.upsert(
+                me,
+                SessionData(favoriteChatsSynchronized: true),
+              );
             }
 
             return page;
@@ -2041,7 +2047,7 @@ class ChatRepository extends DisposableInterface
     ))
             .favoriteChats;
 
-    _sessionLocal.setFavoriteChatsListVersion(query.ver);
+    _sessionLocal.upsert(me, SessionData(favoriteChatsListVersion: query.ver));
 
     return Page(
       RxList(
@@ -2171,7 +2177,9 @@ class ChatRepository extends DisposableInterface
 
     _favoriteChatsSubscription?.cancel();
     _favoriteChatsSubscription = StreamQueue(
-      _favoriteChatsEvents(_sessionLocal.getFavoriteChatsListVersion),
+      _favoriteChatsEvents(
+        () => _sessionLocal.data[me]?.favoriteChatsListVersion,
+      ),
     );
     await _favoriteChatsSubscription!.execute(
       _favoriteChatsEvent,
@@ -2180,7 +2188,10 @@ class ChatRepository extends DisposableInterface
           status.value = RxStatus.loading();
 
           await _pagination?.clear();
-          await _sessionLocal.setFavoriteChatsSynchronized(false);
+          await _sessionLocal.upsert(
+            me,
+            SessionData(favoriteChatsSynchronized: false),
+          );
 
           await _pagination?.around();
 
@@ -2200,8 +2211,13 @@ class ChatRepository extends DisposableInterface
 
       case FavoriteChatsEventsKind.event:
         var versioned = (event as FavoriteChatsEventsEvent).event;
-        if (versioned.ver >= _sessionLocal.getFavoriteChatsListVersion()) {
-          _sessionLocal.setFavoriteChatsListVersion(versioned.ver);
+        final listVer = _sessionLocal.data[me]?.favoriteChatsListVersion;
+
+        if (versioned.ver >= listVer) {
+          _sessionLocal.upsert(
+            me,
+            SessionData(favoriteChatsListVersion: versioned.ver),
+          );
 
           Log.debug(
             '_favoriteChatsEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',

@@ -53,8 +53,8 @@ import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/monolog.dart';
 import 'provider/drift/user.dart';
+import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -487,12 +487,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: PopupCallView(
             chatId: id,
             depsFactory: () async {
-              ScopedDependencies deps = ScopedDependencies();
-              UserId me = _state._auth.userId!;
-
-              await Future.wait([
-                deps.put(SessionDataHiveProvider()).init(userId: me),
-              ]);
+              final ScopedDependencies deps = ScopedDependencies();
+              final UserId me = _state._auth.userId!;
 
               final ScopedDriftProvider scoped = deps
                   .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
@@ -507,8 +503,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectDriftProvider(Get.find(), scoped));
               deps.put(MonologDriftProvider(Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
+              await deps.put(VersionDriftProvider(Get.find())).init();
 
-              AbstractSettingsRepository settingsRepository =
+              final AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
                 SettingsRepository(me, Get.find(), Get.find(), Get.find()),
               );
@@ -517,11 +514,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
 
-              GraphQlProvider graphQlProvider = Get.find();
-              UserRepository userRepository =
+              final GraphQlProvider graphQlProvider = Get.find();
+              final UserRepository userRepository =
                   UserRepository(graphQlProvider, Get.find());
               deps.put<AbstractUserRepository>(userRepository);
-              AbstractCallRepository callRepository =
+              final AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(
                 CallRepository(
                   graphQlProvider,
@@ -532,7 +529,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
-              AbstractChatRepository chatRepository =
+              final AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
@@ -550,13 +547,19 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               userRepository.getChat = chatRepository.get;
 
-              AbstractContactRepository contactRepository =
+              final AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
-                ContactRepository(graphQlProvider, userRepository, Get.find()),
+                ContactRepository(
+                  graphQlProvider,
+                  userRepository,
+                  Get.find(),
+                  me: me,
+                ),
               );
               userRepository.getContact = contactRepository.get;
 
-              BlocklistRepository blocklistRepository = BlocklistRepository(
+              final BlocklistRepository blocklistRepository =
+                  BlocklistRepository(
                 graphQlProvider,
                 Get.find(),
                 userRepository,
@@ -565,7 +568,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 me: me,
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
-              AbstractMyUserRepository myUserRepository =
+              final AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
@@ -579,7 +582,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
-              ChatService chatService =
+              final ChatService chatService =
                   deps.put(ChatService(chatRepository, Get.find()));
               deps.put(CallService(
                 Get.find(),
@@ -611,14 +614,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             final ScopedDependencies deps = ScopedDependencies();
 
-            final sessionProvider = deps.put(SessionDataHiveProvider());
-
-            await Future.wait([sessionProvider.init(userId: me)]);
-
             final ScopedDriftProvider scoped = deps
                 .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
-            CommonDriftProvider common = Get.find();
+            final CommonDriftProvider common = Get.find();
 
             final userProvider = deps.put(UserDriftProvider(common, scoped));
             final chatProvider = deps.put(ChatDriftProvider(common, scoped));
@@ -636,13 +635,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(CallRectDriftProvider(common, scoped));
             final monologProvider = deps.put(MonologDriftProvider(common));
             final draftProvider = deps.put(DraftDriftProvider(common, scoped));
+            final sessionProvider = deps.put(VersionDriftProvider(common));
+            await sessionProvider.init();
 
-            GraphQlProvider graphQlProvider = Get.find();
+            final GraphQlProvider graphQlProvider = Get.find();
 
-            NotificationService notificationService =
+            final NotificationService notificationService =
                 deps.put(NotificationService(graphQlProvider));
 
-            AbstractSettingsRepository settingsRepository =
+            final AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(me, Get.find(), Get.find(), callRectProvider),
             );
@@ -671,10 +672,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               onBackground: handlePushNotification,
             );
 
-            UserRepository userRepository =
+            final UserRepository userRepository =
                 UserRepository(graphQlProvider, userProvider);
             deps.put<AbstractUserRepository>(userRepository);
-            CallRepository callRepository = CallRepository(
+            final CallRepository callRepository = CallRepository(
               graphQlProvider,
               userRepository,
               callCredsProvider,
@@ -683,7 +684,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               me: me,
             );
             deps.put<AbstractCallRepository>(callRepository);
-            ChatRepository chatRepository = ChatRepository(
+            final ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
               chatProvider,
               chatItemProvider,
@@ -701,17 +702,18 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             callRepository.ensureRemoteDialog =
                 chatRepository.ensureRemoteDialog;
 
-            AbstractContactRepository contactRepository =
+            final AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
                 graphQlProvider,
                 userRepository,
                 sessionProvider,
+                me: me,
               ),
             );
             userRepository.getContact = contactRepository.get;
 
-            BlocklistRepository blocklistRepository = BlocklistRepository(
+            final BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
               blocklistProvider,
               userRepository,
@@ -720,7 +722,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               me: me,
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
-            AbstractMyUserRepository myUserRepository =
+            final AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
@@ -731,13 +733,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            MyUserService myUserService =
+            final MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
-            ChatService chatService =
+            final ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
-            CallService callService = deps.put(CallService(
+            final CallService callService = deps.put(CallService(
               Get.find(),
               chatService,
               callRepository,

@@ -43,6 +43,7 @@ import 'monolog.dart';
 import 'my_user.dart';
 import 'settings.dart';
 import 'user.dart';
+import 'version.dart';
 
 part 'drift.g.dart';
 
@@ -55,6 +56,7 @@ part 'drift.g.dart';
     Monologs,
     MyUsers,
     Settings,
+    Versions,
   ],
 )
 class CommonDatabase extends _$CommonDatabase {

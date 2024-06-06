@@ -43,10 +43,10 @@ import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -149,7 +149,7 @@ void main() async {
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
-    await Get.put(SessionDataHiveProvider()).init();
+    final sessionProvider = Get.put(VersionDriftProvider(common));
     await Get.put(AccountHiveProvider()).init();
 
     final AuthService authService = Get.put(
@@ -173,7 +173,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        Get.find(),
+        sessionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),

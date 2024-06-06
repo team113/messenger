@@ -27,6 +27,15 @@ part 'session_data.g.dart';
 /// [Session] relative preferences.
 @HiveType(typeId: ModelTypeId.sessionData)
 class SessionData extends HiveObject {
+  SessionData({
+    this.favoriteChatsListVersion,
+    this.favoriteChatsSynchronized,
+    this.chatContactsListVersion,
+    this.favoriteContactsSynchronized,
+    this.contactsSynchronized,
+    this.blocklistSynchronized,
+  });
+
   /// Persisted [FavoriteChatsListVersion] data.
   @HiveField(0)
   FavoriteChatsListVersion? favoriteChatsListVersion;
@@ -54,4 +63,40 @@ class SessionData extends HiveObject {
   /// remote, meaning no queries should be made.
   @HiveField(5)
   bool? blocklistSynchronized;
+
+  /// Returns a copy of this [SessionData] from the [other].
+  SessionData copyFrom(SessionData other) {
+    return copyWith(
+      favoriteChatsListVersion: other.favoriteChatsListVersion,
+      favoriteChatsSynchronized: other.favoriteChatsSynchronized,
+      chatContactsListVersion: other.chatContactsListVersion,
+      favoriteContactsSynchronized: other.favoriteContactsSynchronized,
+      contactsSynchronized: other.contactsSynchronized,
+      blocklistSynchronized: other.blocklistSynchronized,
+    );
+  }
+
+  /// Returns a copy of this [SessionData].
+  SessionData copyWith({
+    FavoriteChatsListVersion? favoriteChatsListVersion,
+    bool? favoriteChatsSynchronized,
+    ChatContactsListVersion? chatContactsListVersion,
+    bool? favoriteContactsSynchronized,
+    bool? contactsSynchronized,
+    bool? blocklistSynchronized,
+  }) {
+    return SessionData(
+      favoriteChatsListVersion:
+          this.favoriteChatsListVersion ?? favoriteChatsListVersion,
+      favoriteChatsSynchronized:
+          this.favoriteChatsSynchronized ?? favoriteChatsSynchronized,
+      chatContactsListVersion:
+          this.chatContactsListVersion ?? chatContactsListVersion,
+      favoriteContactsSynchronized:
+          this.favoriteContactsSynchronized ?? favoriteContactsSynchronized,
+      contactsSynchronized: this.contactsSynchronized ?? contactsSynchronized,
+      blocklistSynchronized:
+          this.blocklistSynchronized ?? blocklistSynchronized,
+    );
+  }
 }
