@@ -95,7 +95,7 @@ class VersionDriftProvider extends DriftProviderBase {
       final SessionData stored = _SessionDataDb.fromDb(
         await db.into(db.versions).insertReturning(
               data.toDb(userId),
-              onConflict: DoUpdate((row) => data.toDb(userId)),
+              onConflict: DoUpdate((_) => data.toDb(userId)),
             ),
       );
 
@@ -126,7 +126,8 @@ class VersionDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the [SessionData] identified by the provided [id] from the database.
+  /// Deletes the [SessionData] identified by the provided [id] from the
+  /// database.
   Future<void> delete(UserId id) async {
     data.remove(id);
 

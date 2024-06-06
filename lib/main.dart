@@ -63,7 +63,6 @@ import 'provider/gql/graphql.dart';
 import 'provider/hive/account.dart';
 import 'provider/hive/credentials.dart';
 import 'provider/hive/download.dart';
-import 'provider/hive/skipped_version.dart';
 import 'provider/hive/window.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
@@ -480,7 +479,6 @@ Future<void> _initHive() async {
   await Get.put(WindowPreferencesHiveProvider()).init();
 
   if (!PlatformUtils.isWeb) {
-    await Get.put(SkippedVersionHiveProvider()).init();
     await Get.put(DownloadHiveProvider()).init();
   }
 }
