@@ -359,7 +359,7 @@ class AuthService extends DisposableService {
 
       try {
         final Credentials data = await _authRepository.signUp();
-        _authorized(data);
+        await _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -405,7 +405,7 @@ class AuthService extends DisposableService {
 
       try {
         final Credentials data = await _authRepository.confirmSignUpEmail(code);
-        _authorized(data);
+        await _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -467,7 +467,7 @@ class AuthService extends DisposableService {
           email: email,
           phone: phone,
         );
-        _authorized(creds);
+        await _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -492,7 +492,7 @@ class AuthService extends DisposableService {
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
-      _authorized(credentials);
+      await _authorized(credentials);
       status.value = RxStatus.success();
     });
   }
@@ -610,7 +610,7 @@ class AuthService extends DisposableService {
       final bool areValid = await validateToken(creds);
       if (areValid) {
         await WebUtils.protect(() async {
-          _authorized(creds!);
+          await _authorized(creds!);
           status.value = RxStatus.success();
         });
 
@@ -732,7 +732,7 @@ class AuthService extends DisposableService {
 
         if (stored != null && stored.access.secret != oldCreds.access.secret) {
           if (areCurrent) {
-            _authorized(stored);
+            await _authorized(stored);
             status.value = RxStatus.success();
           } else {
             // [Credentials] of another account were refreshed.
@@ -748,7 +748,7 @@ class AuthService extends DisposableService {
           );
 
           if (areCurrent) {
-            _authorized(data);
+            await _authorized(data);
           } else {
             // [Credentials] of not currently active account were updated,
             // just save them.
@@ -847,15 +847,17 @@ class AuthService extends DisposableService {
   }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
-  void _authorized(Credentials creds) {
+  Future<void> _authorized(Credentials creds) async {
     Log.debug('_authorized($creds)', '$runtimeType');
-
-    _credentialsProvider.upsert(creds);
-    _accountProvider.upsert(creds.userId);
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
     _putCredentials(creds);
+
+    await Future.wait([
+      _credentialsProvider.upsert(creds),
+      _accountProvider.upsert(creds.userId),
+    ]);
 
     _initRefreshTimers();
 
