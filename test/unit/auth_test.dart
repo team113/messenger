@@ -122,7 +122,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
 
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
@@ -168,7 +168,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), null);
+    expect(await authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -202,7 +202,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
     try {
       await authService.signIn(UserPassword('123'));
       fail('Exception is not thrown');

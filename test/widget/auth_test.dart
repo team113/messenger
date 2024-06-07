@@ -127,6 +127,11 @@ void main() async {
 
     authService.init();
 
+    for (int i = 0; i < 25; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+      await tester.pump(const Duration(seconds: 2));
+    }
+
     router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();
 
