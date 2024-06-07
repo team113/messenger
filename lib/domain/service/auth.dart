@@ -90,7 +90,7 @@ class AuthService extends DisposableService {
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
 
-  /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
+  /// [StreamSubscription] to [CredentialsDriftProvider.watch] saving new
   /// [Credentials] to the browser's storage.
   StreamSubscription? _credentialsSubscription;
 

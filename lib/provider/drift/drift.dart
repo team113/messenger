@@ -22,6 +22,7 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart' show DisposableInterface;
 import 'package:log_me/log_me.dart';
 
+import '/config.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -73,7 +74,7 @@ class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.commonVersion;
 
   @override
   MigrationStrategy get migration {
@@ -161,7 +162,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   final UserId userId;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.scopedVersion;
 
   @override
   MigrationStrategy get migration {

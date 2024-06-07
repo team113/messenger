@@ -97,7 +97,7 @@ class AccountDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the skipped version stored from the database.
+  /// Deletes the currently active [UserId] account stored in the database.
   Future<void> delete() async {
     _userId = null;
 
@@ -106,6 +106,6 @@ class AccountDriftProvider extends DriftProviderBase {
     });
   }
 
-  /// Deletes the skipped version stored from the database.
+  /// Deletes the currently active [UserId] account stored in the database.
   Future<void> clear() => delete();
 }
