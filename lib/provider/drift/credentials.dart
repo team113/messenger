@@ -104,13 +104,13 @@ class CredentialsDriftProvider extends DriftProviderBase {
 
   /// Returns the [Credentials] stored in the database by the provided [id], if
   /// any.
-  Future<Credentials?> read(UserId id) async {
+  Future<Credentials?> read(UserId id, {bool refresh = false}) async {
     final Credentials? existing = data[id];
-    if (existing != null) {
+    if (existing != null && !refresh) {
       return existing;
     }
 
-    return await safe<Credentials?>((db) async {
+    final result = await safe<Credentials?>((db) async {
       final stmt = db.select(db.tokens)..where((u) => u.userId.equals(id.val));
       final TokenRow? row = await stmt.getSingleOrNull();
 
@@ -120,6 +120,12 @@ class CredentialsDriftProvider extends DriftProviderBase {
 
       return _CredentialsDb.fromDb(row);
     });
+
+    if (result == null) {
+      return null;
+    }
+
+    return data[id] = result;
   }
 
   /// Deletes the [Credentials] identified by the provided [id] from the
