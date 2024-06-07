@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/contact.dart';
@@ -64,10 +63,10 @@ class ContactRepository extends DisposableInterface
   final Rx<RxStatus> status = Rx(RxStatus.empty());
 
   @override
-  final RxObsMap<ChatContactId, HiveRxChatContact> paginated = RxObsMap();
+  final RxObsMap<ChatContactId, RxChatContactImpl> paginated = RxObsMap();
 
   @override
-  final RxObsMap<ChatContactId, HiveRxChatContact> contacts = RxObsMap();
+  final RxObsMap<ChatContactId, RxChatContactImpl> contacts = RxObsMap();
 
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
@@ -158,7 +157,7 @@ class ContactRepository extends DisposableInterface
   Future<void> deleteContact(ChatContactId id) async {
     Log.debug('deleteContact($id)', '$runtimeType');
 
-    final HiveRxChatContact? oldChatContact = paginated.remove(id);
+    final RxChatContactImpl? oldChatContact = paginated.remove(id);
 
     try {
       await _graphQlProvider.deleteChatContact(id);
@@ -172,7 +171,7 @@ class ContactRepository extends DisposableInterface
   Future<void> changeContactName(ChatContactId id, UserName name) async {
     Log.debug('changeContactName($id, $name)', '$runtimeType');
 
-    final HiveRxChatContact? contact = paginated[id];
+    final RxChatContactImpl? contact = paginated[id];
     final UserName? oldName = contact?.contact.value.name;
 
     contact?.contact.update((c) => c?.name = name);
@@ -194,18 +193,18 @@ class ContactRepository extends DisposableInterface
   ) async {
     Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
 
-    final HiveRxChatContact? contact = contacts[id];
+    final RxChatContactImpl? contact = contacts[id];
 
     final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
     final ChatContactFavoritePosition newPosition;
 
     if (position == null) {
-      final List<HiveRxChatContact> favorites = contacts.values
+      final List<RxChatContactImpl> favorites = contacts.values
           .where((e) => e.contact.value.favoritePosition != null)
           .toList();
 
-      final List<HiveRxChatContact> sorted = favorites..sort();
+      final List<RxChatContactImpl> sorted = favorites..sort();
 
       final double? highestFavorite = sorted.isEmpty
           ? null
@@ -234,7 +233,7 @@ class ContactRepository extends DisposableInterface
   Future<void> unfavoriteChatContact(ChatContactId id) async {
     Log.debug('unfavoriteChatContact($id)', '$runtimeType');
 
-    final HiveRxChatContact? contact = paginated[id];
+    final RxChatContactImpl? contact = paginated[id];
     final ChatContactFavoritePosition? oldPosition =
         contact?.contact.value.favoritePosition;
 
@@ -310,7 +309,7 @@ class ContactRepository extends DisposableInterface
   FutureOr<RxChatContact?> get(ChatContactId id) async {
     Log.debug('get($id)', '$runtimeType');
 
-    HiveRxChatContact? contact = contacts[id];
+    RxChatContactImpl? contact = contacts[id];
     if (contact != null) {
       return contact;
     }
@@ -327,9 +326,9 @@ class ContactRepository extends DisposableInterface
       contact = contacts[id];
       if (contact == null) {
         // TODO: Fetch from local storage, if any.
-        // final DtoChatContact? hiveContact = await _contactLocal.get(id);
-        // if (hiveContact != null) {
-        //   contact = HiveRxChatContact(_userRepo, hiveContact);
+        // final DtoChatContact? dto = await _contactLocal.get(id);
+        // if (dto != null) {
+        //   contact = RxChatContactImpl(_userRepo, dto);
         //   contact!.init();
         // }
 
@@ -393,7 +392,7 @@ class ContactRepository extends DisposableInterface
   }
 
   /// Emits the provided [event] in the [contacts] and [paginated].
-  void _emit(MapChangeNotification<ChatContactId, HiveRxChatContact> event) {
+  void _emit(MapChangeNotification<ChatContactId, RxChatContactImpl> event) {
     contacts.emit(event);
     paginated.emit(event);
   }
@@ -513,7 +512,7 @@ class ContactRepository extends DisposableInterface
       _putChatContact(user);
     }
 
-    // Wait for [Hive] to populate the added [DtoChatContact] from
+    // Wait for local storage to populate the added [DtoChatContact] from
     // [_putChatContact] invoked earlier.
     await Future.delayed(Duration.zero);
 
@@ -528,15 +527,15 @@ class ContactRepository extends DisposableInterface
     );
   }
 
-  /// Puts the provided [contact] to [Pagination] and [Hive].
-  Future<HiveRxChatContact> _putChatContact(
+  /// Puts the provided [contact] to [Pagination] and local storage.
+  Future<RxChatContactImpl> _putChatContact(
     DtoChatContact contact, {
     bool pagination = false,
   }) async {
     Log.debug('_putChatContact($contact, $pagination)', '$runtimeType');
 
     final ChatContactId contactId = contact.value.id;
-    final HiveRxChatContact? saved = contacts[contactId];
+    final RxChatContactImpl? saved = contacts[contactId];
 
     if (saved != null) {
       if (saved.ver > contact.ver) {
@@ -550,7 +549,7 @@ class ContactRepository extends DisposableInterface
       }
     }
 
-    final HiveRxChatContact entry = _add(contact, pagination: pagination);
+    final RxChatContactImpl entry = _add(contact, pagination: pagination);
 
     // [pagination] is `true`, if the [contact] is received from [Pagination],
     // thus otherwise we should try putting it to it.
@@ -563,17 +562,17 @@ class ContactRepository extends DisposableInterface
 
   /// Adds the provided [DtoChatContact] to the [contacts] and optionally to
   /// the [paginated].
-  HiveRxChatContact _add(DtoChatContact contact, {bool pagination = false}) {
+  RxChatContactImpl _add(DtoChatContact contact, {bool pagination = false}) {
     Log.debug('_add($contact, $pagination)', '$runtimeType');
 
     final ChatContactId contactId = contact.value.id;
 
-    HiveRxChatContact? entry = contacts[contactId];
+    RxChatContactImpl? entry = contacts[contactId];
 
     bool emitUpdate = false;
 
     if (entry == null) {
-      entry = HiveRxChatContact(_userRepo, contact)..init();
+      entry = RxChatContactImpl(_userRepo, contact)..init();
       contacts[contactId] = entry;
     } else {
       if (entry.contact.value.favoritePosition !=

@@ -73,7 +73,7 @@ extension ChatConversion on ChatMixin {
       );
 
   /// Constructs a new [DtoChat] from this [ChatMixin].
-  DtoChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+  DtoChat toDto(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
       DtoChat(
         toModel(),
         ver,
@@ -89,7 +89,7 @@ extension ChatConversion on ChatMixin {
     var lastReadItem = this.lastReadItem?.toDto();
 
     return ChatData(
-      toHive(recent, favorite),
+      toDto(recent, favorite),
       lastItem,
       lastReadItem,
     );

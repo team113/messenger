@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
@@ -33,7 +31,7 @@ import 'version.dart';
 part 'chat_item.g.dart';
 
 /// Persisted in storage [ChatItem]'s [value].
-abstract class DtoChatItem extends HiveObject {
+abstract class DtoChatItem {
   DtoChatItem(this.value, this.cursor, this.ver);
 
   /// Constructs a [DtoChatItem] from the provided [json].
@@ -47,18 +45,15 @@ abstract class DtoChatItem extends HiveObject {
       };
 
   /// Persisted [ChatItem] model.
-  @HiveField(0)
   ChatItem value;
 
   /// Cursor of a [ChatItem] this [DtoChatItem] represents.
-  @HiveField(1)
   ChatItemsCursor? cursor;
 
   /// Version of a [ChatItem]'s state.
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
-  @HiveField(2)
   final ChatItemVersion ver;
 
   @override
@@ -76,7 +71,6 @@ abstract class DtoChatItem extends HiveObject {
 
 /// Persisted in storage [ChatInfo]'s [value].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.dtoChatInfo)
 class DtoChatInfo extends DtoChatItem {
   DtoChatInfo(super.value, super.cursor, super.ver);
 
@@ -92,7 +86,6 @@ class DtoChatInfo extends DtoChatItem {
 
 /// Persisted in storage [ChatMessage]'s [value].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.dtoChatMessage)
 class DtoChatMessage extends DtoChatItem {
   DtoChatMessage(
     super.value,
@@ -132,7 +125,6 @@ class DtoChatMessage extends DtoChatItem {
       _$DtoChatMessageFromJson(json);
 
   /// Cursors of the [ChatMessage.repliesTo] list.
-  @HiveField(3)
   List<ChatItemsCursor?>? repliesToCursors;
 
   /// Returns a copy of this [DtoChatMessage] with the provided parameters.
@@ -158,7 +150,6 @@ class DtoChatMessage extends DtoChatItem {
 
 /// Persisted in storage [ChatForward]'s [value].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.dtoChatForward)
 class DtoChatForward extends DtoChatItem {
   DtoChatForward(
     super.value,
@@ -172,7 +163,6 @@ class DtoChatForward extends DtoChatItem {
       _$DtoChatForwardFromJson(json);
 
   /// Cursor of a [ChatForward.quote].
-  @HiveField(3)
   ChatItemsCursor? quoteCursor;
 
   /// Returns a [Map] representing this [DtoChatForward].
@@ -186,16 +176,13 @@ class DtoChatItemQuote {
   DtoChatItemQuote(this.value, this.cursor);
 
   /// [ChatItemQuote] itself.
-  @HiveField(0)
   final ChatItemQuote value;
 
   /// Cursor of a [ChatItemQuote.original].
-  @HiveField(1)
   ChatItemsCursor? cursor;
 }
 
 /// Version of a [ChatItem]'s state.
-@HiveType(typeId: ModelTypeId.chatItemVersion)
 class ChatItemVersion extends Version {
   ChatItemVersion(super.val);
 
@@ -207,7 +194,6 @@ class ChatItemVersion extends Version {
 }
 
 /// Cursor of a [ChatItem].
-@HiveType(typeId: ModelTypeId.chatItemsCursor)
 class ChatItemsCursor extends NewType<String> {
   const ChatItemsCursor(super.val);
 

@@ -16,17 +16,15 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:intl/intl.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
 
 part 'file.g.dart';
 
 /// File on a file storage.
-abstract class StorageFile extends HiveObject {
+abstract class StorageFile {
   StorageFile({
     required this.relativeRef,
     this.checksum,
@@ -53,7 +51,6 @@ abstract class StorageFile extends HiveObject {
   /// `403` HTTP status code, on the other hand, means that the link has been
   /// expired and this relative reference should be re-fetched to rebuild the
   /// link.
-  @HiveField(0)
   final String relativeRef;
 
   /// SHA-256 checksum of this [StorageFile].
@@ -67,7 +64,6 @@ abstract class StorageFile extends HiveObject {
   ///
   /// Also, this checksum may be useful as a key in a cache, allowing to store
   /// [StorageFile] in deduplicated manner.
-  @HiveField(1)
   final String? checksum;
 
   /// Size of this [StorageFile] (in bytes).
@@ -75,7 +71,6 @@ abstract class StorageFile extends HiveObject {
   /// May be `null` in case this [StorageFile] is not ready on a file storage
   /// yet. May be also computed, once this [StorageFile] is ready and
   /// successfully downloaded from a file storage.
-  @HiveField(2)
   final int? size;
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
@@ -121,7 +116,6 @@ abstract class StorageFile extends HiveObject {
 
 /// Plain-[StorageFile] on a file storage.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.plainFile)
 class PlainFile extends StorageFile {
   PlainFile({
     required super.relativeRef,
@@ -141,7 +135,6 @@ class PlainFile extends StorageFile {
 
 /// Image-[StorageFile] on a file storage.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.imageFile)
 class ImageFile extends StorageFile {
   ImageFile({
     required super.relativeRef,
@@ -157,15 +150,12 @@ class ImageFile extends StorageFile {
       _$ImageFileFromJson(json);
 
   /// Width of this [ImageFile] in pixels.
-  @HiveField(3)
   final int? width;
 
   /// Height of this [ImageFile] in pixels.
-  @HiveField(4)
   final int? height;
 
   /// [ThumbHash] of this [ImageFile].
-  @HiveField(5)
   final ThumbHash? thumbhash;
 
   /// Returns a [Map] representing this [ImageFile].
@@ -179,7 +169,6 @@ class ImageFile extends StorageFile {
 /// [1]: https://base64.guru/standards/base64url
 /// [2]: https://evanw.github.io/thumbhash/
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.thumbhash)
 class ThumbHash extends NewType<String> {
   const ThumbHash(super.val);
 

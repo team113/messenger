@@ -50,7 +50,6 @@ app.*.symbols
 /yarn-error.log
 
 # Tests related
-/test/.temp_hive/
 /test/.temp_cache/
 /test/**/*.mocks.dart
 /test/e2e/**/*.g.dart

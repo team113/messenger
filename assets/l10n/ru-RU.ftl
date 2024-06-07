@@ -1082,7 +1082,7 @@ label_tech_stack_freelance =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1091,7 +1091,7 @@ label_tech_stack_frontend_developer =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.

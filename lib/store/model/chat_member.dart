@@ -15,20 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import 'chat.dart';
 import 'user.dart';
 
-part 'chat_member.g.dart';
-
 /// Persisted in storage [ChatMember].
-@HiveType(typeId: ModelTypeId.dtoChatMember)
-class DtoChatMember extends HiveObject implements Comparable<DtoChatMember> {
+class DtoChatMember implements Comparable<DtoChatMember> {
   DtoChatMember(
     this.user,
     this.joinedAt,
@@ -37,19 +31,15 @@ class DtoChatMember extends HiveObject implements Comparable<DtoChatMember> {
   }) : id = userId ?? user!.id;
 
   /// [UserId] of the [User] this [ChatMember] is about.
-  @HiveField(0)
   UserId id;
 
   /// Persisted [DtoUser] model.
-  @HiveField(1)
   User? user;
 
   /// [PreciseDateTime] when the [User] became a [ChatMember].
-  @HiveField(2)
   final PreciseDateTime joinedAt;
 
   /// Cursor of this [ChatMember].
-  @HiveField(3)
   ChatMembersCursor? cursor;
 
   @override

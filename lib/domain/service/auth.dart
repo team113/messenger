@@ -155,8 +155,8 @@ class AuthService extends DisposableService {
               received.userId == current?.userId &&
                   received.access.secret != current?.access.secret) {
             // These [Credentials] should be treated as current ones, so just
-            // apply them as saving to [Hive] has already been performed by
-            // another tab.
+            // apply them as saving to local storage has already been performed
+            // by another tab.
             _authRepository.token = received.access.secret;
             _authRepository.applyToken();
             credentials.value = received;
@@ -743,8 +743,8 @@ class AuthService extends DisposableService {
               // [Credentials] of not currently active account were updated,
               // just save them.
               //
-              // Saving to [Hive] is safe here, as this callback is guarded by
-              // the [WebUtils.protect] lock.
+              // Saving to local storage is safe here, as this callback is
+              // guarded by the [WebUtils.protect] lock.
               await _credentialsProvider.upsert(data);
               _putCredentials(data);
             }

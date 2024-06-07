@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
@@ -67,8 +66,6 @@ import 'chat_split_message_test.mocks.dart';
 void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
-
-  Hive.init('./test/.temp_hive/chat_split_message_unit');
 
   PlatformUtils = PlatformUtilsMock();
   CacheWorker(null, null);

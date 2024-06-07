@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '/domain/model_type_id.dart';
 import '/domain/model/chat_item.dart';
 import '/util/new_type.dart';
 import 'chat_item.dart';
@@ -27,7 +25,6 @@ part 'chat_call.g.dart';
 
 /// Persisted in storage [ChatCall]'s [value].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.dtoChatCall)
 class DtoChatCall extends DtoChatItem {
   DtoChatCall(super.value, super.cursor, super.ver);
 
@@ -42,7 +39,6 @@ class DtoChatCall extends DtoChatItem {
 }
 
 /// Cursor of an [OngoingCall] position.
-@HiveType(typeId: ModelTypeId.incomingChatCallsCursor)
 class IncomingChatCallsCursor extends NewType<String> {
   const IncomingChatCallsCursor(super.val);
 }

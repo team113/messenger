@@ -15,19 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 
 import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'chat_item.dart';
 import 'version.dart';
 
-part 'chat.g.dart';
-
 /// Persisted in storage [Chat]'s [value].
-@HiveType(typeId: ModelTypeId.dtoChat)
-class DtoChat extends HiveObject {
+class DtoChat {
   DtoChat(
     this.value,
     this.ver,
@@ -38,30 +33,24 @@ class DtoChat extends HiveObject {
   );
 
   /// Persisted [Chat] model.
-  @HiveField(0)
   Chat value;
 
   /// Version of this [Chat]'s state.
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
-  @HiveField(1)
   ChatVersion ver;
 
   /// Cursor of a [Chat.lastItem].
-  @HiveField(2)
   ChatItemsCursor? lastItemCursor;
 
   /// Cursor of a [Chat.lastReadItem].
-  @HiveField(3)
   ChatItemsCursor? lastReadItemCursor;
 
   /// Cursor of the [value] when paginating through recent [Chat]s.
-  @HiveField(4)
   RecentChatsCursor? recentCursor;
 
   /// Cursor of the [value] when paginating through favorite [Chat]s.
-  @HiveField(5)
   FavoriteChatsCursor? favoriteCursor;
 
   /// Returns the [ChatId] of the [value].
@@ -94,31 +83,26 @@ class DtoChat extends HiveObject {
 }
 
 /// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
 class ChatVersion extends Version {
   ChatVersion(super.val);
 }
 
 /// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
 class RecentChatsCursor extends NewType<String> {
   RecentChatsCursor(super.val);
 }
 
 /// Cursor used for favorite [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.favoriteChatsCursor)
 class FavoriteChatsCursor extends NewType<String> {
   FavoriteChatsCursor(super.val);
 }
 
 /// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
 class FavoriteChatsListVersion extends Version {
   FavoriteChatsListVersion(super.val);
 }
 
 /// Cursor of a [ChatMember].
-@HiveType(typeId: ModelTypeId.chatMembersCursor)
 class ChatMembersCursor extends NewType<String> {
   ChatMembersCursor(super.val);
 }

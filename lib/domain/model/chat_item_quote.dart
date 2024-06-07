@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import 'attachment.dart';
 import 'chat_call.dart';
 import 'chat_info.dart';
@@ -79,15 +77,12 @@ abstract class ChatItemQuote {
   ///
   /// `null` if the original [ChatItem] was deleted or is unavailable for the
   /// authenticated [MyUser].
-  @HiveField(0)
   final ChatItem? original;
 
   /// [User] who created the quoted [ChatItem].
-  @HiveField(1)
   final UserId author;
 
   /// [PreciseDateTime] when the quoted [ChatItem] was created.
-  @HiveField(2)
   final PreciseDateTime at;
 
   /// Returns a [Map] representing this [ChatItemQuote].
@@ -101,7 +96,6 @@ abstract class ChatItemQuote {
 
 /// [ChatItemQuote] of a [ChatMessage].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatMessageQuote)
 class ChatMessageQuote extends ChatItemQuote {
   ChatMessageQuote({
     super.original,
@@ -117,12 +111,10 @@ class ChatMessageQuote extends ChatItemQuote {
 
   /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
   /// was made.
-  @HiveField(3)
   final ChatMessageText? text;
 
   /// [Attachment]s the quoted [ChatMessage] had when this [ChatItemQuote] was
   /// made.
-  @HiveField(4)
   final List<Attachment> attachments;
 
   /// Returns a [Map] representing this [ChatMessageQuote].
@@ -133,7 +125,6 @@ class ChatMessageQuote extends ChatItemQuote {
 
 /// [ChatItemQuote] of a [ChatCall].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatCallQuote)
 class ChatCallQuote extends ChatItemQuote {
   ChatCallQuote({
     super.original,
@@ -153,7 +144,6 @@ class ChatCallQuote extends ChatItemQuote {
 
 /// [ChatItemQuote] of a [ChatInfo].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoQuote)
 class ChatInfoQuote extends ChatItemQuote {
   ChatInfoQuote({
     super.original,
@@ -168,7 +158,6 @@ class ChatInfoQuote extends ChatItemQuote {
 
   /// [ChatMessageText] the quoted [ChatMessage] had when this [ChatItemQuote]
   /// was made.
-  @HiveField(3)
   final ChatInfoAction? action;
 
   /// Returns a [Map] representing this [ChatInfoQuote].

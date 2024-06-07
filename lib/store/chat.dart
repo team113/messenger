@@ -22,7 +22,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/call.dart';
@@ -85,9 +84,9 @@ class ChatRepository extends DisposableInterface
     implements AbstractChatRepository {
   ChatRepository(
     this._graphQlProvider,
-    this._driftChat,
-    this._driftItems,
-    this._driftMembers,
+    this._chatLocal,
+    this._itemsLocal,
+    this._membersLocal,
     this._callRepo,
     this._draftLocal,
     this._userRepo,
@@ -119,13 +118,13 @@ class ChatRepository extends DisposableInterface
   final GraphQlProvider _graphQlProvider;
 
   /// [Chat]s local [DriftProvider] storage.
-  final ChatDriftProvider _driftChat;
+  final ChatDriftProvider _chatLocal;
 
   /// [ChatItem]s local storage.
-  final ChatItemDriftProvider _driftItems;
+  final ChatItemDriftProvider _itemsLocal;
 
   /// [ChatMember]s local storage.
-  final ChatMemberDriftProvider _driftMembers;
+  final ChatMemberDriftProvider _membersLocal;
 
   /// [OngoingCall]s repository, used to put the fetched [ChatCall]s into it.
   final AbstractCallRepository _callRepo;
@@ -288,7 +287,7 @@ class ChatRepository extends DisposableInterface
     chats.clear();
     paginated.clear();
 
-    return _driftChat.clear();
+    return _chatLocal.clear();
   }
 
   @override
@@ -311,15 +310,15 @@ class ChatRepository extends DisposableInterface
     return mutex.protect(() async {
       chat = chats[id];
       if (chat == null) {
-        final DtoChat? hiveChat = await _driftChat.read(id);
-        if (hiveChat != null) {
+        final DtoChat? dto = await _chatLocal.read(id);
+        if (dto != null) {
           chat = RxChatImpl(
             this,
-            _driftChat,
+            _chatLocal,
             _draftLocal,
-            _driftItems,
-            _driftMembers,
-            hiveChat,
+            _itemsLocal,
+            _membersLocal,
+            dto,
           );
           chat!.init();
         }
@@ -349,7 +348,7 @@ class ChatRepository extends DisposableInterface
     chats.remove(id)?.dispose();
     paginated.remove(id)?.dispose();
     _pagination?.remove(id);
-    await _driftChat.delete(id);
+    await _chatLocal.delete(id);
   }
 
   /// Ensures the provided [Chat] is remotely accessible.
@@ -599,8 +598,8 @@ class ChatRepository extends DisposableInterface
         monologData =
             _chat(await _graphQlProvider.createMonologChat(isHidden: true));
 
-        // Dispose and delete local monolog from [Hive], since it's just been
-        // replaced with a remote one.
+        // Dispose and delete local monolog, since it's just been replaced with
+        // a remote one.
         await remove(id);
 
         id = monologData.chat.value.id;
@@ -1515,7 +1514,7 @@ class ChatRepository extends DisposableInterface
   }
 
   // TODO: Put the members of the [Chat]s to the [UserRepository].
-  /// Puts the provided [chat] to [Pagination] and [Hive].
+  /// Puts the provided [chat] to [Pagination] and local storage.
   ///
   /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
   /// stored version with the provided one.
@@ -1558,15 +1557,15 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl rxChat = _add(chat, pagination: pagination);
 
-    // Favorite [DtoChat]s will be putted to [Hive] through
+    // Favorite [DtoChat]s will be put to local storage through
     // [DriftGraphQlPageProvider].
     if (chat.value.favoritePosition == null) {
-      await _driftChat.txn(() async {
+      await _chatLocal.txn(() async {
         DtoChat? saved;
 
         // If version is ignored, there's no need to retrieve the stored chat.
         if (!ignoreVersion || !updateVersion) {
-          saved = await _driftChat.read(chatId);
+          saved = await _chatLocal.read(chatId);
         }
 
         // [Chat.firstItem] is maintained locally only for [Pagination] reasons.
@@ -1584,7 +1583,7 @@ class ChatRepository extends DisposableInterface
             chat.value.membersCount = saved.value.membersCount;
           }
 
-          await _driftChat.upsert(chat);
+          await _chatLocal.upsert(chat);
         }
       });
     }
@@ -1609,10 +1608,10 @@ class ChatRepository extends DisposableInterface
     if (entry == null) {
       entry = RxChatImpl(
         this,
-        _driftChat,
+        _chatLocal,
         _draftLocal,
-        _driftItems,
-        _driftMembers,
+        _itemsLocal,
+        _membersLocal,
         chat,
       )..init();
       chats[chatId] = entry;
@@ -1720,17 +1719,17 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftPageProvider(
         fetch: ({required after, required before, ChatId? around}) async {
-          return await _driftChat.favorite(limit: after + before + 1);
+          return await _chatLocal.favorite(limit: after + before + 1);
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.favoriteCursor,
         add: (e, {bool toView = true}) async {
           if (toView) {
-            await _driftChat.upsertBulk(e);
+            await _chatLocal.upsertBulk(e);
           }
         },
-        delete: (e) async => await _driftChat.delete(e),
-        reset: () async => await _driftChat.clear(),
+        delete: (e) async => await _chatLocal.delete(e),
+        reset: () async => await _chatLocal.clear(),
         isLast: (_) => true,
         isFirst: (_) => true,
         fulfilledWhenNone: true,
@@ -1745,17 +1744,17 @@ class ChatRepository extends DisposableInterface
       perPage: 15,
       provider: DriftPageProvider(
         fetch: ({required after, required before, ChatId? around}) async {
-          return await _driftChat.recent(limit: after + before + 1);
+          return await _chatLocal.recent(limit: after + before + 1);
         },
         onKey: (e) => e.value.id,
         onCursor: (e) => e?.recentCursor,
         add: (e, {bool toView = true}) async {
           if (toView) {
-            await _driftChat.upsertBulk(e);
+            await _chatLocal.upsertBulk(e);
           }
         },
-        delete: (e) async => await _driftChat.delete(e),
-        reset: () async => await _driftChat.clear(),
+        delete: (e) async => await _chatLocal.delete(e),
+        reset: () async => await _chatLocal.clear(),
         isLast: (_) => false,
         isFirst: (_) => true,
         fulfilledWhenNone: true,
@@ -1844,17 +1843,17 @@ class ChatRepository extends DisposableInterface
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
           fetch: ({required after, required before, ChatId? around}) async {
-            return await _driftChat.favorite(limit: after + before + 1);
+            return await _chatLocal.favorite(limit: after + before + 1);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.favoriteCursor,
           add: (e, {bool toView = true}) async {
             if (toView) {
-              await _driftChat.upsertBulk(e);
+              await _chatLocal.upsertBulk(e);
             }
           },
-          delete: (e) async => await _driftChat.delete(e),
-          reset: () async => await _driftChat.clear(),
+          delete: (e) async => await _chatLocal.delete(e),
+          reset: () async => await _chatLocal.clear(),
           isLast: (_) =>
               _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           isFirst: (_) =>
@@ -2059,7 +2058,7 @@ class ChatRepository extends DisposableInterface
     );
   }
 
-  /// Puts the provided [data] to [Hive].
+  /// Puts the provided [data] to the local storage.
   ///
   /// Puts it always, if [ignoreVersion] is `true`, or otherwise compares the
   /// stored version with the provided one.
@@ -2233,13 +2232,13 @@ class ChatRepository extends DisposableInterface
                 if (paginated[event.chatId] == null || !isRemote) {
                   event as EventChatFavorited;
 
-                  final DtoChat? dto = await _driftChat.read(event.chatId);
+                  final DtoChat? dto = await _chatLocal.read(event.chatId);
                   if (dto != null) {
                     dto.value.favoritePosition = event.position;
                     await _putEntry(ChatData(dto, null, null));
                   } else {
-                    // If there is no [Chat] in [Hive], [get] will fetch it from
-                    // the remote already up-to-date and store it.
+                    // If there is no [Chat] in local storage, [get] will fetch
+                    // it from the remote already up-to-date and store it.
                     await get(event.chatId);
                   }
                 }
@@ -2366,9 +2365,10 @@ class ChatRepository extends DisposableInterface
 
         if (isStored) {
           // Initialize local monolog, if its ID was saved. If `isStored`, local
-          // monolog will appear for a moment since it's stored in [Hive], but
-          // then disappear, because it's not in the remote [Pagination]. This
-          // line makes [monolog] be present despite it is not remote.
+          // monolog will appear for a moment since it's stored in local
+          // storage, but then disappear, because it's not in the remote
+          // [Pagination]. This line makes [monolog] be present despite it is
+          // not remote.
           await _createLocalDialog(me);
         }
 
