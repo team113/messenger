@@ -180,8 +180,7 @@ class AuthService extends DisposableService {
           accounts.remove(deletedId);
 
           final bool currentAreNull = credentials.value == null;
-          final bool currentDeleted =
-              deletedId != null && deletedId == this.userId;
+          final bool currentDeleted = deletedId != null && deletedId == userId;
 
           if ((currentAreNull || currentDeleted) && !WebUtils.isPopup) {
             router.go(_unauthorized());
@@ -685,6 +684,26 @@ class AuthService extends DisposableService {
             accounts.remove(userId);
           }
 
+          // Ensure the retrieved credentials are the current ones, or otherwise
+          // authorize with those.
+          if (oldCreds != null &&
+              oldCreds.access.secret != credentials.value?.access.secret &&
+              !_shouldRefresh(oldCreds)) {
+            Log.debug(
+              'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
+              '$runtimeType',
+            );
+
+            if (areCurrent) {
+              await _authorized(oldCreds);
+              status.value = RxStatus.success();
+            } else {
+              // [Credentials] of another account were refreshed.
+              _putCredentials(oldCreds);
+            }
+            return;
+          }
+
           if (isLocked) {
             Log.debug(
               'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
@@ -707,22 +726,6 @@ class AuthService extends DisposableService {
             // lock to be released.
             if (areCurrent) {
               router.go(_unauthorized());
-            }
-            return;
-          }
-
-          // Fetch the fresh [Credentials] from browser's storage, if there are
-          // any.
-          final Credentials? stored = WebUtils.getCredentials(oldCreds.userId);
-
-          if (stored != null &&
-              stored.access.secret != oldCreds.access.secret) {
-            if (areCurrent) {
-              await _authorized(stored);
-              status.value = RxStatus.success();
-            } else {
-              // [Credentials] of another account were refreshed.
-              _putCredentials(stored);
             }
             return;
           }
