@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 import 'package:mutex/mutex.dart';
 
@@ -48,10 +47,6 @@ class CredentialsDriftProvider extends DriftProviderBase {
   /// incomplete data.
   final Map<UserId, Credentials> data = {};
 
-  /// [StreamController] emitting [Credentials] in [watch].
-  final StreamController<List<Credentials>> _controller =
-      StreamController.broadcast();
-
   /// [Mutex] guarding [init].
   final Mutex _guard = Mutex();
 
@@ -71,17 +66,22 @@ class CredentialsDriftProvider extends DriftProviderBase {
         return;
       }
 
-      final result = await safe((db) async {
-        final stmt = await db.select(db.tokens).get();
-        return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
-      });
-
-      for (var e in result ?? <Credentials>[]) {
+      for (var e in await all()) {
         data[e.userId] = e;
       }
 
       _initialized = true;
     });
+  }
+
+  /// Returns all the [Credentials] stored in the database.
+  Future<List<Credentials>> all() async {
+    final result = await safe((db) async {
+      final stmt = await db.select(db.tokens).get();
+      return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
+    });
+
+    return result ?? [];
   }
 
   /// Creates or updates the provided [creds] in the database.
@@ -156,12 +156,11 @@ class CredentialsDriftProvider extends DriftProviderBase {
     }
 
     final stmt = db!.select(db!.tokens);
-    return StreamGroup.merge(
-      [
-        _controller.stream,
-        stmt.watch().map((rows) => rows.map(_CredentialsDb.fromDb).toList()),
-      ],
-    ).map((i) => {for (var e in i) e.userId: e}).changes();
+    return stmt
+        .watch()
+        .map((rows) => rows.map(_CredentialsDb.fromDb).toList())
+        .map((i) => {for (var e in i) e.userId: e})
+        .changes();
   }
 }
 

@@ -152,7 +152,7 @@ Future<void> main() async {
     );
     router = RouterState(authService);
 
-    authService.init();
+    await authService.init();
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
