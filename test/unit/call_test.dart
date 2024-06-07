@@ -33,6 +33,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/call_rect.dart';
@@ -40,6 +41,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
@@ -48,8 +50,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -72,12 +72,9 @@ void main() async {
 
   Hive.init('./test/.temp_hive/unit_call');
 
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-
   test('CallService registers and handles all ongoing call events', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
     final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -94,8 +91,8 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final sessionProvider = Get.put(VersionDriftProvider(common));
 
-    accountProvider.set(const UserId('me'));
-    credentialsProvider.put(
+    await accountProvider.upsert(const UserId('me'));
+    await credentialsProvider.upsert(
       Credentials(
         AccessToken(
           const AccessTokenSecret('token'),
@@ -270,6 +267,8 @@ void main() async {
   });
 
   test('CallService registers and successfully answers the call', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
     final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -371,6 +370,8 @@ void main() async {
   });
 
   test('CallService registers and successfully starts the call', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
     final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));

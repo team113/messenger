@@ -32,8 +32,8 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
-import '/provider/hive/account.dart';
-import '/provider/hive/credentials.dart';
+import '/provider/drift/account.dart';
+import '/provider/drift/credentials.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -71,11 +71,11 @@ class AuthService extends DisposableService {
   /// [Credentials] should be considered as stale.
   final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
-  /// [CredentialsHiveProvider] used to store user [Session].
-  final CredentialsHiveProvider _credentialsProvider;
+  /// [CredentialsDriftProvider] used to store user's [Session].
+  final CredentialsDriftProvider _credentialsProvider;
 
-  /// [AccountHiveProvider] storing the current user's [UserId].
-  final AccountHiveProvider _accountProvider;
+  /// [AccountDriftProvider] storing the current user's [UserId].
+  final AccountDriftProvider _accountProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -89,10 +89,6 @@ class AuthService extends DisposableService {
 
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
-
-  /// [StreamSubscription] to [CredentialsHiveProvider.boxEvents] saving new
-  /// [Credentials] to the browser's storage.
-  StreamSubscription? _credentialsSubscription;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
@@ -116,7 +112,6 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
-    _credentialsSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
   }
@@ -126,7 +121,7 @@ class AuthService extends DisposableService {
   /// Tries to load user data from the storage and navigates to the
   /// [Routes.auth] page if this operation fails. Otherwise, fetches user data
   /// from the server to be up-to-date with it.
-  String? init() {
+  Future<String?> init() async {
     Log.debug('init()', '$runtimeType');
 
     _authRepository.authExceptionHandler = (e) async {
@@ -185,8 +180,7 @@ class AuthService extends DisposableService {
           accounts.remove(deletedId);
 
           final bool currentAreNull = credentials.value == null;
-          final bool currentDeleted =
-              deletedId != null && deletedId == this.userId;
+          final bool currentDeleted = deletedId != null && deletedId == userId;
 
           if ((currentAreNull || currentDeleted) && !WebUtils.isPopup) {
             router.go(_unauthorized());
@@ -195,51 +189,42 @@ class AuthService extends DisposableService {
       }
     });
 
-    for (final Credentials e in _credentialsProvider.valuesSafe) {
-      WebUtils.putCredentials(e);
-      _putCredentials(e);
-    }
+    return await WebUtils.protect(() async {
+      final List<Credentials> allCredentials = await _credentialsProvider.all();
+      for (final Credentials e in allCredentials) {
+        WebUtils.putCredentials(e);
+        _putCredentials(e);
+      }
 
-    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      Log.debug(
-        '_credentialsSubscription(${e.key}): ${e.value}, deleted(${e.deleted})',
-        '$runtimeType',
-      );
+      final UserId? userId = _accountProvider.userId;
+      final Credentials? creds = userId != null
+          ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
+          : null;
 
-      if (e.deleted) {
-        WebUtils.removeCredentials(UserId(e.key));
+      if (creds == null) {
+        return _unauthorized();
+      }
+
+      final AccessToken access = creds.access;
+      final RefreshToken refresh = creds.refresh;
+
+      if (access.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
+        await _authorized(creds);
+        status.value = RxStatus.success();
+        return null;
+      } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
+        await _authorized(creds);
+
+        if (_shouldRefresh(creds)) {
+          refreshSession();
+        }
+        status.value = RxStatus.success();
+        return null;
       } else {
-        WebUtils.putCredentials(e.value);
+        // Neither [AccessToken] nor [RefreshToken] are valid, should logout.
+        return _unauthorized();
       }
     });
-
-    final UserId? userId = _accountProvider.userId;
-    final Credentials? creds =
-        userId != null ? _credentialsProvider.get(userId) : null;
-
-    if (creds == null) {
-      return _unauthorized();
-    }
-
-    final AccessToken access = creds.access;
-    final RefreshToken refresh = creds.refresh;
-
-    if (access.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
-      _authorized(creds);
-      status.value = RxStatus.success();
-      return null;
-    } else if (refresh.expireAt.isAfter(PreciseDateTime.now().toUtc())) {
-      _authorized(creds);
-
-      if (_shouldRefresh(creds)) {
-        refreshSession();
-      }
-      status.value = RxStatus.success();
-      return null;
-    } else {
-      // Neither [AccessToken] nor [RefreshToken] are valid, should logout.
-      return _unauthorized();
-    }
   }
 
   /// Returns authorization status of the [MyUser] identified by the provided
@@ -357,7 +342,7 @@ class AuthService extends DisposableService {
 
       try {
         final Credentials data = await _authRepository.signUp();
-        _authorized(data);
+        await _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -403,7 +388,7 @@ class AuthService extends DisposableService {
 
       try {
         final Credentials data = await _authRepository.confirmSignUpEmail(code);
-        _authorized(data);
+        await _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -465,7 +450,7 @@ class AuthService extends DisposableService {
           email: email,
           phone: phone,
         );
-        _authorized(creds);
+        await _authorized(creds);
         status.value = RxStatus.success();
       } catch (e) {
         if (force) {
@@ -490,7 +475,7 @@ class AuthService extends DisposableService {
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
-      _authorized(credentials);
+      await _authorized(credentials);
       status.value = RxStatus.success();
     });
   }
@@ -608,14 +593,14 @@ class AuthService extends DisposableService {
       final bool areValid = await validateToken(creds);
       if (areValid) {
         await WebUtils.protect(() async {
-          _authorized(creds!);
+          await _authorized(creds!);
           status.value = RxStatus.success();
         });
 
         return true;
       } else {
         status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
-        _credentialsProvider.remove(userId);
+        _credentialsProvider.delete(userId);
         accounts.remove(userId);
       }
     } catch (_) {
@@ -689,83 +674,98 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        final Credentials? oldCreds = accounts[userId]?.value;
+        await _credentialsProvider.txn(() async {
+          final Credentials? oldCreds =
+              await _credentialsProvider.read(userId!, refresh: true);
 
-        if (isLocked) {
-          Log.debug(
-            'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
-            '$runtimeType',
-          );
+          if (oldCreds != null) {
+            accounts[userId]?.value = oldCreds;
+          } else {
+            accounts.remove(userId);
+          }
 
-          if (!_shouldRefresh(oldCreds)) {
-            // [Credentials] are fresh.
+          // Ensure the retrieved credentials are the current ones, or otherwise
+          // authorize with those.
+          if (oldCreds != null &&
+              oldCreds.access.secret != credentials.value?.access.secret &&
+              !_shouldRefresh(oldCreds)) {
+            Log.debug(
+              'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
+              '$runtimeType',
+            );
+
+            if (areCurrent) {
+              await _authorized(oldCreds);
+              status.value = RxStatus.success();
+            } else {
+              // [Credentials] of another account were refreshed.
+              _putCredentials(oldCreds);
+            }
             return;
           }
-        } else {
-          Log.debug(
-            'refreshSession($userId): acquired the lock, while it was unlocked',
-            '$runtimeType',
-          );
-        }
 
-        if (oldCreds == null) {
-          // These [Credentials] were removed while we've been waiting for the
-          // lock to be released.
-          if (areCurrent) {
-            router.go(_unauthorized());
+          if (isLocked) {
+            Log.debug(
+              'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
+              '$runtimeType',
+            );
+
+            if (!_shouldRefresh(oldCreds)) {
+              // [Credentials] are fresh.
+              return;
+            }
+          } else {
+            Log.debug(
+              'refreshSession($userId): acquired the lock, while it was unlocked',
+              '$runtimeType',
+            );
           }
-          return;
-        }
 
-        // Fetch the fresh [Credentials] from browser's storage, if there are
-        // any.
-        final Credentials? stored = WebUtils.getCredentials(oldCreds.userId);
+          if (oldCreds == null) {
+            // These [Credentials] were removed while we've been waiting for the
+            // lock to be released.
+            if (areCurrent) {
+              router.go(_unauthorized());
+            }
+            return;
+          }
 
-        if (stored != null && stored.access.secret != oldCreds.access.secret) {
-          if (areCurrent) {
-            _authorized(stored);
+          try {
+            await Future.delayed(const Duration(seconds: 1));
+            final Credentials data = await _authRepository.refreshSession(
+              oldCreds.refresh.secret,
+              reconnect: areCurrent,
+            );
+
+            if (areCurrent) {
+              await _authorized(data);
+            } else {
+              // [Credentials] of not currently active account were updated,
+              // just save them.
+              //
+              // Saving to [Hive] is safe here, as this callback is guarded by
+              // the [WebUtils.protect] lock.
+              await _credentialsProvider.upsert(data);
+              _putCredentials(data);
+            }
             status.value = RxStatus.success();
-          } else {
-            // [Credentials] of another account were refreshed.
-            _putCredentials(stored);
+          } on RefreshSessionException catch (_) {
+            Log.debug(
+              'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
+              '$runtimeType',
+            );
+
+            if (areCurrent) {
+              router.go(_unauthorized());
+            } else {
+              // Remove stale [Credentials].
+              _credentialsProvider.delete(oldCreds.userId);
+              accounts.remove(oldCreds.userId);
+            }
+
+            rethrow;
           }
-          return;
-        }
-
-        try {
-          final Credentials data = await _authRepository.refreshSession(
-            oldCreds.refresh.secret,
-            reconnect: areCurrent,
-          );
-
-          if (areCurrent) {
-            _authorized(data);
-          } else {
-            // [Credentials] of not currently active account were updated,
-            // just save them.
-            //
-            // Saving to [Hive] is safe here, as this callback is guarded by
-            // the [WebUtils.protect] lock.
-            await _credentialsProvider.put(data);
-            _putCredentials(data);
-          }
-          status.value = RxStatus.success();
-        } on RefreshSessionException catch (_) {
-          Log.debug(
-            'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
-            '$runtimeType',
-          );
-
-          if (areCurrent) {
-            router.go(_unauthorized());
-          } else {
-            // Remove stale [Credentials].
-            _credentialsProvider.remove(oldCreds.userId);
-            accounts.remove(oldCreds.userId);
-          }
-
-          rethrow;
-        }
+        });
       });
     } on RefreshSessionException catch (_) {
       // No-op, already handled in the callback passed to [WebUtils.protect].
@@ -838,15 +838,18 @@ class AuthService extends DisposableService {
   }
 
   /// Sets authorized [status] to `isLoadingMore` (aka "partly authorized").
-  void _authorized(Credentials creds) {
+  Future<void> _authorized(Credentials creds) async {
     Log.debug('_authorized($creds)', '$runtimeType');
-
-    _credentialsProvider.put(creds);
-    _accountProvider.set(creds.userId);
 
     _authRepository.token = creds.access.secret;
     credentials.value = creds;
     _putCredentials(creds);
+
+    WebUtils.putCredentials(creds);
+    await Future.wait([
+      _credentialsProvider.upsert(creds),
+      _accountProvider.upsert(creds.userId),
+    ]);
 
     _initRefreshTimers();
 
@@ -859,9 +862,10 @@ class AuthService extends DisposableService {
 
     final UserId? id = userId;
     if (id != null) {
-      _credentialsProvider.remove(id);
+      _credentialsProvider.delete(id);
       _refreshTimers.remove(id)?.cancel();
       accounts.remove(id);
+      WebUtils.removeCredentials(id);
     }
 
     if (id == _accountProvider.userId) {
@@ -869,7 +873,7 @@ class AuthService extends DisposableService {
       // rewritten the value in [_accountProvider] during switching to another
       // account but the tab this code is running on still uses the
       // [credentials] of an old one, which is an expected behavior.
-      _accountProvider.clear();
+      _accountProvider.delete();
     }
 
     _authRepository.token = null;

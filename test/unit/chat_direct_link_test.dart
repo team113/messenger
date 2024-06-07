@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -29,6 +28,7 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
@@ -37,6 +37,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
@@ -46,8 +47,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/call.dart';
@@ -132,8 +131,8 @@ void main() async {
     final common = Get.put(CommonDriftProvider.memory());
     final scoped = Get.put(ScopedDriftProvider.memory());
 
-    Hive.init('./test/.temp_hive/chat_direct_link_unit');
-    await Get.put(CredentialsHiveProvider()).init();
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
     final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -150,7 +149,6 @@ void main() async {
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
     final sessionProvider = Get.put(VersionDriftProvider(common));
-    await Get.put(AccountHiveProvider()).init();
 
     final AuthService authService = Get.put(
       AuthService(
@@ -159,8 +157,8 @@ void main() async {
           myUserProvider,
           Get.find(),
         )),
-        Get.find(),
-        Get.find(),
+        credentialsProvider,
+        accountProvider,
       ),
     );
     authService.init();
@@ -453,7 +451,7 @@ void main() async {
     verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
   });
 
-  tearDown(() async {
+  tearDownAll(() async {
     await Get.find<CommonDriftProvider>().close();
     await Get.find<ScopedDriftProvider>().close();
     await Get.deleteAll(force: true);

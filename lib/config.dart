@@ -101,13 +101,6 @@ class Config {
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
-  /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '2';
-
-  /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
-  /// mismatch is detected.
-  static String? credentials = '0';
-
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -123,6 +116,18 @@ class Config {
 
   /// URL of the repository (or anything else) for users to report bugs to.
   static String repository = 'https://github.com/team113/messenger/issues';
+
+  /// Schema version of the [CommonDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int commonVersion = 1;
+
+  /// Schema version of the [ScopedDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int scopedVersion = 1;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):

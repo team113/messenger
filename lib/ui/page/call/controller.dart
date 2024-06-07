@@ -604,12 +604,19 @@ class CallController extends GetxController {
     minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
     isMobile = PlatformUtils.isMobile;
 
-    _hiddenTimer =
-        Timer(const Duration(seconds: 1), () => hidden.value = false);
+    _hiddenTimer = Timer(const Duration(seconds: 1), () {
+      if (hidden.value) {
+        hidden.value = false;
+        refresh();
+      }
+    });
 
     _applyRect(null);
     _settingsRepository.getCallRect(_currentCall.value.chatId.value).then((v) {
-      hidden.value = false;
+      if (hidden.value) {
+        hidden.value = false;
+        refresh();
+      }
       _applyRect(v);
     });
 

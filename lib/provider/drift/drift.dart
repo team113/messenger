@@ -22,11 +22,13 @@ import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart' show DisposableInterface;
 import 'package:log_me/log_me.dart';
 
+import '/config.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'account.dart';
 import 'background.dart';
 import 'blocklist.dart';
 import 'cache.dart';
@@ -38,6 +40,7 @@ import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'credentials.dart';
 import 'download.dart';
 import 'draft.dart';
 import 'monolog.dart';
@@ -53,6 +56,7 @@ part 'drift.g.dart';
 /// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
 @DriftDatabase(
   tables: [
+    Accounts,
     Background,
     Cache,
     CacheSummary,
@@ -61,6 +65,7 @@ part 'drift.g.dart';
     MyUsers,
     Settings,
     SkippedVersions,
+    Tokens,
     Versions,
     WindowRectangles,
   ],
@@ -69,7 +74,7 @@ class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.commonVersion;
 
   @override
   MigrationStrategy get migration {
@@ -157,7 +162,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   final UserId userId;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.scopedVersion;
 
   @override
   MigrationStrategy get migration {

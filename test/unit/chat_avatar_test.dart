@@ -28,6 +28,7 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/call_rect.dart';
@@ -35,6 +36,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
@@ -44,8 +46,6 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -65,13 +65,12 @@ void main() async {
 
   Hive.init('./test/.temp_hive/chat_avatar_unit');
 
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
-
   final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
   final settingsProvider = Get.put(SettingsDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
@@ -87,8 +86,6 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
 
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());

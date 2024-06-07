@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
 import 'package:messenger/api/backend/schema.dart' as api;
 import 'package:messenger/domain/model/chat.dart';
@@ -38,6 +37,7 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
@@ -46,6 +46,7 @@ import 'package:messenger/provider/drift/chat.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
@@ -54,8 +55,6 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -85,8 +84,6 @@ void main() async {
 
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
-
-  Hive.init('./test/.temp_hive/chat_edit_message_text_widget');
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
@@ -269,28 +266,27 @@ void main() async {
   when(graphQlProvider.chatMembers(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     first: anyNamed('first'),
-  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
-        'chat': {
-          'members': {
-            'edges': [],
-            'pageInfo': {
-              'endCursor': 'endCursor',
-              'hasNextPage': false,
-              'startCursor': 'startCursor',
-              'hasPreviousPage': false,
-            }
+  )).thenAnswer(
+    (_) => Future.value(GetMembers$Query.fromJson({
+      'chat': {
+        'members': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
           }
         }
-      })));
+      }
+    })),
+  );
 
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
-  await credentialsProvider.init();
-  await credentialsProvider.clear();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
-  accountProvider.set(const UserId('me'));
-  credentialsProvider.put(
+  await accountProvider.upsert(const UserId('me'));
+  await credentialsProvider.upsert(
     Credentials(
       AccessToken(
         const AccessTokenSecret('token'),

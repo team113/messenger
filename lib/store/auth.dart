@@ -29,11 +29,11 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
+import '/provider/drift/credentials.dart';
 import '/provider/drift/my_user.dart';
 import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/credentials.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'model/my_user.dart';
@@ -61,8 +61,8 @@ class AuthRepository extends DisposableInterface
   /// [MyUserDriftProvider] for removing [MyUser]s.
   final MyUserDriftProvider _myUserProvider;
 
-  /// [CredentialsHiveProvider] for removing [Credentials].
-  final CredentialsHiveProvider _credentialsProvider;
+  /// [CredentialsDriftProvider] for removing [Credentials].
+  final CredentialsDriftProvider _credentialsProvider;
 
   // TODO: Temporary solution, wait for support from backend.
   /// [Credentials] of [Session] created with [signUpWithEmail] returned in
@@ -246,7 +246,7 @@ class AuthRepository extends DisposableInterface
 
     await Future.wait([
       if (!keepProfile) _myUserProvider.delete(id),
-      _credentialsProvider.remove(id),
+      _credentialsProvider.delete(id),
     ]);
   }
 

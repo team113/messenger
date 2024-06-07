@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -31,11 +30,13 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/notification.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/call_credentials.dart';
 import 'package:messenger/provider/drift/call_rect.dart';
 import 'package:messenger/provider/drift/chat_credentials.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
@@ -43,8 +44,6 @@ import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
@@ -71,17 +70,10 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  Hive.init('./test/.temp_hive/auth_widget');
-
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
-  await credentialsProvider.clear();
-
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-
   final graphQlProvider = _FakeGraphQlProvider();
 
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
@@ -134,6 +126,11 @@ void main() async {
     );
 
     authService.init();
+
+    for (int i = 0; i < 25; i++) {
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+      await tester.pump(const Duration(seconds: 2));
+    }
 
     router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();

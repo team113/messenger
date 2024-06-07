@@ -120,7 +120,6 @@ class CallOverlayController extends GetxController {
             // add this call to the [calls] to display it in the view.
             calls.add(OverlayCall(event.value!));
           }
-
           break;
 
         case OperationKind.removed:
