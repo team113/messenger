@@ -1052,7 +1052,7 @@ label_tech_stack_freelance =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
@@ -1061,7 +1061,7 @@ label_tech_stack_frontend_developer =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.

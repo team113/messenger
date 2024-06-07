@@ -22,14 +22,12 @@ import 'dart:ui';
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
@@ -259,56 +257,6 @@ class NativeFile {
   /// Constructs a [Stream] from the [bytes].
   Stream<List<int>> _streamOfBytes() async* {
     yield bytes.value!.toList();
-  }
-}
-
-/// [Hive] adapter for a [MediaType].
-class MediaTypeAdapter extends TypeAdapter<MediaType> {
-  @override
-  int get typeId => ModelTypeId.mediaType;
-
-  @override
-  MediaType read(BinaryReader reader) {
-    return MediaType(
-      reader.read() as String,
-      reader.read() as String,
-      (reader.read() as Map).cast<String, String>(),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, MediaType obj) {
-    writer
-      ..write(obj.type)
-      ..write(obj.subtype)
-      ..write(obj.parameters);
-  }
-}
-
-/// [Hive] adapter for a [NativeFile].
-class NativeFileAdapter extends TypeAdapter<NativeFile> {
-  @override
-  final int typeId = ModelTypeId.nativeFile;
-
-  @override
-  NativeFile read(BinaryReader reader) {
-    return NativeFile(
-      path: reader.read() as String?,
-      name: reader.read() as String,
-      bytes: reader.read() as Uint8List?,
-      size: reader.read() as int,
-      mime: reader.read() as MediaType?,
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, NativeFile obj) {
-    writer
-      ..write(obj.path)
-      ..write(obj.name)
-      ..write(obj.bytes.value)
-      ..write(obj.size)
-      ..write(obj.mime);
   }
 }
 

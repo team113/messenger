@@ -16,10 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import '/api/backend/schema.dart';
 import '/util/new_type.dart';
 import 'chat.dart';
@@ -31,7 +29,6 @@ part 'chat_call.g.dart';
 
 /// Call in a [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatCall)
 class ChatCall extends ChatItem {
   ChatCall(
     super.id,
@@ -52,28 +49,22 @@ class ChatCall extends ChatItem {
       _$ChatCallFromJson(json);
 
   /// Indicator whether this [ChatCall] is intended to start with video.
-  @HiveField(5)
   final bool withVideo;
 
   /// [ChatCallMember]s of this [ChatCall].
-  @HiveField(6)
   List<ChatCallMember> members;
 
   /// Link for joining this [ChatCall]'s room on a media server.
-  @HiveField(7)
   ChatCallRoomJoinLink? joinLink;
 
   /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
   /// started (after ringing had been finished).
-  @HiveField(8)
   PreciseDateTime? conversationStartedAt;
 
   /// [PreciseDateTime] when this [ChatCall] was finished.
-  @HiveField(9)
   PreciseDateTime? finishedAt;
 
   /// Reason of why this [ChatCall] was finished.
-  @HiveField(10)
   int? finishReasonIndex;
 
   /// [ChatMember]s being dialed by this [ChatCall] at the moment.
@@ -83,7 +74,6 @@ class ChatCall extends ChatItem {
   /// [ChatMembersDialedConcrete.members] contain him or the
   /// [ChatMembersDialedAll.answeredMembers] do not while the [dialed] is not
   /// `null`.
-  @HiveField(11)
   ChatMembersDialed? dialed;
 
   /// Returns the [ChatCallFinishReason] this [ChatCall] finished with, if any.
@@ -135,7 +125,6 @@ class ChatCall extends ChatItem {
 
 /// Member of a [ChatCall].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatCallMember)
 class ChatCallMember {
   ChatCallMember({
     required this.user,
@@ -148,15 +137,12 @@ class ChatCallMember {
       _$ChatCallMemberFromJson(json);
 
   /// [User] representing this [ChatCallMember].
-  @HiveField(0)
   final User user;
 
   /// Indicator whether this [ChatCallMember] raised a hand.
-  @HiveField(1)
   bool handRaised;
 
   /// [PreciseDateTime] when this [ChatCallMember] joined the [ChatCall].
-  @HiveField(2)
   final PreciseDateTime joinedAt;
 
   /// Returns a [Map] representing this [ChatCallMember].
@@ -176,15 +162,13 @@ class ChatCallMember {
 
 /// One-time secret credentials to authenticate a [ChatCall] with on a media
 /// server.
-@HiveType(typeId: ModelTypeId.chatCallCredentials)
-class ChatCallCredentials extends HiveObject {
+class ChatCallCredentials {
   ChatCallCredentials(this.val);
 
   /// Constructs the [ChatCallCredentials] from the provided [val].
   factory ChatCallCredentials.fromJson(String val) = ChatCallCredentials;
 
   /// Actual value of these [ChatCallCredentials].
-  @HiveField(0)
   final String val;
 
   @override
@@ -207,7 +191,6 @@ class ChatCallCredentials extends HiveObject {
 }
 
 /// Link for joining a [ChatCall] room on a media server.
-@HiveType(typeId: ModelTypeId.chatCallRoomJoinLink)
 class ChatCallRoomJoinLink extends NewType<String> {
   const ChatCallRoomJoinLink(super.val);
 
@@ -219,7 +202,6 @@ class ChatCallRoomJoinLink extends NewType<String> {
 }
 
 /// ID of the device the authenticated [MyUser] starts a [ChatCall] from.
-@HiveType(typeId: ModelTypeId.chatCallDeviceId)
 class ChatCallDeviceId extends NewType<String> {
   const ChatCallDeviceId(super.val);
 
@@ -254,7 +236,6 @@ abstract class ChatMembersDialed {
 /// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
 /// by a [ChatCall].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatMembersDialedAll)
 class ChatMembersDialedAll implements ChatMembersDialed {
   const ChatMembersDialedAll(this.answeredMembers);
 
@@ -264,7 +245,6 @@ class ChatMembersDialedAll implements ChatMembersDialed {
 
   /// [ChatMember]s who answered (joined or declined) the [ChatCall] already, so
   /// are not dialed anymore.
-  @HiveField(0)
   final List<ChatMember> answeredMembers;
 
   /// Returns a [Map] representing this [ChatMembersDialedAll].
@@ -285,7 +265,6 @@ class ChatMembersDialedAll implements ChatMembersDialed {
 /// Information about concrete [ChatMember]s of a [Chat] being dialed (or
 /// redialed) by a [ChatCall].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatMembersDialedConcrete)
 class ChatMembersDialedConcrete implements ChatMembersDialed {
   const ChatMembersDialedConcrete(this.members);
 
@@ -296,7 +275,6 @@ class ChatMembersDialedConcrete implements ChatMembersDialed {
   /// Concrete [ChatMember]s who are dialed (or redialed) by the [ChatCall].
   ///
   /// Guaranteed to be non-empty.
-  @HiveField(0)
   final List<ChatMember> members;
 
   /// Returns a [Map] representing this [ChatMembersDialedConcrete].

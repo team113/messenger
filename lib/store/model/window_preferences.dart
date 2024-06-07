@@ -16,31 +16,21 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
-
-part 'window_preferences.g.dart';
 
 /// [Offset] position and [Size] combined.
-@HiveType(typeId: ModelTypeId.windowPreferences)
 class WindowPreferences {
   WindowPreferences({this.width, this.height, this.dx, this.dy});
 
   /// Width component of these [WindowPreferences].
-  @HiveField(0)
   double? width;
 
   /// Height component of these [WindowPreferences].
-  @HiveField(1)
   double? height;
 
   /// Left component of these [WindowPreferences].
-  @HiveField(2)
   double? dx;
 
   /// Top component of these [WindowPreferences].
-  @HiveField(3)
   double? dy;
 
   /// Returns the [Size] of these [WindowPreferences].

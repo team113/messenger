@@ -416,8 +416,6 @@ void main() async {
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
 
-    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
-    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
       await tester.runAsync(() => Future.delayed(1.milliseconds));

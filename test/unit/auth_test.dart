@@ -17,7 +17,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -45,8 +44,6 @@ void main() async {
   );
 
   Get.put(ScopedDriftProvider.memory(), permanent: true);
-
-  Hive.init('./test/.temp_hive/unit_auth');
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credsProvider = Get.put(CredentialsDriftProvider(common));

@@ -15,19 +15,13 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/session.dart';
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
-
-part 'session.g.dart';
 
 /// Version of [Session]'s state.
 ///
 /// It increases monotonically, so may be used (and is intended to) for
 /// tracking state's actuality.
-@HiveType(typeId: ModelTypeId.sessionVersion)
 class SessionVersion extends NewType<BigInt> {
   const SessionVersion(super.val);
 

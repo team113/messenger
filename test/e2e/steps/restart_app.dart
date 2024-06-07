@@ -17,7 +17,6 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
@@ -43,7 +42,6 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
     await Get.deleteAll();
 
     await Future.delayed(Duration.zero);
-    await Hive.close();
 
     Get.put<GraphQlProvider>(
       MockGraphQlProvider()

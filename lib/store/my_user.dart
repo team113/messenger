@@ -21,7 +21,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -754,7 +753,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     );
   }
 
-  /// Saves the provided [user] in [Hive].
+  /// Saves the provided [user] to the local storage.
   Future<void> _setMyUser(DtoMyUser user, {bool ignoreVersion = false}) async {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
@@ -1226,7 +1225,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
             _myUserRemoteEvent(event, updateVersion: false);
 
-            // Wait for [Hive] to update the [DtoMyUser] from
+            // Wait for local storage to update the [DtoMyUser] from
             // [_myUserRemoteEvent].
             await Future.delayed(Duration.zero);
           }

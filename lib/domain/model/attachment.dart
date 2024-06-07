@@ -19,11 +19,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
@@ -34,7 +32,7 @@ import 'sending_status.dart';
 part 'attachment.g.dart';
 
 /// Attachment of a [ChatItem].
-abstract class Attachment extends HiveObject {
+abstract class Attachment {
   Attachment({
     required this.id,
     required this.original,
@@ -51,15 +49,12 @@ abstract class Attachment extends HiveObject {
       };
 
   /// Unique ID of this [Attachment].
-  @HiveField(0)
   AttachmentId id;
 
   /// Original [StorageFile] representing this [Attachment].
-  @HiveField(1)
   StorageFile original;
 
   /// Uploaded file's name.
-  @HiveField(2)
   String filename;
 
   /// Returns the [Downloading] of this [Attachment], if any.
@@ -84,7 +79,6 @@ abstract class Attachment extends HiveObject {
 
 /// Image [Attachment].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.imageAttachment)
 class ImageAttachment extends Attachment {
   ImageAttachment({
     required super.id,
@@ -101,17 +95,14 @@ class ImageAttachment extends Attachment {
 
   /// Big view [ImageFile] of this [ImageAttachment], scaled proportionally to
   /// `800px` of its maximum dimension (either width or height).
-  @HiveField(3)
   ImageFile big;
 
   /// Medium view [ImageFile] of this [ImageAttachment], scaled proportionally
   /// to `200px` of its maximum dimension (either width or height).
-  @HiveField(4)
   ImageFile medium;
 
   /// Small view [ImageFile] of this [ImageAttachment], scaled proportionally to
   /// `30px` of its maximum dimension (either width or height).
-  @HiveField(5)
   ImageFile small;
 
   /// Returns a [Map] representing this [ImageAttachment].
@@ -122,7 +113,6 @@ class ImageAttachment extends Attachment {
 
 /// Plain file [Attachment].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.fileAttachment)
 class FileAttachment extends Attachment {
   FileAttachment({
     required super.id,
@@ -190,7 +180,6 @@ class FileAttachment extends Attachment {
 }
 
 /// Unique ID of an [Attachment].
-@HiveType(typeId: ModelTypeId.attachmentId)
 class AttachmentId extends NewType<String> {
   const AttachmentId(super.val);
 
@@ -206,7 +195,6 @@ class AttachmentId extends NewType<String> {
 
 /// [Attachment] stored in a [NativeFile] locally.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.localAttachment)
 class LocalAttachment extends Attachment {
   LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
       : status = Rx(status),
@@ -226,7 +214,6 @@ class LocalAttachment extends Attachment {
       _$LocalAttachmentFromJson(json);
 
   /// [NativeFile] representing this [LocalAttachment].
-  @HiveField(3)
   NativeFile file;
 
   /// [SendingStatus] of this [LocalAttachment].

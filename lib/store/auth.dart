@@ -73,7 +73,7 @@ class AuthRepository extends DisposableInterface
   /// [DtoMyUser] created with [signUpWithEmail].
   DtoMyUser? _signedUpUser;
 
-  /// [StreamSubscription] for the [MyUserHiveProvider.boxEvents].
+  /// [StreamSubscription] for the [MyUserDriftProvider.watch].
   StreamSubscription? _profilesSubscription;
 
   @override

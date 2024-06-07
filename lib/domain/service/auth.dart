@@ -155,8 +155,8 @@ class AuthService extends DisposableService {
               received.userId == current?.userId &&
                   received.access.secret != current?.access.secret) {
             // These [Credentials] should be treated as current ones, so just
-            // apply them as saving to [Hive] has already been performed by
-            // another tab.
+            // apply them as saving to local storage has already been performed
+            // by another tab.
             _authRepository.token = received.access.secret;
             _authRepository.applyToken();
             credentials.value = received;
@@ -674,98 +674,95 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        await _credentialsProvider.txn(() async {
-          final Credentials? oldCreds =
-              await _credentialsProvider.read(userId!, refresh: true);
+        final Credentials? oldCreds =
+            await _credentialsProvider.read(userId!, refresh: true);
 
-          if (oldCreds != null) {
-            accounts[userId]?.value = oldCreds;
-          } else {
-            accounts.remove(userId);
-          }
+        if (oldCreds != null) {
+          accounts[userId]?.value = oldCreds;
+        } else {
+          accounts.remove(userId);
+        }
 
-          // Ensure the retrieved credentials are the current ones, or otherwise
-          // authorize with those.
-          if (oldCreds != null &&
-              oldCreds.access.secret != credentials.value?.access.secret &&
-              !_shouldRefresh(oldCreds)) {
-            Log.debug(
-              'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
-              '$runtimeType',
-            );
+        // Ensure the retrieved credentials are the current ones, or otherwise
+        // authorize with those.
+        if (oldCreds != null &&
+            oldCreds.access.secret != credentials.value?.access.secret &&
+            !_shouldRefresh(oldCreds)) {
+          Log.debug(
+            'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
+            '$runtimeType',
+          );
 
-            if (areCurrent) {
-              await _authorized(oldCreds);
-              status.value = RxStatus.success();
-            } else {
-              // [Credentials] of another account were refreshed.
-              _putCredentials(oldCreds);
-            }
-            return;
-          }
-
-          if (isLocked) {
-            Log.debug(
-              'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
-              '$runtimeType',
-            );
-
-            if (!_shouldRefresh(oldCreds)) {
-              // [Credentials] are fresh.
-              return;
-            }
-          } else {
-            Log.debug(
-              'refreshSession($userId): acquired the lock, while it was unlocked',
-              '$runtimeType',
-            );
-          }
-
-          if (oldCreds == null) {
-            // These [Credentials] were removed while we've been waiting for the
-            // lock to be released.
-            if (areCurrent) {
-              router.go(_unauthorized());
-            }
-            return;
-          }
-
-          try {
-            await Future.delayed(const Duration(seconds: 1));
-            final Credentials data = await _authRepository.refreshSession(
-              oldCreds.refresh.secret,
-              reconnect: areCurrent,
-            );
-
-            if (areCurrent) {
-              await _authorized(data);
-            } else {
-              // [Credentials] of not currently active account were updated,
-              // just save them.
-              //
-              // Saving to [Hive] is safe here, as this callback is guarded by
-              // the [WebUtils.protect] lock.
-              await _credentialsProvider.upsert(data);
-              _putCredentials(data);
-            }
+          if (areCurrent) {
+            await _authorized(oldCreds);
             status.value = RxStatus.success();
-          } on RefreshSessionException catch (_) {
-            Log.debug(
-              'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
-              '$runtimeType',
-            );
-
-            if (areCurrent) {
-              router.go(_unauthorized());
-            } else {
-              // Remove stale [Credentials].
-              _credentialsProvider.delete(oldCreds.userId);
-              accounts.remove(oldCreds.userId);
-            }
-
-            rethrow;
+          } else {
+            // [Credentials] of another account were refreshed.
+            _putCredentials(oldCreds);
           }
-        });
+          return;
+        }
+
+        if (isLocked) {
+          Log.debug(
+            'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
+            '$runtimeType',
+          );
+
+          if (!_shouldRefresh(oldCreds)) {
+            // [Credentials] are fresh.
+            return;
+          }
+        } else {
+          Log.debug(
+            'refreshSession($userId): acquired the lock, while it was unlocked',
+            '$runtimeType',
+          );
+        }
+
+        if (oldCreds == null) {
+          // These [Credentials] were removed while we've been waiting for the
+          // lock to be released.
+          if (areCurrent) {
+            router.go(_unauthorized());
+          }
+          return;
+        }
+
+        try {
+          final Credentials data = await _authRepository.refreshSession(
+            oldCreds.refresh.secret,
+            reconnect: areCurrent,
+          );
+
+          if (areCurrent) {
+            await _authorized(data);
+          } else {
+            // [Credentials] of not currently active account were updated,
+            // just save them.
+            //
+            // Saving to local storage is safe here, as this callback is
+            // guarded by the [WebUtils.protect] lock.
+            await _credentialsProvider.upsert(data);
+            _putCredentials(data);
+          }
+          status.value = RxStatus.success();
+        } on RefreshSessionException catch (_) {
+          Log.debug(
+            'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
+            '$runtimeType',
+          );
+
+          if (areCurrent) {
+            router.go(_unauthorized());
+          } else {
+            // Remove stale [Credentials].
+            accounts.remove(oldCreds.userId);
+            await _credentialsProvider.delete(oldCreds.userId);
+          }
+
+          rethrow;
+        }
       });
     } on RefreshSessionException catch (_) {
       // No-op, already handled in the callback passed to [WebUtils.protect].

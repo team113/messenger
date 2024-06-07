@@ -15,30 +15,22 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/util/new_type.dart';
 import 'version.dart';
 
-part 'my_user.g.dart';
-
 /// Persisted in storage [MyUser]'s [value].
-@HiveType(typeId: ModelTypeId.dtoMyUser)
-class DtoMyUser extends HiveObject {
+class DtoMyUser {
   DtoMyUser(this.value, this.ver);
 
   /// Persisted [MyUser] model.
-  @HiveField(0)
   MyUser value;
 
   /// Version of this [MyUser]'s state.
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
-  @HiveField(1)
   MyUserVersion ver;
 
   /// Returns the [UserId] of the [value].
@@ -49,19 +41,16 @@ class DtoMyUser extends HiveObject {
 }
 
 /// Version of [MyUser]'s state.
-@HiveType(typeId: ModelTypeId.myUserVersion)
 class MyUserVersion extends Version {
   MyUserVersion(super.val);
 }
 
 /// Version of a [ChatDirectLink]'s state.
-@HiveType(typeId: ModelTypeId.chatDirectLinkVersion)
 class ChatDirectLinkVersion extends Version {
   ChatDirectLinkVersion(super.val);
 }
 
 /// Cursor of blocked [User]s.
-@HiveType(typeId: ModelTypeId.blocklistCursor)
 class BlocklistCursor extends NewType<String> {
   BlocklistCursor(super.val);
 }

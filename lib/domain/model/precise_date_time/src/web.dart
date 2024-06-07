@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
 part 'web.g.dart';
@@ -243,21 +241,5 @@ class PreciseDateTime extends NewType<DateTime>
     }
 
     return formattedString;
-  }
-}
-
-/// [Hive] adapter for a [PreciseDateTime].
-class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
-  @override
-  final typeId = ModelTypeId.preciseDateTime;
-
-  @override
-  PreciseDateTime read(BinaryReader reader) =>
-      PreciseDateTime(reader.read() as DateTime, microsecond: reader.readInt());
-
-  @override
-  void write(BinaryWriter writer, PreciseDateTime obj) {
-    writer.write(obj.val);
-    writer.writeInt(obj.microsecond);
   }
 }

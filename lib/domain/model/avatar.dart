@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
 
@@ -40,36 +38,29 @@ abstract class Avatar {
 
   /// Full-sized [ImageFile] representing this [UserAvatar], keeping the
   /// original dimensions.
-  @HiveField(0)
   final ImageFile full;
 
   /// Big view [ImageFile] of this [UserAvatar], square-cropped to its minimum
   /// dimension (either width or height), and scaled to `250px`x`250px`.
-  @HiveField(1)
   final ImageFile big;
 
   /// Medium view [ImageFile] of this [UserAvatar], square-cropped to its
   /// minimum dimension (either width or height), and scaled to `100px`x`100px`.
-  @HiveField(2)
   final ImageFile medium;
 
   /// Small view [ImageFile] of this [UserAvatar], square-cropped to its minimum
   /// dimension (either width or height), and scaled to `46px`x`46px`.
-  @HiveField(3)
   final ImageFile small;
 
   /// Original [ImageFile] representing this [UserAvatar].
-  @HiveField(4)
   final ImageFile original;
 
   /// [CropArea] applied to this [Avatar].
-  @HiveField(5)
   final CropArea? crop;
 }
 
 /// [Avatar] of a [User].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.userAvatar)
 class UserAvatar extends Avatar {
   UserAvatar({
     required super.full,
@@ -90,7 +81,6 @@ class UserAvatar extends Avatar {
 
 /// [Avatar] of a [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatAvatar)
 class ChatAvatar extends Avatar {
   ChatAvatar({
     required super.full,

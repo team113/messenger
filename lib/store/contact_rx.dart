@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/domain/model/contact.dart';
 import '/domain/repository/contact.dart';
@@ -27,9 +26,9 @@ import '/domain/repository/user.dart';
 import '/store/model/contact.dart';
 import '/util/log.dart';
 
-/// [RxChatContact] implementation backed by local [Hive] storage.
-class HiveRxChatContact extends RxChatContact {
-  HiveRxChatContact(this._userRepository, DtoChatContact dto)
+/// [RxChatContact] implementation backed by local storage.
+class RxChatContactImpl extends RxChatContact {
+  RxChatContactImpl(this._userRepository, DtoChatContact dto)
       : contact = Rx<ChatContact>(dto.value),
         ver = dto.ver;
 
@@ -39,7 +38,7 @@ class HiveRxChatContact extends RxChatContact {
   @override
   final Rx<RxUser?> user = Rx(null);
 
-  /// [ChatContactVersion] of this [HiveRxChatContact].
+  /// [ChatContactVersion] of this [RxChatContactImpl].
   ChatContactVersion ver;
 
   /// [AbstractUserRepository] fetching and updating the [user].
@@ -48,7 +47,7 @@ class HiveRxChatContact extends RxChatContact {
   /// [Worker] reacting on the [contact] changes updating the [user].
   late final Worker _worker;
 
-  /// Initializes this [HiveRxChatContact].
+  /// Initializes this [RxChatContactImpl].
   void init() {
     Log.debug('init()', '$runtimeType ${contact.value.id}');
 
@@ -56,7 +55,7 @@ class HiveRxChatContact extends RxChatContact {
     _worker = ever(contact, _updateUser);
   }
 
-  /// Disposes this [HiveRxChatContact].
+  /// Disposes this [RxChatContactImpl].
   void dispose() {
     Log.debug('dispose()', '$runtimeType ${contact.value.id}');
     _worker.dispose();

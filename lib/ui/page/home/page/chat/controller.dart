@@ -892,7 +892,7 @@ class ChatController extends GetxController {
 
           await chat!.around();
 
-          // Required in order for [Hive.boxEvents] to add the messages.
+          // Required in order for local storage to add the messages.
           await Future.delayed(Duration.zero);
 
           final Rx<ChatItem>? firstUnread = _firstUnread;

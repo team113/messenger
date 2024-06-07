@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/page_info.dart';
@@ -149,7 +148,7 @@ class BlocklistRepository extends DisposableInterface
     super.onClose();
   }
 
-  /// Puts the provided [record] to [Pagination] and [Hive].
+  /// Puts the provided [record] to [Pagination] and local storage.
   Future<void> put(
     DtoBlocklistRecord record, {
     bool pagination = false,

@@ -15,10 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import 'avatar.dart';
 import 'chat.dart';
 import 'chat_item.dart';
@@ -28,7 +26,6 @@ import 'user.dart';
 part 'chat_info.g.dart';
 
 /// Information about an action taken upon a [Chat].
-@HiveType(typeId: ModelTypeId.chatInfo)
 @JsonSerializable()
 class ChatInfo extends ChatItem {
   ChatInfo(
@@ -44,7 +41,6 @@ class ChatInfo extends ChatItem {
       _$ChatInfoFromJson(json);
 
   /// [ChatInfoAction] taken upon the [Chat].
-  @HiveField(5)
   final ChatInfoAction action;
 
   /// Returns a [Map] representing this [ChatInfo].
@@ -100,7 +96,6 @@ abstract class ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoActionAvatarUpdated)
 class ChatInfoActionAvatarUpdated implements ChatInfoAction {
   const ChatInfoActionAvatarUpdated(this.avatar);
 
@@ -111,7 +106,6 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
   /// New [ChatAvatar] of the [Chat].
   ///
   /// `null` means that the old [ChatAvatar] was removed.
-  @HiveField(0)
   final ChatAvatar? avatar;
 
   @override
@@ -125,7 +119,6 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [Chat] being created.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoActionCreated)
 class ChatInfoActionCreated implements ChatInfoAction {
   const ChatInfoActionCreated(this.directLinkSlug);
 
@@ -134,7 +127,6 @@ class ChatInfoActionCreated implements ChatInfoAction {
       _$ChatInfoActionCreatedFromJson(json);
 
   /// [ChatDirectLinkSlug] used to create the [Chat], if any.
-  @HiveField(0)
   final ChatDirectLinkSlug? directLinkSlug;
 
   @override
@@ -148,7 +140,6 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoActionMemberAdded)
 class ChatInfoActionMemberAdded implements ChatInfoAction {
   const ChatInfoActionMemberAdded(this.user, this.directLinkSlug);
 
@@ -160,11 +151,9 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
   ///
   /// If the same as [ChatItem.author], then the [User] joined the [Chat] by
   /// himself.
-  @HiveField(0)
   final User user;
 
   /// [ChatDirectLinkSlug] used by the [ChatMember] to join the [Chat], if any.
-  @HiveField(1)
   final ChatDirectLinkSlug? directLinkSlug;
 
   @override
@@ -178,7 +167,6 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatMember] being removed from a [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoActionMemberRemoved)
 class ChatInfoActionMemberRemoved implements ChatInfoAction {
   const ChatInfoActionMemberRemoved(this.user);
 
@@ -190,7 +178,6 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
   ///
   /// If the same as [ChatItem.author], then the [User] left the [Chat] by
   /// himself.
-  @HiveField(0)
   final User user;
 
   @override
@@ -204,7 +191,6 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
 /// [ChatInfoAction] about a [ChatName] being updated.
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatInfoActionNameUpdated)
 class ChatInfoActionNameUpdated implements ChatInfoAction {
   const ChatInfoActionNameUpdated(this.name);
 
@@ -215,7 +201,6 @@ class ChatInfoActionNameUpdated implements ChatInfoAction {
   /// New [ChatName] of the [Chat].
   ///
   /// `null` means that the old [ChatName] was removed.
-  @HiveField(0)
   final ChatName? name;
 
   @override
