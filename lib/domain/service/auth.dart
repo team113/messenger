@@ -33,7 +33,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/drift/account.dart';
-import '/provider/hive/credentials.dart';
+import '/provider/drift/credentials.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -71,8 +71,8 @@ class AuthService extends DisposableService {
   /// [Credentials] should be considered as stale.
   final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
-  /// [CredentialsHiveProvider] used to store user [Session].
-  final CredentialsHiveProvider _credentialsProvider;
+  /// [CredentialsDriftProvider] used to store user's [Session].
+  final CredentialsDriftProvider _credentialsProvider;
 
   /// [AccountDriftProvider] storing the current user's [UserId].
   final AccountDriftProvider _accountProvider;
@@ -195,27 +195,29 @@ class AuthService extends DisposableService {
       }
     });
 
-    for (final Credentials e in _credentialsProvider.valuesSafe) {
+    for (final Credentials e in _credentialsProvider.data.values) {
       WebUtils.putCredentials(e);
       _putCredentials(e);
     }
 
-    _credentialsSubscription = _credentialsProvider.boxEvents.listen((e) {
-      Log.debug(
-        '_credentialsSubscription(${e.key}): ${e.value}, deleted(${e.deleted})',
-        '$runtimeType',
-      );
+    _credentialsSubscription = _credentialsProvider.watch().listen((event) {
+      for (var e in event) {
+        Log.debug(
+          '_credentialsSubscription(${e.key}): ${e.value}',
+          '$runtimeType',
+        );
 
-      if (e.deleted) {
-        WebUtils.removeCredentials(UserId(e.key));
-      } else {
-        WebUtils.putCredentials(e.value);
+        if (e.value == null) {
+          WebUtils.removeCredentials(e.key!);
+        } else {
+          WebUtils.putCredentials(e.value!);
+        }
       }
     });
 
     final UserId? userId = _accountProvider.userId;
     final Credentials? creds =
-        userId != null ? _credentialsProvider.get(userId) : null;
+        userId != null ? _credentialsProvider.data[userId] : null;
 
     if (creds == null) {
       return _unauthorized();
@@ -615,7 +617,7 @@ class AuthService extends DisposableService {
         return true;
       } else {
         status.value = hadAuthorization ? RxStatus.success() : RxStatus.empty();
-        _credentialsProvider.remove(userId);
+        _credentialsProvider.delete(userId);
         accounts.remove(userId);
       }
     } catch (_) {
@@ -746,7 +748,7 @@ class AuthService extends DisposableService {
             //
             // Saving to [Hive] is safe here, as this callback is guarded by
             // the [WebUtils.protect] lock.
-            await _credentialsProvider.put(data);
+            await _credentialsProvider.upsert(data);
             _putCredentials(data);
           }
           status.value = RxStatus.success();
@@ -760,7 +762,7 @@ class AuthService extends DisposableService {
             router.go(_unauthorized());
           } else {
             // Remove stale [Credentials].
-            _credentialsProvider.remove(oldCreds.userId);
+            _credentialsProvider.delete(oldCreds.userId);
             accounts.remove(oldCreds.userId);
           }
 
@@ -841,7 +843,7 @@ class AuthService extends DisposableService {
   void _authorized(Credentials creds) {
     Log.debug('_authorized($creds)', '$runtimeType');
 
-    _credentialsProvider.put(creds);
+    _credentialsProvider.upsert(creds);
     _accountProvider.upsert(creds.userId);
 
     _authRepository.token = creds.access.secret;
@@ -859,7 +861,7 @@ class AuthService extends DisposableService {
 
     final UserId? id = userId;
     if (id != null) {
-      _credentialsProvider.remove(id);
+      _credentialsProvider.delete(id);
       _refreshTimers.remove(id)?.cancel();
       accounts.remove(id);
     }

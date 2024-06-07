@@ -31,11 +31,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 // ignore: implementation_imports
 import 'package:sentry_flutter/src/integrations/integrations.dart';
@@ -56,6 +54,7 @@ import 'l10n/l10n.dart';
 import 'provider/drift/account.dart';
 import 'provider/drift/background.dart';
 import 'provider/drift/cache.dart';
+import 'provider/drift/credentials.dart';
 import 'provider/drift/download.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/my_user.dart';
@@ -64,7 +63,6 @@ import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/credentials.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
 import 'store/auth.dart';
@@ -118,7 +116,8 @@ Future<void> main() async {
     final accountProvider = Get.put(AccountDriftProvider(Get.find()));
     await accountProvider.init();
 
-    await _initHive();
+    final credentialsProvider = Get.put(CredentialsDriftProvider(Get.find()));
+    await credentialsProvider.init();
 
     if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
       await windowManager.ensureInitialized();
@@ -294,7 +293,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     SharedPreferences? prefs;
-    CredentialsHiveProvider? credentialsProvider;
+    CredentialsDriftProvider? credentialsProvider;
     AccountDriftProvider? accountProvider;
     GraphQlProvider? provider;
     StreamSubscription? subscription;
@@ -314,7 +313,6 @@ Future<void> handlePushNotification(RemoteMessage message) async {
           case Event.actionCallTimeout:
             subscription?.cancel();
             provider?.disconnect();
-            await Hive.close();
             break;
 
           case Event.actionCallCallback:
@@ -359,20 +357,16 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       );
 
       await Config.init();
-      await Hive.initFlutter('hive');
-      credentialsProvider = CredentialsHiveProvider();
-      accountProvider = AccountDriftProvider(
-        CommonDriftProvider.from(CommonDatabase()),
-      );
+      final common = CommonDriftProvider.from(CommonDatabase());
+      credentialsProvider = CredentialsDriftProvider(common);
+      accountProvider = AccountDriftProvider(common);
 
       await credentialsProvider.init();
       await accountProvider.init();
 
       final UserId? userId = accountProvider.userId;
       final Credentials? credentials =
-          userId != null ? credentialsProvider.get(userId) : null;
-
-      await credentialsProvider.close();
+          userId != null ? await credentialsProvider.read(userId) : null;
 
       if (credentials != null) {
         provider = GraphQlProvider();
@@ -420,8 +414,6 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       provider?.disconnect();
       subscription?.cancel();
       await FlutterCallkitIncoming.endCall(message.data['chatId']);
-      await credentialsProvider?.close();
-      await Hive.close();
     }
   }
 }
@@ -445,72 +437,5 @@ class App extends StatelessWidget {
         debugShowCheckedModeBanner: false,
       ),
     );
-  }
-}
-
-/// Initializes a [Hive] storage and registers a [CredentialsHiveProvider] in
-/// the [Get]'s context.
-Future<void> _initHive() async {
-  await Hive.initFlutter('hive');
-
-  // Load and compare application version.
-  final Box box = await Hive.openBox('version');
-
-  final String version = Config.version ?? Config.schema ?? Pubspec.version;
-  final String? storedVersion = box.get(0);
-
-  final String? session = Config.version ?? Config.credentials;
-  final String? storedSession = box.get(1);
-
-  // If mismatch is detected, then clean the existing [Hive] cache.
-  if (storedVersion != version || storedSession != session) {
-    await Hive.close();
-    await Hive.clean(
-      'hive',
-      except: storedSession != session ? null : 'credentials',
-    );
-    await Hive.initFlutter('hive');
-    Hive.openBox('version').then((box) async {
-      await box.put(0, version);
-
-      if (session != null) {
-        await box.put(1, session);
-      } else if (storedSession != null) {
-        await box.delete(1);
-      }
-
-      await box.close();
-    });
-  }
-
-  await Get.put(CredentialsHiveProvider()).init();
-}
-
-/// Extension adding an ability to clean [Hive].
-extension HiveClean on HiveInterface {
-  /// Cleans the [Hive] data stored at the provided [path] on non-web platforms
-  /// and the whole `IndexedDB` on a web platform.
-  Future<void> clean(String path, {String? except}) async {
-    if (PlatformUtils.isWeb) {
-      await WebUtils.cleanIndexedDb(except: except);
-    } else {
-      final String documents = (await getApplicationDocumentsDirectory()).path;
-      final Directory directory = Directory('$documents/$path');
-
-      try {
-        if (except == null) {
-          await directory.delete(recursive: true);
-        } else {
-          for (var file in directory.listSync()) {
-            if (!file.path.endsWith('$except.hive') &&
-                !file.path.endsWith('$except.lock')) {
-              await file.delete();
-            }
-          }
-        }
-      } on FileSystemException {
-        // No-op.
-      }
-    }
   }
 }

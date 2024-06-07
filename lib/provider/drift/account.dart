@@ -105,4 +105,7 @@ class AccountDriftProvider extends DriftProviderBase {
       await db.delete(db.accounts).go();
     });
   }
+
+  /// Deletes the skipped version stored from the database.
+  Future<void> clear() => delete();
 }

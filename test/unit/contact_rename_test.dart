@@ -24,12 +24,12 @@ import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -44,9 +44,7 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
-  await credentialsHiveProvider.init();
-  await credentialsHiveProvider.clear();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final sessionProvider = Get.put(VersionDriftProvider(common));
   final graphQlProvider = Get.put(MockGraphQlProvider());
@@ -58,7 +56,7 @@ void main() async {
 
   setUp(() async {
     Get.reset();
-    await credentialsHiveProvider.clear();
+    await credentialsProvider.clear();
   });
 
   var chatContact = {

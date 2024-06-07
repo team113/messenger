@@ -39,6 +39,7 @@ import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'credentials.dart';
 import 'download.dart';
 import 'draft.dart';
 import 'monolog.dart';
@@ -63,6 +64,7 @@ part 'drift.g.dart';
     MyUsers,
     Settings,
     SkippedVersions,
+    Tokens,
     Versions,
     WindowRectangles,
   ],
