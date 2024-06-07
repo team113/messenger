@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 import '/domain/model/chat.dart';
 import '/util/new_type.dart';
 import 'chat_item.dart';
