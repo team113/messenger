@@ -759,8 +759,8 @@ class AuthService extends DisposableService {
               router.go(_unauthorized());
             } else {
               // Remove stale [Credentials].
-              _credentialsProvider.delete(oldCreds.userId);
               accounts.remove(oldCreds.userId);
+              await _credentialsProvider.delete(oldCreds.userId);
             }
 
             rethrow;
