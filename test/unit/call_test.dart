@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_call.dart';
@@ -33,26 +32,23 @@ import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -73,46 +69,27 @@ void main() async {
     scoped = ScopedDriftProvider.memory();
   });
 
-  Hive.init('./test/.temp_hive/unit_call');
-
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
-  await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
-  var chatProvider = ChatHiveProvider();
-  await chatProvider.init();
-  await chatProvider.clear();
-  var draftProvider = DraftHiveProvider();
-  await draftProvider.init();
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
-  await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-
   test('CallService registers and handles all ongoing call events', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
+    final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+    final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final monologProvider = Get.put(MonologDriftProvider(common));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
 
-    accountProvider.set(const UserId('me'));
-    credentialsProvider.put(
+    await accountProvider.upsert(const UserId('me'));
+    await credentialsProvider.upsert(
       Credentials(
         AccessToken(
           const AccessTokenSecret('token'),
@@ -166,8 +143,8 @@ void main() async {
         Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -189,8 +166,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -289,10 +264,23 @@ void main() async {
   });
 
   test('CallService registers and successfully answers the call', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
+    final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+    final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final monologProvider = Get.put(MonologDriftProvider(common));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -313,8 +301,8 @@ void main() async {
         Get.put(UserRepository(graphQlProvider, userProvider));
     final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -336,8 +324,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -381,10 +367,23 @@ void main() async {
   });
 
   test('CallService registers and successfully starts the call', () async {
+    final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+    final accountProvider = Get.put(AccountDriftProvider(common));
+    final settingsProvider = Get.put(SettingsDriftProvider(common));
     final myUserProvider = Get.put(MyUserDriftProvider(common));
     final userProvider = Get.put(UserDriftProvider(common, scoped));
     final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+    final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final monologProvider = Get.put(MonologDriftProvider(common));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
 
     final graphQlProvider = _FakeGraphQlProvider();
 
@@ -402,8 +401,8 @@ void main() async {
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -427,8 +426,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -443,7 +440,7 @@ void main() async {
     );
     callService.onReady();
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -474,13 +471,13 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
     await callService.decline(const ChatId('incoming'));
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 0);
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
@@ -511,7 +508,7 @@ void main() async {
       parserFn: (_) => null,
     ));
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.chatId.value.val, 'incoming');
 
@@ -522,7 +519,7 @@ void main() async {
       withScreen: false,
     );
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
   });
 
@@ -715,7 +712,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<ChatEventsVersionedMixin?> leaveChatCall(
-      ChatId chatId, ChatCallDeviceId deviceId) async {
+    ChatId chatId,
+    ChatCallDeviceId deviceId,
+  ) async {
     chatEventsStream.add(
       QueryResult.internal(
         source: QueryResultSource.network,

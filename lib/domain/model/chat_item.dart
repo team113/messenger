@@ -19,12 +19,10 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
-import 'package:messenger/l10n/l10n.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:messenger/l10n/l10n.dart';
 import 'package:uuid/uuid.dart';
 
-import '../model_type_id.dart';
 import '/util/new_type.dart';
 import 'attachment.dart';
 import 'chat.dart';
@@ -60,19 +58,15 @@ abstract class ChatItem {
       };
 
   /// Unique ID of this [ChatItem].
-  @HiveField(0)
   final ChatItemId id;
 
   /// ID of the [Chat] this [ChatItem] was posted in.
-  @HiveField(1)
   ChatId chatId;
 
   /// [User] who posted this [ChatItem].
-  @HiveField(2)
   final User author;
 
   /// [PreciseDateTime] when this [ChatItem] was posted.
-  @HiveField(3)
   PreciseDateTime at;
 
   /// [SendingStatus] of this [ChatItem].
@@ -109,7 +103,6 @@ abstract class ChatItem {
 
 /// Message in a [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatMessage)
 class ChatMessage extends ChatItem {
   ChatMessage(
     super.id,
@@ -142,19 +135,15 @@ class ChatMessage extends ChatItem {
       _$ChatMessageFromJson(json);
 
   /// [ChatItemQuote]s of the [ChatItem]s this [ChatMessage] replies to.
-  @HiveField(5)
   List<ChatItemQuote> repliesTo;
 
   /// Text of this [ChatMessage].
-  @HiveField(6)
   ChatMessageText? text;
 
   /// [PreciseDateTime] when this [ChatMessage] was edited.
-  @HiveField(7)
   PreciseDateTime? editedAt;
 
   /// [Attachment]s of this [ChatMessage].
-  @HiveField(8)
   List<Attachment> attachments;
 
   final List<String> commands = [];
@@ -194,7 +183,6 @@ class ChatMessage extends ChatItem {
 
 /// Quote of a [ChatItem] forwarded to some [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatForward)
 class ChatForward extends ChatItem {
   ChatForward(
     super.id,
@@ -212,7 +200,6 @@ class ChatForward extends ChatItem {
   ///
   /// Re-forwarding a [ChatForward] is indistinguishable from just forwarding
   /// its inner [ChatMessage] ([ChatItemQuote] depth will still be just 1).
-  @HiveField(5)
   final ChatItemQuote quote;
 
   /// Returns a [Map] representing this [ChatForward].
@@ -222,7 +209,6 @@ class ChatForward extends ChatItem {
 }
 
 /// Unique ID of a [ChatItem].
-@HiveType(typeId: ModelTypeId.chatItemId)
 class ChatItemId extends NewType<String> {
   const ChatItemId(super.val);
 
@@ -263,7 +249,6 @@ class ChatBotText {
 }
 
 /// Text of a [ChatMessage].
-@HiveType(typeId: ModelTypeId.chatMessageText)
 class ChatMessageText extends NewType<String> {
   const ChatMessageText(super.val);
 
@@ -378,10 +363,8 @@ class ChatCommand extends ChatItem {
     this.text,
   });
 
-  @HiveField(5)
   ChatItemQuote? repliesTo;
 
-  @HiveField(6)
   ChatMessageText? text;
 }
 

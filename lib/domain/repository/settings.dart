@@ -77,7 +77,7 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
-  Rect? getCallRect(ChatId id);
+  Future<Rect?> getCallRect(ChatId id);
 
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);

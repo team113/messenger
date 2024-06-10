@@ -15,15 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
 import '/domain/model/user.dart';
 import '/util/new_type.dart';
 import 'my_user.dart';
 import 'version.dart';
-
-part 'user.g.dart';
 
 /// Persisted in storage [User]'s [value].
 class DtoUser {
@@ -52,7 +47,6 @@ class DtoUser {
 }
 
 /// Version of an [User]'s state.
-@HiveType(typeId: ModelTypeId.userVersion)
 class UserVersion extends Version {
   UserVersion(super.val);
 
@@ -64,7 +58,6 @@ class UserVersion extends Version {
 }
 
 /// Cursor used for [User]s pagination.
-@HiveType(typeId: ModelTypeId.usersCursor)
 class UsersCursor extends NewType<String> {
   UsersCursor(super.val);
 

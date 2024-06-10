@@ -341,11 +341,14 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [repliesTo].
   ///
   /// Resets it, if the specified fields are empty or `null`.
-  void setDraft({
+  Future<void> setDraft({
     ChatMessageText? text,
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
+
+  /// Ensures the [draft] is initialized.
+  Future<void> ensureDraft();
 
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.

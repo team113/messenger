@@ -15,43 +15,76 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 
-part 'session_data.g.dart';
-
 /// [Session] relative preferences.
-@HiveType(typeId: ModelTypeId.sessionData)
-class SessionData extends HiveObject {
+class SessionData {
+  SessionData({
+    this.favoriteChatsListVersion,
+    this.favoriteChatsSynchronized,
+    this.chatContactsListVersion,
+    this.favoriteContactsSynchronized,
+    this.contactsSynchronized,
+    this.blocklistSynchronized,
+  });
+
   /// Persisted [FavoriteChatsListVersion] data.
-  @HiveField(0)
   FavoriteChatsListVersion? favoriteChatsListVersion;
 
   /// Persisted indicator whether all favorite [Chat]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(1)
   bool? favoriteChatsSynchronized;
 
   /// Persisted [ChatContactsListVersion] data.
-  @HiveField(2)
   ChatContactsListVersion? chatContactsListVersion;
 
   /// Persisted indicator whether all favorite [ChatContact]s are synchronized
   /// with the remote, meaning no queries should be made.
-  @HiveField(3)
   bool? favoriteContactsSynchronized;
 
   /// Persisted indicator whether all [ChatContact]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(4)
   bool? contactsSynchronized;
 
   /// Persisted indicator whether all blocked [User]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(5)
   bool? blocklistSynchronized;
+
+  /// Returns a copy of this [SessionData] from the [other].
+  SessionData copyFrom(SessionData other) {
+    return copyWith(
+      favoriteChatsListVersion: other.favoriteChatsListVersion,
+      favoriteChatsSynchronized: other.favoriteChatsSynchronized,
+      chatContactsListVersion: other.chatContactsListVersion,
+      favoriteContactsSynchronized: other.favoriteContactsSynchronized,
+      contactsSynchronized: other.contactsSynchronized,
+      blocklistSynchronized: other.blocklistSynchronized,
+    );
+  }
+
+  /// Returns a copy of this [SessionData].
+  SessionData copyWith({
+    FavoriteChatsListVersion? favoriteChatsListVersion,
+    bool? favoriteChatsSynchronized,
+    ChatContactsListVersion? chatContactsListVersion,
+    bool? favoriteContactsSynchronized,
+    bool? contactsSynchronized,
+    bool? blocklistSynchronized,
+  }) {
+    return SessionData(
+      favoriteChatsListVersion:
+          this.favoriteChatsListVersion ?? favoriteChatsListVersion,
+      favoriteChatsSynchronized:
+          this.favoriteChatsSynchronized ?? favoriteChatsSynchronized,
+      chatContactsListVersion:
+          this.chatContactsListVersion ?? chatContactsListVersion,
+      favoriteContactsSynchronized:
+          this.favoriteContactsSynchronized ?? favoriteContactsSynchronized,
+      contactsSynchronized: this.contactsSynchronized ?? contactsSynchronized,
+      blocklistSynchronized:
+          this.blocklistSynchronized ?? blocklistSynchronized,
+    );
+  }
 }

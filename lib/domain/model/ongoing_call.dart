@@ -367,7 +367,7 @@ class OngoingCall {
       false;
 
   /// Indicates whether the current authorized [MyUser] is the caller.
-  bool get outgoing => me.id.userId == caller?.id || caller == null;
+  bool get outgoing => _me.userId == caller?.id || caller == null;
 
   /// Indicates whether [isActive] was `true` at least once during the lifecycle
   /// of this [OngoingCall].

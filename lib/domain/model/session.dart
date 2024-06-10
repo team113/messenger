@@ -15,18 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
 
-part 'session.g.dart';
-
 /// Session of a [MyUser] being signed-in.
-@HiveType(typeId: ModelTypeId.session)
 class Session {
   const Session({
     required this.id,
@@ -36,25 +30,20 @@ class Session {
   });
 
   /// Unique ID of this [Session].
-  @HiveField(0)
   final SessionId id;
 
   /// [UserAgent] of the device, that used this [Session] last time.
-  @HiveField(1)
   final UserAgent userAgent;
 
   /// Indicator whether this [Session] is [MyUser]'s current [Session].
-  @HiveField(2)
   final bool isCurrent;
 
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
-  @HiveField(3)
   final PreciseDateTime lastActivatedAt;
 }
 
 /// Type of [Session]'s ID.
-@HiveType(typeId: ModelTypeId.sessionId)
 class SessionId extends NewType<String> {
   const SessionId(super.val);
 }
@@ -65,13 +54,11 @@ class SessionId extends NewType<String> {
 /// requirements:
 /// - consist only from ASCII characters;
 /// - contain at least one non-space-like character.
-@HiveType(typeId: ModelTypeId.userAgent)
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
 }
 
 /// Token used for authenticating a [Session].
-@HiveType(typeId: ModelTypeId.accessToken)
 class AccessToken {
   const AccessToken(this.secret, this.expireAt);
 
@@ -80,7 +67,6 @@ class AccessToken {
   /// This one should be used as a [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
-  @HiveField(0)
   final AccessTokenSecret secret;
 
   /// [DateTime] of this [AccessToken] expiration.
@@ -91,18 +77,15 @@ class AccessToken {
   /// Client applications are supposed to use this field for tracking
   /// [AccessToken]'s expiration and refresh the [Session] before an
   /// authentication error occurs.
-  @HiveField(1)
   final PreciseDateTime expireAt;
 }
 
 /// Type of [AccessToken]'s secret.
-@HiveType(typeId: ModelTypeId.accessTokenSecret)
 class AccessTokenSecret extends NewType<String> {
   const AccessTokenSecret(super.val);
 }
 
 /// Token used for refreshing a [Session].
-@HiveType(typeId: ModelTypeId.refreshToken)
 class RefreshToken {
   const RefreshToken(this.secret, this.expireAt);
 
@@ -112,7 +95,6 @@ class RefreshToken {
   /// **NOT** usable as a [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
-  @HiveField(0)
   final RefreshTokenSecret secret;
 
   /// [DateTime] of this [RefreshToken] expiration.
@@ -125,34 +107,28 @@ class RefreshToken {
   ///
   /// Expiration of a [RefreshToken] is not prolonged on refreshing, and remains
   /// the same for all the [RefreshToken]s obtained.
-  @HiveField(1)
   final PreciseDateTime expireAt;
 }
 
 /// Type of [RefreshToken]'s secret.
-@HiveType(typeId: ModelTypeId.refreshTokenSecret)
 class RefreshTokenSecret extends NewType<String> {
   const RefreshTokenSecret(super.val);
 }
 
 /// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
-@HiveType(typeId: ModelTypeId.credentials)
 class Credentials {
   const Credentials(this.access, this.refresh, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
   /// It will expire in 30 minutes after creation.
-  @HiveField(0)
   final AccessToken access;
 
   /// [RefreshToken] of these [Credentials].
-  @HiveField(1)
   final RefreshToken refresh;
 
   /// ID of the currently authenticated [MyUser].
-  @HiveField(2)
   final UserId userId;
 
   /// Constructs [Credentials] from the provided [data].

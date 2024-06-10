@@ -15,33 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive_flutter/adapters.dart';
+import 'dart:typed_data';
 
-import '/util/log.dart';
-import 'base.dart';
+/// Persisted in storage background's [Uint8List] value.
+class DtoBackground {
+  const DtoBackground(this.bytes);
 
-/// [Hive] storage for a skipped [Release] version.
-class SkippedVersionHiveProvider extends HiveBaseProvider<String> {
-  @override
-  Stream<BoxEvent> get boxEvents => box.watch(key: 0);
-
-  @override
-  String get boxName => 'skipped_version';
-
-  @override
-  void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
-  }
-
-  /// Returns the skipped version from [Hive].
-  String? get() {
-    Log.trace('get()', '$runtimeType');
-    return getSafe(0);
-  }
-
-  /// Stores the new skipped version to [Hive].
-  Future<void> set(String version) async {
-    Log.trace('set($version)', '$runtimeType');
-    await putSafe(0, version);
-  }
+  /// Persisted background itself.
+  final Uint8List bytes;
 }

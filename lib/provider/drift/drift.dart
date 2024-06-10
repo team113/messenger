@@ -15,30 +15,66 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:drift/drift.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:get/get.dart' show DisposableInterface;
 import 'package:log_me/log_me.dart';
 
+import '/config.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
+import 'account.dart';
+import 'background.dart';
+import 'blocklist.dart';
+import 'cache.dart';
+import 'call_credentials.dart';
+import 'call_rect.dart';
+import 'chat.dart';
+import 'chat_credentials.dart';
 import 'chat_item.dart';
 import 'chat_member.dart';
 import 'common.dart';
 import 'connection/connection.dart';
+import 'credentials.dart';
+import 'download.dart';
+import 'draft.dart';
+import 'monolog.dart';
 import 'my_user.dart';
+import 'settings.dart';
+import 'skipped_version.dart';
 import 'user.dart';
+import 'version.dart';
+import 'window.dart';
 
 part 'drift.g.dart';
 
 /// [DriftDatabase] storing common and shared between multiple [MyUser]s data.
-@DriftDatabase(tables: [MyUsers])
+@DriftDatabase(
+  tables: [
+    Accounts,
+    Background,
+    Cache,
+    CacheSummary,
+    Downloads,
+    Monologs,
+    MyUsers,
+    Settings,
+    SkippedVersions,
+    Tokens,
+    Versions,
+    WindowRectangles,
+  ],
+)
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.commonVersion;
 
   @override
   MigrationStrategy get migration {
@@ -59,6 +95,9 @@ class CommonDatabase extends _$CommonDatabase {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
         await customStatement('PRAGMA foreign_keys = ON;');
+
+        // Note, that WAL doesn't work in Web:
+        // https://github.com/simolus3/sqlite3.dart/issues/200
         await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
@@ -88,7 +127,18 @@ class CommonDatabase extends _$CommonDatabase {
 
 /// [DriftDatabase] storing [MyUser] scoped data.
 @DriftDatabase(
-  tables: [Users, ChatItems, ChatItemViews, ChatMembers],
+  tables: [
+    Blocklist,
+    CallCredentials,
+    CallRectangles,
+    ChatCredentials,
+    ChatItems,
+    ChatItemViews,
+    ChatMembers,
+    Chats,
+    Drafts,
+    Users,
+  ],
   queries: {
     'chatItemsAround': ''
         'SELECT * FROM '
@@ -112,7 +162,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   final UserId userId;
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => Config.scopedVersion;
 
   @override
   MigrationStrategy get migration {
@@ -133,6 +183,9 @@ class ScopedDatabase extends _$ScopedDatabase {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
         await customStatement('PRAGMA foreign_keys = ON;');
+
+        // Note, that WAL doesn't work in Web:
+        // https://github.com/simolus3/sqlite3.dart/issues/200
         await customStatement('PRAGMA journal_mode = WAL;');
       },
     );
@@ -141,6 +194,11 @@ class ScopedDatabase extends _$ScopedDatabase {
   /// Creates all tables, triggers, views, indexes and everything else defined
   /// in the database, if they don't exist.
   Future<void> create() async {
+    // Don't warn about multiple [ScopedDatabase]s being created, as this is the
+    // expected behaviour: we open a new one for each authorized [UserId] to
+    // separate data of different [MyUser]s from each other.
+    driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
+
     await createMigrator().createAll();
   }
 
@@ -181,7 +239,7 @@ final class CommonDriftProvider extends DisposableInterface {
   }
 
   @override
-  void onClose() async {
+  void onClose() {
     Log.debug('onClose()', '$runtimeType');
     db = null;
     super.onClose();
@@ -217,6 +275,15 @@ final class ScopedDriftProvider extends DisposableInterface {
   /// `null` here means the database is closed.
   ScopedDatabase? db;
 
+  /// [Completer]s of [wrapped] operations to await in [onClose].
+  final List<Completer> _completers = [];
+
+  /// [StreamController]s of [stream]s to cancel in [onClose].
+  final List<StreamController> _controllers = [];
+
+  /// [StreamSubscription]s to executors of [stream]s to cancel in [onClose].
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void onInit() async {
     Log.debug('onInit()', '$runtimeType');
@@ -225,9 +292,25 @@ final class ScopedDriftProvider extends DisposableInterface {
   }
 
   @override
-  void onClose() async {
+  void onClose() {
     Log.debug('onClose()', '$runtimeType');
+
+    final ScopedDatabase? connection = db;
     db = null;
+
+    // Close all the active streams.
+    for (var e in _subscriptions) {
+      e.cancel();
+    }
+    for (var e in _controllers) {
+      e.close();
+    }
+
+    // Wait for all operations to complete, disallowing new ones.
+    Future.wait(_completers.map((e) => e.future)).then((_) async {
+      await connection?.close();
+    });
+
     super.onClose();
   }
 
@@ -245,11 +328,68 @@ final class ScopedDriftProvider extends DisposableInterface {
     db = null;
     await future;
   }
+
+  /// Completes the provided [action] in a wrapped safe environment.
+  Future<T?> wrapped<T>(Future<T?> Function(ScopedDatabase) action) async {
+    if (isClosed || db == null) {
+      return null;
+    }
+
+    final Completer completer = Completer();
+    _completers.add(completer);
+
+    try {
+      return await action(db!);
+    } finally {
+      completer.complete();
+      _completers.remove(completer);
+    }
+  }
+
+  /// Returns the [Stream] executed in a wrapped safe environment.
+  Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
+    if (isClosed || db == null) {
+      return const Stream.empty();
+    }
+
+    StreamSubscription? subscription;
+    StreamController<T>? controller;
+
+    controller = StreamController(
+      onListen: () {
+        if (isClosed || db == null) {
+          return;
+        }
+
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+
+        subscription = executor(db!).listen(
+          controller?.add,
+          onError: controller?.addError,
+          onDone: () => controller?.close(),
+        );
+
+        _subscriptions.add(subscription!);
+      },
+      onCancel: () {
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+      },
+    );
+    _controllers.add(controller);
+
+    return controller.stream;
+  }
 }
 
 /// [CommonDriftProvider] with common helper and utility methods over it.
-abstract class DriftProviderBase {
-  const DriftProviderBase(this._provider);
+abstract class DriftProviderBase extends DisposableInterface {
+  DriftProviderBase(this._provider);
 
   /// [CommonDriftProvider] itself.
   final CommonDriftProvider _provider;
@@ -261,6 +401,10 @@ abstract class DriftProviderBase {
 
   /// Completes the provided [action] as a [db] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
+    if (isClosed || db == null) {
+      return;
+    }
+
     await db?.transaction(action);
   }
 
@@ -269,7 +413,7 @@ abstract class DriftProviderBase {
   ///
   /// [CommonDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(CommonDatabase db) callback) async {
-    if (db == null) {
+    if (isClosed || db == null) {
       return null;
     }
 
@@ -278,8 +422,8 @@ abstract class DriftProviderBase {
 }
 
 /// [ScopedDriftProvider] with common helper and utility methods over it.
-abstract class DriftProviderBaseWithScope {
-  const DriftProviderBaseWithScope(this._common, this._scoped);
+abstract class DriftProviderBaseWithScope extends DisposableInterface {
+  DriftProviderBaseWithScope(this._common, this._scoped);
 
   /// [CommonDriftProvider] itself.
   final CommonDriftProvider _common;
@@ -292,14 +436,11 @@ abstract class DriftProviderBaseWithScope {
   /// `null` here means the database is closed.
   CommonDatabase? get common => _common.db;
 
-  /// Returns the [ScopedDatabase].
-  ///
-  /// `null` here means the database is closed.
-  ScopedDatabase? get scoped => _scoped.db;
-
-  /// Completes the provided [action] as a [scoped] transaction.
+  /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    await scoped?.transaction(action);
+    await _scoped.wrapped((db) async {
+      await db.transaction(action);
+    });
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
@@ -307,10 +448,22 @@ abstract class DriftProviderBaseWithScope {
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
-    if (scoped == null) {
-      return null;
+    if (PlatformUtils.isWeb) {
+      // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
+      // API: https://github.com/simolus3/sqlite3.dart/issues/200
+      return await WebUtils.protect(
+        tag: '${_scoped.db?.userId}',
+        () async => await _scoped.wrapped(callback),
+      );
     }
 
-    return await callback(scoped!);
+    return await _scoped.wrapped(callback);
+  }
+
+  /// Listens to the [executor] through a non-closed [ScopedDatabase].
+  ///
+  /// [ScopedDatabase] may be closed, for example, between E2E tests.
+  Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
+    return _scoped.stream(executor);
   }
 }

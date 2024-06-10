@@ -829,6 +829,7 @@ class ChatController extends GetxController {
 
         unreadMessages = chat!.chat.value.unreadCount;
 
+        await chat!.ensureDraft();
         final ChatMessage? draft = chat!.draft.value;
 
         if (send.field.text.isEmpty) {
@@ -974,7 +975,7 @@ class ChatController extends GetxController {
 
           await chat!.around();
 
-          // Required in order for [Hive.boxEvents] to add the messages.
+          // Required in order for local storage to add the messages.
           await Future.delayed(Duration.zero);
 
           final Rx<ChatItem>? firstUnread = _firstUnread;
@@ -1931,7 +1932,9 @@ class ChatController extends GetxController {
       final ListElementId elementId = ListElementId(item.at, item.id);
       final ListElement? previous = elements[elements.firstKeyAfter(elementId)];
 
-      if (previous != null && previous.id.id == chat?.chat.value.lastReadItem) {
+      if (_unreadElement == null &&
+          previous != null &&
+          previous.id.id == chat?.chat.value.lastReadItem) {
         _unreadElement = UnreadMessagesElement(
           e.value.at.subtract(const Duration(microseconds: 1)),
         );

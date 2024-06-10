@@ -48,14 +48,14 @@ class Backoff {
 
           try {
             return await callback();
-          } catch (e, stackTrace) {
+          } catch (e, s) {
             if (backoff.inMilliseconds == 0) {
               backoff = _minBackoff;
             } else if (backoff < _maxBackoff) {
               backoff *= 2;
             }
 
-            Log.error('${e.toString()}, StackTrace: $stackTrace', 'Backoff');
+            Log.error('${e.toString()}, StackTrace: $s', 'Backoff');
           }
         }
       }),

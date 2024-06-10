@@ -15,36 +15,29 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive_flutter/hive_flutter.dart';
+import '/domain/model/user.dart';
+import 'my_user.dart';
 
-import '/domain/model/chat.dart';
-import '/util/log.dart';
-import 'base.dart';
+/// Persisted in storage [BlocklistRecord]'s [value].
+class DtoBlocklistRecord implements Comparable<DtoBlocklistRecord> {
+  DtoBlocklistRecord(this.value, this.cursor);
 
-/// [Hive] storage for [ChatId] of a [Chat]-monolog of the authenticated
-/// [MyUser].
-class MonologHiveProvider extends HiveBaseProvider<ChatId> {
+  /// Persisted [BlocklistRecord] model.
+  final BlocklistRecord value;
+
+  /// Cursor of the [value].
+  final BlocklistCursor? cursor;
+
+  /// Returns the [UserId] of the [value].
+  UserId get userId => value.userId;
+
   @override
-  Stream<BoxEvent> get boxEvents => box.watch();
+  int compareTo(DtoBlocklistRecord other) {
+    final result = value.at.compareTo(other.value.at);
+    if (result == 0) {
+      return userId.val.compareTo(other.userId.val);
+    }
 
-  @override
-  String get boxName => 'monolog';
-
-  @override
-  void registerAdapters() {
-    Log.debug('registerAdapters()', '$runtimeType');
-    Hive.maybeRegisterAdapter(ChatIdAdapter());
-  }
-
-  /// Returns the stored [ChatId] from [Hive].
-  ChatId? get() {
-    Log.trace('get()', '$runtimeType');
-    return getSafe(0);
-  }
-
-  /// Saves the provided [ChatId] to [Hive].
-  Future<void> set(ChatId id) async {
-    Log.trace('set($id)', '$runtimeType');
-    await putSafe(0, id);
+    return result;
   }
 }

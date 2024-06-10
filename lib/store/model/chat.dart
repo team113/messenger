@@ -15,41 +15,93 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
+import 'chat_item.dart';
 import 'version.dart';
 
-part 'chat.g.dart';
+/// Persisted in storage [Chat]'s [value].
+class DtoChat {
+  DtoChat(
+    this.value,
+    this.ver,
+    this.lastItemCursor,
+    this.lastReadItemCursor,
+    this.recentCursor,
+    this.favoriteCursor,
+  );
+
+  /// Persisted [Chat] model.
+  Chat value;
+
+  /// Version of this [Chat]'s state.
+  ///
+  /// It increases monotonically, so may be used (and is intended to) for
+  /// tracking state's actuality.
+  ChatVersion ver;
+
+  /// Cursor of a [Chat.lastItem].
+  ChatItemsCursor? lastItemCursor;
+
+  /// Cursor of a [Chat.lastReadItem].
+  ChatItemsCursor? lastReadItemCursor;
+
+  /// Cursor of the [value] when paginating through recent [Chat]s.
+  RecentChatsCursor? recentCursor;
+
+  /// Cursor of the [value] when paginating through favorite [Chat]s.
+  FavoriteChatsCursor? favoriteCursor;
+
+  /// Returns the [ChatId] of the [value].
+  ChatId get id => value.id;
+
+  @override
+  String toString() =>
+      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChat &&
+        value == other.value &&
+        ver == other.ver &&
+        lastItemCursor == other.lastItemCursor &&
+        lastReadItemCursor == other.lastReadItemCursor &&
+        recentCursor == other.recentCursor &&
+        favoriteCursor == other.favoriteCursor;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        value,
+        ver,
+        lastItemCursor,
+        lastReadItemCursor,
+        recentCursor,
+        favoriteCursor,
+      );
+}
 
 /// Version of a [Chat]'s state.
-@HiveType(typeId: ModelTypeId.chatVersion)
 class ChatVersion extends Version {
   ChatVersion(super.val);
 }
 
 /// Cursor used for recent [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.recentChatsCursor)
 class RecentChatsCursor extends NewType<String> {
   RecentChatsCursor(super.val);
 }
 
 /// Cursor used for favorite [Chat]s pagination.
-@HiveType(typeId: ModelTypeId.favoriteChatsCursor)
 class FavoriteChatsCursor extends NewType<String> {
   FavoriteChatsCursor(super.val);
 }
 
 /// Version of a favorite [Chat]s list.
-@HiveType(typeId: ModelTypeId.favoriteChatsListVersion)
 class FavoriteChatsListVersion extends Version {
   FavoriteChatsListVersion(super.val);
 }
 
 /// Cursor of a [ChatMember].
-@HiveType(typeId: ModelTypeId.chatMembersCursor)
 class ChatMembersCursor extends NewType<String> {
   ChatMembersCursor(super.val);
 }

@@ -295,21 +295,22 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
+email_confirmation_code =
+    Код подтверждения {$domain}: {$token}
+    Действителен до {$expiresAt}.
+    {$domain}
+email_confirmation_code_subject = Код подтверждения {$domain}
 email_password_recovery =
     Код восстановления {$domain}: {$token}
     Действителен до {$expiresAt}.
     {$domain}
 email_password_recovery_subject = Код восстановления {$domain}
-email_verification_code =
-    Код подтверждения {$domain}: {$token}
-    Действителен до {$expiresAt}.
-    {$domain}
-email_verification_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
 err_blocked_by_multiple = Один или несколько выбранных пользователей внесли Вас в чёрный список.
+err_blocklist_reason_does_not_meet_regexp = Причина блокировки должна содержать от 2 до 100 символов.
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -526,6 +527,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } исключил Вас из группы
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
@@ -1082,7 +1084,7 @@ label_tech_stack_freelance =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1091,7 +1093,7 @@ label_tech_stack_frontend_developer =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.

@@ -1022,7 +1022,8 @@ class ChatsTabView extends StatelessWidget {
                                             ),
                                           );
                                         }),
-                                        if (c.hasNext.isTrue)
+                                        if (c.hasNext.isTrue ||
+                                            c.status.value.isLoadingMore)
                                           Center(
                                             child: CustomProgressIndicator(
                                               key: const Key('ChatsLoading'),

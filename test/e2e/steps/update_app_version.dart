@@ -15,8 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/config.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/util/get.dart';
 
 import '../world/custom_world.dart';
 
@@ -26,5 +29,15 @@ import '../world/custom_world.dart';
 /// - When application version is updated
 final StepDefinitionGeneric updateAppVersion = then<CustomWorld>(
   'application version is updated',
-  (context) async => Future.sync(() => Config.version = 'test.0.0.1'),
+  (context) async {
+    Config.commonVersion += 1;
+
+    final CommonDriftProvider? drift = Get.findOrNull<CommonDriftProvider>();
+
+    await drift?.db?.migration.onUpgrade(
+      drift.db!.createMigrator(),
+      Config.commonVersion - 1,
+      Config.commonVersion,
+    );
+  },
 );

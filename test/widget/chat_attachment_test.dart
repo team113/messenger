@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/attachment.dart';
@@ -42,31 +41,24 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
-import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -97,8 +89,6 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  Hive.init('./test/.temp_hive/chat_attachment_widget');
-
   Config.files = 'test';
 
   var graphQlProvider = MockGraphQlProvider();
@@ -121,20 +111,21 @@ void main() async {
     graphQlProvider.contactsEvents(any),
   ).thenAnswer((_) => contactEvents.stream);
 
-  when(graphQlProvider
-          .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer(
-          (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+  when(graphQlProvider.getChat(
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+  )).thenAnswer(
+    (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+  );
 
   when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb4')))
-      .thenAnswer((_) => Future.value(null));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb4'),
+  )).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
-      .thenAnswer((_) => Future.value(null));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
+  )).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.favoriteChatContacts(
     first: anyNamed('first'),
@@ -153,46 +144,51 @@ void main() async {
     after: null,
     last: null,
   )).thenAnswer(
-      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
+    (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
+  );
 
   when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0')))
-      .thenAnswer((_) => Future.value(null));
+    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0'),
+  )).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     last: 50,
-  )).thenAnswer((_) => Future.value(GetMessages$Query.fromJson({
-        'chat': {
-          'items': {
-            'edges': [],
-            'pageInfo': {
-              'endCursor': 'endCursor',
-              'hasNextPage': false,
-              'startCursor': 'startCursor',
-              'hasPreviousPage': false,
-            }
+  )).thenAnswer(
+    (_) => Future.value(GetMessages$Query.fromJson({
+      'chat': {
+        'items': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
           }
         }
-      })));
+      }
+    })),
+  );
 
   when(graphQlProvider.chatMembers(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
     first: anyNamed('first'),
-  )).thenAnswer((_) => Future.value(GetMembers$Query.fromJson({
-        'chat': {
-          'members': {
-            'edges': [],
-            'pageInfo': {
-              'endCursor': 'endCursor',
-              'hasNextPage': false,
-              'startCursor': 'startCursor',
-              'hasPreviousPage': false,
-            }
+  )).thenAnswer(
+    (_) => Future.value(GetMembers$Query.fromJson({
+      'chat': {
+        'members': {
+          'edges': [],
+          'pageInfo': {
+            'endCursor': 'endCursor',
+            'hasNextPage': false,
+            'startCursor': 'startCursor',
+            'hasPreviousPage': false,
           }
         }
-      })));
+      }
+    })),
+  );
 
   when(graphQlProvider.chatItem(any)).thenAnswer(
     (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
@@ -257,9 +253,10 @@ void main() async {
       source: null,
     ));
     return Future.value(
-        PostChatMessage$Mutation.fromJson({'postChatMessage': event})
-                .postChatMessage
-            as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned);
+      PostChatMessage$Mutation.fromJson({'postChatMessage': event})
+              .postChatMessage
+          as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned,
+    );
   });
 
   when(
@@ -267,7 +264,9 @@ void main() async {
       any,
       onSendProgress: anyNamed('onSendProgress'),
     ),
-  ).thenAnswer((_) => Future.value((UploadAttachment$Mutation.fromJson({
+  ).thenAnswer(
+    (_) => Future.value((UploadAttachment$Mutation.fromJson(
+      {
         'uploadAttachment': {
           '__typename': 'UploadAttachmentOk',
           'attachment': {
@@ -278,8 +277,10 @@ void main() async {
             'size': 2
           }
         }
-      })).uploadAttachment
-          as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk));
+      },
+    )).uploadAttachment
+        as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk),
+  );
 
   when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
@@ -321,14 +322,11 @@ void main() async {
   )).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
 
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
-  await credentialsProvider.init();
-  await credentialsProvider.clear();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
-  accountProvider.set(const UserId('me'));
-  credentialsProvider.put(
+  await accountProvider.upsert(const UserId('me'));
+  await credentialsProvider.upsert(
     Credentials(
       AccessToken(
         const AccessTokenSecret('token'),
@@ -342,49 +340,22 @@ void main() async {
     ),
   );
 
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
-  var draftProvider = Get.put(DraftHiveProvider());
-  await draftProvider.init();
-  await draftProvider.clear();
+  final settingsProvider = Get.put(SettingsDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
-  await chatProvider.clear();
-  var settingsProvider = MediaSettingsHiveProvider();
-  await settingsProvider.init();
-  await settingsProvider.clear();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
-  await blockedUsersProvider.init();
-  var monologProvider = MonologHiveProvider();
-  await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
-  var blocklistSortingProvider = BlocklistSortingHiveProvider();
-  await blocklistSortingProvider.init();
-
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+  final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+  final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final callCredentialsProvider =
+      Get.put(CallCredentialsDriftProvider(common, scoped));
+  final chatCredentialsProvider =
+      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+  final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+  final monologProvider = Get.put(MonologDriftProvider(common));
+  final sessionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -423,16 +394,17 @@ void main() async {
     final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        blockedUsersProvider,
-        blocklistSortingProvider,
+        blocklistProvider,
         userRepository,
         sessionProvider,
+        myUserProvider,
+        me: const UserId('me'),
       ),
     );
     final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
+        const UserId('me'),
         settingsProvider,
-        applicationSettingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -452,8 +424,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -475,11 +445,9 @@ void main() async {
     final contactRepository = Get.put(
       ContactRepository(
         graphQlProvider,
-        contactProvider,
-        favoriteContactHiveProvider,
-        contactSortingHiveProvider,
         userRepository,
         sessionProvider,
+        me: const UserId('me'),
       ),
     );
     Get.put(ContactService(contactRepository));
@@ -493,8 +461,6 @@ void main() async {
       child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
 
-    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
-    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
       await tester.runAsync(() => Future.delayed(1.milliseconds));

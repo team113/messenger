@@ -21,7 +21,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -34,12 +33,10 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/account.dart';
 import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/account.dart';
-import '/provider/hive/blocklist.dart';
-import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -48,6 +45,7 @@ import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
+import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'user.dart';
 
@@ -79,8 +77,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// Local storage of the [MyUser]s.
   final MyUserDriftProvider _driftMyUser;
 
-  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
-  final AccountHiveProvider _accountLocal;
+  /// Storage providing the [UserId] of the currently active [MyUser].
+  final AccountDriftProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -623,7 +621,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Populates the [profiles] with values stored in the [_myUserLocal].
+  /// Populates the [profiles] with values stored in the [_driftMyUser].
   Future<void> _initProfiles() async {
     Log.debug('_initProfiles()', '$runtimeType');
 
@@ -632,7 +630,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     }
   }
 
-  /// Initializes [MyUserHiveProvider.boxEvents] subscription.
+  /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
 
@@ -755,7 +753,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     );
   }
 
-  /// Saves the provided [user] in [Hive].
+  /// Saves the provided [user] to the local storage.
   Future<void> _setMyUser(DtoMyUser user, {bool ignoreVersion = false}) async {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
@@ -1012,7 +1010,7 @@ class MyUserRepository implements AbstractMyUserRepository {
                 userEntity.value.blocklistCount! + 1;
           }
           _blocklistRepo.put(
-            HiveBlocklistRecord(event.user.value.isBlocked!, null),
+            DtoBlocklistRecord(event.user.value.isBlocked!, null),
           );
           break;
 
@@ -1052,10 +1050,7 @@ class MyUserRepository implements AbstractMyUserRepository {
             as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'MyUser') {
-        Log.debug(
-          '_myUserRemoteEvents(ver): MyUser',
-          '$runtimeType',
-        );
+        Log.debug('_myUserRemoteEvents(ver): MyUser', '$runtimeType');
 
         events as MyUserEvents$Subscription$MyUserEvents$MyUser;
 
@@ -1230,7 +1225,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
             _myUserRemoteEvent(event, updateVersion: false);
 
-            // Wait for [Hive] to update the [DtoMyUser] from
+            // Wait for local storage to update the [DtoMyUser] from
             // [_myUserRemoteEvent].
             await Future.delayed(Duration.zero);
           }

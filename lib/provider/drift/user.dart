@@ -132,25 +132,22 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]
   /// identified by the provided [id].
   Stream<DtoUser?> watch(UserId id) {
-    if (scoped == null) {
-      return const Stream.empty();
-    }
+    return stream((db) {
+      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
 
-    final stmt = scoped!.select(scoped!.users)
-      ..where((u) => u.id.equals(id.val));
+      StreamController<DtoUser?>? controller = _controllers[id];
+      if (controller == null) {
+        controller = StreamController<DtoUser?>.broadcast(sync: true);
+        _controllers[id] = controller;
+      }
 
-    StreamController<DtoUser?>? controller = _controllers[id];
-    if (controller == null) {
-      controller = StreamController<DtoUser?>.broadcast(sync: true);
-      _controllers[id] = controller;
-    }
-
-    return StreamGroup.merge(
-      [
-        controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
-      ],
-    );
+      return StreamGroup.merge(
+        [
+          controller.stream,
+          stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
+        ],
+      );
+    });
   }
 }
 

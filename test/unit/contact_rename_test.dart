@@ -18,22 +18,17 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/contact.dart';
 import 'package:messenger/domain/service/contact.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
-import 'package:messenger/provider/hive/session_data.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -43,26 +38,12 @@ import 'contact_rename_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  Hive.init('./test/.temp_hive/contact_rename_unit');
-
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var credentialsHiveProvider = Get.put(CredentialsHiveProvider());
-  await credentialsHiveProvider.init();
-  await credentialsHiveProvider.clear();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
-  await chatHiveProvider.init();
-  var sessionDataHiveProvider = Get.put(SessionDataHiveProvider());
-  await sessionDataHiveProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
+  final sessionProvider = Get.put(VersionDriftProvider(common));
   final graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any))
@@ -72,8 +53,7 @@ void main() async {
 
   setUp(() async {
     Get.reset();
-    await credentialsHiveProvider.clear();
-    await contactProvider.clear();
+    await credentialsProvider.clear();
   });
 
   var chatContact = {
@@ -142,11 +122,9 @@ void main() async {
         Get.put<AbstractContactRepository>(
       ContactRepository(
         graphQlProvider,
-        contactProvider,
-        favoriteContactHiveProvider,
-        contactSortingHiveProvider,
         userRepo,
-        sessionDataHiveProvider,
+        sessionProvider,
+        me: const UserId('me'),
       ),
     );
 

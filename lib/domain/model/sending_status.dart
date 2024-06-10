@@ -16,27 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
-
-import '/domain/model_type_id.dart';
-
-part 'sending_status.g.dart';
 
 /// Sending status of some request, e.g. posting a [ChatItem] or uploading an
 /// [Attachment].
-@HiveType(typeId: ModelTypeId.sendingStatus)
 enum SendingStatus {
   /// Request is sending.
-  @HiveField(0)
   sending,
 
   /// Successfully sent.
-  @HiveField(1)
   sent,
 
   /// Error occurred.
-  @HiveField(2)
   error,
 }
 

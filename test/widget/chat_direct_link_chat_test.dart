@@ -21,7 +21,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
@@ -37,31 +36,24 @@ import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
 import 'package:messenger/domain/service/user.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/chat_item.dart';
 import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/contact_sorting.dart';
-import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/favorite_contact.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
@@ -89,20 +81,15 @@ void main() async {
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  Hive.init('./test/.temp_hive/chat_direct_link_widget');
-
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
 
   final myUserProvider = Get.put(MyUserDriftProvider(common));
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
-  await credentialsProvider.init();
-  await credentialsProvider.clear();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
-  accountProvider.set(const UserId('me'));
-  credentialsProvider.put(
+  await accountProvider.upsert(const UserId('me'));
+  await credentialsProvider.upsert(
     Credentials(
       AccessToken(
         const AccessTokenSecret('token'),
@@ -146,47 +133,21 @@ void main() async {
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
 
-  var contactProvider = Get.put(ContactHiveProvider());
-  await contactProvider.init();
-  await contactProvider.clear();
+  final settingsProvider = Get.put(SettingsDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
-  await chatProvider.clear();
-  var draftProvider = Get.put(DraftHiveProvider());
-  await draftProvider.init();
-  await draftProvider.clear();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
-  await mediaSettingsProvider.init();
-  await mediaSettingsProvider.clear();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
-  final callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
-  await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  var favoriteContactHiveProvider = Get.put(FavoriteContactHiveProvider());
-  await favoriteContactHiveProvider.init();
-  var contactSortingHiveProvider = Get.put(ContactSortingHiveProvider());
-  await contactSortingHiveProvider.init();
-  var blocklistProvider = BlocklistHiveProvider();
-  await blocklistProvider.init();
-  var blocklistSortingProvider = BlocklistSortingHiveProvider();
-  await blocklistSortingProvider.init();
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+  final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+  final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final callCredentialsProvider =
+      Get.put(CallCredentialsDriftProvider(common, scoped));
+  final chatCredentialsProvider =
+      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+  final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+  final monologProvider = Get.put(MonologDriftProvider(common));
+  final sessionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -333,8 +294,8 @@ void main() async {
         Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -353,8 +314,6 @@ void main() async {
         chatProvider,
         chatItemProvider,
         chatMemberProvider,
-        recentChatProvider,
-        favoriteChatProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -365,11 +324,9 @@ void main() async {
     );
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
-      contactProvider,
-      favoriteContactHiveProvider,
-      contactSortingHiveProvider,
       UserRepository(graphQlProvider, userProvider),
       sessionProvider,
+      me: const UserId('me'),
     );
 
     Get.put(ContactService(contactRepository));
@@ -380,9 +337,10 @@ void main() async {
     BlocklistRepository blocklistRepository = BlocklistRepository(
       graphQlProvider,
       blocklistProvider,
-      blocklistSortingProvider,
       userRepository,
       sessionProvider,
+      myUserProvider,
+      me: const UserId('me'),
     );
 
     MyUserRepository myUserRepository = Get.put(
@@ -400,8 +358,6 @@ void main() async {
       child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
     ));
 
-    // TODO: This waits for lazy [Hive] boxes to finish receiving events, which
-    //       should be done in a more strict way.
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
@@ -430,7 +386,6 @@ void main() async {
     await Get.deleteAll(force: true);
   });
 
-  await contactProvider.clear();
   await chatProvider.clear();
 }
 

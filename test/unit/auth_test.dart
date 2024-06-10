@@ -17,19 +17,18 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:mockito/annotations.dart';
@@ -46,13 +45,9 @@ void main() async {
 
   Get.put(ScopedDriftProvider.memory(), permanent: true);
 
-  Hive.init('./test/.temp_hive/unit_auth');
-
   final myUserProvider = Get.put(MyUserDriftProvider(common));
-  final credsProvider = CredentialsHiveProvider();
-  final accountProvider = AccountHiveProvider();
-  await credsProvider.init();
-  await accountProvider.init();
+  final credsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
   setUp(() async {
     Get.reset();
@@ -124,7 +119,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
 
     await authService.signIn(UserPassword('123'), login: UserLogin('user'));
 
@@ -142,8 +137,8 @@ void main() async {
   });
 
   test('AuthService successfully logins with saved session', () async {
-    accountProvider.set(const UserId('me'));
-    credsProvider.put(
+    await accountProvider.upsert(const UserId('me'));
+    await credsProvider.upsert(
       Credentials(
         AccessToken(
           const AccessTokenSecret('token'),
@@ -170,7 +165,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), null);
+    expect(await authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -204,7 +199,7 @@ void main() async {
       accountProvider,
     ));
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
     try {
       await authService.signIn(UserPassword('123'));
       fail('Exception is not thrown');

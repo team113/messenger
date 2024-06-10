@@ -25,7 +25,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat.dart';
 import '/store/chat.dart';
 import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
@@ -73,9 +72,9 @@ extension ChatConversion on ChatMixin {
         membersCount: members.totalCount,
       );
 
-  /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
-      HiveChat(
+  /// Constructs a new [DtoChat] from this [ChatMixin].
+  DtoChat toDto(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      DtoChat(
         toModel(),
         ver,
         lastItem?.cursor,
@@ -90,7 +89,7 @@ extension ChatConversion on ChatMixin {
     var lastReadItem = this.lastReadItem?.toDto();
 
     return ChatData(
-      toHive(recent, favorite),
+      toDto(recent, favorite),
       lastItem,
       lastReadItem,
     );

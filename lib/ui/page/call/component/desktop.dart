@@ -874,6 +874,10 @@ Widget desktopCall(CallController c, BuildContext context) {
         // This includes the screen size changes.
         c.applyConstraints(context);
 
+        if (c.hidden.value) {
+          return const SizedBox();
+        }
+
         // Returns a [Scaler] scaling the minimized view.
         Widget scaler({
           Key? key,

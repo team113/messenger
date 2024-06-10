@@ -17,10 +17,8 @@
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import '/api/backend/schema.dart' show ChatKind;
 import '/util/new_type.dart';
 import 'avatar.dart';
@@ -35,8 +33,7 @@ import 'user_call_cover.dart';
 part 'chat.g.dart';
 
 /// [Chat] is a conversation between [User]s.
-@HiveType(typeId: ModelTypeId.chat)
-class Chat extends HiveObject implements Comparable<Chat> {
+class Chat implements Comparable<Chat> {
   Chat(
     this.id, {
     this.avatar,
@@ -50,6 +47,7 @@ class Chat extends HiveObject implements Comparable<Chat> {
     PreciseDateTime? updatedAt,
     this.lastReads = const [],
     PreciseDateTime? lastDelivery,
+    this.firstItem,
     this.lastItem,
     this.lastReadItem,
     this.unreadCount = 0,
@@ -62,25 +60,20 @@ class Chat extends HiveObject implements Comparable<Chat> {
         lastDelivery = lastDelivery ?? PreciseDateTime.now();
 
   /// Unique ID of this [Chat].
-  @HiveField(0)
   ChatId id;
 
   /// Avatar of this [Chat].
-  @HiveField(1)
   ChatAvatar? avatar;
 
   /// Name of this [Chat].
   ///
   /// Only [Chat]-group can have a name.
-  @HiveField(2)
   ChatName? name;
 
   /// [ChatMember]s of this [Chat].
-  @HiveField(3)
   List<ChatMember> members;
 
   /// Kind of this [Chat].
-  @HiveField(4)
   int kindIndex;
 
   ChatKind get kind => ChatKind.values[kindIndex];
@@ -89,7 +82,6 @@ class Chat extends HiveObject implements Comparable<Chat> {
   }
 
   /// Indicator whether this [Chat] is hidden by the authenticated [MyUser].
-  @HiveField(5)
   bool isHidden;
 
   /// Mute condition of this [Chat] for the authenticated [MyUser].
@@ -101,43 +93,35 @@ class Chat extends HiveObject implements Comparable<Chat> {
   /// Note, that [Chat.muted] doesn't correlate with [MyUser.muted]. Muted
   /// [Chat] of unmuted [MyUser] (and unmuted [Chat] of muted [MyUser]) should
   /// not produce any sounds.
-  @HiveField(6)
   MuteDuration? muted;
 
   /// [ChatDirectLink] to this [Chat].
-  @HiveField(7)
   ChatDirectLink? directLink;
 
   /// [PreciseDateTime] when this [Chat] was created.
-  @HiveField(8)
   PreciseDateTime createdAt;
 
   /// [PreciseDateTime] when the last [ChatItem] was posted.
-  @HiveField(9)
   PreciseDateTime updatedAt;
 
   /// List of this [Chat]'s members which have read it, along with the
   /// corresponding [LastChatRead]s.
-  @HiveField(10)
   List<LastChatRead> lastReads;
 
   /// [PreciseDateTime] when the last [ChatItem] posted by the authenticated
   /// [MyUser] was delivered.
-  @HiveField(11)
   PreciseDateTime lastDelivery;
 
   /// First [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
-  @HiveField(12)
   ChatItem? firstItem;
 
   /// Last [ChatItem] posted in this [Chat].
   ///
   /// If [Chat] has no visible [ChatItem]s for the authenticated [MyUser], then
   /// it's `null`.
-  @HiveField(13)
   ChatItem? lastItem;
 
   /// ID of the last [ChatItem] read by the authenticated [MyUser] in this
@@ -145,28 +129,22 @@ class Chat extends HiveObject implements Comparable<Chat> {
   ///
   /// If [Chat] hasn't been read yet, or has no visible [ChatItem]s for the
   /// authenticated [MyUser], then it's `null`.
-  @HiveField(14)
   ChatItemId? lastReadItem;
 
   /// Count of [ChatItem]s unread by the authenticated [MyUser] in this [Chat].
-  @HiveField(15)
   int unreadCount;
 
   /// Count of [ChatItem]s visible to the authenticated [MyUser] in this [Chat].
-  @HiveField(16)
   int totalCount;
 
   /// Current ongoing [ChatCall] of this [Chat], if any.
-  @HiveField(17)
   ChatCall? ongoingCall;
 
   /// Position of this [Chat] in the favorites list of the authenticated
   /// [MyUser].
-  @HiveField(18)
   ChatFavoritePosition? favoritePosition;
 
   /// Total count of [members] in this [Chat].
-  @HiveField(19)
   int membersCount;
 
   /// Indicates whether this [Chat] is a monolog.
@@ -303,11 +281,60 @@ class Chat extends HiveObject implements Comparable<Chat> {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is Chat &&
+        compareTo(other) == 0 &&
+        id == other.id &&
+        avatar == other.avatar &&
+        name == other.name &&
+        const ListEquality().equals(members, other.members) &&
+        kindIndex == other.kindIndex &&
+        isHidden == other.isHidden &&
+        muted == other.muted &&
+        directLink == other.directLink &&
+        createdAt == other.createdAt &&
+        updatedAt == other.updatedAt &&
+        const ListEquality().equals(lastReads, other.lastReads) &&
+        lastDelivery == other.lastDelivery &&
+        firstItem == other.firstItem &&
+        lastItem == other.lastItem &&
+        lastReadItem == other.lastReadItem &&
+        unreadCount == other.unreadCount &&
+        totalCount == other.totalCount &&
+        ongoingCall == other.ongoingCall &&
+        favoritePosition == other.favoritePosition &&
+        membersCount == other.membersCount;
+  }
+
+  @override
+  int get hashCode => Object.hash(
+        id,
+        avatar,
+        name,
+        members,
+        kindIndex,
+        isHidden,
+        muted,
+        directLink,
+        createdAt,
+        updatedAt,
+        lastReads,
+        lastDelivery,
+        firstItem,
+        lastItem,
+        lastReadItem,
+        unreadCount,
+        totalCount,
+        ongoingCall,
+        favoritePosition,
+        membersCount,
+      );
 }
 
 /// Member of a [Chat].
 @JsonSerializable()
-@HiveType(typeId: ModelTypeId.chatMember)
 class ChatMember implements Comparable<ChatMember> {
   ChatMember(this.user, this.joinedAt);
 
@@ -316,11 +343,9 @@ class ChatMember implements Comparable<ChatMember> {
       _$ChatMemberFromJson(json);
 
   /// [User] represented by this [ChatMember].
-  @HiveField(0)
   User user;
 
   /// [PreciseDateTime] when the [User] became a [ChatMember].
-  @HiveField(1)
   final PreciseDateTime joinedAt;
 
   @override
@@ -335,24 +360,48 @@ class ChatMember implements Comparable<ChatMember> {
 
   /// Returns a [Map] representing this [ChatMember].
   Map<String, dynamic> toJson() => _$ChatMemberToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMember &&
+        user.id == other.user.id &&
+        joinedAt == other.joinedAt;
+  }
+
+  @override
+  int get hashCode => Object.hash(user, joinedAt);
 }
 
 /// [PreciseDateTime] of when a [Chat] was read last time by a [User].
-@HiveType(typeId: ModelTypeId.lastChatRead)
+@JsonSerializable()
 class LastChatRead {
   LastChatRead(this.memberId, this.at);
 
+  /// Constructs a [LastChatRead] from the provided [json].
+  factory LastChatRead.fromJson(Map<String, dynamic> json) =>
+      _$LastChatReadFromJson(json);
+
   /// ID of the [User] who read the [Chat].
-  @HiveField(0)
   final UserId memberId;
 
   /// [PreciseDateTime] when the [Chat] was read last time.
-  @HiveField(1)
   PreciseDateTime at;
+
+  /// Returns a [Map] representing this [LastChatRead].
+  Map<String, dynamic> toJson() => _$LastChatReadToJson(this);
+
+  @override
+  bool operator ==(Object other) {
+    return other is LastChatRead &&
+        memberId == other.memberId &&
+        at == other.at;
+  }
+
+  @override
+  int get hashCode => Object.hash(memberId, at);
 }
 
 /// Unique ID of a [Chat].
-@HiveType(typeId: ModelTypeId.chatId)
 class ChatId extends NewType<String> implements Comparable<ChatId> {
   const ChatId(super.val);
 
@@ -385,7 +434,6 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 /// Name of a [Chat].
 ///
 /// Only [Chat]-group can have a name.
-@HiveType(typeId: ModelTypeId.chatName)
 class ChatName extends NewType<String> {
   const ChatName._(super.val);
 
@@ -419,7 +467,6 @@ class ChatName extends NewType<String> {
 }
 
 /// Position of this [Chat] in the favorites list of the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.chatFavoritePosition)
 class ChatFavoritePosition extends NewType<double>
     implements Comparable<ChatFavoritePosition> {
   const ChatFavoritePosition(super.val);

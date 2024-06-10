@@ -42,28 +42,19 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/blocklist.dart';
+import 'provider/drift/call_credentials.dart';
+import 'provider/drift/call_rect.dart';
+import 'provider/drift/chat.dart';
+import 'provider/drift/chat_credentials.dart';
 import 'provider/drift/chat_item.dart';
 import 'provider/drift/chat_member.dart';
+import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
+import 'provider/drift/monolog.dart';
 import 'provider/drift/user.dart';
+import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/application_settings.dart';
-import 'provider/hive/background.dart';
-import 'provider/hive/blocklist.dart';
-import 'provider/hive/blocklist_sorting.dart';
-import 'provider/hive/call_credentials.dart';
-import 'provider/hive/call_rect.dart';
-import 'provider/hive/chat.dart';
-import 'provider/hive/chat_credentials.dart';
-import 'provider/hive/contact.dart';
-import 'provider/hive/contact_sorting.dart';
-import 'provider/hive/draft.dart';
-import 'provider/hive/favorite_chat.dart';
-import 'provider/hive/favorite_contact.dart';
-import 'provider/hive/media_settings.dart';
-import 'provider/hive/monolog.dart';
-import 'provider/hive/recent_chat.dart';
-import 'provider/hive/session_data.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -497,55 +488,38 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: PopupCallView(
             chatId: id,
             depsFactory: () async {
-              ScopedDependencies deps = ScopedDependencies();
-              UserId me = _state._auth.userId!;
-
-              await Future.wait([
-                deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(RecentChatHiveProvider()).init(userId: me),
-                deps.put(FavoriteChatHiveProvider()).init(userId: me),
-                deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(BlocklistHiveProvider()).init(userId: me),
-                deps.put(BlocklistSortingHiveProvider()).init(userId: me),
-                deps.put(ContactHiveProvider()).init(userId: me),
-                deps.put(FavoriteContactHiveProvider()).init(userId: me),
-                deps.put(ContactSortingHiveProvider()).init(userId: me),
-                deps.put(MediaSettingsHiveProvider()).init(userId: me),
-                deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
-                deps.put(BackgroundHiveProvider()).init(userId: me),
-                deps.put(CallCredentialsHiveProvider()).init(userId: me),
-                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
-                deps.put(DraftHiveProvider()).init(userId: me),
-                deps.put(CallRectHiveProvider()).init(userId: me),
-                deps.put(MonologHiveProvider()).init(userId: me),
-              ]);
+              final ScopedDependencies deps = ScopedDependencies();
+              final UserId me = _state._auth.userId!;
 
               final ScopedDriftProvider scoped = deps
-                  .put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+                  .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
               deps.put(UserDriftProvider(Get.find(), scoped));
               deps.put(ChatItemDriftProvider(Get.find(), scoped));
               deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+              deps.put(ChatDriftProvider(Get.find(), scoped));
+              deps.put(BlocklistDriftProvider(Get.find(), scoped));
+              deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(CallRectDriftProvider(Get.find(), scoped));
+              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(DraftDriftProvider(Get.find(), scoped));
+              await deps.put(VersionDriftProvider(Get.find())).init();
 
-              AbstractSettingsRepository settingsRepository =
+              final AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                ),
+                SettingsRepository(me, Get.find(), Get.find(), Get.find()),
               );
 
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
 
-              GraphQlProvider graphQlProvider = Get.find();
-              UserRepository userRepository =
+              final GraphQlProvider graphQlProvider = Get.find();
+              final UserRepository userRepository =
                   UserRepository(graphQlProvider, Get.find());
               deps.put<AbstractUserRepository>(userRepository);
-              AbstractCallRepository callRepository =
+              final AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(
                 CallRepository(
                   graphQlProvider,
@@ -556,12 +530,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
-              AbstractChatRepository chatRepository =
+              final AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
-                  Get.find(),
-                  Get.find(),
                   Get.find(),
                   Get.find(),
                   Get.find(),
@@ -576,28 +548,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               userRepository.getChat = chatRepository.get;
 
-              AbstractContactRepository contactRepository =
+              final AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
                   graphQlProvider,
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
                   userRepository,
                   Get.find(),
+                  me: me,
                 ),
               );
               userRepository.getContact = contactRepository.get;
 
-              BlocklistRepository blocklistRepository = BlocklistRepository(
+              final BlocklistRepository blocklistRepository =
+                  BlocklistRepository(
                 graphQlProvider,
-                Get.find(),
                 Get.find(),
                 userRepository,
                 Get.find(),
+                Get.find(),
+                me: me,
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
-              AbstractMyUserRepository myUserRepository =
+              final AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
@@ -611,7 +583,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
-              ChatService chatService =
+              final ChatService chatService =
                   deps.put(ChatService(chatRepository, Get.find()));
               deps.put(CallService(
                 Get.find(),
@@ -643,46 +615,38 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             final ScopedDependencies deps = ScopedDependencies();
 
-            await Future.wait([
-              deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(RecentChatHiveProvider()).init(userId: me),
-              deps.put(FavoriteChatHiveProvider()).init(userId: me),
-              deps.put(SessionDataHiveProvider()).init(userId: me),
-              deps.put(BlocklistHiveProvider()).init(userId: me),
-              deps.put(BlocklistSortingHiveProvider()).init(userId: me),
-              deps.put(ContactHiveProvider()).init(userId: me),
-              deps.put(FavoriteContactHiveProvider()).init(userId: me),
-              deps.put(ContactSortingHiveProvider()).init(userId: me),
-              deps.put(MediaSettingsHiveProvider()).init(userId: me),
-              deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
-              deps.put(BackgroundHiveProvider()).init(userId: me),
-              deps.put(CallCredentialsHiveProvider()).init(userId: me),
-              deps.put(ChatCredentialsHiveProvider()).init(userId: me),
-              deps.put(DraftHiveProvider()).init(userId: me),
-              deps.put(CallRectHiveProvider()).init(userId: me),
-              deps.put(MonologHiveProvider()).init(userId: me),
-            ]);
+            final ScopedDriftProvider scoped = deps
+                .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
-            final ScopedDriftProvider scoped =
-                deps.put(ScopedDriftProvider.from(Get.put(ScopedDatabase(me))));
+            final CommonDriftProvider common = Get.find();
 
-            deps.put(UserDriftProvider(Get.find(), scoped));
-            deps.put(ChatItemDriftProvider(Get.find(), scoped));
-            deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+            final userProvider = deps.put(UserDriftProvider(common, scoped));
+            final chatProvider = deps.put(ChatDriftProvider(common, scoped));
+            final chatItemProvider =
+                deps.put(ChatItemDriftProvider(common, scoped));
+            final chatMemberProvider =
+                deps.put(ChatMemberDriftProvider(common, scoped));
+            final blocklistProvider =
+                deps.put(BlocklistDriftProvider(common, scoped));
+            final callCredsProvider =
+                deps.put(CallCredentialsDriftProvider(common, scoped));
+            final chatCredsProvider =
+                deps.put(ChatCredentialsDriftProvider(common, scoped));
+            final callRectProvider =
+                deps.put(CallRectDriftProvider(common, scoped));
+            final monologProvider = deps.put(MonologDriftProvider(common));
+            final draftProvider = deps.put(DraftDriftProvider(common, scoped));
+            final sessionProvider = deps.put(VersionDriftProvider(common));
+            await sessionProvider.init();
 
-            GraphQlProvider graphQlProvider = Get.find();
+            final GraphQlProvider graphQlProvider = Get.find();
 
-            NotificationService notificationService =
+            final NotificationService notificationService =
                 deps.put(NotificationService(graphQlProvider));
 
-            AbstractSettingsRepository settingsRepository =
+            final AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                Get.find(),
-              ),
+              SettingsRepository(me, Get.find(), Get.find(), callRectProvider),
             );
 
             // Should be initialized before any [L10n]-dependant entities as
@@ -709,30 +673,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               onBackground: handlePushNotification,
             );
 
-            UserRepository userRepository =
-                UserRepository(graphQlProvider, Get.find());
+            final UserRepository userRepository =
+                UserRepository(graphQlProvider, userProvider);
             deps.put<AbstractUserRepository>(userRepository);
-            CallRepository callRepository = CallRepository(
+            final CallRepository callRepository = CallRepository(
               graphQlProvider,
               userRepository,
-              Get.find(),
-              Get.find(),
+              callCredsProvider,
+              chatCredsProvider,
               settingsRepository,
               me: me,
             );
             deps.put<AbstractCallRepository>(callRepository);
-            ChatRepository chatRepository = ChatRepository(
+            final ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
-              Get.find(),
-              Get.find(),
-              Get.find(),
-              Get.find(),
-              Get.find(),
+              chatProvider,
+              chatItemProvider,
+              chatMemberProvider,
               callRepository,
-              Get.find(),
+              draftProvider,
               userRepository,
-              Get.find(),
-              Get.find(),
+              sessionProvider,
+              monologProvider,
               me: me,
             );
             deps.put<AbstractChatRepository>(chatRepository);
@@ -741,28 +703,27 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             callRepository.ensureRemoteDialog =
                 chatRepository.ensureRemoteDialog;
 
-            AbstractContactRepository contactRepository =
+            final AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
                 graphQlProvider,
-                Get.find(),
-                Get.find(),
-                Get.find(),
                 userRepository,
-                Get.find(),
+                sessionProvider,
+                me: me,
               ),
             );
             userRepository.getContact = contactRepository.get;
 
-            BlocklistRepository blocklistRepository = BlocklistRepository(
+            final BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
-              Get.find(),
-              Get.find(),
+              blocklistProvider,
               userRepository,
+              sessionProvider,
               Get.find(),
+              me: me,
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
-            AbstractMyUserRepository myUserRepository =
+            final AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
@@ -773,13 +734,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            MyUserService myUserService =
+            final MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
-            ChatService chatService =
+            final ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
-            CallService callService = deps.put(CallService(
+            final CallService callService = deps.put(CallService(
               Get.find(),
               chatService,
               callRepository,
