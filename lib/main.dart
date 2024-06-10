@@ -23,6 +23,7 @@ library main;
 
 import 'dart:async';
 
+import 'package:app_links/app_links.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -137,6 +138,8 @@ Future<void> main() async {
 
       await windowManager.show();
 
+      WebUtils.registerScheme().onError((_, __) => false);
+
       Get.put(WindowWorker(preferences));
     }
 
@@ -150,7 +153,28 @@ Future<void> main() async {
     final authService = Get.put(
       AuthService(authRepository, Get.find(), Get.find()),
     );
-    router = RouterState(authService);
+
+    Uri? initial;
+    try {
+      final AppLinks links = AppLinks();
+      initial = await links.getInitialLink();
+      Log.debug('initial -> $initial', 'AppLinks');
+
+      _linkSubscription?.cancel();
+      _linkSubscription = links.uriLinkStream.listen((uri) async {
+        Log.debug('uriLinkStream -> $uri', 'AppLinks');
+        router.delegate.setNewRoutePath(
+          await router.parser.parseRouteInformation(RouteInformation(uri: uri)),
+        );
+      });
+    } catch (e) {
+      // No-op.
+    }
+
+    router = RouterState(
+      authService,
+      initial: initial == null ? null : RouteInformation(uri: initial),
+    );
 
     await authService.init();
     await L10n.init();
@@ -439,3 +463,6 @@ class App extends StatelessWidget {
     );
   }
 }
+
+/// [AppLinks.uriLinkStream] subscription.
+StreamSubscription? _linkSubscription;

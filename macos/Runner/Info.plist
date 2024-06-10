@@ -32,5 +32,16 @@
   <string>We need access to your camera to take photos/videos</string>
   <key>NSMicrophoneUsageDescription</key>
   <string>We need access to your microphone to record it</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>scheme</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>gapopa</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>

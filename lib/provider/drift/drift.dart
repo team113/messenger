@@ -233,16 +233,18 @@ final class CommonDriftProvider extends DisposableInterface {
 
   @override
   void onInit() async {
+    super.onInit();
+
     Log.debug('onInit()', '$runtimeType');
     await db?.create();
-    super.onInit();
   }
 
   @override
   void onClose() {
+    super.onClose();
+
     Log.debug('onClose()', '$runtimeType');
     db = null;
-    super.onClose();
   }
 
   /// Closes this [CommonDriftProvider].

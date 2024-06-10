@@ -15,12 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
@@ -144,9 +147,15 @@ enum ProfileTab {
 /// Any change requires [notifyListeners] to be invoked in order for the router
 /// to update its state.
 class RouterState extends ChangeNotifier {
-  RouterState(this._auth) {
+  RouterState(this._auth, {RouteInformation? initial}) {
     delegate = AppRouterDelegate(this);
     parser = AppRouteInformationParser();
+
+    if (initial != null) {
+      provider = PlatformRouteInformationProvider(
+        initialRouteInformation: initial,
+      );
+    }
   }
 
   /// Application's [RouterDelegate].
@@ -338,8 +347,19 @@ class AppRouteInformationParser
   SynchronousFuture<RouteConfiguration> parseRouteInformation(
     RouteInformation routeInformation,
   ) {
-    String route = routeInformation.uri.path;
+    String route = routeInformation.uri.toString();
     HomeTab? tab;
+
+    if (Config.scheme.isNotEmpty) {
+      route = route.replaceFirst('${Config.scheme}:/', '');
+    }
+
+    // Omit the scheme from the route, which may be present when a deep link is
+    // being parsed.
+    if (route.startsWith('http://') || route.startsWith('https://')) {
+      route = route.replaceFirst('https://', '').replaceFirst('http://', '');
+      route = route.substring(max(route.indexOf('/'), 0));
+    }
 
     if (route.startsWith(Routes.chats)) {
       tab = HomeTab.chats;
@@ -347,8 +367,7 @@ class AppRouteInformationParser
       tab = HomeTab.menu;
     }
 
-    if (route == Routes.work ||
-        route == Routes.contacts ||
+    if (route == Routes.contacts ||
         route == Routes.chats ||
         route == Routes.menu) {
       route = Routes.home;
