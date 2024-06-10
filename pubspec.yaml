@@ -154,6 +154,12 @@ dependency_overrides:
       path: packages/image_picker/image_picker_ios
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
+  # TODO: Remove, when `media_kit` removes `msvcp140` dlls from Windows libs:
+  #       https://github.com/media-kit/media-kit/issues/846
+  media_kit_libs_windows_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit.git
+      path: libs/windows/media_kit_libs_windows_video
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
 

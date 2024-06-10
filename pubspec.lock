@@ -1225,10 +1225,11 @@ packages:
   media_kit_libs_windows_video:
     dependency: "direct main"
     description:
-      name: media_kit_libs_windows_video
-      sha256: "7bace5f35d9afcc7f9b5cdadb7541d2191a66bb3fc71bfa11c1395b3360f6122"
-      url: "https://pub.dev"
-    source: hosted
+      path: "libs/windows/media_kit_libs_windows_video"
+      ref: HEAD
+      resolved-ref: "65b5e81e8fb37e9039df7a6ef65874b1658e8750"
+      url: "https://github.com/SleepySquash/media-kit.git"
+    source: git
     version: "1.0.9"
   media_kit_native_event_loop:
     dependency: "direct main"
