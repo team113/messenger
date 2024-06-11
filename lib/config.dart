@@ -129,6 +129,10 @@ class Config {
   /// be sure to write migrations and test them.
   static int scopedVersion = 1;
 
+  /// Custom URL scheme to associate the application with when opening the deep
+  /// links.
+  static String scheme = 'gapopa';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -233,6 +237,10 @@ class Config {
     repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
         ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
         : (document['legal']?['repository'] ?? repository);
+
+    scheme = const bool.hasEnvironment('SOCAPP_LINK_SCHEME')
+        ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
+        : (document['link']?['scheme'] ?? scheme);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

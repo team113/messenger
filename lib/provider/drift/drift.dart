@@ -233,16 +233,18 @@ final class CommonDriftProvider extends DisposableInterface {
 
   @override
   void onInit() async {
+    super.onInit();
+
     Log.debug('onInit()', '$runtimeType');
     await db?.create();
-    super.onInit();
   }
 
   @override
   void onClose() {
+    super.onClose();
+
     Log.debug('onClose()', '$runtimeType');
     db = null;
-    super.onClose();
   }
 
   /// Closes this [CommonDriftProvider].
@@ -286,13 +288,16 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   @override
   void onInit() async {
+    super.onInit();
+
     Log.debug('onInit()', '$runtimeType');
     await db?.create();
-    super.onInit();
   }
 
   @override
   void onClose() {
+    super.onClose();
+
     Log.debug('onClose()', '$runtimeType');
 
     final ScopedDatabase? connection = db;
@@ -310,8 +315,6 @@ final class ScopedDriftProvider extends DisposableInterface {
     Future.wait(_completers.map((e) => e.future)).then((_) async {
       await connection?.close();
     });
-
-    super.onClose();
   }
 
   /// Closes this [ScopedDriftProvider].

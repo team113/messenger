@@ -29,6 +29,7 @@ import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
+import 'package:win32_registry/win32_registry.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -269,6 +270,26 @@ class WebUtils {
   /// Deletes the loader element.
   static void deleteLoader() {
     // No-op.
+  }
+
+  /// Registers the custom [Config.scheme].
+  static Future<void> registerScheme() async {
+    if (PlatformUtils.isWindows) {
+      final RegistryKey regKey =
+          Registry.currentUser.createKey('Software\\Classes\\${Config.scheme}');
+
+      regKey.createValue(
+        const RegistryValue('URL Protocol', RegistryValueType.string, ''),
+      );
+
+      regKey.createKey('shell\\open\\command').createValue(
+            RegistryValue(
+              '',
+              RegistryValueType.string,
+              '"${Platform.resolvedExecutable}" "%1"',
+            ),
+          );
+    }
   }
 
   /// Returns the `User-Agent` header to put in the network queries.

@@ -125,6 +125,14 @@
 # Default:
 #   prefix = ""
 
+# Custom URL scheme to associate the application with when opening the deep
+# links.
+#
+# The trailing `://` should be omitted.
+#
+# Default:
+#   scheme = "gapopa"
+
 [appcast]
 # URL of a Sparkle Appcast XML file.
 #
