@@ -33,7 +33,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
-import 'package:js/js.dart';
 import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
@@ -51,64 +50,64 @@ import 'web_utils.dart';
 web.Navigator _navigator = web.window.navigator;
 
 @JS('document.documentElement.requestFullscreen')
-external dynamic requestFullscreen();
+external void requestFullscreen();
 
 @JS('document.documentElement.requestFullscreen')
-external dynamic requestFullscreenClosure;
+external JSFunction? requestFullscreenClosure;
 
 @JS('document.documentElement.mozRequestFullScreen')
-external dynamic mozRequestFullScreen();
+external void mozRequestFullScreen();
 
 @JS('document.documentElement.mozRequestFullScreen')
-external dynamic mozRequestFullScreenClosure;
+external JSFunction? mozRequestFullScreenClosure;
 
 @JS('document.documentElement.webkitRequestFullScreen')
-external dynamic webkitRequestFullScreen();
+external void webkitRequestFullScreen();
 
 @JS('document.documentElement.webkitRequestFullScreen')
-external dynamic webkitRequestFullScreenClosure;
+external JSFunction? webkitRequestFullScreenClosure;
 
 @JS('document.documentElement.msRequestFullscreen')
-external dynamic msRequestFullscreen();
+external void msRequestFullscreen();
 
 @JS('document.documentElement.msRequestFullscreen')
-external dynamic msRequestFullscreenClosure;
+external JSFunction? msRequestFullscreenClosure;
 
 @JS('document.exitFullscreen')
-external dynamic exitFullscreen();
+external void exitFullscreen();
 
 @JS('document.exitFullscreen')
-external dynamic exitFullscreenClosure;
+external JSFunction? exitFullscreenClosure;
 
 @JS('document.mozCancelFullScreen')
-external dynamic mozCancelFullScreen();
+external void mozCancelFullScreen();
 
 @JS('document.mozCancelFullScreen')
-external dynamic mozCancelFullScreenClosure;
+external JSFunction? mozCancelFullScreenClosure;
 
 @JS('document.webkitCancelFullScreen')
-external dynamic webkitCancelFullScreen();
+external void webkitCancelFullScreen();
 
 @JS('document.webkitCancelFullScreen')
-external dynamic webkitCancelFullScreenClosure;
+external JSFunction? webkitCancelFullScreenClosure;
 
 @JS('document.msExitFullscreen')
-external dynamic msExitFullscreen();
+external void msExitFullscreen();
 
 @JS('document.msExitFullscreen')
-external dynamic msExitFullscreenClosure;
+external JSFunction? msExitFullscreenClosure;
 
 @JS('document.fullscreenElement')
-external dynamic fullscreenElement;
+external JSAny? fullscreenElement;
 
 @JS('document.webkitFullscreenElement')
-external dynamic webkitFullscreenElement;
+external JSAny? webkitFullscreenElement;
 
 @JS('document.msFullscreenElement')
-external dynamic msFullscreenElement;
+external JSAny? msFullscreenElement;
 
 @JS('cleanIndexedDB')
-external JSPromise<JSAny?> cleanIndexedDB(dynamic);
+external JSPromise<JSAny?> cleanIndexedDB(String? except);
 
 @JS('window.isPopup')
 external bool _isPopup;
@@ -119,7 +118,7 @@ external bool _hasFocus();
 @JS('navigator.locks.request')
 external JSPromise<JSAny?> _requestLock(
   String resource,
-  dynamic Function(dynamic) callback,
+  JSExportedDartFunction callback,
 );
 
 @JS('getLocks')
@@ -365,22 +364,21 @@ class WebUtils {
 
       final Completer<T> completer = Completer();
 
+      JSPromise function(JSAny? any) {
+        return callback()
+            .then((val) => completer.complete(val))
+            .onError(
+              (e, stackTrace) => completer.completeError(
+                e ?? Exception(),
+                stackTrace,
+              ),
+            )
+            .toJS;
+      }
+
       try {
-        await _requestLock(
-          tag,
-          allowInterop(
-            (_) => callback()
-                .then((T val) => completer.complete(val))
-                .onError(
-                  (e, stackTrace) => completer.completeError(
-                    e ?? Exception(),
-                    stackTrace,
-                  ),
-                )
-                .toJS,
-          ),
-        ).toDart;
-      } catch (_) {
+        await _requestLock(tag, function.toJS).toDart;
+      } catch (e) {
         // If completer is completed, then the exception is already handled.
         if (!completer.isCompleted) {
           rethrow;
