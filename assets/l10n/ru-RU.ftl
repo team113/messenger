@@ -299,11 +299,6 @@ email_confirmation_code =
     Действителен до {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = Код подтверждения {$domain}
-email_password_recovery =
-    Код восстановления {$domain}: {$token}
-    Действителен до {$expiresAt}.
-    {$domain}
-email_password_recovery_subject = Код восстановления {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
