@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
-    if (dart.library.html) 'src/web.dart';
+    if (dart.library.js_interop) 'src/web.dart';
 import 'svgs.dart';
 
 export 'svgs.dart';

@@ -40,12 +40,12 @@ import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
 import 'package:web/web.dart' as web;
 
-import '../log.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
@@ -289,7 +289,8 @@ class WebUtils {
 
     controller = StreamController(
       onListen: () {
-        void fn(web.Event e) => controller?.add(e.getProperty('data'.toJS));
+        void fn(web.Event e) =>
+            controller?.add((e as web.MessageEvent).data.dartify());
         channel.onmessage = fn.toJS;
       },
       onCancel: () => channel.onmessage = null,
@@ -407,11 +408,6 @@ class WebUtils {
     }
   }
 
-  // TODO: Styles page related, should be removed at some point.
-  /// Downloads the file from [url] and saves it as [filename].
-  static Future<void> download(String url, String filename) async =>
-      await callMethod(web.document, 'webSaveAs', [url, filename]);
-
   /// Toggles browser's fullscreen to [enable], and returns the resulting
   /// fullscreen state.
   ///
@@ -456,17 +452,25 @@ class WebUtils {
     String? tag,
     String? icon,
   }) async {
-    final notification = web.Notification(
-      title,
-      web.NotificationOptions(
-        dir: dir ?? '123',
-        body: body ?? '123',
-        lang: lang ?? '123',
-        tag: tag ?? '123',
-        icon: icon ?? '123',
-        silent: false,
-      ),
-    );
+    final options = web.NotificationOptions();
+
+    if (dir != null) {
+      options.dir = dir;
+    }
+    if (body != null) {
+      options.body = body;
+    }
+    if (lang != null) {
+      options.lang = lang;
+    }
+    if (tag != null) {
+      options.tag = tag;
+    }
+    if (icon != null) {
+      options.icon = icon;
+    }
+
+    final notification = web.Notification(title, options);
 
     void fn(web.Event _) {
       onSelectNotification?.call(NotificationResponse(
@@ -647,7 +651,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query({'name': 'camera'}.toJSBox)
+          .query(web.PermissionDescriptor(name: 'camera'))
           .toDart;
       granted = permission.state == 'granted';
     }
@@ -675,7 +679,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query({'name': 'microphone'}.toJSBox)
+          .query(web.PermissionDescriptor(name: 'microphone'))
           .toDart;
       granted = permission.state == 'granted';
     }
