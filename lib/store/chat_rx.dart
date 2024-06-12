@@ -460,41 +460,40 @@ class RxChatImpl extends RxChat {
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   }) async {
-    Log.debug(
-      'setDraft($text, $attachments, $repliesTo)',
-      '$runtimeType($id)',
-    );
+    Log.debug('setDraft($text, $attachments, $repliesTo)', '$runtimeType($id)');
 
-    ChatMessage? draft = await _draftLocal.read(id);
+    await _draftGuard.protect(() async {
+      ChatMessage? draft = await _draftLocal.read(id);
 
-    if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
-      if (draft != null) {
-        await _draftLocal.delete(id);
-      }
-    } else {
-      final bool repliesEqual = const IterableEquality().equals(
-        (draft?.repliesTo ?? []).map((e) => e.original?.id),
-        repliesTo.map((e) => e.id),
-      );
-
-      final bool attachmentsEqual = const IterableEquality().equals(
-        (draft?.attachments ?? []).map((e) => [e.id, e.runtimeType]),
-        attachments.map((e) => [e.id, e.runtimeType]),
-      );
-
-      if (draft?.text != text || !repliesEqual || !attachmentsEqual) {
-        draft = ChatMessage(
-          ChatItemId.local(),
-          id,
-          User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
-          PreciseDateTime.now(),
-          text: text,
-          repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
-          attachments: attachments,
+      if (text == null && attachments.isEmpty && repliesTo.isEmpty) {
+        if (draft != null) {
+          await _draftLocal.delete(id);
+        }
+      } else {
+        final bool repliesEqual = const IterableEquality().equals(
+          (draft?.repliesTo ?? []).map((e) => e.original?.id),
+          repliesTo.map((e) => e.id),
         );
-        _draftLocal.upsert(id, draft);
+
+        final bool attachmentsEqual = const IterableEquality().equals(
+          (draft?.attachments ?? []).map((e) => [e.id, e.runtimeType]),
+          attachments.map((e) => [e.id, e.runtimeType]),
+        );
+
+        if (draft?.text != text || !repliesEqual || !attachmentsEqual) {
+          draft = ChatMessage(
+            ChatItemId.local(),
+            id,
+            User(me ?? const UserId('dummy'), UserNum('1234123412341234')),
+            PreciseDateTime.now(),
+            text: text,
+            repliesTo: repliesTo.map((e) => ChatItemQuote.from(e)).toList(),
+            attachments: attachments,
+          );
+          _draftLocal.upsert(id, draft);
+        }
       }
-    }
+    });
   }
 
   @override
