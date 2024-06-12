@@ -16,10 +16,10 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
 import 'package:flutter/widgets.dart';
+import 'package:web/web.dart' as web;
 
 /// Wrapper to prevent a default web context menu over its [child].
 class ContextMenuInterceptor extends StatelessWidget {
@@ -91,7 +91,7 @@ class ContextMenuInterceptor extends StatelessWidget {
     ui.platformViewRegistry.registerViewFactory(
       viewType,
       (int viewId) {
-        final html.Element htmlElement = html.DivElement()
+        final web.HTMLDivElement htmlElement = web.HTMLDivElement()
           ..style.width = '100%'
           ..style.height = '100%'
           ..setAttribute('oncontextmenu', 'return false;');

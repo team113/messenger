@@ -35,7 +35,7 @@ import '/util/rate_limiter.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
-    if (dart.library.html) 'websocket/web.dart' as websocket;
+    if (dart.library.js_interop) 'websocket/web.dart' as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {

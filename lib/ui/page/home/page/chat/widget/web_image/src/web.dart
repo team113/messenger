@@ -18,12 +18,12 @@
 // ignore_for_file: avoid_web_libraries_in_flutter
 
 import 'dart:async';
-import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web/web.dart' as web;
 
 import '/domain/model/file.dart';
 import '/ui/worker/cache.dart';
@@ -215,16 +215,16 @@ class _HtmlImage extends StatefulWidget {
 /// State of a [_HtmlImage] used to register and remove the actual HTML element
 /// representing an image.
 class _HtmlImageState extends State<_HtmlImage> {
-  /// Native [html.ImageElement] itself.
-  html.ImageElement? _element;
+  /// Native [web.HTMLImageElement] itself.
+  web.HTMLImageElement? _element;
 
   /// Unique identifier for a platform view.
   late int _elementId;
 
-  /// Subscription for [html.ImageElement.onLoad] stream.
+  /// Subscription for [web.ElementEventGetters.onLoad] stream.
   StreamSubscription? _loadSubscription;
 
-  /// Subscription for [html.ImageElement.onError] stream.
+  /// Subscription for [web.ElementEventGetters.onError] stream.
   StreamSubscription? _errorSubscription;
 
   /// Type of platform view to pass to [HtmlElementView].
@@ -273,7 +273,8 @@ class _HtmlImageState extends State<_HtmlImage> {
     ui.platformViewRegistry.registerViewFactory(
       _viewType,
       (int viewId) {
-        _element = html.ImageElement(src: widget.src)
+        _element = web.HTMLImageElement()
+          ..src = widget.src
           ..style.width = '100%'
           ..style.height = '100%'
           ..style.objectFit = 'scale-down';

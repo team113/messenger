@@ -21,7 +21,8 @@ import 'dart:async';
 import 'dart:collection';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:js' as js;
+import 'dart:js_interop' as js;
+import 'dart:js_interop_unsafe';
 
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
@@ -258,7 +259,8 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   Uint8List? _imageBytes;
 
   /// Indicates whether the current renderer is `CanvasKit`.
-  bool get rendererCanvasKit => js.context['flutterCanvasKit'] != null;
+  bool get rendererCanvasKit =>
+      js.globalContext.getProperty('flutterCanvasKit'.toJS) != null;
 
   @override
   void initState() {
@@ -306,24 +308,30 @@ class _BrowserSvgState extends State<_BrowserSvg> {
           : Builder(builder: widget.placeholderBuilder!);
 
   @override
-  Widget build(BuildContext context) => _image == null
-      ? _buildPlaceholder(context)
-      : rendererCanvasKit
-          ? SvgPicture.memory(
-              _imageBytes!,
-              height: widget.height,
-              fit: widget.fit,
-              width: widget.width,
-            )
-          : Container(
-              height: widget.height,
-              width: widget.width,
-              alignment: Alignment.center,
-              child: Image.network(
-                _image!,
-                height: widget.height,
-                fit: widget.fit,
-                width: widget.width,
-              ),
-            );
+  Widget build(BuildContext context) {
+    if (_image == null) {
+      return _buildPlaceholder(context);
+    }
+
+    if (rendererCanvasKit) {
+      return SvgPicture.memory(
+        _imageBytes!,
+        height: widget.height,
+        fit: widget.fit,
+        width: widget.width,
+      );
+    }
+
+    return Container(
+      height: widget.height,
+      width: widget.width,
+      alignment: Alignment.center,
+      child: Image.network(
+        _image!,
+        height: widget.height,
+        fit: widget.fit,
+        width: widget.width,
+      ),
+    );
+  }
 }

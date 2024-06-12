@@ -22,7 +22,7 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 
-export 'non_web.dart' if (dart.library.html) 'web.dart';
+export 'non_web.dart' if (dart.library.js_interop) 'web.dart';
 
 /// Event happening in the browser's storage.
 class WebStorageEvent {

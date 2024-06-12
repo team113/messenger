@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-export 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
-import 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
+export 'src/non_web.dart' if (dart.library.js_interop) 'src/web.dart';
+import 'src/non_web.dart' if (dart.library.js_interop) 'src/web.dart';
 
 /// Extension adding [DateTime] to [PreciseDateTime] conversion method.
 extension DateTimeToPreciseDateTime on DateTime {
