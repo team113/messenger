@@ -156,6 +156,7 @@ extension _SettingsDb on DtoSettings {
         enablePopups: e.enablePopups,
         locale: e.locale,
         showIntroduction: e.showIntroduction,
+        sideBarWidth: e.sideBarWidth,
         callButtons:
             (jsonDecode(e.callButtons) as List).cast<String>().toList(),
         pinnedActions:
