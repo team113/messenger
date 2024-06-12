@@ -9,6 +9,7 @@ environment:
 dependencies:
   all_sensors: ^0.4.2
   animated_size_and_fade: ^4.0.0
+  app_links: ^6.1.1
   apple_product_name: ^3.0.0
   async: ^2.10.0
   audio_session: ^0.1.18
@@ -25,6 +26,7 @@ dependencies:
     git:
       url: https://github.com/krida2000/dough
       path: packages/dough/
+  drift: ^2.18.0
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^8.0.3
@@ -54,19 +56,18 @@ dependencies:
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.6
-  hive_flutter: ^1.1.0
-  hive: ^2.2.3
   http: ^0.13.6
   http_parser: ^4.0.2
   image_gallery_saver: ^2.0.3
   image_picker: ^1.1.1
   intl: ^0.17.0
   js: ^0.6.5
+  json_annotation: ^4.9.0
   just_audio: ^0.9.37
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
-  medea_jason: 0.5.0-dev+rev.251b8abfcd67b4d60821ed1f7c15484c29b640a9
+  medea_jason: 0.5.0-dev+rev.d615057ffe2c7031112c3047c1a11b4edc6c2454
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -95,6 +96,8 @@ dependencies:
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
   qr_flutter: ^4.1.0
+  sqlite3: ^2.4.3
+  sqlite3_flutter_libs: ^0.5.21
   stdlibc: ^0.1.4
   toml: ^0.15.0
   universal_io: ^2.2.2
@@ -106,6 +109,7 @@ dependencies:
   web: ^0.5.1
   win_toast: ^0.3.0
   win32: ^5.0.6
+  win32_registry: ^1.1.3
   window_manager: ^0.3.5
   windows_taskbar: ^1.1.1
   xml: ^6.5.0
@@ -115,6 +119,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.6
   dartdoc: 8.0.6 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
+  drift_dev: ^2.18.0
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -128,7 +133,6 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
-  hive_generator: ^2.0.0
   json_serializable: ^6.6.2
   mockito: ^5.4.2
   sentry_dart_plugin: ^1.2.0
@@ -145,12 +149,6 @@ dependency_overrides:
   gql_http_link: ^1.0.0
   # TODO: Remove when `artemis` updates.
   gql_link: ^1.0.0
-  # TODO: Remove when hivedb/hive#1034 is fixed:
-  #       https://github.com/hivedb/hive/issues/1034
-  hive:
-    git:
-      url: https://github.com/SleepySquash/hive.git
-      path: hive
   # TODO: Remove when `artemis` updates.
   http: ^1.1.0
   image_picker_ios:
@@ -159,6 +157,12 @@ dependency_overrides:
       path: packages/image_picker/image_picker_ios
   # TODO: Remove when `medea_jason` updates.
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
+  # TODO: Remove, when `media_kit` removes `msvcp140` dlls from Windows libs:
+  #       https://github.com/media-kit/media-kit/issues/846
+  media_kit_libs_windows_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit.git
+      path: libs/windows/media_kit_libs_windows_video
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
 

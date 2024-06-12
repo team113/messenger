@@ -11,13 +11,29 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0-alpha.14) | [Milestone](/../../milestone/24)
 
+### Added
+
+- UI:
+    - Home page:
+        - Link tab. ([#1012])
+- Deep links. ([#1035], [#799])
+
 ### Changed
 
 - UI:
     - Update available popup displaying critical updates. ([#973], [#896])
+    - Home page:
+        - Removed contacts tab. ([#1012])
+        - Removed work with us tab. ([#1012])
+    - Chat page:
+        - Direct links in messages opening within application. ([#1012], [#800])
 
+[#799]: /../../issues/799
+[#800]: /../../issues/800
 [#896]: /../../issues/896
 [#973]: /../../pull/973
+[#1012]: /../../pull/1012
+[#1035]: /../../pull/1035
 
 
 

@@ -33,6 +33,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.4.1"
+  analyzer_plugin:
+    dependency: transitive
+    description:
+      name: analyzer_plugin
+      sha256: "9661b30b13a685efaee9f02e5d01ed9f2b423bd889d28a304d02d704aee69161"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.11.3"
   animated_size_and_fade:
     dependency: "direct main"
     description:
@@ -49,6 +57,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.2"
+  app_links:
+    dependency: "direct main"
+    description:
+      name: app_links
+      sha256: "96e677810b83707ff5e10fac11e4839daa0ea4e0123c35864c092699165eb3db"
+      url: "https://pub.dev"
+    source: hosted
+    version: "6.1.1"
   apple_product_name:
     dependency: "direct main"
     description:
@@ -193,6 +209,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
+  charcode:
+    dependency: transitive
+    description:
+      name: charcode
+      sha256: fb98c0f6d12c920a02ee2d998da788bca066ca5f148492b7085ee23372b12306
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.3.1"
   checked_yaml:
     dependency: transitive
     description:
@@ -201,6 +225,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.3"
+  cli_util:
+    dependency: transitive
+    description:
+      name: cli_util
+      sha256: c05b7406fdabc7a49a3929d4af76bcaccbbffcbcdcf185b082e1ae07da323d19
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.4.1"
   clock:
     dependency: transitive
     description:
@@ -347,6 +379,22 @@ packages:
       url: "https://github.com/krida2000/dough"
     source: git
     version: "1.0.3"
+  drift:
+    dependency: "direct main"
+    description:
+      name: drift
+      sha256: "6acedc562ffeed308049f78fb1906abad3d65714580b6745441ee6d50ec564cd"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.18.0"
+  drift_dev:
+    dependency: "direct dev"
+    description:
+      name: drift_dev
+      sha256: d9b020736ea85fff1568699ce18b89fabb3f0f042e8a7a05e84a3ec20d39acde
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.18.0"
   email_validator:
     dependency: "direct main"
     description:
@@ -832,31 +880,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.3.1"
+  gtk:
+    dependency: transitive
+    description:
+      name: gtk
+      sha256: e8ce9ca4b1df106e4d72dad201d345ea1a036cc12c360f1a7d5a758f78ffa42c
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.1.0"
   hive:
-    dependency: "direct main"
+    dependency: transitive
     description:
-      path: hive
-      ref: HEAD
-      resolved-ref: "2eb95a3febe4192aebfab97611399ee6787b910b"
-      url: "https://github.com/SleepySquash/hive.git"
-    source: git
+      name: hive
+      sha256: "8dcf6db979d7933da8217edcec84e9df1bdb4e4edc7fc77dbd5aa74356d6d941"
+      url: "https://pub.dev"
+    source: hosted
     version: "2.2.3"
-  hive_flutter:
-    dependency: "direct main"
-    description:
-      name: hive_flutter
-      sha256: dca1da446b1d808a51689fb5d0c6c9510c0a2ba01e22805d492c73b68e33eecc
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.0"
-  hive_generator:
-    dependency: "direct dev"
-    description:
-      name: hive_generator
-      sha256: "06cb8f58ace74de61f63500564931f9505368f45f98958bd7a6c35ba24159db4"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.1"
   html:
     dependency: transitive
     description:
@@ -1016,7 +1055,7 @@ packages:
     source: hosted
     version: "0.6.7"
   json_annotation:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: json_annotation
       sha256: "1ce844379ca14835a50d2f019a3099f419082cfdd231cd86a142af94dd5c6bb1"
@@ -1155,10 +1194,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "1b5cbc4b4d26ed21d879fd430dca4fab702b94b914630cd879257cb56e7a885f"
+      sha256: ac7f9f28c7544c390f70adae7d59dc12e00a397d34811d61d47478023d2e55e1
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0-dev+rev.251b8abfcd67b4d60821ed1f7c15484c29b640a9"
+    version: "0.5.0-dev+rev.d615057ffe2c7031112c3047c1a11b4edc6c2454"
   media_kit:
     dependency: "direct main"
     description:
@@ -1202,10 +1241,11 @@ packages:
   media_kit_libs_windows_video:
     dependency: "direct main"
     description:
-      name: media_kit_libs_windows_video
-      sha256: "7bace5f35d9afcc7f9b5cdadb7541d2191a66bb3fc71bfa11c1395b3360f6122"
-      url: "https://pub.dev"
-    source: hosted
+      path: "libs/windows/media_kit_libs_windows_video"
+      ref: HEAD
+      resolved-ref: "65b5e81e8fb37e9039df7a6ef65874b1658e8750"
+      url: "https://github.com/SleepySquash/media-kit.git"
+    source: git
     version: "1.0.9"
   media_kit_native_event_loop:
     dependency: "direct main"
@@ -1845,6 +1885,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.0.0"
+  sqlite3:
+    dependency: "direct main"
+    description:
+      name: sqlite3
+      sha256: b384f598b813b347c5a7e5ffad82cbaff1bec3d1561af267041e66f6f0899295
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.4.3"
+  sqlite3_flutter_libs:
+    dependency: "direct main"
+    description:
+      name: sqlite3_flutter_libs
+      sha256: fb2a106a2ea6042fe57de2c47074cc31539a941819c91e105b864744605da3f5
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.5.21"
+  sqlparser:
+    dependency: transitive
+    description:
+      name: sqlparser
+      sha256: ade9a67fd70d0369329ed3373208de7ebd8662470e8c396fc8d0d60f9acdfc9f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.36.0"
   stack_trace:
     dependency: transitive
     description:
@@ -2206,7 +2270,7 @@ packages:
     source: hosted
     version: "5.5.1"
   win32_registry:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: win32_registry
       sha256: "10589e0d7f4e053f2c61023a31c9ce01146656a70b7b7f0828c0b46d7da2a9bb"

@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/page_info.dart';
@@ -33,8 +32,8 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/user.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/user.dart';
 import '/store/event/user.dart';
 import '/store/model/user.dart';
 import '/store/pagination.dart';
@@ -55,7 +54,7 @@ class UserRepository extends DisposableInterface
   );
 
   @override
-  final RxMap<UserId, HiveRxUser> users = RxMap();
+  final RxMap<UserId, RxUserImpl> users = RxMap();
 
   /// Callback, called when a [RxChat] with the provided [ChatId] is required
   /// by this [UserRepository].
@@ -72,52 +71,18 @@ class UserRepository extends DisposableInterface
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  // TODO: Make [UserHiveProvider] lazy.
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
-
-  /// [isReady] value.
-  final RxBool _isReady = RxBool(false);
+  /// [User]s local storage.
+  final UserDriftProvider _userLocal;
 
   /// [Mutex]es guarding access to the [get] method.
   final Map<UserId, Mutex> _locks = {};
-
-  /// [UserHiveProvider.boxEvents] subscription.
-  StreamIterator? _localSubscription;
-
-  @override
-  RxBool get isReady => _isReady;
-
-  @override
-  Future<void> onReady() async {
-    Log.debug('onReady()', '$runtimeType');
-
-    if (!_userLocal.isEmpty) {
-      for (HiveUser c in _userLocal.users) {
-        users[c.value.id] ??= HiveRxUser(this, _userLocal, c);
-      }
-      isReady.value = true;
-    }
-
-    _initLocalSubscription();
-
-    super.onReady();
-  }
 
   @override
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
     users.forEach((_, v) => v.dispose());
-    _localSubscription?.cancel();
-
     super.onClose();
-  }
-
-  @override
-  Future<void> clearCache() async {
-    Log.debug('clearCache()', '$runtimeType');
-    await _userLocal.clear();
   }
 
   @override
@@ -172,9 +137,9 @@ class UserRepository extends DisposableInterface
   }
 
   @override
-  FutureOr<RxUser?> get(UserId id) {
+  FutureOr<RxUserImpl?> get(UserId id) {
     // Return the stored user instance, if it exists.
-    final HiveRxUser? user = users[id];
+    final RxUserImpl? user = users[id];
     if (user != null) {
       return user;
     }
@@ -188,17 +153,22 @@ class UserRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      HiveRxUser? user = users[id];
+      RxUserImpl? user = users[id];
 
       if (user == null) {
-        final response = (await _graphQlProvider.getUser(id)).user;
-        if (response != null) {
-          final HiveUser hiveUser = response.toHive();
-          put(hiveUser);
+        final DtoUser? stored = await _userLocal.read(id);
+        if (stored != null) {
+          final RxUserImpl rxUser = RxUserImpl(this, _userLocal, stored);
+          return users[id] = rxUser;
+        } else {
+          final response = (await _graphQlProvider.getUser(id)).user;
+          if (response != null) {
+            final DtoUser dto = response.toDto();
+            put(dto);
 
-          final HiveRxUser hiveRxUser = HiveRxUser(this, _userLocal, hiveUser);
-          users[id] = hiveRxUser;
-          user = hiveRxUser;
+            final RxUserImpl rxUser = RxUserImpl(this, _userLocal, dto);
+            return users[id] = rxUser;
+          }
         }
       }
 
@@ -256,19 +226,16 @@ class UserRepository extends DisposableInterface
     }
   }
 
-  /// Updates the locally stored [HiveUser] with the provided [user] value.
-  void update(User user) {
-    Log.debug('update($user)', '$runtimeType');
-
-    final HiveUser? hiveUser = _userLocal.get(user.id);
-    if (hiveUser != null) {
-      hiveUser.value = user;
-      put(hiveUser, ignoreVersion: true);
+  /// Updates the locally stored [DtoUser] with the provided [user] value.
+  Future<void> update(User user) async {
+    final DtoUser? dto = await _userLocal.read(user.id);
+    if (dto != null) {
+      put(dto..value = user, ignoreVersion: true);
     }
   }
 
-  /// Puts the provided [user] into the local [Hive] storage.
-  Future<void> put(HiveUser user, {bool ignoreVersion = false}) async {
+  /// Puts the provided [user] into the local storage.
+  Future<void> put(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('put(${user.value.id}, $ignoreVersion)', '$runtimeType');
 
     // If the provided [user] doesn't exist in the [users] yet, then we should
@@ -324,17 +291,17 @@ class UserRepository extends DisposableInterface
   Future<void> addContact(ChatContact contact, UserId userId) async {
     Log.debug('addContact($contact, $userId)', '$runtimeType');
 
-    final HiveUser? user = _userLocal.get(userId);
-    if (user != null) {
+    final DtoUser? dto = await _userLocal.read(userId);
+    if (dto != null) {
       final NestedChatContact? existing =
-          user.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
+          dto.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
 
       if (existing == null) {
-        user.value.contacts.add(NestedChatContact.from(contact));
-        await _userLocal.put(user);
+        dto.value.contacts.add(NestedChatContact.from(contact));
+        await _userLocal.upsert(dto);
       } else if (existing.name != contact.name) {
         existing.name = contact.name;
-        await _userLocal.put(user);
+        await _userLocal.upsert(dto);
       }
     }
   }
@@ -347,23 +314,27 @@ class UserRepository extends DisposableInterface
   Future<void> removeContact(ChatContactId contactId, UserId userId) async {
     Log.debug('removeContact($contactId, $userId)', '$runtimeType');
 
-    final HiveUser? user = _userLocal.get(userId);
-    if (user != null) {
+    final DtoUser? dto = await _userLocal.read(userId);
+    if (dto != null) {
       final NestedChatContact? existing =
-          user.value.contacts.firstWhereOrNull((e) => e.id == contactId);
+          dto.value.contacts.firstWhereOrNull((e) => e.id == contactId);
 
       if (existing != null) {
-        user.value.contacts.remove(existing);
-        await _userLocal.put(user);
+        dto.value.contacts.remove(existing);
+        await _userLocal.upsert(dto);
       }
     }
   }
 
   /// Returns a [Stream] of [UserEvent]s of the specified [User].
-  Stream<UserEvents> userEvents(UserId id, UserVersion? Function() ver) {
+  Future<Stream<UserEvents>> userEvents(
+    UserId id,
+    Future<UserVersion?> Function() ver,
+  ) async {
     Log.debug('userEvents($id)', '$runtimeType');
 
-    return _graphQlProvider.userEvents(id, ver).asyncExpand((event) async* {
+    final Stream events = await _graphQlProvider.userEvents(id, ver);
+    return events.asyncExpand((event) async* {
       Log.trace('userEvents($id): ${event.data}', '$runtimeType');
 
       final events = UserEvents$Subscription.fromJson(event.data!).userEvents;
@@ -372,7 +343,7 @@ class UserRepository extends DisposableInterface
         yield const UserEventsInitialized();
       } else if (events.$$typename == 'User') {
         final mixin = events as UserEvents$Subscription$UserEvents$User;
-        yield UserEventsUser(mixin.toHive());
+        yield UserEventsUser(mixin.toDto());
       } else if (events.$$typename == 'UserEventsVersioned') {
         final mixin = events as UserEventsVersionedMixin;
         yield UserEventsEvent(UserEventsVersioned(
@@ -401,38 +372,17 @@ class UserRepository extends DisposableInterface
     });
   }
 
-  /// Puts the provided [user] to [Hive].
-  Future<void> _putUser(HiveUser user, {bool ignoreVersion = false}) async {
+  /// Puts the provided [user] to local storage.
+  Future<void> _putUser(DtoUser user, {bool ignoreVersion = false}) async {
     Log.trace('_putUser($user, $ignoreVersion)', '$runtimeType');
 
-    final saved = _userLocal.get(user.value.id);
+    final saved = await _userLocal.read(user.value.id);
 
     if (saved == null ||
         saved.ver <= user.ver ||
         saved.blockedVer <= user.blockedVer ||
         ignoreVersion) {
-      await _userLocal.put(user);
-    }
-  }
-
-  /// Initializes [ContactHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    Log.debug('_initLocalSubscription()', '$runtimeType');
-
-    _localSubscription = StreamIterator(_userLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      final BoxEvent event = _localSubscription!.current;
-      if (event.deleted) {
-        users.remove(UserId(event.key))?.dispose();
-      } else {
-        final RxUser? user = users[UserId(event.key)];
-        if (user == null) {
-          users[UserId(event.key)] = HiveRxUser(this, _userLocal, event.value);
-        } else {
-          user.user.value = event.value.value;
-          user.user.refresh();
-        }
-      }
+      await _userLocal.upsert(user);
     }
   }
 
@@ -463,10 +413,10 @@ class UserRepository extends DisposableInterface
       first: first ?? maxInt,
     );
 
-    final List<HiveUser> hiveUsers =
-        response.searchUsers.edges.map((c) => c.node.toHive()).toList();
+    final List<DtoUser> dtoUsers =
+        response.searchUsers.edges.map((c) => c.node.toDto()).toList();
 
-    hiveUsers.forEach(put);
+    dtoUsers.forEach(put);
 
     // We are waiting for a dummy [Future] here because [put] updates
     // [boxEvents] by scheduling a microtask, so we can use [get] method (after
@@ -476,8 +426,8 @@ class UserRepository extends DisposableInterface
     final List<RxUser> users = [];
     final List<Future<RxUser?>> futures = [];
 
-    for (final hiveUser in hiveUsers) {
-      final FutureOr<RxUser?> rxUser = get(hiveUser.value.id);
+    for (final dto in dtoUsers) {
+      final FutureOr<RxUser?> rxUser = get(dto.value.id);
       if (rxUser is RxUser?) {
         if (rxUser != null) {
           users.add(rxUser);
@@ -565,13 +515,9 @@ class UserRepository extends DisposableInterface
     if (e.$$typename == 'EventBlocklistRecordAdded') {
       final node =
           e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(
-        e.user.toHive(),
-        e.at,
-        node.reason,
-      );
+      return EventBlocklistRecordAdded(e.user.toDto(), e.at, node.reason);
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      return EventBlocklistRecordRemoved(e.user.toHive(), e.at);
+      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
     } else {
       throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
     }

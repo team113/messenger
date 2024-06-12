@@ -28,9 +28,10 @@ devtools_options.yaml
 /build/
 /doc/
 
-# GraphQL generation related
+# Generation related
 /lib/**/*.g.dart
 /lib/api/backend/*.dart
+/web/worker.dart.js
 
 # Symbolication and obfuscation related
 /debug/
@@ -49,7 +50,6 @@ app.*.symbols
 /yarn-error.log
 
 # Tests related
-/test/.temp_hive/
 /test/.temp_cache/
 /test/**/*.mocks.dart
 /test/e2e/**/*.g.dart

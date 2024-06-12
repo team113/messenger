@@ -270,6 +270,7 @@ class IntroductionView extends StatelessWidget {
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
+                key: const Key('IntroductionScrollable'),
                 controller: c.scrollController,
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),

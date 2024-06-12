@@ -147,7 +147,7 @@ class _ListPageProvider implements PageProvider<int, int, int> {
 
   @override
   Future<void> put(
-    int item, {
+    Iterable<int> items, {
     bool ignoreBounds = false,
     int Function(int, int)? compare,
   }) async {}

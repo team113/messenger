@@ -846,7 +846,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message: data?.title ?? user?.title,
+                  message: data?.title ?? user?.title ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -1227,7 +1227,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
         if (string?.isNotEmpty == true) {
           _text[forward.value.id] = string!.parseLinks(
             _recognizers,
-            Theme.of(router.context!).style.linkStyle,
+            router.context == null
+                ? null
+                : Theme.of(router.context!).style.linkStyle,
           );
         }
       }
@@ -1239,7 +1241,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
       if (string?.isNotEmpty == true) {
         _text[item.id] = string!.parseLinks(
           _recognizers,
-          Theme.of(router.context!).style.linkStyle,
+          router.context == null
+              ? null
+              : Theme.of(router.context!).style.linkStyle,
         );
       }
     }

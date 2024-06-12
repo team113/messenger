@@ -32,10 +32,6 @@ class UserService extends DisposableService {
   /// Repository to fetch [User]s from.
   final AbstractUserRepository _userRepository;
 
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [users] value is fetched.
-  RxBool get isReady => _userRepository.isReady;
-
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
 
@@ -72,11 +68,5 @@ class UserService extends DisposableService {
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', '$runtimeType');
     await _userRepository.unblockUser(id);
-  }
-
-  /// Removes [users] from the local data storage.
-  Future<void> clearCached() async {
-    Log.debug('clearCached()', '$runtimeType');
-    await _userRepository.clearCache();
   }
 }

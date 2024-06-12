@@ -15,15 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../model/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
+import '/domain/model/user.dart';
+import '/store/model/my_user.dart';
+import '/store/model/user.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -552,8 +552,8 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
 abstract class BlocklistEvent extends MyUserEvent {
   BlocklistEvent(this.user, this.at) : super(user.value.id);
 
-  /// [User] this [BlocklistEvent] is about.
-  final HiveUser user;
+  /// [DtoUser] this [BlocklistEvent] is about.
+  final DtoUser user;
 
   /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;

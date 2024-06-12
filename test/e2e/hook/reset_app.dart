@@ -21,15 +21,14 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:hive/hive.dart';
-import 'package:messenger/main.dart';
+import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/ui/worker/cache.dart';
+import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
-import 'package:universal_io/io.dart';
 
 import '../steps/internet.dart';
 
-/// [Hook] resetting the [Hive] and [Get] states after a test.
+/// [Hook] resetting the [Get] states after a test.
 class ResetAppHook extends Hook {
   @override
   int get priority => 1;
@@ -42,21 +41,15 @@ class ResetAppHook extends Hook {
   ) async {
     FocusManager.instance.primaryFocus?.unfocus();
 
-    await Get.deleteAll(force: true);
-    Get.reset();
+    final drift = Get.findOrNull<CommonDriftProvider>();
+    await drift?.reset();
+
+    await Get.deleteAll();
 
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
     await Future.delayed(Duration.zero);
-
-    try {
-      await Hive.close();
-    } on PathNotFoundException {
-      // `.lock` file might not exist here, so no-op.
-    }
-
-    await Hive.clean('hive');
 
     svg.cache.clear();
 
@@ -70,4 +63,9 @@ class ResetAppHook extends Hook {
     Iterable<Tag> tags,
   ) =>
       onBeforeScenario(config, scenario, tags);
+
+  @override
+  Future<void> onAfterRun(TestConfiguration config) async {
+    await Get.deleteAll(force: true);
+  }
 }

@@ -20,7 +20,7 @@ import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
+import 'package:messenger/store/model/chat_item.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -42,13 +42,13 @@ final StepDefinitionGeneric repliesToMessage =
 
     // TODO: Should use `searchItems` query or something, when backend
     //       introduces such a query.
-    final HiveChatMessage message =
+    final DtoChatMessage message =
         (await provider.chatItems(chatId, first: 120))
             .chat!
             .items
             .edges
-            .map((e) => e.toHive())
-            .whereType<HiveChatMessage>()
+            .map((e) => e.toDto())
+            .whereType<DtoChatMessage>()
             .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 
     await provider.postChatMessage(

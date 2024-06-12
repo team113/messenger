@@ -333,7 +333,7 @@ class ChatInfoController extends GetxController {
           scheme: 'mailto',
           path: Config.support,
           query: encodeQueryParameters({
-            'subject': '[App] Report on ChatId($chatId)',
+            'subject': '[Abuse] Report on ChatId($chatId)',
             'body': '${reporting.text}\n\n',
           }),
         ),

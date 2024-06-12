@@ -101,13 +101,6 @@ class Config {
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
 
-  /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '1';
-
-  /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
-  /// mismatch is detected.
-  static String? credentials = '0';
-
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
@@ -123,6 +116,22 @@ class Config {
 
   /// URL of the repository (or anything else) for users to report bugs to.
   static String repository = 'https://github.com/team113/messenger/issues';
+
+  /// Schema version of the [CommonDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int commonVersion = 1;
+
+  /// Schema version of the [ScopedDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int scopedVersion = 1;
+
+  /// Custom URL scheme to associate the application with when opening the deep
+  /// links.
+  static String scheme = 'gapopa';
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
@@ -150,7 +159,7 @@ class Config {
 
     String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
         ? const String.fromEnvironment('SOCAPP_WS_URL')
-        : (document['server']?['ws']?['url'] ?? ws);
+        : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
     int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
         ? const int.fromEnvironment('SOCAPP_WS_PORT')
@@ -228,6 +237,10 @@ class Config {
     repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
         ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
         : (document['legal']?['repository'] ?? repository);
+
+    scheme = const bool.hasEnvironment('SOCAPP_LINK_SCHEME')
+        ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
+        : (document['link']?['scheme'] ?? scheme);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {

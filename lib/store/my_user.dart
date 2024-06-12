@@ -21,7 +21,6 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -34,11 +33,10 @@ import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/account.dart';
+import '/provider/drift/my_user.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/account.dart';
-import '/provider/hive/blocklist.dart';
-import '/provider/hive/my_user.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
@@ -47,6 +45,7 @@ import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
+import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'user.dart';
 
@@ -54,14 +53,14 @@ import 'user.dart';
 class MyUserRepository implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
-    this._myUserLocal,
+    this._driftMyUser,
     this._blocklistRepo,
     this._userRepo,
     this._accountLocal,
   );
 
   @override
-  late final Rx<MyUser?> myUser;
+  final Rx<MyUser?> myUser = Rx(null);
 
   @override
   final RxObsMap<UserId, Rx<MyUser>> profiles = RxObsMap();
@@ -75,11 +74,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// [MyUser] local [Hive] storage.
-  final MyUserHiveProvider _myUserLocal;
+  /// Local storage of the [MyUser]s.
+  final MyUserDriftProvider _driftMyUser;
 
-  /// [Hive] storage providing the [UserId] of the currently active [MyUser].
-  final AccountHiveProvider _accountLocal;
+  /// Storage providing the [UserId] of the currently active [MyUser].
+  final AccountDriftProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepo;
@@ -87,8 +86,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [User]s repository, used to put the fetched [MyUser] into it.
   final UserRepository _userRepo;
 
-  /// [MyUserHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
+  /// [MyUserDriftProvider.watch] subscription.
+  StreamSubscription? _localSubscription;
 
   /// [_myUserRemoteEvents] subscription.
   ///
@@ -109,10 +108,11 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [EventPool] debouncing [MyUserField] related [MyUserEvent]s handling.
   final EventPool<MyUserField> _pool = EventPool();
 
-  /// Returns the currently active [HiveMyUser] from [Hive].
-  HiveMyUser? get _active {
+  /// Returns the currently active [DtoMyUser] from the storage.
+  Future<DtoMyUser?> get _active async {
     final UserId? userId = _accountLocal.userId;
-    final HiveMyUser? saved = userId != null ? _myUserLocal.get(userId) : null;
+    final DtoMyUser? saved =
+        userId != null ? await _driftMyUser.read(userId) : null;
 
     return saved;
   }
@@ -127,7 +127,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    myUser = Rx<MyUser?>(_active?.value);
+    _active.then((v) => myUser.value = v?.value ?? myUser.value);
 
     _initProfiles();
     _initLocalSubscription();
@@ -164,19 +164,13 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  Future<void> clearCache() async {
-    Log.debug('clearCache()', '$runtimeType');
-    await _myUserLocal.clear();
-  }
-
-  @override
   Future<void> updateUserName(UserName? name) async {
     Log.debug('updateUserName($name)', '$runtimeType');
 
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.name,
-      saved: () => _active?.value.name,
+      saved: () async => (await _active)?.value.name,
       value: name,
       mutation: (v, _) => _graphQlProvider.updateUserName(v),
       update: (v, _) => myUser.update((u) => u?.name = v),
@@ -190,7 +184,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.name,
       current: () => myUser.value?.status,
-      saved: () => _active?.value.status,
+      saved: () async => (await _active)?.value.status,
       value: status,
       mutation: (v, _) => _graphQlProvider.updateUserStatus(v),
       update: (v, _) => myUser.update((u) => u?.status = v),
@@ -204,7 +198,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.bio,
       current: () => myUser.value?.bio,
-      saved: () => _active?.value.bio,
+      saved: () async => (await _active)?.value.bio,
       value: bio,
       mutation: (v, _) => _graphQlProvider.updateUserBio(v),
       update: (v, _) => myUser.update((u) => u?.bio = v),
@@ -227,7 +221,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.presence,
       current: () => myUser.value?.presence,
-      saved: () => _active?.value.presence,
+      saved: () async => (await _active)?.value.presence,
       value: presence,
       mutation: (s, _) async =>
           await _graphQlProvider.updateUserPresence(s ?? presence),
@@ -271,7 +265,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.email,
         current: () => myUser.value?.emails.unconfirmed,
-        saved: () => _active?.value.emails.unconfirmed,
+        saved: () async => (await _active)?.value.emails.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -315,7 +309,7 @@ class MyUserRepository implements AbstractMyUserRepository {
       await _debounce(
         field: MyUserField.phone,
         current: () => myUser.value?.phones.unconfirmed,
-        saved: () => _active?.value.phones.unconfirmed,
+        saved: () async => (await _active)?.value.phones.unconfirmed,
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
@@ -358,7 +352,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.email,
       current: () => myUser.value?.emails.unconfirmed,
-      saved: () => _active?.value.emails.unconfirmed,
+      saved: () async => (await _active)?.value.emails.unconfirmed,
       value: email,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -384,7 +378,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.phone,
       current: () => myUser.value?.phones.unconfirmed,
-      saved: () => _active?.value.phones.unconfirmed,
+      saved: () async => (await _active)?.value.phones.unconfirmed,
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
@@ -544,7 +538,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     await _debounce(
       field: MyUserField.muted,
       current: () => myUser.value?.muted,
-      saved: () => _active?.value.muted,
+      saved: () async => (await _active)?.value.muted,
       value: mute,
       mutation: (duration, _) async {
         return await _graphQlProvider.toggleMyUserMute(
@@ -623,31 +617,37 @@ class MyUserRepository implements AbstractMyUserRepository {
     final response = await _graphQlProvider.getMyUser();
 
     if (response.myUser != null) {
-      _setMyUser(response.myUser!.toHive(), ignoreVersion: true);
+      _setMyUser(response.myUser!.toDto(), ignoreVersion: true);
     }
   }
 
-  /// Populates the [profiles] with values stored in the [_myUserLocal].
-  void _initProfiles() {
+  /// Populates the [profiles] with values stored in the [_driftMyUser].
+  Future<void> _initProfiles() async {
     Log.debug('_initProfiles()', '$runtimeType');
 
-    for (final HiveMyUser u in _myUserLocal.valuesSafe) {
+    for (final DtoMyUser u in await _driftMyUser.accounts()) {
       profiles[u.value.id] = Rx(u.value);
     }
   }
 
-  /// Initializes [MyUserHiveProvider.boxEvents] subscription.
+  /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
     Log.debug('_initLocalSubscription()', '$runtimeType');
 
-    _localSubscription = StreamIterator(_myUserLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      final BoxEvent event = _localSubscription!.current;
+    final UserId? id = _accountLocal.userId;
+    if (id == null) {
+      Log.debug(
+        'Unexpected `null` when getting `_accountLocal.userId` for `_initLocalSubscription`',
+        '$runtimeType',
+      );
+      return;
+    }
 
-      final UserId id = UserId(event.key);
-      final bool isCurrent = id == (_active?.value ?? myUser.value)?.id;
+    _localSubscription = _driftMyUser.watchSingle(id).listen((e) {
+      final bool isCurrent =
+          (e?.id ?? id) == (myUser.value?.id ?? _accountLocal.userId);
 
-      if (event.deleted) {
+      if (e == null) {
         if (isCurrent) {
           myUser.value = null;
           _remoteSubscription?.close(immediate: true);
@@ -655,12 +655,7 @@ class MyUserRepository implements AbstractMyUserRepository {
 
         profiles.remove(id);
       } else {
-        if (event.value == null) {
-          Log.warning('Expected non-`null` value of `MyUser`', '$runtimeType');
-          return;
-        }
-
-        final MyUser user = event.value!.value;
+        final MyUser user = e.value;
 
         if (isCurrent) {
           // Copy [event.value], as it always contains the same [MyUser].
@@ -698,21 +693,21 @@ class MyUserRepository implements AbstractMyUserRepository {
           }
 
           myUser.value = value;
-          profiles[id]?.value = value;
+          profiles[e.id]?.value = value;
         }
 
         // This event is not of the currently active [MyUser], so just update
         // the [profiles].
         else {
-          final Rx<MyUser>? existing = profiles[id];
+          final Rx<MyUser>? existing = profiles[e.id];
           if (existing == null) {
-            profiles[id] = Rx(user);
+            profiles[e.id] = Rx(user);
           } else {
             existing.value = user;
           }
         }
       }
-    }
+    });
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
@@ -725,14 +720,14 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _remoteSubscription?.close(immediate: true);
     _remoteSubscription = StreamQueue(
-      _myUserRemoteEvents(() {
+      await _myUserRemoteEvents(() async {
         // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
         // is `null`, to retrieve it.
-        if (_active?.value.blocklistCount == null) {
+        if ((await _active)?.value.blocklistCount == null) {
           return null;
         }
 
-        return _active?.ver;
+        return (await _active)?.ver;
       }),
     );
 
@@ -758,27 +753,29 @@ class MyUserRepository implements AbstractMyUserRepository {
     );
   }
 
-  /// Saves the provided [user] in [Hive].
-  void _setMyUser(HiveMyUser user, {bool ignoreVersion = false}) {
+  /// Saves the provided [user] to the local storage.
+  Future<void> _setMyUser(DtoMyUser user, {bool ignoreVersion = false}) async {
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
-    // Update the stored [MyUser], if the provided [user] has non-`null`
-    // blocklist count, which is different from the stored one.
-    final bool blocklist = user.value.blocklistCount != null &&
-        user.value.blocklistCount != _active?.value.blocklistCount;
-
-    if (user.ver >= _active?.ver || blocklist || ignoreVersion) {
-      user.value.blocklistCount ??= _active?.value.blocklistCount;
-      _myUserLocal.put(user);
+    if (ignoreVersion || user.ver >= (await _active)?.ver) {
+      user.value.blocklistCount ??= (await _active)?.value.blocklistCount;
+      await _driftMyUser.upsert(user);
+    } else {
+      // Update the stored [MyUser], if the provided [user] has non-`null`
+      // blocklist count, which is different from the stored one.
+      if (user.value.blocklistCount != null &&
+          user.value.blocklistCount != (await _active)?.value.blocklistCount) {
+        await _driftMyUser.upsert(user);
+      }
     }
   }
 
   /// Handles [MyUserEvent] from the [_myUserRemoteEvents] subscription.
-  void _myUserRemoteEvent(
+  Future<void> _myUserRemoteEvent(
     MyUserEventsVersioned versioned, {
     bool updateVersion = true,
-  }) {
-    final HiveMyUser? userEntity = _active;
+  }) async {
+    final DtoMyUser? userEntity = await _active;
 
     if (userEntity == null || versioned.ver < userEntity.ver) {
       Log.debug(
@@ -1013,7 +1010,7 @@ class MyUserRepository implements AbstractMyUserRepository {
                 userEntity.value.blocklistCount! + 1;
           }
           _blocklistRepo.put(
-            HiveBlocklistRecord(event.user.value.isBlocked!, null),
+            DtoBlocklistRecord(event.user.value.isBlocked!, null),
           );
           break;
 
@@ -1028,16 +1025,17 @@ class MyUserRepository implements AbstractMyUserRepository {
       }
     }
 
-    _myUserLocal.put(userEntity);
+    await _driftMyUser.upsert(userEntity);
   }
 
   /// Subscribes to remote [MyUserEvent]s of the authenticated [MyUser].
-  Stream<MyUserEventsVersioned> _myUserRemoteEvents(
-    MyUserVersion? Function() ver,
-  ) {
+  Future<Stream<MyUserEventsVersioned>> _myUserRemoteEvents(
+    Future<MyUserVersion?> Function() ver,
+  ) async {
     Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
-    return _graphQlProvider.myUserEvents(ver).asyncExpand((event) async* {
+    return (await _graphQlProvider.myUserEvents(ver))
+        .asyncExpand((event) async* {
       Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
 
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
@@ -1052,14 +1050,11 @@ class MyUserRepository implements AbstractMyUserRepository {
             as MyUserEvents$Subscription$MyUserEvents$SubscriptionInitialized;
         // No-op.
       } else if (events.$$typename == 'MyUser') {
-        Log.debug(
-          '_myUserRemoteEvents(ver): MyUser',
-          '$runtimeType',
-        );
+        Log.debug('_myUserRemoteEvents(ver): MyUser', '$runtimeType');
 
         events as MyUserEvents$Subscription$MyUserEvents$MyUser;
 
-        _setMyUser(events.toHive());
+        _setMyUser(events.toDto());
       } else if (events.$$typename == 'MyUserEventsVersioned') {
         var mixin = events as MyUserEventsVersionedMixin;
         yield MyUserEventsVersioned(
@@ -1182,14 +1177,14 @@ class MyUserRepository implements AbstractMyUserRepository {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
       return EventBlocklistRecordAdded(
-        node.user.toHive(),
+        node.user.toDto(),
         node.at,
         node.reason,
       );
     } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
       var node =
           e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
-      return EventBlocklistRecordRemoved(node.user.toHive(), node.at);
+      return EventBlocklistRecordRemoved(node.user.toDto(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }
@@ -1200,7 +1195,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   Future<void> _debounce<T>({
     required MyUserField field,
     required T? Function() current,
-    required T? Function() saved,
+    required Future<T?> Function() saved,
     T? value,
     required void Function(T? value, T? previous) update,
     required Future<MyUserEventsVersionedMixin?> Function(T? value, T? previous)
@@ -1230,20 +1225,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
             _myUserRemoteEvent(event, updateVersion: false);
 
-            // Wait for [Hive] to update the [HiveMyUser] from
+            // Wait for local storage to update the [DtoMyUser] from
             // [_myUserRemoteEvent].
             await Future.delayed(Duration.zero);
           }
 
           previous = value;
         } catch (_) {
-          update(saved(), value);
+          update(await saved(), value);
           rethrow;
         }
       },
-      values: [value, saved()],
-      repeat: () {
-        if (myUser.value != null && current() != saved()) {
+      values: [value, await saved()],
+      repeat: () async {
+        if (myUser.value != null && current() != await saved()) {
           value = current();
           return true;
         }

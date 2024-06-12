@@ -3,6 +3,7 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
   connectivity_plus
   desktop_drop
   file_selector_windows
@@ -17,6 +18,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever
   sentry_flutter
   share_plus
+  sqlite3_flutter_libs
   url_launcher_windows
   win_toast
   window_manager

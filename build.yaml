@@ -315,6 +315,10 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
+      drift_dev:
+        generate_for:
+          include:
+            - lib/provider/drift/**.dart
       messenger|pubspec_builder:
         enabled: true
 

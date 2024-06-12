@@ -29,6 +29,7 @@ import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
+import 'package:win32_registry/win32_registry.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -45,8 +46,8 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method.
+  static final Map<String, Mutex> _guards = {};
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -82,7 +83,7 @@ class WebUtils {
   static bool get isPopup => false;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -101,8 +102,18 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(Future<T> Function() callback) =>
-      _guard.protect(callback);
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    String tag = 'mutex',
+  }) {
+    Mutex? mutex = _guards[tag];
+    if (mutex == null) {
+      mutex = Mutex();
+      _guards[tag] = mutex;
+    }
+
+    return mutex.protect(callback);
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
@@ -259,6 +270,26 @@ class WebUtils {
   /// Deletes the loader element.
   static void deleteLoader() {
     // No-op.
+  }
+
+  /// Registers the custom [Config.scheme].
+  static Future<void> registerScheme() async {
+    if (PlatformUtils.isWindows) {
+      final RegistryKey regKey =
+          Registry.currentUser.createKey('Software\\Classes\\${Config.scheme}');
+
+      regKey.createValue(
+        const RegistryValue('URL Protocol', RegistryValueType.string, ''),
+      );
+
+      regKey.createKey('shell\\open\\command').createValue(
+            RegistryValue(
+              '',
+              RegistryValueType.string,
+              '"${Platform.resolvedExecutable}" "%1"',
+            ),
+          );
+    }
   }
 
   /// Returns the `User-Agent` header to put in the network queries.

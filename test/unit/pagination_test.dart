@@ -26,7 +26,6 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
 import 'package:messenger/store/model/chat_item.dart';
 import 'package:messenger/store/model/page_info.dart';
 import 'package:messenger/store/pagination.dart';
@@ -204,11 +203,11 @@ void main() async {
       after: const ChatItemsCursor('90'),
     )).thenAnswer((_) => chatItems(first: 10, after: 90));
 
-    final Pagination<HiveChatItem, ChatItemsCursor, ChatItemKey> pagination =
+    final Pagination<DtoChatItem, ChatItemsCursor, ChatItemKey> pagination =
         Pagination(
       perPage: 10,
       onKey: (i) => i.value.key,
-      provider: GraphQlPageProvider<HiveChatItem, ChatItemsCursor, ChatItemKey>(
+      provider: GraphQlPageProvider<DtoChatItem, ChatItemsCursor, ChatItemKey>(
         fetch: ({after, before, first, last}) async {
           final q = await graphQlProvider.chatItems(
             chatId,
@@ -221,7 +220,7 @@ void main() async {
           final PageInfo<ChatItemsCursor> info =
               q.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c));
           return Page(
-            RxList(q.chat!.items.edges.map((e) => e.toHive()).toList()),
+            RxList(q.chat!.items.edges.map((e) => e.toDto()).toList()),
             PageInfo<ChatItemsCursor>(
               hasNext: info.hasNext,
               hasPrevious: info.hasPrevious,
@@ -351,7 +350,7 @@ class _ListPageProvider implements PageProvider<int, int, int> {
 
   @override
   Future<void> put(
-    int item, {
+    Iterable<int> items, {
     bool ignoreBounds = false,
     int Function(int, int)? compare,
   }) async {}

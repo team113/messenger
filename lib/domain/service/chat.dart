@@ -95,8 +95,10 @@ class ChatService extends DisposableService {
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
-    Log.debug('next()', '$runtimeType');
-    return await _chatRepository.next();
+    if (_chatRepository.hasNext.value) {
+      Log.debug('next()', '$runtimeType');
+      await _chatRepository.next();
+    }
   }
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].

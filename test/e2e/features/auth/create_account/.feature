@@ -20,6 +20,7 @@ Feature: Account creation
   Scenario: User creates a new account and deletes it
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
+    And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
 
     When I tap `MenuButton` button

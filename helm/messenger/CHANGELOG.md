@@ -6,6 +6,30 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.1.4] · 2024-??-?? (unreleased)
+[0.1.4]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.4/helm/messenger
+
+### Changed
+
+- Set `Cross-Origin-Embedder-Policy` header to `credentialless` for Safari. ([#1004])
+
+[#1004]: https://github.com/team113/messenger/pull/1004
+
+
+
+
+## [0.1.3] · 2024-05-17
+[0.1.3]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.3/helm/messenger
+
+### Added
+
+- `Cross-Origin-Embedder-Policy` and `Cross-Origin-Opener-Policy` headers to [Nginx] configuration. ([#1002])
+
+[#1002]: https://github.com/team113/messenger/pull/1002
+
+
+
+
 ## [0.1.2] · 2024-04-19
 [0.1.2]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.2/helm/messenger
 

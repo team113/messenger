@@ -229,28 +229,32 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
       bool shouldReload = false;
 
-      await Backoff.run(
-        () async {
-          try {
-            await (await PlatformUtils.dio).head(widget.url!);
+      try {
+        await Backoff.run(
+          () async {
+            try {
+              await (await PlatformUtils.dio).head(widget.url!);
 
-            // Reinitialize the [_controller] if an unexpected error was
-            // thrown.
-            if (shouldReload) {
-              await _player.open(Media(widget.url!), play: false);
+              // Reinitialize the [_controller] if an unexpected error was
+              // thrown.
+              if (shouldReload) {
+                await _player.open(Media(widget.url!), play: false);
+              }
+            } catch (e) {
+              if (e is DioException && e.response?.statusCode == 403) {
+                widget.onError?.call();
+                _cancelToken?.cancel();
+              } else {
+                shouldReload = true;
+                rethrow;
+              }
             }
-          } catch (e) {
-            if (e is DioException && e.response?.statusCode == 403) {
-              widget.onError?.call();
-              _cancelToken?.cancel();
-            } else {
-              shouldReload = true;
-              rethrow;
-            }
-          }
-        },
-        _cancelToken,
-      );
+          },
+          _cancelToken,
+        );
+      } on OperationCanceledException {
+        // No-op.
+      }
     }
   }
 }

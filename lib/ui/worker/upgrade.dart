@@ -25,7 +25,7 @@ import 'package:xml/xml.dart';
 import '/config.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/skipped_version.dart';
+import '/provider/drift/skipped_version.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/widget/upgrade_popup/view.dart';
@@ -37,8 +37,8 @@ import '/util/platform_utils.dart';
 class UpgradeWorker extends DisposableService {
   UpgradeWorker(this._skippedLocal);
 
-  /// [SkippedVersionHiveProvider] for maintaining the skipped [Release]s.
-  final SkippedVersionHiveProvider? _skippedLocal;
+  /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
+  final SkippedVersionDriftProvider? _skippedLocal;
 
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
@@ -59,7 +59,7 @@ class UpgradeWorker extends DisposableService {
   /// Skips the [release], meaning no popups will be prompted for this one.
   Future<void> skip(Release release) async {
     Log.debug('skip($release)', '$runtimeType');
-    await _skippedLocal?.set(release.name);
+    await _skippedLocal?.upsert(release.name);
   }
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
@@ -129,7 +129,7 @@ class UpgradeWorker extends DisposableService {
               '$runtimeType',
             );
 
-            final bool skipped = _skippedLocal?.get() == release.name;
+            final bool skipped = await _skippedLocal?.read() == release.name;
             if (critical || (lower && !skipped && Config.downloadable)) {
               _schedulePopup(release, critical: critical);
             }

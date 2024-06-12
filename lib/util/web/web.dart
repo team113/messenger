@@ -135,8 +135,8 @@ class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method.
+  static final Map<String, Mutex> _guards = {};
 
   /// Indicator whether [cameraPermission] has finished successfully.
   ///
@@ -317,7 +317,7 @@ class WebUtils {
       held = false;
     }
 
-    return _guard.isLocked || held;
+    return _guards['mutex']?.isLocked == true || held;
   }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
@@ -347,8 +347,17 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(Future<T> Function() callback) async {
-    return await _guard.protect(() async {
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    String tag = 'mutex',
+  }) async {
+    Mutex? mutex = _guards[tag];
+    if (mutex == null) {
+      mutex = Mutex();
+      _guards[tag] = mutex;
+    }
+
+    return await mutex.protect(() async {
       // Web Locks API is unavailable for some reason, so proceed without it.
       if (!_locksAvailable()) {
         return await callback();
@@ -359,7 +368,7 @@ class WebUtils {
       try {
         await promiseToFuture(
           _requestLock(
-            'mutex',
+            tag,
             allowInterop(
               (_) => callback()
                   .then((T val) => completer.complete(val))
@@ -738,6 +747,11 @@ class WebUtils {
   /// Deletes the loader element.
   static void deleteLoader() {
     web.document.getElementById('loader')?.remove();
+  }
+
+  /// Registers the custom [Config.scheme].
+  static Future<void> registerScheme() async {
+    // No-op.
   }
 
   /// Returns the `User-Agent` header to put in the network queries.

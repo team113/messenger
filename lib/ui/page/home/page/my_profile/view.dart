@@ -313,9 +313,6 @@ class MyProfileView extends StatelessWidget {
                     case ProfileTab.devices:
                       return block(children: [_devices(context, c)]);
 
-                    case ProfileTab.sections:
-                      return block(children: [_sections(context, c)]);
-
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
                         return const SizedBox();
@@ -919,23 +916,6 @@ Widget _devices(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.sections] section.
-Widget _sections(BuildContext context, MyProfileController c) {
-  return Column(
-    children: [
-      Paddings.dense(
-        Obx(() {
-          return SwitchField(
-            text: 'btn_work_with_us'.l10n,
-            value: c.settings.value?.workWithUsTabEnabled == true,
-            onChanged: c.setWorkWithUsTabEnabled,
-          );
-        }),
-      ),
-    ],
-  );
-}
-
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
@@ -1178,19 +1158,13 @@ Widget _bar(MyProfileController c, BuildContext context) {
         children: [
           const SizedBox(width: 4),
           const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: Center(
-              child: Obx(() {
-                return AvatarWidget.fromMyUser(
-                  c.myUser.value,
-                  radius: AvatarRadius.medium,
-                );
-              }),
-            ),
+          Center(
+            child: Obx(() {
+              return AvatarWidget.fromMyUser(
+                c.myUser.value,
+                radius: AvatarRadius.medium,
+              );
+            }),
           ),
           const SizedBox(width: 10),
           Flexible(

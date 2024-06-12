@@ -18,7 +18,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -26,15 +25,15 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/my_user.dart';
@@ -46,52 +45,18 @@ import 'my_profile_phones_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  Hive.init('./test/.temp_hive/my_profile_phones_unit');
-  var myUserData = {
-    'id': '12345',
-    'num': '1234567890123456',
-    'login': 'login',
-    'name': 'name',
-    'emails': {'confirmed': [], 'unconfirmed': null},
-    'phones': {'confirmed': [], 'unconfirmed': null},
-    'hasPassword': true,
-    'unreadChatsCount': 0,
-    'ver': '0',
-    'presence': 'AWAY',
-    'online': {'__typename': 'UserOnline'},
-    'blocklist': {'totalCount': 0},
-  };
-
-  var blocklist = {
-    'edges': [],
-    'pageInfo': {
-      'endCursor': 'endCursor',
-      'hasNextPage': false,
-      'startCursor': 'startCursor',
-      'hasPreviousPage': false,
-    }
-  };
-
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await credentialsProvider.init();
 
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
-  await blockedUsersProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  var blocklistSortingProvider = BlocklistSortingHiveProvider();
-  await blocklistSortingProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
+  final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final sessionProvider = Get.put(VersionDriftProvider(common));
 
   setUp(() async {
     await myUserProvider.clear();
@@ -105,7 +70,7 @@ void main() async {
       'MyUserService successfully adds, removes, confirms phone and resends confirmation code',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -119,7 +84,7 @@ void main() async {
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserPhone(UserPhone('+380999999999'))).thenAnswer(
-      (_) => Future.value(AddUserPhone$Mutation.fromJson({
+      (_) async => AddUserPhone$Mutation.fromJson({
         'addUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -132,16 +97,16 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.firstOrNull?.ver.internal ?? BigInt.zero + BigInt.one)}',
+              '${((await myUserProvider.accounts()).firstOrNull?.ver.internal ?? BigInt.zero + BigInt.one)}',
         }
       }).addUserPhone
-          as AddUserPhone$Mutation$AddUserPhone$MyUserEventsVersioned),
+          as AddUserPhone$Mutation$AddUserPhone$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.resendPhone()).thenAnswer((_) => Future.value());
 
     when(graphQlProvider.confirmPhoneCode(ConfirmationCode('1234'))).thenAnswer(
-      (_) => Future.value(ConfirmUserPhone$Mutation.fromJson({
+      (_) async => ConfirmUserPhone$Mutation.fromJson({
         'confirmUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -154,15 +119,15 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
       }).confirmUserPhone
-          as ConfirmUserPhone$Mutation$ConfirmUserPhone$MyUserEventsVersioned),
+          as ConfirmUserPhone$Mutation$ConfirmUserPhone$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.deleteUserPhone(UserPhone('+380999999999')))
         .thenAnswer(
-      (_) => Future.value(DeleteUserPhone$Mutation.fromJson({
+      (_) async => DeleteUserPhone$Mutation.fromJson({
         'deleteUserPhone': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
@@ -175,9 +140,9 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${(myUserProvider.valuesSafe.first.ver.internal + BigInt.one)}',
+              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
-      }).deleteUserPhone),
+      }).deleteUserPhone,
     );
 
     when(graphQlProvider.getBlocklist(
@@ -206,10 +171,11 @@ void main() async {
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        blockedUsersProvider,
-        blocklistSortingProvider,
+        blocklistProvider,
         userRepository,
         sessionProvider,
+        myUserProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -242,7 +208,7 @@ void main() async {
       'MyUserService throws AddUserPhoneException, ResendUserPhoneConfirmationErrorCode, ConfirmUserPhoneException',
       () async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) => Stream.fromIterable([
+      (_) async => Stream.fromIterable([
         QueryResult.internal(
           parserFn: (_) => null,
           source: null,
@@ -285,10 +251,11 @@ void main() async {
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        blockedUsersProvider,
-        blocklistSortingProvider,
+        blocklistProvider,
         userRepository,
         sessionProvider,
+        myUserProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -324,4 +291,31 @@ void main() async {
       graphQlProvider.confirmPhoneCode(ConfirmationCode('1234')),
     ]);
   });
+
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
+
+final myUserData = {
+  'id': '12345',
+  'num': '1234567890123456',
+  'login': 'login',
+  'name': 'name',
+  'emails': {'confirmed': [], 'unconfirmed': null},
+  'phones': {'confirmed': [], 'unconfirmed': null},
+  'hasPassword': true,
+  'unreadChatsCount': 0,
+  'ver': '0',
+  'presence': 'AWAY',
+  'online': {'__typename': 'UserOnline'},
+  'blocklist': {'totalCount': 0},
+};
+
+final blocklist = {
+  'edges': [],
+  'pageInfo': {
+    'endCursor': 'endCursor',
+    'hasNextPage': false,
+    'startCursor': 'startCursor',
+    'hasPreviousPage': false,
+  }
+};

@@ -368,13 +368,6 @@ class IconsView extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               SignButton(
-                icon: const SvgIcon(SvgIcons.qrCode),
-                title: '',
-                onPressed: () =>
-                    c.icon.value = IconDetails.svg(SvgIcons.qrCode),
-              ),
-              const SizedBox(height: 8),
-              SignButton(
                 icon: const SvgIcon(SvgIcons.google),
                 title: '',
                 onPressed: () =>
@@ -520,16 +513,6 @@ class IconsView extends StatelessWidget {
                     onPressed: () =>
                         c.icon.value = IconDetails.svg(SvgIcons.partner),
                     child: const SvgIcon(SvgIcons.partner),
-                  ),
-                  AnimatedButton(
-                    onPressed: () =>
-                        c.icon.value = IconDetails.svg(SvgIcons.publicsMuted),
-                    child: const SvgIcon(SvgIcons.publicsMuted),
-                  ),
-                  AnimatedButton(
-                    onPressed: () =>
-                        c.icon.value = IconDetails.svg(SvgIcons.publics),
-                    child: const SvgIcon(SvgIcons.publics),
                   ),
                   AnimatedButton(
                     onPressed: () =>

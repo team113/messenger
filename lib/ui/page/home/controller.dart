@@ -45,6 +45,7 @@ class HomeController extends GetxController {
     this._settings, {
     this.signedUp = false,
     this.link,
+    this.context,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -80,6 +81,9 @@ class HomeController extends GetxController {
   /// [ChatDirectLinkSlug] to display [IntroductionView] with.
   final ChatDirectLinkSlug? link;
 
+  /// [BuildContext] of the [HomeView].
+  final BuildContext? context;
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
@@ -112,11 +116,6 @@ class HomeController extends GetxController {
   /// Returns the [List] of the [HomeTab]s to display.
   List<HomeTab> get tabs {
     final List<HomeTab> tabs = HomeTab.values.toList();
-
-    if (settings.value?.workWithUsTabEnabled == false) {
-      tabs.remove(HomeTab.work);
-    }
-
     return tabs;
   }
 
@@ -170,8 +169,8 @@ class HomeController extends GetxController {
   }
 
   /// Returns corrected according to the side bar constraints [width] value.
-  double applySideBarWidth(double width) {
-    double maxWidth = router.context!.width * sideBarMaxWidthPercentage;
+  double applySideBarWidth(BuildContext context, double width) {
+    double maxWidth = context.width * sideBarMaxWidthPercentage;
 
     if (maxWidth < sideBarMinWidth) {
       maxWidth = sideBarMinWidth;
@@ -234,7 +233,7 @@ class HomeController extends GetxController {
     }
 
     if (stage != null) {
-      IntroductionView.show(router.context!, initial: stage)
+      IntroductionView.show(context ?? router.context!, initial: stage)
           .then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);

@@ -1347,7 +1347,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     snapshot.data ?? (member is RxUser? ? member : null);
 
                 return Tooltip(
-                  message: data?.title ?? user?.title,
+                  message: data?.title ?? user?.title ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -1804,7 +1804,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       } else {
         _text = string?.parseLinks(
           _recognizers,
-          Theme.of(router.context!).style.linkStyle,
+          router.context == null
+              ? null
+              : Theme.of(router.context!).style.linkStyle,
         );
       }
     } else if (msg is ChatForward) {
@@ -2034,6 +2036,16 @@ extension LinkParsingExtension on String {
                 uri = Uri.parse(
                   !link.startsWith('http') ? 'https://$link' : link,
                 );
+
+                final String url = uri.toString();
+                final List<String> origins = [Config.origin, Config.link];
+
+                for (var e in origins) {
+                  if (url.startsWith(e)) {
+                    router.push(url.replaceFirst(e, ''));
+                    return;
+                  }
+                }
               }
 
               if (await canLaunchUrl(uri)) {

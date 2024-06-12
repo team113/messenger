@@ -30,7 +30,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   Future<Directory> get downloadsDirectory =>
-      Future.value(Directory('.temp_hive/downloads'));
+      Future.value(Directory('.temp_cache/downloads'));
 
   @override
   Future<Directory?> get cacheDirectory =>
