@@ -25,7 +25,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
 import 'dart:js_interop_unsafe';
-import 'dart:js_util';
 import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
@@ -109,7 +108,7 @@ external dynamic webkitFullscreenElement;
 external dynamic msFullscreenElement;
 
 @JS('cleanIndexedDB')
-external cleanIndexedDB(dynamic);
+external JSPromise<JSAny?> cleanIndexedDB(dynamic);
 
 @JS('window.isPopup')
 external bool _isPopup;
@@ -118,13 +117,13 @@ external bool _isPopup;
 external bool _hasFocus();
 
 @JS('navigator.locks.request')
-external Future<dynamic> _requestLock(
+external JSPromise<JSAny?> _requestLock(
   String resource,
   dynamic Function(dynamic) callback,
 );
 
 @JS('getLocks')
-external Future<dynamic> _getLocks();
+external JSPromise<JSAny?> _getLocks();
 
 @JS('locksAvailable')
 external bool _locksAvailable();
@@ -312,7 +311,7 @@ class WebUtils {
     bool held = false;
 
     try {
-      final locks = await promiseToFuture(_getLocks());
+      final locks = await _getLocks().toDart;
       held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
     } catch (e) {
       held = false;
@@ -367,22 +366,20 @@ class WebUtils {
       final Completer<T> completer = Completer();
 
       try {
-        await promiseToFuture(
-          _requestLock(
-            tag,
-            allowInterop(
-              (_) => callback()
-                  .then((T val) => completer.complete(val))
-                  .onError(
-                    (e, stackTrace) => completer.completeError(
-                      e ?? Exception(),
-                      stackTrace,
-                    ),
-                  )
-                  .toJS,
-            ),
+        await _requestLock(
+          tag,
+          allowInterop(
+            (_) => callback()
+                .then((T val) => completer.complete(val))
+                .onError(
+                  (e, stackTrace) => completer.completeError(
+                    e ?? Exception(),
+                    stackTrace,
+                  ),
+                )
+                .toJS,
           ),
-        );
+        ).toDart;
       } catch (_) {
         // If completer is completed, then the exception is already handled.
         if (!completer.isCompleted) {
@@ -486,7 +483,7 @@ class WebUtils {
   /// Clears the browser's `IndexedDB`.
   static Future<void> cleanIndexedDb({String? except}) async {
     try {
-      await promiseToFuture(cleanIndexedDB(except));
+      await cleanIndexedDB(except).toDart;
     } catch (e) {
       consoleError(e);
     }

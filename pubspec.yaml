@@ -63,7 +63,7 @@ dependencies:
   intl: ^0.17.0
   js: ^0.6.5
   json_annotation: ^4.9.0
-  just_audio: ^0.9.37
+  just_audio: ^0.9.38
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
