@@ -108,7 +108,7 @@ class AuthRepository extends DisposableInterface
             break;
 
           case OperationKind.removed:
-            profiles.removeWhere((m) => m.id.val == e.oldKey?.val);
+            profiles.removeWhere((m) => m.id.val == e.key?.val);
             break;
         }
       }
@@ -243,6 +243,10 @@ class AuthRepository extends DisposableInterface
   @override
   Future<void> removeAccount(UserId id, {bool keepProfile = false}) async {
     Log.debug('removeAccount($id)', '$runtimeType');
+
+    if (!keepProfile) {
+      profiles.removeWhere((e) => e.id == id);
+    }
 
     await Future.wait([
       if (!keepProfile) _myUserProvider.delete(id),

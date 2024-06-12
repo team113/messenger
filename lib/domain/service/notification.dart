@@ -467,8 +467,8 @@ class NotificationService extends DisposableService {
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((message) {
-        final String? chatId = message['data']['chatId'];
-        final String? chatItemId = message['data']['chatItemId'];
+        final String? chatId = message['data']?['chatId'];
+        final String? chatItemId = message['data']?['chatItemId'];
 
         final String? tag = (chatId != null && chatItemId != null)
             ? '${chatId}_$chatItemId'

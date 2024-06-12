@@ -126,12 +126,6 @@ class WebUtils {
     // No-op.
   }
 
-  // TODO: Styles page related, should be removed at some point.
-  /// Downloads the file from [url] and saves it as [filename].
-  static Future<void> download(String url, String filename) async {
-    // No-op.
-  }
-
   /// Toggles browser's fullscreen to [enable], and returns the resulting
   /// fullscreen state.
   ///
