@@ -299,11 +299,6 @@ email_confirmation_code =
     Valid until {$expiresAt}.
     {$domain}
 email_confirmation_code_subject = {$domain} confirmation code
-email_password_recovery =
-    {$domain} recovery code is: {$token}
-    Valid until {$expiresAt}.
-    {$domain}
-email_password_recovery_subject = {$domain} recovery code
 err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
