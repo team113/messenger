@@ -300,12 +300,14 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         if: ${{ matrix.platform == 'macos' }}
 
-      - run: mkdir -p .cache/
+      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
+        working-directory: build/macos/Build/Products/Release/
+        if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: '--symlinks'  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/.cache/app.zip
-          directory: 'build/macos/Build/Products/Release/*.app'
+          directory: 'build/macos/Build/Products/Release/dist'
         if: ${{ matrix.platform == 'macos' }}
 
       - name: Notarize and staple macOS application
@@ -315,7 +317,7 @@ jobs:
                                   --team-id $TEAM_ID \
                                   --password $PASSWORD \
                                   --wait
-          xcrun stapler staple build/macos/Build/Products/Release/*.app
+          xcrun stapler staple build/macos/Build/Products/Release/dist/*.app
         env:
           APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
@@ -339,9 +341,6 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/ios/iphoneos/
         if: ${{ matrix.platform == 'ios' }}
-      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
-        working-directory: build/macos/Build/Products/Release/
-        if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
