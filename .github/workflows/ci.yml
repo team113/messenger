@@ -303,6 +303,8 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
+      - run: mkdir -p .cache/
+        if: ${{ matrix.platform == 'macos' }}
       - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: '--symlinks'  # preserve symlinks, instead of copying files
