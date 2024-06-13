@@ -300,6 +300,28 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         if: ${{ matrix.platform == 'macos' }}
 
+      - run: mkdir -p .cache/
+      - uses: thedoctor0/zip-release@0.7.6
+        with:
+          custom: '--symlinks'  # preserve symlinks, instead of copying files
+          filename: ${{ github.workspace }}/.cache/app.zip
+          directory: 'build/macos/Build/Products/Release/*.app'
+        if: ${{ matrix.platform == macos }}
+
+      - name: Notarize and staple macOS application
+        run: |
+          xcrun notarytool submit ${{ github.workspace }}/.cache/app.zip \
+                                  --apple-id "$APPLE_ID" \
+                                  --team-id $TEAM_ID \
+                                  --password $PASSWORD \
+                                  --wait
+          xcrun stapler staple build/macos/Build/Products/Release/*.app
+        env:
+          APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        if: ${{ matrix.platform == 'macos' }}
+
       - name: Parse application name from Git repository name
         id: app
         uses: actions-ecosystem/action-regex-match@v2
