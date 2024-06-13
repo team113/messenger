@@ -34,6 +34,10 @@ import UIKit
       [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
       if (call.method == "getArchitecture") {
         self?.getArchitecture(result: result)
+      } else if (call.method == "removeDeliveredNotifications") {
+        let args = call.arguments as! [String: Any]
+        self?.removeDeliveredNotifications(identifier: args["identifier"] as! String)
+        result(nil)
       } else {
         result(FlutterMethodNotImplemented)
       }
@@ -57,6 +61,14 @@ import UIKit
                           details: nil))
     } else {
       result(String(arch!))
+    }
+  }
+
+  /// Remove the delivered notification with the provided identifier.
+  private func removeDeliveredNotifications(identifier: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.removeDeliveredNotifications(withIdentifiers: [identifier]);
     }
   }
 }

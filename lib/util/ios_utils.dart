@@ -26,4 +26,12 @@ class IosUtils {
   static Future<String> getArchitecture() async {
     return await platform.invokeMethod('getArchitecture');
   }
+
+  /// Removes the delivered notification with the provided [identifier].
+  static Future<void> removeDeliveredNotifications(String identifier) async {
+    await platform.invokeMethod(
+      'removeDeliveredNotifications',
+      {'identifier': identifier},
+    );
+  }
 }

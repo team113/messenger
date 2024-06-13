@@ -31,6 +31,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
@@ -74,6 +75,7 @@ import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
+import 'util/ios_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -438,6 +440,21 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       provider?.disconnect();
       subscription?.cancel();
       await FlutterCallkitIncoming.endCall(message.data['chatId']);
+    }
+  } else {
+    if (PlatformUtils.isAndroid) {
+      final plugin = FlutterLocalNotificationsPlugin();
+      final active = await plugin.getActiveNotifications();
+
+      for (var e in active) {
+        if (e.tag == message.collapseKey && message.notification == null) {
+          await plugin.cancel(0, tag: e.tag);
+        }
+      }
+    } else if (PlatformUtils.isIOS) {
+      if (message.notification == null && message.data['tag'] != null) {
+        await IosUtils.removeDeliveredNotifications(message.data['tag']);
+      }
     }
   }
 }

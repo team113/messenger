@@ -487,10 +487,12 @@ class NotificationService extends DisposableService {
           }
         }
 
-        // On Web push notifications don't support playing any sounds, it's up
-        // to operating system to decide, whether to play sound at all, so we
-        // play a sound manually.
-        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        if (message['notification']?['title'] != null) {
+          // On Web push notifications don't support playing any sounds, it's up
+          // to operating system to decide, whether to play sound at all, so we
+          // play a sound manually.
+          AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        }
       });
 
       _token =

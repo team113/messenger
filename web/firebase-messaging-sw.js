@@ -32,6 +32,16 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
 
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
+
+  if (payload.notification?.title == null) {
+    const notifications = await self.registration.getNotifications({
+      tag: payload.data.tag
+    });
+
+    for (var notification of notifications) {
+      notification.close();
+    }
+  }
 });
