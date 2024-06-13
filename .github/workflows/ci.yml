@@ -306,7 +306,7 @@ jobs:
           custom: '--symlinks'  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/.cache/app.zip
           directory: 'build/macos/Build/Products/Release/*.app'
-        if: ${{ matrix.platform == macos }}
+        if: ${{ matrix.platform == 'macos' }}
 
       - name: Notarize and staple macOS application
         run: |
