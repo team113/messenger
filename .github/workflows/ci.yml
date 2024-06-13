@@ -289,7 +289,7 @@ jobs:
 
           # Codesign the application.
           codesign --deep --force --verbose \
-                   --sign "$BUILD_CERTIFICATE_IDENTITY"
+                   --sign "$BUILD_CERTIFICATE_IDENTITY" \
                    build/macos/Build/Products/Release/*.app
           codesign --verify -vvvv build/macos/Build/Products/Release/*.app
         env:
