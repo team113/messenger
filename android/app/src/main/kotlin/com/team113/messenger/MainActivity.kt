@@ -166,7 +166,7 @@ class MainActivity : FlutterActivity() {
     }
 
     /**
-     * Cancels an active notification with the provided tag.
+     * Cancels an active notification containing the provided thread.
      */
     private fun cancelNotificationsContaining(arguments: HashMap<String, String>): Boolean {
         var result = false;
@@ -175,7 +175,7 @@ class MainActivity : FlutterActivity() {
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
         val notifications = notificationManager.getActiveNotifications();
         for (notification in notifications) {
-            if (notification.getTag().contains(arguments["thread"] as java.util.String)) {
+            if (notification.getTag().contains(arguments["thread"] as String)) {
                 notificationManager.cancel(notification.getTag(), notification.getId());
                 result = true;
             }
