@@ -35,6 +35,7 @@ import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
+import '/util/ios_utils.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -419,11 +420,12 @@ class NotificationService extends DisposableService {
 
     // Display a local notification, if there's any push notifications received
     // while application is in foreground.
-    _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+    _foregroundSubscription =
+        FirebaseMessaging.onMessage.listen((message) async {
       Log.debug('_foregroundSubscription($message)', '$runtimeType');
 
       if (message.notification?.title != null) {
-        show(
+        await show(
           message.notification!.title!,
           body: message.notification?.body,
           payload: message.data['chatId'] != null
@@ -437,6 +439,25 @@ class NotificationService extends DisposableService {
               ? '${message.data['chatId']}_${message.data['chatItemId']}'
               : null,
         );
+      } else {
+        if (message.notification == null) {
+          final String? tag = message.data['tag'];
+          final String? thread = message.data['thread'];
+
+          if (PlatformUtils.isAndroid) {
+            if (thread != null) {
+              await AndroidUtils.cancelNotificationsContaining(thread);
+            } else if (tag != null) {
+              await IosUtils.cancelNotification(tag);
+            }
+          } else if (PlatformUtils.isIOS) {
+            if (thread != null) {
+              await AndroidUtils.cancelNotificationsContaining(thread);
+            } else if (tag != null) {
+              await IosUtils.cancelNotification(tag);
+            }
+          }
+        }
       }
     });
 

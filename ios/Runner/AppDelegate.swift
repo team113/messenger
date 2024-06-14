@@ -31,13 +31,16 @@ import UIKit
     let utilsChannel = FlutterMethodChannel(name: "team113.flutter.dev/ios_utils",
                                               binaryMessenger: controller.binaryMessenger)
     utilsChannel.setMethodCallHandler({
-      [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
+      [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       if (call.method == "getArchitecture") {
         self?.getArchitecture(result: result)
-      } else if (call.method == "removeDeliveredNotifications") {
+      } else if (call.method == "cancelNotification") {
         let args = call.arguments as! [String: Any]
-        self?.removeDeliveredNotifications(identifier: args["identifier"] as! String)
+        self?.cancelNotification(identifier: args["tag"] as! String)
         result(nil)
+      } else if (call.method == "cancelNotificationsContaining") {
+        let args = call.arguments as! [String: Any]
+        self?.cancelNotificationsContaining(result: result, thread: args["thread"] as! String)
       } else {
         result(FlutterMethodNotImplemented)
       }
@@ -64,11 +67,30 @@ import UIKit
     }
   }
 
-  /// Remove the delivered notification with the provided identifier.
-  private func removeDeliveredNotifications(identifier: String) {
+  /// Remove the delivered notification with the provided tag.
+  private func cancelNotification(tag: String) {
     if #available(iOS 10.0, *) {
       let center = UNUserNotificationCenter.current();
-      center.removeDeliveredNotifications(withIdentifiers: [identifier]);
+      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+    }
+  }
+
+  /// Remove the delivered notification containing the provided thread.
+  private func cancelNotificationsContaining(result: @escaping FlutterResult, thread: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.getDeliveredNotifications { (notifications) in
+        var found = false;
+
+        for notification in notifications {
+          if (notification.request.content.threadIdentifier.contains(thread) == true) {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+            found = true;
+          }
+        }
+
+        result(found);
+      }
     }
   }
 }

@@ -444,12 +444,19 @@ Future<void> handlePushNotification(RemoteMessage message) async {
   } else {
     if (message.notification == null) {
       final String? tag = message.data['tag'];
+      final String? thread = message.data['thread'];
 
-      if (tag != null) {
-        if (PlatformUtils.isAndroid) {
-          await AndroidUtils.cancelNotificationWithTag(message.data['tag']);
-        } else if (PlatformUtils.isIOS) {
-          await IosUtils.removeDeliveredNotifications(message.data['tag']);
+      if (PlatformUtils.isAndroid) {
+        if (thread != null) {
+          await AndroidUtils.cancelNotificationsContaining(thread);
+        } else if (tag != null) {
+          await IosUtils.cancelNotification(tag);
+        }
+      } else if (PlatformUtils.isIOS) {
+        if (thread != null) {
+          await AndroidUtils.cancelNotificationsContaining(thread);
+        } else if (tag != null) {
+          await IosUtils.cancelNotification(tag);
         }
       }
     }

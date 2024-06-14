@@ -27,11 +27,14 @@ class IosUtils {
     return await platform.invokeMethod('getArchitecture');
   }
 
-  /// Removes the delivered notification with the provided [identifier].
-  static Future<void> removeDeliveredNotifications(String identifier) async {
-    await platform.invokeMethod(
-      'removeDeliveredNotifications',
-      {'identifier': identifier},
-    );
+  /// Removes the delivered notification with the provided [tag].
+  static Future<bool> cancelNotification(String tag) async {
+    return await platform.invokeMethod('cancelNotification', {'tag': tag});
+  }
+
+  /// Removes the delivered notifications containing the provided [thread].
+  static Future<bool> cancelNotificationsContaining(String thread) async {
+    return await platform
+        .invokeMethod('cancelNotificationsContaining', {'thread': thread});
   }
 }

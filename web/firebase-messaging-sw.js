@@ -36,12 +36,24 @@ messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
 
   if (payload.notification?.title == null) {
-    const notifications = await self.registration.getNotifications({
-      tag: payload.data.tag
-    });
+    var tag = payload.data.tag;
+    var thread = payload.data.thread;
 
-    for (var notification of notifications) {
-      notification.close();
+    if (thread != null) {
+      const notifications = await self.registration.getNotifications();
+      for (var notification of notifications) {
+        if (notification.tag.includes(thread)) {
+          notification.close();
+        }
+      }
+    } else if (tag != null) {
+      const notifications = await self.registration.getNotifications({
+        tag: payload.data.tag
+      });
+
+      for (var notification of notifications) {
+        notification.close();
+      }
     }
   }
 });
