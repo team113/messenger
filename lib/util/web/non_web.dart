@@ -287,7 +287,7 @@ class WebUtils {
   }
 
   /// Plays the provided [asset].
-  static Future<void> playSound(String asset) async {
+  static Future<void> play(String asset) async {
     // No-op.
   }
 

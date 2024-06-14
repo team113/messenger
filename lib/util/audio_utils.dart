@@ -93,7 +93,7 @@ class AudioUtilsImpl {
       };
 
       if (url.isNotEmpty) {
-        await WebUtils.playSound(url);
+        await WebUtils.play(url);
       }
     } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
