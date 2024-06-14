@@ -753,6 +753,25 @@ class WebUtils {
     // No-op.
   }
 
+  /// Plays the provided [asset].
+  static Future<void> play(String asset) async {
+    final web.AudioContext context = web.AudioContext();
+    final web.AudioBufferSourceNode source = context.createBufferSource();
+
+    final Response bytes = await (await PlatformUtils.dio).get(
+      'assets/assets/$asset',
+      options: Options(responseType: ResponseType.bytes),
+    );
+
+    final JSPromise<web.AudioBuffer> audioBuffer = context.decodeAudioData(
+      (bytes.data as Uint8List).buffer.toJS,
+    );
+
+    source.buffer = await audioBuffer.toDart;
+    source.connect(context.destination);
+    source.start();
+  }
+
   /// Returns the `User-Agent` header to put in the network queries.
   static Future<String> get userAgent async {
     final info = await DeviceInfoPlugin().webBrowserInfo;
