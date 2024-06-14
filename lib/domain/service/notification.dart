@@ -448,11 +448,11 @@ class NotificationService extends DisposableService {
             if (thread != null) {
               await AndroidUtils.cancelNotificationsContaining(thread);
             } else if (tag != null) {
-              await IosUtils.cancelNotification(tag);
+              await AndroidUtils.cancelNotification(tag);
             }
           } else if (PlatformUtils.isIOS) {
             if (thread != null) {
-              await AndroidUtils.cancelNotificationsContaining(thread);
+              await IosUtils.cancelNotificationsContaining(thread);
             } else if (tag != null) {
               await IosUtils.cancelNotification(tag);
             }

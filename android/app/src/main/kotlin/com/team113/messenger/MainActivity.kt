@@ -70,7 +70,7 @@ class MainActivity : FlutterActivity() {
                 }
             } else if (call.method == "cancelNotification") {
                 val args = call.arguments as java.util.HashMap<String, String>
-                result.success(cancelNotificationWithTag(args))
+                result.success(cancelNotification(args))
             } else if (call.method == "cancelNotificationsContaining") {
                 val args = call.arguments as java.util.HashMap<String, String>
                 result.success(cancelNotificationsContaining(args))
@@ -175,7 +175,7 @@ class MainActivity : FlutterActivity() {
             getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
         val notifications = notificationManager.getActiveNotifications();
         for (notification in notifications) {
-            if (notification.getTag().contains(arguments["thread"])) {
+            if (notification.getTag().contains(arguments["thread"] as java.util.String)) {
                 notificationManager.cancel(notification.getTag(), notification.getId());
                 result = true;
             }
