@@ -139,4 +139,23 @@ class MainActivity : FlutterActivity() {
         }
         return completed
     }
+
+    /**
+     * Cancels an active notification with the provided tag.
+     */
+    private fun cancelNotificationWithTag(arguments: HashMap<String, String>): Boolean {
+        var result = false;
+
+        val notificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
+        val notifications = notificationManager.getActiveNotifications();
+        for (notification in notifications) {
+            if (notification.getTag() == arguments["tag"]) {
+                notificationManager.cancel(arguments["tag"], notification.getId());
+                result = true;
+            }
+        }
+
+        return result;
+    }
 }

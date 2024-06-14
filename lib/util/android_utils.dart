@@ -49,4 +49,10 @@ class AndroidUtils {
       },
     );
   }
+
+  /// Cancels an active notification with the provided [tag], if any.
+  static Future<bool> cancelNotificationWithTag(String tag) async {
+    return await platform
+        .invokeMethod('cancelNotificationWithTag', {'tag': tag});
+  }
 }
