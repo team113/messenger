@@ -130,6 +130,7 @@ class AccountsView extends StatelessWidget {
 
               children = [
                 SignButton(
+                  key: const Key('PasswordButton'),
                   title: 'btn_password'.l10n,
                   onPressed: () =>
                       c.stage.value = AccountsViewStage.signInWithPassword,
@@ -340,6 +341,7 @@ class AccountsView extends StatelessWidget {
                     final bool active = c.me == myUser.id;
 
                     return ContactTile(
+                      key: Key('Account_${e.value.id}'),
                       myUser: myUser,
 
                       // TODO: Prompt to sign in to the non-[authorized].
@@ -368,6 +370,7 @@ class AccountsView extends StatelessWidget {
 
                       trailing: [
                         AnimatedButton(
+                          key: const Key('RemoveAccount'),
                           decorator: (child) => Padding(
                             padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
                             child: child,
@@ -455,6 +458,7 @@ class AccountsView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: PrimaryButton(
+                    key: const Key('AddAccountButton'),
                     onPressed: () => c.stage.value = AccountsViewStage.add,
                     title: 'btn_add_account'.l10n,
                   ),

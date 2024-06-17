@@ -20,6 +20,8 @@ import 'package:gherkin/gherkin.dart';
 
 /// [Key]s available in the [WidgetKeyParameter].
 enum WidgetKey {
+  AccountsButton,
+  AddAccountButton,
   AddEmail,
   AddMemberButton,
   AddPhone,
@@ -121,6 +123,7 @@ enum WidgetKey {
   NewPasswordField,
   NoMessages,
   NumCopyable,
+  OkButton,
   PasswordButton,
   PasswordExpandable,
   PasswordField,
@@ -133,6 +136,7 @@ enum WidgetKey {
   PublicInformation,
   RecoveryCodeField,
   RecoveryField,
+  RemoveAccount,
   RenameChatField,
   RepeatPasswordField,
   Resend,

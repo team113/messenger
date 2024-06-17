@@ -113,6 +113,7 @@ class MenuTabView extends StatelessWidget {
             leading: const [SizedBox(width: 20)],
             actions: [
               WidgetButton(
+                key: const Key('AccountsButton'),
                 behavior: HitTestBehavior.translucent,
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
