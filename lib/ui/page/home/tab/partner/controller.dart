@@ -16,7 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/work.dart';
 
 import '/ui/widget/text_field.dart';

@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
@@ -45,8 +46,9 @@ class TransactionWidget extends StatelessWidget {
           router.route == '${Routes.transaction}/${transaction.id}';
 
       final Widget status;
+      final bool positive = transaction.amount >= 0;
 
-      if (transaction is IncomingTransaction) {
+      if (positive) {
         status = const SvgImage.asset(
           'assets/icons/transaction_in.svg',
           width: 20,

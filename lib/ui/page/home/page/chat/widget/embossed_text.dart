@@ -16,22 +16,22 @@ class EmbossedText extends StatelessWidget {
               Shadow(
                 offset: Offset(1, 1),
                 blurRadius: 3,
-                color: Color.fromRGBO(172, 146, 0, 0.9),
+                color: Color(0xE4AC9200),
               ),
               Shadow(
                 offset: Offset(-1, -1),
                 blurRadius: 2,
-                color: Color.fromRGBO(255, 255, 0, 0.9),
+                color: Color(0xE4FFFF00),
               ),
               Shadow(
                 offset: Offset(1, -1),
                 blurRadius: 2,
-                color: Color.fromRGBO(172, 146, 0, 0.2),
+                color: Color(0x33AC9200),
               ),
               Shadow(
                 offset: Offset(-1, 1),
                 blurRadius: 2,
-                color: Color.fromRGBO(172, 146, 0, 0.2),
+                color: Color(0x33AC9200),
               ),
             ],
         span = null;
@@ -88,32 +88,32 @@ class EmbossedText extends StatelessWidget {
     Shadow(
       offset: Offset(0.5, 0.5),
       blurRadius: 1,
-      color: Color.fromRGBO(153, 130, 0, 0.6),
+      color: Color(0x99998200),
     ),
     Shadow(
       offset: Offset(-0.3, -0.3),
       blurRadius: 1.5,
-      color: Color.fromRGBO(255, 255, 0, 0.9),
+      color: Color(0xE4FFFF00),
     ),
     Shadow(
       offset: Offset(1, 1),
       blurRadius: 2,
-      color: Color.fromRGBO(128, 108, 0, 0.4),
+      color: Color(0x66806C00),
     ),
     Shadow(
       offset: Offset(0.5, 0.5),
       blurRadius: 2,
-      color: Color.fromRGBO(153, 130, 0, 0.9),
+      color: Color(0xE4998200),
     ),
     Shadow(
       offset: Offset(-0.5, -0.5),
       blurRadius: 2,
-      color: Color.fromRGBO(255, 255, 0, 0.9),
+      color: Color(0xE4FEFEF9),
     ),
     Shadow(
       offset: Offset(1, 1),
       blurRadius: 2,
-      color: Color.fromRGBO(172, 146, 0, 0.2),
+      color: Color(0x33AC9200),
     ),
   ];
 

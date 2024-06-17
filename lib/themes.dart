@@ -98,6 +98,7 @@ class Themes {
       secondaryBackgroundLight: const Color(0xFF444444),
       secondaryBackgroundLightest: const Color(0xFF666666),
       onSecondary: const Color(0xFF4E5A78),
+      submissive: const Color(0xFF3897F0),
       background: const Color(0xFFF2F5F8),
       backgroundAuxiliary: const Color(0xFF0A1724),
       backgroundAuxiliaryLight: const Color(0xFF132131),
@@ -679,6 +680,7 @@ class Palette {
     Color? secondaryOpacity87,
     Color? secondaryOpacity40,
     required this.onSecondary,
+    required this.submissive,
     Color? onSecondaryOpacity20,
     Color? onSecondaryOpacity50,
     Color? onSecondaryOpacity60,
@@ -880,6 +882,8 @@ class Palette {
   /// [Color] for elements to put above the [secondary] color.
   final Color onSecondary;
 
+  final Color submissive;
+
   /// 88% opacity of the [onSecondary] color.
   ///
   /// Used as a hovered mobile call panel and desktop call launchpad background.
@@ -1074,6 +1078,7 @@ class Palette {
           color.secondaryBackgroundLight, other.secondaryBackgroundLight, t)!,
       secondaryBackgroundLightest: Color.lerp(color.secondaryBackgroundLightest,
           other.secondaryBackgroundLightest, t)!,
+      submissive: Color.lerp(color.submissive, other.submissive, t)!,
       onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t)!,
       onSecondaryOpacity20: Color.lerp(
           color.onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,

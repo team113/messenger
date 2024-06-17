@@ -2415,4 +2415,10 @@ class SvgIcons {
     width: 32,
     height: 32,
   );
+
+  static const SvgData menuVerification = SvgData(
+    'assets/icons/menu_verification.svg',
+    width: 32,
+    height: 32,
+  );
 }

@@ -192,7 +192,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Obx(() {
                   return RectangleButton(
                     label: 'label_keep_credentials'.l10n,
-                    tappable: true,
+                    toggleable: true,
                     radio: true,
                     selected: !c.eraseCredentials.value,
                     onPressed: c.eraseCredentials.toggle,

@@ -18,7 +18,7 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/ui/widget/outlined_rounded_button.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 

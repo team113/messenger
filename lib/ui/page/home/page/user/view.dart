@@ -843,30 +843,6 @@ class UserView extends StatelessWidget {
           Block(
             title: 'Монетизация (входящие)',
             padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-            // overlay: [
-            //   Positioned(
-            //     right: 0,
-            //     top: 0,
-            //     child: Center(
-            //       child: SelectionContainer.disabled(
-            //         child: AnimatedButton(
-            //           onPressed: c.moneyEditing.toggle,
-            //           child: Padding(
-            //             padding: const EdgeInsets.fromLTRB(6, 6, 0, 6),
-            //             child: c.moneyEditing.value
-            //                 ? const Padding(
-            //                     padding: EdgeInsets.all(2),
-            //                     child: SvgIcon(
-            //                       SvgIcons.closeSmallPrimary,
-            //                     ),
-            //                   )
-            //                 : const SvgIcon(SvgIcons.editSmall),
-            //           ),
-            //         ),
-            //       ),
-            //     ),
-            //   ),
-            // ],
             children: [_paid(c, context)],
           ),
           Positioned.fill(

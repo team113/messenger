@@ -111,6 +111,7 @@ import 'widget/line_divider.dart';
 import 'widget/login.dart';
 import 'widget/name.dart';
 import 'widget/status.dart';
+import 'widget/verification.dart';
 
 /// View of the [Routes.me] page.
 class MyProfileView extends StatelessWidget {
@@ -121,6 +122,7 @@ class MyProfileView extends StatelessWidget {
     return GetBuilder(
       key: const Key('MyProfileView'),
       init: MyProfileController(
+        Get.find(),
         Get.find(),
         Get.find(),
         Get.find(),
@@ -318,6 +320,9 @@ class MyProfileView extends StatelessWidget {
                           }),
                         ],
                       );
+
+                    case ProfileTab.verification:
+                      return block(children: [_verification2(context, c)]);
 
                     case ProfileTab.background:
                       return block(
@@ -1151,6 +1156,30 @@ Widget _media(BuildContext context, MyProfileController c) {
         ),
       ],
     ],
+  );
+}
+
+/// Returns the contents of a `ProfileTab.verification` section.
+Widget _verification2(BuildContext context, MyProfileController c) {
+  return VerificationBlock(
+    person: c.person.value,
+    editing: c.verificationEditing.value,
+    onChanged: (s) => c.person.value = s,
+    onEditing: (e) {
+      c.itemScrollController.scrollTo(
+        index: ProfileTab.values.indexOf(ProfileTab.verification),
+        curve: Curves.ease,
+        duration: const Duration(milliseconds: 600),
+      );
+
+      c.highlight(ProfileTab.verification);
+
+      c.verificationEditing.value = e;
+      if (!e) {
+        c.verify();
+      }
+    },
+    myUser: c.myUser,
   );
 }
 
@@ -2316,6 +2345,7 @@ Widget _bar(MyProfileController c, BuildContext context) {
     final section = switch (router.profileSection.value) {
       null || ProfileTab.public => 'label_profile'.l10n,
       ProfileTab.signing => 'label_login_options'.l10n,
+      ProfileTab.verification => 'Верификация аккаунта'.l10n,
       ProfileTab.link => 'label_link_to_chat'.l10n,
       ProfileTab.background => 'label_background'.l10n,
       ProfileTab.chats => 'label_chats'.l10n,

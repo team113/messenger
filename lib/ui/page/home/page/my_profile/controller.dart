@@ -29,6 +29,7 @@ import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/account.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/blocklist.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/ui/page/home/page/my_profile/add_email/controller.dart';
@@ -75,6 +76,7 @@ class MyProfileController extends GetxController {
     this._blocklistService,
     this._userService,
     this._authService,
+    this._balanceService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -116,12 +118,11 @@ class MyProfileController extends GetxController {
   /// [MyUser.status]'s field state.
   late final TextFieldState status;
 
-  late final TextFieldState allMessageCost; // = TextFieldState(text: '0.00');
-  late final TextFieldState allCallCost; // = TextFieldState(text: '0.00');
+  late final TextFieldState allMessageCost;
+  late final TextFieldState allCallCost;
 
-  late final TextFieldState
-      contactMessageCost; // = TextFieldState(text: '0.00');
-  late final TextFieldState contactCallCost; // = TextFieldState(text: '0.00');
+  late final TextFieldState contactMessageCost;
+  late final TextFieldState contactCallCost;
 
   late final TextFieldState donateCost;
   final RxInt donatePrice = RxInt(0);
@@ -228,6 +229,8 @@ class MyProfileController extends GetxController {
   final RxBool moneyEditing = RxBool(false);
   final RxBool donateEditing = RxBool(false);
 
+  late final RxBool verificationEditing = RxBool(!verified.value);
+
   final RxBool displayName = RxBool(false);
 
   /// Service responsible for [MyUser] management.
@@ -243,9 +246,13 @@ class MyProfileController extends GetxController {
 
   final UserService _userService;
   final AuthService _authService;
+  final BalanceService _balanceService;
 
   /// Reactive list of sorted blocked [RxUser]s.
   final RxList<RxUser> blocklist = RxList();
+
+  late final Rx<VerifiedPerson?> person =
+      Rx(_balanceService.person.value?.copyWith());
 
   /// [StreamSubscription] to react on the [BlocklistService.blocklist] updates.
   late final StreamSubscription _blocklistSubscription;
@@ -589,11 +596,6 @@ class MyProfileController extends GetxController {
             int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
       },
     );
-    // allMessageCost.isFocused.listen((b) {
-    //   if (!b && allMessageCost.text.isEmpty) {
-    //     allMessageCost.unchecked = '0';
-    //   }
-    // });
 
     allCallCost = TextFieldState(
       approvable: true,
@@ -603,11 +605,6 @@ class MyProfileController extends GetxController {
             int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
       },
     );
-    // allCallCost.isFocused.listen((b) {
-    //   if (!b && allCallCost.text.isEmpty) {
-    //     allCallCost.unchecked = '0';
-    //   }
-    // });
 
     contactMessageCost = TextFieldState(
       approvable: true,
@@ -617,11 +614,6 @@ class MyProfileController extends GetxController {
             int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
       },
     );
-    // contactMessageCost.isFocused.listen((b) {
-    //   if (!b && contactMessageCost.text.isEmpty) {
-    //     contactMessageCost.unchecked = '0';
-    //   }
-    // });
 
     contactCallCost = TextFieldState(
       approvable: true,
@@ -631,11 +623,6 @@ class MyProfileController extends GetxController {
             int.tryParse(s.text.replaceAll(RegExp(r'\s+'), '')) ?? 0;
       },
     );
-    // contactCallCost.isFocused.listen((b) {
-    //   if (!b && contactCallCost.text.isEmpty) {
-    //     contactCallCost.unchecked = '0';
-    //   }
-    // });
 
     donateCost = TextFieldState(
       approvable: true,
@@ -760,6 +747,11 @@ class MyProfileController extends GetxController {
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
+  }
+
+  Future<void> verify() async {
+    _balanceService.person.value = person.value?.copyWith();
+    verified.value = true;
   }
 
   /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].

@@ -16,8 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/transaction.dart';
 
+import 'balance.dart';
 import 'disposable_service.dart';
 
 class WorkService extends DisposableService {
@@ -28,22 +28,22 @@ class WorkService extends DisposableService {
   @override
   void onInit() {
     transactions = RxList([
-      IncomingTransaction(
+      Transaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a0',
         amount: 100,
         at: DateTime.now().subtract(const Duration(hours: 2)),
       ),
-      IncomingTransaction(
+      Transaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a1',
         amount: 100,
         at: DateTime.now().subtract(const Duration(days: 12)),
       ),
-      OutgoingTransaction(
+      Transaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a2',
         amount: -50,
         at: DateTime.now().subtract(const Duration(days: 20)),
       ),
-      IncomingTransaction(
+      Transaction(
         id: '428ac09a-6a85-4121-9c24-974d922156a3',
         amount: 300000,
         at: DateTime.now().subtract(const Duration(days: 50)),
@@ -52,7 +52,7 @@ class WorkService extends DisposableService {
 
     balance = RxDouble(
       transactions.map((e) {
-        if (e.status == TransactionStatus.completed) {
+        if (e.status == TransactionStatus.done) {
           return e.amount;
         }
 

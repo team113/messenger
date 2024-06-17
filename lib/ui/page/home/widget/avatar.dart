@@ -84,6 +84,7 @@ class AvatarWidget extends StatefulWidget {
     this.onForbidden,
     this.child,
     this.shape = BoxShape.circle,
+    this.isVerified = true,
   });
 
   /// Creates an [AvatarWidget] from the specified [contact].
@@ -94,6 +95,7 @@ class AvatarWidget extends StatefulWidget {
     AvatarRadius? radius,
     double opacity = 1,
     BoxShape shape = BoxShape.circle,
+    bool? isVerified = true,
   }) =>
       AvatarWidget(
         key: key,
@@ -105,6 +107,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: isVerified,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
@@ -125,6 +128,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: badge ? true : null,
       );
     }
 
@@ -156,6 +160,7 @@ class AvatarWidget extends StatefulWidget {
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
     BoxShape shape = BoxShape.circle,
+    bool? verified,
   }) =>
       AvatarWidget(
         key: key,
@@ -168,6 +173,7 @@ class AvatarWidget extends StatefulWidget {
         opacity: opacity,
         onForbidden: onForbidden,
         shape: shape,
+        isVerified: badge ? verified : null,
       );
 
   /// Creates an [AvatarWidget] from the specified [user].
@@ -178,6 +184,7 @@ class AvatarWidget extends StatefulWidget {
     double opacity = 1,
     bool badge = true,
     BoxShape shape = BoxShape.circle,
+    bool? isVerified,
   }) =>
       AvatarWidget(
         key: key,
@@ -189,6 +196,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: isVerified,
       );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
@@ -207,6 +215,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: badge ? true : null,
       );
     }
 
@@ -224,6 +233,7 @@ class AvatarWidget extends StatefulWidget {
         opacity: opacity,
         isBlocked: blocked,
         shape: shape,
+        isVerified: badge,
       );
     });
   }
@@ -253,6 +263,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: null,
       );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
@@ -294,6 +305,7 @@ class AvatarWidget extends StatefulWidget {
         radius: radius,
         opacity: opacity,
         shape: shape,
+        isVerified: false,
       );
     }
 
@@ -328,6 +340,7 @@ class AvatarWidget extends StatefulWidget {
         isBlocked: blocked,
         onForbidden: onForbidden,
         shape: shape,
+        isVerified: chat.chat.value.isDialog ? true : null,
       );
     });
   }
@@ -363,6 +376,8 @@ class AvatarWidget extends StatefulWidget {
   final Widget? label;
 
   final bool isBlocked;
+
+  final bool? isVerified;
 
   /// Callback, called when [avatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
@@ -431,12 +446,6 @@ class _AvatarWidgetState extends State<AvatarWidget> {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth >= 40
-          ? maxWidth >= 100
-              ? maxWidth / 10
-              : maxWidth / 5
-          : maxWidth / 3.75;
-
       final ImageFile? image = maxWidth > 250
           ? widget.avatar?.full
           : maxWidth > 100
@@ -482,37 +491,11 @@ class _AvatarWidgetState extends State<AvatarWidget> {
           maxWidth: maxWidth,
           maxHeight: maxHeight,
         ),
-        child: Badge(
-          largeSize: badgeSize * 1.16,
-          isLabelVisible: widget.isOnline || widget.isBlocked,
-          alignment: Alignment.bottomRight,
-          backgroundColor: style.colors.onPrimary,
-          padding: EdgeInsets.all(badgeSize / 12),
-          offset: maxWidth >= 40
-              ? maxWidth >= 70
-                  ? Offset(-maxWidth * 0.085, -maxWidth * 0.085)
-                  : const Offset(-2.5, -2.5)
-              : const Offset(0, 0),
-          label: SizedBox(
-            width: badgeSize,
-            height: badgeSize,
-            child: widget.isBlocked
-                ? Center(
-                    child: SvgIcon(
-                      SvgIcons.restricted,
-                      width: badgeSize / 1.7,
-                      height: badgeSize / 1.7,
-                    ),
-                  )
-                : Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: widget.isAway
-                          ? style.colors.warning
-                          : style.colors.acceptAuxiliary,
-                    ),
-                  ),
-          ),
+        child: WithBadge(
+          size: maxWidth,
+          online: widget.isOnline,
+          away: widget.isAway,
+          verified: widget.isVerified,
           child: Stack(
             children: [
               if (widget.avatar == null) defaultAvatar,
@@ -609,5 +592,87 @@ extension BrightnessColorExtension on Color {
         hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
+  }
+}
+
+class WithBadge extends StatelessWidget {
+  const WithBadge({
+    super.key,
+    this.size = 16,
+    this.online = false,
+    this.away = false,
+    this.verified = false,
+    required this.child,
+  });
+
+  final double size;
+  final Widget child;
+
+  final bool online;
+  final bool away;
+  final bool? verified;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!away && !online && verified == null) {
+      return child;
+    }
+
+    final style = Theme.of(context).style;
+
+    final double badgeSize = size >= 40
+        ? size / 4
+        : size > 60
+            ? size / 3.75
+            : size > 30
+                ? size / 3
+                : size / 2;
+
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Transform.translate(
+            offset: size > 40
+                ? const Offset(-1.4, -1.4)
+                : size > 30
+                    ? const Offset(1, 1)
+                    : const Offset(2.5, 2.5),
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+                shape: BoxShape.circle,
+                color: verified == false
+                    ? style.colors.secondary
+                    : away
+                        ? style.colors.warning
+                        : online
+                            ? style.colors.acceptAuxiliary
+                            : verified == true
+                                ? style.colors.submissive
+                                : style.colors.transparent,
+              ),
+              child: verified != null
+                  ? size > 50
+                      ? const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 10,
+                        )
+                      : const Icon(
+                          Icons.check,
+                          color: Colors.white,
+                          size: 7,
+                        )
+                  : null,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

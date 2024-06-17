@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 
@@ -10,13 +9,15 @@ class MoneyField extends StatelessWidget {
     required this.state,
     this.label,
     this.onChanged,
-    this.currency = '¤',
+    this.currency = '\$',
+    this.maximum,
   });
 
   final TextFieldState state;
   final String? label;
   final void Function(int)? onChanged;
   final String? currency;
+  final double? maximum;
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +32,10 @@ class MoneyField extends StatelessWidget {
         LengthLimitingTextInputFormatter(9),
       ],
       onChanged: () {
+        state.error.value = null;
+
         final int parsed = int.tryParse(state.text) ?? 0;
-        String string = NumberFormat.decimalPattern().format(parsed);
+        String string = parsed.withSpaces;
 
         if (string == '0') {
           string = '';
@@ -44,23 +47,45 @@ class MoneyField extends StatelessWidget {
         );
 
         onChanged?.call(parsed);
+
+        if (maximum != null && parsed > maximum!) {
+          state.error.value = 'Превышен баланс';
+        }
       },
       hint: '0',
-      prefixIcon: currency == null
-          ? null
-          : SizedBox(
-              child: Center(
-                widthFactor: 0.0,
-                child: Transform.translate(
-                  offset: const Offset(12, 0),
-                  child: Text(
-                    currency!,
-                    style: style.fonts.medium.regular.onBackground,
-                  ),
-                ),
-              ),
-            ),
+      // prefixIcon: currency == null
+      //     ? null
+      //     : SizedBox(
+      //         child: Center(
+      //           widthFactor: 0.0,
+      //           child: Transform.translate(
+      //             offset: const Offset(12, 0),
+      //             child: Text(
+      //               currency!,
+      //               style: style.fonts.medium.regular.onBackground,
+      //             ),
+      //           ),
+      //         ),
+      //       ),
       label: label,
     );
+  }
+}
+
+extension on num {
+  String get withSpaces {
+    String value = toString();
+
+    int len = value.length;
+    int dlen = 3;
+
+    while (len > dlen) {
+      value =
+          '${value.substring(0, len - dlen)} ${value.substring(len - dlen, value.length)}';
+      dlen += 4;
+      len += 1;
+    }
+
+    return value;
   }
 }

@@ -64,7 +64,7 @@ dependencies:
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
-  medea_jason: 0.5.0-dev+rev.3be6cab97a20c0ed382caf381ad4b44f65f9c97a
+  medea_jason: 0.5.0-dev+rev.d615057ffe2c7031112c3047c1a11b4edc6c2454
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -182,7 +182,6 @@ dependency_overrides:
   package_info_plus: ^4.0.0
   intl: ^0.18.0
   phone_form_field:
-    # path: ../phone_form_field
     git:
       url: https://github.com/SleepySquash/phone_form_field
       ref: dev

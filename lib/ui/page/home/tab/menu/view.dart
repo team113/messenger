@@ -285,6 +285,22 @@ class MenuTabView extends StatelessWidget {
                     );
                     break;
 
+                  case ProfileTab.verification:
+                    child = card(
+                      icon: Icons.verified,
+                      title: 'Верификация аккаунта'.l10n,
+                      subtitle: 'Верификация'.l10n,
+                      child: Container(
+                        width: 34,
+                        height: 34,
+                        decoration: BoxDecoration(
+                          color: Colors.primaries[1],
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    );
+                    break;
+
                   case ProfileTab.background:
                     child = card(
                       icon: Icons.image,

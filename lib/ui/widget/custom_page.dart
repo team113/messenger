@@ -111,8 +111,7 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
       child,
     );
 
-    final bool linear =
-        CupertinoRouteTransitionMixin.isPopGestureInProgress(route);
+    final bool linear = route.popGestureInProgress;
 
     if (widget is CupertinoPageTransition) {
       return SlideTransition(

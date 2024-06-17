@@ -55,6 +55,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.public => 'label_profile'.l10n,
           ProfileTab.signing => 'label_login_options'.l10n,
           ProfileTab.link => 'label_link_to_chat'.l10n,
+          ProfileTab.verification => 'Верификация аккаунта'.l10n,
           ProfileTab.background => 'label_background'.l10n,
           ProfileTab.chats => 'label_chats'.l10n,
           ProfileTab.calls => 'label_calls'.l10n,
@@ -78,6 +79,7 @@ class MenuButton extends StatelessWidget {
         subtitle = switch (tab) {
           ProfileTab.public => 'label_public_section_hint'.l10n,
           ProfileTab.signing => 'label_login_section_hint'.l10n,
+          ProfileTab.verification => 'Верификация'.l10n,
           ProfileTab.link => 'label_your_direct_link_section'.l10n,
           ProfileTab.background => 'label_app_background'.l10n,
           ProfileTab.chats => 'label_media_buttons_position'.l10n,
@@ -103,6 +105,7 @@ class MenuButton extends StatelessWidget {
         leading = switch (tab) {
           ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
           ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
+          ProfileTab.verification => const SvgIcon(SvgIcons.menuCalls),
           ProfileTab.blocklist => const SvgIcon(SvgIcons.menuBlocklist),
           ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
           ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
@@ -129,6 +132,7 @@ class MenuButton extends StatelessWidget {
               switch (tab) {
                 ProfileTab.public => const Key('PublicInformation'),
                 ProfileTab.signing => const Key('Signing'),
+                ProfileTab.verification => const Key('Verification'),
                 ProfileTab.link => const Key('Link'),
                 ProfileTab.background => const Key('Background'),
                 ProfileTab.chats => const Key('Chats'),
@@ -273,6 +277,7 @@ class RectangleIcon extends StatelessWidget {
           ProfileTab.public => Icons.person,
           ProfileTab.signing => Icons.lock,
           ProfileTab.link => Icons.link,
+          ProfileTab.verification => Icons.image,
           ProfileTab.background => Icons.image,
           ProfileTab.chats => Icons.chat_bubble,
           ProfileTab.calls => Icons.call,

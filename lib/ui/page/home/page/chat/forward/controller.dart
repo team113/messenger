@@ -151,12 +151,7 @@ class ChatForwardController extends GetxController {
             );
             return;
           } else {
-            _balanceService.add(
-              OutgoingTransaction(
-                amount: -price.toDouble(),
-                at: DateTime.now(),
-              ),
-            );
+            _balanceService.add(-price.toDouble());
           }
         }
 

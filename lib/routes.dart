@@ -78,6 +78,7 @@ import 'store/user.dart';
 import 'ui/page/auth/view.dart';
 import 'ui/page/chat_direct_link/view.dart';
 import 'ui/page/erase/view.dart';
+import 'ui/page/home/page/balance/widget/currency_field.dart';
 import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
@@ -136,6 +137,7 @@ enum WorkTab { freelance, frontend, backend, designer }
 enum ProfileTab {
   public,
   signing,
+  verification,
   link,
   background,
   chats,
@@ -168,21 +170,81 @@ enum BalanceProvider {
 }
 
 enum WithdrawMethod {
+  balance,
   usdt,
-  bitcoin,
   paypal,
+  paysera,
+  payeer,
+  monobank,
+  skrill,
+  revolut,
   card,
   sepa,
   swift;
 
   String get l10n {
     return switch (this) {
+      balance => 'Пополнить баланс',
       usdt => 'USDT - TRC20',
-      bitcoin => 'Bitcoin',
       paypal => 'PayPal',
+      paysera => 'Paysera',
+      payeer => 'Payeer',
+      monobank => 'Monobank',
+      skrill => 'Skrill',
+      revolut => 'Revolut',
       card => 'Payment card',
       sepa => 'SEPA transfer',
       swift => 'SWIFT transfer',
+    };
+  }
+
+  double? get maximum {
+    return switch (this) {
+      WithdrawMethod.balance => null,
+      WithdrawMethod.card => 550,
+      WithdrawMethod.paypal => null,
+      WithdrawMethod.swift => null,
+      WithdrawMethod.sepa => null,
+      WithdrawMethod.usdt => 1000,
+      WithdrawMethod.paysera => null,
+      WithdrawMethod.payeer => 200,
+      WithdrawMethod.monobank => null,
+      WithdrawMethod.skrill => null,
+      WithdrawMethod.revolut => null,
+    };
+  }
+
+  double? get minimum {
+    return switch (this) {
+      WithdrawMethod.balance => null,
+      WithdrawMethod.card => 3.5,
+      WithdrawMethod.paypal => null,
+      WithdrawMethod.swift => 100,
+      WithdrawMethod.sepa => 5,
+      WithdrawMethod.usdt => 10,
+      WithdrawMethod.paysera => null,
+      WithdrawMethod.payeer => 1,
+      WithdrawMethod.monobank => null,
+      WithdrawMethod.skrill => null,
+      WithdrawMethod.revolut => null,
+    };
+  }
+
+  CurrencyKind get currency {
+    return switch (this) {
+      WithdrawMethod.card ||
+      WithdrawMethod.paypal ||
+      WithdrawMethod.swift ||
+      WithdrawMethod.balance =>
+        CurrencyKind.usd,
+      WithdrawMethod.sepa ||
+      WithdrawMethod.paysera ||
+      WithdrawMethod.payeer ||
+      WithdrawMethod.monobank ||
+      WithdrawMethod.skrill ||
+      WithdrawMethod.revolut =>
+        CurrencyKind.eur,
+      WithdrawMethod.usdt => CurrencyKind.usdt,
     };
   }
 }

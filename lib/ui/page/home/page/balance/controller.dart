@@ -127,7 +127,7 @@ class BalanceProviderController extends GetxController {
   }
 
   void add(Transaction transaction) {
-    _balanceService.add(transaction);
+    _balanceService.add(transaction.amount);
   }
 
   /// Highlights the provided [provider].

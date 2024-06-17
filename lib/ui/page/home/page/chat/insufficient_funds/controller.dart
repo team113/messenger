@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
-import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/service/balance.dart';
 
 export 'view.dart';
@@ -28,8 +27,6 @@ class InsufficientFundsController extends GetxController {
   final BalanceService _balanceService;
 
   void topUp() {
-    _balanceService.add(
-      IncomingTransaction(amount: 500, at: DateTime.now()),
-    );
+    _balanceService.add(500);
   }
 }

@@ -1259,7 +1259,7 @@ class ChatsTabView extends StatelessWidget {
           return RectangleButton(
             label: 'btn_clear_history'.l10n,
             selected: clear,
-            tappable: true,
+            toggleable: true,
             radio: true,
             // toggleable: true,
             onPressed: () => setState(() => clear = !clear),

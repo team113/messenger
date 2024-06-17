@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/page/login/widget/primary_button.dart';
 
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -28,20 +29,50 @@ import 'localized_exception.dart';
 /// Helper to display a popup message in UI.
 class MessagePopup {
   /// Shows an error popup with the provided argument.
-  static Future<void> error(dynamic e) async {
-    var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
+  static Future<void> error(
+    dynamic e, {
+    String? title = 'label_error',
+    Widget Function(BuildContext) button = _okButton,
+  }) async {
+    final message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
 
-    await showDialog(
+    final style = Theme.of(router.context!).style;
+
+    return ModalPopup.show(
       context: router.context!,
-      builder: (context) => AlertDialog(
-        title: Text('label_error'.l10n),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.l10n),
-          )
-        ],
+      child: Builder(
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 4),
+              ModalPopupHeader(text: title?.l10n),
+              const SizedBox(height: 13),
+              Flexible(
+                child: ListView(
+                  shrinkWrap: true,
+                  children: [
+                    Padding(
+                      padding: ModalPopup.padding(context),
+                      child: Center(
+                        child: Text(
+                          message,
+                          style: style.fonts.normal.regular.secondary,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 25),
+              Padding(
+                padding: ModalPopup.padding(context),
+                child: button(context),
+              ),
+              const SizedBox(height: 16),
+            ],
+          );
+        },
       ),
     );
   }
@@ -125,6 +156,15 @@ class MessagePopup {
         'btn_proceed'.l10n,
         style: style.fonts.normal.regular.onPrimary,
       ),
+    );
+  }
+
+  /// Returns the proceed button, which invokes [NavigatorState.pop].
+  static Widget _okButton(BuildContext context) {
+    return PrimaryButton(
+      key: const Key('Ok'),
+      onPressed: () => Navigator.of(context).pop(true),
+      title: 'btn_ok'.l10n,
     );
   }
 }

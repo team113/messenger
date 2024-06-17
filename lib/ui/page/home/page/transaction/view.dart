@@ -19,7 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/attachment.dart';
 import 'package:messenger/domain/model/file.dart';
-import 'package:messenger/domain/model/transaction.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/data_attachment.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';

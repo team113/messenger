@@ -1127,7 +1127,7 @@ class RecentChatTile extends StatelessWidget {
             return RectangleButton(
               label: 'btn_clear_history'.l10n,
               selected: clear,
-              tappable: true,
+              toggleable: true,
               //  toggleable: true,
               radio: true,
               onPressed: () => setState(() => clear = !clear),

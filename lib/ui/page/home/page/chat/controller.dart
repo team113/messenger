@@ -535,9 +535,7 @@ class ChatController extends GetxController {
               );
               return;
             } else {
-              _balanceService.add(
-                OutgoingTransaction(amount: -100, at: DateTime.now()),
-              );
+              _balanceService.add(-100);
             }
           }
         }
@@ -550,12 +548,7 @@ class ChatController extends GetxController {
             );
             return;
           } else {
-            _balanceService.add(
-              OutgoingTransaction(
-                amount: -send.donation.value!.toDouble(),
-                at: DateTime.now(),
-              ),
-            );
+            _balanceService.add(-send.donation.value!.toDouble());
           }
         }
 
@@ -726,9 +719,7 @@ class ChatController extends GetxController {
         );
         return;
       } else {
-        _balanceService.add(
-          OutgoingTransaction(amount: -100, at: DateTime.now()),
-        );
+        _balanceService.add(-100);
       }
     }
 

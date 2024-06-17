@@ -18,9 +18,9 @@
 import 'package:get/get.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
-import 'package:messenger/domain/model/transaction.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/chat.dart';
+import 'package:messenger/domain/service/balance.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/routes.dart';

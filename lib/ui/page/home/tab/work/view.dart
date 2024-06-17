@@ -128,7 +128,7 @@ class WorkTabView extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
                   child: Obx(() {
                     return MenuButton(
-                      title: 'Вывести деньги',
+                      title: 'Заказать выплату',
                       inverted: router.routes.lastOrNull == Routes.withdraw,
                       onPressed: router.withdraw,
                       leading: const SvgIcon(SvgIcons.workGetMoney),
