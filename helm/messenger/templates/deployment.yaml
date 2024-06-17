@@ -72,8 +72,8 @@ spec:
       imagePullSecrets:
         - name: {{ printf "%s.registry" (include "messenger.fullname" .) | quote }}
     {{- end }}
-    {{- if .Values.sftp.enabled }}
       initContainers:
+        {{- if .Values.sftp.enabled }}
         - name: copy-src
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
           imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
@@ -82,7 +82,22 @@ spec:
           volumeMounts:
             - name: src
               mountPath: /target/
-    {{- end }}
+        {{- end }}
+        {{- range .Values.ingress.hosts }}
+        - name: init-conf-{{ . | replace "." "-" }}
+          image: busybox:1.28
+          command: ["sh"]
+          args:
+            - "-c"
+            - "set -ex; cat /var/run/conf.toml > /tmp/conf/{{ . }}.toml;"
+          volumeMounts:
+          - name: init
+            mountPath: /tmp/conf
+          - name: conf
+            subPath: conf.toml
+            mountPath: /var/run/conf.toml
+            readOnly: true
+        {{- end }}
       containers:
         - name: app
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
@@ -100,6 +115,8 @@ spec:
               subPath: nginx.conf
               mountPath: /etc/nginx/conf.d/default.conf
               readOnly: true
+            - name: init
+              mountPath: /var/www/
           {{- if .Values.deployment.src.hostPath }}
             - name: src
               subPath: build/web/
@@ -135,6 +152,8 @@ spec:
         {{- end }}
       {{- end }}
       volumes:
+        - name: init
+          emptyDir: {}
         - name: conf
           configMap:
             name: {{ printf "%s.conf" (include "messenger.fullname" .) | quote }}
