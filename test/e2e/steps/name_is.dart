@@ -18,6 +18,7 @@
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/util/get.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -31,7 +32,8 @@ final StepDefinitionGeneric myNameIs = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        return Get.find<MyUserService>().myUser.value?.name?.val == user.name;
+        final MyUserService? myUserService = Get.findOrNull<MyUserService>();
+        return myUserService?.myUser.value?.name?.val == user.name;
       },
     );
   },

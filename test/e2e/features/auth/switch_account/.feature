@@ -40,16 +40,13 @@ Feature: Account switching
     And I fill `UsernameField` field with Bob's num
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
-    Then I pause for 1 second
-    And I wait for app to settle
-    And I wait until `HomeView` is present
+    Then I wait for app to settle
     And my name is indeed Bob
     And I pause for 1 second
 
   Scenario: User can sign into added account
     Given I am Alice
     And I wait until `HomeView` is present
-    And I pause for 1 second
     And my name is indeed Alice
 
     When I tap `MenuButton` button
@@ -66,15 +63,13 @@ Feature: Account switching
     And I fill `UsernameField` field with Alice's num
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
-    Then I pause for 1 second
-    And I wait for app to settle
+    Then I wait for app to settle
     And I wait until `HomeView` is present
     And my name is indeed Alice
 
   Scenario: User can remove added account
     Given I am Alice
     And I wait until `HomeView` is present
-    And I pause for 1 second
     And my name is indeed Alice
 
     When I tap `MenuButton` button
