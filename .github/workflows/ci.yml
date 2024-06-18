@@ -329,7 +329,7 @@ jobs:
 
           mkdir -p .cache/
           cd build/macos/Build/Products/Release/dist/
-          zip -rj ${{ github.workspace }}.cache/app.zip . --symlinks
+          zip -r ${{ github.workspace }}.cache/app.zip . --symlinks
           cd ${{ github.workspace }}/
 
           xcrun notarytool submit .cache/app.zip \
