@@ -83,13 +83,15 @@ spec:
             - name: src
               mountPath: /target/
         {{- end }}
-        {{- range .Values.ingress.hosts }}
+        {{- range $host := .Values.ingress.hosts }}
+        {{- $patch := (get $.Values $host) | default dict }}
+        {{- $result := deepCopy $.Values.conf | merge $patch }}
         - name: init-conf-{{ . | replace "." "-" }}
           image: busybox:1.28
           command: ["sh"]
           args:
-            - "-c"
-            - "set -ex; cat /var/run/conf.toml > /tmp/conf/{{ . }}.toml;"
+            - '-c'
+            - 'set -ex; printf {{ toToml $result | quote }} > /tmp/conf/{{ . }}.toml;'
           volumeMounts:
           - name: init
             mountPath: /tmp/conf
