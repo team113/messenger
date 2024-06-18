@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
+import 'package:yaml/yaml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -280,10 +281,15 @@ class Config {
     if (confRemote) {
       try {
         final response = await (await PlatformUtils.dio)
-            .fetch(RequestOptions(path: '$url:$port/conf.toml'));
+            .fetch(RequestOptions(path: '$url:$port/conf'));
         if (response.statusCode == 200) {
-          final Map<String, dynamic> remote =
-              TomlDocument.parse(response.data.toString()).toMap();
+          dynamic remote;
+
+          try {
+            remote = TomlDocument.parse(response.data.toString()).toMap();
+          } catch (e) {
+            remote = loadYaml(response.data.toString());
+          }
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
           if (confRemote) {

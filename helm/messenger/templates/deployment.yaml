@@ -83,15 +83,16 @@ spec:
             - name: src
               mountPath: /target/
         {{- end }}
-        {{- range $host := .Values.ingress.hosts }}
-        {{- $patch := (get $.Values $host) | default dict }}
-        {{- $result := deepCopy $.Values.conf | merge $patch }}
-        - name: init-conf-{{ . | replace "." "-" }}
-          image: busybox:1.28
+        - name: init-conf
+          image: mikefarah/yq:4
           command: ["sh"]
           args:
             - '-c'
-            - 'set -ex; printf {{ toToml $result | quote }} > /tmp/conf/{{ . }}.toml;'
+            - >
+              set -ex;
+              touch /tmp/.yaml && printf {{ toYaml $.Values | quote }} >> /tmp/.yaml;
+              for e in {{ join " " $.Values.ingress.hosts | trimPrefix "[" | trimSuffix "]" }}; do yq '. * {"conf":."'$e'" // {}} | withEntries(select(.key == "conf")) | .conf as $root | {} | . = $root' /tmp/.yaml > /tmp/conf/$e.yaml; done;
+              rm -rf /tmp/.yaml;
           volumeMounts:
           - name: init
             mountPath: /tmp/conf
@@ -99,7 +100,6 @@ spec:
             subPath: conf.toml
             mountPath: /var/run/conf.toml
             readOnly: true
-        {{- end }}
       containers:
         - name: app
           image: {{ printf "%s:%s" .Values.image.repository .Values.image.tag | quote }}
