@@ -302,7 +302,7 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
-            copyright = remote['legal']?[Uri.base.host]['copyright'] ??
+            copyright = remote['legal']?[Uri.base.host]?['copyright'] ??
                 remote['legal']?['copyright'] ??
                 copyright;
             support = remote['legal']?['support'] ?? support;
@@ -317,7 +317,7 @@ class Config {
           }
         }
       } catch (e) {
-        Log.info('Remote configuration fetch failed.', 'Config');
+        Log.info('Remote configuration fetch failed: $e.', 'Config');
       }
     }
 
