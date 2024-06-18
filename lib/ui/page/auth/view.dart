@@ -150,6 +150,7 @@ class AuthView extends StatelessWidget {
                 return Padding(
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
+                    key: Key('Account_${e.id}'),
                     myUser: e,
 
                     // TODO: Remove, when [MyUser]s will receive their updates
@@ -173,6 +174,7 @@ class AuthView extends StatelessWidget {
                     },
                     trailing: [
                       AnimatedButton(
+                        key: const Key('RemoveAccount'),
                         decorator: (child) => Padding(
                           padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
                           child: child,
