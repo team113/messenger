@@ -342,7 +342,9 @@ jobs:
           APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
           TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
           PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
-        if: ${{ matrix.platform == 'macos' }}
+        if: ${{ matrix.platform == 'macos'
+             && (github.ref == 'refs/heads/main'
+                 || startsWith(github.ref, 'refs/tags/v')) }}
 
       - uses: thedoctor0/zip-release@0.7.6
         with:
