@@ -74,10 +74,8 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
       await Get.find<AuthService>()
           .signInWith(await context.world.sessions[user.name]!.credentials);
     } catch (_) {
-      var password = UserPassword('123');
-
       await Get.find<AuthService>().signIn(
-        password,
+        UserPassword('123'),
         num: context.world.sessions[user.name]!.userNum,
         unsafe: true,
         force: true,
@@ -111,8 +109,23 @@ final StepDefinitionGeneric logout = then<CustomWorld>(
 /// Examples:
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
-  'user {user}',
+  r'user {user}$',
   (TestUser name, context) => createUser(user: name, world: context.world),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Creates a new [User] identified by the provided name and password.
+///
+/// Examples:
+/// - `Given user Bob with their password set`
+final StepDefinitionGeneric userWithPassword = given1<TestUser, CustomWorld>(
+  'user {user} with their password set',
+  (TestUser name, context) => createUser(
+    user: name,
+    password: UserPassword('123'),
+    world: context.world,
+  ),
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );
