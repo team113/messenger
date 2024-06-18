@@ -255,8 +255,9 @@ class ChatItemWidget extends StatefulWidget {
                   final Iterable<GalleryAttachment> attachments = onGallery();
 
                   int initial = attachments.indexed
-                      .firstWhere((a) => a.$2.attachment == e)
-                      .$1;
+                          .firstWhereOrNull((a) => a.$2.attachment.id == e.id)
+                          ?.$1 ??
+                      -1;
                   if (initial == -1) {
                     initial = 0;
                   }

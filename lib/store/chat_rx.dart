@@ -70,6 +70,9 @@ typedef MessagesPaginated
 typedef MembersPaginated
     = RxPaginatedImpl<UserId, RxChatMember, DtoChatMember, ChatMembersCursor>;
 
+typedef AttachmentsPaginated
+    = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, DtoChatItem, ChatItemsCursor>;
+
 /// [RxChat] implementation backed by local storage.
 class RxChatImpl extends RxChat {
   RxChatImpl(
@@ -98,6 +101,9 @@ class RxChatImpl extends RxChat {
 
   @override
   late final MembersPaginated members;
+
+  @override
+  late final AttachmentsPaginated attachments;
 
   @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
@@ -365,6 +371,7 @@ class RxChatImpl extends RxChat {
     _initDraftSubscription();
     _initMessagesPagination();
     _initMembersPagination();
+    _initAttachmentsPagination();
 
     _updateFields();
 
@@ -1152,6 +1159,44 @@ class RxChatImpl extends RxChat {
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
       }
+    }
+  }
+
+  /// Initializes the [attachments] pagination.
+  Future<void> _initAttachmentsPagination() async {
+    attachments = AttachmentsPaginated(
+      transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
+        if (previous != null) {
+          return previous..value = data.value;
+        }
+
+        return Rx(data.value);
+      },
+      pagination: Pagination(
+        onKey: (e) => e.value.id,
+        provider: GraphQlPageProvider(
+          reversed: true,
+          fetch: ({after, before, first, last}) async {
+            final Page<DtoChatItem, ChatItemsCursor> reversed =
+                await _chatRepository.messages(
+              chat.value.id,
+              after: after ?? before,
+              first: first,
+              before: before ?? after,
+              last: last,
+              onlyAttachments: true,
+            );
+
+            return reversed;
+          },
+        ),
+        perPage: 10,
+        compare: (a, b) => a.value.key.compareTo(b.value.key),
+      ),
+    );
+
+    if (!id.isLocal) {
+      await attachments.around();
     }
   }
 

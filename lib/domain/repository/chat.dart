@@ -240,6 +240,9 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxChatMember> get members;
 
+  /// [Paginated] of [ChatItem]s having any [Attachment]s posted in this [chat].
+  Paginated<ChatItemId, Rx<ChatItem>> get attachments;
+
   /// Text representing the title of this [chat].
   String get title;
 

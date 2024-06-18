@@ -68,6 +68,9 @@ class DummyRxChat extends RxChat {
   RxObsList<Rx<ChatItem>> get messages => RxObsList();
 
   @override
+  Paginated<ChatItemId, Rx<ChatItem>> get attachments => PaginatedImpl();
+
+  @override
   RxBool get nextLoading => RxBool(false);
 
   @override

@@ -1052,9 +1052,10 @@ class ChatRepository extends DisposableInterface
     ChatItemsCursor? after,
     int? last,
     ChatItemsCursor? before,
+    bool onlyAttachments = false,
   }) async {
     Log.debug(
-      'messages($id, $first, $after, $last, $before)',
+      'messages($id, $first, $after, $last, $before, onlyAttachments: $onlyAttachments)',
       '$runtimeType',
     );
 
@@ -1064,6 +1065,7 @@ class ChatRepository extends DisposableInterface
       after: after,
       last: last,
       before: before,
+      onlyAttachments: onlyAttachments,
     );
 
     return Page(

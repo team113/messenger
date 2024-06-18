@@ -103,6 +103,9 @@ class _ChatGalleryState extends State<ChatGallery> {
       children: gallery,
       initial: widget.initial.$1,
       initialKey: widget.initial.$2,
+      onPageChanged: (i) {
+        // TODO: Invoke next/previous here.
+      },
     );
   }
 }

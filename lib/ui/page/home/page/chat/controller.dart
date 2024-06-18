@@ -1233,7 +1233,8 @@ class ChatController extends GetxController {
   List<GalleryAttachment> calculateGallery() {
     final List<GalleryAttachment> attachments = [];
 
-    for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
+    for (var m in chat?.attachments.items.entries.map((e) => e.value) ??
+        <Rx<ChatItem>>[]) {
       if (m.value is ChatMessage) {
         final ChatMessage msg = m.value as ChatMessage;
         attachments.addAll(
