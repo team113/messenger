@@ -99,7 +99,6 @@ import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
-import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
@@ -1228,8 +1227,8 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
-  /// the media files of this [chat].
+  /// Returns a [Paginated] of [ChatItem]s containing a collection of all the
+  /// media files of this [chat].
   Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItem? item) {
     return chat!.attachments(item: item?.id);
   }

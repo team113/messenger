@@ -783,6 +783,10 @@ class RxChatImpl extends RxChat {
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
+
+    for (var e in _attachments) {
+      await e.pagination?.put(item, ignoreBounds: ignoreBounds);
+    }
   }
 
   @override
@@ -1530,7 +1534,8 @@ class RxChatImpl extends RxChat {
           await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {
-        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
+        final Attachment? fetched =
+            response.firstWhereOrNull((e) => e.id == a.id);
         if (fetched != null) {
           a.original = fetched.original;
           if (a is ImageAttachment && fetched is ImageAttachment) {

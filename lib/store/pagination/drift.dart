@@ -134,8 +134,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: _lastCursor,
-        endCursor: _firstCursor,
+        startCursor: _firstCursor,
+        endCursor: _lastCursor,
       ),
     );
   }
@@ -162,8 +162,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast && !zeroed,
         hasPrevious: !_hasFirst && !zeroed,
-        startCursor: _lastCursor,
-        endCursor: _firstCursor,
+        startCursor: _firstCursor,
+        endCursor: _lastCursor,
       ),
     );
   }
@@ -187,8 +187,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: _lastCursor,
-        endCursor: _firstCursor,
+        startCursor: _firstCursor,
+        endCursor: _lastCursor,
       ),
     );
   }
@@ -212,8 +212,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       PageInfo(
         hasNext: !_hasLast,
         hasPrevious: !_hasFirst,
-        startCursor: _lastCursor,
-        endCursor: _firstCursor,
+        startCursor: _firstCursor,
+        endCursor: _lastCursor,
       ),
     );
   }

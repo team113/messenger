@@ -55,6 +55,7 @@ import 'keep_alive.dart';
 /// otherwise.
 class GalleryItem {
   GalleryItem({
+    this.id,
     required this.link,
     required this.name,
     required this.size,
@@ -70,6 +71,7 @@ class GalleryItem {
   factory GalleryItem.image(
     String link,
     String name, {
+    String? id,
     int? size,
     int? width,
     int? height,
@@ -78,6 +80,7 @@ class GalleryItem {
     FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
+        id: id,
         link: link,
         name: name,
         size: size,
@@ -93,11 +96,13 @@ class GalleryItem {
   factory GalleryItem.video(
     String link,
     String name, {
+    String? id,
     int? size,
     String? checksum,
     FutureOr<void> Function()? onError,
   }) =>
       GalleryItem(
+        id: id,
         link: link,
         name: name,
         size: size,
@@ -105,6 +110,9 @@ class GalleryItem {
         isVideo: true,
         onError: onError,
       );
+
+  /// Unique identifier of this [GalleryItem], if any.
+  final String? id;
 
   /// Indicator whether this [GalleryItem] is treated as a video.
   final bool isVideo;
@@ -622,8 +630,11 @@ class _GalleryPopupState extends State<GalleryPopup>
     // Otherwise use the default [PageView].
     return PageView(
       controller: _pageController,
-      physics:
-          PlatformUtils.isMobile ? null : const AlwaysScrollableScrollPhysics(),
+      physics: PlatformUtils.isMobile
+          ? null
+          : PlatformUtils.isWeb
+              ? const NeverScrollableScrollPhysics()
+              : const AlwaysScrollableScrollPhysics(),
       onPageChanged: (i) {
         _isInitialPage = false;
         setState(() => _page = i);
