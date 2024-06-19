@@ -240,9 +240,6 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [Paginated] of [User]s being members of this [chat].
   Paginated<UserId, RxChatMember> get members;
 
-  /// [Paginated] of [ChatItem]s having any [Attachment]s posted in this [chat].
-  Paginated<ChatItemId, Rx<ChatItem>> get attachments;
-
   /// Text representing the title of this [chat].
   String get title;
 
@@ -352,6 +349,10 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
+
+  /// Returns the [Paginated] of [ChatItem]s having any [Attachment]s posted in
+  /// this [chat] around the provided [item], if any.
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item});
 }
 
 /// Reactive [ChatMember] entity.

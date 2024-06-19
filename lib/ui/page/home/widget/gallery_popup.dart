@@ -47,6 +47,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'gallery_button.dart';
+import 'keep_alive.dart';
 
 /// Item in a [GalleryPopup].
 ///
@@ -379,6 +380,35 @@ class _GalleryPopupState extends State<GalleryPopup>
   }
 
   @override
+  void didUpdateWidget(covariant GalleryPopup oldWidget) {
+    if (widget.initial != oldWidget.initial) {
+      final int offset = widget.children.length - oldWidget.children.length;
+
+      if (widget.initial != oldWidget.initial) {
+        if (oldWidget.children.length == 1) {
+          _page = widget.initial;
+          _pageController.jumpToPage(_page);
+          return;
+        }
+      }
+
+      if (offset != 0) {
+        _pageController.jumpToPage(offset);
+
+        _page = offset;
+      }
+
+      if (widget.initial != oldWidget.initial + offset ||
+          oldWidget.children.length == 1) {
+        _page = widget.initial;
+        _pageController.jumpToPage(_page);
+      }
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
@@ -593,7 +623,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     return PageView(
       controller: _pageController,
       physics:
-          PlatformUtils.isMobile ? null : const NeverScrollableScrollPhysics(),
+          PlatformUtils.isMobile ? null : const AlwaysScrollableScrollPhysics(),
       onPageChanged: (i) {
         _isInitialPage = false;
         setState(() => _page = i);
@@ -602,90 +632,101 @@ class _GalleryPopupState extends State<GalleryPopup>
       },
       pageSnapping: !_ignorePageSnapping,
       children: widget.children.mapIndexed((index, e) {
-        return ContextMenuRegion(
-          enabled: !PlatformUtils.isWeb,
-          actions: [
-            ContextMenuButton(
-              label: 'btn_download'.l10n,
-              onPressed: () => _download(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_download_as'.l10n,
-              onPressed: () => _downloadAs(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_save_to_gallery'.l10n,
-              onPressed: () => _saveToGallery(widget.children[_page]),
-            ),
-            ContextMenuButton(
-              label: 'btn_info'.l10n,
-              onPressed: () {},
-            ),
-          ],
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: e.isVideo
-                ? VideoView(
-                    e.link,
-                    checksum: e.checksum,
-                    showInterfaceFor: _isInitialPage ? 3.seconds : null,
-                    onClose: _dismiss,
-                    isFullscreen: _isFullscreen,
-                    toggleFullscreen: () {
-                      node.requestFocus();
-                      _toggleFullscreen();
-                    },
-                    onController: (c) {
-                      if (c == null) {
-                        _videoControllers.remove(index);
-                      } else {
-                        _videoControllers[index] = c;
-                      }
-                    },
-                    onError: e.onError,
-                  )
-                : GestureDetector(
-                    onTap: () {
-                      if (_pageController.page == _page) {
-                        _dismiss();
-                      }
-                    },
-                    onDoubleTap: () {
-                      node.requestFocus();
-                      _toggleFullscreen();
-                    },
-                    child: ConstrainedBox(
-                      constraints:
-                          const BoxConstraints(minWidth: 1, minHeight: 1),
-                      child: PlatformUtils.isWeb
-                          ? WebImage(
-                              e.link,
-                              width: e.width?.toDouble(),
-                              height: e.height?.toDouble(),
-                              thumbhash: e.thumbhash,
-                              onForbidden: e.onError,
+        final Widget child;
 
-                              // TODO: Wait for HTML to support specifying
-                              //       download name:
-                              //       https://github.com/whatwg/html/issues/2722
-                              // name: e.name,
-                            )
-                          : RetryImage(
-                              e.link,
-                              width: _isFullscreen.isTrue
-                                  ? double.infinity
-                                  : e.width?.toDouble(),
-                              height: _isFullscreen.isTrue
-                                  ? double.infinity
-                                  : e.height?.toDouble(),
-                              aspectRatio: e._aspectRatio,
-                              checksum: e.checksum,
-                              thumbhash: e.thumbhash,
-                              onForbidden: e.onError,
-                              fit: BoxFit.contain,
-                            ),
-                    ),
-                  ),
+        if (e.isVideo) {
+          child = VideoView(
+            e.link,
+            checksum: e.checksum,
+            showInterfaceFor: _isInitialPage ? 3.seconds : null,
+            onClose: _dismiss,
+            isFullscreen: _isFullscreen,
+            toggleFullscreen: () {
+              node.requestFocus();
+              _toggleFullscreen();
+            },
+            onController: (c) {
+              if (c == null) {
+                _videoControllers.remove(index);
+              } else {
+                _videoControllers[index] = c;
+              }
+            },
+            onError: e.onError,
+          );
+        } else {
+          final Widget image;
+
+          if (PlatformUtils.isWeb) {
+            image = WebImage(
+              e.link,
+              width: e.width?.toDouble(),
+              height: e.height?.toDouble(),
+              thumbhash: e.thumbhash,
+              onForbidden: e.onError,
+
+              // TODO: Wait for HTML to support specifying
+              //       download name:
+              //       https://github.com/whatwg/html/issues/2722
+              // name: e.name,
+            );
+          } else {
+            image = RetryImage(
+              e.link,
+              width:
+                  _isFullscreen.isTrue ? double.infinity : e.width?.toDouble(),
+              height:
+                  _isFullscreen.isTrue ? double.infinity : e.height?.toDouble(),
+              aspectRatio: e._aspectRatio,
+              checksum: e.checksum,
+              thumbhash: e.thumbhash,
+              onForbidden: e.onError,
+              fit: BoxFit.contain,
+            );
+          }
+
+          child = GestureDetector(
+            onTap: () {
+              if (_pageController.page == _page) {
+                _dismiss();
+              }
+            },
+            onDoubleTap: () {
+              node.requestFocus();
+              _toggleFullscreen();
+            },
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 1, minHeight: 1),
+              child: image,
+            ),
+          );
+        }
+
+        return KeepAlivePage(
+          child: ContextMenuRegion(
+            enabled: !PlatformUtils.isWeb,
+            actions: [
+              ContextMenuButton(
+                label: 'btn_download'.l10n,
+                onPressed: () => _download(widget.children[_page]),
+              ),
+              ContextMenuButton(
+                label: 'btn_download_as'.l10n,
+                onPressed: () => _downloadAs(widget.children[_page]),
+              ),
+              ContextMenuButton(
+                label: 'btn_save_to_gallery'.l10n,
+                onPressed: () => _saveToGallery(widget.children[_page]),
+              ),
+              ContextMenuButton(
+                label: 'btn_info'.l10n,
+                onPressed: () {},
+              ),
+            ],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              child: child,
+            ),
           ),
         );
       }).toList(),

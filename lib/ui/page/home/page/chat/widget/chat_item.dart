@@ -40,6 +40,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -139,7 +140,7 @@ class ChatItemWidget extends StatefulWidget {
   ///
   /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
   /// tapped.
-  final List<GalleryAttachment> Function()? onGallery;
+  final Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -176,7 +177,7 @@ class ChatItemWidget extends StatefulWidget {
     Attachment e,
     Iterable<GalleryAttachment> media, {
     GlobalKey? key,
-    Iterable<GalleryAttachment> Function()? onGallery,
+    Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function()? onError,
     bool filled = true,
   }) {
@@ -252,21 +253,12 @@ class ChatItemWidget extends StatefulWidget {
                     return;
                   }
 
-                  final Iterable<GalleryAttachment> attachments = onGallery();
-
-                  int initial = attachments.indexed
-                          .firstWhereOrNull((a) => a.$2.attachment.id == e.id)
-                          ?.$1 ??
-                      -1;
-                  if (initial == -1) {
-                    initial = 0;
-                  }
-
                   GalleryPopup.show(
                     context: context,
                     gallery: ChatGallery(
-                      attachments: attachments,
-                      initial: (initial, key),
+                      paginated: onGallery(),
+                      initial: e,
+                      rect: key,
                     ),
                   );
                 },

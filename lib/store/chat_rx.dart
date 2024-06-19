@@ -103,9 +103,6 @@ class RxChatImpl extends RxChat {
   late final MembersPaginated members;
 
   @override
-  late final AttachmentsPaginated attachments;
-
-  @override
   final Rx<Avatar?> avatar = Rx<Avatar?>(null);
 
   @override
@@ -144,6 +141,9 @@ class RxChatImpl extends RxChat {
 
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _fragments = [];
+
+  /// [AttachmentsPaginated]s created by this [RxChatImpl].
+  final List<MessagesPaginated> _attachments = [];
 
   /// Subscriptions to the [MessagesPaginated.items] changes updating the
   /// [reads].
@@ -371,7 +371,6 @@ class RxChatImpl extends RxChat {
     _initDraftSubscription();
     _initMessagesPagination();
     _initMembersPagination();
-    _initAttachmentsPagination();
 
     _updateFields();
 
@@ -449,6 +448,9 @@ class RxChatImpl extends RxChat {
     }
     for (final s in _fragmentSubscriptions) {
       s.cancel();
+    }
+    for (var e in _attachments.toList()) {
+      e.dispose();
     }
   }
 
@@ -965,6 +967,103 @@ class RxChatImpl extends RxChat {
   }
 
   @override
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({
+    ChatItemId? item,
+  }) {
+    Log.debug('attachments(item: $item)', '$runtimeType($id)');
+
+    ChatItemsCursor? cursor;
+    ChatItemId? key = item;
+
+    if (item != null) {
+      final DtoChatItem? dto = _pagination.items[item];
+      cursor = dto?.cursor;
+    }
+
+    AttachmentsPaginated? fragment;
+
+    _attachments.add(
+      fragment = AttachmentsPaginated(
+        initialKey: key,
+        initialCursor: cursor,
+        transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
+          if (previous != null) {
+            return previous..value = data.value;
+          }
+
+          return Rx(data.value);
+        },
+        pagination: Pagination(
+          onKey: (e) => e.value.id,
+          provider: DriftGraphQlPageProvider(
+            graphQlProvider: GraphQlPageProvider(
+              reversed: true,
+              fetch: ({after, before, first, last}) async {
+                final Page<DtoChatItem, ChatItemsCursor> reversed =
+                    await _chatRepository.messages(
+                  chat.value.id,
+                  after: after,
+                  first: first,
+                  before: before,
+                  last: last,
+                  onlyAttachments: true,
+                );
+
+                return reversed;
+              },
+            ),
+            driftProvider: DriftPageProvider(
+              fetch: ({
+                required after,
+                required before,
+                ChatItemId? around,
+              }) async {
+                PreciseDateTime? at;
+
+                if (around != null) {
+                  final DtoChatItem? item = await get(around);
+                  at = item?.value.at;
+                }
+
+                return await _driftItems.attachments(
+                  id,
+                  before: before,
+                  after: after,
+                  around: at,
+                );
+              },
+              onKey: (e) => e.value.id,
+              onCursor: (e) => e?.cursor,
+              isFirst: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.firstItem?.id == e.value.id;
+              },
+              isLast: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.lastItem?.id == e.value.id;
+              },
+              compare: (a, b) => a.value.key.compareTo(b.value.key),
+            ),
+          ),
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+          perPage: 10,
+        ),
+        onDispose: () {
+          _attachments.remove(fragment);
+        },
+      ),
+    );
+
+    return fragment;
+  }
+
+  @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
   /// Puts the provided [member] to the [members].
@@ -1159,44 +1258,6 @@ class RxChatImpl extends RxChat {
         members.pagination?.hasPrevious.value = false;
         members.status.value = RxStatus.success();
       }
-    }
-  }
-
-  /// Initializes the [attachments] pagination.
-  Future<void> _initAttachmentsPagination() async {
-    attachments = AttachmentsPaginated(
-      transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
-        if (previous != null) {
-          return previous..value = data.value;
-        }
-
-        return Rx(data.value);
-      },
-      pagination: Pagination(
-        onKey: (e) => e.value.id,
-        provider: GraphQlPageProvider(
-          reversed: true,
-          fetch: ({after, before, first, last}) async {
-            final Page<DtoChatItem, ChatItemsCursor> reversed =
-                await _chatRepository.messages(
-              chat.value.id,
-              after: after ?? before,
-              first: first,
-              before: before ?? after,
-              last: last,
-              onlyAttachments: true,
-            );
-
-            return reversed;
-          },
-        ),
-        perPage: 10,
-        compare: (a, b) => a.value.key.compareTo(b.value.key),
-      ),
-    );
-
-    if (!id.isLocal) {
-      await attachments.around();
     }
   }
 

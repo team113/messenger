@@ -1230,47 +1230,8 @@ class ChatController extends GetxController {
 
   /// Returns a [List] of [GalleryAttachment]s representing a collection of all
   /// the media files of this [chat].
-  List<GalleryAttachment> calculateGallery() {
-    final List<GalleryAttachment> attachments = [];
-
-    for (var m in chat?.attachments.items.entries.map((e) => e.value) ??
-        <Rx<ChatItem>>[]) {
-      if (m.value is ChatMessage) {
-        final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(
-          msg.attachments
-              .where(
-                (e) =>
-                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
-              )
-              .map(
-                (e) => GalleryAttachment(e, () => chat?.updateAttachments(msg)),
-              ),
-        );
-      } else if (m.value is ChatForward) {
-        final ChatForward msg = m.value as ChatForward;
-        final ChatItemQuote item = msg.quote;
-
-        if (item is ChatMessageQuote) {
-          attachments.addAll(
-            item.attachments
-                .where(
-                  (e) =>
-                      e is ImageAttachment ||
-                      (e is FileAttachment && e.isVideo),
-                )
-                .map(
-                  (e) => GalleryAttachment(
-                    e,
-                    () => chat?.updateAttachments(m.value),
-                  ),
-                ),
-          );
-        }
-      }
-    }
-
-    return attachments;
+  Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItem? item) {
+    return chat!.attachments(item: item?.id);
   }
 
   /// Keeps [ChatService.keepTyping] subscription, if message field is not

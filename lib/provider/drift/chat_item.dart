@@ -241,6 +241,66 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
     return result ?? [];
   }
+
+  /// Returns the [DtoChatItem]s being in a historical view order of the
+  /// provided [chatId].
+  Future<List<DtoChatItem>> attachments(
+    ChatId chatId, {
+    int? before,
+    int? after,
+    PreciseDateTime? around,
+  }) async {
+    final result = await safe((db) async {
+      if (around != null) {
+        final stmt = db.attachmentsAround(
+          chatId.val,
+          around,
+          (before ?? 50).toDouble(),
+          after ?? 50,
+        );
+
+        return (await stmt.get())
+            .map(
+              (r) => ChatItemRow(
+                id: r.id,
+                chatId: r.chatId,
+                authorId: r.authorId,
+                at: r.at,
+                status: r.status,
+                data: r.data,
+                cursor: r.cursor,
+                ver: r.ver,
+              ),
+            )
+            .map(_ChatItemDb.fromDb)
+            .toList();
+      }
+
+      final stmt = db.select(db.chatItemViews).join([
+        innerJoin(
+          db.chatItems,
+          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+        ),
+      ]);
+
+      stmt.where(
+        db.chatItemViews.chatId.equals(chatId.val) &
+            db.chatItems.data.like('%"attachments":[{'),
+      );
+      stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+
+      if (after != null || before != null) {
+        stmt.limit((after ?? 0) + (before ?? 0));
+      }
+
+      return (await stmt.get())
+          .map((rows) => rows.readTable(db.chatItems))
+          .map(_ChatItemDb.fromDb)
+          .toList();
+    });
+
+    return result ?? [];
+  }
 }
 
 /// Extension adding conversion methods from [ChatItemRow] to [DtoChatItem].

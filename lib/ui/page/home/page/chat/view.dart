@@ -853,7 +853,7 @@ class ChatView extends StatelessWidget {
                       await c.animateTo(e.value.id, item: e.value, reply: q);
                     }
                   },
-                  onGallery: c.calculateGallery,
+                  onGallery: () => c.calculateGallery(e.value),
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
                   onFileTap: (a) => c.downloadFile(e.value, a),
@@ -972,7 +972,7 @@ class ChatView extends StatelessWidget {
                       c.copyText(text);
                     }
                   },
-                  onGallery: c.calculateGallery,
+                  // onGallery: c.calculateGallery,
                   onEdit: () => c.editMessage(element.note.value!.value),
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {

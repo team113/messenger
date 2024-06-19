@@ -440,7 +440,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     media.first,
                     galleries,
                     key: _galleryKeys[msg.id]?.firstOrNull,
-                    onGallery: menu ? null : widget.onGallery,
+                    // onGallery: menu ? null : widget.onGallery,
                     onError: widget.onAttachmentError,
                     filled: false,
                   )
@@ -456,7 +456,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               e,
                               galleries,
                               key: _galleryKeys[msg.id]?[i],
-                              onGallery: menu ? null : widget.onGallery,
+                              // onGallery: menu ? null : widget.onGallery,
                               onError: widget.onAttachmentError,
                             ),
                           )
@@ -732,7 +732,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       media.first,
                       galleries,
                       key: _galleryKeys[item.id]?.lastOrNull,
-                      onGallery: menu ? null : widget.onGallery,
+                      // onGallery: menu ? null : widget.onGallery,
                       onError: widget.onAttachmentError,
                       filled: false,
                     )
@@ -748,7 +748,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 e,
                                 galleries,
                                 key: _galleryKeys[item.id]?[i],
-                                onGallery: menu ? null : widget.onGallery,
+                                // onGallery: menu ? null : widget.onGallery,
                                 onError: widget.onAttachmentError,
                               ),
                             )
