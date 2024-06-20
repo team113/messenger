@@ -999,6 +999,27 @@ class RxChatImpl extends RxChat {
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
+          fulfilled: (edges) {
+            return edges.any((e) {
+              if (e.value is ChatMessage) {
+                final msg = e.value as ChatMessage;
+
+                return msg.attachments.any((a) {
+                  if (a is ImageAttachment) {
+                    return true;
+                  } else if (a is FileAttachment) {
+                    return a.isVideo;
+                  } else if (a is LocalAttachment) {
+                    return a.file.isImage || a.file.isSvg || a.file.isVideo;
+                  }
+
+                  return false;
+                });
+              }
+
+              return false;
+            });
+          },
           provider: DriftGraphQlPageProvider(
             graphQlProvider: GraphQlPageProvider(
               reversed: true,

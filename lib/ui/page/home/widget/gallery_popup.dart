@@ -47,7 +47,6 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'gallery_button.dart';
-import 'keep_alive.dart';
 
 /// Item in a [GalleryPopup].
 ///
@@ -160,6 +159,8 @@ class GalleryPopup extends StatefulWidget {
     this.initialKey,
     this.onPageChanged,
     this.onTrashPressed,
+    this.nextLoading = false,
+    this.previousLoading = false,
   });
 
   /// [List] of [GalleryItem]s to display in a gallery.
@@ -177,6 +178,14 @@ class GalleryPopup extends StatefulWidget {
   /// Callback, called when a remove action of a [GalleryItem] at the provided
   /// index is triggered.
   final void Function(int index)? onTrashPressed;
+
+  /// Indicator whether the next item button should display a
+  /// [CustomProgressIndicator] over it.
+  final bool nextLoading;
+
+  /// Indicator whether the previous item button should display a
+  /// [CustomProgressIndicator] over it.
+  final bool previousLoading;
 
   /// Displays a dialog with the provided [gallery] above the current contents.
   static Future<T?> show<T extends Object?>({
@@ -713,31 +722,29 @@ class _GalleryPopupState extends State<GalleryPopup>
           );
         }
 
-        return KeepAlivePage(
-          child: ContextMenuRegion(
-            enabled: !PlatformUtils.isWeb,
-            actions: [
-              ContextMenuButton(
-                label: 'btn_download'.l10n,
-                onPressed: () => _download(widget.children[_page]),
-              ),
-              ContextMenuButton(
-                label: 'btn_download_as'.l10n,
-                onPressed: () => _downloadAs(widget.children[_page]),
-              ),
-              ContextMenuButton(
-                label: 'btn_save_to_gallery'.l10n,
-                onPressed: () => _saveToGallery(widget.children[_page]),
-              ),
-              ContextMenuButton(
-                label: 'btn_info'.l10n,
-                onPressed: () {},
-              ),
-            ],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 1),
-              child: child,
+        return ContextMenuRegion(
+          enabled: !PlatformUtils.isWeb,
+          actions: [
+            ContextMenuButton(
+              label: 'btn_download'.l10n,
+              onPressed: () => _download(widget.children[_page]),
             ),
+            ContextMenuButton(
+              label: 'btn_download_as'.l10n,
+              onPressed: () => _downloadAs(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_save_to_gallery'.l10n,
+              onPressed: () => _saveToGallery(widget.children[_page]),
+            ),
+            ContextMenuButton(
+              label: 'btn_info'.l10n,
+              onPressed: () {},
+            ),
+          ],
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 1),
+            child: child,
           ),
         );
       }).toList(),
@@ -783,14 +790,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                           child: Padding(
                             padding: const EdgeInsets.only(right: 1),
                             child: Center(
-                              child: Transform.translate(
-                                offset: const Offset(-1, 0),
-                                child: SvgIcon(
-                                  left
-                                      ? SvgIcons.arrowLeft
-                                      : SvgIcons.arrowLeftDisabled,
-                                ),
-                              ),
+                              child: widget.previousLoading
+                                  ? const CustomProgressIndicator()
+                                  : Transform.translate(
+                                      offset: const Offset(-1, 0),
+                                      child: SvgIcon(
+                                        left
+                                            ? SvgIcons.arrowLeft
+                                            : SvgIcons.arrowLeftDisabled,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),
@@ -823,14 +832,16 @@ class _GalleryPopupState extends State<GalleryPopup>
                           child: Padding(
                             padding: const EdgeInsets.only(left: 1),
                             child: Center(
-                              child: Transform.translate(
-                                offset: const Offset(1, 0),
-                                child: SvgIcon(
-                                  right
-                                      ? SvgIcons.arrowRight
-                                      : SvgIcons.arrowRightDisabled,
-                                ),
-                              ),
+                              child: widget.nextLoading
+                                  ? const CustomProgressIndicator()
+                                  : Transform.translate(
+                                      offset: const Offset(1, 0),
+                                      child: SvgIcon(
+                                        right
+                                            ? SvgIcons.arrowRight
+                                            : SvgIcons.arrowRightDisabled,
+                                      ),
+                                    ),
                             ),
                           ),
                         ),

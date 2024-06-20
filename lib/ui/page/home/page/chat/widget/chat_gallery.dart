@@ -40,13 +40,14 @@ class ChatGallery extends StatefulWidget {
     this.onForbidden,
   });
 
-  /// [Paginated]s to display in a [GalleryPopup].
+  /// [Paginated] to display in a [GalleryPopup].
   final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
 
   /// Initial index of an [Attachment] from the [paginated] to display along
   /// with its optional [GlobalKey] to animate the [GalleryPopup] from/to.
   final Attachment? initial;
 
+  /// [GlobalKey] of the widget to display [GalleryPopup] expanding from.
   final GlobalKey? rect;
 
   /// Callback, called when an [Attachment] loading fails with a forbidden
@@ -60,18 +61,25 @@ class ChatGallery extends StatefulWidget {
 /// State of a [ChatGallery] updating the [GalleryItem.link]s on fetching
 /// errors.
 class _ChatGalleryState extends State<ChatGallery> {
+  /// [Paginated.updates] subscription keeping it alive.
   StreamSubscription? _updates;
+
+  /// [Paginated.items] subscription for receiving items updates.
   StreamSubscription? _subscription;
 
+  /// [_GalleryItem]s to sort and then pass to the [_gallery].
   final List<_GalleryItem> _items = [];
 
+  /// Initial [GalleryItem] to display in a [GalleryPopup] widget.
   GalleryItem? _initial;
 
+  /// Returns the [GalleryItem] to pass to a [GalleryPopup].
   List<GalleryItem> get _gallery => [
         if (_initial != null) _initial!,
         ..._items.expand((e) => e.gallery),
       ];
 
+  /// Index of the [_initial] attachment in the [_gallery] list.
   int get _index =>
       max(_gallery.indexWhere((e) => e.id == widget.initial?.id.val), 0);
 
@@ -81,14 +89,24 @@ class _ChatGalleryState extends State<ChatGallery> {
       _initial = _parse(widget.initial!);
     }
 
-    widget.paginated?.around().then((_) {
-      _initial = null;
-      setState(() {});
+    // After the initial page is fetched, try to fetch the previous one and set
+    // the [_initial] to `null` so it doesn't mess the indexes in
+    // [GalleryPopup].
+    widget.paginated?.around().then((_) async {
+      if (mounted) {
+        _initial = null;
+        setState(() {});
+
+        final int i = _index;
+
+        if (i == 0) {
+          await widget.paginated?.previous();
+        }
+      }
     });
 
     _updates = widget.paginated?.updates.listen(null);
     _subscription = widget.paginated?.items.changes.listen((e) {
-      print('_subscription e.op -> ${e.op}');
       switch (e.op) {
         case OperationKind.added:
           _add(e.value!.value);
@@ -103,10 +121,14 @@ class _ChatGalleryState extends State<ChatGallery> {
           break;
 
         case OperationKind.removed:
-          // No-op?
+          final existing = _items.firstWhereOrNull((o) => o.item.id == e.key);
+          if (existing != null) {
+            _items.remove(existing);
+          }
           break;
       }
     });
+
     super.initState();
   }
 
@@ -119,20 +141,26 @@ class _ChatGalleryState extends State<ChatGallery> {
 
   @override
   Widget build(BuildContext context) {
-    return GalleryPopup(
-      children: _gallery,
-      initial: _index,
-      initialKey: widget.rect,
-      onPageChanged: (i) async {
-        if (i == 0) {
-          await widget.paginated?.previous();
-        } else if (i == _gallery.length - 1) {
-          await widget.paginated?.next();
-        }
-      },
-    );
+    return Obx(() {
+      return GalleryPopup(
+        children: _gallery,
+        initial: _index,
+        initialKey: widget.rect,
+        onPageChanged: (i) async {
+          if (i == 0) {
+            await widget.paginated?.previous();
+          } else if (i == _gallery.length - 1) {
+            await widget.paginated?.next();
+          }
+        },
+        nextLoading: widget.paginated?.nextLoading.value ?? false,
+        previousLoading: widget.paginated?.previousLoading.value ?? false,
+      );
+    });
   }
 
+  /// Adds the [Attachment]s from the provided [item] to the [_items] and sorts
+  /// those.
   void _add(ChatItem item) {
     final List<Attachment> attachments = [];
 
@@ -171,6 +199,8 @@ class _ChatGalleryState extends State<ChatGallery> {
     setState(() {});
   }
 
+  /// Returns the [GalleryItem] used by [GalleryPopup] from the provided
+  /// [Attachment] and its [ChatItem], if any.
   GalleryItem? _parse(Attachment o, {ChatItem? item}) {
     final StorageFile file = o.original;
 
@@ -182,10 +212,8 @@ class _ChatGalleryState extends State<ChatGallery> {
         size: file.size,
         checksum: file.checksum,
         onError: () async {
-          print('onError...');
           await widget.onForbidden?.call(item);
           setState(() {});
-          print('onError... done');
         },
       );
     } else if (o is ImageAttachment) {
@@ -201,10 +229,8 @@ class _ChatGalleryState extends State<ChatGallery> {
         checksum: file.checksum,
         thumbhash: o.big.thumbhash,
         onError: () async {
-          print('onError...');
           await widget.onForbidden?.call(item);
           setState(() {});
-          print('onError... done');
         },
       );
     }
@@ -213,12 +239,13 @@ class _ChatGalleryState extends State<ChatGallery> {
   }
 }
 
+/// [ChatItem] with the list of [GalleryItem]s it contains.
 class _GalleryItem {
-  _GalleryItem({
-    required this.item,
-    required this.gallery,
-  });
+  const _GalleryItem({required this.item, required this.gallery});
 
-  ChatItem item;
-  List<GalleryItem> gallery;
+  /// [ChatItem] this [_GalleryItem] is about.
+  final ChatItem item;
+
+  /// [GalleryItem] the [item] contains.
+  final List<GalleryItem> gallery;
 }

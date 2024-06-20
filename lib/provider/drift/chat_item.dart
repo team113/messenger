@@ -242,8 +242,8 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     return result ?? [];
   }
 
-  /// Returns the [DtoChatItem]s being in a historical view order of the
-  /// provided [chatId].
+  /// Returns the [DtoChatItem]s containing any [Attachment]s, in a historical
+  /// view order of the provided [chatId].
   Future<List<DtoChatItem>> attachments(
     ChatId chatId, {
     int? before,
