@@ -177,6 +177,7 @@ class ChatItemWidget extends StatefulWidget {
     Attachment e,
     Iterable<Attachment> media, {
     GlobalKey? key,
+    ChatItem? item,
     Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function(ChatItem?)? onError,
     bool filled = true,
@@ -257,7 +258,7 @@ class ChatItemWidget extends StatefulWidget {
                     context: context,
                     gallery: ChatGallery(
                       paginated: onGallery(),
-                      initial: e,
+                      initial: (item, e),
                       rect: key,
                       onForbidden: onError,
                     ),
@@ -867,6 +868,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         context,
                         media.first,
                         media,
+                        item: widget.item.value,
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
@@ -883,6 +885,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                   context,
                                   e,
                                   media,
+                                  item: widget.item.value,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: menu ? null : widget.onGallery,

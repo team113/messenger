@@ -303,8 +303,11 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Indicator whether the fullscreen gallery button should be visible.
   bool _displayFullscreen = false;
 
+  /// [Timer] setting [_displayLeft] or [_displayRight] to `false`.
+  Timer? _displayTimer;
+
   /// [FocusNode] of the keyboard input.
-  FocusNode node = FocusNode();
+  final FocusNode _node = FocusNode();
 
   /// Indicator whether the [PageView.pageSnapping] should be `false`.
   bool _ignorePageSnapping = false;
@@ -369,7 +372,7 @@ class _GalleryPopupState extends State<GalleryPopup>
       }
     });
 
-    node.requestFocus();
+    _node.requestFocus();
 
     Future.delayed(Duration.zero, _displayControls);
 
@@ -385,6 +388,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     _photo.dispose();
     _fading.dispose();
     _onFullscreen?.cancel();
+    _displayTimer?.cancel();
     if (_isFullscreen.isTrue) {
       _exitFullscreen();
     }
@@ -411,7 +415,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
       if (offset != 0) {
         _pageController.jumpToPage(offset);
-
         _page = offset;
       }
 
@@ -430,6 +433,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     final style = Theme.of(context).style;
 
     return LayoutBuilder(
+      key: const Key('GalleryPopup'),
       builder: (context, constraints) {
         if (!_firstLayout) {
           _bounds = _calculatePosition() ?? _bounds;
@@ -497,7 +501,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                                 _isZoomed ? null : _onVerticalDragEnd,
                             child: KeyboardListener(
                               autofocus: true,
-                              focusNode: node,
+                              focusNode: _node,
                               onKeyEvent: _onKeyEvent,
                               child: Listener(
                                 onPointerSignal: _onPointerSignal,
@@ -586,7 +590,7 @@ class _GalleryPopupState extends State<GalleryPopup>
                         onClose: _dismiss,
                         isFullscreen: _isFullscreen,
                         toggleFullscreen: () {
-                          node.requestFocus();
+                          _node.requestFocus();
                           _toggleFullscreen();
                         },
                         onController: (c) {
@@ -662,7 +666,7 @@ class _GalleryPopupState extends State<GalleryPopup>
             onClose: _dismiss,
             isFullscreen: _isFullscreen,
             toggleFullscreen: () {
-              node.requestFocus();
+              _node.requestFocus();
               _toggleFullscreen();
             },
             onController: (c) {
@@ -712,7 +716,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               }
             },
             onDoubleTap: () {
-              node.requestFocus();
+              _node.requestFocus();
               _toggleFullscreen();
             },
             child: ConstrainedBox(
@@ -785,8 +789,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                       height: double.infinity,
                       child: Center(
                         child: GalleryButton(
-                          onPressed:
-                              left ? () => _animateToPage(_page - 1) : null,
+                          key: Key(left ? 'LeftButton' : 'NoLeftButton'),
+                          onPressed: left
+                              ? () {
+                                  _animateToPage(_page - 1);
+                                  _displayForTime(
+                                    (v) => _displayLeft = _displayLeft || v,
+                                  );
+                                }
+                              : null,
                           child: Padding(
                             padding: const EdgeInsets.only(right: 1),
                             child: Center(
@@ -827,8 +838,15 @@ class _GalleryPopupState extends State<GalleryPopup>
                       height: double.infinity,
                       child: Center(
                         child: GalleryButton(
-                          onPressed:
-                              right ? () => _animateToPage(_page + 1) : null,
+                          key: Key(right ? 'RightButton' : 'NoRightButton'),
+                          onPressed: right
+                              ? () {
+                                  _animateToPage(_page + 1);
+                                  _displayForTime(
+                                    (v) => _displayRight = _displayRight || v,
+                                  );
+                                }
+                              : null,
                           child: Padding(
                             padding: const EdgeInsets.only(left: 1),
                             child: Center(
@@ -962,7 +980,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Animates the [_pageController] to the provided [page].
   void _animateToPage(int page) {
-    node.requestFocus();
+    _node.requestFocus();
     _pageController.animateToPage(
       page,
       curve: Curves.linear,
@@ -1274,6 +1292,18 @@ class _GalleryPopupState extends State<GalleryPopup>
   bool _onBack(bool _, RouteInfo __) {
     _dismiss();
     return true;
+  }
+
+  /// Sets the [_displayTimer] to [toggle] the provided boolean.
+  void _displayForTime(void Function(bool) toggle) {
+    toggle(true);
+
+    _displayTimer?.cancel();
+    _displayTimer = Timer(1.seconds, () {
+      if (mounted) {
+        setState(() => toggle(false));
+      }
+    });
   }
 }
 

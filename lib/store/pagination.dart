@@ -323,7 +323,7 @@ class Pagination<T, C, K> {
                 hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
                 Log.debug('previous()... done', '$runtimeType');
 
-                return page?.edges.take(before);
+                return page?.edges.take(items.length - before);
               } catch (e) {
                 if (e is! OperationCanceledException) {
                   rethrow;

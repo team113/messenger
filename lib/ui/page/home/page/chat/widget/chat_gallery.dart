@@ -43,9 +43,9 @@ class ChatGallery extends StatefulWidget {
   /// [Paginated] to display in a [GalleryPopup].
   final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
 
-  /// Initial index of an [Attachment] from the [paginated] to display along
-  /// with its optional [GlobalKey] to animate the [GalleryPopup] from/to.
-  final Attachment? initial;
+  /// Initial [Attachment] and a [ChatItem] containing it to display initially
+  /// in a [GalleryPopup].
+  final (ChatItem?, Attachment)? initial;
 
   /// [GlobalKey] of the widget to display [GalleryPopup] expanding from.
   final GlobalKey? rect;
@@ -80,13 +80,18 @@ class _ChatGalleryState extends State<ChatGallery> {
       ];
 
   /// Index of the [_initial] attachment in the [_gallery] list.
-  int get _index =>
-      max(_gallery.indexWhere((e) => e.id == widget.initial?.id.val), 0);
+  int get _index => max(
+      _gallery.indexWhere(
+        (e) => widget.initial?.$1 == null
+            ? e.id?.endsWith('${widget.initial?.$2.id}') == true
+            : e.id == '${widget.initial?.$1?.id}_${widget.initial?.$2.id}',
+      ),
+      0);
 
   @override
   void initState() {
     if (widget.initial != null) {
-      _initial = _parse(widget.initial!);
+      _initial = _parse(widget.initial!.$2, item: widget.initial?.$1);
     }
 
     // After the initial page is fetched, try to fetch the previous one and set
@@ -208,7 +213,7 @@ class _ChatGalleryState extends State<ChatGallery> {
       return GalleryItem.video(
         file.url,
         o.filename,
-        id: o.id.val,
+        id: '${item?.id}_${o.id}',
         size: file.size,
         checksum: file.checksum,
         onError: () async {
@@ -222,7 +227,7 @@ class _ChatGalleryState extends State<ChatGallery> {
       return GalleryItem.image(
         file.url,
         o.filename,
-        id: o.id.val,
+        id: '${item?.id}_${o.id}',
         size: file.size,
         width: file.width,
         height: file.height,

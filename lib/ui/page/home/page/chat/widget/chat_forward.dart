@@ -435,6 +435,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     context,
                     media.first,
                     media,
+                    item: msg,
                     key: _galleryKeys[msg.id]?.firstOrNull,
                     onGallery: menu
                         ? null
@@ -455,6 +456,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                               context,
                               e,
                               media,
+                              item: msg,
                               key: _galleryKeys[msg.id]?[i],
                               onGallery: menu
                                   ? null
@@ -731,6 +733,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       context,
                       media.first,
                       media,
+                      item: item,
                       key: _galleryKeys[item.id]?.lastOrNull,
                       onGallery: menu
                           ? null
@@ -751,6 +754,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                                 context,
                                 e,
                                 media,
+                                item: item,
                                 key: _galleryKeys[item.id]?[i],
                                 onGallery: menu
                                     ? null
