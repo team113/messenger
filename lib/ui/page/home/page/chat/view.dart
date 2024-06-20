@@ -853,12 +853,12 @@ class ChatView extends StatelessWidget {
                       await c.animateTo(e.value.id, item: e.value, reply: q);
                     }
                   },
-                  onGallery: c.calculateGallery,
+                  onGallery: () => c.calculateGallery(e.value),
                   onResend: () => c.resendItem(e.value),
                   onEdit: () => c.editMessage(e.value),
                   onFileTap: (a) => c.downloadFile(e.value, a),
-                  onAttachmentError: () async {
-                    await c.chat?.updateAttachments(e.value);
+                  onAttachmentError: (item) async {
+                    await c.chat?.updateAttachments(item ?? e.value);
                     await Future.delayed(Duration.zero);
                   },
                   onDownload: c.downloadMedia,
@@ -972,7 +972,7 @@ class ChatView extends StatelessWidget {
                       c.copyText(text);
                     }
                   },
-                  onGallery: c.calculateGallery,
+                  onGallery: (m) => c.calculateGallery(m),
                   onEdit: () => c.editMessage(element.note.value!.value),
                   onForwardedTap: (item) {
                     if (item.quote.original != null) {
@@ -988,7 +988,13 @@ class ChatView extends StatelessWidget {
                     }
                   },
                   onFileTap: c.downloadFile,
-                  onAttachmentError: () async {
+                  onAttachmentError: (item) async {
+                    if (item != null) {
+                      await c.chat?.updateAttachments(item);
+                      await Future.delayed(Duration.zero);
+                      return;
+                    }
+
                     for (ChatItem item in [
                       element.note.value?.value,
                       ...element.forwards.map((e) => e.value),

@@ -70,6 +70,9 @@ typedef MessagesPaginated
 typedef MembersPaginated
     = RxPaginatedImpl<UserId, RxChatMember, DtoChatMember, ChatMembersCursor>;
 
+typedef AttachmentsPaginated
+    = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, DtoChatItem, ChatItemsCursor>;
+
 /// [RxChat] implementation backed by local storage.
 class RxChatImpl extends RxChat {
   RxChatImpl(
@@ -138,6 +141,9 @@ class RxChatImpl extends RxChat {
 
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _fragments = [];
+
+  /// [AttachmentsPaginated]s created by this [RxChatImpl].
+  final List<MessagesPaginated> _attachments = [];
 
   /// Subscriptions to the [MessagesPaginated.items] changes updating the
   /// [reads].
@@ -442,6 +448,9 @@ class RxChatImpl extends RxChat {
     }
     for (final s in _fragmentSubscriptions) {
       s.cancel();
+    }
+    for (var e in _attachments.toList()) {
+      e.dispose();
     }
   }
 
@@ -774,6 +783,10 @@ class RxChatImpl extends RxChat {
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
+
+    for (var e in _attachments) {
+      await e.pagination?.put(item, ignoreBounds: ignoreBounds);
+    }
   }
 
   @override
@@ -955,6 +968,124 @@ class RxChatImpl extends RxChat {
         await _driftChat.upsert(chatEntity);
       }
     });
+  }
+
+  @override
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({
+    ChatItemId? item,
+  }) {
+    Log.debug('attachments(item: $item)', '$runtimeType($id)');
+
+    ChatItemsCursor? cursor;
+    ChatItemId? key = item;
+
+    if (item != null) {
+      final DtoChatItem? dto = _pagination.items[item];
+      cursor = dto?.cursor;
+    }
+
+    AttachmentsPaginated? fragment;
+
+    _attachments.add(
+      fragment = AttachmentsPaginated(
+        initialKey: key,
+        initialCursor: cursor,
+        transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
+          if (previous != null) {
+            return previous..value = data.value;
+          }
+
+          return Rx(data.value);
+        },
+        pagination: Pagination(
+          onKey: (e) => e.value.id,
+          fulfilled: (edges) {
+            return edges.any((e) {
+              if (e.value is ChatMessage) {
+                final msg = e.value as ChatMessage;
+
+                return msg.attachments.any((a) {
+                  if (a is ImageAttachment) {
+                    return true;
+                  } else if (a is FileAttachment) {
+                    return a.isVideo;
+                  } else if (a is LocalAttachment) {
+                    return a.file.isImage || a.file.isSvg || a.file.isVideo;
+                  }
+
+                  return false;
+                });
+              }
+
+              return false;
+            });
+          },
+          provider: DriftGraphQlPageProvider(
+            graphQlProvider: GraphQlPageProvider(
+              reversed: true,
+              fetch: ({after, before, first, last}) async {
+                final Page<DtoChatItem, ChatItemsCursor> reversed =
+                    await _chatRepository.messages(
+                  chat.value.id,
+                  after: after,
+                  first: first,
+                  before: before,
+                  last: last,
+                  onlyAttachments: true,
+                );
+
+                return reversed;
+              },
+            ),
+            driftProvider: DriftPageProvider(
+              fetch: ({
+                required after,
+                required before,
+                ChatItemId? around,
+              }) async {
+                PreciseDateTime? at;
+
+                if (around != null) {
+                  final DtoChatItem? item = await get(around);
+                  at = item?.value.at;
+                }
+
+                return await _driftItems.attachments(
+                  id,
+                  before: before,
+                  after: after,
+                  around: at,
+                );
+              },
+              onKey: (e) => e.value.id,
+              onCursor: (e) => e?.cursor,
+              isFirst: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.firstItem?.id == e.value.id;
+              },
+              isLast: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.lastItem?.id == e.value.id;
+              },
+              compare: (a, b) => a.value.key.compareTo(b.value.key),
+            ),
+          ),
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+          perPage: 10,
+        ),
+        onDispose: () {
+          _attachments.remove(fragment);
+        },
+      ),
+    );
+
+    return fragment;
   }
 
   @override
@@ -1424,7 +1555,8 @@ class RxChatImpl extends RxChat {
           await _chatRepository.attachments(stored);
 
       void replace(Attachment a) {
-        Attachment? fetched = response.firstWhereOrNull((e) => e.id == a.id);
+        final Attachment? fetched =
+            response.firstWhereOrNull((e) => e.id == a.id);
         if (fetched != null) {
           a.original = fetched.original;
           if (a is ImageAttachment && fetched is ImageAttachment) {

@@ -40,6 +40,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -139,7 +140,7 @@ class ChatItemWidget extends StatefulWidget {
   ///
   /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
   /// tapped.
-  final List<GalleryAttachment> Function()? onGallery;
+  final Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -151,7 +152,7 @@ class ChatItemWidget extends StatefulWidget {
   final void Function(FileAttachment)? onFileTap;
 
   /// Callback, called on the [Attachment] fetching errors.
-  final Future<void> Function()? onAttachmentError;
+  final Future<void> Function(ChatItem?)? onAttachmentError;
 
   /// Callback, called when a download action of this [ChatItem] is triggered.
   final void Function(List<Attachment>)? onDownload;
@@ -174,10 +175,11 @@ class ChatItemWidget extends StatefulWidget {
   static Widget mediaAttachment(
     BuildContext context,
     Attachment e,
-    Iterable<GalleryAttachment> media, {
+    Iterable<Attachment> media, {
     GlobalKey? key,
-    Iterable<GalleryAttachment> Function()? onGallery,
-    Future<void> Function()? onError,
+    ChatItem? item,
+    Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
+    Future<void> Function(ChatItem?)? onError,
     bool filled = true,
   }) {
     final style = Theme.of(context).style;
@@ -201,7 +203,7 @@ class ChatItemWidget extends StatefulWidget {
             key: key,
             attachment: e,
             height: 300,
-            onError: onError,
+            onError: () async => await onError?.call(null),
           ),
           Center(
             child: Container(
@@ -226,7 +228,7 @@ class ChatItemWidget extends StatefulWidget {
         attachment: e,
         width: filled ? double.infinity : null,
         height: filled ? double.infinity : null,
-        onError: onError,
+        onError: () async => await onError?.call(null),
       );
 
       if (!isLocal) {
@@ -252,20 +254,13 @@ class ChatItemWidget extends StatefulWidget {
                     return;
                   }
 
-                  final Iterable<GalleryAttachment> attachments = onGallery();
-
-                  int initial = attachments.indexed
-                      .firstWhere((a) => a.$2.attachment == e)
-                      .$1;
-                  if (initial == -1) {
-                    initial = 0;
-                  }
-
                   GalleryPopup.show(
                     context: context,
                     gallery: ChatGallery(
-                      attachments: attachments,
-                      initial: (initial, key),
+                      paginated: onGallery(),
+                      initial: (item, e),
+                      rect: key,
+                      onForbidden: onError,
                     ),
                   );
                 },
@@ -763,9 +758,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
     }).toList();
 
-    final Iterable<GalleryAttachment> galleries =
-        media.map((e) => GalleryAttachment(e, widget.onAttachmentError));
-
     final List<Attachment> files = msg.attachments.where((e) {
       return ((e is FileAttachment && !e.isVideo) ||
           (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
@@ -875,7 +867,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     ? ChatItemWidget.mediaAttachment(
                         context,
                         media.first,
-                        galleries,
+                        media,
+                        item: widget.item.value,
                         filled: false,
                         key: _galleryKeys[0],
                         onError: widget.onAttachmentError,
@@ -891,7 +884,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                                 (i, e) => ChatItemWidget.mediaAttachment(
                                   context,
                                   e,
-                                  galleries,
+                                  media,
+                                  item: widget.item.value,
                                   key: _galleryKeys[i],
                                   onError: widget.onAttachmentError,
                                   onGallery: menu ? null : widget.onGallery,
@@ -1173,7 +1167,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     image.medium.url,
                     checksum: image.medium.checksum,
                     thumbhash: image.medium.thumbhash,
-                    onForbidden: widget.onAttachmentError,
+                    onForbidden: () async =>
+                        await widget.onAttachmentError?.call(null),
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,

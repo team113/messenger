@@ -233,6 +233,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     }
 
     return Stack(
+      key: Key('Attachment_${widget.attachment.id}'),
       fit: StackFit.passthrough,
       children: [
         if (preview != null) Positioned.fill(child: preview),
