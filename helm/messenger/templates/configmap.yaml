@@ -34,3 +34,7 @@ data:
 
   nginx.conf: |
     {{- tpl (.Files.Get "conf/nginx.conf") . | nindent 4 }}
+
+  template.sh: |
+    $CONF_FILE $OUT_DIR $INGRESS_HOSTS
+    TODO

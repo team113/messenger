@@ -9,10 +9,13 @@ All user visible changes to this project will be documented in this file. This p
 ## [0.1.4] · 2024-??-?? (unreleased)
 [0.1.4]: https://github.com/team113/messenger/tree/helm%2Fmessenger%2F0.1.4/helm/messenger
 
+### Added
+
+- Ability to tune configuration per `Ingress` host. ([#1041], [#954])
+
 ### Changed
 
-- Set `Cross-Origin-Embedder-Policy` header to `credentialless` for Safari. ([#1004])
-- Ability to specify application's configuration for different domains. ([#1041], [#954])
+- Set `Cross-Origin-Embedder-Policy` header to `credentialless` for [Safari]. ([#1004])
 
 [#954]: https://github.com/team113/messenger/issues/954
 [#1004]: https://github.com/team113/messenger/pull/1004
@@ -75,4 +78,5 @@ All user visible changes to this project will be documented in this file. This p
 
 
 [Nginx]: https://nginx.org
+[Safari]: https://www.apple.com/safari
 [Semantic Versioning 2.0.0]: https://semver.org
