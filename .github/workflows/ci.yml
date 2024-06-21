@@ -244,7 +244,9 @@ jobs:
       - name: Prepare iOS signing resources
         run: |
           # Install Codemagic CLI Tools.
-          pip3 install codemagic-cli-tools
+          python3 -m venv $RUNNER_TEMP/venv
+          source $RUNNER_TEMP/venv/bin/activate
+          python3 -m pip install codemagic-cli-tools
 
           # Create variable.
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
