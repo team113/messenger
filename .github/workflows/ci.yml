@@ -1106,6 +1106,38 @@ jobs:
   # Deploying #
   #############
 
+  deploy-app-store:
+    name: deploy (App Store)
+    # if: ${{ github.ref == 'refs/heads/main'
+    #      || startsWith(github.ref, 'refs/tags/v') }}
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ipa-${{ github.run_number }}
+      - run: |
+          source $RUNNER_TEMP/venv/bin/activate
+          app-store-connect publish --path *.ipa
+
+  deploy-google-play:
+    name: deploy (Google Play)
+    # if: ${{ github.ref == 'refs/heads/main'
+    #      || startsWith(github.ref, 'refs/tags/v') }}
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle-${{ github.run_number }}
+      - uses: KevinRohn/github-action-upload-play-store@v1.0.0
+        with:
+          service_account_json: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          package_name: ${{ secrets.FCM_BUNDLE_ID }}
+          aab_file_path: "${{ steps.app.outputs.group1 }}-android.aab"
+          track: "internal"
+          release_status: "draft"
+
   deploy-docs:
     name: deploy (dartdoc)
     if: ${{ github.ref == 'refs/heads/main'
