@@ -237,6 +237,8 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
     if (!status.value.isSuccess) {
       await ensureInitialized();
+    } else if (items.isNotEmpty) {
+      await clear();
     }
 
     final Page<V, C>? page =
@@ -287,6 +289,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
   /// Clears the [pagination].
   Future<void> clear() async {
+    items.clear();
     await pagination?.clear();
     status.value = RxStatus.empty();
   }

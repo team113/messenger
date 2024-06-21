@@ -99,7 +99,6 @@ import '/util/web/web_utils.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
-import 'widget/chat_gallery.dart';
 
 export 'view.dart';
 
@@ -1228,48 +1227,10 @@ class ChatController extends GetxController {
     MessagePopup.success('label_copied'.l10n, bottom: 76);
   }
 
-  /// Returns a [List] of [GalleryAttachment]s representing a collection of all
-  /// the media files of this [chat].
-  List<GalleryAttachment> calculateGallery() {
-    final List<GalleryAttachment> attachments = [];
-
-    for (var m in chat?.messages ?? <Rx<ChatItem>>[]) {
-      if (m.value is ChatMessage) {
-        final ChatMessage msg = m.value as ChatMessage;
-        attachments.addAll(
-          msg.attachments
-              .where(
-                (e) =>
-                    e is ImageAttachment || (e is FileAttachment && e.isVideo),
-              )
-              .map(
-                (e) => GalleryAttachment(e, () => chat?.updateAttachments(msg)),
-              ),
-        );
-      } else if (m.value is ChatForward) {
-        final ChatForward msg = m.value as ChatForward;
-        final ChatItemQuote item = msg.quote;
-
-        if (item is ChatMessageQuote) {
-          attachments.addAll(
-            item.attachments
-                .where(
-                  (e) =>
-                      e is ImageAttachment ||
-                      (e is FileAttachment && e.isVideo),
-                )
-                .map(
-                  (e) => GalleryAttachment(
-                    e,
-                    () => chat?.updateAttachments(m.value),
-                  ),
-                ),
-          );
-        }
-      }
-    }
-
-    return attachments;
+  /// Returns a [Paginated] of [ChatItem]s containing a collection of all the
+  /// media files of this [chat].
+  Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItem? item) {
+    return chat!.attachments(item: item?.id);
   }
 
   /// Keeps [ChatService.keepTyping] subscription, if message field is not

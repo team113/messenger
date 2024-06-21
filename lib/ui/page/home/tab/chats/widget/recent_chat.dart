@@ -545,15 +545,27 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: userOrFuture is RxUser? ? null : userOrFuture,
                   initialData: userOrFuture is RxUser? ? userOrFuture : null,
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(
-                          snapshot.data,
-                          radius: AvatarRadius.smaller,
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item.author.id),
-                          radius: AvatarRadius.smaller,
-                        ),
+                  builder: (_, snapshot) {
+                    final FutureOr<RxUser?> rxUser = snapshot.data ??
+                        userOrFuture ??
+                        rxChat.members.values
+                            .firstWhereOrNull(
+                              (e) => e.user.id == item.author.id,
+                            )
+                            ?.user;
+
+                    if (rxUser is RxUser?) {
+                      return AvatarWidget.fromRxUser(
+                        rxUser,
+                        radius: AvatarRadius.smaller,
+                      );
+                    }
+
+                    return AvatarWidget.fromUser(
+                      chat.getUser(item.author.id),
+                      radius: AvatarRadius.smaller,
+                    );
+                  },
                 ),
               ),
             if (desc.isEmpty)
