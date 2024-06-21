@@ -20,7 +20,6 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/themes.dart';
-import 'package:messenger/ui/page/home/widget/wallet.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/routes.dart';
@@ -184,7 +183,7 @@ class BalanceTabView extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
                     child: TransactionWidget(
                       e,
-                      currency: TransactionCurrency.inter,
+                      // currency: TransactionCurrency.inter,
                     ),
                   );
                 },

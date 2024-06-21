@@ -34,6 +34,7 @@ import 'page/faq/view.dart';
 import 'page/my_profile/view.dart';
 import 'page/public/view.dart';
 import 'page/transaction/view.dart';
+import 'page/transactions/view.dart';
 import 'page/user/view.dart';
 import 'page/balance/view.dart';
 import 'page/withdraw/view.dart';
@@ -167,6 +168,12 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           key: ValueKey('WithdrawPage'),
           name: Routes.withdraw,
           child: WithdrawView(),
+        ));
+      } else if (route == Routes.transactions) {
+        pages.add(const CustomPage(
+          key: ValueKey('TransactionsPage'),
+          name: Routes.transactions,
+          child: TransactionsView(),
         ));
       } else if (route == Routes.terms) {
         pages.add(const CustomPage(

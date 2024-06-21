@@ -142,6 +142,9 @@ extension L10nDateExtension on DateTime {
   /// Returns this [DateTime] formatted in `Hm` format.
   String get hm => DateFormat.Hm().format(this);
 
+  /// Returns this [DateTime] formatted in `Hms` format.
+  String get hms => DateFormat.Hms().format(this);
+
   /// Returns this [DateTime] formatted in `yMd` format.
   String get yMd => DateFormat.yMd().format(this);
 
@@ -283,5 +286,23 @@ extension L10nDurationExtension on Duration {
     }
 
     return result;
+  }
+}
+
+extension SpacesNumExtension on num {
+  String get withSpaces {
+    String value = toString();
+
+    int len = value.length;
+    int dlen = 3;
+
+    while (len > dlen) {
+      value =
+          '${value.substring(0, len - dlen)} ${value.substring(len - dlen, value.length)}';
+      dlen += 4;
+      len += 1;
+    }
+
+    return value;
   }
 }

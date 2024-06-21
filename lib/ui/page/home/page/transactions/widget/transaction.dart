@@ -1,12 +1,12 @@
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/page/home/page/my_profile/widget/line_divider.dart';
-import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/svg/svgs.dart';
 
 import '../../../../../../util/platform_utils.dart';
+import '../../../../../widget/animated_button.dart';
+import '../../my_profile/widget/line_divider.dart';
 import '/ui/page/home/widget/copy_or_share.dart';
 import '../../../../../../l10n/l10n.dart';
+import '../../../../../widget/svg/svg.dart';
 import '/themes.dart';
 import '/domain/service/balance.dart';
 

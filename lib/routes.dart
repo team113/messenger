@@ -119,6 +119,7 @@ class Routes {
   static const nowhere = '/nowhere';
   static const withdraw = '/withdraw';
   static const erase = '/erase';
+  static const transactions = '/transactions';
 
   // E2E tests related page, should not be used in non-test environment.
   static const restart = '/restart';
@@ -391,6 +392,7 @@ class RouterState extends ChangeNotifier {
             routes.last == Routes.transaction ||
             routes.last == Routes.faq ||
             routes.last == Routes.terms ||
+            routes.last == Routes.transactions ||
             routes.last == '/dev' ||
             routes.last == Routes.vacancy) {
           routes.last = Routes.home;
@@ -482,7 +484,8 @@ class AppRouteInformationParser
 
     if (route.startsWith(Routes.work) ||
         route == Routes.faq ||
-        route == Routes.withdraw) {
+        route == Routes.withdraw ||
+        route.startsWith(Routes.transactions)) {
       tab = HomeTab.work;
     } else if (route.startsWith(Routes.balance)) {
       tab = HomeTab.balance;
@@ -994,6 +997,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.transaction) ||
         _state.route.startsWith(Routes.style) ||
         _state.route.startsWith(Routes.vacancy) ||
+        _state.route.startsWith(Routes.transactions) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -1177,6 +1181,9 @@ extension RouteLinks on RouterState {
   void faq({bool push = false}) => (push ? this.push : go)(Routes.faq);
 
   void terms() => go(Routes.terms);
+
+  void transactions({bool push = false}) =>
+      (push ? this.push : go)(Routes.transactions);
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

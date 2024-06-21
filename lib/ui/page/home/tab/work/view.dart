@@ -21,7 +21,6 @@ import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/widget/list_divider.dart';
 import '/ui/widget/menu_button.dart';
-import 'package:messenger/ui/widget/widget_button.dart';
 
 import '/ui/widget/svg/svg.dart';
 import '/routes.dart';
@@ -29,7 +28,6 @@ import '/themes.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
 import '/ui/page/work/widget/vacancy_button.dart';
-import '/ui/widget/animated_button.dart';
 import 'controller.dart';
 
 /// View of the [HomeTab.work] tab.
@@ -137,11 +135,16 @@ class WorkTabView extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(vertical: 1.5),
-                  child: MenuButton(
-                    title: 'Транзакции',
-                    onPressed: () {},
-                    leading: const SvgIcon(SvgIcons.workTransactions),
-                  ),
+                  child: Obx(() {
+                    final bool enabled =
+                        router.routes.lastOrNull == Routes.transactions;
+                    return MenuButton(
+                      title: 'btn_transactions'.l10n,
+                      onPressed: router.transactions,
+                      leading: const SvgIcon(SvgIcons.workTransactions),
+                      inverted: enabled,
+                    );
+                  }),
                 ),
                 _label(context, 'Партнёрская программа'),
                 // const SizedBox(height: 16),

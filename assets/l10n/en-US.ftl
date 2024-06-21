@@ -1265,3 +1265,6 @@ label_order_payment = Order payment
 label_order_payment_desc =
     Order
     payment
+btn_regulations = Regulations
+btn_transactions = Transactions
+label_confirmation = Confirmation

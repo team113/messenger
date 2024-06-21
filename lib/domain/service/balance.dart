@@ -9,18 +9,71 @@ import '/domain/model/user.dart';
 
 class BalanceService extends DisposableInterface {
   final RxDouble balance = RxDouble(0);
+  final RxDouble hold = RxDouble(0);
 
   final RxList<Transaction> transactions = RxList(
     [
-      Transaction(amount: 1424, status: TransactionStatus.hold),
+      Transaction(
+        amount: -100,
+        status: TransactionStatus.canceled,
+        // reason: 'Suspicious activity',
+        description: 'Withdraw to: PayPal\n'
+            'Cancel reason: suspicious activity',
+        at: DateTime.now()
+            .subtract(const Duration(hours: 1))
+            .copyWith(minute: 01),
+      ),
+      Transaction(
+        amount: 1424,
+        status: TransactionStatus.hold,
+        by: UserNum('1234123412341234').toString(),
+        description: 'Донат 4214',
+        at: DateTime.now()
+            .subtract(const Duration(hours: 2))
+            .copyWith(minute: 48),
+      ),
       Transaction(
         amount: 100,
-        description: UserNum('1234123412341234').toString(),
+        by: UserNum('1234123412341234').toString(),
+        description: 'Платное сообщение 555',
+        at: DateTime.now()
+            .subtract(const Duration(hours: 5))
+            .copyWith(minute: 14),
       ),
-      Transaction(amount: -97, description: 'PayPal'),
-      Transaction(amount: 2, by: 'Друг 15'),
-      Transaction(amount: -5, by: 'Вася Пупкин'),
-      Transaction(amount: 100, description: 'Initial'),
+      Transaction(
+        amount: -97,
+        description: 'PayPal',
+        at: DateTime.now()
+            .subtract(const Duration(hours: 5))
+            .copyWith(hour: 12, minute: 48),
+      ),
+      Transaction(
+        amount: 2,
+        by: 'Друг 15',
+        at: DateTime.now()
+            .subtract(const Duration(days: 1))
+            .copyWith(hour: 23, minute: 26),
+      ),
+      Transaction(
+        amount: -5,
+        by: 'Вася Пупкин',
+        at: DateTime.now()
+            .subtract(const Duration(days: 7))
+            .copyWith(hour: 3, minute: 9),
+      ),
+      Transaction(
+        amount: -5,
+        description: 'Withdraw to: PayPal',
+        at: DateTime.now()
+            .subtract(const Duration(days: 7))
+            .copyWith(hour: 3, minute: 9),
+      ),
+      Transaction(
+        amount: 100,
+        by: UserNum('1234 1234 1234 1234').toString(),
+        description: 'Трансляция 12341234',
+        at: DateTime(2023),
+      ),
     ],
   );
 
@@ -140,7 +193,15 @@ class BalanceService extends DisposableInterface {
 
   void _recalculate() {
     balance.value = transactions.fold(0, (a, b) {
-      if (b.status == TransactionStatus.hold) {
+      if (b.status != TransactionStatus.done) {
+        return a;
+      }
+
+      return a + b.amount;
+    });
+
+    hold.value = transactions.fold(0, (a, b) {
+      if (b.status != TransactionStatus.hold) {
         return a;
       }
 
@@ -154,6 +215,7 @@ class Transaction {
     String? id,
     this.description,
     this.by,
+    this.reason,
     this.amount = 0,
     DateTime? at,
     this.status = TransactionStatus.done,
@@ -163,6 +225,7 @@ class Transaction {
   final String id;
   final String? description;
   final String? by;
+  final String? reason;
   final double amount;
   final DateTime at;
   final TransactionStatus status;
@@ -170,7 +233,7 @@ class Transaction {
 
 enum TransactionStatus {
   hold,
-  failed,
+  canceled,
   done,
 }
 

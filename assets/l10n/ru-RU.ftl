@@ -1313,3 +1313,6 @@ label_order_payment = Заказать выплату
 label_order_payment_desc =
     Заказать
     выплату
+btn_regulations = Регламент
+btn_transactions = Транзакции
+label_confirmation = Подтверждение

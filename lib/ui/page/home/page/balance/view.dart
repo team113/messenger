@@ -20,19 +20,15 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:intl/intl.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/back_button.dart';
 import 'package:messenger/ui/page/home/page/chat/widget/donate.dart';
-import 'package:messenger/ui/page/home/page/user/widget/money_field.dart';
 import 'package:messenger/ui/page/home/widget/app_bar.dart';
 import 'package:messenger/ui/page/home/widget/avatar.dart';
 import 'package:messenger/ui/page/home/widget/block.dart';
-import 'package:messenger/ui/page/login/widget/primary_button.dart';
 import 'package:messenger/ui/widget/animated_button.dart';
-import 'package:messenger/ui/widget/selected_dot.dart';
 import 'package:messenger/ui/widget/svg/svg.dart';
 import 'package:messenger/ui/widget/text_field.dart';
 import 'package:messenger/ui/widget/widget_button.dart';
@@ -154,7 +150,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: '\$${(n / 100).round().withSpaces()}',
+                                price: '\$${(n / 100).round().withSpaces}',
                                 bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
@@ -222,7 +218,7 @@ class BalanceProviderView extends StatelessWidget {
                                   const EdgeInsets.symmetric(vertical: 1.5),
                               child: PickVariantButton(
                                 amount: n,
-                                price: '\$${(n / 100).round().withSpaces()}',
+                                price: '\$${(n / 100).round().withSpaces}',
                                 bonus: 0,
                                 onPressed: () => c.nominal[e]!.value = i,
                                 selected: selected,
@@ -786,15 +782,5 @@ class BalanceProviderView extends StatelessWidget {
         button,
       ],
     );
-  }
-}
-
-extension on num {
-  String withSpaces([bool zeros = false]) {
-    if (!zeros) {
-      return NumberFormat('#,##0').format(this);
-    }
-
-    return NumberFormat('#,##0.00').format(this);
   }
 }
