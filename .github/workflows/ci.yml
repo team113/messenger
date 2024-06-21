@@ -255,7 +255,8 @@ jobs:
           # Import certificate and its extract its from secrets.
           echo -n "$BUILD_CERTIFICATE_BASE64" \
           | base64 --decode -o $CERTIFICATE_PATH
-          openssl pkcs12 -in $CERTIFICATE_PATH -nodes -nocerts \
+          openssl pkcs12 -in $CERTIFICATE_PATH \
+                         -nodes -nocerts -passin pass:$(P12_PASSWORD) \
           | openssl rsa -out $KEY_PATH
 
           # Initialize keychain.
