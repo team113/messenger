@@ -266,7 +266,7 @@ jobs:
           app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
                             --platform IOS \
                             --type IOS_APP_STORE \
-                            --certificate-key=$KEY_PATH \
+                            --certificate-key=@file:$KEY_PATH \
                             --create
 
           # Generate `.plist` file for signing.
