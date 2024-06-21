@@ -75,22 +75,23 @@ spec:
       initContainers:
         - name: conf-renderer
           image: mikefarah/yq:4
-          command: ["template.sh"]
-          args:
-            - '-c'
-            - |
-              set -ex
-              touch /tmp/.yaml && printf {{ toYaml $.Values | quote }} >> /tmp/.yaml
-              for e in {{ join " " $.Values.ingress.hosts | trimPrefix "[" | trimSuffix "]" }}
-              do
-                  yq '. * {"conf":."'$e'" // {}} | withEntries(select(.key == "conf")) | .conf as $root | {} | . = $root' /tmp/.yaml \
-                  > /tmp/conf/$e.yaml
-              done
-              rm -rf /tmp/.yaml
+          command: ["sh"]
+          args: ["template.sh"]
+          env:
+            - name: INGRESS_HOSTS
+              value: {{ join " " $.Values.ingress.hosts | trimPrefix "[" | trimSuffix "]" }}
+            - name: OUT_DIR
+              value: /tmp/conf
+            - name: CONF_FILE
+              value: /var/run/conf.toml
           volumeMounts:
             - name: conf
               subPath: conf.toml
               mountPath: /var/run/conf.toml
+              readOnly: true
+            - name: conf
+              subPath: template.sh
+              mountPath: /workdir/template.sh
               readOnly: true
             - name: conf-rendered
               mountPath: /tmp/conf/
