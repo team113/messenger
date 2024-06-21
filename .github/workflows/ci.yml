@@ -273,6 +273,9 @@ jobs:
           keychain add-certificates
           xcode-project use-profiles
         env:
+          APP_STORE_CONNECT_ISSUER_ID: {{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: {{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: {{ secrets.APP_STORE_KEY }}
           BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE }}
           BUILD_CERTIFICATE_IDENTITY: ${{ secrets.IOS_SIGNING_IDENTITY }}
           BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE }}
