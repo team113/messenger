@@ -290,8 +290,9 @@ jobs:
           cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
 
           # Codesign the application.
-          codesign --deep --force --verbose --options=runtime \
+          codesign --deep --force --verbose --options=runtime --timestamp \
                    --sign "$BUILD_CERTIFICATE_IDENTITY" \
+                   --entitlements macos/Runner/Release.entitlements
                    build/macos/Build/Products/Release/*.app
           codesign --verify -vvvv build/macos/Build/Products/Release/*.app
         env:
