@@ -252,7 +252,7 @@ jobs:
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           KEY_PATH=$RUNNER_TEMP/cert_key
 
-          # Import certificate and its extract its from secrets.
+          # Import certificate and its key from secrets.
           echo -n "$BUILD_CERTIFICATE_BASE64" \
           | base64 --decode -o $CERTIFICATE_PATH
           openssl pkcs12 -in $CERTIFICATE_PATH \
@@ -344,50 +344,6 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           P12_PASSWORD: ${{ secrets.MACOS_SIGNING_CERTIFICATE_PASSWORD }}
         if: ${{ matrix.platform == 'macos' }}
-
-      # - name: Codesign iOS application
-      #   run: |
-      #     set -ex
-
-      #     # Create variables.
-      #     CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
-      #     PP_PATH=$RUNNER_TEMP/build_pp.mobileprovision
-      #     KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
-
-      #     # Import certificate and provisioning profile from secrets.
-      #     echo -n "$BUILD_CERTIFICATE_BASE64" \
-      #     | base64 --decode -o $CERTIFICATE_PATH
-      #     echo -n "$BUILD_PROVISION_PROFILE_BASE64" \
-      #     | base64 --decode -o $PP_PATH
-
-      #     # Create temporary keychain.
-      #     security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-      #     security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
-      #     security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-
-      #     # Import certificate to keychain.
-      #     security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A \
-      #              -t cert -f pkcs12 -k $KEYCHAIN_PATH
-      #     security set-key-partition-list -S apple-tool:,apple: \
-      #              -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
-      #     security list-keychain -d user -s $KEYCHAIN_PATH
-
-      #     # Apply provisioning profile.
-      #     mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-      #     cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
-
-      #     # Codesign the application.
-      #     codesign --deep --force --verbose --options=runtime \
-      #              --sign "$BUILD_CERTIFICATE_IDENTITY" \
-      #              build/ios/iphoneos/*.app
-      #     codesign --verify -vvvv build/ios/iphoneos/*.app
-      #   env:
-      #     BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE }}
-      #     BUILD_CERTIFICATE_IDENTITY: ${{ secrets.IOS_SIGNING_IDENTITY }}
-      #     BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE }}
-      #     KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
-      #     P12_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
-      #   if: ${{ matrix.platform == 'ios' }}
 
       - name: Parse application name from Git repository name
         id: app
@@ -505,6 +461,7 @@ jobs:
 
       - name: Cleanup iOS codesign resources
         run: |
+          source $RUNNER_TEMP/venv/bin/activate
           security delete-keychain $(keychain get-default)
           keychain use-login
         if: ${{ always()
