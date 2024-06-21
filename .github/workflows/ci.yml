@@ -1116,9 +1116,12 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
-      - run: |
-          source $RUNNER_TEMP/venv/bin/activate
-          app-store-connect publish --path *.ipa
+      - run: xcrun altool --upload-app --type ios -f *.ipa
+                          --apiKey $APP_STORE_CONNECT_PRIVATE_KEY
+                          --apiIssuer $APP_STORE_CONNECT_ISSUER_ID
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_KEY }}
 
   deploy-google-play:
     name: deploy (Google Play)
@@ -1130,6 +1133,14 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
+
+      - name: Parse application name from Git repository name
+        id: app
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.repository }}
+          regex: '^${{ github.repository_owner }}/(.+)$'
+
       - uses: KevinRohn/github-action-upload-play-store@v1.0.0
         with:
           service_account_json: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
