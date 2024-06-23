@@ -78,12 +78,12 @@ spec:
           command: ["sh"]
           args: ["template.sh"]
           env:
+            - name: CONF_FILE
+              value: /var/run/conf.toml
             - name: INGRESS_HOSTS
               value: {{ join " " $.Values.ingress.hosts | trimPrefix "[" | trimSuffix "]" }}
             - name: OUT_DIR
               value: /tmp/conf
-            - name: CONF_FILE
-              value: /var/run/conf.toml
           volumeMounts:
             - name: conf
               subPath: conf.toml
