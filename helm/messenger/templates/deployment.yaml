@@ -81,7 +81,7 @@ spec:
             - name: CONF_FILE
               value: /var/run/conf.toml
             - name: INGRESS_HOSTS
-              value: {{ join " " $.Values.ingress.hosts | trimPrefix "[" | trimSuffix "]" }}
+              value: {{ join " " $.Values.ingress.hosts | quote }}
             - name: OUT_DIR
               value: /tmp/conf
           volumeMounts:
