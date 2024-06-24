@@ -258,6 +258,51 @@ jobs:
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
+      - name: Codesign macOS application
+        run: |
+          set -ex
+
+          # Create variables.
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.provisionprofile
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Import certificate and provisioning profile from secrets.
+          echo -n "$BUILD_CERTIFICATE_BASE64" \
+          | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" \
+          | base64 --decode -o $PP_PATH
+
+          # Create temporary keychain.
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain.
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A \
+                   -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: \
+                   -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Apply provisioning profile.
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+          # Codesign the application.
+          codesign --deep --force --verbose --options=runtime --timestamp \
+                   --sign "$BUILD_CERTIFICATE_IDENTITY" \
+                   --entitlements macos/Runner/Release.entitlements \
+                   build/macos/Build/Products/Release/*.app
+          codesign --verify -vvvv build/macos/Build/Products/Release/*.app
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_SIGNING_CERTIFICATE }}
+          BUILD_CERTIFICATE_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MACOS_PROVISION_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.MACOS_SIGNING_CERTIFICATE_PASSWORD }}
+        if: ${{ matrix.platform == 'macos' }}
+
       - name: Parse application name from Git repository name
         id: app
         uses: actions-ecosystem/action-regex-match@v2
@@ -278,6 +323,30 @@ jobs:
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
+
+      - name: Notarize and staple macOS application
+        run: |
+          set -ex
+
+          mkdir -p .cache/
+          cd build/macos/Build/Products/Release/dist/
+          zip -r ${{ github.workspace }}/.cache/app.zip . --symlinks
+          cd ${{ github.workspace }}/
+
+          xcrun notarytool submit .cache/app.zip \
+                                  --apple-id "$APPLE_ID" \
+                                  --team-id $TEAM_ID \
+                                  --password $PASSWORD \
+                                  --wait
+          xcrun stapler staple build/macos/Build/Products/Release/dist/*.app
+        env:
+          APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        if: ${{ matrix.platform == 'macos'
+             && (github.ref == 'refs/heads/main'
+                 || startsWith(github.ref, 'refs/tags/v')) }}
+
       - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
@@ -342,6 +411,13 @@ jobs:
                     android/key.properties
         if: ${{ always()
              && runner.os != 'Windows' }}  # we don't use any for Windows anyway
+
+      - name: Cleanup macOS codesign resources
+        run: |
+          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        if: ${{ always()
+             && matrix.platform == 'macos' }}
 
   build-linux:
     name: build (linux)

@@ -349,6 +349,10 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Remove when backend supports welcome messages.
   /// Posts a new [ChatMessage] with the provided [text] by the recipient.
   Future<void> addMessage(ChatMessageText text);
+
+  /// Returns the [Paginated] of [ChatItem]s having any [Attachment]s posted in
+  /// this [chat] around the provided [item], if any.
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item});
 }
 
 /// Reactive [ChatMember] entity.

@@ -136,4 +136,9 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item}) {
+    return PaginatedImpl();
+  }
 }

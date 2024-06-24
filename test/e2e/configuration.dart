@@ -51,6 +51,7 @@ import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
@@ -80,8 +81,10 @@ import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
+import 'steps/name_is.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
+import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
 import 'steps/remove_chat_member.dart';
 import 'steps/rename_contact.dart';
@@ -121,11 +124,13 @@ import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_image.dart';
 import 'steps/tap_message.dart';
 import 'steps/tap_reply.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
+import 'steps/tap_widget_n_times.dart';
 import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
@@ -202,12 +207,16 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressMonolog,
         longPressWidget,
         monologAvailability,
+        myNameIs,
+        myNameIsNot,
         noInternetConnection,
         openChatInfo,
         pasteToField,
         popupWindows,
+        postsNAttachmentsToGroup,
         readsAllMessages,
         readsMessage,
+        removeAccountInAccounts,
         removeGroupMember,
         renameContact,
         repliesToMessage,
@@ -219,6 +228,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToBottom,
         scrollToTop,
         scrollUntilPresent,
+        seeAccountInAccounts,
         seeBlockedUsers,
         seeChatAsDismissed,
         seeChatAsFavorite,
@@ -246,10 +256,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeNamedChat,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
-        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,
@@ -259,9 +269,11 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setCredential,
         setMyCredential,
         signInAs,
+        tapAccountInAccounts,
         tapChat,
         tapContact,
         tapDropdownItem,
+        tapLastImageInChat,
 
         // TODO: Fix `gherkin` matching `tapMessage` instead.
         tapReply,
@@ -270,6 +282,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapText,
         tapUserInSearchResults,
         tapWidget,
+        tapWidgetNTimes,
         twoContacts,
         twoUsers,
         untilAttachmentExists,
@@ -283,6 +296,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateAvatar,
         updateName,
         user,
+        userWithPassword,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,

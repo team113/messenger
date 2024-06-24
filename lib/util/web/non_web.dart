@@ -286,6 +286,11 @@ class WebUtils {
     }
   }
 
+  /// Plays the provided [asset].
+  static Future<void> play(String asset) async {
+    // No-op.
+  }
+
   /// Returns the `User-Agent` header to put in the network queries.
   static Future<String> get userAgent async {
     final DeviceInfoPlugin device = DeviceInfoPlugin();

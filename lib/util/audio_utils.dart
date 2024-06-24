@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
 import 'platform_utils.dart';
+import 'web/web_utils.dart';
 
 /// Global variable to access [AudioUtilsImpl].
 ///
@@ -84,7 +85,17 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound) async {
     ensureInitialized();
 
-    if (_isMobile) {
+    if (PlatformUtils.isWeb) {
+      final String url = switch (sound.kind) {
+        AudioSourceKind.asset => (sound as AssetAudioSource).asset,
+        AudioSourceKind.file => '',
+        AudioSourceKind.url => (sound as UrlAudioSource).url,
+      };
+
+      if (url.isNotEmpty) {
+        await WebUtils.play(url);
+      }
+    } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
       await _jaPlayer?.play();
     } else {

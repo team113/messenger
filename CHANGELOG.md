@@ -28,12 +28,19 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Direct links in messages opening within application. ([#1012], [#800])
 
+### Fixed
+
+- Web:
+    - Audio playback stopping when receiving or sending message on iOS. ([#1039], [#968])
+
 [#799]: /../../issues/799
 [#800]: /../../issues/800
 [#896]: /../../issues/896
+[#968]: /../../issues/968
 [#973]: /../../pull/973
 [#1012]: /../../pull/1012
 [#1035]: /../../pull/1035
+[#1039]: /../../pull/1039
 
 
 
