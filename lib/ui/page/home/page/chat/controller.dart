@@ -1993,7 +1993,9 @@ class ChatController extends GetxController {
       }
 
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        if (offset != null && offset < loaderHeight) {
+        if (listController.hasClients &&
+            offset != null &&
+            offset < loaderHeight) {
           listController.jumpTo(
             listController.position.pixels - (loaderHeight + 28),
           );
