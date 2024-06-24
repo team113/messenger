@@ -25,7 +25,6 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:dio/dio.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -50,7 +49,6 @@ import 'domain/model/session.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
-import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/account.dart';
 import 'provider/drift/background.dart';
@@ -300,20 +298,6 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  try {
-    await Firebase.initializeApp(
-      options: PlatformUtils.pushNotifications
-          ? DefaultFirebaseOptions.currentPlatform
-          : null,
-    );
-  } catch (e) {
-    if (e.toString().contains('[core/duplicate-app]')) {
-      // No-op.
-    } else {
-      rethrow;
-    }
-  }
-
   Log.debug('handlePushNotification($message)', 'main');
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&

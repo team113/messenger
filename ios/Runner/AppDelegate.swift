@@ -36,7 +36,7 @@ import UIKit
         self?.getArchitecture(result: result)
       } else if (call.method == "cancelNotification") {
         let args = call.arguments as! [String: Any]
-        self?.cancelNotification(identifier: args["tag"] as! String)
+        self?.cancelNotification(tag: args["tag"] as! String)
         result(nil)
       } else if (call.method == "cancelNotificationsContaining") {
         let args = call.arguments as! [String: Any]
