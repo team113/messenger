@@ -33,8 +33,6 @@ import 'package:win32_registry/win32_registry.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/session.dart';
-import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -84,21 +82,6 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
-
-  /// Removes [Credentials] identified by the provided [UserId] from the
-  /// browser's storage.
-  static void removeCredentials(UserId userId) {
-    // No-op.
-  }
-
-  /// Puts the provided [Credentials] to the browser's storage.
-  static void putCredentials(Credentials creds) {
-    // No-op.
-  }
-
-  /// Returns the stored in browser's storage [Credentials] identified by the
-  /// provided [UserId], if any.
-  static Credentials? getCredentials(UserId userId) => null;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.

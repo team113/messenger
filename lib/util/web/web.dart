@@ -40,8 +40,6 @@ import 'package:web/web.dart' as web;
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/session.dart';
-import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -317,31 +315,6 @@ class WebUtils {
     }
 
     return _guards['mutex']?.isLocked == true || held;
-  }
-
-  /// Removes [Credentials] identified by the provided [UserId] from the
-  /// browser's storage.
-  static void removeCredentials(UserId userId) {
-    web.window.localStorage.removeItem('credentials_$userId');
-  }
-
-  /// Puts the provided [Credentials] to the browser's storage.
-  static void putCredentials(Credentials creds) {
-    web.window.localStorage['credentials_${creds.userId}'] = json.encode(
-      creds.toJson(),
-    );
-  }
-
-  /// Returns the stored in browser's storage [Credentials] identified by the
-  /// provided [UserId], if any.
-  static Credentials? getCredentials(UserId userId) {
-    if (web.window.localStorage['credentials_$userId'] == null) {
-      return null;
-    } else {
-      return Credentials.fromJson(
-        json.decode(web.window.localStorage['credentials_$userId']!),
-      );
-    }
   }
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
