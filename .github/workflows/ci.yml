@@ -1119,8 +1119,10 @@ jobs:
           name: build-ipa-${{ github.run_number }}
 
       - name: Prepare App Store Connect key
-        run: echo "${{ secrets.APP_STORE_KEY }}"
-             >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        run: |
+          mkdir -p $HOME/.private_keys/
+          echo "${{ secrets.APP_STORE_KEY }}" \
+          >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
       - run: xcrun altool --upload-app --type ios -f *.ipa
                           --apiKey ${{ secrets.APP_STORE_IDENTIFIER }}

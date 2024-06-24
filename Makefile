@@ -45,6 +45,8 @@ FLUTTER_VER ?= $(strip \
 	$(shell grep -m1 'FLUTTER_VER: ' .github/workflows/ci.yml | cut -d':' -f2 \
                                                               | tr -d '"'))
 
+REF := $(shell git describe --tags --match "v*")
+
 FCM_PROJECT = $(or $(FCM_PROJECT_ID),messenger-3872c)
 FCM_BUNDLE = $(or $(FCM_BUNDLE_ID),com.team113.messenger)
 FCM_WEB = $(or $(FCM_WEB_ID),1:985927661367:web:c604073ecefcacd15c0cb2)
@@ -130,6 +132,7 @@ endif
 #	                    | [platform=ipa] [export-options=<path-to-plist>]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
+#	                   [version=($(REF)|<version>)]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
@@ -165,7 +168,8 @@ else
 		$(if $(call eq,$(platform),ios),--no-codesign,) \
 		$(if $(call eq,$(platform),ipa),\
 			$(if $(call eq,$(export-options),),,\
-			--export-options-plist=$(export-options)),)
+			--export-options-plist=$(export-options)),) \
+		--build-name=$(or $(version),$(REF))
 endif
 
 
