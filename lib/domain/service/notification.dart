@@ -460,8 +460,9 @@ class NotificationService extends DisposableService {
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
-    if (PlatformUtils.isAndroid &&
-        settings.authorizationStatus != AuthorizationStatus.authorized) {
+    if (settings.authorizationStatus == AuthorizationStatus.notDetermined ||
+        (PlatformUtils.isAndroid &&
+            settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
     }
 

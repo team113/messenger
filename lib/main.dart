@@ -78,6 +78,9 @@ import 'util/web/web_utils.dart';
 
 /// Entry point of this application.
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  FirebaseMessaging.onBackgroundMessage(handlePushNotification);
+
   final Stopwatch watch = Stopwatch()..start();
 
   await Config.init();
@@ -298,7 +301,7 @@ Future<void> main() async {
 Future<void> handlePushNotification(RemoteMessage message) async {
   Log.debug('handlePushNotification($message)', 'main');
 
-  final String? chatId = message.data['chatId'];
+  String? chatId = message.data['chatId'];
   if (chatId == null) {
     return;
   }

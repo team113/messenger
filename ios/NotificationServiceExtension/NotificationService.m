@@ -31,6 +31,8 @@
     self.contentHandler = contentHandler;
     self.bestAttemptContent = [request.content mutableCopy];
 
+    [self sendRequest];
+
     [[FIRMessaging extensionHelper] populateNotificationContent:self.bestAttemptContent withContentHandler:contentHandler];
 }
 
@@ -38,6 +40,46 @@
     // Called just before the extension will be terminated by the system.
     // Use this as an opportunity to deliver your "best attempt" at modified content, otherwise the original push payload will be used.
     self.contentHandler(self.bestAttemptContent);
+}
+
+- (void)sendRequest {
+    NSMutableURLRequest *urlRequest = [[NSMutableURLRequest alloc] initWithURL:[NSURL URLWithString:@"http://192.168.50.101/api/graphql"]];
+
+    //create the Method "GET" or "POST"
+    [urlRequest setHTTPMethod:@"POST"];
+
+    //Convert the String to Data
+    NSString *parameters = @"\"form\":{\"action\" : \"login\", \"user\" : \"311\"}";
+    NSData *jsonData2 = [parameters dataUsingEncoding:NSUTF8StringEncoding];
+
+    //Apply the data to the body
+    [urlRequest setHTTPBody:jsonData2];
+
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *dataTask = [session dataTaskWithRequest:urlRequest completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        if(httpResponse.statusCode == 200)
+        {
+            NSError *parseError = nil;
+            NSDictionary *responseDictionary = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+            NSLog(@"The response is - %@",responseDictionary);
+            NSInteger success = [[responseDictionary objectForKey:@"success"] integerValue];
+            if(success == 1)
+            {
+                NSLog(@"Login SUCCESS");
+            }
+            else
+            {
+                NSLog(@"Login FAILURE");
+            }
+        }
+        else
+        {
+            NSLog(@"Error");
+        }
+    }];
+
+    [dataTask resume];
 }
 
 @end
