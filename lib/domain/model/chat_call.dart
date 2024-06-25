@@ -22,6 +22,7 @@ import '/api/backend/schema.dart';
 import '/util/new_type.dart';
 import 'chat.dart';
 import 'chat_item.dart';
+import 'ongoing_call.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -290,4 +291,149 @@ class ChatMembersDialedConcrete implements ChatMembersDialed {
 
   @override
   int get hashCode => members.hashCode;
+}
+
+/// Model of an [OngoingCall] stored in the browser's storage.
+class ActiveCall {
+  const ActiveCall({
+    required this.chatId,
+    this.call,
+    this.creds,
+    this.deviceId,
+    this.state = OngoingCallState.local,
+  });
+
+  /// Constructs a [ActiveCall] from the provided [data].
+  factory ActiveCall.fromJson(Map<dynamic, dynamic> data) {
+    return ActiveCall(
+      chatId: ChatId(data['chatId']),
+      call: data['call'] == null
+          ? null
+          : ChatCall(
+              ChatItemId(data['call']['id']),
+              ChatId(data['call']['chatId']),
+              User(
+                UserId(data['call']['author']['id']),
+                UserNum(data['call']['author']['num']),
+                name: data['call']['author']['name'] == null
+                    ? null
+                    : UserName(data['call']['author']['name']),
+              ),
+              PreciseDateTime.parse(data['call']['at']),
+              members: (data['call']['members'] as List<dynamic>)
+                  .map((e) => ChatCallMember(
+                        user: User(
+                          UserId(e['user']['id']),
+                          UserNum(e['user']['num']),
+                        ),
+                        handRaised: e['handRaised'],
+                        joinedAt: PreciseDateTime.parse(e['joinedAt']),
+                      ))
+                  .toList(),
+              withVideo: data['call']['withVideo'],
+              dialed: data['call']['dialed'] == null
+                  ? null
+                  : data['call']['dialed']['type'] == 'ChatMembersDialedAll'
+                      ? ChatMembersDialedAll(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        )
+                      : ChatMembersDialedConcrete(
+                          (data['call']['dialed']['members'] as List<dynamic>)
+                              .map((e) => ChatMember(
+                                    User(
+                                      UserId(e['user']['id']),
+                                      UserNum(e['user']['num']),
+                                    ),
+                                    PreciseDateTime.parse(e['joinedAt']),
+                                  ))
+                              .toList(),
+                        ),
+            ),
+      creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
+      deviceId:
+          data['deviceId'] == null ? null : ChatCallDeviceId(data['deviceId']),
+      state: data['state'] == null
+          ? OngoingCallState.local
+          : OngoingCallState.values[data['state']],
+    );
+  }
+
+  /// [ChatCall] of this [ActiveCall].
+  final ChatCall? call;
+
+  /// [ChatId] of this [ActiveCall].
+  final ChatId chatId;
+
+  /// Stored [OngoingCall.creds].
+  final ChatCallCredentials? creds;
+
+  /// Stored [OngoingCall.deviceId].
+  final ChatCallDeviceId? deviceId;
+
+  /// Stored [OngoingCall.state].
+  final OngoingCallState state;
+
+  /// Returns a [Map] containing this [ActiveCall] data.
+  Map<String, dynamic> toJson() {
+    return {
+      'chatId': chatId.val,
+      'call': call == null
+          ? null
+          : {
+              'id': call!.id.val,
+              'chatId': call!.chatId.val,
+              'at': call!.at.toString(),
+              'author': {
+                'id': call!.author.id.val,
+                'num': call!.author.num.val,
+                'name': call!.author.name?.val,
+              },
+              'members': call!.members
+                  .map((e) => {
+                        'user': {
+                          'id': e.user.id.val,
+                          'num': e.user.num.val,
+                        },
+                        'handRaised': e.handRaised,
+                        'joinedAt': e.joinedAt.toString(),
+                      })
+                  .toList(),
+              'withVideo': call!.withVideo,
+              'dialed': call!.dialed == null
+                  ? null
+                  : {
+                      'type': '${call!.dialed.runtimeType}',
+                      'members': (call!.dialed is ChatMembersDialedAll
+                              ? (call!.dialed as ChatMembersDialedAll)
+                                  .answeredMembers
+                              : (call!.dialed as ChatMembersDialedConcrete)
+                                  .members)
+                          .map(
+                            (e) => {
+                              'user': {
+                                'id': e.user.id.val,
+                                'num': e.user.num.val
+                              },
+                              'joinedAt': e.joinedAt.toString(),
+                            },
+                          )
+                          .toList(),
+                    },
+            },
+      'creds': creds?.val,
+      'deviceId': deviceId?.val,
+      'state': state.index,
+    };
+  }
+
+  @override
+  String toString() => 'ActiveCall(${call?.id})';
 }

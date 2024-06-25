@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
+import 'package:messenger/provider/drift/active_call.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
@@ -40,7 +41,6 @@ import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
-import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
 import 'event/incoming_chat_call.dart';
 
@@ -52,7 +52,8 @@ class CallRepository extends DisposableInterface
     this._userRepo,
     this._callCredentialsProvider,
     this._chatCredentialsProvider,
-    this._settingsRepo, {
+    this._settingsRepo,
+    this._callLocal, {
     required this.me,
   });
 
@@ -81,6 +82,8 @@ class CallRepository extends DisposableInterface
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  final ActiveCallDriftProvider _callLocal;
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
@@ -157,7 +160,7 @@ class CallRepository extends DisposableInterface
 
   @override
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    ActiveCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,

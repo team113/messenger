@@ -93,7 +93,7 @@ class CallOverlayController extends GetxController {
                   event.value!.value.call,
                   (ChatCall? call) {
                     WebUtils.setCall(
-                      WebStoredCall(
+                      ActiveCall(
                         chatId: ongoingCall.chatId.value,
                         call: call,
                         creds: ongoingCall.creds,

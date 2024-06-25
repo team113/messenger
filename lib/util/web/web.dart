@@ -514,68 +514,9 @@ class WebUtils {
     }
   }
 
-  /// Closes the current window.
-  static void closeWindow() => web.window.close();
-
-  /// Returns a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static WebStoredCall? getCall(ChatId chatId) {
-    var data = web.window.localStorage['call_$chatId'];
-    if (data != null) {
-      return WebStoredCall.fromJson(json.decode(data));
-    }
-
-    return null;
-  }
-
-  /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) =>
-      web.window.localStorage['call_${call.chatId}'] =
-          json.encode(call.toJson());
-
-  /// Removes a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static void removeCall(ChatId chatId) =>
-      web.window.localStorage.removeItem('call_$chatId');
-
-  /// Moves a call identified by its [chatId] to the [newChatId] replacing its
-  /// stored state with an optional [newState].
-  static void moveCall(
-    ChatId chatId,
-    ChatId newChatId, {
-    WebStoredCall? newState,
-  }) {
-    newState ??= getCall(chatId);
-    removeCall(chatId);
-    setCall(newState!);
+  /// Moves a call identified by its [chatId] to the [newChatId].
+  static void moveCall(ChatId chatId, ChatId newChatId) {
     replaceState(chatId.val, newChatId.val);
-  }
-
-  /// Removes all calls from the browser's storage, if any.
-  static void removeAllCalls() {
-    for (var i = 0; i < web.window.localStorage.length; ++i) {
-      final k = web.window.localStorage.key(i);
-      if (k?.startsWith('call_') ?? false) {
-        web.window.localStorage.removeItem(k!);
-      }
-    }
-  }
-
-  /// Indicates whether the browser's storage contains a call identified by the
-  /// provided [chatId].
-  static bool containsCall(ChatId chatId) =>
-      web.window.localStorage.getItem('call_$chatId') != null;
-
-  /// Indicates whether the browser's storage contains any calls.
-  static bool containsCalls() {
-    for (var i = 0; i < web.window.localStorage.length; ++i) {
-      final k = web.window.localStorage.key(i);
-      if (k?.startsWith('call_') ?? false) {
-        return true;
-      }
-    }
-
-    return false;
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.

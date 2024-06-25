@@ -152,43 +152,6 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static WebStoredCall? getCall(ChatId chatId) => null;
-
-  /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) {
-    // No-op.
-  }
-
-  /// Removes a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static void removeCall(ChatId chatId) {
-    // No-op.
-  }
-
-  /// Moves a call identified by its [chatId] to the [newChatId] replacing its
-  /// stored state with an optional [newState].
-  static void moveCall(
-    ChatId chatId,
-    ChatId newChatId, {
-    WebStoredCall? newState,
-  }) {
-    // No-op.
-  }
-
-  /// Removes all calls from the browser's storage, if any.
-  static void removeAllCalls() {
-    // No-op.
-  }
-
-  /// Indicates whether the browser's storage contains a call identified by the
-  /// provided [chatId].
-  static bool containsCall(ChatId chatId) => false;
-
-  /// Indicates whether the browser's storage contains any calls.
-  static bool containsCalls() => false;
-
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallRect(ChatId chatId, Rect prefs) {
     // No-op.

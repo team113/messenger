@@ -118,8 +118,7 @@ class RxChatImpl extends RxChat {
   ChatVersion? ver;
 
   @override
-  late final RxBool inCall =
-      RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
+  late final RxBool inCall = RxBool(_chatRepository.calls[id] != null);
 
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;
@@ -404,9 +403,10 @@ class RxChatImpl extends RxChat {
       _chatRepository.calls.changes,
       WebUtils.onStorageChange,
     ]).listen((_) {
-      inCall.value =
-          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
+      inCall.value = _chatRepository.calls[id] != null;
     });
+
+    _chatRepository.hasCall(id).then((v) => inCall.value = v || inCall.value);
 
     await _draftGuard.protect(() async {
       draft.value = await _draftLocal.read(id);

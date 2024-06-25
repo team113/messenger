@@ -1232,6 +1232,18 @@ class OngoingCall {
     _notifications.add(ErrorNotification(message: message));
   }
 
+  /// Constructs a [ActiveCall] containing all necessary information of this
+  /// [OngoingCall] to be stored in the browser's storage.
+  ActiveCall toStored() {
+    return ActiveCall(
+      chatId: chatId.value,
+      call: call.value,
+      creds: creds,
+      state: state.value,
+      deviceId: deviceId,
+    );
+  }
+
   /// Returns [MediaStreamSettings] with [audio], [video], [screen] enabled or
   /// not.
   ///
