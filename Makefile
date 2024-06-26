@@ -130,7 +130,6 @@ endif
 #	                    | [platform=ipa] [export-options=<path-to-plist>]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
-#	                   [version=($(REF)|<version>)]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
