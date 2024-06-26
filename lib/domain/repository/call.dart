@@ -61,9 +61,10 @@ abstract class AbstractCallRepository {
   /// [chatId].
   Rx<OngoingCall>? remove(ChatId chatId);
 
-  /// Returns `true` if an [OngoingCall] identified by [chatId] exists in the
-  /// [calls] map.
-  bool contains(ChatId chatId);
+  /// Returns `true` if an [OngoingCall] identified by [chatId] exists.
+  Future<bool> contains(ChatId chatId);
+
+  Future<ActiveCall?> get(ChatId chatId);
 
   /// Starts a new [OngoingCall] in the specified [chatId] by the authenticated
   /// [MyUser].

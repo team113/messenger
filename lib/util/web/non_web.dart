@@ -152,6 +152,11 @@ class WebUtils {
     // No-op.
   }
 
+  /// Moves a call identified by its [chatId] to the [newChatId].
+  static void moveCall(ChatId chatId, ChatId newChatId) {
+    // No-op.
+  }
+
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallRect(ChatId chatId, Rect prefs) {
     // No-op.

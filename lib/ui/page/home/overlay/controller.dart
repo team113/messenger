@@ -21,7 +21,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
@@ -86,28 +85,28 @@ class CallOverlayController extends GetxController {
             // If [window] is `true`, then a new popup window is created, so
             // treat this call as a popup windowed call.
             if (window) {
-              WebUtils.setCall(ongoingCall.toStored());
-              if (ongoingCall.callChatItemId == null ||
-                  ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  event.value!.value.call,
-                  (ChatCall? call) {
-                    WebUtils.setCall(
-                      ActiveCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ),
-                    );
+              // WebUtils.setCall(ongoingCall.toStored());
+              // if (ongoingCall.callChatItemId == null ||
+              //     ongoingCall.deviceId == null) {
+              //   _workers[event.key!] = ever(
+              //     event.value!.value.call,
+              //     (ChatCall? call) {
+              //       WebUtils.setCall(
+              //         ActiveCall(
+              //           chatId: ongoingCall.chatId.value,
+              //           call: call,
+              //           creds: ongoingCall.creds,
+              //           deviceId: ongoingCall.deviceId,
+              //           state: ongoingCall.state.value,
+              //         ),
+              //       );
 
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
-                );
-              }
+              //       if (call?.id != null) {
+              //         _workers[event.key!]?.dispose();
+              //       }
+              //     },
+              //   );
+              // }
             } else {
               Future.delayed(Duration.zero, () {
                 ongoingCall.addError('err_call_popup_was_blocked'.l10n);
@@ -125,10 +124,10 @@ class CallOverlayController extends GetxController {
         case OperationKind.removed:
           calls.removeWhere((e) => e.call == event.value!);
 
-          final OngoingCall call = event.value!.value;
-          if (call.callChatItemId == null || call.connected) {
-            WebUtils.removeCall(event.key!);
-          }
+          // final OngoingCall call = event.value!.value;
+          // if (call.callChatItemId == null || call.connected) {
+          //   WebUtils.removeCall(event.key!);
+          // }
           break;
 
         case OperationKind.updated:

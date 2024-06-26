@@ -155,6 +155,8 @@ class CallRepository extends DisposableInterface
       ongoing.value.call.value = call;
     }
 
+    await _callLocal.upsert(ongoing.value.toStored());
+
     return ongoing;
   }
 
@@ -211,13 +213,21 @@ class CallRepository extends DisposableInterface
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
 
+    _callLocal.delete(chatId);
+
     return call;
   }
 
   @override
-  bool contains(ChatId chatId) {
+  Future<bool> contains(ChatId chatId) async {
     Log.debug('contains($chatId)', '$runtimeType');
-    return calls.containsKey(chatId);
+
+    return calls.containsKey(chatId) || await _callLocal.read(chatId) != null;
+  }
+
+  @override
+  Future<ActiveCall?> get(ChatId chatId) async {
+    return await _callLocal.read(chatId);
   }
 
   @override
@@ -256,6 +266,8 @@ class CallRepository extends DisposableInterface
 
     calls[call.value.chatId.value] = call;
 
+    await _callLocal.upsert(call.value.toStored());
+
     final response = await _graphQlProvider.startChatCall(
       call.value.chatId.value,
       call.value.creds!,
@@ -273,6 +285,8 @@ class CallRepository extends DisposableInterface
       throw CallAlreadyJoinedException(response.deviceId);
     }
     calls[call.value.chatId.value]?.refresh();
+
+    await _callLocal.upsert(call.value.toStored());
 
     return call;
   }

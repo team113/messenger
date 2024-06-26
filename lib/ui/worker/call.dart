@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
@@ -352,29 +351,29 @@ class CallWorker extends DisposableService {
           }
 
           // Play a sound when a call with [myUser] ends in a popup.
-          if (e.oldValue != null) {
-            final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
+          // if (e.oldValue != null) {
+          //   final call = WebStoredCall.fromJson(json.decode(e.oldValue!));
 
-            final bool isActiveOrEnded =
-                call.state == OngoingCallState.active ||
-                    call.state == OngoingCallState.ended;
-            final bool withMe =
-                call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
-                    false;
+          //   final bool isActiveOrEnded =
+          //       call.state == OngoingCallState.active ||
+          //           call.state == OngoingCallState.ended;
+          //   final bool withMe =
+          //       call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
+          //           false;
 
-            if (isActiveOrEnded && withMe) {
-              play(_endCall);
-            }
-          }
+          //   if (isActiveOrEnded && withMe) {
+          //     play(_endCall);
+          //   }
+          // }
         } else {
-          final call = WebStoredCall.fromJson(json.decode(e.newValue!));
-          if (call.state != OngoingCallState.local &&
-              call.state != OngoingCallState.pending) {
-            _workers.remove(chatId)?.dispose();
-            if (_workers.isEmpty) {
-              stop();
-            }
-          }
+          // final call = WebStoredCall.fromJson(json.decode(e.newValue!));
+          // if (call.state != OngoingCallState.local &&
+          //     call.state != OngoingCallState.pending) {
+          //   _workers.remove(chatId)?.dispose();
+          //   if (_workers.isEmpty) {
+          //     stop();
+          //   }
+          // }
         }
       }
     });

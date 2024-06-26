@@ -16,11 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:get/get.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../../domain/model/chat_call.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
@@ -39,7 +39,7 @@ class PopupCallController extends GetxController {
   final ChatId chatId;
 
   /// Reactive [OngoingCall] this [PopupCallController] represents.
-  late final Rx<OngoingCall> call;
+  final Rx<Rx<OngoingCall>?> call = Rx(null);
 
   /// [CallService] maintaining the [call].
   final CallService _calls;
@@ -56,29 +56,7 @@ class PopupCallController extends GetxController {
   UserId get me => _calls.me;
 
   @override
-  void onInit() {
-    WebStoredCall? stored = WebUtils.getCall(chatId);
-    if (stored == null) {
-      return WebUtils.closeWindow();
-    }
-
-    call = _calls.addStored(
-      stored,
-      withAudio: router.arguments?['audio'] != 'false',
-      withVideo: router.arguments?['video'] == 'true',
-      withScreen: router.arguments?['screen'] == 'true',
-    );
-
-    _stateWorker = ever(
-      call.value.state,
-      (OngoingCallState state) {
-        WebUtils.setCall(call.value.toStored());
-        if (state == OngoingCallState.ended) {
-          WebUtils.closeWindow();
-        }
-      },
-    );
-
+  void onInit() async {
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       Log.debug(
         'WebUtils.onStorageChange(${e.key}): ${e.newValue}',
@@ -88,31 +66,58 @@ class PopupCallController extends GetxController {
       if (e.key == null) {
         WebUtils.closeWindow();
       } else if (e.newValue == null) {
-        if (e.key == 'call_${call.value.chatId}') {
+        if (e.key == 'call_${call.value?.value.chatId}') {
           WebUtils.closeWindow();
         }
-      } else if (e.key == 'call_${call.value.chatId}') {
-        var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
-        call.value.call.value = stored.call;
-        call.value.creds = call.value.creds ?? stored.creds;
-        call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-        call.value.chatId.value = stored.chatId;
-        _tryToConnect();
       }
+      // else if (e.key == 'call_${call.value.chatId}') {
+      //   var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
+      //   call.value.call.value = stored.call;
+      //   call.value.creds = call.value.creds ?? stored.creds;
+      //   call.value.deviceId = call.value.deviceId ?? stored.deviceId;
+      //   call.value.chatId.value = stored.chatId;
+      //   _tryToConnect();
+      // }
     });
+
+    ActiveCall? stored = await _calls.getCall(chatId);
+    if (stored == null) {
+      return WebUtils.closeWindow();
+    }
+
+    call.value = _calls.addStored(
+      stored,
+      withAudio: router.arguments?['audio'] != 'false',
+      withVideo: router.arguments?['video'] == 'true',
+      withScreen: router.arguments?['screen'] == 'true',
+    );
+
+    if (call.value != null) {
+      _stateWorker = ever(
+        call.value!.value.state,
+        (OngoingCallState state) {
+          // WebUtils.setCall(call.value.toStored());
+          if (state == OngoingCallState.ended) {
+            WebUtils.closeWindow();
+          }
+        },
+      );
+    }
 
     _tryToConnect();
     WakelockPlus.enable().onError((_, __) => false);
+
     super.onInit();
   }
 
   @override
   void onClose() {
     WakelockPlus.disable().onError((_, __) => false);
-    WebUtils.removeCall(call.value.chatId.value);
     _storageSubscription?.cancel();
     _stateWorker.dispose();
-    _calls.leave(call.value.chatId.value);
+    if (call.value != null) {
+      _calls.leave(call.value!.value.chatId.value);
+    }
     WebUtils.closeWindow();
     super.dispose();
   }
@@ -123,8 +128,9 @@ class PopupCallController extends GetxController {
   /// Otherwise the [OngoingCall.connect] should be invoked via the
   /// [CallService.join] method.
   void _tryToConnect() {
-    if (call.value.caller?.id == me || call.value.isActive) {
-      call.value.connect(_calls);
+    if (call.value?.value.caller?.id == me ||
+        call.value?.value.isActive == true) {
+      call.value?.value.connect(_calls);
     }
   }
 }

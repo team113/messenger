@@ -514,6 +514,9 @@ class WebUtils {
     }
   }
 
+  /// Closes the current window.
+  static void closeWindow() => web.window.close();
+
   /// Moves a call identified by its [chatId] to the [newChatId].
   static void moveCall(ChatId chatId, ChatId newChatId) {
     replaceState(chatId.val, newChatId.val);

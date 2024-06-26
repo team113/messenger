@@ -69,7 +69,15 @@ class _PopupCallViewState extends State<PopupCallView> {
     return GetBuilder<PopupCallController>(
       init: PopupCallController(widget.chatId, Get.find()),
       builder: (PopupCallController c) {
-        return CallView(c.call, key: ValueKey(widget.chatId));
+        return Obx(() {
+          if (c.call.value == null) {
+            return const Scaffold(
+              body: Center(child: CustomProgressIndicator()),
+            );
+          }
+
+          return CallView(c.call.value!, key: ValueKey(widget.chatId));
+        });
       },
     );
   }
