@@ -127,6 +127,7 @@ endif
 #
 # Usage:
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
+#	                    | platform=ipa [export-options=<path-to-plist>]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
@@ -161,7 +162,10 @@ else
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
-		$(if $(call eq,$(platform),ios),--no-codesign,)
+		$(if $(call eq,$(platform),ios),--no-codesign,)\
+		$(if $(call eq,$(platform),ipa),\
+			$(if $(call eq,$(export-options),),,\
+				--export-options-plist=$(export-options)),)
 endif
 
 
@@ -362,7 +366,7 @@ appcast-item-ver = $(or $(version),\
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
-	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.zip")$(call appcast.xml.item.release,"ios","messenger-ios.zip")</item>" \
+	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.apk")$(call appcast.xml.item.release,"ios","messenger-ios.ipa")</item>" \
 	> $(or $(out),appcast/$(appcast-item-ver).xml)
 define appcast.xml.item.release
 <enclosure sparkle:os=\"$(1)\" url=\"$(link)$(2)\" />
