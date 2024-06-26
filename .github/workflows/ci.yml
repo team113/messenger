@@ -263,7 +263,8 @@ jobs:
           keychain initialize
 
           # Fetch the signing resources from App Store Connect.
-          app-store-connect fetch-signing-files $(xcode-project detect-bundle-id) \
+          app-store-connect fetch-signing-files \
+                            $(xcode-project detect-bundle-id) \
                             --platform IOS \
                             --type IOS_APP_STORE \
                             --certificate-key=@file:$KEY_PATH \
@@ -450,13 +451,6 @@ jobs:
         if: ${{ always()
              && runner.os != 'Windows' }}  # we don't use any for Windows anyway
 
-      - name: Cleanup macOS codesign resources
-        run: |
-          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
-          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
-        if: ${{ always()
-             && matrix.platform == 'macos' }}
-
       - name: Cleanup iOS codesign resources
         run: |
           source $RUNNER_TEMP/venv/bin/activate
@@ -464,6 +458,13 @@ jobs:
           keychain use-login
         if: ${{ always()
              && matrix.platform == 'ipa' }}
+
+      - name: Cleanup macOS codesign resources
+        run: |
+          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        if: ${{ always()
+             && matrix.platform == 'macos' }}
 
   build-linux:
     name: build (linux)

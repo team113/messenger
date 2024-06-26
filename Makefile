@@ -127,7 +127,7 @@ endif
 #
 # Usage:
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
-#	                    | [platform=ipa] [export-options=<path-to-plist>]
+#	                    | platform=ipa [export-options=<path-to-plist>]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
@@ -162,7 +162,7 @@ else
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
-		$(if $(call eq,$(platform),ios),--no-codesign,) \
+		$(if $(call eq,$(platform),ios),--no-codesign,)\
 		$(if $(call eq,$(platform),ipa),\
 			$(if $(call eq,$(export-options),),,\
 				--export-options-plist=$(export-options)),)
