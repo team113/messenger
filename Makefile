@@ -129,10 +129,13 @@ endif
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
 #	                    | platform=ipa [export-options=<path-to-plist>]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
+#	                   [build=($(git rev-list HEAD --count)|<build-number>)]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
+
+flutter-build-number=$(or $(build),$(shell git rev-list HEAD --count))
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -151,11 +154,12 @@ else
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.build platform=$(platform) dart-env='$(dart-env)' \
 			                   split-debug-info=$(split-debug-info) \
-			                   profile=$(profile) \
+			                   build=$(build) profile=$(profile) \
 			                   dockerized=no
 endif
 else
 	flutter build $(or $(platform),apk) \
+		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
@@ -362,7 +366,7 @@ endef
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
 appcast-item-ver = $(or $(version),\
-	$(shell git describe --tags --dirty --match "v*" --always))
+	$(shell git describe --tags --abbrev=0 --match "v*" --always)+$(shell git rev-list HEAD --count))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:

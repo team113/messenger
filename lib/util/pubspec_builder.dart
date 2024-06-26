@@ -55,11 +55,15 @@ class PubspecBuilder implements Builder {
     try {
       final ProcessResult git = await Process.run(
         'git',
-        ['describe', '--tags', '--dirty', '--match', 'v*'],
+        ['describe', '--tags', '--abbrev=0', '--dirty', '--match', 'v*'],
       );
 
       if (git.exitCode == 0) {
+        final ProcessResult rev =
+            await Process.run('git', ['rev-list', 'HEAD', '--count']);
+
         String ref = git.stdout.toString();
+        String count = rev.stdout.toString();
 
         // Strip the first `v` of the tag.
         if (ref.startsWith('v')) {
@@ -70,8 +74,11 @@ class PubspecBuilder implements Builder {
         if (ref.endsWith('\n')) {
           ref = ref.substring(0, ref.length - 1);
         }
+        if (count.endsWith('\n')) {
+          count = count.substring(0, count.length - 1);
+        }
 
-        buffer.write('  static const String ref = \'$ref\';\n');
+        buffer.write('  static const String ref = \'$ref+$count\';\n');
       } else {
         // ignore: avoid_print
         print(
