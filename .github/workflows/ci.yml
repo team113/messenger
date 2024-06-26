@@ -248,7 +248,7 @@ jobs:
           source $RUNNER_TEMP/venv/bin/activate
           python3 -m pip install codemagic-cli-tools
 
-          # Create variable.
+          # Create variables.
           CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
           KEY_PATH=$RUNNER_TEMP/cert_key
 
@@ -268,18 +268,15 @@ jobs:
                             --type IOS_APP_STORE \
                             --certificate-key=@file:$KEY_PATH \
                             --create
-
-          # Generate `.plist` file for signing.
           keychain add-certificates
+
+          # Export `export_options.plist` file to sign iOS application with.
           xcode-project use-profiles
         env:
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_IDENTIFIER }}
           APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_KEY }}
           BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE }}
-          BUILD_CERTIFICATE_IDENTITY: ${{ secrets.IOS_SIGNING_IDENTITY }}
-          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.IOS_PROVISION_PROFILE }}
-          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
           P12_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
         if: ${{ matrix.platform == 'ipa' }}
 
