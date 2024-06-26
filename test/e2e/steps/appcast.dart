@@ -66,8 +66,8 @@ final StepDefinitionGeneric appcastIsAvailable =
       <enclosure sparkle:os="macos" url="messenger-macos.zip" />
       <enclosure sparkle:os="windows" url="messenger-windows.zip" />
       <enclosure sparkle:os="linux" url="messenger-linux.zip" />
-      <enclosure sparkle:os="android" url="messenger-android.zip" />
-      <enclosure sparkle:os="ios" url="messenger-ios.zip" />
+      <enclosure sparkle:os="android" url="messenger-android.apk" />
+      <enclosure sparkle:os="ios" url="messenger-ios.ipa" />
     </item>
   </channel>
 </rss>
