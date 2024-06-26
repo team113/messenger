@@ -362,10 +362,11 @@ endef
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
 appcast-item-ver = $(or $(version),\
-	$(shell git describe --tags --abbrev=0 --match "v*" --always))
+	$(shell git describe --tags --abbrev=0 --match "v*" --always)+$(shell git rev-list HEAD --count))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
+	@echo $(appcast-item-ver)
 	@echo "<item><title>$(appcast-item-ver)</title>$(if $(call eq,$(notes),),$(appcast-item-notes),<description>$(notes)</description>)<pubDate>$(shell date -R)</pubDate>$(call appcast.xml.item.release,"macos","messenger-macos.zip")$(call appcast.xml.item.release,"windows","messenger-windows.zip")$(call appcast.xml.item.release,"linux","messenger-linux.zip")$(call appcast.xml.item.release,"android","messenger-android.zip")$(call appcast.xml.item.release,"ios","messenger-ios.zip")</item>" \
 	> $(or $(out),appcast/$(appcast-item-ver).xml)
 define appcast.xml.item.release

@@ -425,6 +425,9 @@ jobs:
     # Pin glibc to 2.31 version for better compatibility.
     container: debian:bullseye
     steps:
+      - name: Install Git
+        run: sudo apt-get install -y git
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
