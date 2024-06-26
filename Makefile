@@ -166,7 +166,7 @@ else
 		$(if $(call eq,$(platform),ios),--no-codesign,) \
 		$(if $(call eq,$(platform),ipa),\
 			$(if $(call eq,$(export-options),),,\
-			--export-options-plist=$(export-options)),)
+				--export-options-plist=$(export-options)),)
 endif
 
 
