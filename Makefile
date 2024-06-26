@@ -128,6 +128,7 @@ endif
 # Usage:
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
+#	                   [build=<build-number>]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
@@ -161,7 +162,8 @@ else
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
-		$(if $(call eq,$(platform),ios),--no-codesign,)
+		$(if $(call eq,$(platform),ios),--no-codesign,) \
+		$(if $(call eq,$(build),),,--build-number=$(build))
 endif
 
 
@@ -358,7 +360,7 @@ endef
 #	                      [out=(appcast/<version>.xml|<output-file>)
 
 appcast-item-ver = $(or $(version),\
-	$(shell git describe --tags --dirty --match "v*" --always))
+	$(shell git describe --tags --abbrev=0 --match "v*" --always))
 appcast-item-notes = $(foreach xml,$(wildcard release_notes/*.md),<description xml:lang=\"$(shell echo $(xml) | rev | cut -d"/" -f1 | rev | cut -d"." -f1)\"><![CDATA[$$(cat $(xml))]]></description>)
 
 appcast.xml.item:
