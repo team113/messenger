@@ -128,11 +128,13 @@ endif
 # Usage:
 #	make flutter.build [( [platform=apk] [split-per-abi=(no|yes)]
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
-#	                   [build=<build-number>]
+#	                   [build=($(git rev-list HEAD --count)|<build-number>)]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
+
+flutter-build-number=$(or $(build),$(shell git rev-list HEAD --count))
 
 flutter.build:
 ifeq ($(wildcard lib/api/backend/*.graphql.dart),)
@@ -151,7 +153,7 @@ else
 		ghcr.io/instrumentisto/flutter:$(FLUTTER_VER) \
 			make flutter.build platform=$(platform) dart-env='$(dart-env)' \
 			                   split-debug-info=$(split-debug-info) \
-			                   profile=$(profile) \
+			                   build=$(build) profile=$(profile) \
 			                   dockerized=no
 endif
 else
@@ -163,7 +165,7 @@ else
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v)) \
 		$(if $(call eq,$(platform),ios),--no-codesign,) \
-		$(if $(call eq,$(build),),,--build-number=$(build))
+		--build-number=$(flutter-build-number)
 endif
 
 
