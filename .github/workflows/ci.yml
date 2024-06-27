@@ -466,14 +466,6 @@ jobs:
         if: ${{ always()
              && matrix.platform == 'macos' }}
 
-      - name: Cleanup iOS codesign resources
-        run: |
-          source $RUNNER_TEMP/venv/bin/activate
-          security delete-keychain $(keychain get-default)
-          keychain use-login
-        if: ${{ always()
-             && matrix.platform == 'ipa' }}
-
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest

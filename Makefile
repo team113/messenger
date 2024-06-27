@@ -131,7 +131,6 @@ endif
 #	                    | platform=(appbundle|web|linux|macos|windows|ios) )]
 #	                   [build=($(git rev-list HEAD --count)|<build-number>)]
 #	                   [dart-env=<VAR1>=<VAL1>[,<VAR2>=<VAL2>...]]
-#	                   [version=($(REF)|<version>)]
 #	                   [dockerized=(no|yes)]
 #	                   [profile=(no|yes)]
 #	                   [split-debug-info=(no|yes)]
