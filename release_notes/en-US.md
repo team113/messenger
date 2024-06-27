@@ -1,5 +1,7 @@
-- Added active devices list displaying in profile's settings.
-- Added ability to add, remove and switch accounts.
-- Redesigned editing of chat, user and settings profiles.
-- Fixed question marks displaying over own avatar when logging in.
-- Fixed image gallery being opened recursively when context menu is opened.
+- Added link tab.
+- Added deep links support.
+- Added critical updates popup.
+- Removed contacts tab.
+- Removed "work with us" tab.
+- Fixed music stopping when receiving or sending messages in Safari on iOS.
+- Made direct links, sent in chats, to open directly in application.
