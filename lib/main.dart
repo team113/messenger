@@ -25,6 +25,7 @@ import 'dart:async';
 
 import 'package:app_links/app_links.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -49,6 +50,7 @@ import 'domain/model/session.dart';
 import 'domain/model/user.dart';
 import 'domain/repository/auth.dart';
 import 'domain/service/auth.dart';
+import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'provider/drift/account.dart';
 import 'provider/drift/background.dart';
@@ -300,6 +302,10 @@ Future<void> main() async {
 Future<void> handlePushNotification(RemoteMessage message) async {
   Log.debug('handlePushNotification($message)', 'main');
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
     SharedPreferences? prefs;
@@ -442,6 +448,35 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         } else if (tag != null) {
           await IosUtils.cancelNotification(tag);
         }
+      }
+    }
+
+    final String? chatId = message.data['chatId'];
+    if (chatId != null) {
+      await Config.init();
+
+      final common = CommonDriftProvider.from(CommonDatabase());
+      final credentialsProvider = CredentialsDriftProvider(common);
+      final accountProvider = AccountDriftProvider(common);
+
+      await credentialsProvider.init();
+      await accountProvider.init();
+
+      final UserId? userId = accountProvider.userId;
+      final Credentials? credentials =
+          userId != null ? await credentialsProvider.read(userId) : null;
+
+      if (credentials != null) {
+        final provider = GraphQlProvider();
+        provider.token = credentials.access.secret;
+
+        try {
+          await provider.chatItems(ChatId(chatId), first: 1);
+        } catch (e) {
+          // No-op.
+        }
+
+        provider.disconnect();
       }
     }
   }
