@@ -57,11 +57,10 @@ class PubspecBuilder implements Builder {
         'git',
         ['describe', '--tags', '--abbrev=0', '--dirty', '--match', 'v*'],
       );
+      final ProcessResult rev =
+          await Process.run('git', ['rev-list', 'HEAD', '--count']);
 
-      if (git.exitCode == 0) {
-        final ProcessResult rev =
-            await Process.run('git', ['rev-list', 'HEAD', '--count']);
-
+      if (git.exitCode == 0 && rev.exitCode == 0) {
         String ref = git.stdout.toString();
         String count = rev.stdout.toString();
 
@@ -80,20 +79,14 @@ class PubspecBuilder implements Builder {
 
         buffer.write('  static const String ref = \'$ref+$count\';\n');
       } else {
-        // ignore: avoid_print
-        print(
+        throw Exception(
           '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
         );
-
-        buffer.write('  static const String ref = version;\n');
       }
     } catch (e) {
-      // ignore: avoid_print
-      print(
+      throw Exception(
         '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable failed: ${e.toString()}',
       );
-
-      buffer.write('  static const String ref = version;\n');
     }
 
     buffer.write('}\n');
