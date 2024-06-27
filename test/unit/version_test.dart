@@ -210,6 +210,11 @@ void main() {
           VersionExtension.parse('0.1.0-alpha.14'),
       true,
     );
+
+    expect(Version(0, 1, 0) < Version(0, 1, 0, build: '1'), true);
+    expect(Version(0, 1, 0, build: '1') == Version(0, 1, 0, build: '1'), true);
+    expect(Version(0, 1, 0, build: '1') < Version(0, 1, 0, build: '2'), true);
+    expect(Version(1, 0, 0, build: '502') > Version(1, 0, 0, build: '9'), true);
   });
 
   test('Version correctly detects the critical versions', () async {
@@ -294,6 +299,16 @@ void main() {
       Version(0, 1, 0, pre: 'alpha.1')
           .isCritical(Version(0, 1, 0, pre: 'alpha.1', build: '1')),
       false,
+    );
+    expect(Version(0, 1, 0).isCritical(Version(0, 1, 0, build: '1')), false);
+    expect(
+      Version(0, 1, 0, build: '1').isCritical(Version(0, 1, 0, build: '2')),
+      false,
+    );
+    expect(Version(1, 0, 0).isCritical(Version(1, 0, 0, build: '524')), false);
+    expect(
+      Version(0, 1, 0, build: '1').isCritical(Version(0, 2, 0, build: '2')),
+      true,
     );
   });
 }
