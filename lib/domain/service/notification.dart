@@ -409,9 +409,6 @@ class NotificationService extends DisposableService {
 
     if (onBackground != null) {
       FirebaseMessaging.onBackgroundMessage(onBackground);
-      if (PlatformUtils.isIOS) {
-        IosUtils.registerBackgroundHandler(onBackground);
-      }
     }
 
     final RemoteMessage? initial =

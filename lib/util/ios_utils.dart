@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:firebase_messaging/firebase_messaging.dart';
+
 import 'package:flutter/services.dart';
 
 /// Helper providing direct access to iOS-only features.
@@ -39,25 +39,4 @@ class IosUtils {
         .invokeMethod('cancelNotificationsContaining', {'thread': thread});
   }
 
-  /// Registers the provided [handler] to handle [RemoteMessage]s received in
-  /// background or terminated state.
-  static void registerBackgroundHandler(
-    Future<void> Function(RemoteMessage) handler,
-  ) {
-    _platform.setMethodCallHandler((MethodCall call) async {
-      if (call.method == 'handleMessageBackground') {
-        final RemoteMessage message = RemoteMessage(
-          notification: call.arguments['aps']?['alert'] == null
-              ? null
-              : RemoteNotification(
-                  title: call.arguments['aps']?['alert']?['title'],
-                  body: call.arguments['aps']?['alert']?['body'],
-                ),
-          data: Map<String, dynamic>.from(call.arguments),
-        );
-
-        await handler(message);
-      }
-    });
-  }
 }

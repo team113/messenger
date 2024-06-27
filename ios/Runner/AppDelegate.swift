@@ -18,8 +18,6 @@
  */
 
 import Flutter
-import FirebaseCore
-import FirebaseMessaging
 import MachO
 import UIKit
 
@@ -29,17 +27,9 @@ import UIKit
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    FirebaseApp.configure()
-    UNUserNotificationCenter.current().delegate = self
-    application.registerForRemoteNotifications()
-
-    if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
-    }
-
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let utilsChannel = FlutterMethodChannel(name: "team113.flutter.dev/ios_utils",
-                                            binaryMessenger: controller.binaryMessenger)
+                                              binaryMessenger: controller.binaryMessenger)
     utilsChannel.setMethodCallHandler({
       [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       if (call.method == "getArchitecture") {
@@ -56,33 +46,12 @@ import UIKit
       }
     })
 
-    GeneratedPluginRegistrant.register(with: self)
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  func application(
-    application: UIApplication,
-    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-  ) {
-    Messaging.messaging().apnsToken = deviceToken
-  }
-
-  override func application(
-    _ application: UIApplication,
-    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
-    fetchCompletionHandler completionHandler:
-    @escaping (UIBackgroundFetchResult) -> Void
-  ) {
-    // Handle the notification data here and pass it to Dart.
-    if let controller = window?.rootViewController as? FlutterViewController {
-      let methodChannel = FlutterMethodChannel(name: "team113.flutter.dev/ios_utils",
-                                               binaryMessenger: controller.binaryMessenger)
-      methodChannel.invokeMethod("handleMessageBackground", arguments: userInfo) { _ in
-        completionHandler(UIBackgroundFetchResult.newData)
-      }
-    } else {
-      completionHandler(UIBackgroundFetchResult.noData)
+    if #available(iOS 10.0, *) {
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
+    GeneratedPluginRegistrant.register(with: self)
+    application.registerForRemoteNotifications()
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   /// Return the architecture of this device.
