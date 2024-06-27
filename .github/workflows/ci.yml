@@ -57,6 +57,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -472,6 +474,11 @@ jobs:
     # Pin glibc to 2.31 version for better compatibility.
     container: debian:bullseye
     steps:
+      # `debian:bullseye` doesn't include Git in its PATH, which we need in
+      # order for `PubspecBuilder` and its `git describe` to work.
+      - name: Install Git
+        run: apt-get update && apt-get install -y git
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
@@ -556,6 +563,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -651,7 +660,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ (github.event_name == 'pull_request') && 2 || 1 }}
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - name: Retrieve commit messages
         id: commit
         run: |
@@ -728,6 +737,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
