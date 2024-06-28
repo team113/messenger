@@ -474,10 +474,13 @@ jobs:
     # Pin glibc to 2.31 version for better compatibility.
     container: debian:bullseye
     steps:
-      # `debian:bullseye` doesn't include Git in its PATH, which we need in
-      # order for `PubspecBuilder` and its `git describe` to work.
+      # `debian:bullseye` doesn't include Git in its `PATH`, which is required
+      # by `PubspecBuilder`.
       - name: Install Git
-        run: apt-get update && apt-get install -y git
+        run: |
+          set -ex
+          apt-get update
+          apt-get install -y git
 
       - uses: actions/checkout@v4
         with:
