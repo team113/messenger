@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-
 import 'package:flutter/services.dart';
 
 /// Helper providing direct access to iOS-only features.
@@ -30,13 +29,14 @@ class IosUtils {
 
   /// Removes the delivered notification with the provided [tag].
   static Future<bool> cancelNotification(String tag) async {
+    return false;
     return await _platform.invokeMethod('cancelNotification', {'tag': tag});
   }
 
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {
+    return false;
     return await _platform
         .invokeMethod('cancelNotificationsContaining', {'thread': thread});
   }
-
 }
