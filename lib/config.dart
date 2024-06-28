@@ -27,6 +27,7 @@ import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
+import 'util/ios_utils.dart';
 
 /// Configuration of this application.
 class Config {
@@ -341,6 +342,11 @@ class Config {
     }
 
     ws = '$wsUrl:$wsPort$graphql';
+
+    if (PlatformUtils.isIOS) {
+      IosUtils.writeDefaults('url', url);
+      IosUtils.writeDefaults('endpoint', graphql);
+    }
   }
 }
 

@@ -29,14 +29,23 @@ class IosUtils {
 
   /// Removes the delivered notification with the provided [tag].
   static Future<bool> cancelNotification(String tag) async {
-    return false;
     return await _platform.invokeMethod('cancelNotification', {'tag': tag});
   }
 
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {
-    return false;
     return await _platform
         .invokeMethod('cancelNotificationsContaining', {'thread': thread});
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<String> getSharedDirectory() async {
+    final String url = await _platform.invokeMethod('getSharedDirectory');
+    return url.replaceFirst('file://', '');
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<void> writeDefaults(String key, String value) async {
+    await _platform.invokeMethod('writeDefaults', {'key': key, 'value': value});
   }
 }

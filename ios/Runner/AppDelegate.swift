@@ -42,6 +42,14 @@ import UIKit
       } else if (call.method == "cancelNotificationsContaining") {
         let args = call.arguments as! [String: Any]
         self?.cancelNotificationsContaining(result: result, thread: args["thread"] as! String)
+      } else if (call.method == "getSharedDirectory") {
+        result(FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")?.absoluteString);
+      } else if (call.method == "writeDefaults") {
+        let args = call.arguments as! [String: Any]
+        if let defaults = UserDefaults(suiteName: "group.com.team113.messenger") {
+          defaults.set(args["value"] as! String, forKey: args["key"] as! String)
+        }
+        result(nil)
       } else {
         result(FlutterMethodNotImplemented)
       }
@@ -54,6 +62,13 @@ import UIKit
     GeneratedPluginRegistrant.register(with: self)
     application.registerForRemoteNotifications()
     UIApplication.shared.registerForRemoteNotifications()
+
+    if let defaults = UserDefaults(suiteName: "group.com.team113.messenger") {
+      defaults.set(
+        NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0],
+        forKey: "documents"
+      )
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
