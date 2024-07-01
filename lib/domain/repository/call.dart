@@ -29,7 +29,6 @@ import '/l10n/l10n.dart';
 import '/store/event/chat_call.dart';
 import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
-import '/util/web/web_utils.dart';
 
 /// [OngoingCall]s repository interface.
 abstract class AbstractCallRepository {
@@ -45,10 +44,10 @@ abstract class AbstractCallRepository {
   /// Adds the provided [ChatCall] to the [calls], if not already.
   Future<Rx<OngoingCall>?> add(ChatCall call);
 
-  /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
-  /// if not already.
+  /// Transforms the provided [ActiveCall] into an [OngoingCall] and adds it, if
+  /// not already.
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    ActiveCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
@@ -62,9 +61,10 @@ abstract class AbstractCallRepository {
   /// [chatId].
   Rx<OngoingCall>? remove(ChatId chatId);
 
-  /// Returns `true` if an [OngoingCall] identified by [chatId] exists in the
-  /// [calls] map.
-  bool contains(ChatId chatId);
+  /// Returns `true` if an [OngoingCall] identified by [chatId] exists.
+  Future<bool> contains(ChatId chatId);
+
+  Future<ActiveCall?> get(ChatId chatId);
 
   /// Starts a new [OngoingCall] in the specified [chatId] by the authenticated
   /// [MyUser].

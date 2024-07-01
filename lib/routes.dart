@@ -45,6 +45,7 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/active_call.dart';
 import 'provider/drift/blocklist.dart';
 import 'provider/drift/call_credentials.dart';
 import 'provider/drift/call_rect.dart';
@@ -522,6 +523,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectDriftProvider(Get.find(), scoped));
               deps.put(MonologDriftProvider(Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
+              deps.put(ActiveCallDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
 
               final AbstractSettingsRepository settingsRepository =
@@ -545,6 +547,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   Get.find(),
                   settingsRepository,
+                  Get.find(),
                   me: me,
                 ),
               );
@@ -556,6 +559,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   Get.find(),
                   Get.find(),
                   callRepository,
+                  Get.find(),
                   Get.find(),
                   userRepository,
                   Get.find(),
@@ -655,6 +659,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             final monologProvider = deps.put(MonologDriftProvider(common));
             final draftProvider = deps.put(DraftDriftProvider(common, scoped));
             final sessionProvider = deps.put(VersionDriftProvider(common));
+            final callProvider =
+                deps.put(ActiveCallDriftProvider(common, scoped));
             await sessionProvider.init();
 
             final GraphQlProvider graphQlProvider = Get.find();
@@ -700,6 +706,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callCredsProvider,
               chatCredsProvider,
               settingsRepository,
+              callProvider,
               me: me,
             );
             deps.put<AbstractCallRepository>(callRepository);
@@ -710,6 +717,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               chatMemberProvider,
               callRepository,
               draftProvider,
+              callProvider,
               userRepository,
               sessionProvider,
               monologProvider,

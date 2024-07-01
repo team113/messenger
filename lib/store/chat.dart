@@ -46,6 +46,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/active_call.dart';
 import '/provider/drift/chat.dart';
 import '/provider/drift/chat_item.dart';
 import '/provider/drift/chat_member.dart';
@@ -89,6 +90,7 @@ class ChatRepository extends DisposableInterface
     this._membersLocal,
     this._callRepo,
     this._draftLocal,
+    this._callLocal,
     this._userRepo,
     this._sessionLocal,
     this._monologLocal, {
@@ -131,6 +133,8 @@ class ChatRepository extends DisposableInterface
 
   /// [RxChat.draft] local storage.
   final DraftDriftProvider _draftLocal;
+
+  final ActiveCallDriftProvider _callLocal;
 
   /// [User]s repository, used to put the fetched [User]s into it.
   final UserRepository _userRepo;
@@ -1328,6 +1332,8 @@ class ChatRepository extends DisposableInterface
       rethrow;
     }
   }
+
+  Future<bool> hasCall(ChatId id) async => await _callLocal.read(id) != null;
 
   /// Constructs a [ChatEvent] from the [ChatEventsVersionedMixin$Events].
   ChatEvent chatEvent(ChatEventsVersionedMixin$Events e) {

@@ -34,13 +34,13 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
+import '/provider/drift/active_call.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
-import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
 import 'event/incoming_chat_call.dart';
 
@@ -52,7 +52,8 @@ class CallRepository extends DisposableInterface
     this._userRepo,
     this._callCredentialsProvider,
     this._chatCredentialsProvider,
-    this._settingsRepo, {
+    this._settingsRepo,
+    this._callLocal, {
     required this.me,
   });
 
@@ -81,6 +82,8 @@ class CallRepository extends DisposableInterface
 
   /// Settings repository, used to retrieve the stored [MediaSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  final ActiveCallDriftProvider _callLocal;
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamSubscription? _events;
@@ -152,12 +155,14 @@ class CallRepository extends DisposableInterface
       ongoing.value.call.value = call;
     }
 
+    await _callLocal.upsert(ongoing.value.toStored());
+
     return ongoing;
   }
 
   @override
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    ActiveCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
@@ -208,13 +213,21 @@ class CallRepository extends DisposableInterface
     call?.value.state.value = OngoingCallState.ended;
     call?.value.dispose();
 
+    _callLocal.delete(chatId);
+
     return call;
   }
 
   @override
-  bool contains(ChatId chatId) {
+  Future<bool> contains(ChatId chatId) async {
     Log.debug('contains($chatId)', '$runtimeType');
-    return calls.containsKey(chatId);
+
+    return calls.containsKey(chatId) || await _callLocal.read(chatId) != null;
+  }
+
+  @override
+  Future<ActiveCall?> get(ChatId chatId) async {
+    return await _callLocal.read(chatId);
   }
 
   @override
@@ -253,6 +266,8 @@ class CallRepository extends DisposableInterface
 
     calls[call.value.chatId.value] = call;
 
+    await _callLocal.upsert(call.value.toStored());
+
     final response = await _graphQlProvider.startChatCall(
       call.value.chatId.value,
       call.value.creds!,
@@ -270,6 +285,8 @@ class CallRepository extends DisposableInterface
       throw CallAlreadyJoinedException(response.deviceId);
     }
     calls[call.value.chatId.value]?.refresh();
+
+    await _callLocal.upsert(call.value.toStored());
 
     return call;
   }

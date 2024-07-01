@@ -33,8 +33,6 @@ import 'package:win32_registry/win32_registry.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/session.dart';
-import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -84,21 +82,6 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
-
-  /// Removes [Credentials] identified by the provided [UserId] from the
-  /// browser's storage.
-  static void removeCredentials(UserId userId) {
-    // No-op.
-  }
-
-  /// Puts the provided [Credentials] to the browser's storage.
-  static void putCredentials(Credentials creds) {
-    // No-op.
-  }
-
-  /// Returns the stored in browser's storage [Credentials] identified by the
-  /// provided [UserId], if any.
-  static Credentials? getCredentials(UserId userId) => null;
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
@@ -169,42 +152,10 @@ class WebUtils {
     // No-op.
   }
 
-  /// Returns a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static WebStoredCall? getCall(ChatId chatId) => null;
-
-  /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) {
+  /// Moves a call identified by its [chatId] to the [newChatId].
+  static void moveCall(ChatId chatId, ChatId newChatId) {
     // No-op.
   }
-
-  /// Removes a call identified by the provided [chatId] from the browser's
-  /// storage.
-  static void removeCall(ChatId chatId) {
-    // No-op.
-  }
-
-  /// Moves a call identified by its [chatId] to the [newChatId] replacing its
-  /// stored state with an optional [newState].
-  static void moveCall(
-    ChatId chatId,
-    ChatId newChatId, {
-    WebStoredCall? newState,
-  }) {
-    // No-op.
-  }
-
-  /// Removes all calls from the browser's storage, if any.
-  static void removeAllCalls() {
-    // No-op.
-  }
-
-  /// Indicates whether the browser's storage contains a call identified by the
-  /// provided [chatId].
-  static bool containsCall(ChatId chatId) => false;
-
-  /// Indicates whether the browser's storage contains any calls.
-  static bool containsCalls() => false;
 
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallRect(ChatId chatId, Rect prefs) {

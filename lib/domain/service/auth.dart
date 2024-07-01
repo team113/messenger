@@ -16,9 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:collection/collection.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
@@ -90,10 +88,6 @@ class AuthService extends DisposableService {
   /// Minimal allowed [credentials] TTL.
   final Duration _accessTokenMinTtl = const Duration(minutes: 2);
 
-  /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
-  /// [Credentials].
-  StreamSubscription? _storageSubscription;
-
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -111,7 +105,6 @@ class AuthService extends DisposableService {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _storageSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
   }
@@ -137,62 +130,9 @@ class AuthService extends DisposableService {
       }
     };
 
-    // Listen to the [Credentials] changes to stay synchronized with another
-    // tabs.
-    _storageSubscription = WebUtils.onStorageChange.listen((e) {
-      if (e.key?.startsWith('credentials_') ?? false) {
-        Log.debug(
-          '_storageSubscription(${e.key}): received a credentials update',
-          '$runtimeType',
-        );
-        if (e.newValue != null) {
-          final Credentials received =
-              Credentials.fromJson(json.decode(e.newValue!));
-          Credentials? current = credentials.value;
-          final bool authorized = _hasAuthorization;
-
-          if (!authorized ||
-              received.userId == current?.userId &&
-                  received.access.secret != current?.access.secret) {
-            // These [Credentials] should be treated as current ones, so just
-            // apply them as saving to local storage has already been performed
-            // by another tab.
-            _authRepository.token = received.access.secret;
-            _authRepository.applyToken();
-            credentials.value = received;
-            _putCredentials(received);
-            status.value = RxStatus.success();
-
-            if (!authorized) {
-              router.home();
-            }
-          } else {
-            current = accounts[received.userId]?.value;
-            if (received.access.secret != current?.access.secret) {
-              // These [Credentials] are of another account, so just save them.
-              _putCredentials(received);
-            }
-          }
-        } else {
-          final UserId? deletedId = accounts.keys
-              .firstWhereOrNull((k) => e.key?.endsWith(k.val) ?? false);
-
-          accounts.remove(deletedId);
-
-          final bool currentAreNull = credentials.value == null;
-          final bool currentDeleted = deletedId != null && deletedId == userId;
-
-          if ((currentAreNull || currentDeleted) && !WebUtils.isPopup) {
-            router.go(_unauthorized());
-          }
-        }
-      }
-    });
-
     return await WebUtils.protect(() async {
       final List<Credentials> allCredentials = await _credentialsProvider.all();
       for (final Credentials e in allCredentials) {
-        WebUtils.putCredentials(e);
         _putCredentials(e);
       }
 
@@ -842,7 +782,6 @@ class AuthService extends DisposableService {
     credentials.value = creds;
     _putCredentials(creds);
 
-    WebUtils.putCredentials(creds);
     await Future.wait([
       _credentialsProvider.upsert(creds),
       _accountProvider.upsert(creds.userId),
@@ -862,7 +801,6 @@ class AuthService extends DisposableService {
       _credentialsProvider.delete(id);
       _refreshTimers.remove(id)?.cancel();
       accounts.remove(id);
-      WebUtils.removeCredentials(id);
     }
 
     if (id == _accountProvider.userId) {

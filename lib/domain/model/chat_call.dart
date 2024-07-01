@@ -22,6 +22,7 @@ import '/api/backend/schema.dart';
 import '/util/new_type.dart';
 import 'chat.dart';
 import 'chat_item.dart';
+import 'ongoing_call.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
 
@@ -290,4 +291,41 @@ class ChatMembersDialedConcrete implements ChatMembersDialed {
 
   @override
   int get hashCode => members.hashCode;
+}
+
+/// Credentials information of an [OngoingCall].
+@JsonSerializable()
+class ActiveCall {
+  const ActiveCall({
+    required this.chatId,
+    this.call,
+    this.creds,
+    this.deviceId,
+    this.state = OngoingCallState.local,
+  });
+
+  /// Constructs an [ActiveCall] from the provided [json].
+  factory ActiveCall.fromJson(Map<String, dynamic> json) =>
+      _$ActiveCallFromJson(json);
+
+  /// [ChatCall] of this [ActiveCall].
+  final ChatCall? call;
+
+  /// [ChatId] of this [ActiveCall].
+  final ChatId chatId;
+
+  /// Stored [OngoingCall.creds].
+  final ChatCallCredentials? creds;
+
+  /// Stored [OngoingCall.deviceId].
+  final ChatCallDeviceId? deviceId;
+
+  /// Stored [OngoingCall.state].
+  final OngoingCallState state;
+
+  /// Returns a [Map] representing this [ActiveCall].
+  Map<String, dynamic> toJson() => _$ActiveCallToJson(this);
+
+  @override
+  String toString() => 'ActiveCall(${call?.id})';
 }
