@@ -1636,18 +1636,24 @@ class RxChatImpl extends RxChat {
 
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
-      _remoteSubscription = StreamQueue(
-        _chatRepository.chatEvents(id, ver, () => ver),
-      );
 
-      await _remoteSubscription!.execute(
-        _chatEvent,
-        onError: (e) async {
-          if (e is StaleVersionException) {
-            await clear();
-            await _pagination.around(cursor: _lastReadItemCursor);
-          }
+      await WebUtils.protect(
+        () async {
+          _remoteSubscription = StreamQueue(
+            _chatRepository.chatEvents(id, ver, () => ver),
+          );
+
+          await _remoteSubscription!.execute(
+            _chatEvent,
+            onError: (e) async {
+              if (e is StaleVersionException) {
+                await clear();
+                await _pagination.around(cursor: _lastReadItemCursor);
+              }
+            },
+          );
         },
+        tag: 'chatEvents($id)',
       );
 
       _remoteSubscription = null;
