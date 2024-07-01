@@ -52,41 +52,35 @@ class PubspecBuilder implements Builder {
       '  static const String version = \'${pubspec['version']}\';\n',
     );
 
-    try {
-      final ProcessResult git = await Process.run(
-        'git',
-        ['describe', '--tags', '--dirty', '--match', 'v*'],
-      );
+    final ProcessResult git = await Process.run(
+      'git',
+      ['describe', '--tags', '--abbrev=0', '--dirty', '--match', 'v*'],
+    );
+    final ProcessResult rev =
+        await Process.run('git', ['rev-list', 'HEAD', '--count']);
 
-      if (git.exitCode == 0) {
-        String ref = git.stdout.toString();
+    if (git.exitCode == 0 && rev.exitCode == 0) {
+      String ref = git.stdout.toString();
+      String count = rev.stdout.toString();
 
-        // Strip the first `v` of the tag.
-        if (ref.startsWith('v')) {
-          ref = ref.substring(1);
-        }
-
-        // Strip the trailing `\n`.
-        if (ref.endsWith('\n')) {
-          ref = ref.substring(0, ref.length - 1);
-        }
-
-        buffer.write('  static const String ref = \'$ref\';\n');
-      } else {
-        // ignore: avoid_print
-        print(
-          '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
-        );
-
-        buffer.write('  static const String ref = version;\n');
+      // Strip the first `v` of the tag.
+      if (ref.startsWith('v')) {
+        ref = ref.substring(1);
       }
-    } catch (e) {
-      // ignore: avoid_print
-      print(
-        '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable failed: ${e.toString()}',
-      );
 
-      buffer.write('  static const String ref = version;\n');
+      // Strip the trailing `\n`.
+      if (ref.endsWith('\n')) {
+        ref = ref.substring(0, ref.length - 1);
+      }
+      if (count.endsWith('\n')) {
+        count = count.substring(0, count.length - 1);
+      }
+
+      buffer.write('  static const String ref = \'$ref+$count\';\n');
+    } else {
+      throw Exception(
+        '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
+      );
     }
 
     buffer.write('}\n');
