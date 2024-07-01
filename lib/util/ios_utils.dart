@@ -20,10 +20,32 @@ import 'package:flutter/services.dart';
 /// Helper providing direct access to iOS-only features.
 class IosUtils {
   /// [MethodChannel] to communicate with iOS via.
-  static const platform = MethodChannel('team113.flutter.dev/ios_utils');
+  static const _platform = MethodChannel('team113.flutter.dev/ios_utils');
 
   /// Returns the architecture of this device.
   static Future<String> getArchitecture() async {
-    return await platform.invokeMethod('getArchitecture');
+    return await _platform.invokeMethod('getArchitecture');
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<bool> cancelNotification(String tag) async {
+    return await _platform.invokeMethod('cancelNotification', {'tag': tag});
+  }
+
+  /// Removes the delivered notifications containing the provided [thread].
+  static Future<bool> cancelNotificationsContaining(String thread) async {
+    return await _platform
+        .invokeMethod('cancelNotificationsContaining', {'thread': thread});
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<String> getSharedDirectory() async {
+    final String url = await _platform.invokeMethod('getSharedDirectory');
+    return url.replaceFirst('file://', '');
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<void> writeDefaults(String key, String value) async {
+    await _platform.invokeMethod('writeDefaults', {'key': key, 'value': value});
   }
 }

@@ -32,6 +32,28 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
 
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
+
+  if (payload.notification?.title == null) {
+    var tag = payload.data.tag;
+    var thread = payload.data.thread;
+
+    if (thread != null) {
+      const notifications = await self.registration.getNotifications();
+      for (var notification of notifications) {
+        if (notification.tag.includes(thread)) {
+          notification.close();
+        }
+      }
+    } else if (tag != null) {
+      const notifications = await self.registration.getNotifications({
+        tag: payload.data.tag
+      });
+
+      for (var notification of notifications) {
+        notification.close();
+      }
+    }
+  }
 });
