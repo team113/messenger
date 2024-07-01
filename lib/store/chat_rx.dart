@@ -402,8 +402,8 @@ class RxChatImpl extends RxChat {
     _callSubscription = StreamGroup.mergeBroadcast([
       _chatRepository.calls.changes,
       WebUtils.onStorageChange,
-    ]).listen((_) {
-      inCall.value = _chatRepository.calls[id] != null;
+    ]).listen((_) async {
+      inCall.value = await _chatRepository.hasCall(id);
     });
 
     _chatRepository.hasCall(id).then((v) => inCall.value = v || inCall.value);

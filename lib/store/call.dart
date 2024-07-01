@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
-import 'package:messenger/provider/drift/active_call.dart';
 import 'package:uuid/uuid.dart';
 
 import '/api/backend/extension/call.dart';
@@ -35,6 +34,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
+import '/provider/drift/active_call.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
 import '/provider/gql/graphql.dart';

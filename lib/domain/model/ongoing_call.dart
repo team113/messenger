@@ -1233,7 +1233,7 @@ class OngoingCall {
   }
 
   /// Constructs a [ActiveCall] containing all necessary information of this
-  /// [OngoingCall] to be stored in the browser's storage.
+  /// [OngoingCall].
   ActiveCall toStored() {
     return ActiveCall(
       chatId: chatId.value,
