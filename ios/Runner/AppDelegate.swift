@@ -63,44 +63,7 @@ import UIKit
     application.registerForRemoteNotifications()
     UIApplication.shared.registerForRemoteNotifications()
 
-    if let defaults = UserDefaults(suiteName: "group.com.team113.messenger") {
-      defaults.set(
-        NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0],
-        forKey: "documents"
-      )
-    }
-
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
-  }
-
-  func application(application: UIApplication,
-                 didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-    Messaging.messaging().apnsToken = deviceToken
-  }
-
-  // override func application(
-  //   _ application: UIApplication,
-  //   didReceiveRemoteNotification userInfo: [AnyHashable : Any],
-  //   fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-  // ) {
-  //   if (userInfo["tag"] != nil) {
-  //     cancelNotification(tag: userInfo["tag"] as String!);
-  //   }
-  // }
-
-  // Receive displayed notifications for iOS 10 devices.
-  override func userNotificationCenter(_ center: UNUserNotificationCenter,
-                              willPresent notification: UNNotification) async
-    -> UNNotificationPresentationOptions {
-    let userInfo = notification.request.content.userInfo
-    print(userInfo)
-    return [[.alert, .sound]]
-  }
-
-  override func userNotificationCenter(_ center: UNUserNotificationCenter,
-                              didReceive response: UNNotificationResponse) async {
-    let userInfo = response.notification.request.content.userInfo
-    print(userInfo)
   }
 
   /// Return the architecture of this device.

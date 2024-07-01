@@ -86,16 +86,11 @@ class NotificationService: UNNotificationServiceExtension {
           from: account![credentials].data(using: .utf8)!
         )
 
-        print(creds)
-        print(Date())
-        print(creds.access.expireAt)
-
         var fresh = creds
 
        if Date() > creds.access.expireAt {
          if #available(iOS 12.0, macOS 12.0, *) {
            if let refreshed = await refreshToken(creds: creds) {
-             print("decoded:", refreshed)
              fresh = refreshed
 
              let encoder = JSONEncoder()
@@ -146,9 +141,9 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-      let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-      let baseUrl = defaults!.value(forKey: "url") as! String;
-      let endpoint = defaults!.value(forKey: "endpoint") as! String;
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
+    let baseUrl = defaults!.value(forKey: "url") as! String;
+    let endpoint = defaults!.value(forKey: "endpoint") as! String;
 
     if let url = URL(string: baseUrl + endpoint) {
       var request = URLRequest(url: url)
@@ -183,12 +178,49 @@ class NotificationService: UNNotificationServiceExtension {
         }
         return creds
       } catch {
-        NSLog("POST Request Failed");
         print("POST Request Failed:", error)
       }
     }
 
     return nil
+  }
+
+  @available(macOS 12.0, *)
+  @available(iOS 12.0, *)
+  func sendDelivery(creds: Credentials, chatId: String) async {
+    let dataToSend: [String: Any] = [
+      "query": """
+          query chat {
+              chat(id: "\(chatId)") {
+                  items(first: 1) {
+                      __typename
+                  }
+              }
+          }
+      """
+    ]
+
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
+    let baseUrl = defaults!.value(forKey: "url") as! String;
+    let endpoint = defaults!.value(forKey: "endpoint") as! String;
+
+    if let url = URL(string: baseUrl + endpoint) {
+      var request = URLRequest(url: url)
+      request.httpMethod = "POST"
+      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+      request.addValue("Bearer \(creds.access.secret)", forHTTPHeaderField: "Authorization")
+
+      do {
+        request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
+        let (data, _) = try await URLSession.shared.data(for: request)
+
+        if let response = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
+          print("POST Response:", response)
+        }
+      } catch {
+        print("POST Request Failed:", error)
+      }
+    }
   }
 
   struct Credentials: Codable {
@@ -223,43 +255,5 @@ class NotificationService: UNNotificationServiceExtension {
 
   struct RefreshSessionResponseDataCredentialsUser: Decodable {
     let id: String
-  }
-
-  @available(macOS 12.0, *)
-  @available(iOS 12.0, *)
-  func sendDelivery(creds: Credentials, chatId: String) async {
-    let dataToSend: [String: Any] = [
-      "query": """
-          query chat {
-              chat(id: "\(chatId)") {
-                  items(first: 1) {
-                      __typename
-                  }
-              }
-          }
-      """
-    ]
-
-      let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-      let baseUrl = defaults!.value(forKey: "url") as! String;
-      let endpoint = defaults!.value(forKey: "endpoint") as! String;
-
-    if let url = URL(string: baseUrl + endpoint) {
-      var request = URLRequest(url: url)
-      request.httpMethod = "POST"
-      request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-      request.addValue("Bearer \(creds.access.secret)", forHTTPHeaderField: "Authorization")
-
-      do {
-        request.httpBody = try JSONSerialization.data(withJSONObject: dataToSend)
-        let (data, _) = try await URLSession.shared.data(for: request)
-
-        if let response = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-          print("POST Response:", response)
-        }
-      } catch {
-        print("POST Request Failed:", error)
-      }
-    }
   }
 }
