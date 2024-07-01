@@ -27,18 +27,18 @@ class NotificationService: UNNotificationServiceExtension {
     _ request: UNNotificationRequest,
     withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
   ) {
+    let userInfo = request.content.userInfo
+
+    Task {
+      if let chatId = userInfo["chatId"] as? String {
+        await acknowledgeDelivery(chatId: chatId)
+      }
+    }
 
     self.contentHandler = contentHandler
     bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
 
     if let bestAttemptContent = bestAttemptContent {
-      let userInfo = request.content.userInfo
-
-      Task {
-        if (userInfo["chatId"] != nil) {
-          await acknowledgeDelivery(chatId: userInfo["chatId"] as! String)
-        }
-      }
 
       Messaging.serviceExtension().populateNotificationContent(
         bestAttemptContent,
