@@ -21,6 +21,7 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
 
+import '../../util/obs/obs.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -304,7 +305,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [DtoChatItem]s being in a historical view order of the
   /// provided [chatId].
-  Future<Stream<List<DtoChatItem>>> watch(
+  Future<Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>>> watch(
     ChatId chatId, {
     int? before,
     int? after,
@@ -319,23 +320,28 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           after ?? 50,
         );
 
-        return stmt.watch().map(
-              (rows) => rows
-                  .map(
-                    (r) => ChatItemRow(
-                      id: r.id,
-                      chatId: r.chatId,
-                      authorId: r.authorId,
-                      at: r.at,
-                      status: r.status,
-                      data: r.data,
-                      cursor: r.cursor,
-                      ver: r.ver,
-                    ),
-                  )
-                  .map(_ChatItemDb.fromDb)
-                  .toList(),
-            );
+        return stmt
+            .watch()
+            .map(
+              (items) => {
+                for (var e in items
+                    .map(
+                      (r) => ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    )
+                    .map(_ChatItemDb.fromDb))
+                  e.value.id: e
+              },
+            )
+            .changes();
       }
 
       final stmt = db.select(db.chatItemViews).join([
@@ -352,12 +358,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit((after ?? 0) + (before ?? 0));
       }
 
-      return stmt.watch().map(
-            (rows) => rows
-                .map((row) => row.readTable(db.chatItems))
-                .map(_ChatItemDb.fromDb)
-                .toList(),
-          );
+      return stmt
+          .watch()
+          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
+          .map(
+            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
+          )
+          .changes();
     });
 
     return result ?? const Stream.empty();

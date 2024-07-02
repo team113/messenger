@@ -33,7 +33,7 @@ import '/store/user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
-import '/util/web/web.dart';
+import '/util/web/web_utils.dart';
 import 'model/user.dart';
 
 /// [RxUser] implementation backed by local [ScopedDriftProvider] storage.

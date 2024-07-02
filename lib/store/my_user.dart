@@ -43,7 +43,7 @@ import '/util/new_type.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
-import '/util/web/web.dart';
+import '/util/web/web_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
 import 'model/blocklist.dart';
