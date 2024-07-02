@@ -151,7 +151,10 @@ class _MediaAttachmentState extends State<MediaAttachment> {
       } else if (attachment is ImageAttachment) {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
-        final bool narrow = ratio > 3 || ratio < 0.33;
+        final bool narrow = ratio > 3 ||
+            ratio < 0.33 ||
+            (widget.width != double.infinity &&
+                widget.height != double.infinity);
 
         if (narrow) {
           final ThumbHash? thumbhash =
