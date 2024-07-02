@@ -507,7 +507,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(
-      find.byKey(const Key('Image_oldRef.png'), skipOffstage: false),
+      find.byKey(const Key('Image_oldRef.png'), skipOffstage: false).first,
       findsOneWidget,
     );
 
@@ -525,7 +525,7 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     expect(
-      find.byKey(const Key('Image_updatedRef.png'), skipOffstage: false),
+      find.byKey(const Key('Image_updatedRef.png'), skipOffstage: false).first,
       findsOneWidget,
     );
 
