@@ -1654,10 +1654,16 @@ class ChatRepository extends DisposableInterface
     _subscribedAt = DateTime.now();
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
-    await _remoteSubscription!.execute(
-      _recentChatsRemoteEvent,
-      onError: (_) => _subscribedAt = DateTime.now(),
+
+    await WebUtils.protect(
+      () async {
+        _remoteSubscription = StreamQueue(_recentChatsRemoteEvents());
+        await _remoteSubscription!.execute(
+          _recentChatsRemoteEvent,
+          onError: (_) => _subscribedAt = DateTime.now(),
+        );
+      },
+      tag: 'recentChatsEvents',
     );
   }
 
@@ -2177,28 +2183,34 @@ class ChatRepository extends DisposableInterface
     Log.debug('_initFavoriteSubscription()', '$runtimeType');
 
     _favoriteChatsSubscription?.cancel();
-    _favoriteChatsSubscription = StreamQueue(
-      _favoriteChatsEvents(
-        () => _sessionLocal.data[me]?.favoriteChatsListVersion,
-      ),
-    );
-    await _favoriteChatsSubscription!.execute(
-      _favoriteChatsEvent,
-      onError: (e) async {
-        if (e is StaleVersionException) {
-          status.value = RxStatus.loading();
 
-          await _pagination?.clear();
-          await _sessionLocal.upsert(
-            me,
-            SessionData(favoriteChatsSynchronized: false),
-          );
+    await WebUtils.protect(
+      () async {
+        _favoriteChatsSubscription = StreamQueue(
+          _favoriteChatsEvents(
+            () => _sessionLocal.data[me]?.favoriteChatsListVersion,
+          ),
+        );
+        await _favoriteChatsSubscription!.execute(
+          _favoriteChatsEvent,
+          onError: (e) async {
+            if (e is StaleVersionException) {
+              status.value = RxStatus.loading();
 
-          await _pagination?.around();
+              await _pagination?.clear();
+              await _sessionLocal.upsert(
+                me,
+                SessionData(favoriteChatsSynchronized: false),
+              );
 
-          status.value = RxStatus.success();
-        }
+              await _pagination?.around();
+
+              status.value = RxStatus.success();
+            }
+          },
+        );
       },
+      tag: 'favoriteChatsEvents',
     );
   }
 

@@ -692,6 +692,7 @@ class RxChatImpl extends RxChat {
       messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
+      print('========= put ${message.value.id}');
       put(message);
     }
 
@@ -760,6 +761,7 @@ class RxChatImpl extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is DtoChatMessage) {
+        print('========= remove ${message.value.id}');
         remove(message.value.id);
         _pending.remove(message.value);
         message = event.item as DtoChatMessage;
@@ -1135,7 +1137,22 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
-          fetch: ({required after, required before, ChatItemId? around}) async {
+          // fetch: ({required after, required before, ChatItemId? around}) async {
+          //   PreciseDateTime? at;
+
+          //   if (around != null) {
+          //     final DtoChatItem? item = await get(around);
+          //     at = item?.value.at;
+          //   }
+
+          //   return await _driftItems.view(
+          //     id,
+          //     before: before,
+          //     after: after,
+          //     around: at,
+          //   );
+          // },
+          watch: ({required after, required before, ChatItemId? around}) async {
             PreciseDateTime? at;
 
             if (around != null) {
@@ -1143,12 +1160,20 @@ class RxChatImpl extends RxChat {
               at = item?.value.at;
             }
 
-            return await _driftItems.view(
+            return await _driftItems.watch(
               id,
               before: before,
               after: after,
               around: at,
             );
+          },
+          onAdded: (e) {
+            print('========= onAdded ${e.value.id}');
+            _pagination.put(e);
+          },
+          onRemoved: (e) {
+            print('========= onRemoved ${e.value.id}');
+            _pagination.remove(e.value.id);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
@@ -1636,18 +1661,24 @@ class RxChatImpl extends RxChat {
 
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
-      _remoteSubscription = StreamQueue(
-        _chatRepository.chatEvents(id, ver, () => ver),
-      );
 
-      await _remoteSubscription!.execute(
-        _chatEvent,
-        onError: (e) async {
-          if (e is StaleVersionException) {
-            await clear();
-            await _pagination.around(cursor: _lastReadItemCursor);
-          }
+      await WebUtils.protect(
+        () async {
+          _remoteSubscription = StreamQueue(
+            _chatRepository.chatEvents(id, ver, () => ver),
+          );
+
+          await _remoteSubscription!.execute(
+            _chatEvent,
+            onError: (e) async {
+              if (e is StaleVersionException) {
+                await clear();
+                await _pagination.around(cursor: _lastReadItemCursor);
+              }
+            },
+          );
         },
+        tag: 'chatEvents($id)',
       );
 
       _remoteSubscription = null;
