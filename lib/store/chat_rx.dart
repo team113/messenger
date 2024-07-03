@@ -1137,21 +1137,6 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
-          // fetch: ({required after, required before, ChatItemId? around}) async {
-          //   PreciseDateTime? at;
-
-          //   if (around != null) {
-          //     final DtoChatItem? item = await get(around);
-          //     at = item?.value.at;
-          //   }
-
-          //   return await _driftItems.view(
-          //     id,
-          //     before: before,
-          //     after: after,
-          //     around: at,
-          //   );
-          // },
           watch: ({required after, required before, ChatItemId? around}) async {
             PreciseDateTime? at;
 

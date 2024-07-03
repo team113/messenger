@@ -311,8 +311,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                   if (!_accounted.remove(key)) {
                     _accounted.add(key);
                     onAdded?.call(m.value as T);
-                    ++_after;
-                    _page();
+                    // ++_after;
+                    // _page();
                   }
                   break;
 

@@ -21,12 +21,12 @@ import 'dart:convert';
 import 'package:drift/drift.dart';
 import 'package:log_me/log_me.dart';
 
-import '../../util/obs/obs.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
+import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -303,14 +303,16 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     return result ?? [];
   }
 
-  /// Returns the [DtoChatItem]s being in a historical view order of the
-  /// provided [chatId].
+  /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
+  /// the provided [chatId].
   Future<Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>>> watch(
     ChatId chatId, {
     int? before,
     int? after,
     PreciseDateTime? around,
   }) async {
+    print('watch($before, $after; around: $around)');
+
     final result = await safe((db) async {
       if (around != null) {
         final stmt = db.chatItemsAround(
