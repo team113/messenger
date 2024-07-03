@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.0] · 2024-??-??
+[0.2.0]: /../../tree/v0.2.0
+
+[Diff](/../../compare/v0.1.0...v0.2.0) | [Milestone](/../../milestone/26)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Blurred previews under single images. ([#1057], [#985])
+
+[#985]: /../../issues/985
+[#1057]: /../../pull/1057
+
+
+
+
 ## [0.1.0] · 2024-06-27
 [0.1.0]: /../../tree/v0.1.0
 
