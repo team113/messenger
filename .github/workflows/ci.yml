@@ -1143,31 +1143,6 @@ jobs:
         run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         if: ${{ always() }}
 
-  deploy-google-play:
-    name: deploy (Google Play)
-    if: ${{ github.ref == 'refs/heads/main' }}
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-appbundle-${{ github.run_number }}
-
-      - name: Parse application name from Git repository name
-        id: app
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.repository }}
-          regex: '^${{ github.repository_owner }}/(.+)$'
-
-      - uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-          packageName: ${{ secrets.FCM_BUNDLE_ID }}
-          releaseFiles: ${{ github.workspace }}/${{ steps.app.outputs.group1 }}-android.aab
-          track: internal
-          status: draft
-
   deploy-docs:
     name: deploy (dartdoc)
     if: ${{ github.ref == 'refs/heads/main'
@@ -1195,6 +1170,31 @@ jobs:
           keep_files: true
           user_name: github-actions[bot]
           user_email: github-actions[bot]@users.noreply.github.com
+
+  deploy-google-play:
+    name: deploy (Google Play)
+    if: ${{ github.ref == 'refs/heads/main' }}
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle-${{ github.run_number }}
+
+      - name: Parse application name from Git repository name
+        id: app
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.repository }}
+          regex: '^${{ github.repository_owner }}/(.+)$'
+
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          packageName: ${{ secrets.FCM_BUNDLE_ID }}
+          releaseFiles: ${{ github.workspace }}/${{ steps.app.outputs.group1 }}-android.aab
+          track: internal
+          status: draft
 
   # TODO: Uncomment, when self-hosted Sentry supports debug symbols.
   # deploy-sentry:
