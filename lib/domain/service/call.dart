@@ -74,7 +74,7 @@ class CallService extends DisposableService {
 
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
 
-    if (WebUtils.containsCall(chatId)) {
+    if (await _callsRepo.contains(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
     } else if (stored != null &&
         stored.value.state.value != OngoingCallState.ended) {
@@ -121,7 +121,8 @@ class CallService extends DisposableService {
       '$runtimeType',
     );
 
-    if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
+    // TODO: Try pinging the popup to ensure it still exists.
+    if (await _callsRepo.contains(chatId) && !WebUtils.isPopup) {
       throw CallIsInPopupException();
     }
 
@@ -184,7 +185,7 @@ class CallService extends DisposableService {
       call.value.dispose();
     }
 
-    deviceId ??= WebUtils.getCall(chatId)?.deviceId;
+    deviceId ??= (await _callsRepo.get(chatId))?.deviceId;
 
     if (deviceId != null) {
       await _callsRepo.leave(chatId, deviceId);
@@ -193,7 +194,6 @@ class CallService extends DisposableService {
     }
 
     _callsRepo.remove(chatId);
-    WebUtils.removeCall(chatId);
   }
 
   /// Declines an [OngoingCall] identified by the given [chatId].
@@ -218,7 +218,7 @@ class CallService extends DisposableService {
 
   /// Constructs an [OngoingCall] from the provided [stored] call.
   Rx<OngoingCall> addStored(
-    WebStoredCall stored, {
+    ActiveCall stored, {
     bool withAudio = true,
     bool withVideo = true,
     bool withScreen = false,
@@ -258,7 +258,7 @@ class CallService extends DisposableService {
   Future<void> redialChatCallMember(ChatId chatId, UserId memberId) async {
     Log.debug('redialChatCallMember($chatId, $memberId)', '$runtimeType');
 
-    if (_callsRepo.contains(chatId)) {
+    if (await _callsRepo.contains(chatId)) {
       await _callsRepo.redialChatCallMember(chatId, memberId);
     }
   }
@@ -271,7 +271,7 @@ class CallService extends DisposableService {
   Future<void> removeChatCallMember(ChatId chatId, UserId userId) async {
     Log.debug('removeChatCallMember($chatId, $userId)', '$runtimeType');
 
-    if (_callsRepo.contains(chatId)) {
+    if (await _callsRepo.contains(chatId)) {
       await _callsRepo.removeChatCallMember(chatId, userId);
     }
   }
@@ -321,13 +321,10 @@ class CallService extends DisposableService {
       '$runtimeType',
     );
 
-    final Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      _callsRepo.move(chatId, newChatId);
-      _callsRepo.moveCredentials(callId, newCallId, chatId, newChatId);
-      if (WebUtils.isPopup) {
-        WebUtils.moveCall(chatId, newChatId, newState: call.value.toStored());
-      }
+    _callsRepo.move(chatId, newChatId);
+    _callsRepo.moveCredentials(callId, newCallId, chatId, newChatId);
+    if (WebUtils.isPopup) {
+      WebUtils.moveCall(chatId, newChatId);
     }
   }
 
@@ -349,5 +346,11 @@ class CallService extends DisposableService {
   FutureOr<RxChat?> getChat(ChatId id) {
     Log.debug('getChat($id)', '$runtimeType');
     return _chatService.get(id);
+  }
+
+  /// Returns a [RxChat] by the provided [id].
+  Future<ActiveCall?> getCall(ChatId id) async {
+    Log.debug('getCall($id)', '$runtimeType');
+    return _callsRepo.get(id);
   }
 }

@@ -29,6 +29,7 @@ import '/domain/model/user.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'account.dart';
+import 'active_call.dart';
 import 'background.dart';
 import 'blocklist.dart';
 import 'cache.dart';
@@ -128,6 +129,7 @@ class CommonDatabase extends _$CommonDatabase {
 /// [DriftDatabase] storing [MyUser] scoped data.
 @DriftDatabase(
   tables: [
+    ActiveCalls,
     Blocklist,
     CallCredentials,
     CallRectangles,
