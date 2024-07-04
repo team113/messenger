@@ -345,7 +345,11 @@ class Pagination<T, C, K> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item, {bool ignoreBounds = false}) async {
+  Future<void> put(
+    T item, {
+    bool ignoreBounds = false,
+    bool store = true,
+  }) async {
     if (_disposed) {
       return;
     }
@@ -381,11 +385,13 @@ class Pagination<T, C, K> {
       items[onKey(item)] = item;
     }
 
-    await provider.put([item], compare: put ? null : compare);
+    if (store) {
+      await provider.put([item], compare: put ? null : compare);
+    }
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
-  Future<void> remove(K key) async {
+  Future<void> remove(K key, {bool store = true}) async {
     Log.debug('remove($key)', '$runtimeType');
 
     if (_disposed) {
@@ -396,7 +402,9 @@ class Pagination<T, C, K> {
       items.remove(key);
     });
 
-    await provider.remove(key);
+    if (store) {
+      await provider.remove(key);
+    }
   }
 
   /// Repeats the provided [callback] until the [Page] it returns fulfills the

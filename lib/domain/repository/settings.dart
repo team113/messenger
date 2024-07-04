@@ -35,6 +35,9 @@ abstract class AbstractSettingsRepository {
   /// Returns the stored [Uint8List] of the background.
   Rx<Uint8List?> get background;
 
+  /// Initializes the [applicationSettings] and [mediaSettings].
+  Future<void> init();
+
   /// Clears the stored settings.
   Future<void> clearCache();
 

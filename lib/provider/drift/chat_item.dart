@@ -371,6 +371,30 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
     return result ?? const Stream.empty();
   }
+
+  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
+  /// order of the provided [chatId].
+  Future<Stream<List<DtoChatItem>>> last(ChatId chatId) async {
+    final result = await safe((db) async {
+      final stmt = db.select(db.chatItemViews).join([
+        innerJoin(
+          db.chatItems,
+          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+        ),
+      ]);
+
+      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
+      stmt.limit(1);
+
+      return stmt.watch().map((rows) => rows
+          .map((e) => e.readTable(db.chatItems))
+          .map(_ChatItemDb.fromDb)
+          .toList());
+    });
+
+    return result ?? const Stream.empty();
+  }
 }
 
 /// Extension adding conversion methods from [ChatItemRow] to [DtoChatItem].

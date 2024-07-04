@@ -304,15 +304,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             completer.complete(e.map((m) => m.value!).toList());
           } else {
             for (var m in e) {
+              final key = onKey(m.value as T);
+
               switch (m.op) {
                 case OperationKind.added:
-                  final key = onKey(m.value as T);
-
                   if (!_accounted.remove(key)) {
                     _accounted.add(key);
                     onAdded?.call(m.value as T);
-                    // ++_after;
-                    // _page();
                   }
                   break;
 
@@ -321,7 +319,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                   break;
 
                 case OperationKind.updated:
-                  // No-op.
+                  if (!_accounted.remove(key)) {
+                    _accounted.add(key);
+                    onAdded?.call(m.value as T);
+                  }
                   break;
               }
             }

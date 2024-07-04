@@ -1152,13 +1152,13 @@ class RxChatImpl extends RxChat {
               around: at,
             );
           },
-          onAdded: (e) {
+          onAdded: (e) async {
             print('========= onAdded ${e.value.id}');
-            _pagination.put(e);
+            await _pagination.put(e, store: false);
           },
-          onRemoved: (e) {
+          onRemoved: (e) async {
             print('========= onRemoved ${e.value.id}');
-            _pagination.remove(e.value.id);
+            await _pagination.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
