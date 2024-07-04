@@ -1121,8 +1121,7 @@ jobs:
 
   deploy-app-store:
     name: deploy (App Store)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: ["build"]
     runs-on: macos-latest
     steps:
@@ -1146,8 +1145,7 @@ jobs:
 
   deploy-google-play:
     name: deploy (Google Play)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main' }}
     needs: ["build"]
     runs-on: ubuntu-latest
     steps:
