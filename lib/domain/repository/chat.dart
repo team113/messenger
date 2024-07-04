@@ -220,7 +220,7 @@ abstract class RxChat implements Comparable<RxChat> {
   // TODO: Use observable variant of [RxSplayTreeMap] here with a pair of
   //       [PreciseDateTime] and [ChatItemId] as a key.
   /// Observable list of [ChatItem]s of the [chat].
-  RxObsList<Rx<ChatItem>> get messages;
+  RxObsList<RxChatItem> get messages;
 
   /// Status of the [messages] fetching.
   ///
@@ -304,7 +304,7 @@ abstract class RxChat implements Comparable<RxChat> {
   ///
   /// If [reply] or [forward] is provided, then the [item] is considered as a
   /// quote of the specified [reply] of [forward].
-  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
+  Future<Paginated<ChatItemId, RxChatItem>?> around({
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
@@ -312,7 +312,7 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Fetches a single [ChatItem] in the [Paginated] page identified by the
   /// provided [id].
-  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item);
+  Future<Paginated<ChatItemId, RxChatItem>?> single(ChatItemId item);
 
   /// Fetches the next [messages] page.
   Future<void> next();
@@ -352,7 +352,18 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Returns the [Paginated] of [ChatItem]s having any [Attachment]s posted in
   /// this [chat] around the provided [item], if any.
-  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item});
+  Paginated<ChatItemId, RxChatItem> attachments({ChatItemId? item});
+}
+
+abstract class RxChatItem {
+  Rx<ChatItem> get rx;
+
+  ChatItemKey get key => rx.value.key;
+  ChatItemId get id => rx.value.id;
+  ChatId get chatId => rx.value.chatId;
+  User get author => rx.value.author;
+  PreciseDateTime get at => rx.value.at;
+  ChatItem get value => rx.value;
 }
 
 /// Reactive [ChatMember] entity.

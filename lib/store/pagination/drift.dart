@@ -259,6 +259,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           _list.insertAfter(item, (e) => this.compare?.call(e, item) == 1);
         }
       }
+
+      _after += items.length;
+      _page();
     }
 
     await add?.call(items, toView: toView);
@@ -304,13 +307,18 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             completer.complete(e.map((m) => m.value!).toList());
           } else {
             for (var m in e) {
-              final key = onKey(m.value as T);
+              final K key = onKey(m.value as T);
+
+              Log.info('[${m.op}] $key');
 
               switch (m.op) {
                 case OperationKind.added:
                   if (!_accounted.remove(key)) {
                     _accounted.add(key);
                     onAdded?.call(m.value as T);
+
+                    _after += 1;
+                    _page();
                   }
                   break;
 

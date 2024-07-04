@@ -305,15 +305,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
   /// the provided [chatId].
-  Future<Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>>> watch(
+  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
     ChatId chatId, {
     int? before,
     int? after,
     PreciseDateTime? around,
-  }) async {
-    print('watch($before, $after; around: $around)');
-
-    final result = await safe((db) async {
+  }) {
+    return stream((db) {
       if (around != null) {
         final stmt = db.chatItemsAround(
           chatId.val,
@@ -368,14 +366,12 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           )
           .changes();
     });
-
-    return result ?? const Stream.empty();
   }
 
   /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
   /// order of the provided [chatId].
-  Future<Stream<List<DtoChatItem>>> last(ChatId chatId) async {
-    final result = await safe((db) async {
+  Stream<List<DtoChatItem>> last(ChatId chatId) {
+    return stream((db) {
       final stmt = db.select(db.chatItemViews).join([
         innerJoin(
           db.chatItems,
@@ -392,8 +388,19 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           .map(_ChatItemDb.fromDb)
           .toList());
     });
+  }
 
-    return result ?? const Stream.empty();
+  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
+  /// order of the provided [chatId].
+  Stream<DtoChatItem?> watchSingle(ChatItemId id) {
+    return stream((db) {
+      final stmt = db.select(db.chatItems);
+      stmt.where((u) => u.id.equals(id.val));
+
+      return stmt
+          .watchSingleOrNull()
+          .map((e) => e == null ? null : _ChatItemDb.fromDb(e));
+    });
   }
 }
 

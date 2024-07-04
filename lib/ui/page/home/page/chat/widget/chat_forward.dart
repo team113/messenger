@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/domain/repository/chat.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
@@ -127,7 +128,7 @@ class ChatForwardWidget extends StatefulWidget {
   ///
   /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
   /// tapped.
-  final Paginated<ChatItemId, Rx<ChatItem>> Function(ChatItem item)? onGallery;
+  final Paginated<ChatItemId, RxChatItem> Function(ChatItem item)? onGallery;
 
   /// Callback, called when a [ChatForward] is tapped.
   final void Function(ChatForward)? onForwardedTap;

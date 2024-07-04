@@ -127,6 +127,9 @@ class DtoChatMessage extends DtoChatItem {
   /// Cursors of the [ChatMessage.repliesTo] list.
   List<ChatItemsCursor?>? repliesToCursors;
 
+  @override
+  int get hashCode => Object.hash(value, cursor);
+
   /// Returns a copy of this [DtoChatMessage] with the provided parameters.
   DtoChatMessage copyWith({
     ChatItem? value,
@@ -146,6 +149,13 @@ class DtoChatMessage extends DtoChatItem {
   @override
   Map<String, dynamic> toJson() =>
       _$DtoChatMessageToJson(this)..['runtimeType'] = 'DtoChatMessage';
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChatMessage &&
+        cursor == other.cursor &&
+        value == other.value;
+  }
 }
 
 /// Persisted in storage [ChatForward]'s [value].

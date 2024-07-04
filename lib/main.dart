@@ -85,7 +85,8 @@ Future<void> main() async {
   await Config.init();
 
   me.Log.options = me.LogOptions(
-    level: Config.logLevel,
+    // level: Config.logLevel,
+    level: me.LogLevel.info,
 
     // Browsers collect timestamps for log themselves.
     timeStamp: !PlatformUtils.isWeb,
