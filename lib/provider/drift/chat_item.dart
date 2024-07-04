@@ -26,7 +26,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
-import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -301,106 +300,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     });
 
     return result ?? [];
-  }
-
-  /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
-  /// the provided [chatId].
-  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
-    ChatId chatId, {
-    int? before,
-    int? after,
-    PreciseDateTime? around,
-  }) {
-    return stream((db) {
-      if (around != null) {
-        final stmt = db.chatItemsAround(
-          chatId.val,
-          around,
-          (before ?? 50).toDouble(),
-          after ?? 50,
-        );
-
-        return stmt
-            .watch()
-            .map(
-              (items) => {
-                for (var e in items
-                    .map(
-                      (r) => ChatItemRow(
-                        id: r.id,
-                        chatId: r.chatId,
-                        authorId: r.authorId,
-                        at: r.at,
-                        status: r.status,
-                        data: r.data,
-                        cursor: r.cursor,
-                        ver: r.ver,
-                      ),
-                    )
-                    .map(_ChatItemDb.fromDb))
-                  e.value.id: e
-              },
-            )
-            .changes();
-      }
-
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
-
-      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-      stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
-
-      if (after != null || before != null) {
-        stmt.limit((after ?? 0) + (before ?? 0));
-      }
-
-      return stmt
-          .watch()
-          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
-          .map(
-            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
-          )
-          .changes();
-    });
-  }
-
-  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
-  /// order of the provided [chatId].
-  Stream<List<DtoChatItem>> last(ChatId chatId) {
-    return stream((db) {
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
-
-      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
-      stmt.limit(1);
-
-      return stmt.watch().map((rows) => rows
-          .map((e) => e.readTable(db.chatItems))
-          .map(_ChatItemDb.fromDb)
-          .toList());
-    });
-  }
-
-  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
-  /// order of the provided [chatId].
-  Stream<DtoChatItem?> watchSingle(ChatItemId id) {
-    return stream((db) {
-      final stmt = db.select(db.chatItems);
-      stmt.where((u) => u.id.equals(id.val));
-
-      return stmt
-          .watchSingleOrNull()
-          .map((e) => e == null ? null : _ChatItemDb.fromDb(e));
-    });
   }
 }
 

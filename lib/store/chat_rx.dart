@@ -57,7 +57,6 @@ import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'chat.dart';
-import 'chat_item_rx.dart';
 import 'event/chat.dart';
 import 'model/chat_member.dart';
 import 'paginated.dart';
@@ -66,13 +65,13 @@ import 'pagination/drift_graphql.dart';
 import 'pagination/graphql.dart';
 
 typedef MessagesPaginated
-    = RxPaginatedImpl<ChatItemId, RxChatItem, DtoChatItem, ChatItemsCursor>;
+    = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, DtoChatItem, ChatItemsCursor>;
 
 typedef MembersPaginated
     = RxPaginatedImpl<UserId, RxChatMember, DtoChatMember, ChatMembersCursor>;
 
 typedef AttachmentsPaginated
-    = RxPaginatedImpl<ChatItemId, RxChatItem, DtoChatItem, ChatItemsCursor>;
+    = RxPaginatedImpl<ChatItemId, Rx<ChatItem>, DtoChatItem, ChatItemsCursor>;
 
 /// [RxChat] implementation backed by local storage.
 class RxChatImpl extends RxChat {
@@ -92,7 +91,7 @@ class RxChatImpl extends RxChat {
   final Rx<Chat> chat;
 
   @override
-  final RxObsList<RxChatItemImpl> messages = RxObsList<RxChatItemImpl>();
+  final RxObsList<Rx<ChatItem>> messages = RxObsList<Rx<ChatItem>>();
 
   @override
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.empty());
@@ -276,13 +275,11 @@ class RxChatImpl extends RxChat {
           chat.value.lastReads.firstWhereOrNull((e) => e.memberId == me)?.at;
 
       if (myRead != null) {
-        return messages
-            .firstWhereOrNull(
-              (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
-            )
-            ?.rx;
+        return messages.firstWhereOrNull(
+          (e) => myRead.isBefore(e.value.at) && e.value.author.id != me,
+        );
       } else {
-        return messages.firstOrNull?.rx;
+        return messages.firstOrNull;
       }
     }
 
@@ -509,7 +506,7 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Future<Paginated<ChatItemId, RxChatItem>?> around({
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
@@ -549,7 +546,7 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Future<Paginated<ChatItemId, RxChatItem>?> single(ChatItemId item) async {
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async {
     Log.debug('single($item)', '$runtimeType($id)');
     return await _paginateAround(item, perPage: 1);
   }
@@ -692,10 +689,9 @@ class RxChatImpl extends RxChat {
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      messages.firstWhereOrNull((e) => e.value.id == existingId)?.rx.value =
+      messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
           message.value;
     } else {
-      print('========= put ${message.value.id}');
       put(message);
     }
 
@@ -764,7 +760,6 @@ class RxChatImpl extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is DtoChatMessage) {
-        print('========= remove ${message.value.id}');
         remove(message.value.id);
         _pending.remove(message.value);
         message = event.item as DtoChatMessage;
@@ -811,7 +806,7 @@ class RxChatImpl extends RxChat {
         if (lastItem != null) {
           chatEntity?.value.lastItem = lastItem.value;
           chatEntity?.lastItemCursor =
-              (await _driftItems.read(lastItem.id))?.cursor;
+              (await _driftItems.read(lastItem.value.id))?.cursor;
         } else {
           chatEntity?.value.lastItem = null;
           chatEntity?.lastItemCursor = null;
@@ -976,7 +971,7 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Paginated<ChatItemId, RxChatItem> attachments({
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({
     ChatItemId? item,
   }) {
     Log.debug('attachments(item: $item)', '$runtimeType($id)');
@@ -995,12 +990,12 @@ class RxChatImpl extends RxChat {
       fragment = AttachmentsPaginated(
         initialKey: key,
         initialCursor: cursor,
-        transform: ({required DtoChatItem data, RxChatItem? previous}) {
+        transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
           if (previous != null) {
-            return previous..rx.value = data.value;
+            return previous..value = data.value;
           }
 
-          return RxChatItemImpl(this, _driftItems, data)..init();
+          return Rx(data.value);
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
@@ -1140,7 +1135,7 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
-          watch: ({required after, required before, ChatItemId? around}) async {
+          fetch: ({required after, required before, ChatItemId? around}) async {
             PreciseDateTime? at;
 
             if (around != null) {
@@ -1148,20 +1143,12 @@ class RxChatImpl extends RxChat {
               at = item?.value.at;
             }
 
-            return _driftItems.watch(
+            return await _driftItems.view(
               id,
               before: before,
               after: after,
               around: at,
             );
-          },
-          onAdded: (e) async {
-            print('========= onAdded ${e.value.id}');
-            await _pagination.put(e, store: false);
-          },
-          onRemoved: (e) async {
-            print('========= onRemoved ${e.value.id}');
-            await _pagination.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
@@ -1200,11 +1187,12 @@ class RxChatImpl extends RxChat {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          _add(event.value!);
+          final ChatItem item = event.value!.value;
+          _add(item);
           break;
 
         case OperationKind.removed:
-          messages.removeWhere((e) => e.id == event.value?.value.id);
+          messages.removeWhere((e) => e.value.id == event.value?.value.id);
           break;
       }
     });
@@ -1370,12 +1358,12 @@ class RxChatImpl extends RxChat {
       fragment = MessagesPaginated(
         initialKey: key,
         initialCursor: cursor,
-        transform: ({required DtoChatItem data, RxChatItem? previous}) {
+        transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
           if (previous != null) {
-            return previous..rx.value = data.value;
+            return previous..value = data.value;
           }
 
-          return RxChatItemImpl(this, _driftItems, data)..init();
+          return Rx(data.value);
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
@@ -1419,7 +1407,7 @@ class RxChatImpl extends RxChat {
             break;
 
           case OperationKind.removed:
-            _recalculateReadsFor(event.value!.rx.value);
+            _recalculateReadsFor(event.value!.value);
             break;
         }
       }),
@@ -1428,18 +1416,18 @@ class RxChatImpl extends RxChat {
     return fragment;
   }
 
-  /// Adds the provided [DtoChatItem] to the [messages] list.
-  void _add(DtoChatItem item) {
+  /// Adds the provided [ChatItem] to the [messages] list.
+  void _add(ChatItem item) {
     Log.debug('_add($item)', '$runtimeType($id)');
 
-    final int i = messages.indexWhere((e) => e.id == item.value.id);
+    final int i = messages.indexWhere((e) => e.value.id == item.id);
     if (i == -1) {
       messages.insertAfter(
-        RxChatItemImpl(this, _driftItems, item)..init(),
-        (e) => item.value.key.compareTo(e.key) == 1,
+        Rx(item),
+        (e) => item.key.compareTo(e.value.key) == 1,
       );
     } else {
-      messages[i].rx.value = item.value;
+      messages[i].value = item;
     }
   }
 
@@ -1538,22 +1526,22 @@ class RxChatImpl extends RxChat {
   /// the provided [messages] list.
   PreciseDateTime? _lastReadAmong(
     PreciseDateTime at, {
-    required Iterable<RxChatItem> messages,
+    required Iterable<Rx<ChatItem>> messages,
     required bool hasNext,
   }) {
     Log.debug('_lastReadAmong($at)', '$runtimeType($id)');
 
-    messages = messages.sortedBy((e) => e.at);
+    messages = messages.sortedBy((e) => e.value.at);
 
-    final RxChatItem? message =
-        messages.lastWhereOrNull((e) => e.rx.value is! ChatInfo && e.at <= at);
+    final Rx<ChatItem>? message = messages
+        .lastWhereOrNull((e) => e.value is! ChatInfo && e.value.at <= at);
 
     // Return `null` if [hasNext] because the provided [at] can be actually
     // connected to another [message].
     if (message == null || hasNext && messages.last == message) {
       return null;
     } else {
-      return message.at;
+      return message.value.at;
     }
   }
 
@@ -1649,23 +1637,19 @@ class RxChatImpl extends RxChat {
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
 
-      await WebUtils.protect(
-        () async {
-          _remoteSubscription = StreamQueue(
-            _chatRepository.chatEvents(id, ver, () => ver),
-          );
+      // TODO: Use `WebUtils.protect` here.
+      _remoteSubscription = StreamQueue(
+        _chatRepository.chatEvents(id, ver, () => ver),
+      );
 
-          await _remoteSubscription!.execute(
-            _chatEvent,
-            onError: (e) async {
-              if (e is StaleVersionException) {
-                await clear();
-                await _pagination.around(cursor: _lastReadItemCursor);
-              }
-            },
-          );
+      await _remoteSubscription!.execute(
+        _chatEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await clear();
+            await _pagination.around(cursor: _lastReadItemCursor);
+          }
         },
-        tag: 'chatEvents($id)',
       );
 
       _remoteSubscription = null;

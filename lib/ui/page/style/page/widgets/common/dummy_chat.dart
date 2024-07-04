@@ -65,7 +65,7 @@ class DummyRxChat extends RxChat {
   Paginated<UserId, RxChatMember> get members => PaginatedImpl();
 
   @override
-  RxObsList<RxChatItem> get messages => RxObsList();
+  RxObsList<Rx<ChatItem>> get messages => RxObsList();
 
   @override
   RxBool get nextLoading => RxBool(false);
@@ -123,7 +123,7 @@ class DummyRxChat extends RxChat {
   Future<void> addMessage(ChatMessageText text) async {}
 
   @override
-  Future<Paginated<ChatItemId, RxChatItem>?> around({
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
@@ -131,14 +131,14 @@ class DummyRxChat extends RxChat {
       null;
 
   @override
-  Future<Paginated<ChatItemId, RxChatItem>?> single(ChatItemId item) async =>
+  Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async =>
       null;
 
   @override
   int compareTo(RxChat other) => 0;
 
   @override
-  Paginated<ChatItemId, RxChatItem> attachments({ChatItemId? item}) {
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item}) {
     return PaginatedImpl();
   }
 }

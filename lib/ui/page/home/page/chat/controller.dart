@@ -349,10 +349,10 @@ class ChatController extends GetxController {
   final List<ChatItem> _history = [];
 
   /// [Paginated] of [ChatItem]s to display in the [elements].
-  Paginated<ChatItemId, RxChatItem>? _fragment;
+  Paginated<ChatItemId, Rx<ChatItem>>? _fragment;
 
   /// [Paginated]es used by this [ChatController].
-  final HashSet<Paginated<ChatItemId, RxChatItem>> _fragments = HashSet();
+  final HashSet<Paginated<ChatItemId, Rx<ChatItem>>> _fragments = HashSet();
 
   /// Subscriptions to the [Paginated.updates].
   final List<StreamSubscription> _fragmentSubscriptions = [];
@@ -875,7 +875,7 @@ class ChatController extends GetxController {
         _ready.setTag('local', '${id.isLocal}');
 
         if (itemId == null) {
-          for (RxChatItem e in chat!.messages) {
+          for (Rx<ChatItem> e in chat!.messages) {
             _add(e);
           }
 
@@ -954,7 +954,7 @@ class ChatController extends GetxController {
 
   /// Returns a reactive [ChatItem] by the provided [id].
   FutureOr<Rx<ChatItem>?> getItem(ChatItemId id) {
-    RxChatItem? item;
+    Rx<ChatItem>? item;
 
     item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
     item ??= _fragments
@@ -967,7 +967,7 @@ class ChatController extends GetxController {
         if (fragment != null) {
           await fragment.around();
           _fragments.add(fragment);
-          return fragment.items.values.firstOrNull?.rx;
+          return fragment.items.values.firstOrNull;
         }
 
         return null;
@@ -976,7 +976,7 @@ class ChatController extends GetxController {
       return future;
     }
 
-    return item.rx;
+    return item;
   }
 
   /// Marks the [chat] as read for the authenticated [MyUser] until the [item]
@@ -1229,7 +1229,7 @@ class ChatController extends GetxController {
 
   /// Returns a [Paginated] of [ChatItem]s containing a collection of all the
   /// media files of this [chat].
-  Paginated<ChatItemId, RxChatItem> calculateGallery(ChatItem? item) {
+  Paginated<ChatItemId, Rx<ChatItem>> calculateGallery(ChatItem? item) {
     return chat!.attachments(item: item?.id);
   }
 
@@ -1593,7 +1593,7 @@ class ChatController extends GetxController {
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemId, RxChatItem>? fragment =
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
             await chat!.around(item: item, reply: reply, forward: forward);
 
         StreamSubscription? subscription;
@@ -1624,7 +1624,7 @@ class ChatController extends GetxController {
   }
 
   /// Adds the provided [ChatItem] to the [elements].
-  void _add(RxChatItem e) {
+  void _add(Rx<ChatItem> e) {
     final ChatItem item = e.value;
 
     if (chat?.chat.value.unreadCount != 0) {
@@ -1647,7 +1647,7 @@ class ChatController extends GetxController {
     elements.putIfAbsent(dateElement.id, () => dateElement);
 
     if (item is ChatMessage) {
-      final ChatMessageElement element = ChatMessageElement(e.rx);
+      final ChatMessageElement element = ChatMessageElement(e);
 
       final ListElement? previous =
           elements[elements.firstKeyAfter(element.id)];
@@ -1663,28 +1663,28 @@ class ChatController extends GetxController {
               groupForwardThreshold &&
           previous.note.value == null) {
         insert = false;
-        previous.note.value = e.rx;
+        previous.note.value = e;
       } else if (next is ChatForwardElement &&
           next.authorId == item.author.id &&
           next.forwards.last.value.at.val.difference(item.at.val).abs() <
               groupForwardThreshold &&
           next.note.value == null) {
         insert = false;
-        next.note.value = e.rx;
+        next.note.value = e;
       }
 
       if (insert) {
         elements[element.id] = element;
       }
     } else if (item is ChatCall) {
-      final ChatCallElement element = ChatCallElement(e.rx);
+      final ChatCallElement element = ChatCallElement(e);
       elements[element.id] = element;
     } else if (item is ChatInfo) {
-      final ChatInfoElement element = ChatInfoElement(e.rx);
+      final ChatInfoElement element = ChatInfoElement(e);
       elements[element.id] = element;
     } else if (item is ChatForward) {
       final ChatForwardElement element =
-          ChatForwardElement(forwards: [e.rx], e.value.at);
+          ChatForwardElement(forwards: [e], e.value.at);
 
       final ListElementId? previousKey = elements.firstKeyAfter(element.id);
       final ListElement? previous = elements[previousKey];
@@ -1700,7 +1700,7 @@ class ChatController extends GetxController {
               groupForwardThreshold) {
         // Add this [ChatForward] to previous [ChatForwardElement], if it was
         // posted less than [groupForwardThreshold] ago.
-        previous.forwards.add(e.rx);
+        previous.forwards.add(e);
         previous.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
         insert = false;
       } else if (previous is ChatMessageElement &&
@@ -1717,7 +1717,7 @@ class ChatController extends GetxController {
               groupForwardThreshold) {
         // Add this [ChatForward] to next [ChatForwardElement], if it was posted
         // less than [groupForwardThreshold] ago.
-        next.forwards.add(e.rx);
+        next.forwards.add(e);
         next.forwards.sort((a, b) => a.value.at.compareTo(b.value.at));
         insert = false;
       } else if (next is ChatMessageElement &&
@@ -1815,7 +1815,7 @@ class ChatController extends GetxController {
   /// [_remove]ing the [elements].
   void _subscribeFor({
     RxChat? chat,
-    Paginated<ChatItemId, RxChatItem>? fragment,
+    Paginated<ChatItemId, Rx<ChatItem>>? fragment,
   }) {
     _messagesSubscription?.cancel();
 

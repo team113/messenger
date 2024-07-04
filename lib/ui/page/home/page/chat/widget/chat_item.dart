@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/chat.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
@@ -141,7 +140,7 @@ class ChatItemWidget extends StatefulWidget {
   ///
   /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
   /// tapped.
-  final Paginated<ChatItemId, RxChatItem> Function()? onGallery;
+  final Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery;
 
   /// Callback, called when a replied message of this [ChatItem] is tapped.
   final void Function(ChatItemQuote)? onRepliedTap;
@@ -179,7 +178,7 @@ class ChatItemWidget extends StatefulWidget {
     Iterable<Attachment> media, {
     GlobalKey? key,
     ChatItem? item,
-    Paginated<ChatItemId, RxChatItem> Function()? onGallery,
+    Paginated<ChatItemId, Rx<ChatItem>> Function()? onGallery,
     Future<void> Function(ChatItem?)? onError,
     bool filled = true,
   }) {

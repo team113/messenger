@@ -23,15 +23,13 @@ import 'package:log_me/log_me.dart';
 import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
-import '/util/obs/obs.dart';
 
 /// [PageProvider] fetching items from the [ScopedDriftProvider].
 class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   DriftPageProvider({
     required this.onKey,
     required this.onCursor,
-    this.fetch,
-    this.watch,
+    required this.fetch,
     this.add,
     this.delete,
     this.reset,
@@ -40,8 +38,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.onNone,
     this.compare,
     this.fulfilledWhenNone = false,
-    this.onAdded,
-    this.onRemoved,
   });
 
   /// Callback, called when a [K] of the provided [T] is required.
@@ -50,20 +46,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T?) onCursor;
 
-  // Use [Stream]s here?
   /// Callback, called when the [after] and [before] amounts of [T] items
   /// [around] the provided [K] are required.
   final FutureOr<List<T>> Function({
     required int after,
     required int before,
     K? around,
-  })? fetch;
-
-  final FutureOr<Stream<List<MapChangeNotification<K, T>>>> Function({
-    required int after,
-    required int before,
-    K? around,
-  })? watch;
+  }) fetch;
 
   /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
@@ -90,12 +79,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called to compare the provided [T] items.
   final int Function(T, T)? compare;
 
-  /// Callback, called when the provided [T] item is added via [watch].
-  final void Function(T)? onAdded;
-
-  /// Callback, called when the provided [T] item is removed via [watch].
-  final void Function(T)? onRemoved;
-
   /// Indicator whether the zero-item responses should be considered fulfilled.
   final bool fulfilledWhenNone;
 
@@ -110,13 +93,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Key [K], around which the [_list] should be [fetch]ed.
   K? _around;
-
-  /// [K]eys accounted during [put] and [remove], so that those keys aren't
-  /// fired again when [watch] fires items.
-  final Set<K> _accounted = {};
-
-  /// Subscription to [watch].
-  StreamSubscription? _watchSubscription;
 
   /// Indicates whether the [_list] contain an item identified as the first.
   bool get _hasFirst =>
@@ -246,10 +222,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   Future<void> put(Iterable<T> items, {int Function(T, T)? compare}) async {
     final bool toView = compare == null;
 
-    for (var item in items) {
-      _accounted.add(onKey(item));
-    }
-
     if (toView) {
       for (var item in items) {
         final int i = _list.indexWhere((e) => onKey(e) == onKey(item));
@@ -259,9 +231,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           _list.insertAfter(item, (e) => this.compare?.call(e, item) == 1);
         }
       }
-
-      _after += items.length;
-      _page();
     }
 
     await add?.call(items, toView: toView);
@@ -269,13 +238,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<void> remove(K key) async {
-    _accounted.add(key);
     await delete?.call(key);
   }
 
   @override
   Future<void> clear() async {
-    _accounted.clear();
     await reset?.call();
   }
 
@@ -289,58 +256,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Returns the [T] items [fetch]ed.
   Future<List<T>> _page() async {
-    if (fetch != null) {
-      _list = await fetch!(after: _after, before: _before, around: _around);
-    } else if (watch != null) {
-      final stream = await watch!(
-        after: _after,
-        before: _before,
-        around: _around,
-      );
-
-      final Completer<List<T>> completer = Completer();
-
-      _watchSubscription?.cancel();
-      _watchSubscription = stream.listen(
-        (e) {
-          if (!completer.isCompleted) {
-            completer.complete(e.map((m) => m.value!).toList());
-          } else {
-            for (var m in e) {
-              final K key = onKey(m.value as T);
-
-              Log.info('[${m.op}] $key');
-
-              switch (m.op) {
-                case OperationKind.added:
-                  if (!_accounted.remove(key)) {
-                    _accounted.add(key);
-                    onAdded?.call(m.value as T);
-
-                    _after += 1;
-                    _page();
-                  }
-                  break;
-
-                case OperationKind.removed:
-                  onRemoved?.call(m.value as T);
-                  break;
-
-                case OperationKind.updated:
-                  if (!_accounted.remove(key)) {
-                    _accounted.add(key);
-                    onAdded?.call(m.value as T);
-                  }
-                  break;
-              }
-            }
-          }
-        },
-      );
-
-      _list = await completer.future;
-    }
-
+    _list = await fetch(after: _after, before: _before, around: _around);
     return _list;
   }
 }

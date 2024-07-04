@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../log.dart';
 import 'map.dart';
 
 export 'list.dart';
@@ -37,8 +36,6 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
 
     return asyncExpand((e) async* {
       final List<MapChangeNotification<K, T>> changed = [];
-
-      Log.info('changes() -> fired with ${e.length} items');
 
       for (final MapEntry<K, T> entry in e.entries) {
         final T? item = last[entry.key];

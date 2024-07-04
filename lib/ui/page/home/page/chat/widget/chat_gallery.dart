@@ -21,7 +21,6 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/chat.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
@@ -42,7 +41,7 @@ class ChatGallery extends StatefulWidget {
   });
 
   /// [Paginated] to display in a [GalleryPopup].
-  final Paginated<ChatItemId, RxChatItem>? paginated;
+  final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
 
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
   /// in a [GalleryPopup].
