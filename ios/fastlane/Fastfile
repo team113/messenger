@@ -19,7 +19,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     setup_ci if ENV['CI']
-    upload_to_testflight(ipa: "app.ipa"
+    upload_to_testflight(ipa: "app.ipa",
                          api_key: ENV['APP_STORE_CONNECT_API_KEY'])
   end
 end

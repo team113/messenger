@@ -1143,7 +1143,7 @@ jobs:
       - run: mv *.aab android/app.aab
 
       - name: Prepare Google Service account
-        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" >
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" | base64 -d >
                    ${{ github.workspace }}/android/service_account.json
 
       - run: cd android && fastlane beta
