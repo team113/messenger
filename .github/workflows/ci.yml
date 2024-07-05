@@ -1042,7 +1042,7 @@ jobs:
                           --apiIssuer ${{ secrets.APP_STORE_ISSUER }}
 
       - run: app-store-connect publish \
-                               --whats-new=@file:release_notes/en-US.md
+                               --whats-new=@file:${{ github.workspace }}/release_notes/en-US.md
 
       - name: Cleanup App Store Connect key
         run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
@@ -1154,6 +1154,7 @@ jobs:
     needs: ["build"]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
@@ -1172,7 +1173,7 @@ jobs:
           releaseFiles: ${{ github.workspace }}/${{ steps.app.outputs.group1 }}-android.aab
           track: ${{ startsWith(github.ref, 'refs/tags/v') && 'beta' || 'internal' }}
           status: ${{ startsWith(github.ref, 'refs/tags/v') && 'completed' || 'draft' }}
-          whatsNewDirectory: release_notes/
+          whatsNewDirectory: ${{ github.workspace }}/release_notes/
           changesNotSentForReview: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
 
