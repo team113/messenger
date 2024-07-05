@@ -261,6 +261,8 @@ void main() async {
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
     expect(callService.calls.values.first.value.callChatItemId!.val, 'second');
+
+    await Get.deleteAll();
   });
 
   test('CallService registers and successfully answers the call', () async {
@@ -364,6 +366,8 @@ void main() async {
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 0);
+
+    await Get.deleteAll();
   });
 
   test('CallService registers and successfully starts the call', () async {
@@ -479,6 +483,7 @@ void main() async {
 
     await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 0);
+    await Future.delayed(const Duration(milliseconds: 16));
 
     graphQlProvider.ongoingCallStream.add(QueryResult.internal(
       source: QueryResultSource.network,
@@ -521,6 +526,8 @@ void main() async {
 
     await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
+
+    await Get.deleteAll();
   });
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
