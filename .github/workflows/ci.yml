@@ -1015,8 +1015,8 @@ jobs:
 
   release-app-store:
     name: publish (App Store)
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
+    # if: ${{ github.ref == 'refs/heads/main'
+    #      || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["build"]
     runs-on: macos-latest
     steps:
@@ -1024,29 +1024,11 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
+      - run: mv *.ipa ios/app.ipa
 
-      - name: Prepare App Store Connect key
-        run: |
-          mkdir -p $HOME/.private_keys/
-          echo "${{ secrets.APP_STORE_KEY }}" \
-          >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-
-      - name: Install Codemagic CLI Tools
-        run: |
-          python3 -m venv $RUNNER_TEMP/venv
-          source $RUNNER_TEMP/venv/bin/activate
-          python3 -m pip install codemagic-cli-tools
-
-      - run: xcrun altool --upload-package *.ipa --type ios
-                          --apiKey ${{ secrets.APP_STORE_IDENTIFIER }}
-                          --apiIssuer ${{ secrets.APP_STORE_ISSUER }}
-
-      - run: app-store-connect publish \
-                               --whats-new=@file:${{ github.workspace }}/release_notes/en-US.md
-
-      - name: Cleanup App Store Connect key
-        run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ always() }}
+      - run: cd ios && fastlane beta
+        env:
+          APP_STORE_CONNECT_API_KEY: ${{ secrets.APP_STORE_KEY }}
 
   release-github:
     name: release (GitHub)
@@ -1158,24 +1140,17 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
+      - run: mv *.aab android/app.aab
 
-      - name: Parse application name from Git repository name
-        id: app
-        uses: actions-ecosystem/action-regex-match@v2
-        with:
-          text: ${{ github.repository }}
-          regex: '^${{ github.repository_owner }}/(.+)$'
+      - name: Prepare Google Service account
+        run: echo "${{ GOOGLE_PLAY_SERVICE_ACCOUNT }}" >
+                   ${{ github.workspace }}/android/service_account.json
 
-      - uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-          packageName: ${{ secrets.FCM_BUNDLE_ID }}
-          releaseFiles: ${{ github.workspace }}/${{ steps.app.outputs.group1 }}-android.aab
-          track: ${{ startsWith(github.ref, 'refs/tags/v') && 'beta' || 'internal' }}
-          status: ${{ startsWith(github.ref, 'refs/tags/v') && 'completed' || 'draft' }}
-          whatsNewDirectory: ${{ github.workspace }}/release_notes/
-          changesNotSentForReview: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      - run: cd android && fastlane beta
 
+      - name: Cleanup Google Service account
+        run: rm -rf ${{ github.workspace }}/android/service_account.json
+        if: always()
 
 
 
