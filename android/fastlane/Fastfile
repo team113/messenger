@@ -38,7 +38,7 @@ platform :android do
   desc "Submit a new Beta Build to Crashlytics Beta"
   lane :beta do
     upload_to_play_store(track: 'internal',
-                         track_promote_release_status: 'draft',
+                         release_status: 'draft',
                          aab: 'app.aab')
   end
 
