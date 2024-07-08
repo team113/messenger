@@ -1028,18 +1028,18 @@ jobs:
 
       - name: Prepare App Store Connect key
         run: |
-          mkdir -p $HOME/.private_keys/
           echo "${{ secrets.APP_STORE_KEY }}" \
-          >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+          >> /tmp/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
-      - run: cd ios && fastlane beta
+      - name: Publish iOS application to TestFlight
+        run: cd ios && fastlane beta
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_KEY }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
-          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: /tmp/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
       - name: Cleanup App Store Connect key
-        run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        run: rm -rf /tmp/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         if: ${{ always() }}
 
   release-github:
@@ -1156,12 +1156,12 @@ jobs:
 
       - name: Prepare Google Service account
         run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" >
-                   android/service_account.json
+                   service_account.json
 
       - run: cd android && fastlane beta
 
       - name: Cleanup Google Service account
-        run: rm -rf android/service_account.json
+        run: rm -rf service_account.json
         if: ${{ always() }}
 
 
