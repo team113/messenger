@@ -1015,8 +1015,8 @@ jobs:
 
   release-app-store:
     name: publish (App Store)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["build"]
     runs-on: macos-latest
     steps:
@@ -1137,14 +1137,14 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
-  # Note: when pushing to `v*` tags, remember to cancel the `main` CI workflow
+  # Note: When pushing to `v*` tags, remember to cancel the `main` CI workflow
   #       to prevent uploading an `.aab` file with the same `versionCode`, as
   #       Google Play expects that number to be unique and will throw an error
   #       when trying to upload duplicates.
   release-google-play:
     name: publish (Google Play)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["build"]
     runs-on: ubuntu-latest
     steps:
