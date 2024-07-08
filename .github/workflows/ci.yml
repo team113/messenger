@@ -1026,7 +1026,7 @@ jobs:
           echo "${{ secrets.APP_STORE_KEY }}" \
           >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
-      - run: xcrun altool --upload-app *.ipa --type ios
+      - run: xcrun altool --upload-app --file *.ipa --type ios
                           --apiKey ${{ secrets.APP_STORE_IDENTIFIER }}
                           --apiIssuer ${{ secrets.APP_STORE_ISSUER }}
 
