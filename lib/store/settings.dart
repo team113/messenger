@@ -75,10 +75,10 @@ class SettingsRepository extends DisposableInterface
   final Mutex _guard = Mutex();
 
   @override
-  void onInit() {
+  Future<void> init() async {
     Log.debug('onInit()', '$runtimeType');
 
-    _guard.protect(() async {
+    await _guard.protect(() async {
       final DtoSettings? settings = await _settingsLocal.read(userId);
       mediaSettings.value = settings?.media;
       applicationSettings.value = settings?.application;

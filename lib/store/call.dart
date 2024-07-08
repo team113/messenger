@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:uuid/uuid.dart';
@@ -40,6 +41,7 @@ import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
+import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'event/chat_call.dart';
 import 'event/incoming_chat_call.dart';
@@ -60,7 +62,8 @@ class CallRepository extends DisposableInterface
   Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
 
   @override
-  RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
+  final RxObsMap<ChatId, Rx<OngoingCall>> calls =
+      RxObsMap<ChatId, Rx<OngoingCall>>();
 
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
@@ -83,7 +86,7 @@ class CallRepository extends DisposableInterface
   final AbstractSettingsRepository _settingsRepo;
 
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
-  StreamSubscription? _events;
+  StreamQueue<IncomingChatCallsTopEvent>? _remoteSubscription;
 
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
@@ -107,7 +110,7 @@ class CallRepository extends DisposableInterface
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _events?.cancel();
+    _remoteSubscription?.cancel(immediate: true);
 
     for (Rx<OngoingCall> call in List.from(calls.values, growable: false)) {
       remove(call.value.chatId.value);
@@ -744,48 +747,50 @@ class CallRepository extends DisposableInterface
   }
 
   /// Subscribes to updates of the top [count] of incoming [ChatCall]s list.
-  void _subscribe(int count) {
+  Future<void> _subscribe(int count) async {
     if (isClosed) {
       return;
     }
 
     Log.debug('_subscribe($count)', '$runtimeType');
 
-    _events?.cancel();
-    _events = _incomingEvents(count).listen(
-      (e) async {
-        Log.debug('_subscribe($count): ${e.kind}', '$runtimeType');
+    _remoteSubscription?.cancel(immediate: true);
 
-        switch (e.kind) {
-          case IncomingChatCallsTopEventKind.initialized:
-            // No-op.
-            break;
-
-          case IncomingChatCallsTopEventKind.list:
-            e as IncomingChatCallsTop;
-            e.list.forEach(add);
-            break;
-
-          case IncomingChatCallsTopEventKind.added:
-            e as EventIncomingChatCallsTopChatCallAdded;
-            add(e.call);
-            break;
-
-          case IncomingChatCallsTopEventKind.removed:
-            e as EventIncomingChatCallsTopChatCallRemoved;
-            final Rx<OngoingCall>? call = calls[e.call.chatId];
-            // If call is not yet connected to remote updates, then it's still
-            // just a notification and it should be removed.
-            if (call?.value.connected == false &&
-                call?.value.isActive == false) {
-              remove(e.call.chatId);
-            }
-            break;
-        }
+    await WebUtils.protect(
+      () async {
+        _remoteSubscription = StreamQueue(_incomingEvents(count));
+        await _remoteSubscription!.execute(_incomingChatCallsTopEvent);
       },
-      onError: (_) {
-        // No-op.
-      },
+      tag: 'incomingCalls',
     );
+  }
+
+  /// Handles [IncomingChatCallsTopEvent] from the [_subscribe] subscription.
+  Future<void> _incomingChatCallsTopEvent(IncomingChatCallsTopEvent e) async {
+    switch (e.kind) {
+      case IncomingChatCallsTopEventKind.initialized:
+        // No-op.
+        break;
+
+      case IncomingChatCallsTopEventKind.list:
+        e as IncomingChatCallsTop;
+        e.list.forEach(add);
+        break;
+
+      case IncomingChatCallsTopEventKind.added:
+        e as EventIncomingChatCallsTopChatCallAdded;
+        add(e.call);
+        break;
+
+      case IncomingChatCallsTopEventKind.removed:
+        e as EventIncomingChatCallsTopChatCallRemoved;
+        final Rx<OngoingCall>? call = calls[e.call.chatId];
+        // If call is not yet connected to remote updates, then it's still
+        // just a notification and it should be removed.
+        if (call?.value.connected == false && call?.value.isActive == false) {
+          remove(e.call.chatId);
+        }
+        break;
+    }
   }
 }

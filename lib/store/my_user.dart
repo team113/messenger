@@ -43,6 +43,7 @@ import '/util/new_type.dart';
 import '/util/obs/rxmap.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
 import 'model/blocklist.dart';
@@ -95,7 +96,7 @@ class MyUserRepository implements AbstractMyUserRepository {
   StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
-  StreamSubscription? _keepOnlineSubscription;
+  StreamQueue? _keepOnlineSubscription;
 
   /// Subscription to the [PlatformUtilsImpl.onFocusChanged] initializing and
   /// canceling the [_keepOnlineSubscription].
@@ -144,7 +145,7 @@ class MyUserRepository implements AbstractMyUserRepository {
             _initKeepOnlineSubscription();
           }
         } else {
-          _keepOnlineSubscription?.cancel();
+          _keepOnlineSubscription?.cancel(immediate: true);
           _keepOnlineSubscription = null;
         }
       });
@@ -158,7 +159,7 @@ class MyUserRepository implements AbstractMyUserRepository {
     _disposed = true;
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
-    _keepOnlineSubscription?.cancel();
+    _keepOnlineSubscription?.cancel(immediate: true);
     _onFocusChanged?.cancel();
     _pool.dispose();
   }
@@ -719,37 +720,50 @@ class MyUserRepository implements AbstractMyUserRepository {
     Log.debug('_initRemoteSubscription()', '$runtimeType');
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      await _myUserRemoteEvents(() async {
-        // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
-        // is `null`, to retrieve it.
-        if ((await _active)?.value.blocklistCount == null) {
-          return null;
-        }
 
-        return (await _active)?.ver;
-      }),
+    await WebUtils.protect(
+      () async {
+        _remoteSubscription = StreamQueue(
+          await _myUserRemoteEvents(() async {
+            // Ask for initial [MyUser] event, if the stored
+            // [MyUser.blocklistCount] is `null`, to retrieve it.
+            if ((await _active)?.value.blocklistCount == null) {
+              return null;
+            }
+
+            return (await _active)?.ver;
+          }),
+        );
+
+        await _remoteSubscription!.execute(
+          _myUserRemoteEvent,
+          onError: (e) async {
+            if (e is StaleVersionException) {
+              await _blocklistRepo.reset();
+            }
+          },
+        );
+      },
+      tag: 'myUserEvents',
     );
-
-    await _remoteSubscription!.execute(_myUserRemoteEvent, onError: (e) async {
-      if (e is StaleVersionException) {
-        await _blocklistRepo.reset();
-      }
-    });
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
-  void _initKeepOnlineSubscription() {
+  Future<void> _initKeepOnlineSubscription() async {
     Log.debug('_initKeepOnlineSubscription()', '$runtimeType');
 
-    _keepOnlineSubscription?.cancel();
-    _keepOnlineSubscription = _graphQlProvider.keepOnline().listen(
-      (_) {
-        // No-op.
+    _keepOnlineSubscription?.cancel(immediate: true);
+
+    await WebUtils.protect(
+      () async {
+        _keepOnlineSubscription = StreamQueue(_graphQlProvider.keepOnline());
+        await _keepOnlineSubscription!.execute(
+          (_) {
+            // No-op.
+          },
+        );
       },
-      onError: (_) {
-        // No-op.
-      },
+      tag: 'keepOnline',
     );
   }
 
