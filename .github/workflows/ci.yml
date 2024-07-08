@@ -1020,6 +1020,10 @@ jobs:
     needs: ["build"]
     runs-on: macos-latest
     steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ipa-${{ github.run_number }}
+
       - name: Prepare App Store Connect key
         run: |
           mkdir -p $HOME/.private_keys/
@@ -1133,6 +1137,10 @@ jobs:
           fail_on_unmatched_files: true
           prerelease: ${{ contains(steps.semver.outputs.group1, '-') }}
 
+  # Note: when pushing to `v*` tags, remember to cancel the `main` CI workflow
+  #       to prevent uploading an `.aab` file with the same `versionCode`, as
+  #       Google Play expects that number to be unique and will throw an error
+  #       when trying to upload duplicates.
   release-google-play:
     name: publish (Google Play)
     # if: ${{ github.ref == 'refs/heads/main'
