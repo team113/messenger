@@ -1636,6 +1636,8 @@ class RxChatImpl extends RxChat {
 
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
+
+      // TODO: Use `WebUtils.protect` here.
       _remoteSubscription = StreamQueue(
         _chatRepository.chatEvents(id, ver, () => ver),
       );

@@ -33,6 +33,7 @@ import '/store/user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
 import 'model/user.dart';
 
 /// [RxUser] implementation backed by local [ScopedDriftProvider] storage.
@@ -168,13 +169,19 @@ class RxUserImpl extends RxUser {
     Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      await _userRepository.userEvents(
-        id,
-        () async => (await _userLocal.read(id))?.ver,
-      ),
+
+    await WebUtils.protect(
+      () async {
+        _remoteSubscription = StreamQueue(
+          await _userRepository.userEvents(
+            id,
+            () async => (await _userLocal.read(id))?.ver,
+          ),
+        );
+        await _remoteSubscription!.execute(_userEvent);
+      },
+      tag: 'userEvents($id)',
     );
-    await _remoteSubscription!.execute(_userEvent);
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
