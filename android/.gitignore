@@ -8,7 +8,6 @@ GeneratedPluginRegistrant.java
 
 /local.properties
 /key.properties
-/service_account.json
 
 **/*.keystore
 **/*.jks

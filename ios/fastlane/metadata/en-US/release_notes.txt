@@ -1,3 +1,0 @@
-- Added direct link tab.
-- Removed contacts and work tabs.
-- Improved local storage performance.
