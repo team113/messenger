@@ -1035,7 +1035,7 @@ jobs:
         run: cd ios && fastlane beta
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_KEY }}
-          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: /tmp/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
       - name: Cleanup App Store Connect key
@@ -1155,13 +1155,13 @@ jobs:
       - run: mv *.aab android/app.aab
 
       - name: Prepare Google Service account
-        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" >
-                   service_account.json
+        run: printf "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}" >
+                    android/service_account.json
 
       - run: cd android && fastlane beta
 
       - name: Cleanup Google Service account
-        run: rm -rf service_account.json
+        run: rm -rf android/service_account.json
         if: ${{ always() }}
 
 
