@@ -529,6 +529,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 SettingsRepository(me, Get.find(), Get.find(), Get.find()),
               );
 
+              // Should be awaited to ensure [PopupCallView] using the stored
+              // settings and not the default ones.
+              await settingsRepository.init();
+
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
@@ -666,6 +670,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put<AbstractSettingsRepository>(
               SettingsRepository(me, Get.find(), Get.find(), callRectProvider),
             );
+
+            // Should be awaited to ensure [Home] using the stored settings and
+            // not the default ones.
+            await settingsRepository.init();
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
