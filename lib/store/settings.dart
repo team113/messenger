@@ -83,10 +83,6 @@ class SettingsRepository extends DisposableInterface
       mediaSettings.value = settings?.media;
       applicationSettings.value = settings?.application;
 
-      print(
-        '============================ showIntroduction: ${applicationSettings.value?.showIntroduction}',
-      );
-
       final DtoBackground? bytes = await _backgroundLocal.read(userId);
       background.value = bytes?.bytes;
     });

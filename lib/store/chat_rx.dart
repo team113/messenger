@@ -976,9 +976,7 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Paginated<ChatItemId, RxChatItem> attachments({
-    ChatItemId? item,
-  }) {
+  Paginated<ChatItemId, RxChatItem> attachments({ChatItemId? item}) {
     Log.debug('attachments(item: $item)', '$runtimeType($id)');
 
     ChatItemsCursor? cursor;

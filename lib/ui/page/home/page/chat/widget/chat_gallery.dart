@@ -21,12 +21,12 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:messenger/domain/repository/chat.dart';
 
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
+import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/obs/obs.dart';
