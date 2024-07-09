@@ -982,7 +982,7 @@ jobs:
     name: publish (App Store)
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["build"]
+    needs: ["docker-push"]
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
@@ -1023,7 +1023,7 @@ jobs:
     name: publish (Google Play)
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["build"]
+    needs: ["docker-push"]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
