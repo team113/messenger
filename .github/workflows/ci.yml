@@ -980,8 +980,8 @@ jobs:
 
   publish-app-store:
     name: publish (App Store)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["build"]
     runs-on: macos-latest
     steps:
@@ -1001,6 +1001,15 @@ jobs:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish iOS application to App Store
+        run: cd ios && fastlane deploy
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Cleanup App Store Connect key
         run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
@@ -1012,8 +1021,8 @@ jobs:
   #       and errors on duplicates uploading.
   publish-google-play:
     name: publish (Google Play)
-    # if: ${{ github.ref == 'refs/heads/main'
-    #      || startsWith(github.ref, 'refs/tags/v') }}
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
     needs: ["build"]
     runs-on: ubuntu-latest
     steps:
@@ -1027,7 +1036,13 @@ jobs:
         run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}" | base64 -d
              > android/service_account.json
 
-      - run: cd android && fastlane beta
+      - name: Publish Android application to Google Play's internal track
+        run: cd android && fastlane beta
+        if: ${{ github.ref == 'refs/heads/main' }}
+
+      - name: Publish Android application to Google Play
+        run: cd android && fastlane deploy
+        if: ${{ startsWith(github.ref, 'refs/tags/v') }}
 
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json

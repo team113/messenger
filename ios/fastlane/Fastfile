@@ -37,4 +37,15 @@ platform :ios do
     app_store_connect_api_key
     upload_to_testflight(ipa: "app.ipa")
   end
+
+  desc "Deploy a new version to App Store"
+  lane :deploy do
+    setup_ci if ENV['CI']
+
+    app_store_connect_api_key
+    upload_to_app_store(
+      ipa: "app.ipa",
+      submit_for_review: true
+    )
+  end
 end

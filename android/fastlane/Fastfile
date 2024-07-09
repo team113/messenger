@@ -38,18 +38,21 @@ platform :android do
   desc "Submit a new internal version to Google Play"
   lane :beta do
     upload_to_play_store(
-      track: 'internal',
-      release_status: 'draft',
       aab: 'app.aab',
-      skip_upload_metadata: true,
+      release_status: 'draft',
       skip_upload_changelogs: true,
       skip_upload_images: true,
-      skip_upload_screenshots: true
+      skip_upload_metadata: true,
+      skip_upload_screenshots: true,
+      track: 'internal'
     )
   end
 
-  desc "Deploy a new version to the Google Play"
+  desc "Deploy a new version to Google Play"
   lane :deploy do
-    upload_to_play_store(aab: 'app.aab')
+    upload_to_play_store(
+      aab: 'app.aab',
+      track: 'beta'
+    )
   end
 end
