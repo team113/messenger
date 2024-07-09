@@ -200,7 +200,7 @@ class CallService extends DisposableService {
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', '$runtimeType');
 
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
       // required to await the decline.

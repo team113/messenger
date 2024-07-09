@@ -61,6 +61,12 @@ class CallOverlayController extends GetxController {
     _subscription = _callService.calls.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
+          if (WebUtils.containsCall(event.key!)) {
+            // Call's popup is already displayed, perhaps by another tab, so
+            // don't react to this call at all.
+            return;
+          }
+
           // Unfocus any inputs being active.
           FocusManager.instance.primaryFocus?.unfocus();
 

@@ -978,6 +978,55 @@ jobs:
           git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
 
+  publish-app-store:
+    name: publish (App Store)
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
+    needs: ["docker-push"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ipa-${{ github.run_number }}
+
+      - name: Prepare App Store Connect key
+        run: |
+          mkdir -p $HOME/.private_keys/
+          echo "${{ secrets.APP_STORE_KEY }}" \
+          >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+
+      - run: xcrun altool --upload-app --file *.ipa --type ios
+                          --apiKey ${{ secrets.APP_STORE_IDENTIFIER }}
+                          --apiIssuer ${{ secrets.APP_STORE_ISSUER }}
+
+      - name: Cleanup App Store Connect key
+        run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always() }}
+
+  # NOTE: When pushing `v*` version Git tags, remember to cancel the CI workflow
+  #       running for the `main` branch to prevent uploading an `.aab` file with
+  #       the same `versionCode`, because Google Play expects it to be unique
+  #       and errors on duplicates uploading.
+  publish-google-play:
+    name: publish (Google Play)
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
+    needs: ["docker-push"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle-${{ github.run_number }}
+      - run: mv *.aab app.aab
+
+      - uses: r0adkll/upload-google-play@v1
+        with:
+          packageName: ${{ secrets.FCM_BUNDLE_ID }}
+          releaseFiles: app.aab
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
+          status: draft
+          track: internal
+
   release-appcast:
     name: release (Sparkle Appcast XML)
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}

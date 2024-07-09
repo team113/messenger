@@ -721,13 +721,12 @@ class MyUserRepository implements AbstractMyUserRepository {
 
     _remoteSubscription?.close(immediate: true);
 
-    print('[debug] locking `myUserEvents`...');
     await WebUtils.protect(
       () async {
         _remoteSubscription = StreamQueue(
           await _myUserRemoteEvents(() async {
-            // Ask for initial [MyUser] event, if the stored [MyUser.blocklistCount]
-            // is `null`, to retrieve it.
+            // Ask for initial [MyUser] event, if the stored
+            // [MyUser.blocklistCount] is `null`, to retrieve it.
             if ((await _active)?.value.blocklistCount == null) {
               return null;
             }
@@ -735,8 +734,6 @@ class MyUserRepository implements AbstractMyUserRepository {
             return (await _active)?.ver;
           }),
         );
-
-        print('[debug] locking `myUserEvents`... locked');
 
         await _remoteSubscription!.execute(
           _myUserRemoteEvent,
@@ -746,8 +743,6 @@ class MyUserRepository implements AbstractMyUserRepository {
             }
           },
         );
-
-        print('[debug] locking `myUserEvents`... released');
       },
       tag: 'myUserEvents',
     );

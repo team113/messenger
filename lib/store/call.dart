@@ -62,7 +62,8 @@ class CallRepository extends DisposableInterface
   Future<RxChat?> Function(ChatId id)? ensureRemoteDialog;
 
   @override
-  RxObsMap<ChatId, Rx<OngoingCall>> calls = RxObsMap<ChatId, Rx<OngoingCall>>();
+  final RxObsMap<ChatId, Rx<OngoingCall>> calls =
+      RxObsMap<ChatId, Rx<OngoingCall>>();
 
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
