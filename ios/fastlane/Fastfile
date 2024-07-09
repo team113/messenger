@@ -47,6 +47,8 @@ platform :ios do
       force: true,
       ipa: "app.ipa",
       overwrite_screenshots: true,
+      precheck_include_in_app_purchases: false,
+      screenshot_processing_timeout: 120,
       submit_for_review: true
     )
   end
