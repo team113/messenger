@@ -601,7 +601,7 @@ class CallController extends GetxController {
     speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
-    minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
+    minimized = RxBool(!PlatformUtils.isMobile && !WebUtils.isPopup);
     isMobile = PlatformUtils.isMobile;
 
     _hiddenTimer = Timer(const Duration(seconds: 1), () {

@@ -908,10 +908,8 @@ label_personal_data_deletion_description =
     - your avatar;
     - your name;
     - your biography;
-    - your login;
     - all of your emails;
-    - all of your phone numbers;
-    - your contacts list.
+    - all of your phone numbers.
 
     The data that will not be deleted:
     - your Gapopa ID, as is does not represent personal information;
