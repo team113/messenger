@@ -58,17 +58,17 @@ class RxChatItemImpl extends RxChatItem {
 
   /// Initializes the [_localSubscription].
   void _initLocalSubscription() {
-    _localSubscription?.cancel();
-    _localSubscription = _driftItems.watchSingle(id).listen(
-      (e) async {
-        Log.info('$e', '$runtimeType($id)');
+    // _localSubscription?.cancel();
+    // _localSubscription = _driftItems.watchSingle(id).listen(
+    //   (e) async {
+    //     Log.info('$e', '$runtimeType($id)');
 
-        if (e != null) {
-          rx.value = e.value;
-        } else {
-          await _chat.remove(id);
-        }
-      },
-    );
+    //     if (e != null) {
+    //       rx.value = e.value;
+    //     } else {
+    //       await _chat.remove(id);
+    //     }
+    //   },
+    // );
   }
 }
