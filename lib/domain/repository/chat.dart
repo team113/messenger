@@ -355,14 +355,27 @@ abstract class RxChat implements Comparable<RxChat> {
   Paginated<ChatItemId, RxChatItem> attachments({ChatItemId? item});
 }
 
+/// Reactive [ChatItem] entity.
 abstract class RxChatItem {
+  /// Returns the reactive [ChatItem].
   Rx<ChatItem> get rx;
 
+  /// Returns the [ChatItemKey] of this [ChatItem].
   ChatItemKey get key => rx.value.key;
+
+  /// Returns the [ChatItemId] of this [ChatItem].
   ChatItemId get id => rx.value.id;
+
+  /// Returns the [ChatId] of this [ChatItem].
   ChatId get chatId => rx.value.chatId;
+
+  /// Returns the [User] who posted this [ChatItem].
   User get author => rx.value.author;
+
+  /// Returns the [PreciseDateTime] this [ChatItem] was posted at.
   PreciseDateTime get at => rx.value.at;
+
+  /// Returns the [ChatItem] value.
   ChatItem get value => rx.value;
 }
 

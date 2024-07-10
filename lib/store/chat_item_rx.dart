@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '../util/log.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/repository/chat.dart';
 import '/provider/drift/chat_item.dart';
@@ -60,6 +61,8 @@ class RxChatItemImpl extends RxChatItem {
     _localSubscription?.cancel();
     _localSubscription = _driftItems.watchSingle(id).listen(
       (e) async {
+        Log.info('$e', '$runtimeType($id)');
+
         if (e != null) {
           rx.value = e.value;
         } else {

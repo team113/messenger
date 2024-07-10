@@ -422,7 +422,12 @@ class RxChatImpl extends RxChat {
 
     _disposed = true;
     status.value = RxStatus.loading();
+
+    for (var e in messages) {
+      e.dispose();
+    }
     messages.clear();
+
     reads.clear();
     members.dispose();
     _aroundToken.cancel();
@@ -695,7 +700,6 @@ class RxChatImpl extends RxChat {
       messages.firstWhereOrNull((e) => e.value.id == existingId)?.rx.value =
           message.value;
     } else {
-      print('========= put ${message.value.id}');
       put(message);
     }
 
@@ -764,7 +768,6 @@ class RxChatImpl extends RxChat {
           as EventChatItemPosted?;
 
       if (event != null && event.item is DtoChatMessage) {
-        print('========= remove ${message.value.id}');
         remove(message.value.id);
         _pending.remove(message.value);
         message = event.item as DtoChatMessage;
@@ -1138,7 +1141,7 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
-          watch: ({required after, required before, ChatItemId? around}) async {
+          fetch: ({required after, required before, ChatItemId? around}) async {
             PreciseDateTime? at;
 
             if (around != null) {
@@ -1146,7 +1149,7 @@ class RxChatImpl extends RxChat {
               at = item?.value.at;
             }
 
-            return _driftItems.watch(
+            return await _driftItems.view(
               id,
               before: before,
               after: after,
@@ -1202,7 +1205,14 @@ class RxChatImpl extends RxChat {
           break;
 
         case OperationKind.removed:
-          messages.removeWhere((e) => e.id == event.value?.value.id);
+          messages.removeWhere((e) {
+            final removed = e.id == event.value?.value.id;
+            if (removed) {
+              e.dispose();
+            }
+
+            return removed;
+          });
           break;
       }
     });

@@ -673,7 +673,7 @@ class ChatRepository extends DisposableInterface
       });
     }
 
-    List<Future>? uploads = attachments?.changed
+    final List<Future>? uploads = attachments?.changed
         .mapIndexed((i, e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
@@ -738,6 +738,7 @@ class ChatRepository extends DisposableInterface
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
       if (item != null) {
         chat?.messages.remove(item);
+        item.dispose();
       }
 
       try {
@@ -773,6 +774,7 @@ class ChatRepository extends DisposableInterface
           chat?.messages.firstWhereOrNull((e) => e.value.id == forward.id);
       if (item != null) {
         chat?.messages.remove(item);
+        item.dispose();
       }
 
       try {
@@ -805,6 +807,7 @@ class ChatRepository extends DisposableInterface
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
     if (item != null) {
       chat?.messages.remove(item);
+      item.dispose();
     }
 
     try {
@@ -1310,6 +1313,10 @@ class ChatRepository extends DisposableInterface
       final int index = chat.messages.indexWhere((c) => c.value.id == until);
 
       if (index != -1) {
+        for (var e in chat.messages) {
+          e.dispose();
+        }
+
         items = chat.messages.toList().getRange(0, index + 1);
         chat.messages.removeRange(0, index + 1);
 
