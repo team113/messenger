@@ -35,8 +35,8 @@ platform :android do
     gradle(task: "test")
   end
 
-  desc "Submit a new internal version to Google Play"
-  lane :beta do
+  desc "Publish a new internal build to Google Play's internal track"
+  lane :internal do
     upload_to_play_store(
       aab: 'app.aab',
       release_status: 'draft',
@@ -48,8 +48,8 @@ platform :android do
     )
   end
 
-  desc "Deploy a new version to Google Play"
-  lane :deploy do
+  desc "Publish a new version to Google Play"
+  lane :publish do
     upload_to_play_store(
       aab: 'app.aab',
       track: 'beta'
