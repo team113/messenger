@@ -477,6 +477,10 @@ abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(K? key, int count);
 
+  void dispose() {
+    // No-op.
+  }
+
   /// Fetches the [Page] around the provided [key] or [cursor].
   ///
   /// If neither [key] nor [cursor] is provided, then fetches the first [Page].

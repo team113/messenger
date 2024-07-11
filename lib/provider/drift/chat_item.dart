@@ -370,7 +370,12 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
   /// order of the provided [chatId].
-  Stream<List<DtoChatItem>> last(ChatId chatId) {
+  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> after(
+    ChatId chatId,
+    PreciseDateTime at,
+  ) {
+    Log.info('after($at)', '$runtimeType');
+
     return stream((db) {
       final stmt = db.select(db.chatItemViews).join([
         innerJoin(
@@ -379,14 +384,53 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         ),
       ]);
 
-      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
-      stmt.limit(1);
+      stmt.where(
+        db.chatItemViews.chatId.equals(chatId.val) &
+            db.chatItems.at.isBiggerThanValue(at.microsecondsSinceEpoch),
+      );
 
-      return stmt.watch().map((rows) => rows
-          .map((e) => e.readTable(db.chatItems))
-          .map(_ChatItemDb.fromDb)
-          .toList());
+      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
+
+      return stmt
+          .watch()
+          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
+          .map(
+            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
+          )
+          .changes();
+    });
+  }
+
+  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
+  /// order of the provided [chatId].
+  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> before(
+    ChatId chatId,
+    PreciseDateTime at,
+  ) {
+    Log.info('before($at)', '$runtimeType');
+
+    return stream((db) {
+      final stmt = db.select(db.chatItemViews).join([
+        innerJoin(
+          db.chatItems,
+          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+        ),
+      ]);
+
+      stmt.where(
+        db.chatItemViews.chatId.equals(chatId.val) &
+            db.chatItems.at.isSmallerThanValue(at.microsecondsSinceEpoch),
+      );
+
+      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
+
+      return stmt
+          .watch()
+          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
+          .map(
+            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
+          )
+          .changes();
     });
   }
 

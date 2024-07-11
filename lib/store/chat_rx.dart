@@ -1164,6 +1164,8 @@ class RxChatImpl extends RxChat {
             print('========= onRemoved ${e.value.id}');
             await _pagination.remove(e.value.id, store: false);
           },
+          top: (e) => _driftItems.before(id, e.value.at),
+          bottom: (e) => _driftItems.after(id, e.value.at),
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
           add: (e, {bool toView = true}) async =>

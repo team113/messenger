@@ -42,6 +42,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.fulfilledWhenNone = false,
     this.onAdded,
     this.onRemoved,
+    this.top,
+    this.bottom,
   });
 
   /// Callback, called when a [K] of the provided [T] is required.
@@ -64,6 +66,14 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     required int before,
     K? around,
   })? watch;
+
+  final Stream<List<MapChangeNotification<K, T>>> Function(
+    T item,
+  )? top;
+
+  final Stream<List<MapChangeNotification<K, T>>> Function(
+    T item,
+  )? bottom;
 
   /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
@@ -118,13 +128,19 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Subscription to [watch].
   StreamSubscription? _watchSubscription;
 
+  StreamSubscription? _topSubscription;
+
+  StreamSubscription? _bottomSubscription;
+
+  T? get _first => _list.lastWhereOrNull((e) => isFirst?.call(e) == true);
+
+  T? get _last => _list.firstWhereOrNull((e) => isLast?.call(e) == true);
+
   /// Indicates whether the [_list] contain an item identified as the first.
-  bool get _hasFirst =>
-      _list.lastWhereOrNull((e) => isFirst?.call(e) == true) != null;
+  bool get _hasFirst => _first != null;
 
   /// Indicates whether the [_list] contain an item identified as the last.
-  bool get _hasLast =>
-      _list.firstWhereOrNull((e) => isLast?.call(e) == true) != null;
+  bool get _hasLast => _last != null;
 
   /// Returns the last non-`null` [C] cursor from the [_list].
   C? get _lastCursor =>
@@ -153,6 +169,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       }
     }
 
+    _ensureWatchers();
+
     return Page(
       edges,
       PageInfo(
@@ -162,6 +180,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         endCursor: _lastCursor,
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _watchSubscription?.cancel();
+    _topSubscription?.cancel();
+    _bottomSubscription?.cancel();
   }
 
   @override
@@ -178,6 +203,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
+
+    _ensureWatchers();
 
     final bool zeroed = fulfilledWhenNone && edges.isEmpty;
 
@@ -206,6 +233,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       '$runtimeType',
     );
 
+    _ensureWatchers();
+
     return Page(
       fulfilled ? edges : [],
       PageInfo(
@@ -230,6 +259,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       'before($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
+
+    _ensureWatchers();
 
     return Page(
       fulfilled ? edges : [],
@@ -285,6 +316,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _after = count ~/ 2;
     _before = count ~/ 2;
     _around = around;
+
+    _watchSubscription?.cancel();
+    _topSubscription?.cancel();
+    _bottomSubscription?.cancel();
   }
 
   /// Returns the [T] items [fetch]ed.
@@ -307,12 +342,11 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             completer.complete(e.map((m) => m.value!).toList());
           } else {
             for (var m in e) {
-              final K key = onKey(m.value as T);
-
-              Log.info('[${m.op}] $key');
-
               switch (m.op) {
                 case OperationKind.added:
+                  final K key = m.key as K;
+                  Log.info('[${m.op}] $key');
+
                   if (!_accounted.remove(key)) {
                     _accounted.add(key);
                     onAdded?.call(m.value as T);
@@ -327,6 +361,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                   break;
 
                 case OperationKind.updated:
+                  final K key = m.key as K;
+                  Log.info('[${m.op}] $key');
+
                   if (!_accounted.remove(key)) {
                     _accounted.add(key);
                     onAdded?.call(m.value as T);
@@ -342,5 +379,79 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     }
 
     return _list;
+  }
+
+  void _ensureWatchers() {
+    if (top != null && _topSubscription == null) {
+      final T? first = _first;
+
+      if (first != null) {
+        _topSubscription?.cancel();
+        _topSubscription = top!(first).listen((items) {
+          for (var e in items) {
+            final K key = e.key as K;
+
+            switch (e.op) {
+              case OperationKind.added:
+                if (!_accounted.remove(key)) {
+                  _accounted.add(key);
+                  onAdded?.call(e.value as T);
+                }
+                break;
+
+              case OperationKind.removed:
+                onRemoved?.call(e.value as T);
+                break;
+
+              case OperationKind.updated:
+                final K key = e.key as K;
+                Log.info('[${e.op}] $key');
+
+                if (!_accounted.remove(key)) {
+                  _accounted.add(key);
+                  onAdded?.call(e.value as T);
+                }
+                break;
+            }
+          }
+        });
+      }
+    }
+
+    if (bottom != null && _bottomSubscription == null) {
+      final T? last = _last;
+
+      if (last != null) {
+        _bottomSubscription?.cancel();
+        _bottomSubscription = bottom!(last).listen((items) {
+          for (var e in items) {
+            final K key = e.key as K;
+
+            switch (e.op) {
+              case OperationKind.added:
+                if (!_accounted.remove(key)) {
+                  _accounted.add(key);
+                  onAdded?.call(e.value as T);
+                }
+                break;
+
+              case OperationKind.removed:
+                onRemoved?.call(e.value as T);
+                break;
+
+              case OperationKind.updated:
+                final K key = e.key as K;
+                Log.info('[${e.op}] $key');
+
+                if (!_accounted.remove(key)) {
+                  _accounted.add(key);
+                  onAdded?.call(e.value as T);
+                }
+                break;
+            }
+          }
+        });
+      }
+    }
   }
 }
