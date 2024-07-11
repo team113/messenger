@@ -312,37 +312,37 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     PreciseDateTime? around,
   }) {
     return stream((db) {
-      if (around != null) {
-        final stmt = db.chatItemsAround(
-          chatId.val,
-          around,
-          (before ?? 50).toDouble(),
-          after ?? 50,
-        );
+      // if (around != null) {
+      //   final stmt = db.chatItemsAround(
+      //     chatId.val,
+      //     around,
+      //     (before ?? 50).toDouble(),
+      //     after ?? 50,
+      //   );
 
-        return stmt
-            .watch()
-            .map(
-              (items) => {
-                for (var e in items
-                    .map(
-                      (r) => ChatItemRow(
-                        id: r.id,
-                        chatId: r.chatId,
-                        authorId: r.authorId,
-                        at: r.at,
-                        status: r.status,
-                        data: r.data,
-                        cursor: r.cursor,
-                        ver: r.ver,
-                      ),
-                    )
-                    .map(_ChatItemDb.fromDb))
-                  e.value.id: e
-              },
-            )
-            .changes();
-      }
+      //   return stmt
+      //       .watch()
+      //       .map(
+      //         (items) => {
+      //           for (var e in items
+      //               .map(
+      //                 (r) => ChatItemRow(
+      //                   id: r.id,
+      //                   chatId: r.chatId,
+      //                   authorId: r.authorId,
+      //                   at: r.at,
+      //                   status: r.status,
+      //                   data: r.data,
+      //                   cursor: r.cursor,
+      //                   ver: r.ver,
+      //                 ),
+      //               )
+      //               .map(_ChatItemDb.fromDb))
+      //             e.value.id: e
+      //         },
+      //       )
+      //       .changes();
+      // }
 
       final stmt = db.select(db.chatItemViews).join([
         innerJoin(
@@ -386,10 +386,15 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
       stmt.where(
         db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.at.isBiggerThanValue(at.microsecondsSinceEpoch),
+            db.chatItems.at.isBiggerOrEqualValue(at.microsecondsSinceEpoch),
       );
 
       stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
+
+      Log.info(
+        'after($at) -> stmt -> ${stmt.constructQuery().buffer.toString()}',
+        '$runtimeType',
+      );
 
       return stmt
           .watch()
@@ -397,7 +402,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           .map(
             (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
           )
-          .changes();
+          .changes(tag: 'after');
     });
   }
 
@@ -419,7 +424,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
       stmt.where(
         db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.at.isSmallerThanValue(at.microsecondsSinceEpoch),
+            db.chatItems.at.isSmallerOrEqualValue(at.microsecondsSinceEpoch),
       );
 
       stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);

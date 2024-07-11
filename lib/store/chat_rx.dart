@@ -1105,6 +1105,7 @@ class RxChatImpl extends RxChat {
   Future<void> _initMessagesPagination() async {
     _pagination = Pagination(
       onKey: (e) => e.value.id,
+      perPage: 20,
       provider: DriftGraphQlPageProvider(
         graphQlProvider: GraphQlPageProvider(
           reversed: true,

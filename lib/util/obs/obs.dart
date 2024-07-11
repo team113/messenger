@@ -32,13 +32,19 @@ enum OperationKind { added, removed, updated }
 /// Extension adding an ability to get [MapChangeNotification]s from [Stream].
 extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
   /// Gets [MapChangeNotification]s from [Stream].
-  Stream<List<MapChangeNotification<K, T>>> changes() {
+  Stream<List<MapChangeNotification<K, T>>> changes({String? tag}) {
     Map<K, T> last = {};
+
+    if (tag != null) {
+      Log.info('changes($tag) started... ${StackTrace.current}');
+    }
 
     return asyncExpand((e) async* {
       final List<MapChangeNotification<K, T>> changed = [];
 
-      Log.info('changes() -> fired with ${e.length} items');
+      if (tag != null) {
+        Log.info('changes($tag) -> fired with ${e.length} items -> $e');
+      }
 
       for (final MapEntry<K, T> entry in e.entries) {
         final T? item = last[entry.key];
