@@ -1,1 +1,1 @@
-- Added blurred preview to messages with single image attachment.
+- Fixed selected application language not being persisted.
