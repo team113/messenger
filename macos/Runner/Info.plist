@@ -29,7 +29,7 @@
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
   <key>NSCameraUsageDescription</key>
-  <string>Camera is used to take photos and to stream your camera feed during video calls.</string>
+  <string>Camera is used to stream your camera feed during video calls.</string>
   <key>NSMicrophoneUsageDescription</key>
   <string>Microphone is used to stream your voice during audio and video calls.</string>
   <key>CFBundleURLTypes</key>
