@@ -14,9 +14,9 @@ All user visible changes to this project will be documented in this file. This p
 ### Changed
 
 - iOS:
-    - Better described microphone and camera usage prompts. ([#1065])
+    - Better described microphone and camera usage prompts. ([#1066])
 
-[#1065]: /../../pull/1065
+[#1066]: /../../pull/1066
 
 
 
