@@ -44,11 +44,11 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We need access to your camera to take photos/videos</string>
+	<string>Camera is used to take photos and to stream your camera feed during video calls.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>We need access to your microphone to record it</string>
+	<string>Microphone is used to stream your voice during audio and video calls.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>We need access to your photos to save and upload them</string>
+	<string>Photos and videos you select are used to upload them to the chat.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>

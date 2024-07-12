@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.0] · 2024-??-??
+[0.2.0]: /../../tree/v0.2.0
+
+[Diff](/../../compare/v0.1.4...v0.2.0) | [Milestone](/../../milestone/28)
+
+### Changed
+
+- iOS:
+    - Better described microphone and camera usage prompts. ([#1066])
+
+[#1066]: /../../pull/1066
+
+
+
+
 ## [0.1.4] · 2024-07-11
 [0.1.4]: /../../tree/v0.1.4
 
