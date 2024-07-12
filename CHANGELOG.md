@@ -13,7 +13,7 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
-- UI:
+- iOS:
     - Better described microphone and camera usage prompts. ([#1065])
 
 [#1065]: /../../pull/1065
