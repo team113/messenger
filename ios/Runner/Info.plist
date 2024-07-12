@@ -44,9 +44,9 @@
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Camera is used to take photos and to stream your video feed in video calls.</string>
+	<string>Camera is used to take photos and to stream your camera feed during video calls.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Microphone is used to stream your voice in audio and video calls.</string>
+	<string>Microphone is used to stream your voice during audio and video calls.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Photos and videos you select are used to upload them to the chat.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
