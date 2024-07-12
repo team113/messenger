@@ -19,7 +19,10 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:log_me/log_me.dart';
+import 'package:mutex/mutex.dart';
 
+import '../../domain/model/chat_item.dart';
+import '../model/chat_item.dart';
 import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
@@ -61,9 +64,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   })? fetch;
 
-  final FutureOr<Stream<List<MapChangeNotification<K, T>>>> Function({
-    required int after,
-    required int before,
+  final FutureOr<Stream<List<T>>> Function({
+    int? after,
+    int? before,
     K? around,
   })? watch;
 
@@ -113,17 +116,17 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   List<T> _list = [];
 
   /// Count of [T] items requested after the [_around].
-  int _after = 0;
+  int? _after = 0;
 
   /// Count of [T] items requested before the [_around].
-  int _before = 0;
+  int? _before = 0;
 
   /// Key [K], around which the [_list] should be [fetch]ed.
   K? _around;
 
   /// [K]eys accounted during [put] and [remove], so that those keys aren't
   /// fired again when [watch] fires items.
-  final Set<K> _accounted = {};
+  final List<(OperationKind, K)> _accounted = [];
 
   /// Subscription to [watch].
   StreamSubscription? _watchSubscription;
@@ -131,6 +134,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   StreamSubscription? _topSubscription;
 
   StreamSubscription? _bottomSubscription;
+
+  List<T> _items = [];
 
   T? get _first => _list.lastWhereOrNull((e) => isFirst?.call(e) == true);
 
@@ -221,7 +226,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<Page<T, C>> after(K? key, C? cursor, int count) async {
-    _after += count;
+    if (_after != null) {
+      _after = _after! + count;
+    }
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
@@ -248,7 +255,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<Page<T, C>> before(K? key, C? cursor, int count) async {
-    _before += count;
+    if (_before != null) {
+      _before = _before! + count;
+    }
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
@@ -278,7 +287,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final bool toView = compare == null;
 
     for (var item in items) {
-      _accounted.add(onKey(item));
+      _account(OperationKind.added, onKey(item));
     }
 
     if (toView) {
@@ -291,7 +300,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         }
       }
 
-      _after += items.length;
+      if (_after != null) {
+        _after = _after! + items.length;
+      }
+
       _page();
     }
 
@@ -300,7 +312,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<void> remove(K key) async {
-    _accounted.add(key);
+    _account(OperationKind.removed, key);
     await delete?.call(key);
   }
 
@@ -322,63 +334,127 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _bottomSubscription?.cancel();
   }
 
+  final Mutex _guard = Mutex();
+
   /// Returns the [T] items [fetch]ed.
   Future<List<T>> _page() async {
-    if (fetch != null) {
-      _list = await fetch!(after: _after, before: _before, around: _around);
-    } else if (watch != null) {
-      final stream = await watch!(
-        after: _after,
-        before: _before,
-        around: _around,
-      );
+    return await _guard.protect(() async {
+      if (fetch != null) {
+        _list = await fetch!(
+          after: _after ?? 50,
+          before: _before ?? 50,
+          around: _around,
+        );
+      } else if (watch != null) {
+        print('===== querying $_before/$_after items...');
 
-      final Completer<List<T>> completer = Completer();
+        final stream = await watch!(
+          after: _after,
+          before: _before,
+          around: _around,
+        );
 
-      _watchSubscription?.cancel();
-      _watchSubscription = stream.listen(
-        (e) {
-          if (!completer.isCompleted) {
-            completer.complete(e.map((m) => m.value!).toList());
-          } else {
-            for (var m in e) {
-              switch (m.op) {
-                case OperationKind.added:
-                  final K key = m.key as K;
-                  Log.info('[${m.op}] $key');
+        final Completer<List<T>> completer = Completer();
 
-                  if (!_accounted.remove(key)) {
-                    _accounted.add(key);
-                    onAdded?.call(m.value as T);
-                  }
-                  break;
+        _watchSubscription?.cancel();
+        _watchSubscription = stream.listen(
+          (items) {
+            if (items is List<DtoChatItem>) {
+              print(
+                  '=============== ${(items as List<DtoChatItem>).map((e) => e is DtoChatMessage ? '${(e.value as ChatMessage).text}' : '${e.value.runtimeType}').toList()}');
+            }
 
-                case OperationKind.removed:
-                  onRemoved?.call(m.value as T);
-                  break;
+            for (var e in items) {
+              final K key = onKey(e);
+              final T? item = _items.firstWhereOrNull((m) => onKey(m) == key);
 
-                case OperationKind.updated:
-                  final K key = m.key as K;
-                  Log.info('[${m.op}] $key');
-
-                  if (!_accounted.remove(key)) {
-                    _accounted.add(key);
-                    onAdded?.call(m.value as T);
-                  }
-                  break;
+              if (item == null) {
+                if (!_accounted.contains((OperationKind.added, key))) {
+                  onAdded?.call(e);
+                }
+              } else if (e != item) {
+                onAdded?.call(e);
               }
             }
-          }
-        },
-      );
 
-      _list = await completer.future;
-    }
+            for (var e in _items) {
+              final K key = onKey(e);
+              final T? item = items.firstWhereOrNull((m) => onKey(m) == key);
 
-    return _list;
+              if (item == null) {
+                if (!_accounted.contains((OperationKind.removed, key))) {
+                  onRemoved?.call(e);
+                }
+              }
+            }
+
+            _items = List.from(items);
+
+            if (!completer.isCompleted) {
+              completer.complete(items);
+            }
+
+            // if (!completer.isCompleted) {
+            //   completer.complete(e.map((m) => m.value!).toList());
+            // } else {
+            //   for (var m in e) {
+            //     final K key = m.key as K;
+
+            //     switch (m.op) {
+            //       case OperationKind.added:
+            //         Log.info('[${m.op}] $key');
+
+            //         if (!_accounted.contains((m.op, key))) {
+            //           onAdded?.call(m.value as T);
+            //         }
+            //         break;
+
+            //       case OperationKind.removed:
+            //         if (!_accounted.contains((m.op, key))) {
+            //           onRemoved?.call(m.value as T);
+            //         }
+            //         break;
+
+            //       case OperationKind.updated:
+            //         final K key = m.key as K;
+            //         Log.info('[${m.op}] $key');
+
+            //         if (!_accounted.contains((m.op, key))) {
+            //           onAdded?.call(m.value as T);
+            //         }
+            //         break;
+            //     }
+            //   }
+            // }
+          },
+        );
+
+        _list = await completer.future;
+      }
+
+      return _list;
+    });
   }
 
   void _ensureWatchers() {
+    if (_before != null) {
+      final T? first = _first;
+      if (first != null) {
+        print('===== first detected, switching to before-less...');
+        _before = null;
+        _page();
+      }
+    }
+
+    if (_after != null) {
+      final T? last = _last;
+      if (last != null) {
+        print('===== last detected, switching to after-less...');
+        _after = null;
+        _page();
+      }
+    }
+
     if (top != null && _topSubscription == null) {
       final T? first = _first;
 
@@ -390,8 +466,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
             switch (e.op) {
               case OperationKind.added:
-                if (!_accounted.remove(key)) {
-                  _accounted.add(key);
+                if (!_accounted.contains((e.op, key))) {
                   onAdded?.call(e.value as T);
                 }
                 break;
@@ -404,8 +479,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                 final K key = e.key as K;
                 Log.info('[${e.op}] $key');
 
-                if (!_accounted.remove(key)) {
-                  _accounted.add(key);
+                if (!_accounted.contains((e.op, key))) {
                   onAdded?.call(e.value as T);
                 }
                 break;
@@ -426,8 +500,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
             switch (e.op) {
               case OperationKind.added:
-                if (!_accounted.remove(key)) {
-                  _accounted.add(key);
+                if (!_accounted.contains((e.op, key))) {
                   onAdded?.call(e.value as T);
                 }
                 break;
@@ -440,8 +513,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                 final K key = e.key as K;
                 Log.info('[${e.op}] $key');
 
-                if (!_accounted.remove(key)) {
-                  _accounted.add(key);
+                if (!_accounted.contains((e.op, key))) {
                   onAdded?.call(e.value as T);
                 }
                 break;
@@ -449,6 +521,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           }
         });
       }
+    }
+  }
+
+  void _account(OperationKind op, K key) {
+    _accounted.add((OperationKind.added, key));
+    if (_accounted.length > 128) {
+      _accounted.removeAt(0);
     }
   }
 }

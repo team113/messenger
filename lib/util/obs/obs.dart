@@ -34,6 +34,7 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
   /// Gets [MapChangeNotification]s from [Stream].
   Stream<List<MapChangeNotification<K, T>>> changes({String? tag}) {
     Map<K, T> last = {};
+    bool first = true;
 
     if (tag != null) {
       Log.info('changes($tag) started... ${StackTrace.current}');
@@ -41,10 +42,6 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
 
     return asyncExpand((e) async* {
       final List<MapChangeNotification<K, T>> changed = [];
-
-      if (tag != null) {
-        Log.info('changes($tag) -> fired with ${e.length} items -> $e');
-      }
 
       for (final MapEntry<K, T> entry in e.entries) {
         final T? item = last[entry.key];
@@ -66,9 +63,20 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
         }
       }
 
-      last = e;
+      last = Map.from(e);
 
-      yield changed;
+      if (tag != null) {
+        Log.info(
+          'changes($tag) -> fired with ${e.length} items, compared and got diff of $changed -> $e',
+        );
+      }
+
+      if (first) {
+        first = false;
+        yield changed;
+      } else if (changed.isNotEmpty) {
+        yield changed;
+      }
     });
   }
 }

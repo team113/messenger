@@ -27,6 +27,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
 import '/util/obs/obs.dart';
+import 'chat.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -168,11 +169,17 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
   /// database.
   Future<void> delete(ChatItemId id) async {
+    print('====== DELETE $id');
+
     _cache.remove(id);
 
     await safe((db) async {
       final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
       await stmt.goAndReturn();
+
+      final stmt2 = db.delete(db.chatItemViews)
+        ..where((e) => e.chatItemId.equals(id.val));
+      await stmt2.goAndReturn();
     });
   }
 
@@ -305,66 +312,232 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
   /// the provided [chatId].
-  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
+  // Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
+  //   ChatId chatId, {
+  //   int? before,
+  //   int? after,
+  //   PreciseDateTime? around,
+  // }) {
+  //   return stream((db) {
+  //     if (before == null && after == null) {
+  //       final stmt = db.select(db.chatItemViews).join([
+  //         innerJoin(
+  //           db.chatItems,
+  //           db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+  //         ),
+  //       ]);
+
+  //       stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+  //       stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+
+  //       return stmt
+  //           .watch()
+  //           .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
+  //           .map(
+  //             (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
+  //           )
+  //           .changes();
+  //     } else if (before != null && after != null) {
+  //       final stmt = db.chatItemsAround(
+  //         chatId.val,
+  //         around ?? PreciseDateTime.now(),
+  //         before.toDouble(),
+  //         after,
+  //       );
+
+  //       return stmt
+  //           .watch()
+  //           .map(
+  //             (items) => {
+  //               for (var e in items
+  //                   .map(
+  //                     (r) => ChatItemRow(
+  //                       id: r.id,
+  //                       chatId: r.chatId,
+  //                       authorId: r.authorId,
+  //                       at: r.at,
+  //                       status: r.status,
+  //                       data: r.data,
+  //                       cursor: r.cursor,
+  //                       ver: r.ver,
+  //                     ),
+  //                   )
+  //                   .map(_ChatItemDb.fromDb))
+  //                 e.value.id: e
+  //             },
+  //           )
+  //           .changes(tag: '123');
+  //     } else if (before == null && after != null) {
+  //       final stmt = db.chatItemsAroundTopless(
+  //         chatId.val,
+  //         around ?? PreciseDateTime.now(),
+  //         after,
+  //       );
+
+  //       return stmt
+  //           .watch()
+  //           .map(
+  //             (items) => {
+  //               for (var e in items
+  //                   .map(
+  //                     (r) => ChatItemRow(
+  //                       id: r.id,
+  //                       chatId: r.chatId,
+  //                       authorId: r.authorId,
+  //                       at: r.at,
+  //                       status: r.status,
+  //                       data: r.data,
+  //                       cursor: r.cursor,
+  //                       ver: r.ver,
+  //                     ),
+  //                   )
+  //                   .map(_ChatItemDb.fromDb))
+  //                 e.value.id: e
+  //             },
+  //           )
+  //           .changes();
+  //     } else if (before != null && after == null) {
+  //       final stmt = db.chatItemsAroundBottomless(
+  //         chatId.val,
+  //         around ?? PreciseDateTime.now(),
+  //         before.toDouble(),
+  //       );
+
+  //       return stmt
+  //           .watch()
+  //           .map(
+  //             (items) => {
+  //               for (var e in items
+  //                   .map(
+  //                     (r) => ChatItemRow(
+  //                       id: r.id,
+  //                       chatId: r.chatId,
+  //                       authorId: r.authorId,
+  //                       at: r.at,
+  //                       status: r.status,
+  //                       data: r.data,
+  //                       cursor: r.cursor,
+  //                       ver: r.ver,
+  //                     ),
+  //                   )
+  //                   .map(_ChatItemDb.fromDb))
+  //                 e.value.id: e
+  //             },
+  //           )
+  //           .changes();
+  //     }
+
+  //     throw Exception('Unreachable');
+  //   });
+  // }
+
+  /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
+  /// the provided [chatId].
+  Stream<List<DtoChatItem>> watch(
     ChatId chatId, {
     int? before,
     int? after,
     PreciseDateTime? around,
   }) {
     return stream((db) {
-      // if (around != null) {
-      //   final stmt = db.chatItemsAround(
-      //     chatId.val,
-      //     around,
-      //     (before ?? 50).toDouble(),
-      //     after ?? 50,
-      //   );
+      if (before == null && after == null) {
+        final stmt = db.select(db.chatItemViews).join([
+          innerJoin(
+            db.chatItems,
+            db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+          ),
+        ]);
 
-      //   return stmt
-      //       .watch()
-      //       .map(
-      //         (items) => {
-      //           for (var e in items
-      //               .map(
-      //                 (r) => ChatItemRow(
-      //                   id: r.id,
-      //                   chatId: r.chatId,
-      //                   authorId: r.authorId,
-      //                   at: r.at,
-      //                   status: r.status,
-      //                   data: r.data,
-      //                   cursor: r.cursor,
-      //                   ver: r.ver,
-      //                 ),
-      //               )
-      //               .map(_ChatItemDb.fromDb))
-      //             e.value.id: e
-      //         },
-      //       )
-      //       .changes();
-      // }
+        stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+        stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
 
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
+        return stmt.watch().map(
+              (rows) => rows
+                  .map((e) => _ChatItemDb.fromDb(e.readTable(db.chatItems)))
+                  .toList(),
+            );
+      } else if (before != null && after != null) {
+        final stmt = db.chatItemsAround(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          before.toDouble(),
+          after,
+        );
 
-      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-      stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+      } else if (before == null && after != null) {
+        final stmt = db.chatItemsAroundTopless(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          after,
+        );
 
-      if (after != null || before != null) {
-        stmt.limit((after ?? 0) + (before ?? 0));
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+      } else if (before != null && after == null) {
+        print(
+          'querying $before and $after with $around (${PreciseDateTime.now().microsecondsSinceEpoch}), $chatId',
+        );
+        final stmt = db.chatItemsAroundBottomless(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          before.toDouble(),
+        );
+
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
       }
 
-      return stmt
-          .watch()
-          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
-          .map(
-            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
-          )
-          .changes();
+      throw Exception('Unreachable');
     });
   }
 
@@ -377,16 +550,16 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     Log.info('after($at)', '$runtimeType');
 
     return stream((db) {
-      final stmt = db.select(db.chatItemViews).join([
+      final stmt = db.select(db.chatItems).join([
         innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+          db.chatItemViews,
+          db.chatItemViews.chatItemId.equalsExp(db.chatItems.id),
         ),
       ]);
 
       stmt.where(
-        db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.at.isBiggerOrEqualValue(at.microsecondsSinceEpoch),
+        db.chatItems.chatId.equals(chatId.val) &
+            db.chatItems.at.isBiggerThanValue(at.microsecondsSinceEpoch),
       );
 
       stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
@@ -424,7 +597,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
       stmt.where(
         db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.at.isSmallerOrEqualValue(at.microsecondsSinceEpoch),
+            db.chatItems.at.isSmallerThanValue(at.microsecondsSinceEpoch),
       );
 
       stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);

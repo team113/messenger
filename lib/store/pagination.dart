@@ -181,7 +181,7 @@ class Pagination<T, C, K> {
         return null;
       }
 
-      Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
+      Log.info('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
       try {
         final Page<T, C>? page = await Backoff.run(
