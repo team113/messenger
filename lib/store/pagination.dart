@@ -109,6 +109,7 @@ class Pagination<T, C, K> {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    provider.dispose();
     _cancelToken.cancel();
     _disposed = true;
   }
@@ -181,7 +182,7 @@ class Pagination<T, C, K> {
         return null;
       }
 
-      Log.info('around(key: $key, cursor: $cursor)...', '$runtimeType');
+      Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
       try {
         final Page<T, C>? page = await Backoff.run(
@@ -345,6 +346,9 @@ class Pagination<T, C, K> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
+  ///
+  /// If [store] is `false`, then the [item] will be only added to the [items]
+  /// and won't be put to the [provider].
   Future<void> put(
     T item, {
     bool ignoreBounds = false,
@@ -391,6 +395,10 @@ class Pagination<T, C, K> {
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
+  ///
+  ///
+  /// If [store] is `false`, then the [key] will be only removed from the
+  /// [items] and won't be removed from the [provider].
   Future<void> remove(K key, {bool store = true}) async {
     Log.debug('remove($key)', '$runtimeType');
 
@@ -477,6 +485,7 @@ abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(K? key, int count);
 
+  /// Disposes this [PageProvider], freeing any resources it might've occupied.
   void dispose() {
     // No-op.
   }

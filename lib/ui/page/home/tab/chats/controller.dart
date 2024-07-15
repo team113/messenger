@@ -919,7 +919,7 @@ class ChatEntry implements Comparable<ChatEntry> {
   ChatId get id => _chat.chat.value.id;
 
   /// Returns observable list of [ChatItem]s of the [chat].
-  RxObsList<RxChatItem> get messages => _chat.messages;
+  RxObsList<Rx<ChatItem>> get messages => _chat.messages;
 
   /// Reactive map of [User]s being members of this [chat].
   RxSortedObsMap<UserId, RxChatMember> get members => _chat.members.items;

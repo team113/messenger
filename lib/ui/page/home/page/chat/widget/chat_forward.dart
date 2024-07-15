@@ -36,7 +36,6 @@ import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -128,7 +127,7 @@ class ChatForwardWidget extends StatefulWidget {
   ///
   /// If not specified, then [GalleryPopup] won't open when [ImageAttachment] is
   /// tapped.
-  final Paginated<ChatItemId, RxChatItem> Function(ChatItem item)? onGallery;
+  final Paginated<ChatItemId, Rx<ChatItem>> Function(ChatItem item)? onGallery;
 
   /// Callback, called when a [ChatForward] is tapped.
   final void Function(ChatForward)? onForwardedTap;

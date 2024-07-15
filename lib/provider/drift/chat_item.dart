@@ -27,7 +27,6 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
 import '/util/obs/obs.dart';
-import 'chat.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -169,8 +168,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
   /// database.
   Future<void> delete(ChatItemId id) async {
-    print('====== DELETE $id');
-
     _cache.remove(id);
 
     await safe((db) async {
@@ -309,127 +306,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
     return result ?? [];
   }
-
-  /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
-  /// the provided [chatId].
-  // Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> watch(
-  //   ChatId chatId, {
-  //   int? before,
-  //   int? after,
-  //   PreciseDateTime? around,
-  // }) {
-  //   return stream((db) {
-  //     if (before == null && after == null) {
-  //       final stmt = db.select(db.chatItemViews).join([
-  //         innerJoin(
-  //           db.chatItems,
-  //           db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-  //         ),
-  //       ]);
-
-  //       stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-  //       stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
-
-  //       return stmt
-  //           .watch()
-  //           .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
-  //           .map(
-  //             (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
-  //           )
-  //           .changes();
-  //     } else if (before != null && after != null) {
-  //       final stmt = db.chatItemsAround(
-  //         chatId.val,
-  //         around ?? PreciseDateTime.now(),
-  //         before.toDouble(),
-  //         after,
-  //       );
-
-  //       return stmt
-  //           .watch()
-  //           .map(
-  //             (items) => {
-  //               for (var e in items
-  //                   .map(
-  //                     (r) => ChatItemRow(
-  //                       id: r.id,
-  //                       chatId: r.chatId,
-  //                       authorId: r.authorId,
-  //                       at: r.at,
-  //                       status: r.status,
-  //                       data: r.data,
-  //                       cursor: r.cursor,
-  //                       ver: r.ver,
-  //                     ),
-  //                   )
-  //                   .map(_ChatItemDb.fromDb))
-  //                 e.value.id: e
-  //             },
-  //           )
-  //           .changes(tag: '123');
-  //     } else if (before == null && after != null) {
-  //       final stmt = db.chatItemsAroundTopless(
-  //         chatId.val,
-  //         around ?? PreciseDateTime.now(),
-  //         after,
-  //       );
-
-  //       return stmt
-  //           .watch()
-  //           .map(
-  //             (items) => {
-  //               for (var e in items
-  //                   .map(
-  //                     (r) => ChatItemRow(
-  //                       id: r.id,
-  //                       chatId: r.chatId,
-  //                       authorId: r.authorId,
-  //                       at: r.at,
-  //                       status: r.status,
-  //                       data: r.data,
-  //                       cursor: r.cursor,
-  //                       ver: r.ver,
-  //                     ),
-  //                   )
-  //                   .map(_ChatItemDb.fromDb))
-  //                 e.value.id: e
-  //             },
-  //           )
-  //           .changes();
-  //     } else if (before != null && after == null) {
-  //       final stmt = db.chatItemsAroundBottomless(
-  //         chatId.val,
-  //         around ?? PreciseDateTime.now(),
-  //         before.toDouble(),
-  //       );
-
-  //       return stmt
-  //           .watch()
-  //           .map(
-  //             (items) => {
-  //               for (var e in items
-  //                   .map(
-  //                     (r) => ChatItemRow(
-  //                       id: r.id,
-  //                       chatId: r.chatId,
-  //                       authorId: r.authorId,
-  //                       at: r.at,
-  //                       status: r.status,
-  //                       data: r.data,
-  //                       cursor: r.cursor,
-  //                       ver: r.ver,
-  //                     ),
-  //                   )
-  //                   .map(_ChatItemDb.fromDb))
-  //                 e.value.id: e
-  //             },
-  //           )
-  //           .changes();
-  //     }
-
-  //     throw Exception('Unreachable');
-  //   });
-  // }
 
   /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
   /// the provided [chatId].

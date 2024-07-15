@@ -69,7 +69,6 @@ import '/util/new_type.dart';
 import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
-import 'chat_item_rx.dart';
 import 'chat_rx.dart';
 import 'event/chat.dart';
 import 'event/favorite_chat.dart';
@@ -646,7 +645,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final RxChatItemImpl? item = chats[message.chatId]
+    final Rx<ChatItem>? item = chats[message.chatId]
         ?.messages
         .firstWhereOrNull((e) => e.value.id == message.id);
 
@@ -658,7 +657,7 @@ class ChatRepository extends DisposableInterface
       previousAttachments = (item?.value as ChatMessage).attachments;
       previousReplies = (item?.value as ChatMessage).repliesTo;
 
-      item?.rx.update((c) {
+      item?.update((c) {
         (c as ChatMessage).text = text != null ? text.changed : previousText;
         c.attachments = attachments?.changed ?? previousAttachments!;
         c.repliesTo = repliesTo?.changed
@@ -714,7 +713,7 @@ class ChatRepository extends DisposableInterface
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
-        item?.rx.update((c) {
+        item?.update((c) {
           (c as ChatMessage).text = previousText;
           c.attachments = previousAttachments ?? [];
           c.repliesTo = previousReplies ?? [];
@@ -734,11 +733,10 @@ class ChatRepository extends DisposableInterface
     if (message.status.value != SendingStatus.sent) {
       chat?.remove(message.id);
     } else {
-      final RxChatItemImpl? item =
+      final Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
       if (item != null) {
         chat?.messages.remove(item);
-        item.dispose();
       }
 
       try {
@@ -770,11 +768,10 @@ class ChatRepository extends DisposableInterface
     if (forward.status.value != SendingStatus.sent) {
       chat?.remove(forward.id);
     } else {
-      final RxChatItemImpl? item =
+      final Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == forward.id);
       if (item != null) {
         chat?.messages.remove(item);
-        item.dispose();
       }
 
       try {
@@ -803,11 +800,10 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl? chat = chats[chatId];
 
-    final RxChatItemImpl? item =
+    final Rx<ChatItem>? item =
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
     if (item != null) {
       chat?.messages.remove(item);
-      item.dispose();
     }
 
     try {
@@ -1307,16 +1303,12 @@ class ChatRepository extends DisposableInterface
       return;
     }
 
-    Iterable<RxChatItemImpl>? items;
+    Iterable<Rx<ChatItem>>? items;
 
     if (chat != null) {
       final int index = chat.messages.indexWhere((c) => c.value.id == until);
 
       if (index != -1) {
-        for (var e in chat.messages) {
-          e.dispose();
-        }
-
         items = chat.messages.toList().getRange(0, index + 1);
         chat.messages.removeRange(0, index + 1);
 

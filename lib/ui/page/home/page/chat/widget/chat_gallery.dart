@@ -26,7 +26,6 @@ import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/file.dart';
-import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/obs/obs.dart';
@@ -42,7 +41,7 @@ class ChatGallery extends StatefulWidget {
   });
 
   /// [Paginated] to display in a [GalleryPopup].
-  final Paginated<ChatItemId, RxChatItem>? paginated;
+  final Paginated<ChatItemId, Rx<ChatItem>>? paginated;
 
   /// Initial [Attachment] and a [ChatItem] containing it to display initially
   /// in a [GalleryPopup].
