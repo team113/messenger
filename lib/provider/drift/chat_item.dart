@@ -26,7 +26,6 @@ import '/domain/model/chat.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/store/model/chat_item.dart';
-import '/util/obs/obs.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -171,12 +170,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
-      await stmt.goAndReturn();
+      final deleteItems = db.delete(db.chatItems);
+      deleteItems.where((e) => e.id.equals(id.val));
+      await deleteItems.goAndReturn();
 
-      final stmt2 = db.delete(db.chatItemViews)
-        ..where((e) => e.chatItemId.equals(id.val));
-      await stmt2.goAndReturn();
+      final deleteViews = db.delete(db.chatItemViews);
+      deleteViews.where((e) => e.chatItemId.equals(id.val));
+      await deleteViews.goAndReturn();
     });
   }
 
@@ -384,9 +384,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
                   .toList(),
             );
       } else if (before != null && after == null) {
-        print(
-          'querying $before and $after with $around (${PreciseDateTime.now().microsecondsSinceEpoch}), $chatId',
-        );
         final stmt = db.chatItemsAroundBottomless(
           chatId.val,
           around ?? PreciseDateTime.now(),
@@ -414,90 +411,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       }
 
       throw Exception('Unreachable');
-    });
-  }
-
-  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
-  /// order of the provided [chatId].
-  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> after(
-    ChatId chatId,
-    PreciseDateTime at,
-  ) {
-    Log.info('after($at)', '$runtimeType');
-
-    return stream((db) {
-      final stmt = db.select(db.chatItems).join([
-        innerJoin(
-          db.chatItemViews,
-          db.chatItemViews.chatItemId.equalsExp(db.chatItems.id),
-        ),
-      ]);
-
-      stmt.where(
-        db.chatItems.chatId.equals(chatId.val) &
-            db.chatItems.at.isBiggerThanValue(at.microsecondsSinceEpoch),
-      );
-
-      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
-
-      Log.info(
-        'after($at) -> stmt -> ${stmt.constructQuery().buffer.toString()}',
-        '$runtimeType',
-      );
-
-      return stmt
-          .watch()
-          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
-          .map(
-            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
-          )
-          .changes(tag: 'after');
-    });
-  }
-
-  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
-  /// order of the provided [chatId].
-  Stream<List<MapChangeNotification<ChatItemId, DtoChatItem>>> before(
-    ChatId chatId,
-    PreciseDateTime at,
-  ) {
-    Log.info('before($at)', '$runtimeType');
-
-    return stream((db) {
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
-
-      stmt.where(
-        db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.at.isSmallerThanValue(at.microsecondsSinceEpoch),
-      );
-
-      stmt.orderBy([OrderingTerm.asc(db.chatItems.at)]);
-
-      return stmt
-          .watch()
-          .map((rows) => rows.map((e) => e.readTable(db.chatItems)))
-          .map(
-            (m) => {for (var e in m.map(_ChatItemDb.fromDb)) e.value.id: e},
-          )
-          .changes();
-    });
-  }
-
-  /// Returns the [Stream] of the last [DtoChatItem] added to a historical view
-  /// order of the provided [chatId].
-  Stream<DtoChatItem?> watchSingle(ChatItemId id) {
-    return stream((db) {
-      final stmt = db.select(db.chatItems);
-      stmt.where((u) => u.id.equals(id.val));
-
-      return stmt
-          .watchSingleOrNull()
-          .map((e) => e == null ? null : _ChatItemDb.fromDb(e));
     });
   }
 }

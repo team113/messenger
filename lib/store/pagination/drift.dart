@@ -21,8 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:log_me/log_me.dart';
 import 'package:mutex/mutex.dart';
 
-import '../../domain/model/chat_item.dart';
-import '../model/chat_item.dart';
 import '/store/chat_rx.dart';
 import '/store/model/page_info.dart';
 import '/store/pagination.dart';
@@ -45,9 +43,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     this.fulfilledWhenNone = false,
     this.onAdded,
     this.onRemoved,
-    this.top,
-    this.bottom,
-  });
+  }) : assert(fetch != null || watch != null);
 
   /// Callback, called when a [K] of the provided [T] is required.
   final K Function(T) onKey;
@@ -55,7 +51,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called when a cursor of the provided [T] is required.
   final C? Function(T?) onCursor;
 
-  // Use [Stream]s here?
   /// Callback, called when the [after] and [before] amounts of [T] items
   /// [around] the provided [K] are required.
   final FutureOr<List<T>> Function({
@@ -64,19 +59,18 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   })? fetch;
 
+  /// Callback, called when [Stream] of the [T] items [around] the provided [K]
+  /// are required.
+  ///
+  /// Only meaningful, if [fetch] isn't provided, or otherwise it will be used
+  /// instead.
+  ///
+  /// Intended to be used to watch SQL queries being changed.
   final FutureOr<Stream<List<T>>> Function({
     int? after,
     int? before,
     K? around,
   })? watch;
-
-  final Stream<List<MapChangeNotification<K, T>>> Function(
-    T item,
-  )? top;
-
-  final Stream<List<MapChangeNotification<K, T>>> Function(
-    T item,
-  )? bottom;
 
   /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
@@ -131,14 +125,17 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Subscription to [watch].
   StreamSubscription? _watchSubscription;
 
-  StreamSubscription? _topSubscription;
-
-  StreamSubscription? _bottomSubscription;
-
+  /// [T] items already fired during the [_watchSubscription], so a diff can be
+  /// constructed from the [watch] invokes.
   List<T> _items = [];
 
+  /// [Mutex] guarding the synchronized access to the [_page].
+  final Mutex _guard = Mutex();
+
+  /// Returns the last item from the [_list], for which [isFirst] is `true`.
   T? get _first => _list.lastWhereOrNull((e) => isFirst?.call(e) == true);
 
+  /// Returns the first item from the [_list], for which [isLast] is `true`.
   T? get _last => _list.firstWhereOrNull((e) => isLast?.call(e) == true);
 
   /// Indicates whether the [_list] contain an item identified as the first.
@@ -174,7 +171,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       }
     }
 
-    _ensureWatchers();
+    _ensureLimits();
 
     return Page(
       edges,
@@ -190,8 +187,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   @override
   void dispose() {
     _watchSubscription?.cancel();
-    _topSubscription?.cancel();
-    _bottomSubscription?.cancel();
   }
 
   @override
@@ -209,7 +204,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       '$runtimeType',
     );
 
-    _ensureWatchers();
+    _ensureLimits();
 
     final bool zeroed = fulfilledWhenNone && edges.isEmpty;
 
@@ -226,6 +221,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<Page<T, C>> after(K? key, C? cursor, int count) async {
+    // [_after] can be `null`, when there's no limit above the page.
     if (_after != null) {
       _after = _after! + count;
     }
@@ -240,7 +236,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       '$runtimeType',
     );
 
-    _ensureWatchers();
+    _ensureLimits();
 
     return Page(
       fulfilled ? edges : [],
@@ -255,6 +251,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<Page<T, C>> before(K? key, C? cursor, int count) async {
+    // [_before] can be `null`, when there's no below the page above.
     if (_before != null) {
       _before = _before! + count;
     }
@@ -269,7 +266,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       '$runtimeType',
     );
 
-    _ensureWatchers();
+    _ensureLimits();
 
     return Page(
       fulfilled ? edges : [],
@@ -330,11 +327,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     _around = around;
 
     _watchSubscription?.cancel();
-    _topSubscription?.cancel();
-    _bottomSubscription?.cancel();
   }
-
-  final Mutex _guard = Mutex();
 
   /// Returns the [T] items [fetch]ed.
   Future<List<T>> _page() async {
@@ -346,8 +339,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           around: _around,
         );
       } else if (watch != null) {
-        print('===== querying $_before/$_after items...');
-
         final stream = await watch!(
           after: _after,
           before: _before,
@@ -359,11 +350,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         _watchSubscription?.cancel();
         _watchSubscription = stream.listen(
           (items) {
-            if (items is List<DtoChatItem>) {
-              print(
-                  '=============== ${(items as List<DtoChatItem>).map((e) => e is DtoChatMessage ? '${(e.value as ChatMessage).text}' : '${e.value.runtimeType}').toList()}');
-            }
-
             for (var e in items) {
               final K key = onKey(e);
               final T? item = _items.firstWhereOrNull((m) => onKey(m) == key);
@@ -393,39 +379,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             if (!completer.isCompleted) {
               completer.complete(items);
             }
-
-            // if (!completer.isCompleted) {
-            //   completer.complete(e.map((m) => m.value!).toList());
-            // } else {
-            //   for (var m in e) {
-            //     final K key = m.key as K;
-
-            //     switch (m.op) {
-            //       case OperationKind.added:
-            //         Log.info('[${m.op}] $key');
-
-            //         if (!_accounted.contains((m.op, key))) {
-            //           onAdded?.call(m.value as T);
-            //         }
-            //         break;
-
-            //       case OperationKind.removed:
-            //         if (!_accounted.contains((m.op, key))) {
-            //           onRemoved?.call(m.value as T);
-            //         }
-            //         break;
-
-            //       case OperationKind.updated:
-            //         final K key = m.key as K;
-            //         Log.info('[${m.op}] $key');
-
-            //         if (!_accounted.contains((m.op, key))) {
-            //           onAdded?.call(m.value as T);
-            //         }
-            //         break;
-            //     }
-            //   }
-            // }
           },
         );
 
@@ -436,11 +389,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     });
   }
 
-  void _ensureWatchers() {
+  /// Checks whether the current [_list] contain [_first] or [_last] items, so
+  /// the [watch]/[fetch] can be promoted to being unlimited for top or bottom.
+  void _ensureLimits() {
     if (_before != null) {
       final T? first = _first;
       if (first != null) {
-        print('===== first detected, switching to before-less...');
         _before = null;
         _page();
       }
@@ -449,81 +403,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     if (_after != null) {
       final T? last = _last;
       if (last != null) {
-        print('===== last detected, switching to after-less...');
         _after = null;
         _page();
       }
     }
-
-    if (top != null && _topSubscription == null) {
-      final T? first = _first;
-
-      if (first != null) {
-        _topSubscription?.cancel();
-        _topSubscription = top!(first).listen((items) {
-          for (var e in items) {
-            final K key = e.key as K;
-
-            switch (e.op) {
-              case OperationKind.added:
-                if (!_accounted.contains((e.op, key))) {
-                  onAdded?.call(e.value as T);
-                }
-                break;
-
-              case OperationKind.removed:
-                onRemoved?.call(e.value as T);
-                break;
-
-              case OperationKind.updated:
-                final K key = e.key as K;
-                Log.info('[${e.op}] $key');
-
-                if (!_accounted.contains((e.op, key))) {
-                  onAdded?.call(e.value as T);
-                }
-                break;
-            }
-          }
-        });
-      }
-    }
-
-    if (bottom != null && _bottomSubscription == null) {
-      final T? last = _last;
-
-      if (last != null) {
-        _bottomSubscription?.cancel();
-        _bottomSubscription = bottom!(last).listen((items) {
-          for (var e in items) {
-            final K key = e.key as K;
-
-            switch (e.op) {
-              case OperationKind.added:
-                if (!_accounted.contains((e.op, key))) {
-                  onAdded?.call(e.value as T);
-                }
-                break;
-
-              case OperationKind.removed:
-                onRemoved?.call(e.value as T);
-                break;
-
-              case OperationKind.updated:
-                final K key = e.key as K;
-                Log.info('[${e.op}] $key');
-
-                if (!_accounted.contains((e.op, key))) {
-                  onAdded?.call(e.value as T);
-                }
-                break;
-            }
-          }
-        });
-      }
-    }
   }
 
+  /// Adds the [key] with its [op] to the [_accounted].
   void _account(OperationKind op, K key) {
     _accounted.add((OperationKind.added, key));
     if (_accounted.length > 128) {

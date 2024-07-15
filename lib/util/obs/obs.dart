@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../log.dart';
 import 'map.dart';
 
 export 'list.dart';
@@ -32,13 +31,9 @@ enum OperationKind { added, removed, updated }
 /// Extension adding an ability to get [MapChangeNotification]s from [Stream].
 extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
   /// Gets [MapChangeNotification]s from [Stream].
-  Stream<List<MapChangeNotification<K, T>>> changes({String? tag}) {
+  Stream<List<MapChangeNotification<K, T>>> changes() {
     Map<K, T> last = {};
     bool first = true;
-
-    if (tag != null) {
-      Log.info('changes($tag) started... ${StackTrace.current}');
-    }
 
     return asyncExpand((e) async* {
       final List<MapChangeNotification<K, T>> changed = [];
@@ -64,12 +59,6 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
       }
 
       last = Map.from(e);
-
-      if (tag != null) {
-        Log.info(
-          'changes($tag) -> fired with ${e.length} items, compared and got diff of $changed -> $e',
-        );
-      }
 
       if (first) {
         first = false;
