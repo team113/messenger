@@ -690,8 +690,9 @@ class RxChatImpl extends RxChat {
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
-          message.value;
+      final Rx<ChatItem>? existing =
+          messages.firstWhereOrNull((e) => e.value.id == existingId);
+      existing?.value = message.value;
     } else {
       put(message);
     }

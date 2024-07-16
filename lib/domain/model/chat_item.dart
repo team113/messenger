@@ -155,7 +155,10 @@ class ChatMessage extends ChatItem {
 
   @override
   bool operator ==(Object other) {
-    return other is ChatMessage && id == other.id && isEquals(other);
+    return other is ChatMessage &&
+        id == other.id &&
+        isEquals(other) &&
+        status.value == other.status.value;
   }
 }
 

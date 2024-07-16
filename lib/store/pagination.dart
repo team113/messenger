@@ -208,10 +208,7 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.debug(
-          'around(key: $key, cursor: $cursor)... done',
-          '$runtimeType',
-        );
+        Log.debug('around(key: $key, cursor: $cursor)... done', '$runtimeType');
 
         return page;
       } catch (e) {
