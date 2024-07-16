@@ -60,6 +60,7 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
 
       last = Map.from(e);
 
+      // Always emit the first changes, even if they are empty.
       if (first) {
         first = false;
         yield changed;

@@ -53,6 +53,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Callback, called when the [after] and [before] amounts of [T] items
   /// [around] the provided [K] are required.
+  ///
+  /// Only meaningful, if [watch] isn't provided, or otherwise it will be used
+  /// instead.
   final FutureOr<List<T>> Function({
     required int after,
     required int before,
@@ -61,9 +64,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Callback, called when [Stream] of the [T] items [around] the provided [K]
   /// are required.
-  ///
-  /// Only meaningful, if [fetch] isn't provided, or otherwise it will be used
-  /// instead.
   ///
   /// Intended to be used to watch SQL queries being changed.
   final FutureOr<Stream<List<T>>> Function({
@@ -132,6 +132,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// [Mutex] guarding the synchronized access to the [_page].
   final Mutex _guard = Mutex();
 
+  /// [Timer] invoking a [fetch], if any, when [watch] takes too much time to
+  /// complete.
+  Timer? _timeoutTimer;
+
   /// Returns the last item from the [_list], for which [isFirst] is `true`.
   T? get _first => _list.lastWhereOrNull((e) => isFirst?.call(e) == true);
 
@@ -158,7 +162,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final List<T> edges = await _page();
 
-    Log.debug(
+    Log.info(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
@@ -186,6 +190,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   void dispose() {
+    _timeoutTimer?.cancel();
     _watchSubscription?.cancel();
   }
 
@@ -315,6 +320,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   @override
   Future<void> clear() async {
+    _reset();
     _accounted.clear();
     await reset?.call();
   }
@@ -332,13 +338,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Returns the [T] items [fetch]ed.
   Future<List<T>> _page() async {
     return await _guard.protect(() async {
-      if (fetch != null) {
-        _list = await fetch!(
-          after: _after ?? 50,
-          before: _before ?? 50,
-          around: _around,
-        );
-      } else if (watch != null) {
+      if (watch != null) {
         final stream = await watch!(
           after: _after,
           before: _before,
@@ -347,22 +347,23 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
         final Completer<List<T>> completer = Completer();
 
-        _watchSubscription?.cancel();
-        _watchSubscription = stream.listen(
-          (items) {
-            for (var e in items) {
-              final K key = onKey(e);
-              final T? item = _items.firstWhereOrNull((m) => onKey(m) == key);
+        void handle(List<T> items) {
+          for (var e in items) {
+            final K key = onKey(e);
+            final T? item = _items.firstWhereOrNull((m) => onKey(m) == key);
 
-              if (item == null) {
-                if (!_accounted.contains((OperationKind.added, key))) {
-                  onAdded?.call(e);
-                }
-              } else if (e != item) {
+            if (item == null) {
+              if (!_accounted.contains((OperationKind.added, key))) {
                 onAdded?.call(e);
               }
+            } else if (e != item) {
+              onAdded?.call(e);
             }
+          }
 
+          // `drift` emits `[]` when new [Chat] is created, so this check
+          // ignores those events.
+          if (items.isNotEmpty) {
             for (var e in _items) {
               final K key = onKey(e);
               final T? item = items.firstWhereOrNull((m) => onKey(m) == key);
@@ -373,16 +374,43 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
                 }
               }
             }
+          }
 
-            _items = List.from(items);
+          _items = List.from(items);
 
+          if (!completer.isCompleted) {
+            completer.complete(items.isEmpty ? _items : items);
+          }
+        }
+
+        _watchSubscription?.cancel();
+        _watchSubscription = stream.listen(handle);
+
+        _timeoutTimer?.cancel();
+        _timeoutTimer = Timer(
+          const Duration(seconds: 1),
+          () async {
             if (!completer.isCompleted) {
-              completer.complete(items);
+              if (fetch != null) {
+                handle(await fetch!(
+                  after: _after ?? 50,
+                  before: _before ?? 50,
+                  around: _around,
+                ));
+              } else {
+                handle([]);
+              }
             }
           },
         );
 
         _list = await completer.future;
+      } else if (fetch != null) {
+        _list = await fetch!(
+          after: _after ?? 50,
+          before: _before ?? 50,
+          around: _around,
+        );
       }
 
       return _list;

@@ -415,7 +415,7 @@ class RxChatImpl extends RxChat {
 
   /// Disposes this [RxChatImpl].
   Future<void> dispose() async {
-    Log.info('dispose()', '$runtimeType($id)');
+    Log.debug('dispose()', '$runtimeType($id)');
 
     _disposed = true;
     status.value = RxStatus.loading();
@@ -533,7 +533,6 @@ class RxChatImpl extends RxChat {
     // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
     //       needed, so that RAM is freed.
-
     await _pagination?.around(
       cursor: _lastReadItemCursor,
       key: chat.value.lastReadItem,
@@ -901,16 +900,10 @@ class RxChatImpl extends RxChat {
         }
 
         await put(copy, ignoreBounds: true);
-        print('await put($copy)... done');
       }
 
-      print('await _initMessagesPagination()...');
       await _initMessagesPagination();
-      print('await _initMessagesPagination()... done');
-
-      print('await _pagination.around()...');
       await _pagination?.around();
-      print('await _pagination.around()... done');
     }
   }
 
@@ -1142,6 +1135,21 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
+          fetch: ({int? after, int? before, ChatItemId? around}) async {
+            PreciseDateTime? at;
+
+            if (around != null) {
+              final DtoChatItem? item = await get(around);
+              at = item?.value.at;
+            }
+
+            return await _driftItems.view(
+              id,
+              before: before,
+              after: after,
+              around: at,
+            );
+          },
           watch: ({int? after, int? before, ChatItemId? around}) async {
             PreciseDateTime? at;
 
@@ -1702,7 +1710,6 @@ class RxChatImpl extends RxChat {
         final List<DtoChatItem> itemsToPut = [];
 
         final DtoChat? chatEntity = await _driftChat.read(id);
-
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || versioned.ver < ver || !subscribed) {
           Log.debug(
