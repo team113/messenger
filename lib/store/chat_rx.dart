@@ -137,7 +137,7 @@ class RxChatImpl extends RxChat {
   final ChatMemberDriftProvider _driftMembers;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<DtoChatItem, ChatItemsCursor, ChatItemId> _pagination;
+  Pagination<DtoChatItem, ChatItemsCursor, ChatItemId>? _pagination;
 
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _fragments = [];
@@ -226,16 +226,16 @@ class RxChatImpl extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNext => _pagination.hasNext;
+  RxBool get hasNext => _pagination!.hasNext;
 
   @override
-  RxBool get nextLoading => _pagination.nextLoading;
+  RxBool get nextLoading => _pagination!.nextLoading;
 
   @override
-  RxBool get hasPrevious => _pagination.hasPrevious;
+  RxBool get hasPrevious => _pagination!.hasPrevious;
 
   @override
-  RxBool get previousLoading => _pagination.previousLoading;
+  RxBool get previousLoading => _pagination!.previousLoading;
 
   @override
   UserCallCover? get callCover {
@@ -415,7 +415,7 @@ class RxChatImpl extends RxChat {
 
   /// Disposes this [RxChatImpl].
   Future<void> dispose() async {
-    Log.debug('dispose()', '$runtimeType($id)');
+    Log.info('dispose()', '$runtimeType($id)');
 
     _disposed = true;
     status.value = RxStatus.loading();
@@ -432,7 +432,7 @@ class RxChatImpl extends RxChat {
     _draftSubscription?.cancel();
     _draftSubscription = null;
     _paginationSubscription?.cancel();
-    _pagination.dispose();
+    _pagination?.dispose();
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     _membersPaginationSubscription?.cancel();
@@ -533,7 +533,8 @@ class RxChatImpl extends RxChat {
     // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
     //       needed, so that RAM is freed.
-    await _pagination.around(
+
+    await _pagination?.around(
       cursor: _lastReadItemCursor,
       key: chat.value.lastReadItem,
     );
@@ -559,7 +560,7 @@ class RxChatImpl extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.next();
+    await _pagination?.next();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -573,7 +574,7 @@ class RxChatImpl extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.previous();
+    await _pagination?.previous();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -705,7 +706,7 @@ class RxChatImpl extends RxChat {
 
     try {
       if (attachments != null) {
-        List<Future> uploads = attachments
+        final List<Future> uploads = attachments
             .mapIndexed((i, e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
@@ -727,7 +728,7 @@ class RxChatImpl extends RxChat {
             .toList();
 
         if (existingId == null) {
-          List<Future> reads = attachments
+          final List<Future> reads = attachments
               .whereType<LocalAttachment>()
               .map((e) => e.read.value?.future)
               .whereNotNull()
@@ -747,14 +748,14 @@ class RxChatImpl extends RxChat {
         ));
       }
 
-      var response = await _chatRepository.postChatMessage(
+      final response = await _chatRepository.postChatMessage(
         id,
         text: text,
         attachments: attachments?.map((e) => e.id).toList(),
         repliesTo: repliesTo.map((e) => e.id).toList(),
       );
 
-      var event = response?.events
+      final event = response?.events
               .map((e) => _chatRepository.chatEvent(e))
               .firstWhereOrNull((e) => e is EventChatItemPosted)
           as EventChatItemPosted?;
@@ -779,7 +780,7 @@ class RxChatImpl extends RxChat {
   Future<void> put(DtoChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
 
-    await _pagination.put(item, ignoreBounds: ignoreBounds);
+    await _pagination?.put(item, ignoreBounds: ignoreBounds);
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
@@ -793,7 +794,7 @@ class RxChatImpl extends RxChat {
   Future<void> remove(ChatItemId itemId) async {
     Log.debug('remove($itemId)', '$runtimeType($id)');
 
-    _pagination.remove(itemId);
+    _pagination?.remove(itemId);
     for (var e in _fragments) {
       e.pagination?.remove(itemId);
     }
@@ -822,7 +823,7 @@ class RxChatImpl extends RxChat {
   Future<DtoChatItem?> get(ChatItemId itemId) async {
     Log.debug('get($itemId)', '$runtimeType($id)');
 
-    DtoChatItem? item = _pagination.items[itemId];
+    DtoChatItem? item = _pagination?.items[itemId];
     item ??= _fragments
         .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
         ?.pagination
@@ -885,7 +886,7 @@ class RxChatImpl extends RxChat {
 
       // Retrieve all the [DtoChatItem]s to put them in the [newChat].
       final Iterable<DtoChatItem> saved =
-          _pagination.items.values.toList(growable: false);
+          _pagination!.items.values.toList(growable: false);
 
       await clear();
 
@@ -898,11 +899,17 @@ class RxChatImpl extends RxChat {
           copy.value.status.value = SendingStatus.sending;
         }
 
-        put(copy, ignoreBounds: true);
+        await put(copy, ignoreBounds: true);
+        print('await put($copy)... done');
       }
 
-      await _pagination.init(null);
-      await _pagination.around();
+      print('await _initMessagesPagination()...');
+      await _initMessagesPagination();
+      print('await _initMessagesPagination()... done');
+
+      print('await _pagination.around()...');
+      await _pagination?.around();
+      print('await _pagination.around()... done');
     }
   }
 
@@ -915,7 +922,7 @@ class RxChatImpl extends RxChat {
     }
     _fragments.clear();
 
-    await _pagination.clear();
+    await _pagination?.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -978,7 +985,7 @@ class RxChatImpl extends RxChat {
     ChatItemId? key = item;
 
     if (item != null) {
-      final DtoChatItem? dto = _pagination.items[item];
+      final DtoChatItem? dto = _pagination?.items[item];
       cursor = dto?.cursor;
     }
 
@@ -1095,6 +1102,7 @@ class RxChatImpl extends RxChat {
 
   /// Initializes the messages [_pagination].
   Future<void> _initMessagesPagination() async {
+    _pagination?.dispose();
     _pagination = Pagination(
       onKey: (e) => e.value.id,
       provider: DriftGraphQlPageProvider(
@@ -1149,10 +1157,10 @@ class RxChatImpl extends RxChat {
             );
           },
           onAdded: (e) async {
-            await _pagination.put(e, store: false);
+            await _pagination?.put(e, store: false);
           },
           onRemoved: (e) async {
-            await _pagination.remove(e.value.id, store: false);
+            await _pagination?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
@@ -1182,12 +1190,13 @@ class RxChatImpl extends RxChat {
     );
 
     if (id.isLocal) {
-      _pagination.hasNext.value = false;
-      _pagination.hasPrevious.value = false;
+      _pagination?.hasNext.value = false;
+      _pagination?.hasPrevious.value = false;
       status.value = RxStatus.success();
     }
 
-    _paginationSubscription = _pagination.changes.listen((event) {
+    _paginationSubscription?.cancel();
+    _paginationSubscription = _pagination?.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -1204,14 +1213,14 @@ class RxChatImpl extends RxChat {
 
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
-      await _pagination.init(
+      await _pagination?.init(
         chat.value.lastReadItem == chat.value.lastItem?.id
             ? null
             : item?.value.id,
       );
     }
 
-    if (_pagination.items.isNotEmpty) {
+    if (_pagination?.items.isNotEmpty == true) {
       status.value = RxStatus.success();
     }
   }
@@ -1651,7 +1660,7 @@ class RxChatImpl extends RxChat {
             onError: (e) async {
               if (e is StaleVersionException) {
                 await clear();
-                await _pagination.around(cursor: _lastReadItemCursor);
+                await _pagination?.around(cursor: _lastReadItemCursor);
               }
             },
           );
