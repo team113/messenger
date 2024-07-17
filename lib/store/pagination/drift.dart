@@ -33,7 +33,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     required this.onCursor,
     this.fetch,
     this.watch,
-    this.watchUpdates = true,
+    this.watchUpdates = _defaultWatchUpdates,
     this.add,
     this.delete,
     this.reset,
@@ -73,8 +73,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   })? watch;
 
-  /// Indicator whether item updates during [watch] should invoke [onAdded].
-  final bool watchUpdates;
+  /// Callback, comparing the provided items when they update during [watch] to
+  /// determine whether the [onAdded] should be invoked.
+  final bool Function(T a, T b) watchUpdates;
 
   /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
@@ -360,7 +361,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
               if (!_accounted.contains((OperationKind.added, key))) {
                 onAdded?.call(e);
               }
-            } else if (watchUpdates && e != item) {
+            } else if (watchUpdates(e, item)) {
               onAdded?.call(e);
             }
           }
@@ -448,4 +449,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       _accounted.removeAt(0);
     }
   }
+
+  /// Indicates whether [a] isn't equal to [b].
+  static bool _defaultWatchUpdates(dynamic a, dynamic b) => a != b;
 }

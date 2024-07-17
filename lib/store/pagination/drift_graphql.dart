@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:log_me/log_me.dart';
+
 import '/store/pagination.dart';
 import 'drift.dart';
 import 'graphql.dart';
@@ -71,6 +73,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
     }
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
+    Log.warning('after() -> ${remote.edges.length}');
 
     await driftProvider.put(remote.edges);
 

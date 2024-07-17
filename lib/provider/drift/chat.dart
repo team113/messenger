@@ -265,6 +265,35 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
     });
   }
+
+  /// Returns the [Stream] of favorite [DtoChat]s being in a historical order.
+  Stream<List<DtoChat>> watchFavorite({int? limit}) {
+    return stream((db) {
+      final stmt = db.select(db.chats);
+
+      print('==== watchFavorite(limit: $limit)');
+
+      stmt.where(
+        (u) =>
+            u.isHidden.equals(false) &
+            u.id.like('local_%').not() &
+            u.favoritePosition.isNotNull(),
+      );
+      stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
+
+      if (limit != null) {
+        stmt.limit(limit);
+      }
+
+      return stmt
+          .watch()
+          .map((rows) => rows.map(_ChatDb.fromDb).toList())
+          .map((e) {
+        print('==== watchFavorite(limit: $limit) -> ${e.length} items');
+        return e;
+      });
+    });
+  }
 }
 
 /// Extension adding conversion methods from [ChatRow] to [DtoChat].
