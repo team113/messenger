@@ -166,7 +166,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final List<T> edges = await _page();
 
-    Log.info(
+    Log.debug(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
