@@ -137,7 +137,7 @@ class RxChatImpl extends RxChat {
   final ChatMemberDriftProvider _driftMembers;
 
   /// [Pagination] loading [messages] with pagination.
-  late final Pagination<DtoChatItem, ChatItemsCursor, ChatItemId> _pagination;
+  Pagination<DtoChatItem, ChatItemsCursor, ChatItemId>? _pagination;
 
   /// [MessagesPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _fragments = [];
@@ -226,16 +226,16 @@ class RxChatImpl extends RxChat {
   UserId? get me => _chatRepository.me;
 
   @override
-  RxBool get hasNext => _pagination.hasNext;
+  RxBool get hasNext => _pagination!.hasNext;
 
   @override
-  RxBool get nextLoading => _pagination.nextLoading;
+  RxBool get nextLoading => _pagination!.nextLoading;
 
   @override
-  RxBool get hasPrevious => _pagination.hasPrevious;
+  RxBool get hasPrevious => _pagination!.hasPrevious;
 
   @override
-  RxBool get previousLoading => _pagination.previousLoading;
+  RxBool get previousLoading => _pagination!.previousLoading;
 
   @override
   UserCallCover? get callCover {
@@ -432,7 +432,7 @@ class RxChatImpl extends RxChat {
     _draftSubscription?.cancel();
     _draftSubscription = null;
     _paginationSubscription?.cancel();
-    _pagination.dispose();
+    _pagination?.dispose();
     _messagesSubscription?.cancel();
     _callSubscription?.cancel();
     _membersPaginationSubscription?.cancel();
@@ -533,7 +533,7 @@ class RxChatImpl extends RxChat {
     // TODO: Perhaps the [messages] should be in a [MessagesPaginated] as well?
     //       This will make it easy to dispose the messages, when they aren't
     //       needed, so that RAM is freed.
-    await _pagination.around(
+    await _pagination?.around(
       cursor: _lastReadItemCursor,
       key: chat.value.lastReadItem,
     );
@@ -559,7 +559,7 @@ class RxChatImpl extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.next();
+    await _pagination?.next();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -573,7 +573,7 @@ class RxChatImpl extends RxChat {
       status.value = RxStatus.loadingMore();
     }
 
-    await _pagination.previous();
+    await _pagination?.previous();
     status.value = RxStatus.success();
 
     Future.delayed(Duration.zero, updateReads);
@@ -689,8 +689,9 @@ class RxChatImpl extends RxChat {
     // Storing the already stored [ChatMessage] is meaningless as it creates
     // lag spikes, so update it's reactive value directly.
     if (existingId != null) {
-      messages.firstWhereOrNull((e) => e.value.id == existingId)?.value =
-          message.value;
+      final Rx<ChatItem>? existing =
+          messages.firstWhereOrNull((e) => e.value.id == existingId);
+      existing?.value = message.value;
     } else {
       put(message);
     }
@@ -705,7 +706,7 @@ class RxChatImpl extends RxChat {
 
     try {
       if (attachments != null) {
-        List<Future> uploads = attachments
+        final List<Future> uploads = attachments
             .mapIndexed((i, e) {
               if (e is LocalAttachment) {
                 return e.upload.value?.future.then(
@@ -727,7 +728,7 @@ class RxChatImpl extends RxChat {
             .toList();
 
         if (existingId == null) {
-          List<Future> reads = attachments
+          final List<Future> reads = attachments
               .whereType<LocalAttachment>()
               .map((e) => e.read.value?.future)
               .whereNotNull()
@@ -747,14 +748,14 @@ class RxChatImpl extends RxChat {
         ));
       }
 
-      var response = await _chatRepository.postChatMessage(
+      final response = await _chatRepository.postChatMessage(
         id,
         text: text,
         attachments: attachments?.map((e) => e.id).toList(),
         repliesTo: repliesTo.map((e) => e.id).toList(),
       );
 
-      var event = response?.events
+      final event = response?.events
               .map((e) => _chatRepository.chatEvent(e))
               .firstWhereOrNull((e) => e is EventChatItemPosted)
           as EventChatItemPosted?;
@@ -779,7 +780,7 @@ class RxChatImpl extends RxChat {
   Future<void> put(DtoChatItem item, {bool ignoreBounds = false}) async {
     Log.debug('put($item)', '$runtimeType($id)');
 
-    await _pagination.put(item, ignoreBounds: ignoreBounds);
+    await _pagination?.put(item, ignoreBounds: ignoreBounds);
     for (var e in _fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
@@ -793,7 +794,7 @@ class RxChatImpl extends RxChat {
   Future<void> remove(ChatItemId itemId) async {
     Log.debug('remove($itemId)', '$runtimeType($id)');
 
-    _pagination.remove(itemId);
+    _pagination?.remove(itemId);
     for (var e in _fragments) {
       e.pagination?.remove(itemId);
     }
@@ -822,7 +823,7 @@ class RxChatImpl extends RxChat {
   Future<DtoChatItem?> get(ChatItemId itemId) async {
     Log.debug('get($itemId)', '$runtimeType($id)');
 
-    DtoChatItem? item = _pagination.items[itemId];
+    DtoChatItem? item = _pagination?.items[itemId];
     item ??= _fragments
         .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
         ?.pagination
@@ -885,7 +886,7 @@ class RxChatImpl extends RxChat {
 
       // Retrieve all the [DtoChatItem]s to put them in the [newChat].
       final Iterable<DtoChatItem> saved =
-          _pagination.items.values.toList(growable: false);
+          _pagination!.items.values.toList(growable: false);
 
       await clear();
 
@@ -898,11 +899,11 @@ class RxChatImpl extends RxChat {
           copy.value.status.value = SendingStatus.sending;
         }
 
-        put(copy, ignoreBounds: true);
+        await put(copy, ignoreBounds: true);
       }
 
-      await _pagination.init(null);
-      await _pagination.around();
+      await _initMessagesPagination();
+      await _pagination?.around();
     }
   }
 
@@ -915,7 +916,7 @@ class RxChatImpl extends RxChat {
     }
     _fragments.clear();
 
-    await _pagination.clear();
+    await _pagination?.clear();
 
     // [Chat.members] don't change in dialogs or monologs, no need to clear it.
     if (chat.value.isGroup) {
@@ -971,16 +972,14 @@ class RxChatImpl extends RxChat {
   }
 
   @override
-  Paginated<ChatItemId, Rx<ChatItem>> attachments({
-    ChatItemId? item,
-  }) {
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item}) {
     Log.debug('attachments(item: $item)', '$runtimeType($id)');
 
     ChatItemsCursor? cursor;
     ChatItemId? key = item;
 
     if (item != null) {
-      final DtoChatItem? dto = _pagination.items[item];
+      final DtoChatItem? dto = _pagination?.items[item];
       cursor = dto?.cursor;
     }
 
@@ -1097,6 +1096,7 @@ class RxChatImpl extends RxChat {
 
   /// Initializes the messages [_pagination].
   Future<void> _initMessagesPagination() async {
+    _pagination?.dispose();
     _pagination = Pagination(
       onKey: (e) => e.value.id,
       provider: DriftGraphQlPageProvider(
@@ -1135,7 +1135,7 @@ class RxChatImpl extends RxChat {
           },
         ),
         driftProvider: DriftPageProvider(
-          fetch: ({required after, required before, ChatItemId? around}) async {
+          fetch: ({int? after, int? before, ChatItemId? around}) async {
             PreciseDateTime? at;
 
             if (around != null) {
@@ -1149,6 +1149,27 @@ class RxChatImpl extends RxChat {
               after: after,
               around: at,
             );
+          },
+          watch: ({int? after, int? before, ChatItemId? around}) async {
+            PreciseDateTime? at;
+
+            if (around != null) {
+              final DtoChatItem? item = await get(around);
+              at = item?.value.at;
+            }
+
+            return _driftItems.watch(
+              id,
+              before: before,
+              after: after,
+              around: at,
+            );
+          },
+          onAdded: (e) async {
+            await _pagination?.put(e, store: false);
+          },
+          onRemoved: (e) async {
+            await _pagination?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
@@ -1178,17 +1199,17 @@ class RxChatImpl extends RxChat {
     );
 
     if (id.isLocal) {
-      _pagination.hasNext.value = false;
-      _pagination.hasPrevious.value = false;
+      _pagination?.hasNext.value = false;
+      _pagination?.hasPrevious.value = false;
       status.value = RxStatus.success();
     }
 
-    _paginationSubscription = _pagination.changes.listen((event) {
+    _paginationSubscription?.cancel();
+    _paginationSubscription = _pagination?.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          final ChatItem item = event.value!.value;
-          _add(item);
+          _add(event.value!.value);
           break;
 
         case OperationKind.removed:
@@ -1201,14 +1222,14 @@ class RxChatImpl extends RxChat {
 
     if (chat.value.lastReadItem != null) {
       item = await get(chat.value.lastReadItem!);
-      await _pagination.init(
+      await _pagination?.init(
         chat.value.lastReadItem == chat.value.lastItem?.id
             ? null
             : item?.value.id,
       );
     }
 
-    if (_pagination.items.isNotEmpty) {
+    if (_pagination?.items.isNotEmpty == true) {
       status.value = RxStatus.success();
     }
   }
@@ -1637,19 +1658,23 @@ class RxChatImpl extends RxChat {
     if (!id.isLocal) {
       _remoteSubscription?.close(immediate: true);
 
-      // TODO: Use `WebUtils.protect` here.
-      _remoteSubscription = StreamQueue(
-        _chatRepository.chatEvents(id, ver, () => ver),
-      );
+      await WebUtils.protect(
+        () async {
+          _remoteSubscription = StreamQueue(
+            _chatRepository.chatEvents(id, ver, () => ver),
+          );
 
-      await _remoteSubscription!.execute(
-        _chatEvent,
-        onError: (e) async {
-          if (e is StaleVersionException) {
-            await clear();
-            await _pagination.around(cursor: _lastReadItemCursor);
-          }
+          await _remoteSubscription!.execute(
+            _chatEvent,
+            onError: (e) async {
+              if (e is StaleVersionException) {
+                await clear();
+                await _pagination?.around(cursor: _lastReadItemCursor);
+              }
+            },
+          );
         },
+        tag: 'chatEvents($id)',
       );
 
       _remoteSubscription = null;
@@ -1684,418 +1709,410 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.event:
         final List<DtoChatItem> itemsToPut = [];
 
-        await _driftChat.txn(() async {
-          final DtoChat? chatEntity = await _driftChat.read(id);
-          final ChatEventsVersioned versioned =
-              (event as ChatEventsEvent).event;
-          if (chatEntity == null || versioned.ver < ver || !subscribed) {
-            Log.debug(
-              '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}',
-              '$runtimeType($id)',
-            );
-
-            return;
-          }
-
+        final DtoChat? chatEntity = await _driftChat.read(id);
+        final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
+        if (chatEntity == null || versioned.ver < ver || !subscribed) {
           Log.debug(
-            '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}, because: ${chatEntity == null} || ${versioned.ver < ver} || ${!subscribed}',
             '$runtimeType($id)',
           );
 
-          ver = versioned.ver;
-          if (chatEntity.ver < versioned.ver) {
-            chatEntity.ver = versioned.ver;
+          return;
+        }
+
+        Log.debug(
+          '_chatEvent(${event.kind}): ${versioned.events.map((e) => e.kind)}',
+          '$runtimeType($id)',
+        );
+
+        ver = versioned.ver;
+        if (chatEntity.ver < versioned.ver) {
+          chatEntity.ver = versioned.ver;
+        }
+
+        bool shouldPutChat = subscribed;
+
+        for (var event in versioned.events) {
+          shouldPutChat = subscribed;
+
+          // Subscription was already disposed while processing the events.
+          if (!subscribed) {
+            return;
           }
 
-          bool shouldPutChat = subscribed;
+          switch (event.kind) {
+            case ChatEventKind.redialed:
+              // TODO: Implement EventChatCallMemberRedialed.
+              break;
 
-          for (var event in versioned.events) {
-            shouldPutChat = subscribed;
+            case ChatEventKind.cleared:
+              chatEntity.value.lastItem = null;
+              chatEntity.value.lastReadItem = null;
+              chatEntity.lastItemCursor = null;
+              chatEntity.lastReadItemCursor = null;
+              _lastReadItemCursor = null;
+              clear();
+              break;
 
-            // Subscription was already disposed while processing the events.
-            if (!subscribed) {
-              return;
-            }
+            case ChatEventKind.itemHidden:
+              event as EventChatItemHidden;
+              remove(event.itemId);
+              break;
 
-            switch (event.kind) {
-              case ChatEventKind.redialed:
-                // TODO: Implement EventChatCallMemberRedialed.
-                break;
+            case ChatEventKind.muted:
+              event as EventChatMuted;
+              chatEntity.value.muted = event.duration;
+              break;
 
-              case ChatEventKind.cleared:
-                chatEntity.value.lastItem = null;
-                chatEntity.value.lastReadItem = null;
-                chatEntity.lastItemCursor = null;
-                chatEntity.lastReadItemCursor = null;
-                _lastReadItemCursor = null;
-                clear();
-                break;
+            case ChatEventKind.typingStarted:
+              event as EventChatTypingStarted;
+              typingUsers.addIf(
+                !typingUsers.any((e) => e.id == event.user.id),
+                event.user,
+              );
+              break;
 
-              case ChatEventKind.itemHidden:
-                event as EventChatItemHidden;
-                remove(event.itemId);
-                break;
+            case ChatEventKind.unmuted:
+              chatEntity.value.muted = null;
+              break;
 
-              case ChatEventKind.muted:
-                event as EventChatMuted;
-                chatEntity.value.muted = event.duration;
-                break;
+            case ChatEventKind.typingStopped:
+              event as EventChatTypingStopped;
+              typingUsers.removeWhere((e) => e.id == event.user.id);
+              break;
 
-              case ChatEventKind.typingStarted:
-                event as EventChatTypingStarted;
-                typingUsers.addIf(
-                  !typingUsers.any((e) => e.id == event.user.id),
-                  event.user,
+            case ChatEventKind.hidden:
+              event as EventChatHidden;
+              chatEntity.value.isHidden = true;
+              continue;
+
+            case ChatEventKind.itemDeleted:
+              event as EventChatItemDeleted;
+              remove(event.itemId);
+              break;
+
+            case ChatEventKind.itemEdited:
+              event as EventChatItemEdited;
+              final item = await get(event.itemId);
+              if (item != null) {
+                final message = item.value as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo =
+                    event.quotes?.map((e) => e.value).toList() ??
+                        message.repliesTo;
+                (item as DtoChatMessage).repliesToCursors =
+                    event.quotes?.map((e) => e.cursor).toList() ??
+                        item.repliesToCursors;
+                itemsToPut.add(item);
+              }
+
+              if (chatEntity.value.lastItem?.id == event.itemId) {
+                final message = chatEntity.value.lastItem as ChatMessage;
+                message.text =
+                    event.text != null ? event.text!.newText : message.text;
+                message.attachments = event.attachments ?? message.attachments;
+                message.repliesTo =
+                    event.quotes?.map((e) => e.value).toList() ??
+                        message.repliesTo;
+              }
+              break;
+
+            case ChatEventKind.callStarted:
+              event as EventChatCallStarted;
+
+              if (!chat.value.isDialog) {
+                event.call.conversationStartedAt ??= PreciseDateTime.now();
+              }
+
+              // Call is already finished, no reason to try adding it.
+              if (event.call.finishReason == null) {
+                chatEntity.value.ongoingCall = event.call;
+                _chatRepository.addCall(event.call);
+              }
+
+              final message = await get(event.call.id);
+
+              if (message != null) {
+                event.call.at = message.value.at;
+                message.value = event.call;
+                itemsToPut.add(message);
+              }
+              break;
+
+            case ChatEventKind.unreadItemsCountUpdated:
+              event as EventChatUnreadItemsCountUpdated;
+              if (event.count < unreadCount.value || _readTimer == null) {
+                unreadCount.value = event.count;
+              } else if (event.count > chatEntity.value.unreadCount) {
+                unreadCount.value += event.count - chatEntity.value.unreadCount;
+              }
+
+              chatEntity.value.unreadCount = event.count;
+              break;
+
+            case ChatEventKind.callFinished:
+              event as EventChatCallFinished;
+
+              if (chatEntity.value.ongoingCall?.id == event.call.id) {
+                chatEntity.value.ongoingCall = null;
+              }
+
+              if (chatEntity.value.lastItem?.id == event.call.id) {
+                chatEntity.value.lastItem = event.call;
+              }
+
+              if (event.reason != ChatCallFinishReason.moved) {
+                _chatRepository.removeCredentials(
+                  event.call.chatId,
+                  event.call.id,
                 );
-                break;
+                _chatRepository.endCall(event.call.chatId);
+              }
 
-              case ChatEventKind.unmuted:
-                chatEntity.value.muted = null;
-                break;
+              final message = await get(event.call.id);
 
-              case ChatEventKind.typingStopped:
-                event as EventChatTypingStopped;
-                typingUsers.removeWhere((e) => e.id == event.user.id);
-                break;
+              if (message != null) {
+                event.call.at = message.value.at;
+                message.value = event.call;
+                itemsToPut.add(message);
+              }
+              break;
 
-              case ChatEventKind.hidden:
-                event as EventChatHidden;
-                chatEntity.value.isHidden = true;
-                continue;
+            case ChatEventKind.callMemberLeft:
+              event as EventChatCallMemberLeft;
+              int? i = chatEntity.value.ongoingCall?.members
+                      .indexWhere((e) => e.user.id == event.user.id) ??
+                  -1;
 
-              case ChatEventKind.itemDeleted:
-                event as EventChatItemDeleted;
-                remove(event.itemId);
-                break;
+              if (i != -1) {
+                chatEntity.value.ongoingCall?.members.removeAt(i);
+              }
+              break;
 
-              case ChatEventKind.itemEdited:
-                event as EventChatItemEdited;
-                final item = await get(event.itemId);
-                if (item != null) {
-                  final message = item.value as ChatMessage;
-                  message.text =
-                      event.text != null ? event.text!.newText : message.text;
-                  message.attachments =
-                      event.attachments ?? message.attachments;
-                  message.repliesTo =
-                      event.quotes?.map((e) => e.value).toList() ??
-                          message.repliesTo;
-                  (item as DtoChatMessage).repliesToCursors =
-                      event.quotes?.map((e) => e.cursor).toList() ??
-                          item.repliesToCursors;
-                  itemsToPut.add(item);
-                }
+            case ChatEventKind.callMemberJoined:
+              event as EventChatCallMemberJoined;
+              chatEntity.value.ongoingCall?.members.add(
+                ChatCallMember(
+                  user: event.user,
+                  handRaised: false,
+                  joinedAt: event.at,
+                ),
+              );
 
-                if (chatEntity.value.lastItem?.id == event.itemId) {
-                  final message = chatEntity.value.lastItem as ChatMessage;
-                  message.text =
-                      event.text != null ? event.text!.newText : message.text;
-                  message.attachments =
-                      event.attachments ?? message.attachments;
-                  message.repliesTo =
-                      event.quotes?.map((e) => e.value).toList() ??
-                          message.repliesTo;
-                }
-                break;
+              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
+                  chat.value.isDialog) {
+                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                    .map((e) => e.user.id)
+                    .toSet();
 
-              case ChatEventKind.callStarted:
-                event as EventChatCallStarted;
+                if (ids != null && ids.length >= 2) {
+                  chatEntity.value.ongoingCall?.conversationStartedAt =
+                      event.call.conversationStartedAt ?? event.at;
 
-                if (!chat.value.isDialog) {
-                  event.call.conversationStartedAt ??= PreciseDateTime.now();
-                }
+                  if (chatEntity.value.ongoingCall != null) {
+                    final call = chatEntity.value.ongoingCall!;
+                    final message = await get(call.id);
 
-                // Call is already finished, no reason to try adding it.
-                if (event.call.finishReason == null) {
-                  chatEntity.value.ongoingCall = event.call;
-                  _chatRepository.addCall(event.call);
-                }
-
-                final message = await get(event.call.id);
-
-                if (message != null) {
-                  event.call.at = message.value.at;
-                  message.value = event.call;
-                  itemsToPut.add(message);
-                }
-                break;
-
-              case ChatEventKind.unreadItemsCountUpdated:
-                event as EventChatUnreadItemsCountUpdated;
-                if (event.count < unreadCount.value || _readTimer == null) {
-                  unreadCount.value = event.count;
-                } else if (event.count > chatEntity.value.unreadCount) {
-                  unreadCount.value +=
-                      event.count - chatEntity.value.unreadCount;
-                }
-
-                chatEntity.value.unreadCount = event.count;
-                break;
-
-              case ChatEventKind.callFinished:
-                event as EventChatCallFinished;
-
-                if (chatEntity.value.ongoingCall?.id == event.call.id) {
-                  chatEntity.value.ongoingCall = null;
-                }
-
-                if (chatEntity.value.lastItem?.id == event.call.id) {
-                  chatEntity.value.lastItem = event.call;
-                }
-
-                if (event.reason != ChatCallFinishReason.moved) {
-                  _chatRepository.removeCredentials(
-                    event.call.chatId,
-                    event.call.id,
-                  );
-                  _chatRepository.endCall(event.call.chatId);
-                }
-
-                final message = await get(event.call.id);
-
-                if (message != null) {
-                  event.call.at = message.value.at;
-                  message.value = event.call;
-                  itemsToPut.add(message);
-                }
-                break;
-
-              case ChatEventKind.callMemberLeft:
-                event as EventChatCallMemberLeft;
-                int? i = chatEntity.value.ongoingCall?.members
-                        .indexWhere((e) => e.user.id == event.user.id) ??
-                    -1;
-
-                if (i != -1) {
-                  chatEntity.value.ongoingCall?.members.removeAt(i);
-                }
-                break;
-
-              case ChatEventKind.callMemberJoined:
-                event as EventChatCallMemberJoined;
-                chatEntity.value.ongoingCall?.members.add(
-                  ChatCallMember(
-                    user: event.user,
-                    handRaised: false,
-                    joinedAt: event.at,
-                  ),
-                );
-
-                if (chatEntity.value.ongoingCall?.conversationStartedAt ==
-                        null &&
-                    chat.value.isDialog) {
-                  final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
-                      .map((e) => e.user.id)
-                      .toSet();
-
-                  if (ids != null && ids.length >= 2) {
-                    chatEntity.value.ongoingCall?.conversationStartedAt =
-                        event.call.conversationStartedAt ?? event.at;
-
-                    if (chatEntity.value.ongoingCall != null) {
-                      final call = chatEntity.value.ongoingCall!;
-                      final message = await get(call.id);
-
-                      if (message != null) {
-                        call.at = message.value.at;
-                        message.value = call;
-                        itemsToPut.add(message);
-                      }
+                    if (message != null) {
+                      call.at = message.value.at;
+                      message.value = call;
+                      itemsToPut.add(message);
                     }
                   }
                 }
-                break;
+              }
+              break;
 
-              case ChatEventKind.lastItemUpdated:
-                event as EventChatLastItemUpdated;
-                chatEntity.value.lastItem = event.lastItem?.value;
+            case ChatEventKind.lastItemUpdated:
+              event as EventChatLastItemUpdated;
+              chatEntity.value.lastItem = event.lastItem?.value;
 
-                // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
-                //       here when starting group or monolog [ChatCall].
-                if (!chatEntity.value.isDialog &&
-                    chatEntity.value.lastItem is ChatCall) {
-                  (chatEntity.value.lastItem as ChatCall)
-                      .conversationStartedAt ??= PreciseDateTime.now();
-                }
+              // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
+              //       here when starting group or monolog [ChatCall].
+              if (!chatEntity.value.isDialog &&
+                  chatEntity.value.lastItem is ChatCall) {
+                (chatEntity.value.lastItem as ChatCall)
+                    .conversationStartedAt ??= PreciseDateTime.now();
+              }
 
-                chatEntity.value.updatedAt =
-                    event.lastItem?.value.at ?? chatEntity.value.updatedAt;
-                if (event.lastItem != null) {
-                  itemsToPut.add(event.lastItem!);
-                }
-                break;
+              chatEntity.value.updatedAt =
+                  event.lastItem?.value.at ?? chatEntity.value.updatedAt;
+              if (event.lastItem != null) {
+                itemsToPut.add(event.lastItem!);
+              }
+              break;
 
-              case ChatEventKind.delivered:
-                event as EventChatDelivered;
-                chatEntity.value.lastDelivery = event.until;
-                break;
+            case ChatEventKind.delivered:
+              event as EventChatDelivered;
+              chatEntity.value.lastDelivery = event.until;
+              break;
 
-              case ChatEventKind.read:
-                event as EventChatRead;
+            case ChatEventKind.read:
+              event as EventChatRead;
 
-                final PreciseDateTime? at = _lastReadAt(event.at);
-                if (at != null) {
-                  final LastChatRead? read = reads
-                      .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-
-                  if (read == null) {
-                    reads.add(LastChatRead(event.byUser.id, at));
-                  } else {
-                    read.at = at;
-                  }
-                }
-
-                final LastChatRead? lastRead = chatEntity.value.lastReads
+              final PreciseDateTime? at = _lastReadAt(event.at);
+              if (at != null) {
+                final LastChatRead? read = reads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-                if (lastRead == null) {
-                  chatEntity.value.lastReads
-                      .add(LastChatRead(event.byUser.id, event.at));
+
+                if (read == null) {
+                  reads.add(LastChatRead(event.byUser.id, at));
                 } else {
-                  lastRead.at = event.at;
+                  read.at = at;
                 }
-                break;
+              }
 
-              case ChatEventKind.callDeclined:
-                // TODO: Implement EventChatCallDeclined.
-                break;
+              final LastChatRead? lastRead = chatEntity.value.lastReads
+                  .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+              if (lastRead == null) {
+                chatEntity.value.lastReads
+                    .add(LastChatRead(event.byUser.id, event.at));
+              } else {
+                lastRead.at = event.at;
+              }
+              break;
 
-              case ChatEventKind.itemPosted:
-                event as EventChatItemPosted;
-                final DtoChatItem item = event.item;
+            case ChatEventKind.callDeclined:
+              // TODO: Implement EventChatCallDeclined.
+              break;
 
-                if (chatEntity.value.isHidden) {
-                  chatEntity.value.isHidden = false;
-                }
+            case ChatEventKind.itemPosted:
+              event as EventChatItemPosted;
+              final DtoChatItem item = event.item;
 
-                if (item.value is ChatMessage && item.value.author.id == me) {
-                  final ChatMessage? pending =
-                      _pending.whereType<ChatMessage>().firstWhereOrNull(
-                            (e) =>
-                                e.status.value == SendingStatus.sending &&
-                                (item.value as ChatMessage).isEquals(e),
-                          );
+              if (chatEntity.value.isHidden) {
+                chatEntity.value.isHidden = false;
+              }
 
-                  // If any [ChatMessage] sharing the same fields as the posted
-                  // one is found in the [_pending] messages, and this message
-                  // is not yet added to the store, then remove the [pending].
-                  if (pending != null &&
-                      await _driftItems.read(item.value.id) == null) {
-                    remove(pending.id);
-                    _pending.remove(pending);
-                  }
-                }
-
-                itemsToPut.add(item);
-
-                if (item.value is ChatInfo) {
-                  final msg = item.value as ChatInfo;
-
-                  switch (msg.action.kind) {
-                    case ChatInfoActionKind.avatarUpdated:
-                      final action = msg.action as ChatInfoActionAvatarUpdated;
-                      chatEntity.value.avatar = action.avatar;
-                      break;
-
-                    case ChatInfoActionKind.created:
-                      // No-op.
-                      break;
-
-                    case ChatInfoActionKind.memberAdded:
-                      final action = msg.action as ChatInfoActionMemberAdded;
-
-                      chatEntity.value.membersCount++;
-
-                      // Store the first 3 [ChatMember]s in the [Chat.members]
-                      // to display default [Chat]s name.
-                      if (chatEntity.value.members.length < 3) {
-                        chatEntity.value.members.add(
-                          ChatMember(action.user, msg.at),
+              if (item.value is ChatMessage && item.value.author.id == me) {
+                final ChatMessage? pending =
+                    _pending.whereType<ChatMessage>().firstWhereOrNull(
+                          (e) =>
+                              e.status.value == SendingStatus.sending &&
+                              (item.value as ChatMessage).isEquals(e),
                         );
-                      }
 
-                      _putMember(DtoChatMember(action.user, msg.at, null));
-                      break;
-
-                    case ChatInfoActionKind.memberRemoved:
-                      final action = msg.action as ChatInfoActionMemberRemoved;
-
-                      chatEntity.value.membersCount--;
-
-                      await members.remove(action.user.id);
-
-                      chatEntity.value.members
-                          .removeWhere((e) => e.user.id == action.user.id);
-
-                      if (chatEntity.value.members.length < 3) {
-                        if (members.rawLength < 3) {
-                          await members.next();
-                        }
-
-                        chatEntity.value.members.clear();
-                        for (var m
-                            in members.pagination!.items.values.take(3)) {
-                          if (m.user != null) {
-                            chatEntity.value.members.add(
-                              ChatMember(m.user!, m.joinedAt),
-                            );
-                          }
-                        }
-                      }
-
-                      _chatRepository.onMemberRemoved(id, action.user.id);
-                      break;
-
-                    case ChatInfoActionKind.nameUpdated:
-                      final action = msg.action as ChatInfoActionNameUpdated;
-                      chatEntity.value.name = action.name;
-                      break;
-                  }
+                // If any [ChatMessage] sharing the same fields as the posted
+                // one is found in the [_pending] messages, and this message
+                // is not yet added to the store, then remove the [pending].
+                if (pending != null &&
+                    await _driftItems.read(item.value.id) == null) {
+                  remove(pending.id);
+                  _pending.remove(pending);
                 }
-                break;
+              }
 
-              case ChatEventKind.totalItemsCountUpdated:
-                event as EventChatTotalItemsCountUpdated;
-                chatEntity.value.totalCount = event.count;
-                break;
+              itemsToPut.add(item);
 
-              case ChatEventKind.directLinkUpdated:
-                event as EventChatDirectLinkUpdated;
-                chatEntity.value.directLink = event.link;
-                break;
+              if (item.value is ChatInfo) {
+                final msg = item.value as ChatInfo;
 
-              case ChatEventKind.directLinkUsageCountUpdated:
-                event as EventChatDirectLinkUsageCountUpdated;
-                chatEntity.value.directLink?.usageCount = event.usageCount;
-                break;
+                switch (msg.action.kind) {
+                  case ChatInfoActionKind.avatarUpdated:
+                    final action = msg.action as ChatInfoActionAvatarUpdated;
+                    chatEntity.value.avatar = action.avatar;
+                    break;
 
-              case ChatEventKind.directLinkDeleted:
-                chatEntity.value.directLink = null;
-                break;
+                  case ChatInfoActionKind.created:
+                    // No-op.
+                    break;
 
-              case ChatEventKind.callMoved:
-                // TODO: Implement EventChatCallMoved.
-                break;
+                  case ChatInfoActionKind.memberAdded:
+                    final action = msg.action as ChatInfoActionMemberAdded;
 
-              case ChatEventKind.favorited:
-                event as EventChatFavorited;
-                chatEntity.value.favoritePosition = event.position;
-                break;
+                    chatEntity.value.membersCount++;
 
-              case ChatEventKind.unfavorited:
-                chatEntity.value.favoritePosition = null;
-                break;
+                    // Store the first 3 [ChatMember]s in the [Chat.members]
+                    // to display default [Chat]s name.
+                    if (chatEntity.value.members.length < 3) {
+                      chatEntity.value.members.add(
+                        ChatMember(action.user, msg.at),
+                      );
+                    }
 
-              case ChatEventKind.callConversationStarted:
-                event as EventChatCallConversationStarted;
-                chatEntity.value.ongoingCall = event.call;
-                break;
-            }
+                    _putMember(DtoChatMember(action.user, msg.at, null));
+                    break;
+
+                  case ChatInfoActionKind.memberRemoved:
+                    final action = msg.action as ChatInfoActionMemberRemoved;
+
+                    chatEntity.value.membersCount--;
+
+                    await members.remove(action.user.id);
+
+                    chatEntity.value.members
+                        .removeWhere((e) => e.user.id == action.user.id);
+
+                    if (chatEntity.value.members.length < 3) {
+                      if (members.rawLength < 3) {
+                        await members.next();
+                      }
+
+                      chatEntity.value.members.clear();
+                      for (var m in members.pagination!.items.values.take(3)) {
+                        if (m.user != null) {
+                          chatEntity.value.members.add(
+                            ChatMember(m.user!, m.joinedAt),
+                          );
+                        }
+                      }
+                    }
+
+                    _chatRepository.onMemberRemoved(id, action.user.id);
+                    break;
+
+                  case ChatInfoActionKind.nameUpdated:
+                    final action = msg.action as ChatInfoActionNameUpdated;
+                    chatEntity.value.name = action.name;
+                    break;
+                }
+              }
+              break;
+
+            case ChatEventKind.totalItemsCountUpdated:
+              event as EventChatTotalItemsCountUpdated;
+              chatEntity.value.totalCount = event.count;
+              break;
+
+            case ChatEventKind.directLinkUpdated:
+              event as EventChatDirectLinkUpdated;
+              chatEntity.value.directLink = event.link;
+              break;
+
+            case ChatEventKind.directLinkUsageCountUpdated:
+              event as EventChatDirectLinkUsageCountUpdated;
+              chatEntity.value.directLink?.usageCount = event.usageCount;
+              break;
+
+            case ChatEventKind.directLinkDeleted:
+              chatEntity.value.directLink = null;
+              break;
+
+            case ChatEventKind.callMoved:
+              // TODO: Implement EventChatCallMoved.
+              break;
+
+            case ChatEventKind.favorited:
+              event as EventChatFavorited;
+              chatEntity.value.favoritePosition = event.position;
+              break;
+
+            case ChatEventKind.unfavorited:
+              chatEntity.value.favoritePosition = null;
+              break;
+
+            case ChatEventKind.callConversationStarted:
+              event as EventChatCallConversationStarted;
+              chatEntity.value.ongoingCall = event.call;
+              break;
           }
+        }
 
-          if (shouldPutChat) {
-            await _driftChat.upsert(chatEntity);
-          }
-        });
+        if (shouldPutChat) {
+          await _driftChat.upsert(chatEntity);
+        }
 
         for (var e in itemsToPut) {
           await put(e);

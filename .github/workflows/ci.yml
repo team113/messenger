@@ -296,6 +296,7 @@ jobs:
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
+                            SOCAPP_DOWNLOADS_DOWNLOADABLE=${{ !startsWith(github.ref, 'refs/tags/v') || !contains('appbundle ipa', matrix.platform) }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
@@ -982,25 +983,39 @@ jobs:
     name: publish (App Store)
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["docker-push"]
+    needs:
+      - build
+      - build-linux
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - test-e2e
+      - test-unit
     runs-on: macos-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
+      - run: mv *.ipa ios/app.ipa
 
       - name: Prepare App Store Connect key
-        run: |
-          mkdir -p $HOME/.private_keys/
-          echo "${{ secrets.APP_STORE_KEY }}" \
-          >> $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        run: echo "${{ secrets.APP_STORE_KEY }}"
+             >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
 
-      - run: xcrun altool --upload-app --file *.ipa --type ios
-                          --apiKey ${{ secrets.APP_STORE_IDENTIFIER }}
-                          --apiIssuer ${{ secrets.APP_STORE_ISSUER }}
+      - name: Publish iOS application to App Store
+        run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
+                                                                || 'internal' }}
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        working-directory: ios/
 
       - name: Cleanup App Store Connect key
-        run: rm -rf $HOME/.private_keys/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         if: ${{ always() }}
 
   # NOTE: When pushing `v*` version Git tags, remember to cancel the CI workflow
@@ -1011,21 +1026,37 @@ jobs:
     name: publish (Google Play)
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
-    needs: ["docker-push"]
+    needs:
+      - build
+      - build-linux
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - test-e2e
+      - test-unit
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
-      - run: mv *.aab app.aab
+      - run: mv *.aab android/app.aab
 
-      - uses: r0adkll/upload-google-play@v1
-        with:
-          packageName: ${{ secrets.FCM_BUNDLE_ID }}
-          releaseFiles: app.aab
-          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT }}
-          status: draft
-          track: internal
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+
+      - name: Publish Android application to Google Play
+        run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
+                                                                || 'internal' }}
+        working-directory: android/
+
+      - name: Cleanup Google Service account
+        run: rm -rf android/service_account.json
+        if: ${{ always() }}
 
   release-appcast:
     name: release (Sparkle Appcast XML)
@@ -1073,6 +1104,8 @@ jobs:
       - dartdoc
       - dartfmt
       - docker-push
+      - publish-app-store
+      - publish-google-play
       - test-e2e
       - test-unit
     runs-on: ubuntu-latest

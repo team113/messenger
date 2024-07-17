@@ -109,6 +109,7 @@ class Pagination<T, C, K> {
   void dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    provider.dispose();
     _cancelToken.cancel();
     _disposed = true;
   }
@@ -207,10 +208,7 @@ class Pagination<T, C, K> {
         endCursor = page?.info.endCursor;
         hasNext.value = page?.info.hasNext ?? hasNext.value;
         hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
-        Log.debug(
-          'around(key: $key, cursor: $cursor)... done',
-          '$runtimeType',
-        );
+        Log.debug('around(key: $key, cursor: $cursor)... done', '$runtimeType');
 
         return page;
       } catch (e) {
@@ -345,7 +343,14 @@ class Pagination<T, C, K> {
   /// Adds the provided [item] to the [items].
   ///
   /// [item] will be added if it is within the bounds of the stored [items].
-  Future<void> put(T item, {bool ignoreBounds = false}) async {
+  ///
+  /// If [store] is `false`, then the [item] will be only added to the [items]
+  /// and won't be put to the [provider].
+  Future<void> put(
+    T item, {
+    bool ignoreBounds = false,
+    bool store = true,
+  }) async {
     if (_disposed) {
       return;
     }
@@ -381,11 +386,17 @@ class Pagination<T, C, K> {
       items[onKey(item)] = item;
     }
 
-    await provider.put([item], compare: put ? null : compare);
+    if (store) {
+      await provider.put([item], compare: put ? null : compare);
+    }
   }
 
   /// Removes the item with the provided [key] from the [items] and [provider].
-  Future<void> remove(K key) async {
+  ///
+  ///
+  /// If [store] is `false`, then the [key] will be only removed from the
+  /// [items] and won't be removed from the [provider].
+  Future<void> remove(K key, {bool store = true}) async {
     Log.debug('remove($key)', '$runtimeType');
 
     if (_disposed) {
@@ -396,7 +407,9 @@ class Pagination<T, C, K> {
       items.remove(key);
     });
 
-    await provider.remove(key);
+    if (store) {
+      await provider.remove(key);
+    }
   }
 
   /// Repeats the provided [callback] until the [Page] it returns fulfills the
@@ -468,6 +481,11 @@ class Page<T, C> {
 abstract class PageProvider<T, C, K> {
   /// Initializes this [PageProvider], loading initial [Page], if any.
   Future<Page<T, C>?> init(K? key, int count);
+
+  /// Disposes this [PageProvider], freeing any resources it might've occupied.
+  void dispose() {
+    // No-op.
+  }
 
   /// Fetches the [Page] around the provided [key] or [cursor].
   ///

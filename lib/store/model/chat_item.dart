@@ -57,6 +57,17 @@ abstract class DtoChatItem {
   final ChatItemVersion ver;
 
   @override
+  int get hashCode => Object.hash(value, cursor, ver);
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChatItem &&
+        cursor == other.cursor &&
+        value == other.value &&
+        ver == other.ver;
+  }
+
+  @override
   String toString() => '$runtimeType($value, $cursor, $ver)';
 
   /// Returns a [Map] representing this [DtoChatItem].
@@ -73,6 +84,17 @@ abstract class DtoChatItem {
 @JsonSerializable()
 class DtoChatInfo extends DtoChatItem {
   DtoChatInfo(super.value, super.cursor, super.ver);
+
+  @override
+  int get hashCode => Object.hash(value, cursor, ver);
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChatInfo &&
+        cursor == other.cursor &&
+        value == other.value &&
+        ver == other.ver;
+  }
 
   /// Constructs a [DtoChatCall] from the provided [json].
   factory DtoChatInfo.fromJson(Map<String, dynamic> json) =>
@@ -127,6 +149,17 @@ class DtoChatMessage extends DtoChatItem {
   /// Cursors of the [ChatMessage.repliesTo] list.
   List<ChatItemsCursor?>? repliesToCursors;
 
+  @override
+  int get hashCode => Object.hash(value, cursor, ver);
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChatMessage &&
+        cursor == other.cursor &&
+        value == other.value &&
+        ver == other.ver;
+  }
+
   /// Returns a copy of this [DtoChatMessage] with the provided parameters.
   DtoChatMessage copyWith({
     ChatItem? value,
@@ -164,6 +197,17 @@ class DtoChatForward extends DtoChatItem {
 
   /// Cursor of a [ChatForward.quote].
   ChatItemsCursor? quoteCursor;
+
+  @override
+  int get hashCode => Object.hash(value, cursor, ver);
+
+  @override
+  bool operator ==(Object other) {
+    return other is DtoChatForward &&
+        cursor == other.cursor &&
+        value == other.value &&
+        ver == other.ver;
+  }
 
   /// Returns a [Map] representing this [DtoChatForward].
   @override

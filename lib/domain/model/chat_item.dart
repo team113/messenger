@@ -118,6 +118,9 @@ class ChatMessage extends ChatItem {
   /// [Attachment]s of this [ChatMessage].
   List<Attachment> attachments;
 
+  @override
+  int get hashCode => Object.hash(id, text, author, chatId, attachments);
+
   /// Indicates whether the [other] message shares the same [text], [repliesTo],
   /// [author], [chatId] and [attachments] as this [ChatMessage].
   bool isEquals(ChatMessage other) {
@@ -149,6 +152,14 @@ class ChatMessage extends ChatItem {
   @override
   Map<String, dynamic> toJson() =>
       _$ChatMessageToJson(this)..['runtimeType'] = 'ChatMessage';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatMessage &&
+        id == other.id &&
+        isEquals(other) &&
+        status.value == other.status.value;
+  }
 }
 
 /// Quote of a [ChatItem] forwarded to some [Chat].

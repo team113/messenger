@@ -16,6 +16,7 @@ Feature: Chat members pagination
     Given user Alice
     And Alice has "Members" group with 16 members
     And I sign in as Alice
+    And I pause for 2 seconds
     And I am in "Members" group
 
     When I scroll `IntroductionScrollable` until `ProceedButton` is present
