@@ -35,6 +35,11 @@ const broadcastChannel = new BroadcastChannel("fcm");
 messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
 
+  // If payload contains no title (it's a background notification), then check
+  // whether its data contains any tag or thread, and cancel it, if any.
+  //
+  // This code is invoked from a service worker, thus the `getNotifications()`
+  // method is available here.
   if (payload.notification?.title == null) {
     var tag = payload.data.tag;
     var thread = payload.data.thread;

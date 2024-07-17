@@ -432,6 +432,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await FlutterCallkitIncoming.endCall(message.data['chatId']);
     }
   } else {
+    // If message contains no notification (it's a background notification),
+    // then try canceling the notifications with the provided thread, if any, or
+    // otherwise a single one, if data contains a tag.
     if (message.notification == null) {
       final String? tag = message.data['tag'];
       final String? thread = message.data['thread'];
@@ -451,32 +454,41 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       }
     }
 
-    final String? chatId = message.data['chatId'];
-    if (chatId != null) {
-      await Config.init();
+    // If payload contains a `ChatId` in it, then try sending a single
+    // [GraphQlProvider.chatItems] query to mark the chat as delivered.
+    //
+    // Note, that on iOS this behaviour is done via separate Notification
+    // Service Extension, as this code isn't guaranteed to be invoked at all,
+    // especially for visual notification.
+    if (PlatformUtils.isAndroid) {
+      final String? chatId = message.data['chatId'];
 
-      final common = CommonDriftProvider.from(CommonDatabase());
-      final credentialsProvider = CredentialsDriftProvider(common);
-      final accountProvider = AccountDriftProvider(common);
+      if (chatId != null) {
+        await Config.init();
 
-      await credentialsProvider.init();
-      await accountProvider.init();
+        final common = CommonDriftProvider.from(CommonDatabase());
+        final credentialsProvider = CredentialsDriftProvider(common);
+        final accountProvider = AccountDriftProvider(common);
 
-      final UserId? userId = accountProvider.userId;
-      final Credentials? credentials =
-          userId != null ? await credentialsProvider.read(userId) : null;
+        await credentialsProvider.init();
+        await accountProvider.init();
 
-      if (credentials != null) {
-        final provider = GraphQlProvider();
-        provider.token = credentials.access.secret;
+        final UserId? userId = accountProvider.userId;
+        final Credentials? credentials =
+            userId != null ? await credentialsProvider.read(userId) : null;
 
-        try {
-          await provider.chatItems(ChatId(chatId), first: 1);
-        } catch (e) {
-          // No-op.
+        if (credentials != null) {
+          final provider = GraphQlProvider();
+          provider.token = credentials.access.secret;
+
+          try {
+            await provider.chatItems(ChatId(chatId), first: 1);
+          } catch (e) {
+            // No-op.
+          }
+
+          provider.disconnect();
         }
-
-        provider.disconnect();
       }
     }
   }

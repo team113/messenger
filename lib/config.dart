@@ -343,6 +343,8 @@ class Config {
 
     ws = '$wsUrl:$wsPort$graphql';
 
+    // Notification Service Extension needs those to send message received
+    // notification to backend.
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);

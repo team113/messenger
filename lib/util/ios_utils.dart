@@ -38,13 +38,14 @@ class IosUtils {
         .invokeMethod('cancelNotificationsContaining', {'thread': thread});
   }
 
-  /// Removes the delivered notification with the provided [tag].
+  /// Returns the directory that is shared among both application and its
+  /// services (Notification Service Extension, for example).
   static Future<String> getSharedDirectory() async {
     final String url = await _platform.invokeMethod('getSharedDirectory');
     return url.replaceFirst('file://', '');
   }
 
-  /// Removes the delivered notification with the provided [tag].
+  /// Writes the provided [value] at the [key] in the shared dictionaries.
   static Future<void> writeDefaults(String key, String value) async {
     await _platform.invokeMethod('writeDefaults', {'key': key, 'value': value});
   }
