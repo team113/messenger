@@ -1894,6 +1894,7 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
+        alwaysFetch: true,
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) => _recentChats(
             after: after,
