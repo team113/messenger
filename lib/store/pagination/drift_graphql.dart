@@ -27,6 +27,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   const DriftGraphQlPageProvider({
     required this.driftProvider,
     required this.graphQlProvider,
+    this.alwaysFetch = false,
   });
 
   /// [DriftPageProvider] fetching elements from the [ScopedDriftProvider].
@@ -34,6 +35,9 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C, K> graphQlProvider;
+
+  /// Indicator whether [graphQlProvider] should always be invoked.
+  final bool alwaysFetch;
 
   @override
   Future<Page<T, C>> init(K? key, int count) => driftProvider.init(key, count);
@@ -47,7 +51,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 
@@ -62,7 +66,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> after(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.after(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 
@@ -77,7 +81,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> before(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.before(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 

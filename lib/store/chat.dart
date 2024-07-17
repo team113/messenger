@@ -1821,8 +1821,6 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
-    // return;
-
     if (isClosed) {
       return;
     }
@@ -1895,12 +1893,39 @@ class ChatRepository extends DisposableInterface
     final Pagination<DtoChat, RecentChatsCursor, ChatId> recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _recentChats(
-          after: after,
-          first: first,
-          before: before,
-          last: last,
+      provider: DriftGraphQlPageProvider(
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) => _recentChats(
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          ),
+        ),
+        driftProvider: DriftPageProvider(
+          watch: ({int? after, int? before, ChatId? around}) async {
+            return _chatLocal.watchRecent(limit: before);
+          },
+          watchUpdates: false,
+          onAdded: (e) async {
+            await _pagination?.put(e, store: false);
+          },
+          onRemoved: (e) async {
+            await _pagination?.remove(e.value.id, store: false);
+          },
+          onKey: (e) => e.value.id,
+          onCursor: (e) => e?.recentCursor,
+          add: (e, {bool toView = true}) async {
+            if (toView) {
+              await _chatLocal.upsertBulk(e);
+            }
+          },
+          delete: (e) async => await _chatLocal.delete(e),
+          reset: () async => await _chatLocal.clear(),
+          isLast: (_) => false,
+          isFirst: (_) => false,
+          fulfilledWhenNone: true,
+          compare: (a, b) => a.value.compareTo(b.value),
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),

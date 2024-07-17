@@ -81,16 +81,20 @@ class CombinedPagination<T, K> {
       paginations.firstWhereOrNull((e) => e.p.hasNext.isTrue)?.p.next();
 
   /// Adds the provided [item] to the [paginations].
-  Future<void> put(T item, {bool ignoreBounds = false}) async {
+  Future<void> put(
+    T item, {
+    bool ignoreBounds = false,
+    bool store = true,
+  }) async {
     for (final p in paginations.where((p) => p.addIf(item)).map((e) => e.p)) {
-      await p.put(item, ignoreBounds: ignoreBounds);
+      await p.put(item, ignoreBounds: ignoreBounds, store: store);
     }
   }
 
   /// Removes the item with the provided [key].
-  Future<void> remove(K key) async {
+  Future<void> remove(K key, {bool store = true}) async {
     for (final p in paginations.map((e) => e.p)) {
-      await p.remove(key);
+      await p.remove(key, store: store);
     }
   }
 }
