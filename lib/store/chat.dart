@@ -672,7 +672,7 @@ class ChatRepository extends DisposableInterface
       });
     }
 
-    List<Future>? uploads = attachments?.changed
+    final List<Future>? uploads = attachments?.changed
         .mapIndexed((i, e) {
           if (e is LocalAttachment) {
             return e.upload.value?.future.then(
@@ -733,7 +733,7 @@ class ChatRepository extends DisposableInterface
     if (message.status.value != SendingStatus.sent) {
       chat?.remove(message.id);
     } else {
-      Rx<ChatItem>? item =
+      final Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == message.id);
       if (item != null) {
         chat?.messages.remove(item);
@@ -768,7 +768,7 @@ class ChatRepository extends DisposableInterface
     if (forward.status.value != SendingStatus.sent) {
       chat?.remove(forward.id);
     } else {
-      Rx<ChatItem>? item =
+      final Rx<ChatItem>? item =
           chat?.messages.firstWhereOrNull((e) => e.value.id == forward.id);
       if (item != null) {
         chat?.messages.remove(item);
@@ -800,7 +800,7 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl? chat = chats[chatId];
 
-    Rx<ChatItem>? item =
+    final Rx<ChatItem>? item =
         chat?.messages.firstWhereOrNull((e) => e.value.id == id);
     if (item != null) {
       chat?.messages.remove(item);

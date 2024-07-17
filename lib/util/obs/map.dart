@@ -162,4 +162,7 @@ class MapChangeNotification<K, V> {
 
   /// Operation causing the [element] to change.
   final OperationKind op;
+
+  @override
+  String toString() => 'MapChangeNotification.${op.name}';
 }

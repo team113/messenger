@@ -170,8 +170,13 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     _cache.remove(id);
 
     await safe((db) async {
-      final stmt = db.delete(db.chatItems)..where((e) => e.id.equals(id.val));
-      await stmt.goAndReturn();
+      final deleteItems = db.delete(db.chatItems);
+      deleteItems.where((e) => e.id.equals(id.val));
+      await deleteItems.goAndReturn();
+
+      final deleteViews = db.delete(db.chatItemViews);
+      deleteViews.where((e) => e.chatItemId.equals(id.val));
+      await deleteViews.goAndReturn();
     });
   }
 
@@ -300,6 +305,113 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     });
 
     return result ?? [];
+  }
+
+  /// Returns the [Stream] of [DtoChatItem]s being in a historical view order of
+  /// the provided [chatId].
+  Stream<List<DtoChatItem>> watch(
+    ChatId chatId, {
+    int? before,
+    int? after,
+    PreciseDateTime? around,
+  }) {
+    return stream((db) {
+      if (before == null && after == null) {
+        final stmt = db.select(db.chatItemViews).join([
+          innerJoin(
+            db.chatItems,
+            db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+          ),
+        ]);
+
+        stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+        stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+
+        return stmt.watch().map(
+              (rows) => rows
+                  .map((e) => _ChatItemDb.fromDb(e.readTable(db.chatItems)))
+                  .toList(),
+            );
+      } else if (before != null && after != null) {
+        final stmt = db.chatItemsAround(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          before.toDouble(),
+          after,
+        );
+
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+      } else if (before == null && after != null) {
+        final stmt = db.chatItemsAroundTopless(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          after,
+        );
+
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+      } else if (before != null && after == null) {
+        final stmt = db.chatItemsAroundBottomless(
+          chatId.val,
+          around ?? PreciseDateTime.now(),
+          before.toDouble(),
+        );
+
+        return stmt.watch().map(
+              (items) => items
+                  .map(
+                    (r) => _ChatItemDb.fromDb(
+                      ChatItemRow(
+                        id: r.id,
+                        chatId: r.chatId,
+                        authorId: r.authorId,
+                        at: r.at,
+                        status: r.status,
+                        data: r.data,
+                        cursor: r.cursor,
+                        ver: r.ver,
+                      ),
+                    ),
+                  )
+                  .toList(),
+            );
+      }
+
+      throw Exception('Unreachable');
+    });
   }
 }
 

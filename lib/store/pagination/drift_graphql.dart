@@ -39,6 +39,11 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> init(K? key, int count) => driftProvider.init(key, count);
 
   @override
+  void dispose() {
+    // No-op.
+  }
+
+  @override
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 

@@ -41,7 +41,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
 
     await Get.deleteAll();
 
-    await Future.delayed(Duration.zero);
+    await Future.delayed(const Duration(seconds: 1));
 
     Get.put<GraphQlProvider>(
       MockGraphQlProvider()

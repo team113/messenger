@@ -20,6 +20,7 @@ import 'dart:convert';
 
 import 'package:async/async.dart';
 import 'package:drift/drift.dart';
+import 'package:drift/remote.dart' show DriftRemoteException;
 
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
@@ -74,15 +75,19 @@ class MyUserDriftProvider extends DriftProviderBase {
     _cache[user.id] = user;
 
     final result = await safe((db) async {
-      final DtoMyUser stored = _MyUserDb.fromDb(
-        await db
-            .into(db.myUsers)
-            .insertReturning(user.toDb(), mode: InsertMode.insertOrReplace),
-      );
+      try {
+        final DtoMyUser stored = _MyUserDb.fromDb(
+          await db
+              .into(db.myUsers)
+              .insertReturning(user.toDb(), mode: InsertMode.insertOrReplace),
+        );
 
-      _controllers[stored.id]?.add(stored);
+        _controllers[stored.id]?.add(stored);
 
-      return stored;
+        return stored;
+      } on DriftRemoteException {
+        // No-op, might be thrown after E2E tests completion.
+      }
     });
 
     return result ?? user;

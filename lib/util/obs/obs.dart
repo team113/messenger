@@ -33,6 +33,7 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
   /// Gets [MapChangeNotification]s from [Stream].
   Stream<List<MapChangeNotification<K, T>>> changes() {
     Map<K, T> last = {};
+    bool first = true;
 
     return asyncExpand((e) async* {
       final List<MapChangeNotification<K, T>> changed = [];
@@ -57,9 +58,15 @@ extension MapChangesExtension<K, T> on Stream<Map<K, T>> {
         }
       }
 
-      last = e;
+      last = Map.from(e);
 
-      yield changed;
+      // Always emit the first changes, even if they are empty.
+      if (first) {
+        first = false;
+        yield changed;
+      } else if (changed.isNotEmpty) {
+        yield changed;
+      }
     });
   }
 }
