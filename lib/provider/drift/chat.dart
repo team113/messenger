@@ -250,7 +250,12 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return stream((db) {
       final stmt = db.select(db.chats);
 
-      stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
+      stmt.where(
+        (u) =>
+            u.isHidden.equals(false) &
+            u.id.like('local_%').not() &
+            u.favoritePosition.isNull(),
+      );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
       if (limit != null) {

@@ -1906,7 +1906,7 @@ class ChatRepository extends DisposableInterface
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) async {
             return _chatLocal.watchRecent(
-              limit: before == null ? null : (before + (after ?? 0)),
+              limit: before == null ? null : (1 + before + (after ?? 0)),
             );
           },
           watchUpdates: false,
