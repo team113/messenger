@@ -310,8 +310,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       if (_after != null) {
         _after = _after! + items.length;
       }
-
-      _page();
     }
 
     await add?.call(items, toView: toView);
