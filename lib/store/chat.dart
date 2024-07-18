@@ -1847,6 +1847,7 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
+        alwaysFetch: true,
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) async {
             final int limit = (after ?? 0) + (before ?? 0) + 1;
