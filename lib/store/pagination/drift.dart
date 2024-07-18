@@ -423,20 +423,26 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Checks whether the current [_list] contain [_first] or [_last] items, so
   /// the [watch]/[fetch] can be promoted to being unlimited for top or bottom.
   void _ensureLimits() {
+    bool refetch = false;
+
     if (_before != null) {
       final T? first = _first;
-      if (first != null) {
+      if (first != null || _items.isEmpty) {
         _before = null;
-        _page();
+        refetch = true;
       }
     }
 
     if (_after != null) {
       final T? last = _last;
-      if (last != null) {
+      if (last != null || _items.isEmpty) {
         _after = null;
-        _page();
+        refetch = true;
       }
+    }
+
+    if (refetch) {
+      _page();
     }
   }
 
