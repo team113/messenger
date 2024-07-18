@@ -1627,11 +1627,34 @@ class RxChatImpl extends RxChat {
     _localSubscription?.cancel();
     _localSubscription = _driftChat.watch(id).listen(
       (e) {
+        if (chat.value == e?.value) {
+          return;
+        }
+
+        // If only the first item differs, then items should be considered
+        // equal.
+        if (chat.value.firstItem != null &&
+            e != null &&
+            e.value.firstItem == null) {
+          return;
+        }
+
+        print(
+            '_localSubscription (equal: ${chat.value == e?.value}, compareTo: ${chat.value.compareTo(e?.value ?? chat.value)}) -> lastItem vs lastItem (${e?.value.lastItem} vs ${chat.value.lastItem} || ${e?.value.firstItem} vs ${chat.value.firstItem})');
         if (e != null) {
           final ChatItem? first = chat.value.firstItem;
 
+          final bool positionChanged =
+              e.value.favoritePosition != chat.value.favoritePosition;
+
           chat.value = e.value;
           chat.value.firstItem = first ?? chat.value.firstItem;
+
+          if (positionChanged) {
+            _chatRepository.paginated.emit(
+              MapChangeNotification.updated(id, id, this),
+            );
+          }
         } else {
           if (me != null) {
             _chatRepository.remove(id);
