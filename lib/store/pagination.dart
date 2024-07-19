@@ -182,7 +182,7 @@ class Pagination<T, C, K> {
         return null;
       }
 
-      Log.debug('around(key: $key, cursor: $cursor)...', '$runtimeType');
+      Log.info('around(key: $key, cursor: $cursor)...', '$runtimeType');
 
       try {
         final Page<T, C>? page = await Backoff.run(
@@ -190,7 +190,7 @@ class Pagination<T, C, K> {
           _cancelToken,
         );
 
-        Log.debug(
+        Log.info(
           'around(key: $key, cursor: $cursor)... \n'
               '\tFetched ${page?.edges.length} items\n'
               '\tstartCursor: ${page?.info.startCursor}\n'
@@ -235,7 +235,7 @@ class Pagination<T, C, K> {
       }
 
       await _repeatUntilFulfilled(() async {
-        Log.debug('next()...', '$runtimeType');
+        Log.info('next()...', '$runtimeType');
 
         if (hasNext.isTrue && nextLoading.isFalse) {
           nextLoading.value = true;
@@ -247,15 +247,16 @@ class Pagination<T, C, K> {
                   () => provider.after(onKey(items.last), endCursor, perPage),
                   _cancelToken,
                 );
-                Log.debug(
-                  'next()... fetched ${page?.edges.length} items',
-                  '$runtimeType',
-                );
 
                 final int before = items.length;
                 for (var e in page?.edges ?? []) {
                   items[onKey(e)] = e;
                 }
+
+                Log.info(
+                  'next()... fetched ${page?.edges.length} items, totaling in ${items.length}',
+                  '$runtimeType',
+                );
 
                 endCursor = page?.info.endCursor ?? endCursor;
                 hasNext.value = page?.info.hasNext ?? hasNext.value;
@@ -397,7 +398,7 @@ class Pagination<T, C, K> {
   /// If [store] is `false`, then the [key] will be only removed from the
   /// [items] and won't be removed from the [provider].
   Future<void> remove(K key, {bool store = true}) async {
-    Log.debug('remove($key)', '$runtimeType');
+    Log.info('remove($key)', '$runtimeType');
 
     if (_disposed) {
       return Future.value();

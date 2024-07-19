@@ -209,8 +209,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         (_hasFirst && _hasLast) ||
         edges.length - edgesBefore >= count ~/ 2;
 
-    Log.debug(
-      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+    Log.info(
+      'around($key, $count) -> $fulfilled(${edges.length}) cuz ($fulfilledWhenNone || ($_hasFirst && $_hasLast) || ${edges.length} - $edgesBefore >= ${count ~/ 2}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
 
@@ -241,7 +241,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     final bool fulfilled =
         fulfilledWhenNone || _hasLast || edges.length - edgesBefore >= count;
 
-    Log.debug(
+    Log.info(
       'after($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
@@ -372,6 +372,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
               final T? item = items.firstWhereOrNull((m) => onKey(m) == key);
 
               if (item == null) {
+                print('===== item with key $key NOT FOUND in items');
                 if (!_accounted.contains((OperationKind.removed, key))) {
                   onRemoved?.call(e);
                 }

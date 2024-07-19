@@ -110,7 +110,12 @@ final StepDefinitionGeneric logout = then<CustomWorld>(
 /// - `Given user Bob`
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   r'user {user}$',
-  (TestUser name, context) => createUser(user: name, world: context.world),
+  (TestUser name, context) async {
+    await createUser(user: name, world: context.world);
+
+    final authService = Get.find<AuthService>();
+    print('=========== creds -> ${authService.credentials.value}');
+  },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
 );

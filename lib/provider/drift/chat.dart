@@ -250,6 +250,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return stream((db) {
       final stmt = db.select(db.chats);
 
+      print('==== watchRecent(limit: $limit)');
+
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
@@ -262,7 +264,13 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
-      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
+      return stmt
+          .watch()
+          .map((rows) => rows.map(_ChatDb.fromDb).toList())
+          .map((e) {
+        print('==== watchRecent(limit: $limit) -> ${e.length} items');
+        return e;
+      });
     });
   }
 
