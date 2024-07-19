@@ -373,6 +373,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
               if (item == null) {
                 print('===== item with key $key NOT FOUND in items');
+                print('===== items -> $items');
+                print('===== _items -> $_items');
                 if (!_accounted.contains((OperationKind.removed, key))) {
                   onRemoved?.call(e);
                 }
@@ -380,7 +382,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             }
           }
 
-          _items = List.from(items);
+          _items = List.from(items.toList(growable: false), growable: false);
+          print('===== _items IS SET TO $_items');
 
           if (!completer.isCompleted) {
             completer.complete(items.isEmpty ? _items : items);

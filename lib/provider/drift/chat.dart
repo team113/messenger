@@ -118,7 +118,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     }
 
     final result = await safe((db) async {
-      Log.debug('upsertBulk(${items.length} items)');
+      Log.info('upsertBulk(${items.length} items) -> $items');
 
       await db.batch((batch) {
         for (var item in items) {
@@ -250,8 +250,6 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     return stream((db) {
       final stmt = db.select(db.chats);
 
-      print('==== watchRecent(limit: $limit)');
-
       stmt.where(
         (u) =>
             u.isHidden.equals(false) &
@@ -264,11 +262,15 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
+      print(
+        '==== watchRecent(limit: $limit) with query: ${stmt.constructQuery().buffer.toString()}',
+      );
+
       return stmt
           .watch()
           .map((rows) => rows.map(_ChatDb.fromDb).toList())
           .map((e) {
-        print('==== watchRecent(limit: $limit) -> ${e.length} items');
+        print('==== watchRecent(limit: $limit) -> ${e.length} items -> $e');
         return e;
       });
     });

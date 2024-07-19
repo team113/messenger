@@ -2060,6 +2060,8 @@ class ChatRepository extends DisposableInterface
     ))
         .recentChats;
 
+    print('_recentChats response -> $query');
+
     return Page(
       RxList(
         query.edges
