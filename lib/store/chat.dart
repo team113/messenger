@@ -1842,8 +1842,8 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    final Pagination<DtoChat, FavoriteChatsCursor, ChatId> favorites =
-        Pagination(
+    Pagination<DtoChat, FavoriteChatsCursor, ChatId>? favorites;
+    favorites = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
@@ -1856,11 +1856,11 @@ class ChatRepository extends DisposableInterface
               a.value.favoritePosition != b.value.favoritePosition,
           onAdded: (e) async {
             print('=== onAdded');
-            await _pagination?.put(e, store: false);
+            await favorites?.put(e, store: false);
           },
           onRemoved: (e) async {
             print('=== onRemoved');
-            await _pagination?.remove(e.id, store: false);
+            await favorites?.remove(e.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.favoriteCursor,
@@ -1901,7 +1901,8 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    final Pagination<DtoChat, RecentChatsCursor, ChatId> recent = Pagination(
+    Pagination<DtoChat, RecentChatsCursor, ChatId>? recent;
+    recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
@@ -1921,10 +1922,12 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            await _pagination?.put(e, store: false);
+            print('=== onAdded');
+            await recent?.put(e, store: false);
           },
           onRemoved: (e) async {
-            await _pagination?.remove(e.value.id, store: false);
+            print('=== onRemoved');
+            await recent?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.recentCursor,
@@ -1962,6 +1965,8 @@ class ChatRepository extends DisposableInterface
 
     _paginationSubscription?.cancel();
     _paginationSubscription = _pagination!.changes.listen((event) async {
+      print('_paginationSubscription -> ${event.op}: ${event.key}');
+
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -1975,7 +1980,11 @@ class ChatRepository extends DisposableInterface
           break;
 
         case OperationKind.removed:
-          remove(event.value!.value.id);
+          // Chat might've been removed only from a favorites or recent.
+          if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
+              true) {
+            remove(event.value!.value.id);
+          }
           break;
       }
     });

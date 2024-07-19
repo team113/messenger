@@ -386,7 +386,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           print('===== _items IS SET TO $_items');
 
           if (!completer.isCompleted) {
-            completer.complete(items.isEmpty ? _items : items);
+            completer.complete(
+              items.isEmpty ? _items.toList() : items.toList(),
+            );
           }
         }
 
