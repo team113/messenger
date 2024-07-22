@@ -114,6 +114,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Internal [List] of [T] items retrieved from the [fetch].
   List<T> _list = [];
 
+  /// [Completer] of [_page]s used to dispose non-completed ones in [dispose].
+  final List<Completer<List<T>>> _completers = [];
+
   /// Count of [T] items requested after the [_around].
   int? _after = 0;
 
@@ -197,6 +200,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   void dispose() {
     _timeoutTimer?.cancel();
     _watchSubscription?.cancel();
+
+    for (var e in _completers) {
+      if (!e.isCompleted) {
+        e.complete([]);
+      }
+    }
   }
 
   @override
@@ -348,7 +357,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           around: _around,
         );
 
-        final Completer<List<T>> completer = Completer();
+        final Completer<List<T>> completer;
+        _completers.add(completer = Completer());
 
         void handle(List<T> items) {
           for (var e in items) {
@@ -389,6 +399,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             completer.complete(
               items.isEmpty ? _items.toList() : items.toList(),
             );
+            _completers.remove(completer);
           }
         }
 

@@ -255,6 +255,7 @@ class ChatRepository extends DisposableInterface
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _pagination?.dispose();
+    _localPagination?.dispose();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
@@ -1980,7 +1981,9 @@ class ChatRepository extends DisposableInterface
           break;
 
         case OperationKind.removed:
-          // Chat might've been removed only from a favorites or recent.
+          // Don't remove a chat that is still present in the pagination, as it
+          // might've been only remove from a concrete pagination: recent only
+          // or favorites only, not the whole list.
           if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
               true) {
             remove(event.value!.value.id);

@@ -46,7 +46,8 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
   @override
   void dispose() {
-    // No-op.
+    driftProvider.dispose();
+    graphQlProvider.dispose();
   }
 
   @override
