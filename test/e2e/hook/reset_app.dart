@@ -59,11 +59,12 @@ class ResetAppHook extends Hook {
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
-    await Future.delayed(Duration.zero);
-
     svg.cache.clear();
 
     FIFOCache.clear();
+
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 2));
   }
 
   @override
