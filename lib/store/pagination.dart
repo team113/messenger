@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
@@ -262,7 +263,9 @@ class Pagination<T, C, K> {
                 hasNext.value = page?.info.hasNext ?? hasNext.value;
                 Log.debug('next()... done', '$runtimeType');
 
-                return page?.edges.skip(before).take(items.length - before);
+                return page?.edges
+                    .skip(before)
+                    .take(max(0, items.length - before));
               } catch (e) {
                 if (e is! OperationCanceledException) {
                   rethrow;
@@ -322,7 +325,7 @@ class Pagination<T, C, K> {
                 hasPrevious.value = page?.info.hasPrevious ?? hasPrevious.value;
                 Log.debug('previous()... done', '$runtimeType');
 
-                return page?.edges.take(items.length - before);
+                return page?.edges.take(max(0, items.length - before));
               } catch (e) {
                 if (e is! OperationCanceledException) {
                   rethrow;
