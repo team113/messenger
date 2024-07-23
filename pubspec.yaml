@@ -15,6 +15,7 @@ dependencies:
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
   collection: ^1.17.2
+  connectivity_plus: ^6.0.3
   crypto: ^3.0.3
   desktop_drop:
     git:
@@ -78,19 +79,19 @@ dependencies:
   media_kit_video: ^1.1.6
   mime: ^1.0.4
   mutex: ^3.0.1
-  open_file: ^3.3.2
+  open_filex: ^4.4.0
   path: ^1.8.2
   path_provider: ^2.1.3
   path_provider_android: ^2.1.0
   permission_handler: ^11.3.1
   photo_view: ^0.15.0
-  platform_detect: ^2.0.7
+  platform_detect: ^2.1.0
   pub_semver: ^2.1.4
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
-  sentry_flutter: ^8.2.0
+  sentry_flutter: ^8.4.0
   share_plus: ^9.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
@@ -105,7 +106,7 @@ dependencies:
   uuid: ^4.3.3
   vibration: ^1.8.1
   wakelock_plus: ^1.1.4
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^3.0.1
   web: ^0.5.1
   win_toast: ^0.3.0
   win32: ^5.0.6
@@ -155,16 +156,49 @@ dependency_overrides:
     git:
       url: https://github.com/SleepySquash/image_picker.git
       path: packages/image_picker/image_picker_ios
+  # TODO: Remove when javaherisaber/open_filex#14 is merged:
+  #       https://github.com/javaherisaber/open_filex/pull/14
+  open_filex:
+    git:
+      url: https://github.com/raldhafiri/open_filex
   # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
+  medea_flutter_webrtc:
+    # path: ../medea-flutter-webrtc
+    git:
+      url: https://github.com/instrumentisto/medea-flutter-webrtc
+      ref: replace-html-with-web
+  medea_jason:
+    # path: ../medea-jason/flutter
+    git:
+      url: https://github.com/instrumentisto/medea-jason
+      ref: replace-html-with-web
+      path: flutter
   # TODO: Remove, when `media_kit` removes `msvcp140` dlls from Windows libs:
   #       https://github.com/media-kit/media-kit/issues/846
   media_kit_libs_windows_video:
     git:
       url: https://github.com/SleepySquash/media-kit.git
       path: libs/windows/media_kit_libs_windows_video
+  # TODO: Remove when Baseflow/flutter-permission-handler#1303 is merged:
+  #       https://github.com/Baseflow/flutter-permission-handler/pull/1303
+  permission_handler_html:
+    git:
+      url: https://github.com/raldhafiri/flutter-permission-handler.git
+      path: permission_handler_html
+  platform_detect:
+    git:
+      url: https://github.com/SleepySquash/platform_detect.git
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
+  web_socket_channel: ^3.0.1
+  media_kit:
+    git:
+      url: https://github.com/abdelaziz-mahdy/media_kit
+      path: media_kit
+  media_kit_video:
+    git:
+      url: https://github.com/abdelaziz-mahdy/media_kit
+      path: media_kit_video
 
 flutter:
   uses-material-design: true

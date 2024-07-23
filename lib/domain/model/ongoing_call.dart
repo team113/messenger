@@ -1042,7 +1042,9 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             videoState.value = LocalTrackState.disabled;
-            if (!e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied')) {
+              _notifications.add(CameraPermissionDeniedNotification());
+            } else {
               addError('enableVideo() call failed with $e');
               rethrow;
             }
@@ -2517,6 +2519,7 @@ extension DevicesList on List<DeviceDetails> {
 
 /// Possible [CallNotification] kind.
 enum CallNotificationKind {
+  cameraPermissionDenied,
   connectionLost,
   connectionRestored,
   deviceChanged,
@@ -2562,4 +2565,10 @@ class ConnectionLostNotification extends CallNotification {
 class ConnectionRestoredNotification extends CallNotification {
   @override
   CallNotificationKind get kind => CallNotificationKind.connectionRestored;
+}
+
+/// [CallNotification] of a camera permission denied event.
+class CameraPermissionDeniedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind => CallNotificationKind.cameraPermissionDenied;
 }

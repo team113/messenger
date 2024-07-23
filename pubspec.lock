@@ -258,21 +258,21 @@ packages:
     source: hosted
     version: "1.18.0"
   connectivity_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: connectivity_plus
-      sha256: "224a77051d52a11fbad53dd57827594d3bd24f945af28bd70bab376d68d437f0"
+      sha256: db7a4e143dc72cc3cb2044ef9b052a7ebfe729513e6a82943bc3526f784365b8
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.2"
+    version: "6.0.3"
   connectivity_plus_platform_interface:
     dependency: transitive
     description:
       name: connectivity_plus_platform_interface
-      sha256: cf1d1c28f4416f8c654d7dc3cd638ec586076255d407cef3ddbdaf178272a71a
+      sha256: b6a56efe1e6675be240de39107281d4034b64ac23438026355b4234042a35adb
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.4"
+    version: "2.0.0"
   convert:
     dependency: transitive
     description:
@@ -860,18 +860,18 @@ packages:
     dependency: transitive
     description:
       name: graphql
-      sha256: d066e53446166c12537458386b507f7426f2b8801ebafc184576aab3cbc64d56
+      sha256: "62f31433ba194eda7b81a812a83c3d9560766cec5ac0210ea4a3e677c91b8df4"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.0-beta.7"
+    version: "5.2.0-beta.8"
   graphql_flutter:
     dependency: "direct main"
     description:
       name: graphql_flutter
-      sha256: "39b5e830bc654ab02c5b776c31675841d1a8c95840fdd284efba713b1d47e65d"
+      sha256: "2423b394465e7d83a5e708cd2f5b37b54e7ae9900abfbf0948d512fa46961acb"
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.0-beta.6"
+    version: "5.2.0-beta.7"
   graphs:
     dependency: transitive
     description:
@@ -1185,26 +1185,29 @@ packages:
   medea_flutter_webrtc:
     dependency: "direct main"
     description:
-      name: medea_flutter_webrtc
-      sha256: "8b2d48c9a673f5218d4b3f800f2575dc7f478304910bf1b4531bc2e429a81ef0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3"
+      path: "."
+      ref: replace-html-with-web
+      resolved-ref: "5978828a17c190276c6a754f868b9dcf0c54db5e"
+      url: "https://github.com/instrumentisto/medea-flutter-webrtc"
+    source: git
+    version: "0.10.0-dev"
   medea_jason:
     dependency: "direct main"
     description:
-      name: medea_jason
-      sha256: ac7f9f28c7544c390f70adae7d59dc12e00a397d34811d61d47478023d2e55e1
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.0-dev+rev.d615057ffe2c7031112c3047c1a11b4edc6c2454"
+      path: flutter
+      ref: replace-html-with-web
+      resolved-ref: cc9e3ef46096b52686435bcc24ae322e02a4f819
+      url: "https://github.com/instrumentisto/medea-jason"
+    source: git
+    version: "0.5.0-dev"
   media_kit:
     dependency: "direct main"
     description:
-      name: media_kit
-      sha256: "3289062540e3b8b9746e5c50d95bd78a9289826b7227e253dff806d002b9e67a"
-      url: "https://pub.dev"
-    source: hosted
+      path: media_kit
+      ref: HEAD
+      resolved-ref: "3554c6005fd7e4ff3b3a337e534913a49cc8b97c"
+      url: "https://github.com/abdelaziz-mahdy/media_kit"
+    source: git
     version: "1.1.10+1"
   media_kit_libs_android_video:
     dependency: "direct main"
@@ -1258,10 +1261,11 @@ packages:
   media_kit_video:
     dependency: "direct main"
     description:
-      name: media_kit_video
-      sha256: c048d11a19e379aebbe810647636e3fc6d18374637e2ae12def4ff8a4b99a882
-      url: "https://pub.dev"
-    source: hosted
+      path: media_kit_video
+      ref: HEAD
+      resolved-ref: "3554c6005fd7e4ff3b3a337e534913a49cc8b97c"
+      url: "https://github.com/abdelaziz-mahdy/media_kit"
+    source: git
     version: "1.2.4"
   meta:
     dependency: transitive
@@ -1327,14 +1331,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.2+1"
-  open_file:
+  open_filex:
     dependency: "direct main"
     description:
-      name: open_file
-      sha256: a5a32d44acb7c899987d0999e1e3cbb0a0f1adebbf41ac813ec6d2d8faa0af20
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.2"
+      path: "."
+      ref: HEAD
+      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
+      url: "https://github.com/raldhafiri/open_filex"
+    source: git
+    version: "4.4.0"
   package_config:
     dependency: transitive
     description:
@@ -1448,13 +1453,14 @@ packages:
     source: hosted
     version: "9.4.4"
   permission_handler_html:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_html
-      sha256: "54bf176b90f6eddd4ece307e2c06cf977fb3973719c35a93b85cc7093eb6070d"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1"
+      path: permission_handler_html
+      ref: HEAD
+      resolved-ref: "96422310e460221935bdbe20ab244677271c2b03"
+      url: "https://github.com/raldhafiri/flutter-permission-handler.git"
+    source: git
+    version: "0.1.2"
   permission_handler_platform_interface:
     dependency: transitive
     description:
@@ -1498,11 +1504,12 @@ packages:
   platform_detect:
     dependency: "direct main"
     description:
-      name: platform_detect
-      sha256: "08f4ee79c0e1c4858d37e06b22352a3ebdef5466b613749a3adb03e703d4f5b0"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.11"
+      path: "."
+      ref: HEAD
+      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      url: "https://github.com/SleepySquash/platform_detect.git"
+    source: git
+    version: "2.0.13"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1692,10 +1699,10 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: fd1fbfe860c05f5c52820ec4dbf2b6473789e83ead26cfc18bca4fe80bf3f008
+      sha256: cbc29cbdd8a047aab3df42f826daf07e58dfb2e1d550895d1021a6d4e618b00d
       url: "https://pub.dev"
     source: hosted
-    version: "8.2.0"
+    version: "8.4.0"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
@@ -1708,10 +1715,10 @@ packages:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: c64f0aec5332bec87083b61514d1b6b29e435b9045d03ce1575861192b9a5680
+      sha256: "96ce085e1be6c9963d93d42d6ba5c67484c076c59d25c94a7ba906549dc6c635"
       url: "https://pub.dev"
     source: hosted
-    version: "8.2.0"
+    version: "8.4.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -2237,14 +2244,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
+  web_socket:
+    dependency: transitive
+    description:
+      name: web_socket
+      sha256: "3c12d96c0c9a4eec095246debcea7b86c0324f22df69893d538fcc6f1b8cce83"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.6"
   web_socket_channel:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
+      sha256: "9f187088ed104edd8662ca07af4b124465893caf063ba29758f97af57e61da8f"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.5"
+    version: "3.0.1"
   webdriver:
     dependency: transitive
     description:
