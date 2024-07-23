@@ -973,14 +973,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                             : style.unreadMessageColor
                         : style.messageColor,
                     borderRadius: BorderRadius.circular(15),
-                    border: _fromMe
-                        ? _isRead
-                            ? style.secondaryBorder
-                            : Border.all(
-                                color: style.readMessageColor,
-                                width: 0.5,
-                              )
-                        : style.primaryBorder,
+                    border:
+                        _fromMe ? style.secondaryBorder : style.primaryBorder,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1099,14 +1093,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
-            border: _fromMe
-                ? _isRead
-                    ? style.secondaryBorder
-                    : Border.all(
-                        color: style.colors.backgroundAuxiliaryLighter,
-                        width: 0.5,
-                      )
-                : style.primaryBorder,
+            border: _fromMe ? style.secondaryBorder : style.primaryBorder,
             color: _fromMe
                 ? _isRead
                     ? style.readMessageColor
