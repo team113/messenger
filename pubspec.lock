@@ -407,18 +407,18 @@ packages:
     dependency: "direct main"
     description:
       name: drift
-      sha256: "6acedc562ffeed308049f78fb1906abad3d65714580b6745441ee6d50ec564cd"
+      sha256: "4e0ffee40d23f0b809e6cff1ad202886f51d629649073ed42d9cd1d194ea943e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.18.0"
+    version: "2.19.1+1"
   drift_dev:
     dependency: "direct dev"
     description:
       name: drift_dev
-      sha256: d9b020736ea85fff1568699ce18b89fabb3f0f042e8a7a05e84a3ec20d39acde
+      sha256: ac7647c6cedca99724ca300cff9181f6dd799428f8ed71f94159ed0528eaec26
       url: "https://pub.dev"
     source: hosted
-    version: "2.18.0"
+    version: "2.19.1"
   email_validator:
     dependency: "direct main"
     description:
@@ -1211,7 +1211,7 @@ packages:
     description:
       path: "."
       ref: replace-html-with-web
-      resolved-ref: "9bebc5751751325676d743fe3cbe09d086230859"
+      resolved-ref: c7795fdffd49769d6f4709a62e2120846a007566
       url: "https://github.com/instrumentisto/medea-flutter-webrtc"
     source: git
     version: "0.10.0-dev"
@@ -1220,7 +1220,7 @@ packages:
     description:
       path: flutter
       ref: replace-html-with-web
-      resolved-ref: dc9346499196d864b5babecd96324c3e50b43549
+      resolved-ref: "921c849ddcb39733ada3db319549ab21f7e597b2"
       url: "https://github.com/instrumentisto/medea-jason"
     source: git
     version: "0.5.0-dev"
@@ -1904,10 +1904,10 @@ packages:
     dependency: transitive
     description:
       name: sqlparser
-      sha256: ade9a67fd70d0369329ed3373208de7ebd8662470e8c396fc8d0d60f9acdfc9f
+      sha256: "3be52b4968fc2f098ba735863404756d2fe3ea0729cf006a5b5612618f74ca04"
       url: "https://pub.dev"
     source: hosted
-    version: "0.36.0"
+    version: "0.37.1"
   stack_trace:
     dependency: transitive
     description:
@@ -2228,22 +2228,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.5.1"
-  web_socket:
-    dependency: transitive
-    description:
-      name: web_socket
-      sha256: "3c12d96c0c9a4eec095246debcea7b86c0324f22df69893d538fcc6f1b8cce83"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.6"
   web_socket_channel:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: "9f187088ed104edd8662ca07af4b124465893caf063ba29758f97af57e61da8f"
+      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.1"
+    version: "2.4.0"
   webdriver:
     dependency: transitive
     description:

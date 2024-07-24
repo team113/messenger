@@ -56,7 +56,7 @@ dependencies:
   flutter_widget_from_html_core: ^0.14.12
   flutter_xlider: ^3.5.0
   get: ^4.6.5
-  graphql_flutter: ^5.2.0-beta.6
+  graphql_flutter: ^5.2.0-beta.7
   http: ^0.13.6
   http_parser: ^4.0.2
   image_gallery_saver: ^2.0.3
@@ -106,7 +106,7 @@ dependencies:
   uuid: ^4.3.3
   vibration: ^1.8.1
   wakelock_plus: ^1.1.4
-  web_socket_channel: ^3.0.1
+  web_socket_channel: ^2.2.0
   web: ^0.5.1
   win_toast: ^0.3.0
   win32: ^5.0.6
@@ -190,7 +190,6 @@ dependency_overrides:
       url: https://github.com/SleepySquash/platform_detect.git
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
-  web_socket_channel: ^3.0.1
   media_kit:
     git:
       url: https://github.com/abdelaziz-mahdy/media_kit
