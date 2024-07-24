@@ -50,6 +50,11 @@ class CallNotificationWidget extends StatelessWidget {
         title = 'err_camera_permission_denied'.l10n;
         break;
 
+      case CallNotificationKind.microphonePermissionDenied:
+        notification as MicrophonePermissionDeniedNotification;
+        title = 'err_microphone_permission_denied'.l10n;
+        break;
+
       case CallNotificationKind.connectionLost:
         notification as ConnectionLostNotification;
         title = 'label_connection_lost'.l10n;

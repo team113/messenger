@@ -987,7 +987,9 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
-            if (!e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied')) {
+              _notifications.add(MicrophonePermissionDeniedNotification());
+            } else {
               addError('unmuteAudio() call failed due to ${e.message()}');
               rethrow;
             }
@@ -2520,6 +2522,7 @@ extension DevicesList on List<DeviceDetails> {
 /// Possible [CallNotification] kind.
 enum CallNotificationKind {
   cameraPermissionDenied,
+  microphonePermissionDenied,
   connectionLost,
   connectionRestored,
   deviceChanged,
@@ -2571,4 +2574,11 @@ class ConnectionRestoredNotification extends CallNotification {
 class CameraPermissionDeniedNotification extends CallNotification {
   @override
   CallNotificationKind get kind => CallNotificationKind.cameraPermissionDenied;
+}
+
+/// [CallNotification] of a microphone permission denied event.
+class MicrophonePermissionDeniedNotification extends CallNotification {
+  @override
+  CallNotificationKind get kind =>
+      CallNotificationKind.microphonePermissionDenied;
 }

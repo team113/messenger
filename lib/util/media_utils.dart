@@ -197,7 +197,7 @@ class MediaUtilsImpl {
 
   /// Sets device with [deviceId] as a currently used output device.
   Future<void> setOutputDevice(String deviceId) async {
-    if (outputDeviceId.value != deviceId) {
+    if (outputDeviceId.value != deviceId || PlatformUtils.isWeb) {
       outputDeviceId.value = deviceId;
       await _setOutputDevice();
     }
