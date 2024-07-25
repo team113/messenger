@@ -1656,9 +1656,11 @@ class RxChatImpl extends RxChat {
             );
           }
         } else {
-          if (me != null) {
-            _chatRepository.remove(id);
-          }
+          print('_localSubscription EMITTED `null`, THUS SHOULD REMOVE????');
+
+          // if (me != null) {
+          //   _chatRepository.remove(id);
+          // }
         }
       },
     );
