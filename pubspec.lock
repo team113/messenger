@@ -407,18 +407,18 @@ packages:
     dependency: "direct main"
     description:
       name: drift
-      sha256: "4e0ffee40d23f0b809e6cff1ad202886f51d629649073ed42d9cd1d194ea943e"
+      sha256: "6acedc562ffeed308049f78fb1906abad3d65714580b6745441ee6d50ec564cd"
       url: "https://pub.dev"
     source: hosted
-    version: "2.19.1+1"
+    version: "2.18.0"
   drift_dev:
     dependency: "direct dev"
     description:
       name: drift_dev
-      sha256: ac7647c6cedca99724ca300cff9181f6dd799428f8ed71f94159ed0528eaec26
+      sha256: d9b020736ea85fff1568699ce18b89fabb3f0f042e8a7a05e84a3ec20d39acde
       url: "https://pub.dev"
     source: hosted
-    version: "2.19.1"
+    version: "2.18.0"
   email_validator:
     dependency: "direct main"
     description:
@@ -1228,9 +1228,9 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit
-      ref: HEAD
-      resolved-ref: "3554c6005fd7e4ff3b3a337e534913a49cc8b97c"
-      url: "https://github.com/abdelaziz-mahdy/media_kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.1.10+1"
   media_kit_libs_android_video:
@@ -1286,9 +1286,9 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit_video
-      ref: HEAD
-      resolved-ref: "3554c6005fd7e4ff3b3a337e534913a49cc8b97c"
-      url: "https://github.com/abdelaziz-mahdy/media_kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.2.4"
   meta:
@@ -1642,50 +1642,50 @@ packages:
     dependency: transitive
     description:
       name: screen_brightness
-      sha256: ed8da4a4511e79422fc1aa88138e920e4008cd312b72cdaa15ccb426c0faaedd
+      sha256: "7d4ac84ae26b37c01d6f5db7123a72db7933e1f2a2a8c369a51e08f81b3178d8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.2+1"
+    version: "1.0.1"
   screen_brightness_android:
     dependency: transitive
     description:
       name: screen_brightness_android
-      sha256: "3df10961e3a9e968a5e076fe27e7f4741fa8a1d3950bdeb48cf121ed529d0caf"
+      sha256: "8c69d3ac475e4d625e7fa682a3a51a69ff59abe5b4a9e57f6ec7d830a6c69bd6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0+2"
+    version: "1.0.1"
   screen_brightness_ios:
     dependency: transitive
     description:
       name: screen_brightness_ios
-      sha256: "99adc3ca5490b8294284aad5fcc87f061ad685050e03cf45d3d018fe398fd9a2"
+      sha256: f08f70ca1ac3e30719764b5cfb8b3fe1e28163065018a41b3e6f243ab146c2f1
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "1.0.1"
   screen_brightness_macos:
     dependency: transitive
     description:
       name: screen_brightness_macos
-      sha256: "64b34e7e3f4900d7687c8e8fb514246845a73ecec05ab53483ed025bd4a899fd"
+      sha256: "70c2efa4534e22b927e82693488f127dd4a0f008469fccf4f0eefe9061bbdd6a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0+1"
+    version: "1.0.1"
   screen_brightness_platform_interface:
     dependency: transitive
     description:
       name: screen_brightness_platform_interface
-      sha256: b211d07f0c96637a15fb06f6168617e18030d5d74ad03795dd8547a52717c171
+      sha256: "9f3ebf7f22d5487e7676fe9ddaf3fc55b6ff8057707cf6dc0121c7dfda346a16"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "1.0.1"
   screen_brightness_windows:
     dependency: transitive
     description:
       name: screen_brightness_windows
-      sha256: "9261bf33d0fc2707d8cf16339ce25768100a65e70af0fcabaf032fc12408ba86"
+      sha256: c8e12a91cf6dd912a48bd41fcf749282a51afa17f536c3460d8d05702fb89ffa
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "1.0.1"
   screen_retriever:
     dependency: transitive
     description:
@@ -1904,10 +1904,10 @@ packages:
     dependency: transitive
     description:
       name: sqlparser
-      sha256: "3be52b4968fc2f098ba735863404756d2fe3ea0729cf006a5b5612618f74ca04"
+      sha256: ade9a67fd70d0369329ed3373208de7ebd8662470e8c396fc8d0d60f9acdfc9f
       url: "https://pub.dev"
     source: hosted
-    version: "0.37.1"
+    version: "0.36.0"
   stack_trace:
     dependency: transitive
     description:
@@ -2232,10 +2232,10 @@ packages:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
+      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.5"
   webdriver:
     dependency: transitive
     description:

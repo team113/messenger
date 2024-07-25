@@ -27,7 +27,7 @@ dependencies:
     git:
       url: https://github.com/krida2000/dough
       path: packages/dough/
-  drift: ^2.18.0
+  drift: 2.18.0
   email_validator: ^2.1.17
   ffi: ^2.0.2
   file_picker: ^8.0.3
@@ -106,7 +106,7 @@ dependencies:
   uuid: ^4.3.3
   vibration: ^1.8.1
   wakelock_plus: ^1.1.4
-  web_socket_channel: ^2.2.0
+  web_socket_channel: ^2.4.5
   web: ^0.5.1
   win_toast: ^0.3.0
   win32: ^5.0.6
@@ -121,7 +121,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.6
   dartdoc: 8.0.6 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
-  drift_dev: ^2.18.0
+  drift_dev: 2.18.0
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -173,6 +173,16 @@ dependency_overrides:
       url: https://github.com/instrumentisto/medea-jason
       ref: replace-html-with-web
       path: flutter
+  media_kit:
+    git:
+      url: https://github.com/SleepySquash/media-kit.git
+      path: media_kit
+      ref: migrate-to-wasm
+  media_kit_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit.git
+      path: media_kit_video
+      ref: migrate-to-wasm
   # TODO: Remove, when `media_kit` removes `msvcp140` dlls from Windows libs:
   #       https://github.com/media-kit/media-kit/issues/846
   media_kit_libs_windows_video:
@@ -190,14 +200,8 @@ dependency_overrides:
       url: https://github.com/SleepySquash/platform_detect.git
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
-  media_kit:
-    git:
-      url: https://github.com/abdelaziz-mahdy/media_kit
-      path: media_kit
-  media_kit_video:
-    git:
-      url: https://github.com/abdelaziz-mahdy/media_kit
-      path: media_kit_video
+  # TODO: Unpin, when `graphql_flutter` updates.
+  web_socket_channel: ^2.4.5
 
 flutter:
   uses-material-design: true

@@ -68,6 +68,8 @@
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="preload" href="main.dart.js" as="script">
+  <link rel="preconnect" href="https://fonts.gstatic.com/">
   <link href='https://fonts.googleapis.com/css?family=Noto Sans Display' rel='stylesheet'>
   <style type="text/css">
     body {
@@ -104,7 +106,7 @@
       }
     }
   </style>
-  <script type="module">
+  <script defer type="module">
     import init, {
       Jason,
       MediaStreamSettings,
@@ -128,7 +130,7 @@
       window.MediaSourceKind = MediaSourceKind;
     })();
   </script>
-  <script type="text/javascript">
+  <script defer type="text/javascript">
     window.isPopup = window.opener != null && window.opener !== window;
 
     if (window.isPopup) {
@@ -149,12 +151,8 @@
     }
   </script>
 
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
-  </script>
   <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
+  <script src="flutter_bootstrap.js" async></script>
 </head>
 
 <body>
@@ -184,10 +182,9 @@
   </div>
   <script>
     window.addEventListener('load', function (ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
+      _flutter.loader.load({
         serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
+          serviceWorkerVersion: '{{flutter_service_worker_version}}'
         },
         onEntrypointLoaded: async function (engineInitializer) {
           try {
@@ -257,7 +254,7 @@
       };
     }
   </script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Animate the blinking loader -->
   <script>
     var interval;
@@ -284,14 +281,16 @@
       }, 45);
     }
 
-    $('html').on('click', function () {
-      if ($("#logo").length) {
-        animate();
-      }
-    });
+    window.addEventListener("load", function (event) {
+      $('html').on('click', function () {
+        if ($("#logo").length) {
+          animate();
+        }
+      });
+    }, false);
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
   <script>
     function webSaveAs(url, name) {
       saveAs(url, name);
