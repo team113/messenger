@@ -440,6 +440,9 @@ class NotificationService extends DisposableService {
               : null,
         );
       } else {
+        // If message contains no notification (it's a background notification),
+        // then try canceling the notifications with the provided thread, if
+        // any, or otherwise a single one, if data contains a tag.
         if (message.notification == null) {
           final String? tag = message.data['tag'];
           final String? thread = message.data['thread'];

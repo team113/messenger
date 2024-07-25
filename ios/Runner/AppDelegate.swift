@@ -87,7 +87,7 @@ import UIKit
     }
   }
 
-  /// Remove the delivered notification containing the provided thread.
+  /// Remove the delivered notifications containing the provided thread.
   private func cancelNotificationsContaining(result: @escaping FlutterResult, thread: String) {
     if #available(iOS 10.0, *) {
       let center = UNUserNotificationCenter.current();

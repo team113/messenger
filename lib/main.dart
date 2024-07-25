@@ -459,7 +459,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     //
     // Note, that on iOS this behaviour is done via separate Notification
     // Service Extension, as this code isn't guaranteed to be invoked at all,
-    // especially for visual notification.
+    // especially for visual notifications.
     if (PlatformUtils.isAndroid) {
       final String? chatId = message.data['chatId'];
 
