@@ -13,10 +13,14 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Changed
 
+- UI:
+    - Chat page:
+        - Updated messages color. ([#1069])
 - iOS:
     - Better described microphone and camera usage prompts. ([#1066])
 
 [#1066]: /../../pull/1066
+[#1069]: /../../pull/1069
 
 
 
