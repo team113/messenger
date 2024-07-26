@@ -147,6 +147,7 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
+  - ReachabilitySwift (5.2.3)
   - screen_brightness_ios (0.1.0):
     - Flutter
   - SDWebImage (5.19.4):
@@ -164,6 +165,9 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - SQLite.swift (0.15.3):
+    - SQLite.swift/standard (= 0.15.3)
+  - SQLite.swift/standard (0.15.3)
   - "sqlite3 (3.46.0+1)":
     - "sqlite3/common (= 3.46.0+1)"
   - "sqlite3/common (3.46.0+1)"
@@ -223,6 +227,7 @@ DEPENDENCIES:
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - SQLite.swift
   - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - vibration (from `.symlinks/plugins/vibration/ios`)
@@ -246,6 +251,7 @@ SPEC REPOS:
     - PromisesObjC
     - SDWebImage
     - Sentry
+    - SQLite.swift
     - sqlite3
     - SwiftyGif
 
@@ -357,6 +363,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
+  ReachabilitySwift: 7f151ff156cea1481a8411701195ac6a984f4979
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
   SDWebImage: 066c47b573f408f18caa467d71deace7c0f8280d
   sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
@@ -364,6 +371,7 @@ SPEC CHECKSUMS:
   sentry_flutter: edc037f7af0dc1512d6c33a5c2c7c838bd0d6806
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
   sqlite3: fc1bf263f36b89316edebfe48e2358334a9c79ad
   sqlite3_flutter_libs: c00457ebd31e59fa6bb830380ddba24d44fbcd3b
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
@@ -372,6 +380,6 @@ SPEC CHECKSUMS:
   volume_controller: 531ddf792994285c9b17f9d8a7e4dcdd29b3eae9
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
 
-PODFILE CHECKSUM: 138c677207479d912b992fe10e92106347aa5d39
+PODFILE CHECKSUM: 9b3462c8576c33ce44d05061d54f03eb9377f0f9
 
 COCOAPODS: 1.15.2

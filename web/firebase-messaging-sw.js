@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js");
-importScripts("https://www.gstatic.com/firebasejs/8.10.1/firebase-messaging.js");
+importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging-compat.js");
 
 firebase.initializeApp({
   apiKey: "AIzaSyBbttYFbYjucn8BY-p5tlWomcd5V9h8zWc",
@@ -32,6 +32,33 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
 
-messaging.onBackgroundMessage((payload) => {
+messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
+
+  // If payload contains no title (it's a background notification), then check
+  // whether its data contains any tag or thread, and cancel it, if any.
+  //
+  // This code is invoked from a service worker, thus the `getNotifications()`
+  // method is available here.
+  if (payload.notification?.title == null) {
+    var tag = payload.data.tag;
+    var thread = payload.data.thread;
+
+    if (thread != null) {
+      const notifications = await self.registration.getNotifications();
+      for (var notification of notifications) {
+        if (notification.tag.includes(thread)) {
+          notification.close();
+        }
+      }
+    } else if (tag != null) {
+      const notifications = await self.registration.getNotifications({
+        tag: payload.data.tag
+      });
+
+      for (var notification of notifications) {
+        notification.close();
+      }
+    }
+  }
 });

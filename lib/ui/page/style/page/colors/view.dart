@@ -69,6 +69,8 @@ class ColorsView extends StatelessWidget {
       (style.colors.primary, 'primary'),
       (style.colors.primaryHighlightShiniest, 'primaryHighlightShiniest'),
       (style.colors.primaryHighlightLightest, 'primaryHighlightLightest'),
+      (style.colors.primaryLight, 'primaryLight'),
+      (style.colors.primaryLightest, 'primaryLightest'),
       (style.colors.backgroundAuxiliaryLighter, 'backgroundAuxiliaryLighter'),
       (style.colors.backgroundAuxiliaryLightest, 'backgroundAuxiliaryLightest'),
       (style.colors.accept, 'accept'),
