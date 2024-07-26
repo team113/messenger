@@ -127,7 +127,6 @@ class UpgradePopupView extends StatelessWidget {
                 text: critical
                     ? 'label_critical_update_is_available'.l10n
                     : 'label_update_is_available'.l10n,
-                close: !critical,
               );
               children = [
                 Flexible(

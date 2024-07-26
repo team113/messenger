@@ -117,14 +117,14 @@ class UpgradeWorker extends DisposableService {
             final bool lower = ours != null && their != null
                 ? ours < their
                 : Pubspec.ref.compareTo(release.name) == -1;
-            Log.debug(
+            Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
             );
 
             // Critical releases must always be displayed and can't be skipped.
             final bool critical = ours?.isCritical(their) ?? false;
-            Log.debug(
+            Log.info(
               'Whether `$ours` is considered critical relative to `$their`: $critical',
               '$runtimeType',
             );
