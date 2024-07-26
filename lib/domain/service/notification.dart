@@ -35,6 +35,7 @@ import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
+import '/util/ios_utils.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -419,11 +420,12 @@ class NotificationService extends DisposableService {
 
     // Display a local notification, if there's any push notifications received
     // while application is in foreground.
-    _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
+    _foregroundSubscription =
+        FirebaseMessaging.onMessage.listen((message) async {
       Log.debug('_foregroundSubscription($message)', '$runtimeType');
 
       if (message.notification?.title != null) {
-        show(
+        await show(
           message.notification!.title!,
           body: message.notification?.body,
           payload: message.data['chatId'] != null
@@ -437,6 +439,28 @@ class NotificationService extends DisposableService {
               ? '${message.data['chatId']}_${message.data['chatItemId']}'
               : null,
         );
+      } else {
+        // If message contains no notification (it's a background notification),
+        // then try canceling the notifications with the provided thread, if
+        // any, or otherwise a single one, if data contains a tag.
+        if (message.notification == null) {
+          final String? tag = message.data['tag'];
+          final String? thread = message.data['thread'];
+
+          if (PlatformUtils.isAndroid) {
+            if (thread != null) {
+              await AndroidUtils.cancelNotificationsContaining(thread);
+            } else if (tag != null) {
+              await AndroidUtils.cancelNotification(tag);
+            }
+          } else if (PlatformUtils.isIOS) {
+            if (thread != null) {
+              await IosUtils.cancelNotificationsContaining(thread);
+            } else if (tag != null) {
+              await IosUtils.cancelNotification(tag);
+            }
+          }
+        }
       }
     });
 
@@ -460,8 +484,9 @@ class NotificationService extends DisposableService {
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
-    if (PlatformUtils.isAndroid &&
-        settings.authorizationStatus != AuthorizationStatus.authorized) {
+    if (settings.authorizationStatus == AuthorizationStatus.notDetermined ||
+        (PlatformUtils.isAndroid &&
+            settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
     }
 
@@ -487,10 +512,12 @@ class NotificationService extends DisposableService {
           }
         }
 
-        // On Web push notifications don't support playing any sounds, it's up
-        // to operating system to decide, whether to play sound at all, so we
-        // play a sound manually.
-        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        if (message['notification']?['title'] != null) {
+          // On Web push notifications don't support playing any sounds, it's up
+          // to operating system to decide, whether to play sound at all, so we
+          // play a sound manually.
+          AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        }
       });
 
       _token =

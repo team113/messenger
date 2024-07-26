@@ -72,8 +72,10 @@ import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
+import 'util/android_utils.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
+import 'util/ios_utils.dart';
 import 'util/log.dart';
 import 'util/platform_utils.dart';
 import 'util/web/web_utils.dart';
@@ -298,21 +300,11 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  try {
-    await Firebase.initializeApp(
-      options: PlatformUtils.pushNotifications
-          ? DefaultFirebaseOptions.currentPlatform
-          : null,
-    );
-  } catch (e) {
-    if (e.toString().contains('[core/duplicate-app]')) {
-      // No-op.
-    } else {
-      rethrow;
-    }
-  }
-
   Log.debug('handlePushNotification($message)', 'main');
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
@@ -438,6 +430,66 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       provider?.disconnect();
       subscription?.cancel();
       await FlutterCallkitIncoming.endCall(message.data['chatId']);
+    }
+  } else {
+    // If message contains no notification (it's a background notification),
+    // then try canceling the notifications with the provided thread, if any, or
+    // otherwise a single one, if data contains a tag.
+    if (message.notification == null) {
+      final String? tag = message.data['tag'];
+      final String? thread = message.data['thread'];
+
+      if (PlatformUtils.isAndroid) {
+        if (thread != null) {
+          await AndroidUtils.cancelNotificationsContaining(thread);
+        } else if (tag != null) {
+          await AndroidUtils.cancelNotification(tag);
+        }
+      } else if (PlatformUtils.isIOS) {
+        if (thread != null) {
+          await IosUtils.cancelNotificationsContaining(thread);
+        } else if (tag != null) {
+          await IosUtils.cancelNotification(tag);
+        }
+      }
+    }
+
+    // If payload contains a `ChatId` in it, then try sending a single
+    // [GraphQlProvider.chatItems] query to mark the chat as delivered.
+    //
+    // Note, that on iOS this behaviour is done via separate Notification
+    // Service Extension, as this code isn't guaranteed to be invoked at all,
+    // especially for visual notifications.
+    if (PlatformUtils.isAndroid) {
+      final String? chatId = message.data['chatId'];
+
+      if (chatId != null) {
+        await Config.init();
+
+        final common = CommonDriftProvider.from(CommonDatabase());
+        final credentialsProvider = CredentialsDriftProvider(common);
+        final accountProvider = AccountDriftProvider(common);
+
+        await credentialsProvider.init();
+        await accountProvider.init();
+
+        final UserId? userId = accountProvider.userId;
+        final Credentials? credentials =
+            userId != null ? await credentialsProvider.read(userId) : null;
+
+        if (credentials != null) {
+          final provider = GraphQlProvider();
+          provider.token = credentials.access.secret;
+
+          try {
+            await provider.chatItems(ChatId(chatId), first: 1);
+          } catch (e) {
+            // No-op.
+          }
+
+          provider.disconnect();
+        }
+      }
     }
   }
 }
