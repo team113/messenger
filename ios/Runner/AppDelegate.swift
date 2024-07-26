@@ -18,6 +18,7 @@
  */
 
 import Flutter
+import FirebaseMessaging
 import MachO
 import UIKit
 
@@ -29,11 +30,26 @@ import UIKit
   ) -> Bool {
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let utilsChannel = FlutterMethodChannel(name: "team113.flutter.dev/ios_utils",
-                                              binaryMessenger: controller.binaryMessenger)
+                                            binaryMessenger: controller.binaryMessenger)
     utilsChannel.setMethodCallHandler({
-      [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
+      [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
       if (call.method == "getArchitecture") {
         self?.getArchitecture(result: result)
+      } else if (call.method == "cancelNotification") {
+        let args = call.arguments as! [String: Any]
+        self?.cancelNotification(tag: args["tag"] as! String)
+        result(nil)
+      } else if (call.method == "cancelNotificationsContaining") {
+        let args = call.arguments as! [String: Any]
+        self?.cancelNotificationsContaining(result: result, thread: args["thread"] as! String)
+      } else if (call.method == "getSharedDirectory") {
+        result(FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")?.absoluteString);
+      } else if (call.method == "writeDefaults") {
+        let args = call.arguments as! [String: Any]
+        if let defaults = UserDefaults(suiteName: "group.com.team113.messenger") {
+          defaults.set(args["value"] as! String, forKey: args["key"] as! String)
+        }
+        result(nil)
       } else {
         result(FlutterMethodNotImplemented)
       }
@@ -42,8 +58,11 @@ import UIKit
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
+
     GeneratedPluginRegistrant.register(with: self)
     application.registerForRemoteNotifications()
+    UIApplication.shared.registerForRemoteNotifications()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -57,6 +76,33 @@ import UIKit
                           details: nil))
     } else {
       result(String(arch!))
+    }
+  }
+
+  /// Remove the delivered notification with the provided tag.
+  private func cancelNotification(tag: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+    }
+  }
+
+  /// Remove the delivered notifications containing the provided thread.
+  private func cancelNotificationsContaining(result: @escaping FlutterResult, thread: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.getDeliveredNotifications { (notifications) in
+        var found = false;
+
+        for notification in notifications {
+          if (notification.request.content.threadIdentifier.contains(thread) == true) {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+            found = true;
+          }
+        }
+
+        result(found);
+      }
     }
   }
 }

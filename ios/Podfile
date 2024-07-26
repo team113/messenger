@@ -45,6 +45,7 @@ end
 target 'NotificationServiceExtension' do
   use_frameworks!
   pod 'Firebase/Messaging'
+  pod 'SQLite.swift'
 end
 
 post_install do |installer|
