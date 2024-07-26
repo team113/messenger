@@ -1209,18 +1209,17 @@ packages:
   medea_flutter_webrtc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: replace-html-with-web
-      resolved-ref: c7795fdffd49769d6f4709a62e2120846a007566
-      url: "https://github.com/instrumentisto/medea-flutter-webrtc"
-    source: git
-    version: "0.10.0-dev"
+      name: medea_flutter_webrtc
+      sha256: d5dfec8896f6684bcf4b3fa250f7bb8934d958b1878f6a03d760629f950e6a75
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.10.0-dev+rev.dc5a0ad3550d7e3bc29163d273262bcd64ebbfbc"
   medea_jason:
     dependency: "direct main"
     description:
       path: flutter
       ref: replace-html-with-web
-      resolved-ref: "921c849ddcb39733ada3db319549ab21f7e597b2"
+      resolved-ref: "14dfff3433b7f8d980b12e1515275ad994f72f47"
       url: "https://github.com/instrumentisto/medea-jason"
     source: git
     version: "0.5.0-dev"

@@ -162,11 +162,7 @@ dependency_overrides:
     git:
       url: https://github.com/raldhafiri/open_filex
   # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc:
-    # path: ../medea-flutter-webrtc
-    git:
-      url: https://github.com/instrumentisto/medea-flutter-webrtc
-      ref: replace-html-with-web
+  medea_flutter_webrtc: 0.10.0-dev+rev.dc5a0ad3550d7e3bc29163d273262bcd64ebbfbc
   medea_jason:
     # path: ../medea-jason/flutter
     git:
