@@ -40,7 +40,7 @@ abstract class AbstractAuthRepository {
 
   /// Sets [handler] that will be called on any [AuthorizationException].
   set authExceptionHandler(
-    Future<void> Function(AuthorizationException) handler,
+    Future<void> Function(AuthorizationException)? handler,
   );
 
   /// Applies the specified [token] right away instead of the lazy reconnection.
