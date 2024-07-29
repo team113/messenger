@@ -186,6 +186,8 @@ jobs:
 
       - run: make flutter.pub
 
+      - run: git diff
+
       # Running `build_runner` here ensures `PubspecBuilder` and its
       # `git describe` command returns the valid result without possible
       # `-dirty` part, that may happen during FCM configuration.
