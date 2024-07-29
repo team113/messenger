@@ -406,19 +406,21 @@ packages:
   drift:
     dependency: "direct main"
     description:
-      name: drift
-      sha256: "6acedc562ffeed308049f78fb1906abad3d65714580b6745441ee6d50ec564cd"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.18.0"
+      path: drift
+      ref: develop
+      resolved-ref: "9e8064f5bbd86790ebbf3482a9c8a479b720d1e8"
+      url: "https://github.com/simolus3/drift"
+    source: git
+    version: "2.19.1+1"
   drift_dev:
     dependency: "direct dev"
     description:
-      name: drift_dev
-      sha256: d9b020736ea85fff1568699ce18b89fabb3f0f042e8a7a05e84a3ec20d39acde
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.18.0"
+      path: drift_dev
+      ref: develop
+      resolved-ref: "9e8064f5bbd86790ebbf3482a9c8a479b720d1e8"
+      url: "https://github.com/simolus3/drift"
+    source: git
+    version: "2.19.1"
   email_validator:
     dependency: "direct main"
     description:
@@ -1903,10 +1905,10 @@ packages:
     dependency: transitive
     description:
       name: sqlparser
-      sha256: ade9a67fd70d0369329ed3373208de7ebd8662470e8c396fc8d0d60f9acdfc9f
+      sha256: "3be52b4968fc2f098ba735863404756d2fe3ea0729cf006a5b5612618f74ca04"
       url: "https://pub.dev"
     source: hosted
-    version: "0.36.0"
+    version: "0.37.1"
   stack_trace:
     dependency: transitive
     description:
