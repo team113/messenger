@@ -173,9 +173,9 @@ jobs:
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
-      - name: Set Git to replace CRLF with LF symbols automatically
-        run: git config --global core.autocrlf true
-        if: ${{ matrix.platform == 'windows' }}
+      # - name: Set Git to replace CRLF with LF symbols automatically
+      #   run: git config --global core.autocrlf true
+      #   if: ${{ matrix.platform == 'windows' }}
 
       - uses: actions/checkout@v4
         with:
@@ -188,10 +188,12 @@ jobs:
           channel: stable
           cache: true
 
+      - run: git status
       - run: git describe --tags --dirty --abbrev=0
       - run: make flutter.pub
       - run: git describe --tags --dirty --abbrev=0
       - run: git diff
+      - run: git status
 
       # Running `build_runner` here ensures `PubspecBuilder` and its
       # `git describe` command returns the valid result without possible
