@@ -1,0 +1,10 @@
+# Convert to LF line endings on checkout.
+/linux/flutter/generated_plugin_registrant.cc text eol=lf
+/linux/flutter/generated_plugin_registrant.h text eol=lf
+/linux/flutter/generated_plugins.cmake text eol=lf
+/macos/Flutter/GeneratedPluginRegistrant.swift text eol=lf
+
+# Convert to CRLF line endings on checkout.
+/windows/flutter/generated_plugin_registrant.cc text eol=crlf
+/windows/flutter/generated_plugin_registrant.h text eol=crlf
+/windows/flutter/generated_plugins.cmake text eol=crlf
