@@ -184,8 +184,9 @@ jobs:
           channel: stable
           cache: true
 
+      - run: git describe --tags --dirty --abbrev=0
       - run: make flutter.pub
-
+      - run: git describe --tags --dirty --abbrev=0
       - run: git diff
 
       # Running `build_runner` here ensures `PubspecBuilder` and its
@@ -193,6 +194,8 @@ jobs:
       # `-dirty` part, that may happen during FCM configuration.
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ipa web windows', matrix.platform) }}
+
+      - run: git describe --tags --dirty --abbrev=0
 
       - uses: actions/setup-java@v4
         with:
