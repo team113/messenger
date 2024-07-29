@@ -186,7 +186,7 @@ jobs:
 
       - run: git describe --tags --dirty --abbrev=0
       - name: Set Git to replace CRLF with LF symbols automatically
-        run: git config --global core.autocrlf input
+        run: git config --global core.autocrlf true
         if: ${{ matrix.platform == 'windows' }}
       - run: make flutter.pub
       - run: git describe --tags --dirty --abbrev=0
