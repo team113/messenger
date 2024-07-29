@@ -52,8 +52,6 @@ class PubspecBuilder implements Builder {
       '  static const String version = \'${pubspec['version']}\';\n',
     );
 
-    print((await Process.run('git', ['diff'])).stdout);
-
     final ProcessResult git = await Process.run(
       'git',
       ['describe', '--tags', '--abbrev=0', '--dirty', '--match', 'v*'],
@@ -77,8 +75,6 @@ class PubspecBuilder implements Builder {
       if (count.endsWith('\n')) {
         count = count.substring(0, count.length - 1);
       }
-
-      print('========== git resulted in `$ref` output ==========');
 
       buffer.write('  static const String ref = \'$ref+$count\';\n');
     } else {
