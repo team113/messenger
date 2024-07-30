@@ -331,11 +331,20 @@ class Pagination<T, C, K> {
                 }
               }
             } else {
+              Log.debug(
+                'previous()... propagated to `around` due to items being empty',
+                '$runtimeType',
+              );
               await around();
             }
           } finally {
             previousLoading.value = false;
           }
+        } else {
+          Log.debug(
+            'previous()... canceled due to `hasPrevious` being `true` ($hasPrevious) or `previousLoading` being false ($previousLoading)',
+            '$runtimeType',
+          );
         }
 
         return null;

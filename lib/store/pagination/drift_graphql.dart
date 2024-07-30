@@ -59,7 +59,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
     }
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
-    Log.warning('after() -> ${remote.edges.length}');
+    Log.debug('after() -> ${remote.edges.length}');
 
     await driftProvider.put(remote.edges);
 
