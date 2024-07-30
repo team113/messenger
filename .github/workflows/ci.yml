@@ -235,6 +235,18 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}'
         if: ${{ matrix.platform == 'web' }}
 
+      - name: Ensure no `-dirty` part is present in resulted version.
+        run: findstr "ref =" pubspec.g.dart | select-string "-dirty" | %{throw "Error"}
+        if: ${{ matrix.platform == 'windows' }}
+      - name: Ensure no `-dirty` part is present in resulted version.
+        run: |
+          test "" \
+            == "$(grep -m1 'ref = ' lib/pubspec.g.dart \
+                  | cut -d"'" -f2 \
+                  | grep 'dirty' \
+                  | { grep -v grep || true; })"
+        if: ${{ matrix.platform != 'windows' }}
+
       - name: Prepare Android signing resources
         run: |
           echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 -d \
