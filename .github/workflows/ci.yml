@@ -237,9 +237,9 @@ jobs:
 
       - name: Read `pubspec.g.dart`
         id: pubspec
-        uses: jaywcjlove/github-action-read-file@main
+        uses: juliangruber/read-file-action@v1
         with:
-          path: lib/pubspec.g.dart
+          path: ./lib/pubspec.g.dart
       # - name: Parse semver versions from Git tag
       #   id: semver
       #   uses: actions-ecosystem/action-regex-match@v2
