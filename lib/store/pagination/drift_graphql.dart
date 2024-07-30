@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'package:log_me/log_me.dart';
+
 import '/store/pagination.dart';
 import 'drift.dart';
 import 'graphql.dart';
@@ -27,6 +29,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   const DriftGraphQlPageProvider({
     required this.driftProvider,
     required this.graphQlProvider,
+    this.alwaysFetch = false,
   });
 
   /// [DriftPageProvider] fetching elements from the [ScopedDriftProvider].
@@ -35,23 +38,28 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   /// [GraphQlPageProvider] fetching elements from the remote.
   final GraphQlPageProvider<T, C, K> graphQlProvider;
 
+  /// Indicator whether [graphQlProvider] should always be invoked.
+  final bool alwaysFetch;
+
   @override
   Future<Page<T, C>> init(K? key, int count) => driftProvider.init(key, count);
 
   @override
   void dispose() {
-    // No-op.
+    driftProvider.dispose();
+    graphQlProvider.dispose();
   }
 
   @override
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.around(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
+    Log.debug('after() -> ${remote.edges.length}');
 
     await driftProvider.put(remote.edges);
 
@@ -62,7 +70,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> after(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.after(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 
@@ -77,7 +85,7 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
   Future<Page<T, C>> before(K? key, C? cursor, int count) async {
     final Page<T, C> cached = await driftProvider.before(key, cursor, count);
 
-    if (cached.edges.isNotEmpty) {
+    if (!alwaysFetch && cached.edges.isNotEmpty) {
       return cached;
     }
 

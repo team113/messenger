@@ -44,16 +44,27 @@ class ResetAppHook extends Hook {
     final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
 
+    if (drift == null) {
+      final database = Get.put(
+        CommonDriftProvider.from(
+          Get.putOrGet(() => CommonDatabase(), permanent: true),
+        ),
+      );
+
+      await database.reset();
+    }
+
     await Get.deleteAll();
 
     PlatformUtils.client?.interceptors
         .removeWhere((e) => e is DelayedInterceptor);
 
-    await Future.delayed(Duration.zero);
-
     svg.cache.clear();
 
     FIFOCache.clear();
+
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   @override

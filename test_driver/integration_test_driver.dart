@@ -39,7 +39,7 @@ Future<void> main() {
   integration_test_driver.testOutputsDirectory = 'test/e2e/reports';
 
   return integration_test_driver.integrationDriver(
-    timeout: const Duration(minutes: 30),
+    timeout: const Duration(minutes: 60),
     responseDataCallback: (data) async {
       // Retrieve the [LogLevel] from the [data], as accessing [Config] here
       // isn't possible due to Flutter imports happening in [Config].

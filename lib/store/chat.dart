@@ -255,6 +255,7 @@ class ChatRepository extends DisposableInterface
     chats.forEach((_, v) => v.dispose());
     _subscriptions.forEach((_, v) => v.cancel());
     _pagination?.dispose();
+    _localPagination?.dispose();
     _remoteSubscription?.close(immediate: true);
     _favoriteChatsSubscription?.close(immediate: true);
     _paginationSubscription?.cancel();
@@ -1821,8 +1822,6 @@ class ChatRepository extends DisposableInterface
 
   /// Initializes the [_pagination].
   Future<void> _initRemotePagination() async {
-    // return;
-
     if (isClosed) {
       return;
     }
@@ -1844,14 +1843,23 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    final Pagination<DtoChat, FavoriteChatsCursor, ChatId> favorites =
-        Pagination(
+    Pagination<DtoChat, FavoriteChatsCursor, ChatId>? favorites;
+    favorites = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: DriftGraphQlPageProvider(
         driftProvider: DriftPageProvider(
-          fetch: ({required after, required before, ChatId? around}) async {
-            return await _chatLocal.favorite(limit: after + before + 1);
+          watch: ({int? after, int? before, ChatId? around}) async {
+            final int limit = (after ?? 0) + (before ?? 0) + 1;
+            return _chatLocal.watchFavorite(limit: limit > 1 ? limit : null);
+          },
+          watchUpdates: (a, b) =>
+              a.value.favoritePosition != b.value.favoritePosition,
+          onAdded: (e) async {
+            await favorites?.put(e, store: false);
+          },
+          onRemoved: (e) async {
+            await favorites?.remove(e.id, store: false);
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.favoriteCursor,
@@ -1892,15 +1900,45 @@ class ChatRepository extends DisposableInterface
       compare: (a, b) => a.value.compareTo(b.value),
     );
 
-    final Pagination<DtoChat, RecentChatsCursor, ChatId> recent = Pagination(
+    Pagination<DtoChat, RecentChatsCursor, ChatId>? recent;
+    recent = Pagination(
       onKey: (e) => e.value.id,
       perPage: 15,
-      provider: GraphQlPageProvider(
-        fetch: ({after, before, first, last}) => _recentChats(
-          after: after,
-          first: first,
-          before: before,
-          last: last,
+      provider: DriftGraphQlPageProvider(
+        alwaysFetch: true,
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) => _recentChats(
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          ),
+        ),
+        driftProvider: DriftPageProvider(
+          watch: ({int? after, int? before, ChatId? around}) async {
+            final int limit = (after ?? 0) + (before ?? 0) + 1;
+            return _chatLocal.watchRecent(limit: limit > 1 ? limit : null);
+          },
+          watchUpdates: (a, b) => false,
+          onAdded: (e) async {
+            await recent?.put(e, store: false);
+          },
+          onRemoved: (e) async {
+            await recent?.remove(e.value.id, store: false);
+          },
+          onKey: (e) => e.value.id,
+          onCursor: (e) => e?.recentCursor,
+          add: (e, {bool toView = true}) async {
+            if (toView) {
+              await _chatLocal.upsertBulk(e);
+            }
+          },
+          delete: (e) async => await _chatLocal.delete(e),
+          reset: () async => await _chatLocal.clear(),
+          isLast: (_) => false,
+          isFirst: (_) => false,
+          fulfilledWhenNone: true,
+          compare: (a, b) => a.value.compareTo(b.value),
         ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
@@ -1937,7 +1975,13 @@ class ChatRepository extends DisposableInterface
           break;
 
         case OperationKind.removed:
-          remove(event.value!.value.id);
+          // Don't remove a chat that is still present in the pagination, as it
+          // might've been only remove from a concrete pagination: recent only
+          // or favorites only, not the whole list.
+          if (_pagination?.items.where((e) => e.id == event.key).isEmpty ==
+              true) {
+            remove(event.value!.value.id);
+          }
           break;
       }
     });

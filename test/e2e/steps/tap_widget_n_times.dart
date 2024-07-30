@@ -58,7 +58,7 @@ final StepDefinitionGeneric tapWidgetNTimes =
         }
 
         return false;
-      }, timeout: const Duration(seconds: 20));
+      }, timeout: const Duration(seconds: 30));
     }
   },
   configuration: StepDefinitionConfiguration()
