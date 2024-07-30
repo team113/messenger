@@ -17,7 +17,6 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:log_me/log_me.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
@@ -36,9 +35,6 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
         await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
         final controller = Get.find<ChatsTabController>();
-        Log.warning(
-          'controller.chats.where((e) => !e.id.isLocal).length -> ${controller.chats.where((e) => !e.id.isLocal).length}',
-        );
         if (controller.chats.where((e) => !e.id.isLocal).length == count) {
           return true;
         } else {

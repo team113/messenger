@@ -36,7 +36,6 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
   (String filename, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        print('seeChatAvatarAs... 0');
         await context.world.appDriver.waitForAppToSettle();
 
         final RxChat? chat =
@@ -50,11 +49,6 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
             FindType.key,
           ),
           firstMatchOnly: true,
-        );
-
-        print('seeChatAvatarAs... 1');
-        print(
-          'seeChatAvatarAs... 2, chat -> $chat, isPresent -> ${context.world.appDriver.isPresent(finder)}',
         );
 
         return context.world.appDriver.isPresent(finder);

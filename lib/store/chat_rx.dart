@@ -1639,8 +1639,6 @@ class RxChatImpl extends RxChat {
           return;
         }
 
-        print(
-            '_localSubscription (equal: ${chat.value == e?.value}, compareTo: ${chat.value.compareTo(e?.value ?? chat.value)}) -> lastItem vs lastItem (${e?.value.lastItem} vs ${chat.value.lastItem} || ${e?.value.firstItem} vs ${chat.value.firstItem})');
         if (e != null) {
           final ChatItem? first = chat.value.firstItem;
 
@@ -1655,12 +1653,6 @@ class RxChatImpl extends RxChat {
               MapChangeNotification.updated(id, id, this),
             );
           }
-        } else {
-          print('_localSubscription EMITTED `null`, THUS SHOULD REMOVE????');
-
-          // if (me != null) {
-          //   _chatRepository.remove(id);
-          // }
         }
       },
     );

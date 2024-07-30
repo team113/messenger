@@ -118,7 +118,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     }
 
     final result = await safe((db) async {
-      Log.info('upsertBulk(${items.length} items) -> $items');
+      Log.debug('upsertBulk(${items.length} items)');
 
       await db.batch((batch) {
         for (var item in items) {
@@ -262,17 +262,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
-      print(
-        '==== watchRecent(limit: $limit) with query: ${stmt.constructQuery().buffer.toString()}',
-      );
-
-      return stmt
-          .watch()
-          .map((rows) => rows.map(_ChatDb.fromDb).toList())
-          .map((e) {
-        print('==== watchRecent(limit: $limit) -> ${e.length} items -> $e');
-        return e;
-      });
+      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
     });
   }
 
@@ -280,8 +270,6 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   Stream<List<DtoChat>> watchFavorite({int? limit}) {
     return stream((db) {
       final stmt = db.select(db.chats);
-
-      print('==== watchFavorite(limit: $limit)');
 
       stmt.where(
         (u) =>
@@ -295,13 +283,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         stmt.limit(limit);
       }
 
-      return stmt
-          .watch()
-          .map((rows) => rows.map(_ChatDb.fromDb).toList())
-          .map((e) {
-        print('==== watchFavorite(limit: $limit) -> ${e.length} items');
-        return e;
-      });
+      return stmt.watch().map((rows) => rows.map(_ChatDb.fromDb).toList());
     });
   }
 }

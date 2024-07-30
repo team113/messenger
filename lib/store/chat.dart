@@ -1856,11 +1856,9 @@ class ChatRepository extends DisposableInterface
           watchUpdates: (a, b) =>
               a.value.favoritePosition != b.value.favoritePosition,
           onAdded: (e) async {
-            print('=== onAdded');
             await favorites?.put(e, store: false);
           },
           onRemoved: (e) async {
-            print('=== onRemoved');
             await favorites?.remove(e.id, store: false);
           },
           onKey: (e) => e.value.id,
@@ -1923,11 +1921,9 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            print('=== onAdded');
             await recent?.put(e, store: false);
           },
           onRemoved: (e) async {
-            print('=== onRemoved');
             await recent?.remove(e.value.id, store: false);
           },
           onKey: (e) => e.value.id,
@@ -1966,8 +1962,6 @@ class ChatRepository extends DisposableInterface
 
     _paginationSubscription?.cancel();
     _paginationSubscription = _pagination!.changes.listen((event) async {
-      print('_paginationSubscription -> ${event.op}: ${event.key}');
-
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
@@ -2071,8 +2065,6 @@ class ChatRepository extends DisposableInterface
       noFavorite: !withOngoingCalls,
     ))
         .recentChats;
-
-    print('_recentChats response -> $query');
 
     return Page(
       RxList(
