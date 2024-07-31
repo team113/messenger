@@ -155,6 +155,28 @@ final StepDefinitionGeneric waitUntilMessageStatus =
             'waitUntilMessageStatus',
           );
 
+          if (!present) {
+            for (var e in MessageSentStatus.values) {
+              final Finder f = context.world.appDriver.findByDescendant(
+                finder,
+                context.world.appDriver.findByKeySkipOffstage(
+                  switch (status) {
+                    MessageSentStatus.sending => 'Sending',
+                    MessageSentStatus.error => 'Error',
+                    MessageSentStatus.sent => 'Sent',
+                    MessageSentStatus.read => 'Read',
+                    MessageSentStatus.halfRead => 'HalfRead',
+                  },
+                ),
+              );
+
+              Log.debug(
+                'Looking for `$e` within `$identity`... $f (${f.allCandidates.length} found), isPresent -> ${await context.world.appDriver.isPresent(f)}',
+                'waitUntilMessageStatus',
+              );
+            }
+          }
+
           return present;
         } else {
           Log.debug(
