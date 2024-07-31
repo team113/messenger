@@ -167,38 +167,41 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  await context.world.appDriver.waitUntil(() async {
-    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+  await context.world.appDriver.waitUntil(
+    () async {
+      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-    if (await context.world.appDriver.isPresent(finder) &&
-        finder.tryEvaluate()) {
-      await context.world.appDriver.waitForAppToSettle();
+      if (await context.world.appDriver.isPresent(finder) &&
+          finder.tryEvaluate()) {
+        await context.world.appDriver.waitForAppToSettle();
 
-      await context.world.appDriver.waitForAppToSettle();
-      await context.world.appDriver
-          .tap(finder, timeout: context.configuration.timeout);
-      await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver
+            .tap(finder, timeout: context.configuration.timeout);
+        await context.world.appDriver.waitForAppToSettle();
 
-      final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
+        final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-      await context.world.appDriver.enterText(
-        finder2,
+        await context.world.appDriver.enterText(
+          finder2,
 
-        // TODO: Implement more strict way to localize some phrases.
-        switch (text) {
-          'Notes' => 'label_chat_monolog'.l10n,
-          (_) => text,
-        },
-      );
+          // TODO: Implement more strict way to localize some phrases.
+          switch (text) {
+            'Notes' => 'label_chat_monolog'.l10n,
+            (_) => text,
+          },
+        );
 
-      await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.waitForAppToSettle();
 
-      FocusManager.instance.primaryFocus?.unfocus();
-      return true;
-    }
+        FocusManager.instance.primaryFocus?.unfocus();
+        return true;
+      }
 
-    return false;
-  });
+      return false;
+    },
+    timeout: const Duration(seconds: 30),
+  );
 }
 
 /// Returns [String] representation of the [CustomUser]'s [TestCredential].

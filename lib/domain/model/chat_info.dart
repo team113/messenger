@@ -43,6 +43,20 @@ class ChatInfo extends ChatItem {
   /// [ChatInfoAction] taken upon the [Chat].
   final ChatInfoAction action;
 
+  @override
+  int get hashCode => Object.hash(id, chatId, author, status.value, at, action);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfo &&
+        id == other.id &&
+        chatId == other.chatId &&
+        status.value == other.status.value &&
+        author.id == other.author.id &&
+        at == other.at &&
+        action == other.action;
+  }
+
   /// Returns a [Map] representing this [ChatInfo].
   @override
   Map<String, dynamic> toJson() =>
@@ -109,6 +123,14 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
   final ChatAvatar? avatar;
 
   @override
+  int get hashCode => avatar.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfoActionAvatarUpdated && avatar == other.avatar;
+  }
+
+  @override
   ChatInfoActionKind get kind => ChatInfoActionKind.avatarUpdated;
 
   /// Returns a [Map] representing this [ChatInfoActionAvatarUpdated].
@@ -128,6 +150,15 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
   /// [ChatDirectLinkSlug] used to create the [Chat], if any.
   final ChatDirectLinkSlug? directLinkSlug;
+
+  @override
+  int get hashCode => directLinkSlug.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfoActionCreated &&
+        directLinkSlug == other.directLinkSlug;
+  }
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.created;
@@ -157,6 +188,16 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
   final ChatDirectLinkSlug? directLinkSlug;
 
   @override
+  int get hashCode => Object.hash(user, directLinkSlug);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfoActionMemberAdded &&
+        user == other.user &&
+        directLinkSlug == other.directLinkSlug;
+  }
+
+  @override
   ChatInfoActionKind get kind => ChatInfoActionKind.memberAdded;
 
   /// Returns a [Map] representing this [ChatInfoActionMemberAdded].
@@ -181,6 +222,14 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
   final User user;
 
   @override
+  int get hashCode => user.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfoActionMemberRemoved && user == other.user;
+  }
+
+  @override
   ChatInfoActionKind get kind => ChatInfoActionKind.memberRemoved;
 
   /// Returns a [Map] representing this [ChatInfoActionMemberRemoved].
@@ -202,6 +251,14 @@ class ChatInfoActionNameUpdated implements ChatInfoAction {
   ///
   /// `null` means that the old [ChatName] was removed.
   final ChatName? name;
+
+  @override
+  int get hashCode => name.hashCode;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatInfoActionNameUpdated && name == other.name;
+  }
 
   @override
   ChatInfoActionKind get kind => ChatInfoActionKind.nameUpdated;

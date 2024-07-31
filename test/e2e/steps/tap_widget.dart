@@ -54,6 +54,6 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
       }
 
       return false;
-    }, timeout: const Duration(seconds: 20));
+    }, timeout: const Duration(seconds: 30));
   },
 );

@@ -2063,10 +2063,15 @@ class ChatController extends GetxController {
 
         if (i != -1) {
           index = i;
-          offset = (MediaQuery.of(onContext?.call() ?? router.context!)
-                  .size
-                  .height) /
-              3;
+
+          try {
+            offset = (MediaQuery.of(onContext?.call() ?? router.context!)
+                    .size
+                    .height) /
+                3;
+          } catch (_) {
+            offset = 0;
+          }
         }
       }
     }
