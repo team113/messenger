@@ -1647,6 +1647,7 @@ class RxChatImpl extends RxChat {
 
           chat.value = e.value;
           chat.value.firstItem = first ?? chat.value.firstItem;
+          ver = e.ver;
 
           if (positionChanged) {
             _chatRepository.paginated.emit(
