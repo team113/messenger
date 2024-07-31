@@ -33,6 +33,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     required this.onCursor,
     this.fetch,
     this.watch,
+    this.watchUpdates = _defaultWatchUpdates,
     this.add,
     this.delete,
     this.reset,
@@ -72,6 +73,10 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     K? around,
   })? watch;
 
+  /// Callback, comparing the provided items when they update during [watch] to
+  /// determine whether the [onAdded] should be invoked.
+  final bool Function(T a, T b) watchUpdates;
+
   /// Callback, called when the provided [T] items should be persisted.
   final Future<void> Function(Iterable<T> items, {bool toView})? add;
 
@@ -108,6 +113,9 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
   /// Internal [List] of [T] items retrieved from the [fetch].
   List<T> _list = [];
+
+  /// [Completer] of [_page]s used to dispose non-completed ones in [dispose].
+  final List<Completer<List<T>>> _completers = [];
 
   /// Count of [T] items requested after the [_around].
   int? _after = 0;
@@ -162,7 +170,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final List<T> edges = await _page();
 
-    Log.info(
+    Log.debug(
       'init($key, $count) -> (${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
@@ -192,6 +200,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   void dispose() {
     _timeoutTimer?.cancel();
     _watchSubscription?.cancel();
+
+    for (var e in _completers) {
+      if (!e.isCompleted) {
+        e.complete([]);
+      }
+    }
   }
 
   @override
@@ -205,7 +219,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         edges.length - edgesBefore >= count ~/ 2;
 
     Log.debug(
-      'around($key, $count) -> $fulfilled(${edges.length}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
+      'around($key, $count) -> $fulfilled(${edges.length}) cuz ($fulfilledWhenNone || ($_hasFirst && $_hasLast) || ${edges.length} - $edgesBefore >= ${count ~/ 2}), hasNext: ${!_hasLast}, hasPrevious: ${!_hasFirst}',
       '$runtimeType',
     );
 
@@ -305,8 +319,6 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       if (_after != null) {
         _after = _after! + items.length;
       }
-
-      _page();
     }
 
     await add?.call(items, toView: toView);
@@ -345,7 +357,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
           around: _around,
         );
 
-        final Completer<List<T>> completer = Completer();
+        final Completer<List<T>> completer;
+        _completers.add(completer = Completer());
 
         void handle(List<T> items) {
           for (var e in items) {
@@ -356,7 +369,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
               if (!_accounted.contains((OperationKind.added, key))) {
                 onAdded?.call(e);
               }
-            } else if (e != item) {
+            } else if (watchUpdates(e, item)) {
               onAdded?.call(e);
             }
           }
@@ -376,10 +389,13 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
             }
           }
 
-          _items = List.from(items);
+          _items = List.from(items.toList(growable: false), growable: false);
 
           if (!completer.isCompleted) {
-            completer.complete(items.isEmpty ? _items : items);
+            completer.complete(
+              items.isEmpty ? _items.toList() : items.toList(),
+            );
+            _completers.remove(completer);
           }
         }
 
@@ -420,20 +436,26 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Checks whether the current [_list] contain [_first] or [_last] items, so
   /// the [watch]/[fetch] can be promoted to being unlimited for top or bottom.
   void _ensureLimits() {
+    bool refetch = false;
+
     if (_before != null) {
       final T? first = _first;
-      if (first != null) {
+      if (first != null || _items.isEmpty) {
         _before = null;
-        _page();
+        refetch = true;
       }
     }
 
     if (_after != null) {
       final T? last = _last;
-      if (last != null) {
+      if (last != null || _items.isEmpty) {
         _after = null;
-        _page();
+        refetch = true;
       }
+    }
+
+    if (refetch) {
+      _page();
     }
   }
 
@@ -444,4 +466,7 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
       _accounted.removeAt(0);
     }
   }
+
+  /// Indicates whether [a] isn't equal to [b].
+  static bool _defaultWatchUpdates(dynamic a, dynamic b) => a != b;
 }

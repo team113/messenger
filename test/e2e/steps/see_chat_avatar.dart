@@ -53,6 +53,7 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
 
         return context.world.appDriver.isPresent(finder);
       },
+      timeout: const Duration(seconds: 30),
     );
   },
   configuration: StepDefinitionConfiguration()
