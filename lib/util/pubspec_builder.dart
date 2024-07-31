@@ -76,11 +76,10 @@ class PubspecBuilder implements Builder {
         count = count.substring(0, count.length - 1);
       }
 
-      buffer.write('  static const String ref = \'$ref-dirty+$count\';\n');
+      buffer.write('  static const String ref = \'$ref+$count\';\n');
 
       // ignore: avoid_print
-      print(
-          '[PubspecBuilder] `Pubspec.ref` field is set to be `$ref-dirty+$count`.');
+      print('[PubspecBuilder] `Pubspec.ref` field is set to be `$ref+$count`.');
     } else {
       throw Exception(
         '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',
