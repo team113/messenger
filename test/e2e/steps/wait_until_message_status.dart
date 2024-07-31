@@ -113,7 +113,7 @@ final StepDefinitionGeneric waitUntilMessageStatus =
         }
 
         Log.debug(
-          'Message is `$message``, and ID is `${message?.id ?? id}`',
+          'Message is `$message`, and ID is `${message?.id ?? id}`',
           'waitUntilMessageStatus',
         );
 

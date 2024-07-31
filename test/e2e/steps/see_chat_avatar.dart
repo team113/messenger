@@ -23,6 +23,7 @@ import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/util/log.dart';
 
 import '../world/custom_world.dart';
 
@@ -41,17 +42,41 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
+        Log.debug(
+          'Chat is `$chat`, from ${router.route.split('/')}',
+          'seeChatAvatarAs',
+        );
+
+        final avatar = context.world.appDriver
+            .findBy('ChatAvatar_${chat?.id}', FindType.key);
+        Log.debug(
+          'Finder(`ChatAvatar_${chat?.id}`) -> $avatar (${avatar.allCandidates.length} items)',
+          'seeChatAvatarAs',
+        );
+
+        final image = context.world.appDriver.findBy(
+          'Image_${chat?.avatar.value?.full.url}',
+          FindType.key,
+        );
+        Log.debug(
+          'Finder(`Image_${chat?.avatar.value?.full.url}`) -> $image (${image.allCandidates.length} items)',
+          'seeChatAvatarAs',
+        );
+
         final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver
-              .findBy('ChatAvatar_${chat?.id}', FindType.key),
-          context.world.appDriver.findBy(
-            'Image_${chat?.avatar.value?.full.url}',
-            FindType.key,
-          ),
+          avatar,
+          image,
           firstMatchOnly: true,
         );
 
-        return context.world.appDriver.isPresent(finder);
+        final present = await context.world.appDriver.isPresent(finder);
+
+        Log.debug(
+          'Descendant -> $finder (${finder.allCandidates.length} items) -> isPresent? $present',
+          'seeChatAvatarAs',
+        );
+
+        return present;
       },
       timeout: const Duration(seconds: 30),
     );
