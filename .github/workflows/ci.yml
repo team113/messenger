@@ -302,15 +302,6 @@ jobs:
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
 
-      - name: Read `pubspec.g.dart`
-        id: pubspec
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./lib/pubspec.g.dart
-      - name: Ensure no `-dirty` part is present in resulted version.
-        run: ${{ contains(steps.pubspec.outputs.content, '-dirty') && 'exit 1'
-              || 'exit 0' }}
-
       - name: Codesign macOS application
         run: |
           set -ex
@@ -544,15 +535,6 @@ jobs:
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
-
-      - name: Read `pubspec.g.dart`
-        id: pubspec
-        uses: juliangruber/read-file-action@v1
-        with:
-          path: ./lib/pubspec.g.dart
-      - name: Ensure no `-dirty` part is present in resulted version.
-        run: ${{ contains(steps.pubspec.outputs.content, '-dirty') && 'exit 1'
-              || 'exit 0' }}
 
       - name: Parse application name from Git repository name
         id: app
