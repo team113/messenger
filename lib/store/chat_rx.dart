@@ -1646,11 +1646,11 @@ class RxChatImpl extends RxChat {
 
     // If only the first item differs, then items should be considered
     // equal.
-    if (chat.value.firstItem != null &&
-        e != null &&
-        e.value.firstItem == null) {
-      return null;
-    }
+    // if (chat.value.firstItem != null &&
+    //     e != null &&
+    //     e.value.firstItem == null) {
+    //   return null;
+    // }
 
     if (e != null) {
       final ChatItem? first = chat.value.firstItem;
