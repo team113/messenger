@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../../../../util/log.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/l10n/l10n.dart';
@@ -76,6 +77,11 @@ class MessageTimestamp extends StatelessWidget {
     final bool isHalfRead = isSent && halfRead;
     final bool isError = status == SendingStatus.error;
     final bool isSending = status == SendingStatus.sending;
+
+    Log.debug(
+      'build($isSent $isDelivered $isRead $isHalfRead $isError $isSending)',
+      '$runtimeType',
+    );
 
     return Row(
       mainAxisSize: MainAxisSize.min,
