@@ -1629,9 +1629,20 @@ class RxChatImpl extends RxChat {
   }
 
   DtoChat? _setChat(DtoChat? e) {
+    Log.warning('_setChat($e)', '$runtimeType');
+
     if (chat.value == e?.value) {
+      Log.warning(
+        '_setChat($e) -> chat.value == e?.value (${chat.value.lastReads}) VS (${e?.value.lastReads})',
+        '$runtimeType',
+      );
       return null;
     }
+
+    Log.warning(
+      '_setChat($e) -> chat.value.firstItem != null (${chat.value.firstItem != null}) && e != null (${e != null}) && e.value.firstItem == null (${e?.value.firstItem == null})',
+      '$runtimeType',
+    );
 
     // If only the first item differs, then items should be considered
     // equal.
@@ -1650,6 +1661,11 @@ class RxChatImpl extends RxChat {
       chat.value = e.value;
       chat.value.firstItem = first ?? chat.value.firstItem;
       ver = e.ver;
+
+      Log.warning(
+        '_setChat($e) -> chat.value = ${chat.value} AND its reads -> ${chat.value.lastReads}',
+        '$runtimeType',
+      );
 
       if (positionChanged) {
         _chatRepository.paginated.emit(
@@ -2010,8 +2026,10 @@ class RxChatImpl extends RxChat {
                   '=== ChatEventKind.read -> chatEntity.value.lastReads.add(LastChatRead(${event.byUser.id}, ${event.at}))',
                   '$runtimeType',
                 );
-                chatEntity.value.lastReads
-                    .add(LastChatRead(event.byUser.id, event.at));
+                chatEntity.value.lastReads = [
+                  ...chatEntity.value.lastReads,
+                  LastChatRead(event.byUser.id, event.at),
+                ];
               } else {
                 Log.debug(
                   '=== ChatEventKind.read -> lastRead.at = ${event.at}',
