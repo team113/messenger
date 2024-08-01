@@ -1969,25 +1969,52 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.read:
               event as EventChatRead;
+              Log.debug('=== ChatEventKind.read', '$runtimeType');
 
               final PreciseDateTime? at = _lastReadAt(event.at);
+              Log.debug('=== ChatEventKind.read -> at = $at', '$runtimeType');
               if (at != null) {
                 final LastChatRead? read = reads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+                Log.debug(
+                  '=== ChatEventKind.read -> read = $read',
+                  '$runtimeType',
+                );
 
                 if (read == null) {
+                  Log.debug(
+                    '=== ChatEventKind.read -> reads.add(LastChatRead(${event.byUser.id}, $at))',
+                    '$runtimeType',
+                  );
                   reads.add(LastChatRead(event.byUser.id, at));
                 } else {
+                  Log.debug(
+                    '=== ChatEventKind.read -> read.at = $at',
+                    '$runtimeType',
+                  );
                   read.at = at;
+                  reads.refresh();
                 }
               }
 
               final LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
+              Log.debug(
+                '=== ChatEventKind.read -> lastRead = $lastRead',
+                '$runtimeType',
+              );
               if (lastRead == null) {
+                Log.debug(
+                  '=== ChatEventKind.read -> chatEntity.value.lastReads.add(LastChatRead(${event.byUser.id}, ${event.at}))',
+                  '$runtimeType',
+                );
                 chatEntity.value.lastReads
                     .add(LastChatRead(event.byUser.id, event.at));
               } else {
+                Log.debug(
+                  '=== ChatEventKind.read -> lastRead.at = ${event.at}',
+                  '$runtimeType',
+                );
                 lastRead.at = event.at;
               }
               break;
