@@ -160,7 +160,7 @@ final StepDefinitionGeneric waitUntilMessageStatus =
               final Finder f = context.world.appDriver.findByDescendant(
                 finder,
                 context.world.appDriver.findByKeySkipOffstage(
-                  switch (status) {
+                  switch (e) {
                     MessageSentStatus.sending => 'Sending',
                     MessageSentStatus.error => 'Error',
                     MessageSentStatus.sent => 'Sent',
