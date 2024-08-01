@@ -1628,29 +1628,13 @@ class RxChatImpl extends RxChat {
     _localSubscription = _driftChat.watch(id).listen(_setChat);
   }
 
+  /// Updates the reactive [chat] to the provided [DtoChat], if any.
   DtoChat? _setChat(DtoChat? e) {
-    Log.warning('_setChat($e)', '$runtimeType');
+    Log.debug('_setChat($e)', '$runtimeType');
 
     if (chat.value == e?.value) {
-      Log.warning(
-        '_setChat($e) -> chat.value == e?.value (${chat.value.lastReads}) VS (${e?.value.lastReads})',
-        '$runtimeType',
-      );
       return null;
     }
-
-    Log.warning(
-      '_setChat($e) -> chat.value.firstItem != null (${chat.value.firstItem != null}) && e != null (${e != null}) && e.value.firstItem == null (${e?.value.firstItem == null})',
-      '$runtimeType',
-    );
-
-    // If only the first item differs, then items should be considered
-    // equal.
-    // if (chat.value.firstItem != null &&
-    //     e != null &&
-    //     e.value.firstItem == null) {
-    //   return null;
-    // }
 
     if (e != null) {
       final ChatItem? first = chat.value.firstItem;
@@ -1661,11 +1645,6 @@ class RxChatImpl extends RxChat {
       chat.value = e.value;
       chat.value.firstItem = first ?? chat.value.firstItem;
       ver = e.ver;
-
-      Log.warning(
-        '_setChat($e) -> chat.value = ${chat.value} AND its reads -> ${chat.value.lastReads}',
-        '$runtimeType',
-      );
 
       if (positionChanged) {
         _chatRepository.paginated.emit(
@@ -1987,29 +1966,15 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.read:
               event as EventChatRead;
-              Log.debug('=== ChatEventKind.read', '$runtimeType');
 
               final PreciseDateTime? at = _lastReadAt(event.at);
-              Log.debug('=== ChatEventKind.read -> at = $at', '$runtimeType');
               if (at != null) {
                 final LastChatRead? read = reads
                     .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-                Log.debug(
-                  '=== ChatEventKind.read -> read = $read',
-                  '$runtimeType',
-                );
 
                 if (read == null) {
-                  Log.debug(
-                    '=== ChatEventKind.read -> reads.add(LastChatRead(${event.byUser.id}, $at))',
-                    '$runtimeType',
-                  );
                   reads.add(LastChatRead(event.byUser.id, at));
                 } else {
-                  Log.debug(
-                    '=== ChatEventKind.read -> read.at = $at',
-                    '$runtimeType',
-                  );
                   read.at = at;
                   reads.refresh();
                 }
@@ -2017,24 +1982,12 @@ class RxChatImpl extends RxChat {
 
               final LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-              Log.debug(
-                '=== ChatEventKind.read -> lastRead = $lastRead',
-                '$runtimeType',
-              );
               if (lastRead == null) {
-                Log.debug(
-                  '=== ChatEventKind.read -> chatEntity.value.lastReads.add(LastChatRead(${event.byUser.id}, ${event.at}))',
-                  '$runtimeType',
-                );
                 chatEntity.value.lastReads = [
                   ...chatEntity.value.lastReads,
                   LastChatRead(event.byUser.id, event.at),
                 ];
               } else {
-                Log.debug(
-                  '=== ChatEventKind.read -> lastRead.at = ${event.at}',
-                  '$runtimeType',
-                );
                 lastRead.at = event.at;
               }
               break;

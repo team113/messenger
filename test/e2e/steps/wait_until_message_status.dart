@@ -25,7 +25,6 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/ui/page/home/page/chat/controller.dart';
-import 'package:messenger/util/log.dart';
 
 import '../configuration.dart';
 import '../parameters/sending_status.dart';
@@ -112,76 +111,21 @@ final StepDefinitionGeneric waitUntilMessageStatus =
           }
         }
 
-        Log.debug(
-          'Message is `$message`, and ID is `${message?.id ?? id}`',
-          'waitUntilMessageStatus',
-        );
-
-        final String identity = 'MessageStatus_${message?.id ?? id}';
-        final Finder finder =
-            context.world.appDriver.findByKeySkipOffstage(identity);
-
-        Log.debug(
-          'Finder(`$identity`) -> $finder (${finder.allCandidates.length} found)',
-          'waitUntilMessageStatus',
-        );
+        final Finder finder = context.world.appDriver
+            .findByKeySkipOffstage('MessageStatus_${message?.id ?? id}');
 
         if (await context.world.appDriver.isPresent(finder)) {
-          Log.debug('Finder(`$identity`) is present', 'waitUntilMessageStatus');
-
-          final String key = switch (status) {
-            MessageSentStatus.sending => 'Sending',
-            MessageSentStatus.error => 'Error',
-            MessageSentStatus.sent => 'Sent',
-            MessageSentStatus.read => 'Read',
-            MessageSentStatus.halfRead => 'HalfRead',
-          };
-
-          final Finder descendant = context.world.appDriver.findByDescendant(
-            finder,
-            context.world.appDriver.findByKeySkipOffstage(key),
-          );
-
-          Log.debug(
-            'Looking for `$key` within `$identity`... $descendant (${descendant.allCandidates.length} found)',
-            'waitUntilMessageStatus',
-          );
-
-          final bool present =
-              await context.world.appDriver.isPresent(descendant);
-
-          Log.debug(
-            'Is `$key` within `$identity` present? $present',
-            'waitUntilMessageStatus',
-          );
-
-          if (!present) {
-            for (var e in MessageSentStatus.values) {
-              final Finder f = context.world.appDriver.findByDescendant(
-                finder,
-                context.world.appDriver.findByKeySkipOffstage(
-                  switch (e) {
-                    MessageSentStatus.sending => 'Sending',
-                    MessageSentStatus.error => 'Error',
-                    MessageSentStatus.sent => 'Sent',
-                    MessageSentStatus.read => 'Read',
-                    MessageSentStatus.halfRead => 'HalfRead',
-                  },
-                ),
-              );
-
-              Log.debug(
-                'Looking for `$e` within `$identity`... $f (${f.allCandidates.length} found), isPresent -> ${await context.world.appDriver.isPresent(f)}',
-                'waitUntilMessageStatus',
-              );
-            }
-          }
-
-          return present;
-        } else {
-          Log.debug(
-            'Finder(`$identity`) is NOT present',
-            'waitUntilMessageStatus',
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              finder,
+              context.world.appDriver.findByKeySkipOffstage(switch (status) {
+                MessageSentStatus.sending => 'Sending',
+                MessageSentStatus.error => 'Error',
+                MessageSentStatus.sent => 'Sent',
+                MessageSentStatus.read => 'Read',
+                MessageSentStatus.halfRead => 'HalfRead',
+              }),
+            ),
           );
         }
 

@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:messenger/util/log.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
@@ -391,14 +390,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
   bool get _isHalfRead {
     final Chat? chat = widget.chat.value;
     if (chat == null) {
-      Log.debug('get _isHalfRead -> chat == null', '$runtimeType');
       return false;
     }
 
-    Log.debug(
-      'get _isHalfRead -> chat.isHalfRead(widget.item.value, widget.me) -> ${chat.isHalfRead(widget.item.value, widget.me)}',
-      '$runtimeType',
-    );
     return chat.isHalfRead(widget.item.value, widget.me);
   }
 

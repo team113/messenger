@@ -18,7 +18,6 @@
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:messenger/util/log.dart';
 
 import '/api/backend/schema.dart' show ChatKind;
 import '/util/new_type.dart';
@@ -226,20 +225,11 @@ class Chat implements Comparable<Chat> {
   bool isHalfRead(ChatItem item, UserId? me) {
     return members.any((e) {
       if (e.user.id == me) {
-        Log.debug(
-          'isHalfRead -> e.user.id == me (${e.user.id} vs $me)',
-          '$runtimeType',
-        );
         return false;
       }
 
       final LastChatRead? read =
           lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
-      Log.debug(
-        'isHalfRead -> for ${e.user.id} read is $read vs item.at (${item.at}), from the lastReads($lastReads)',
-        '$runtimeType',
-      );
-
       return read == null || read.at.isBefore(item.at);
     });
   }
