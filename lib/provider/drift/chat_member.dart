@@ -53,13 +53,11 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
     Log.debug('upsertBulk($chatId, $members)');
 
     await safe((db) async {
-      await db.batch((batch) {
-        for (var member in members) {
-          final ChatMemberRow row = member.toDb(chatId);
-          batch.insert(db.chatMembers, row, onConflict: DoUpdate((_) => row));
-        }
-      });
-    });
+      for (var member in members) {
+        final ChatMemberRow row = member.toDb(chatId);
+        db.into(db.chatMembers).insert(row, onConflict: DoUpdate((_) => row));
+      }
+    }, tag: 'chat_member.upsertBulk($chatId, ${members.length} items)');
 
     return members;
   }
@@ -87,7 +85,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
         row.readTable(db.chatMembers),
         row.readTable(db.users),
       );
-    });
+    }, tag: 'chat_member.read($chatId, $userId)');
   }
 
   /// Deletes the [DtoChatItem] identified by the provided [chatId] and [userId]
@@ -99,14 +97,14 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
         (u) => u.chatId.equals(chatId.val) & u.userId.equals(userId.val),
       );
       await stmt.goAndReturn();
-    });
+    }, tag: 'chat_member.delete($chatId, $userId)');
   }
 
   /// Deletes all the [DtoChatItem]s stored in the database.
   Future<void> clear() async {
     await safe((db) async {
       await db.delete(db.chatMembers).go();
-    });
+    }, tag: 'chat_member.clear()');
   }
 
   /// Returns the [DtoChatMember]s of the provided [chatId].
@@ -134,7 +132,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
             ),
           )
           .toList();
-    });
+    }, tag: 'chat_member.members($chatId, limit: $limit)');
 
     return result ?? [];
   }

@@ -114,6 +114,8 @@ class AuthService extends DisposableService {
     _storageSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
+
+    _authRepository.authExceptionHandler = null;
   }
 
   /// Initializes this service.
@@ -674,8 +676,12 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        final Credentials? oldCreds =
+        Credentials? oldCreds =
             await _credentialsProvider.read(userId!, refresh: true);
+
+        if (areCurrent) {
+          oldCreds ??= credentials.value;
+        }
 
         if (oldCreds != null) {
           accounts[userId]?.value = oldCreds;

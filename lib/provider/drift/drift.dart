@@ -454,7 +454,10 @@ abstract class DriftProviderBase extends DisposableInterface {
   /// `null`.
   ///
   /// [CommonDatabase] may be closed, for example, between E2E tests.
-  Future<T?> safe<T>(Future<T> Function(CommonDatabase db) callback) async {
+  Future<T?> safe<T>(
+    Future<T> Function(CommonDatabase db) callback, {
+    String? tag,
+  }) async {
     if (isClosed || db == null) {
       return null;
     }
@@ -480,17 +483,34 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    await _scoped.wrapped((db) async {
-      await db.transaction(action);
-    });
+    try {
+      await _scoped.wrapped((db) async {
+        return await WebUtils.protect(
+          tag: '${_scoped.db?.userId}',
+          () async => await db.transaction(action),
+        );
+      });
+    } on CouldNotRollBackException catch (e) {
+      if (e.exception
+          .toString()
+          .contains('This database has already been closed')) {
+        // No-op.
+      } else {
+        rethrow;
+      }
+    }
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
   /// `null`.
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
-  Future<T?> safe<T>(Future<T> Function(ScopedDatabase db) callback) async {
-    if (PlatformUtils.isWeb) {
+  Future<T?> safe<T>(
+    Future<T> Function(ScopedDatabase db) callback, {
+    String? tag,
+    bool force = false,
+  }) async {
+    if (PlatformUtils.isWeb && !force) {
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(

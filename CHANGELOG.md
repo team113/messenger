@@ -19,8 +19,14 @@ All user visible changes to this project will be documented in this file. This p
 - iOS:
     - Better described microphone and camera usage prompts. ([#1066])
 
+### Fixed
+
+- Windows:
+    - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
+
 [#1066]: /../../pull/1066
 [#1069]: /../../pull/1069
+[#1070]: /../../pull/1070
 
 
 

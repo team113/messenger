@@ -88,7 +88,7 @@ class AuthRepository extends DisposableInterface
 
   @override
   set authExceptionHandler(
-    Future<void> Function(AuthorizationException) handler,
+    Future<void> Function(AuthorizationException)? handler,
   ) {
     Log.debug('set authExceptionHandler(handler)', '$runtimeType');
     _graphQlProvider.authExceptionHandler = handler;

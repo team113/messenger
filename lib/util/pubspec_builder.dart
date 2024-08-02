@@ -77,6 +77,9 @@ class PubspecBuilder implements Builder {
       }
 
       buffer.write('  static const String ref = \'$ref+$count\';\n');
+
+      // ignore: avoid_print
+      print('[PubspecBuilder] `Pubspec.ref` field is set to be `$ref+$count`.');
     } else {
       throw Exception(
         '[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}',

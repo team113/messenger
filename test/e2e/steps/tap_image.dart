@@ -34,26 +34,36 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric tapLastImageInChat = then<CustomWorld>(
   'I tap on last image in chat',
   (context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(
+      () async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .lastWhere((e) => e.attachments.any((a) => a is ImageAttachment));
-    final Attachment attachment =
-        message.attachments.lastWhere((e) => e is ImageAttachment);
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        final ChatMessage message = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .lastWhere((e) => e.attachments.any((a) => a is ImageAttachment));
+        final Attachment attachment =
+            message.attachments.lastWhere((e) => e is ImageAttachment);
 
-    await context.world.appDriver.nativeDriver.tap(
-      context.world.appDriver.findByDescendant(
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}'),
-        context.world.appDriver.findByKeySkipOffstage(
-          'Attachment_${attachment.id}',
-        ),
-      ),
+        final finder = context.world.appDriver.findByDescendant(
+          context.world.appDriver
+              .findByKeySkipOffstage('Message_${message.id}'),
+          context.world.appDriver.findByKeySkipOffstage(
+            'Attachment_${attachment.id}',
+          ),
+        );
+
+        if (!finder.tryEvaluate()) {
+          return false;
+        }
+
+        await context.world.appDriver.nativeDriver.tap(finder);
+        await context.world.appDriver.waitForAppToSettle();
+
+        return true;
+      },
     );
-
-    await context.world.appDriver.waitForAppToSettle();
   },
 );

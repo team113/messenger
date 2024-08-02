@@ -789,7 +789,13 @@ class _GalleryPopupState extends State<GalleryPopup>
                       height: double.infinity,
                       child: Center(
                         child: GalleryButton(
-                          key: Key(left ? 'LeftButton' : 'NoLeftButton'),
+                          key: Key(
+                            widget.previousLoading
+                                ? 'LeftButtonLoading'
+                                : left
+                                    ? 'LeftButton'
+                                    : 'NoLeftButton',
+                          ),
                           onPressed: left
                               ? () {
                                   _animateToPage(_page - 1);
@@ -838,7 +844,13 @@ class _GalleryPopupState extends State<GalleryPopup>
                       height: double.infinity,
                       child: Center(
                         child: GalleryButton(
-                          key: Key(right ? 'RightButton' : 'NoRightButton'),
+                          key: Key(
+                            widget.nextLoading
+                                ? 'RightButtonLoading'
+                                : right
+                                    ? 'RightButton'
+                                    : 'NoRightButton',
+                          ),
                           onPressed: right
                               ? () {
                                   _animateToPage(_page + 1);
