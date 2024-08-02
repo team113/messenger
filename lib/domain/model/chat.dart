@@ -393,6 +393,9 @@ class LastChatRead {
 
   @override
   int get hashCode => Object.hash(memberId, at);
+
+  @override
+  String toString() => 'LastChatRead($memberId, $at)';
 }
 
 /// Unique ID of a [Chat].

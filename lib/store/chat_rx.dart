@@ -1626,37 +1626,35 @@ class RxChatImpl extends RxChat {
   /// Initializes the [_localSubscription].
   void _initLocalSubscription() {
     _localSubscription?.cancel();
-    _localSubscription = _driftChat.watch(id).listen(
-      (e) {
-        if (chat.value == e?.value) {
-          return;
-        }
+    _localSubscription = _driftChat.watch(id).listen(_setChat);
+  }
 
-        // If only the first item differs, then items should be considered
-        // equal.
-        if (chat.value.firstItem != null &&
-            e != null &&
-            e.value.firstItem == null) {
-          return;
-        }
+  /// Updates the reactive [chat] to the provided [DtoChat], if any.
+  DtoChat? _setChat(DtoChat? e) {
+    Log.debug('_setChat($e)', '$runtimeType');
 
-        if (e != null) {
-          final ChatItem? first = chat.value.firstItem;
+    if (chat.value == e?.value) {
+      return null;
+    }
 
-          final bool positionChanged =
-              e.value.favoritePosition != chat.value.favoritePosition;
+    if (e != null) {
+      final ChatItem? first = chat.value.firstItem;
 
-          chat.value = e.value;
-          chat.value.firstItem = first ?? chat.value.firstItem;
+      final bool positionChanged =
+          e.value.favoritePosition != chat.value.favoritePosition;
 
-          if (positionChanged) {
-            _chatRepository.paginated.emit(
-              MapChangeNotification.updated(id, id, this),
-            );
-          }
-        }
-      },
-    );
+      chat.value = e.value;
+      chat.value.firstItem = first ?? chat.value.firstItem;
+      ver = e.ver;
+
+      if (positionChanged) {
+        _chatRepository.paginated.emit(
+          MapChangeNotification.updated(id, id, this),
+        );
+      }
+    }
+
+    return e;
   }
 
   /// Initializes the [_draftSubscription].
@@ -1979,14 +1977,17 @@ class RxChatImpl extends RxChat {
                   reads.add(LastChatRead(event.byUser.id, at));
                 } else {
                   read.at = at;
+                  reads.refresh();
                 }
               }
 
               final LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {
-                chatEntity.value.lastReads
-                    .add(LastChatRead(event.byUser.id, event.at));
+                chatEntity.value.lastReads = [
+                  ...chatEntity.value.lastReads,
+                  LastChatRead(event.byUser.id, event.at),
+                ];
               } else {
                 lastRead.at = event.at;
               }
@@ -2129,7 +2130,7 @@ class RxChatImpl extends RxChat {
         }
 
         if (shouldPutChat) {
-          await _driftChat.upsert(chatEntity);
+          await _driftChat.upsert(_setChat(chatEntity) ?? chatEntity);
         }
 
         for (var e in itemsToPut) {

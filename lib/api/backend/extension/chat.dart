@@ -85,14 +85,9 @@ extension ChatConversion on ChatMixin {
 
   /// Constructs a new [ChatData] from this [ChatMixin].
   ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
-    var lastItem = this.lastItem?.toDto();
-    var lastReadItem = this.lastReadItem?.toDto();
-
-    return ChatData(
-      toDto(recent, favorite),
-      lastItem,
-      lastReadItem,
-    );
+    final lastItem = this.lastItem?.toDto();
+    final lastReadItem = this.lastReadItem?.toDto();
+    return ChatData(toDto(recent, favorite), lastItem, lastReadItem);
   }
 }
 

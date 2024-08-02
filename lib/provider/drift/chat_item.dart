@@ -101,8 +101,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       return stored;
     }, tag: 'chat_item.upsert(item, toView: $toView)');
 
-    _cache.remove(item.value.id);
-
     return result ?? item;
   }
 
@@ -136,10 +134,6 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
       return items.toList();
     }, tag: 'chat_item.upsertBulk(${items.length} items, toView: $toView)');
-
-    for (var e in items) {
-      _cache.remove(e.value.id);
-    }
 
     return result ?? items;
   }
