@@ -483,14 +483,22 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    await _scoped.wrapped((db) async {
-      return await WebUtils.protect(
-        tag: '${_scoped.db?.userId}',
-        () async {
-          await db.transaction(action);
-        },
-      );
-    });
+    try {
+      await _scoped.wrapped((db) async {
+        return await WebUtils.protect(
+          tag: '${_scoped.db?.userId}',
+          () async => await db.transaction(action),
+        );
+      });
+    } on CouldNotRollBackException catch (e) {
+      if (e.exception
+          .toString()
+          .contains('This database has already been closed')) {
+        // No-op.
+      } else {
+        rethrow;
+      }
+    }
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
