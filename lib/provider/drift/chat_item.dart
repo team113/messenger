@@ -72,7 +72,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       await db
           .into(db.chatItemViews)
           .insert(view, onConflict: DoUpdate((_) => view));
-    });
+    }, tag: 'chat_item.upsertView($chatId, $chatItemId)');
   }
 
   /// Creates or updates the provided [item] in the database.
@@ -99,7 +99,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return stored;
-    });
+    }, tag: 'chat_item.upsert(item, toView: $toView)');
 
     return result ?? item;
   }
@@ -133,7 +133,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       });
 
       return items.toList();
-    });
+    }, tag: 'chat_item.upsertBulk(${items.length} items, toView: $toView)');
 
     return result ?? items;
   }
@@ -155,7 +155,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return _ChatItemDb.fromDb(row);
-    });
+    }, tag: 'chat_item.read($id)');
   }
 
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
@@ -171,7 +171,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       final deleteViews = db.delete(db.chatItemViews);
       deleteViews.where((e) => e.chatItemId.equals(id.val));
       await deleteViews.goAndReturn();
-    });
+    }, tag: 'chat_item.delete($id)');
   }
 
   /// Deletes all the [DtoChatItem]s stored in the database.
@@ -181,7 +181,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     await safe((db) async {
       await db.delete(db.chatItems).go();
       await db.delete(db.chatItemViews).go();
-    });
+    }, tag: 'chat_item.clear()');
   }
 
   /// Returns the [DtoChatItem]s being in a historical view order of the
@@ -236,7 +236,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           .map((rows) => rows.readTable(db.chatItems))
           .map(_ChatItemDb.fromDb)
           .toList();
-    });
+    }, tag: 'chat_item.view($chatId, $before, $after, $around)');
 
     return result ?? [];
   }
@@ -296,7 +296,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
           .map((rows) => rows.readTable(db.chatItems))
           .map(_ChatItemDb.fromDb)
           .toList();
-    });
+    }, tag: 'chat_item.attachments($chatId, $before, $after, $around)');
 
     return result ?? [];
   }

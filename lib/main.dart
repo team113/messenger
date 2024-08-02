@@ -213,7 +213,6 @@ Future<void> main() async {
       options.maxBreadcrumbs = 512;
       options.enableTimeToFullDisplayTracing = true;
       options.enableAppHangTracking = true;
-      options.enableTracing = true;
       options.beforeSend = (SentryEvent event, Hint? hint) {
         final exception = event.exceptions?.firstOrNull?.throwable;
 

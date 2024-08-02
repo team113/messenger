@@ -88,7 +88,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       } on DriftRemoteException {
         // No-op, might be thrown after E2E tests completion.
       }
-    });
+    }, tag: 'my_user.upsert(user)');
 
     return result ?? user;
   }
@@ -110,7 +110,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       }
 
       return _MyUserDb.fromDb(row);
-    });
+    }, tag: 'my_user.read($id)');
   }
 
   /// Deletes the [DtoMyUser] identified by the provided [id] from the database.
@@ -122,7 +122,7 @@ class MyUserDriftProvider extends DriftProviderBase {
       await stmt.go();
 
       _controllers[id]?.add(null);
-    });
+    }, tag: 'my_user.delete($id)');
   }
 
   /// Deletes all the [DtoMyUser]s stored in the database.
@@ -131,7 +131,7 @@ class MyUserDriftProvider extends DriftProviderBase {
 
     await safe((db) async {
       await db.delete(db.myUsers).go();
-    });
+    }, tag: 'my_user.clear()');
   }
 
   /// Returns all the [DtoMyUser]s.

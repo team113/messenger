@@ -81,7 +81,7 @@ class AccountDriftProvider extends DriftProviderBase {
             AccountRow(id: 0, userId: userId.val),
             mode: InsertMode.insertOrReplace,
           );
-    });
+    }, tag: 'account.upsert($userId)');
   }
 
   /// Returns the currently active [UserId] account stored in the database.
@@ -94,7 +94,7 @@ class AccountDriftProvider extends DriftProviderBase {
       final stmt = db.select(db.accounts)..where((e) => e.id.equals(0));
       final AccountRow? row = await stmt.getSingleOrNull();
       return row == null ? null : UserId(row.userId);
-    });
+    }, tag: 'account.read()');
   }
 
   /// Deletes the currently active [UserId] account stored in the database.
@@ -103,7 +103,7 @@ class AccountDriftProvider extends DriftProviderBase {
 
     await safe((db) async {
       await db.delete(db.accounts).go();
-    });
+    }, tag: 'account.delete()');
   }
 
   /// Deletes the currently active [UserId] account stored in the database.
