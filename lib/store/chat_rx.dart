@@ -799,8 +799,8 @@ class RxChatImpl extends RxChat {
       e.pagination?.remove(itemId);
     }
 
-    _driftChat.txn(() async {
-      final DtoChat? chatEntity = await _driftChat.read(id);
+    await _driftChat.txn(() async {
+      final DtoChat? chatEntity = await _driftChat.read(id, force: true);
       if (chatEntity?.value.lastItem?.id == itemId) {
         var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
 
@@ -813,7 +813,7 @@ class RxChatImpl extends RxChat {
           chatEntity?.lastItemCursor = null;
         }
 
-        await _driftChat.upsert(chatEntity!);
+        await _driftChat.upsert(chatEntity!, force: true);
       }
     });
   }
@@ -959,14 +959,14 @@ class RxChatImpl extends RxChat {
     final ChatAvatar? avatar = await _chatRepository.avatar(id);
 
     await _driftChat.txn(() async {
-      final DtoChat? chatEntity = await _driftChat.read(id);
+      final DtoChat? chatEntity = await _driftChat.read(id, force: true);
       if (chatEntity != null) {
         chatEntity.value.avatar = avatar;
 
         // TODO: Avatar should be updated by local subscription.
         this.avatar.value = avatar;
 
-        await _driftChat.upsert(chatEntity);
+        await _driftChat.upsert(chatEntity, force: true);
       }
     });
   }
@@ -1118,14 +1118,15 @@ class RxChatImpl extends RxChat {
               // [PageInfo.hasPrevious] is `false`, when querying `before` only.
               if (before == null || after != null) {
                 _driftChat.txn(() async {
-                  final DtoChat? chatEntity = await _driftChat.read(id);
+                  final DtoChat? chatEntity =
+                      await _driftChat.read(id, force: true);
                   final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
                   if (chatEntity != null &&
                       firstItem != null &&
                       chatEntity.value.firstItem != firstItem) {
                     chatEntity.value.firstItem = firstItem;
-                    await _driftChat.upsert(chatEntity);
+                    await _driftChat.upsert(chatEntity, force: true);
                   }
                 });
               }
@@ -1466,10 +1467,10 @@ class RxChatImpl extends RxChat {
         chat.value.muted!.until!.val.difference(DateTime.now()),
         () async {
           await _driftChat.txn(() async {
-            final DtoChat? chat = await _driftChat.read(id);
+            final DtoChat? chat = await _driftChat.read(id, force: true);
             if (chat != null) {
               chat.value.muted = null;
-              await _driftChat.upsert(chat);
+              await _driftChat.upsert(chat, force: true);
             }
           });
         },
@@ -1709,14 +1710,14 @@ class RxChatImpl extends RxChat {
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         final node = event as ChatEventsChat;
         await _driftChat.txn(() async {
-          final DtoChat? chatEntity = await _driftChat.read(id);
+          final DtoChat? chatEntity = await _driftChat.read(id, force: true);
           if (chatEntity != null) {
             chatEntity.value = node.chat.value;
             chatEntity.ver = node.chat.ver;
             ver = node.chat.ver;
-            await _driftChat.upsert(chatEntity);
+            await _driftChat.upsert(chatEntity, force: true);
           } else {
-            await _driftChat.upsert(node.chat);
+            await _driftChat.upsert(node.chat, force: true);
           }
         });
 

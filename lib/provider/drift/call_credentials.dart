@@ -50,7 +50,7 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
             credentials.toDb(id),
             mode: InsertMode.insertOrReplace,
           );
-    });
+    }, tag: 'call_credentials.upsert($id, credentials)');
 
     _cache.remove(id);
   }
@@ -73,7 +73,7 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return _CallCredentialsDb.fromDb(row);
-    });
+    }, tag: 'call_credentials.read($id)');
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.
@@ -84,7 +84,7 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
       final stmt = db.delete(db.callCredentials)
         ..where((e) => e.callId.equals(id.val));
       await stmt.go();
-    });
+    }, tag: 'call_credentials.delete($id)');
   }
 
   /// Deletes all the [ChatCallCredentials]s stored in the database.
@@ -93,7 +93,7 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       await db.delete(db.callCredentials).go();
-    });
+    }, tag: 'call_credentials.clear()');
   }
 }
 

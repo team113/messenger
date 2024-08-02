@@ -54,7 +54,7 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
       await db
           .into(db.drafts)
           .insertReturning(message.toDb(), mode: InsertMode.insertOrReplace);
-    });
+    }, tag: 'draft.upsert($id, message)');
 
     _cache.remove(id);
   }
@@ -76,7 +76,7 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return _DraftDb.fromDb(row);
-    });
+    }, tag: 'draft.read($id)');
   }
 
   /// Deletes the [ChatMessage] identified by the provided [id] from the
@@ -88,7 +88,7 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
     await safe((db) async {
       final stmt = db.delete(db.drafts)..where((e) => e.chatId.equals(id.val));
       await stmt.go();
-    });
+    }, tag: 'draft.delete($id)');
   }
 
   /// Deletes all the [ChatMessage]s stored in the database.
@@ -97,7 +97,7 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       await db.delete(db.drafts).go();
-    });
+    }, tag: 'draft.clear()');
   }
 
   /// Moves the [ChatId] of [ChatMessage] from [from] to [to].

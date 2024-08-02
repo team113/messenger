@@ -81,7 +81,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       _controllers[stored.id]?.add(stored);
 
       return stored;
-    });
+    }, tag: 'user.upsert(user)');
 
     _cache.remove(user.id);
 
@@ -105,7 +105,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return UserDb.fromDb(row);
-    });
+    }, tag: 'user.read($id)');
   }
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.
@@ -117,7 +117,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       await stmt.go();
 
       _controllers[id]?.add(null);
-    });
+    }, tag: 'user.delete($id)');
   }
 
   /// Deletes all the [DtoUser]s stored in the database.
@@ -126,7 +126,7 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       await db.delete(db.users).go();
-    });
+    }, tag: 'user.clear()');
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoUser]
