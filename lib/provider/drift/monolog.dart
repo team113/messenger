@@ -48,7 +48,7 @@ class MonologDriftProvider extends DriftProviderBase {
       await db
           .into(db.monologs)
           .insert(chatId.toDb(userId), mode: InsertMode.insertOrReplace);
-    });
+    }, tag: 'monolog.upsert($userId, $chatId)');
   }
 
   /// Returns the [ChatId] stored in the database by the provided [id], if any.
@@ -68,7 +68,7 @@ class MonologDriftProvider extends DriftProviderBase {
       }
 
       return _MonologDb.fromDb(row);
-    });
+    }, tag: 'monolog.read($id)');
   }
 
   /// Deletes the [ChatId] identified by the provided [id] from the database.
@@ -79,7 +79,7 @@ class MonologDriftProvider extends DriftProviderBase {
       final stmt = db.delete(db.monologs)
         ..where((e) => e.userId.equals(id.val));
       await stmt.go();
-    });
+    }, tag: 'monolog.delete($id)');
   }
 
   /// Deletes all the [ChatId]s stored in the database.
@@ -88,7 +88,7 @@ class MonologDriftProvider extends DriftProviderBase {
 
     await safe((db) async {
       await db.delete(db.monologs).go();
-    });
+    }, tag: 'monolog.clear()');
   }
 }
 

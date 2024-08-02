@@ -56,7 +56,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
           batch.insert(db.blocklist, row, onConflict: DoUpdate((_) => row));
         }
       });
-    });
+    }, tag: 'blocklist.upsertBulk(${records.length} items)');
 
     return records;
   }
@@ -73,7 +73,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       );
 
       return stored;
-    });
+    }, tag: 'blocklist.upsert(record)');
 
     _cache.remove(record.userId);
 
@@ -98,7 +98,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return _BlocklistDb.fromDb(row);
-    });
+    }, tag: 'blocklist.read($id)');
   }
 
   /// Deletes the [DtoBlocklistRecord] identified by the provided [id] from the
@@ -110,7 +110,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       final stmt = db.delete(db.blocklist)
         ..where((e) => e.userId.equals(id.val));
       await stmt.go();
-    });
+    }, tag: 'blocklist.delete($id)');
   }
 
   /// Deletes all the [DtoBlocklistRecord]s stored in the database.
@@ -119,7 +119,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       await db.delete(db.blocklist).go();
-    });
+    }, tag: 'blocklist.clear()');
   }
 
   /// Returns the recent [DtoBlocklistRecord]s being in a historical view order.
@@ -134,7 +134,7 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return (await stmt.get()).map(_BlocklistDb.fromDb).toList();
-    });
+    }, tag: 'blocklist.records(limit: $limit)');
 
     return result ?? [];
   }

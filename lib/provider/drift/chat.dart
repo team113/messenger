@@ -85,22 +85,26 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   final Map<ChatId, DtoChat> _cache = {};
 
   /// Creates or updates the provided [chat] in the database.
-  Future<DtoChat> upsert(DtoChat chat) async {
+  Future<DtoChat> upsert(DtoChat chat, {bool force = false}) async {
     Log.debug('upsert($chat)');
 
     _cache[chat.id] = chat;
     _controllers[chat.id]?.add(chat);
 
-    final result = await safe((db) async {
-      final ChatRow row = chat.toDb();
-      final DtoChat stored = _ChatDb.fromDb(
-        await db
-            .into(db.chats)
-            .insertReturning(row, mode: InsertMode.insertOrReplace),
-      );
+    final result = await safe(
+      (db) async {
+        final ChatRow row = chat.toDb();
+        final DtoChat stored = _ChatDb.fromDb(
+          await db
+              .into(db.chats)
+              .insertReturning(row, mode: InsertMode.insertOrReplace),
+        );
 
-      return stored;
-    });
+        return stored;
+      },
+      tag: 'chat.upsert()',
+      force: force,
+    );
 
     _cache.remove(chat.id);
 
@@ -128,7 +132,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       });
 
       return items.toList();
-    });
+    }, tag: 'chat.upsertBulk(${items.length} items)');
 
     for (var e in items) {
       _cache.remove(e.value.id);
@@ -138,22 +142,27 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
   }
 
   /// Returns the [DtoChat] stored in the database by the provided [id], if any.
-  Future<DtoChat?> read(ChatId id) async {
+  Future<DtoChat?> read(ChatId id, {bool force = false}) async {
     final DtoChat? existing = _cache[id];
     if (existing != null) {
       return existing;
     }
 
-    return await safe<DtoChat?>((db) async {
-      final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
-      final ChatRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoChat?>(
+      (db) async {
+        final stmt = db.select(db.chats)..where((u) => u.id.equals(id.val));
 
-      if (row == null) {
-        return null;
-      }
+        final ChatRow? row = await stmt.getSingleOrNull();
 
-      return _ChatDb.fromDb(row);
-    });
+        if (row == null) {
+          return null;
+        }
+
+        return _ChatDb.fromDb(row);
+      },
+      tag: 'chat.read($id)',
+      force: force,
+    );
   }
 
   /// Deletes the [DtoChat] identified by the provided [id] from the database.
@@ -164,7 +173,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
     await safe((db) async {
       final stmt = db.delete(db.chats)..where((e) => e.id.equals(id.val));
       await stmt.go();
-    });
+    }, tag: 'delete($id)');
   }
 
   /// Deletes all the [DtoChat]s stored in the database.
@@ -173,7 +182,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       await db.delete(db.chats).go();
-    });
+    }, tag: 'chat.clear()');
   }
 
   /// Returns the recent [DtoChat]s being in a historical view order.
@@ -189,7 +198,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return (await stmt.get()).map(_ChatDb.fromDb).toList();
-    });
+    }, tag: 'chat.recent(limit: $limit)');
 
     return result ?? [];
   }
@@ -212,7 +221,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       }
 
       return (await stmt.get()).map(_ChatDb.fromDb).toList();
-    });
+    }, tag: 'chat.favorite(limit: $limit)');
 
     return result ?? [];
   }
