@@ -179,8 +179,9 @@ dependency_overrides:
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit.git
       path: media_kit
+      ref: migrate-to-wasm
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_android_video:
     git:
@@ -209,8 +210,9 @@ dependency_overrides:
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_video:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit.git
       path: media_kit_video
+      ref: migrate-to-wasm
   # TODO: Remove when Baseflow/flutter-permission-handler#1303 is merged:
   #       https://github.com/Baseflow/flutter-permission-handler/pull/1303
   permission_handler_html:

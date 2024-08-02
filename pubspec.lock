@@ -406,18 +406,20 @@ packages:
   drift:
     dependency: "direct main"
     description:
-      name: drift
-      sha256: "4e0ffee40d23f0b809e6cff1ad202886f51d629649073ed42d9cd1d194ea943e"
-      url: "https://pub.dev"
-    source: hosted
+      path: drift
+      ref: develop
+      resolved-ref: ceeae72e53ed6dec905b19b19bf65cf3817458e0
+      url: "https://github.com/simolus3/drift"
+    source: git
     version: "2.19.1+1"
   drift_dev:
     dependency: "direct dev"
     description:
-      name: drift_dev
-      sha256: ac7647c6cedca99724ca300cff9181f6dd799428f8ed71f94159ed0528eaec26
-      url: "https://pub.dev"
-    source: hosted
+      path: drift_dev
+      ref: develop
+      resolved-ref: ceeae72e53ed6dec905b19b19bf65cf3817458e0
+      url: "https://github.com/simolus3/drift"
+    source: git
     version: "2.19.1"
   email_validator:
     dependency: "direct main"
@@ -1210,16 +1212,16 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: d5dfec8896f6684bcf4b3fa250f7bb8934d958b1878f6a03d760629f950e6a75
+      sha256: "24cba246eef6e60e13c914b6ec237bb9e70b66d6c4c34c6af321a03b14bb5b26"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.0-dev+rev.dc5a0ad3550d7e3bc29163d273262bcd64ebbfbc"
+    version: "0.10.0"
   medea_jason:
     dependency: "direct main"
     description:
       path: flutter
-      ref: replace-html-with-web
-      resolved-ref: "14dfff3433b7f8d980b12e1515275ad994f72f47"
+      ref: HEAD
+      resolved-ref: "0b389e8089da5b3f8b5d24fde52e3e5617d19220"
       url: "https://github.com/instrumentisto/medea-jason"
     source: git
     version: "0.5.0-dev"
@@ -1227,9 +1229,9 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit
-      ref: HEAD
-      resolved-ref: "50c510d018cc5286eb6730f3ea165290f19dc5f6"
-      url: "https://github.com/media-kit/media-kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.1.10+1"
   media_kit_libs_android_video:
@@ -1289,9 +1291,9 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit_video
-      ref: HEAD
-      resolved-ref: "50c510d018cc5286eb6730f3ea165290f19dc5f6"
-      url: "https://github.com/media-kit/media-kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.2.4"
   meta:
@@ -1474,10 +1476,11 @@ packages:
   permission_handler_html:
     dependency: "direct overridden"
     description:
-      name: permission_handler_html
-      sha256: "6cac773d389e045a8d4f85418d07ad58ef9e42a56e063629ce14c4c26344de24"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_html
+      ref: HEAD
+      resolved-ref: "42e1c85b7d2c12528be4ae667db9b3318c77bda7"
+      url: "https://github.com/raldhafiri/flutter-permission-handler.git"
+    source: git
     version: "0.1.2"
   permission_handler_platform_interface:
     dependency: transitive
@@ -1522,11 +1525,12 @@ packages:
   platform_detect:
     dependency: "direct main"
     description:
-      name: platform_detect
-      sha256: a62f99417fc4fa2d099ce0ccdbb1bd3977920f2a64292c326271f049d4bc3a4f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      url: "https://github.com/SleepySquash/platform_detect.git"
+    source: git
+    version: "2.0.13"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -2233,10 +2237,10 @@ packages:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
+      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.5"
   webdriver:
     dependency: transitive
     description:
