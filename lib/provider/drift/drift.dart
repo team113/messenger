@@ -487,7 +487,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
         () async {
-          await db.exclusively(action);
+          await db.transaction(action);
         },
       );
     });
