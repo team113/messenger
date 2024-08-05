@@ -484,7 +484,7 @@ docker-tags = $(strip $(if $(call eq,$(tags),),\
 #	make docker.down
 
 docker.down:
-	-docker-compose down --rmi=local -v
+	-docker compose down --rmi=local -v
 
 
 # Build project Docker image.
@@ -598,7 +598,7 @@ docker.untar:
 
 docker.up: docker.down
 ifeq ($(pull),yes)
-	docker-compose pull --parallel --ignore-pull-failures
+	docker compose pull --parallel --ignore-pull-failures
 endif
 ifeq ($(no-cache),yes)
 	rm -rf .cache/baza/ .cache/cockroachdb/
@@ -617,11 +617,11 @@ ifeq ($(rebuild),yes)
 	@make flutter.build platform=web dart-env='$(dart-env)' \
 	                    dockerized=$(dockerized)
 endif
-	docker-compose up \
+	docker compose up \
 		$(if $(call eq,$(background),yes),-d,--abort-on-container-exit)
 ifeq ($(background),yes)
 ifeq ($(log),yes)
-	docker-compose logs -f
+	docker compose logs -f
 endif
 endif
 
