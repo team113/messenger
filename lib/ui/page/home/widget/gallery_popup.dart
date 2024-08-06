@@ -33,6 +33,7 @@ import 'package:photo_view/photo_view_gallery.dart';
 
 import '/domain/model/file.dart';
 import '/l10n/l10n.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/video/video.dart';
 import '/ui/page/home/page/chat/widget/web_image/web_image.dart';
@@ -347,6 +348,13 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// Scale to apply the [_photoController] to during its [_photo] animation.
   double _photoScale = 1;
 
+  /// Indicator whether [_dismiss] has been already invoked.
+  bool _dismissed = false;
+
+  /// [RouterState.routes] subscription [_dismiss]ing this [GalleryPopup]
+  /// whenever the current route changes.
+  StreamSubscription? _routesSubscription;
+
   @override
   void initState() {
     _bounds = _calculatePosition() ?? Rect.largest;
@@ -380,6 +388,11 @@ class _GalleryPopupState extends State<GalleryPopup>
       BackButtonInterceptor.add(_onBack);
     }
 
+    // Close this [GalleryPopup], when the route changes.
+    _routesSubscription = router.routes.listen((e) {
+      _dismiss();
+    });
+
     super.initState();
   }
 
@@ -389,6 +402,7 @@ class _GalleryPopupState extends State<GalleryPopup>
     _fading.dispose();
     _onFullscreen?.cancel();
     _displayTimer?.cancel();
+    _routesSubscription?.cancel();
     if (_isFullscreen.isTrue) {
       _exitFullscreen();
     }
@@ -464,8 +478,9 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color:
-                    style.colors.onBackground.withOpacity(0.9 * _fading.value),
+                color: style.colors.onBackground.withOpacity(
+                  0.9 * _fading.value,
+                ),
               ),
             ),
             AnimatedBuilder(
@@ -1002,9 +1017,12 @@ class _GalleryPopupState extends State<GalleryPopup>
 
   /// Starts a dismiss animation.
   void _dismiss() {
-    _fading.reverse();
-    _exitFullscreen();
-    _onFullscreen?.cancel();
+    if (!_dismissed) {
+      _dismissed = true;
+      _fading.reverse();
+      _exitFullscreen();
+      _onFullscreen?.cancel();
+    }
   }
 
   /// Handles the [GestureDetector.onVerticalDragStart] callback by animating
