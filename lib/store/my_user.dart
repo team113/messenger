@@ -110,6 +110,10 @@ class MyUserRepository extends DisposableInterface
   /// [EventPool] debouncing [MyUserField] related [MyUserEvent]s handling.
   final EventPool<MyUserField> _pool = EventPool();
 
+  /// [Timer] retrying [_initLocalSubscription] when [_accountLocal] returns no
+  /// [UserId].
+  Timer? _localSubscriptionRetry;
+
   /// Returns the currently active [DtoMyUser] from the storage.
   Future<DtoMyUser?> get _active async {
     final UserId? userId = _accountLocal.userId;
@@ -163,6 +167,7 @@ class MyUserRepository extends DisposableInterface
     _keepOnlineSubscription?.cancel(immediate: true);
     _onFocusChanged?.cancel();
     _pool.dispose();
+    _localSubscriptionRetry?.cancel();
 
     super.onClose();
   }
@@ -636,6 +641,8 @@ class MyUserRepository extends DisposableInterface
 
   /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
+    _localSubscriptionRetry?.cancel();
+
     if (isClosed) {
       return;
     }
@@ -649,7 +656,12 @@ class MyUserRepository extends DisposableInterface
         '$runtimeType',
       );
 
-      return Future.delayed(const Duration(seconds: 1), _initLocalSubscription);
+      _localSubscriptionRetry = Timer(
+        const Duration(seconds: 1),
+        _initLocalSubscription,
+      );
+
+      return;
     }
 
     _localSubscription = _driftMyUser.watchSingle(id).listen((e) {

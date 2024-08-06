@@ -24,8 +24,10 @@ import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
+import 'package:messenger/domain/repository/call.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/contact.dart';
+import 'package:messenger/domain/repository/my_user.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/call.dart';
@@ -312,16 +314,18 @@ void main() async {
       ),
     );
 
-    MyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blocklistRepository,
-      userRepository,
-      accountProvider,
+    final myUserRepository = Get.put<AbstractMyUserRepository>(
+      MyUserRepository(
+        graphQlProvider,
+        myUserProvider,
+        blocklistRepository,
+        userRepository,
+        accountProvider,
+      ),
     );
     Get.put(MyUserService(authService, myUserRepository));
 
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final settingsRepository = Get.put<AbstractSettingsRepository>(
       SettingsRepository(
         const UserId('me'),
         settingsProvider,
@@ -330,13 +334,15 @@ void main() async {
       ),
     );
 
-    final callRepository = CallRepository(
-      graphQlProvider,
-      userRepository,
-      callCredentialsProvider,
-      chatCredentialsProvider,
-      settingsRepository,
-      me: const UserId('me'),
+    final callRepository = Get.put<AbstractCallRepository>(
+      CallRepository(
+        graphQlProvider,
+        userRepository,
+        callCredentialsProvider,
+        chatCredentialsProvider,
+        settingsRepository,
+        me: const UserId('me'),
+      ),
     );
     AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
       ChatRepository(
