@@ -86,14 +86,12 @@ class AccountDriftProvider extends DriftProviderBase {
 
   /// Returns the currently active [UserId] account stored in the database.
   Future<UserId?> read() async {
-    if (_userId != null) {
-      return _userId;
-    }
-
     return await safe<UserId?>((db) async {
       final stmt = db.select(db.accounts)..where((e) => e.id.equals(0));
       final AccountRow? row = await stmt.getSingleOrNull();
-      return row == null ? null : UserId(row.userId);
+      _userId = row == null ? null : UserId(row.userId);
+
+      return _userId;
     }, tag: 'account.read()');
   }
 

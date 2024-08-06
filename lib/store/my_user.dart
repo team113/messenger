@@ -51,7 +51,8 @@ import 'model/my_user.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
-class MyUserRepository implements AbstractMyUserRepository {
+class MyUserRepository extends DisposableInterface
+    implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._driftMyUser,
@@ -153,8 +154,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  void dispose() {
-    Log.debug('dispose()', '$runtimeType');
+  void onClose() {
+    Log.debug('onClose()', '$runtimeType');
 
     _disposed = true;
     _localSubscription?.cancel();
@@ -162,6 +163,8 @@ class MyUserRepository implements AbstractMyUserRepository {
     _keepOnlineSubscription?.cancel(immediate: true);
     _onFocusChanged?.cancel();
     _pool.dispose();
+
+    super.onClose();
   }
 
   @override
@@ -633,15 +636,20 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initLocalSubscription()', '$runtimeType');
 
-    final UserId? id = _accountLocal.userId;
+    final UserId? id = await _accountLocal.read();
     if (id == null) {
       Log.debug(
         'Unexpected `null` when getting `_accountLocal.userId` for `_initLocalSubscription`',
         '$runtimeType',
       );
-      return;
+
+      return Future.delayed(const Duration(seconds: 1), _initLocalSubscription);
     }
 
     _localSubscription = _driftMyUser.watchSingle(id).listen((e) {
