@@ -55,6 +55,16 @@ class CustomProgressIndicator extends StatelessWidget {
         primary = false,
         strokeWidth = 2.0;
 
+  /// Constructs a [CustomProgressIndicator] with a `small` style.
+  const CustomProgressIndicator.small({super.key, this.value})
+      : size = 32,
+        padding = const EdgeInsets.all(6),
+        blur = true,
+        backgroundColor = null,
+        valueColor = null,
+        primary = true,
+        strokeWidth = 2.0;
+
   /// Value of this [CustomProgressIndicator].
   final double? value;
 
