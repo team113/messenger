@@ -15,11 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
@@ -135,6 +138,29 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
 
   /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
+
+  /// [RouterState.routes] subscription closing the [ContextMenu] whenever the
+  /// current route changes.
+  StreamSubscription? _routesSubscription;
+
+  @override
+  void initState() {
+    // Close the [ContextMenu], when the route changes.
+    _routesSubscription = router.routes.listen((e) {
+      if (_entry?.mounted == true) {
+        _entry?.remove();
+        _entry = null;
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _routesSubscription?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

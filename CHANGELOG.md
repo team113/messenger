@@ -24,14 +24,18 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Typing being infinitely displayed after focus is lost. ([#995], [#988])
+- Web:
+    - Application becoming unresponsive when navigating back with gallery being opened. ([#1078], [#900])
 - Windows:
     - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
 
+[#900]: /../../issues/900
 [#988]: /../../issues/988
 [#995]: /../../pull/995
 [#1066]: /../../pull/1066
 [#1069]: /../../pull/1069
 [#1070]: /../../pull/1070
+[#1078]: /../../pull/1078
 
 
 
