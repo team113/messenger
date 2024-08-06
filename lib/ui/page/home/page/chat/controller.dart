@@ -263,9 +263,13 @@ class ChatController extends GetxController {
   /// Subscription updating the [elements].
   StreamSubscription? _messagesSubscription;
 
-  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// Subscription to the [PlatformUtilsImpl.onActivityChanged] updating the
   /// [active].
   StreamSubscription? _onActivityChanged;
+
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] invoking
+  /// [_stopTyping].
+  StreamSubscription? _onFocusChanged;
 
   /// Subscription for the [chat] changes.
   StreamSubscription? _chatSubscription;
@@ -498,6 +502,12 @@ class ChatController extends GetxController {
       }
     });
 
+    _onFocusChanged = PlatformUtils.onFocusChanged.listen((value) {
+      if (!value) {
+        _stopTyping();
+      }
+    });
+
     // Stop the [_typingSubscription] when the send field loses its focus.
     send.field.focus.addListener(_stopTypingOnUnfocus);
 
@@ -524,6 +534,7 @@ class ChatController extends GetxController {
     _chatSubscription?.cancel();
     _userSubscription?.cancel();
     _onActivityChanged?.cancel();
+    _onFocusChanged?.cancel();
     _typingTimer?.cancel();
     horizontalScrollTimer.value?.cancel();
     _stickyTimer?.cancel();
@@ -1540,6 +1551,10 @@ class ChatController extends GetxController {
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void _keepTyping() {
+    if (_typingSubscription == null) {
+      Log.debug('_keepTyping()', '$runtimeType');
+    }
+
     _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
     _typingTimer?.cancel();
     _typingTimer = Timer(_typingTimeout, _stopTyping);
@@ -1548,6 +1563,10 @@ class ChatController extends GetxController {
   /// Stops the [ChatService.keepTyping] subscription indicating the typing has
   /// been stopped in this [chat].
   void _stopTyping() {
+    if (_typingSubscription != null) {
+      Log.debug('_stopTyping()', '$runtimeType');
+    }
+
     _typingTimer?.cancel();
     _typingSubscription?.cancel();
     _typingSubscription = null;
