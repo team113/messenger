@@ -96,6 +96,7 @@ class DownloadButton extends StatefulWidget {
 /// [State] of a [DownloadButton] to display progress of
 /// [PlatformUtilsImpl.saveTo].
 class _DownloadButtonState extends State<DownloadButton> {
+  /// [PlatformUtilsImpl.saveTo] current progress, if any.
   double? _progress;
 
   @override
