@@ -87,6 +87,8 @@ class Themes {
       primaryHighlightShiny: const Color(0xFF58A6EF),
       primaryHighlightShiniest: const Color(0xFFD2E3F9),
       primaryHighlightLightest: const Color(0xFFB9D9FA),
+      primaryLight: const Color(0xFFD2E9FE),
+      primaryLightest: const Color(0xFFD5EDFE),
       primaryDark: const Color(0xFF1F3C5D),
       primaryAuxiliary: const Color(0xFF165084),
       onPrimary: const Color(0xFFFFFFFF),
@@ -208,7 +210,7 @@ class Themes {
             color: colors.secondaryHighlightDark,
             width: 0.5,
           ),
-          readMessageColor: colors.acceptLighter,
+          readMessageColor: colors.primaryLight,
           secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
           sidebarColor: colors.onPrimaryOpacity50,
           systemMessageBorder: Border.all(
@@ -218,7 +220,7 @@ class Themes {
           systemMessageColor: colors.secondaryHighlight,
           systemMessageStyle: fonts.small.regular.secondary,
           systemMessagePrimary: fonts.small.regular.primary,
-          unreadMessageColor: colors.acceptLightest,
+          unreadMessageColor: colors.primaryLightest,
         ),
       ],
       scaffoldBackgroundColor: colors.transparent,
@@ -346,9 +348,9 @@ class Themes {
       ),
       scrollbarTheme: theme.scrollbarTheme.copyWith(
         interactive: true,
-        thickness: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.dragged) ||
-              states.contains(MaterialState.hovered)) {
+        thickness: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.dragged) ||
+              states.contains(WidgetState.hovered)) {
             return 6;
           }
 
@@ -356,8 +358,8 @@ class Themes {
         }),
       ),
       radioTheme: theme.radioTheme.copyWith(
-        fillColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return Colors.white;
           }
 
@@ -639,6 +641,8 @@ class Palette {
     required this.primaryHighlightShiny,
     required this.primaryHighlightShiniest,
     required this.primaryHighlightLightest,
+    required this.primaryLight,
+    required this.primaryLightest,
     required this.primaryDark,
     Color? primaryDarkOpacity70,
     Color? primaryDarkOpacity90,
@@ -760,6 +764,16 @@ class Palette {
   ///
   /// Used as a border of [ChatMessage]s and [ChatForward]s.
   final Color primaryHighlightLightest;
+
+  /// Light [primary] highlight [Color].
+  ///
+  /// Used as a read [ChatMessage] color.
+  final Color primaryLight;
+
+  /// Lightest [primary].
+  ///
+  /// Used as an unread [ChatMessage] color.
+  final Color primaryLightest;
 
   /// Dark [Color] of the [primary] elements.
   ///
@@ -1012,6 +1026,9 @@ class Palette {
           color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
       primaryHighlightLightest: Color.lerp(
           color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
+      primaryLight: Color.lerp(color.primaryLight, other.primaryLight, t)!,
+      primaryLightest:
+          Color.lerp(color.primaryLightest, other.primaryLightest, t)!,
       primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
       primaryDarkOpacity70: Color.lerp(
           color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,

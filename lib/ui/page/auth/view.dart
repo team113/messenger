@@ -71,7 +71,7 @@ class AuthView extends StatelessWidget {
                           height: 12,
                           color: style.colors.onBackgroundOpacity20,
                         ),
-                        if (PlatformUtils.isWeb || !PlatformUtils.isMobile) ...[
+                        if (PlatformUtils.isWeb || Config.downloadable) ...[
                           StyledCupertinoButton(
                             label: 'btn_download'.l10n,
                             style: style.fonts.small.regular.secondary,
@@ -150,6 +150,7 @@ class AuthView extends StatelessWidget {
                 return Padding(
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
+                    key: Key('Account_${e.id}'),
                     myUser: e,
 
                     // TODO: Remove, when [MyUser]s will receive their updates
@@ -173,6 +174,7 @@ class AuthView extends StatelessWidget {
                     },
                     trailing: [
                       AnimatedButton(
+                        key: const Key('RemoveAccount'),
                         decorator: (child) => Padding(
                           padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
                           child: child,
@@ -389,18 +391,24 @@ class AuthView extends StatelessWidget {
             child: ListView(
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
-              children: const [
-                DownloadButton.windows(),
-                SizedBox(height: 8),
-                DownloadButton.macos(),
-                SizedBox(height: 8),
-                DownloadButton.linux(),
-                SizedBox(height: 8),
-                DownloadButton.appStore(),
-                SizedBox(height: 8),
-                DownloadButton.googlePlay(),
-                SizedBox(height: 8),
-                DownloadButton.android(),
+              children: [
+                const DownloadButton.windows(),
+                const SizedBox(height: 8),
+                const DownloadButton.macos(),
+                const SizedBox(height: 8),
+                const DownloadButton.linux(),
+                const SizedBox(height: 8),
+                if (Config.appStoreUrl.isNotEmpty) ...[
+                  DownloadButton.appStore(),
+                  const SizedBox(height: 8),
+                ],
+                const DownloadButton.ios(),
+                const SizedBox(height: 8),
+                if (Config.googlePlayUrl.isNotEmpty) ...[
+                  DownloadButton.googlePlay(),
+                  const SizedBox(height: 8),
+                ],
+                const DownloadButton.android(),
               ],
             ),
           ),

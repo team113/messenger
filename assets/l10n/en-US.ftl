@@ -201,8 +201,8 @@ btn_dismiss = Dismiss
 btn_do_not_allow = Do not allow
 btn_download = Download
 btn_download_all = Download all
+btn_download_all_as = Download all as
 btn_download_as = Download as
-btn_download_as_all = Download all as
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
@@ -234,6 +234,7 @@ btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_open_separately = open separately
+btn_or_input_someones_link = Input someone's link
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -293,21 +294,17 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_password_recovery =
-    {$domain} recovery code is: {$token}
+email_confirmation_code =
+    {$domain} confirmation code is: {$token}
     Valid until {$expiresAt}.
     {$domain}
-email_password_recovery_subject = {$domain} recovery code
-email_verification_code =
-    {$domain} verification code is: {$token}
-    Valid until {$expiresAt}.
-    {$domain}
-email_verification_code_subject = {$domain} verification code
+email_confirmation_code_subject = {$domain} confirmation code
 err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
 err_blocked_by = {$user} has added you to their blocklist.
 err_blocked_by_multiple = One or more of the selected users have added you to their blocklist.
+err_blocklist_reason_does_not_meet_regexp = Blocklist reason must be 2 to 100 symbols long.
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -513,6 +510,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } removed you from group
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
@@ -688,6 +686,7 @@ label_count_seconds = {$count} { $count ->
        [1] second
        *[other] seconds
    }
+label_critical_update_is_available = Current version is no longer supported
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
@@ -886,6 +885,7 @@ label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
 label_open_chat = Open chat
+label_or = Or
 label_or_register = or register
 label_outgoing_call = Calling
 label_participants = Participants: {$count}
@@ -908,10 +908,8 @@ label_personal_data_deletion_description =
     - your avatar;
     - your name;
     - your biography;
-    - your login;
     - all of your emails;
-    - all of your phone numbers;
-    - your contacts list.
+    - all of your phone numbers.
 
     The data that will not be deleted:
     - your Gapopa ID, as is does not represent personal information;
@@ -1047,7 +1045,7 @@ label_tech_stack_freelance =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
@@ -1056,7 +1054,7 @@ label_tech_stack_frontend_developer =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
@@ -1068,11 +1066,13 @@ label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
+label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
 label_update_is_available = Update is available
+label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
 label_user = User
 label_user_added_user = {$author} added {$user}

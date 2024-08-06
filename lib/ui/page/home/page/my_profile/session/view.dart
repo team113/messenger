@@ -48,7 +48,11 @@ class DeleteSessionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: DeleteSessionController(Get.find(), pop: context.popModal),
+      init: DeleteSessionController(
+        Get.find(),
+        pop: context.popModal,
+        session: session,
+      ),
       builder: (DeleteSessionController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -88,7 +92,7 @@ class DeleteSessionView extends StatelessWidget {
                         key: const Key('ProceedButton'),
                         onPressed: c.password.isEmpty.isTrue
                             ? null
-                            : () => c.deleteSession(session),
+                            : c.password.submit,
                         title: 'btn_proceed'.l10n,
                       );
                     }),

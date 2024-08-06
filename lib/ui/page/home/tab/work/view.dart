@@ -28,7 +28,7 @@ import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
-/// View of the [HomeTab.work] tab.
+/// View of the `HomeTab.work` tab.
 class WorkTabView extends StatelessWidget {
   const WorkTabView({super.key});
 

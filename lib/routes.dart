@@ -15,12 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
+import 'config.dart';
 import 'domain/model/chat.dart';
 import 'domain/model/chat_item.dart';
 import 'domain/model/user.dart';
@@ -42,25 +45,19 @@ import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
 import 'main.dart' show handlePushNotification;
+import 'provider/drift/blocklist.dart';
+import 'provider/drift/call_credentials.dart';
+import 'provider/drift/call_rect.dart';
+import 'provider/drift/chat.dart';
+import 'provider/drift/chat_credentials.dart';
+import 'provider/drift/chat_item.dart';
+import 'provider/drift/chat_member.dart';
+import 'provider/drift/draft.dart';
+import 'provider/drift/drift.dart';
+import 'provider/drift/monolog.dart';
+import 'provider/drift/user.dart';
+import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
-import 'provider/hive/application_settings.dart';
-import 'provider/hive/background.dart';
-import 'provider/hive/blocklist.dart';
-import 'provider/hive/blocklist_sorting.dart';
-import 'provider/hive/call_credentials.dart';
-import 'provider/hive/call_rect.dart';
-import 'provider/hive/chat.dart';
-import 'provider/hive/chat_credentials.dart';
-import 'provider/hive/contact.dart';
-import 'provider/hive/contact_sorting.dart';
-import 'provider/hive/draft.dart';
-import 'provider/hive/favorite_chat.dart';
-import 'provider/hive/favorite_contact.dart';
-import 'provider/hive/media_settings.dart';
-import 'provider/hive/monolog.dart';
-import 'provider/hive/recent_chat.dart';
-import 'provider/hive/session_data.dart';
-import 'provider/hive/user.dart';
 import 'store/blocklist.dart';
 import 'store/call.dart';
 import 'store/chat.dart';
@@ -76,6 +73,7 @@ import 'ui/page/home/view.dart';
 import 'ui/page/popup_call/view.dart';
 import 'ui/page/style/view.dart';
 import 'ui/page/support/view.dart';
+import 'ui/page/unknown/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
 import 'ui/widget/progress_indicator.dart';
@@ -118,7 +116,7 @@ class Routes {
 }
 
 /// List of [Routes.home] page tabs.
-enum HomeTab { work, contacts, chats, menu }
+enum HomeTab { link, chats, menu }
 
 /// List of [Routes.work] page sections.
 enum WorkTab { frontend, backend, freelance }
@@ -137,7 +135,6 @@ enum ProfileTab {
   language,
   blocklist,
   devices,
-  sections,
   download,
   danger,
   legal,
@@ -150,9 +147,15 @@ enum ProfileTab {
 /// Any change requires [notifyListeners] to be invoked in order for the router
 /// to update its state.
 class RouterState extends ChangeNotifier {
-  RouterState(this._auth) {
+  RouterState(this._auth, {RouteInformation? initial}) {
     delegate = AppRouterDelegate(this);
     parser = AppRouteInformationParser();
+
+    if (initial != null) {
+      provider = PlatformRouteInformationProvider(
+        initialRouteInformation: initial,
+      );
+    }
   }
 
   /// Application's [RouterDelegate].
@@ -292,7 +295,8 @@ class RouterState extends ChangeNotifier {
   String _guarded(String to) {
     if (to.startsWith(Routes.work) ||
         to.startsWith(Routes.erase) ||
-        to.startsWith(Routes.support)) {
+        to.startsWith(Routes.support) ||
+        to.startsWith(Routes.chatDirectLink)) {
       return to;
     }
 
@@ -343,21 +347,27 @@ class AppRouteInformationParser
   SynchronousFuture<RouteConfiguration> parseRouteInformation(
     RouteInformation routeInformation,
   ) {
-    String route = routeInformation.uri.path;
+    String route = routeInformation.uri.toString();
     HomeTab? tab;
 
-    if (route.startsWith(Routes.work)) {
-      tab = HomeTab.work;
-    } else if (route.startsWith(Routes.contacts)) {
-      tab = HomeTab.contacts;
-    } else if (route.startsWith(Routes.chats)) {
+    if (Config.scheme.isNotEmpty) {
+      route = route.replaceFirst('${Config.scheme}:/', '');
+    }
+
+    // Omit the scheme from the route, which may be present when a deep link is
+    // being parsed.
+    if (route.startsWith('http://') || route.startsWith('https://')) {
+      route = route.replaceFirst('https://', '').replaceFirst('http://', '');
+      route = route.substring(max(route.indexOf('/'), 0));
+    }
+
+    if (route.startsWith(Routes.chats)) {
       tab = HomeTab.chats;
     } else if (route.startsWith(Routes.menu) || route == Routes.me) {
       tab = HomeTab.menu;
     }
 
-    if (route == Routes.work ||
-        route == Routes.contacts ||
+    if (route == Routes.contacts ||
         route == Routes.chats ||
         route == Routes.menu) {
       route = Routes.home;
@@ -379,14 +389,7 @@ class AppRouteInformationParser
     // If logged in and on [Routes.home] page, then modify the URL's route.
     if (configuration.authorized && configuration.route == Routes.home) {
       switch (configuration.tab!) {
-        case HomeTab.work:
-          route = Routes.work;
-          break;
-
-        case HomeTab.contacts:
-          route = Routes.contacts;
-          break;
-
+        case HomeTab.link:
         case HomeTab.chats:
           route = Routes.chats;
           break;
@@ -459,10 +462,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
   }
 
   /// Unknown page view.
-  Page<dynamic> get _notFoundPage => MaterialPage(
-        key: const ValueKey('404'),
-        child: Scaffold(body: Center(child: Text('label_unknown_page'.l10n))),
-      );
+  Page<dynamic> get _notFoundPage {
+    return const MaterialPage(key: ValueKey('404'), child: UnknownView());
+  }
 
   /// [Navigator]'s pages generation based on the [_state].
   List<Page<dynamic>> get _pages {
@@ -493,15 +495,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: StyleView(),
         ),
       ];
-    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
-      String slug = _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
-      return [
-        MaterialPage(
-          key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
-          child: ChatDirectLinkView(slug),
-        )
-      ];
     } else if (_state.route.startsWith('${Routes.call}/')) {
       Uri uri = Uri.parse(_state.route);
       ChatId id = ChatId(uri.path.replaceFirst('${Routes.call}/', ''));
@@ -513,49 +506,42 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: PopupCallView(
             chatId: id,
             depsFactory: () async {
-              ScopedDependencies deps = ScopedDependencies();
-              UserId me = _state._auth.userId!;
+              final ScopedDependencies deps = ScopedDependencies();
+              final UserId me = _state._auth.userId!;
 
-              await Future.wait([
-                deps.put(ChatHiveProvider()).init(userId: me),
-                deps.put(RecentChatHiveProvider()).init(userId: me),
-                deps.put(FavoriteChatHiveProvider()).init(userId: me),
-                deps.put(SessionDataHiveProvider()).init(userId: me),
-                deps.put(UserHiveProvider()).init(userId: me),
-                deps.put(BlocklistHiveProvider()).init(userId: me),
-                deps.put(BlocklistSortingHiveProvider()).init(userId: me),
-                deps.put(ContactHiveProvider()).init(userId: me),
-                deps.put(FavoriteContactHiveProvider()).init(userId: me),
-                deps.put(ContactSortingHiveProvider()).init(userId: me),
-                deps.put(MediaSettingsHiveProvider()).init(userId: me),
-                deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
-                deps.put(BackgroundHiveProvider()).init(userId: me),
-                deps.put(CallCredentialsHiveProvider()).init(userId: me),
-                deps.put(ChatCredentialsHiveProvider()).init(userId: me),
-                deps.put(DraftHiveProvider()).init(userId: me),
-                deps.put(CallRectHiveProvider()).init(userId: me),
-                deps.put(MonologHiveProvider()).init(userId: me),
-              ]);
+              final ScopedDriftProvider scoped = deps
+                  .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
-              AbstractSettingsRepository settingsRepository =
+              deps.put(UserDriftProvider(Get.find(), scoped));
+              deps.put(ChatItemDriftProvider(Get.find(), scoped));
+              deps.put(ChatMemberDriftProvider(Get.find(), scoped));
+              deps.put(ChatDriftProvider(Get.find(), scoped));
+              deps.put(BlocklistDriftProvider(Get.find(), scoped));
+              deps.put(CallCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(ChatCredentialsDriftProvider(Get.find(), scoped));
+              deps.put(CallRectDriftProvider(Get.find(), scoped));
+              deps.put(MonologDriftProvider(Get.find()));
+              deps.put(DraftDriftProvider(Get.find(), scoped));
+              await deps.put(VersionDriftProvider(Get.find())).init();
+
+              final AbstractSettingsRepository settingsRepository =
                   deps.put<AbstractSettingsRepository>(
-                SettingsRepository(
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                ),
+                SettingsRepository(me, Get.find(), Get.find(), Get.find()),
               );
+
+              // Should be awaited to ensure [PopupCallView] using the stored
+              // settings and not the default ones.
+              await settingsRepository.init();
 
               // Should be initialized before any [L10n]-dependant entities as
               // it sets the stored [Language] from the [SettingsRepository].
               await deps.put(SettingsWorker(settingsRepository)).init();
 
-              GraphQlProvider graphQlProvider = Get.find();
-              UserRepository userRepository =
+              final GraphQlProvider graphQlProvider = Get.find();
+              final UserRepository userRepository =
                   UserRepository(graphQlProvider, Get.find());
               deps.put<AbstractUserRepository>(userRepository);
-              AbstractCallRepository callRepository =
+              final AbstractCallRepository callRepository =
                   deps.put<AbstractCallRepository>(
                 CallRepository(
                   graphQlProvider,
@@ -566,7 +552,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   me: me,
                 ),
               );
-              AbstractChatRepository chatRepository =
+              final AbstractChatRepository chatRepository =
                   deps.put<AbstractChatRepository>(
                 ChatRepository(
                   graphQlProvider,
@@ -584,28 +570,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               userRepository.getChat = chatRepository.get;
 
-              AbstractContactRepository contactRepository =
+              final AbstractContactRepository contactRepository =
                   deps.put<AbstractContactRepository>(
                 ContactRepository(
                   graphQlProvider,
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
                   userRepository,
                   Get.find(),
+                  me: me,
                 ),
               );
               userRepository.getContact = contactRepository.get;
 
-              BlocklistRepository blocklistRepository = BlocklistRepository(
+              final BlocklistRepository blocklistRepository =
+                  BlocklistRepository(
                 graphQlProvider,
-                Get.find(),
                 Get.find(),
                 userRepository,
                 Get.find(),
+                Get.find(),
+                me: me,
               );
               deps.put<AbstractBlocklistRepository>(blocklistRepository);
-              AbstractMyUserRepository myUserRepository =
+              final AbstractMyUserRepository myUserRepository =
                   deps.put<AbstractMyUserRepository>(
                 MyUserRepository(
                   graphQlProvider,
@@ -619,7 +605,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(MyUserService(Get.find(), myUserRepository));
               deps.put(UserService(userRepository));
               deps.put(ContactService(contactRepository));
-              ChatService chatService =
+              final ChatService chatService =
                   deps.put(ChatService(chatRepository, Get.find()));
               deps.put(CallService(
                 Get.find(),
@@ -651,41 +637,43 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
             final ScopedDependencies deps = ScopedDependencies();
 
-            await Future.wait([
-              deps.put(ChatHiveProvider()).init(userId: me),
-              deps.put(RecentChatHiveProvider()).init(userId: me),
-              deps.put(FavoriteChatHiveProvider()).init(userId: me),
-              deps.put(SessionDataHiveProvider()).init(userId: me),
-              deps.put(UserHiveProvider()).init(userId: me),
-              deps.put(BlocklistHiveProvider()).init(userId: me),
-              deps.put(BlocklistSortingHiveProvider()).init(userId: me),
-              deps.put(ContactHiveProvider()).init(userId: me),
-              deps.put(FavoriteContactHiveProvider()).init(userId: me),
-              deps.put(ContactSortingHiveProvider()).init(userId: me),
-              deps.put(MediaSettingsHiveProvider()).init(userId: me),
-              deps.put(ApplicationSettingsHiveProvider()).init(userId: me),
-              deps.put(BackgroundHiveProvider()).init(userId: me),
-              deps.put(CallCredentialsHiveProvider()).init(userId: me),
-              deps.put(ChatCredentialsHiveProvider()).init(userId: me),
-              deps.put(DraftHiveProvider()).init(userId: me),
-              deps.put(CallRectHiveProvider()).init(userId: me),
-              deps.put(MonologHiveProvider()).init(userId: me),
-            ]);
+            final ScopedDriftProvider scoped = deps
+                .put(ScopedDriftProvider.from(deps.put(ScopedDatabase(me))));
 
-            GraphQlProvider graphQlProvider = Get.find();
+            final CommonDriftProvider common = Get.find();
 
-            NotificationService notificationService =
+            final userProvider = deps.put(UserDriftProvider(common, scoped));
+            final chatProvider = deps.put(ChatDriftProvider(common, scoped));
+            final chatItemProvider =
+                deps.put(ChatItemDriftProvider(common, scoped));
+            final chatMemberProvider =
+                deps.put(ChatMemberDriftProvider(common, scoped));
+            final blocklistProvider =
+                deps.put(BlocklistDriftProvider(common, scoped));
+            final callCredsProvider =
+                deps.put(CallCredentialsDriftProvider(common, scoped));
+            final chatCredsProvider =
+                deps.put(ChatCredentialsDriftProvider(common, scoped));
+            final callRectProvider =
+                deps.put(CallRectDriftProvider(common, scoped));
+            final monologProvider = deps.put(MonologDriftProvider(common));
+            final draftProvider = deps.put(DraftDriftProvider(common, scoped));
+            final sessionProvider = deps.put(VersionDriftProvider(common));
+            await sessionProvider.init();
+
+            final GraphQlProvider graphQlProvider = Get.find();
+
+            final NotificationService notificationService =
                 deps.put(NotificationService(graphQlProvider));
 
-            AbstractSettingsRepository settingsRepository =
+            final AbstractSettingsRepository settingsRepository =
                 deps.put<AbstractSettingsRepository>(
-              SettingsRepository(
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                Get.find(),
-              ),
+              SettingsRepository(me, Get.find(), Get.find(), callRectProvider),
             );
+
+            // Should be awaited to ensure [Home] using the stored settings and
+            // not the default ones.
+            await settingsRepository.init();
 
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
@@ -711,28 +699,28 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               onBackground: handlePushNotification,
             );
 
-            UserRepository userRepository =
-                UserRepository(graphQlProvider, Get.find());
+            final UserRepository userRepository =
+                UserRepository(graphQlProvider, userProvider);
             deps.put<AbstractUserRepository>(userRepository);
-            CallRepository callRepository = CallRepository(
+            final CallRepository callRepository = CallRepository(
               graphQlProvider,
               userRepository,
-              Get.find(),
-              Get.find(),
+              callCredsProvider,
+              chatCredsProvider,
               settingsRepository,
               me: me,
             );
             deps.put<AbstractCallRepository>(callRepository);
-            ChatRepository chatRepository = ChatRepository(
+            final ChatRepository chatRepository = ChatRepository(
               graphQlProvider,
-              Get.find(),
-              Get.find(),
-              Get.find(),
+              chatProvider,
+              chatItemProvider,
+              chatMemberProvider,
               callRepository,
-              Get.find(),
+              draftProvider,
               userRepository,
-              Get.find(),
-              Get.find(),
+              sessionProvider,
+              monologProvider,
               me: me,
             );
             deps.put<AbstractChatRepository>(chatRepository);
@@ -741,28 +729,27 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             callRepository.ensureRemoteDialog =
                 chatRepository.ensureRemoteDialog;
 
-            AbstractContactRepository contactRepository =
+            final AbstractContactRepository contactRepository =
                 deps.put<AbstractContactRepository>(
               ContactRepository(
                 graphQlProvider,
-                Get.find(),
-                Get.find(),
-                Get.find(),
                 userRepository,
-                Get.find(),
+                sessionProvider,
+                me: me,
               ),
             );
             userRepository.getContact = contactRepository.get;
 
-            BlocklistRepository blocklistRepository = BlocklistRepository(
+            final BlocklistRepository blocklistRepository = BlocklistRepository(
               graphQlProvider,
-              Get.find(),
-              Get.find(),
+              blocklistProvider,
               userRepository,
+              sessionProvider,
               Get.find(),
+              me: me,
             );
             deps.put<AbstractBlocklistRepository>(blocklistRepository);
-            AbstractMyUserRepository myUserRepository =
+            final AbstractMyUserRepository myUserRepository =
                 deps.put<AbstractMyUserRepository>(
               MyUserRepository(
                 graphQlProvider,
@@ -773,13 +760,13 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ),
             );
 
-            MyUserService myUserService =
+            final MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));
             deps.put(UserService(userRepository));
             deps.put(ContactService(contactRepository));
-            ChatService chatService =
+            final ChatService chatService =
                 deps.put(ChatService(chatRepository, Get.find()));
-            CallService callService = deps.put(CallService(
+            final CallService callService = deps.put(CallService(
               Get.find(),
               chatService,
               callRepository,
@@ -827,6 +814,16 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: SupportView(),
         )
       ];
+    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
+      final String slug =
+          _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
+      return [
+        MaterialPage(
+          key: ValueKey('ChatDirectLinkPage$slug'),
+          name: Routes.chatDirectLink,
+          child: ChatDirectLinkView(slug),
+        )
+      ];
     } else {
       pages.add(const MaterialPage(
         key: ValueKey('AuthPage'),
@@ -841,6 +838,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         _state.route.startsWith(Routes.work) ||
         _state.route.startsWith(Routes.erase) ||
         _state.route.startsWith(Routes.support) ||
+        _state.route.startsWith(Routes.chatDirectLink) ||
         _state.route == Routes.me ||
         _state.route == Routes.home) {
       _updateTabTitle();
@@ -887,14 +885,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
     if (_state._auth.status.value.isSuccess) {
       switch (_state.tab) {
-        case HomeTab.work:
-          WebUtils.title('$prefix${'label_work_with_us'.l10n}');
-          break;
-
-        case HomeTab.contacts:
-          WebUtils.title('$prefix${'label_tab_contacts'.l10n}');
-          break;
-
+        case HomeTab.link:
         case HomeTab.chats:
           WebUtils.title('$prefix${'label_tab_chats'.l10n}');
           break;
@@ -983,6 +974,9 @@ extension RouteLinks on RouterState {
 
   /// Changes router location to the [Routes.nowhere] page.
   void nowhere() => go(Routes.nowhere);
+
+  /// Changes router location to the [Routes.chatDirectLink] page.
+  void link(ChatDirectLinkSlug slug) => go('${Routes.chatDirectLink}/$slug');
 }
 
 /// Extension adding helper methods to an [AppLifecycleState].

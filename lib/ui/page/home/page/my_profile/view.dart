@@ -22,6 +22,7 @@ import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/my_user.dart';
@@ -311,9 +312,6 @@ class MyProfileView extends StatelessWidget {
 
                     case ProfileTab.devices:
                       return block(children: [_devices(context, c)]);
-
-                    case ProfileTab.sections:
-                      return block(children: [_sections(context, c)]);
 
                     case ProfileTab.download:
                       if (!PlatformUtils.isWeb) {
@@ -918,39 +916,28 @@ Widget _devices(BuildContext context, MyProfileController c) {
   );
 }
 
-/// Returns the contents of a [ProfileTab.sections] section.
-Widget _sections(BuildContext context, MyProfileController c) {
-  return Column(
-    children: [
-      Paddings.dense(
-        Obx(() {
-          return SwitchField(
-            text: 'btn_work_with_us'.l10n,
-            value: c.settings.value?.workWithUsTabEnabled == true,
-            onChanged: c.setWorkWithUsTabEnabled,
-          );
-        }),
-      ),
-    ],
-  );
-}
-
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
   return Paddings.dense(
-    const Column(
+    Column(
       children: [
-        DownloadButton.windows(),
-        SizedBox(height: 8),
-        DownloadButton.macos(),
-        SizedBox(height: 8),
-        DownloadButton.linux(),
-        SizedBox(height: 8),
-        DownloadButton.appStore(),
-        SizedBox(height: 8),
-        DownloadButton.googlePlay(),
-        SizedBox(height: 8),
-        DownloadButton.android(),
+        const DownloadButton.windows(),
+        const SizedBox(height: 8),
+        const DownloadButton.macos(),
+        const SizedBox(height: 8),
+        const DownloadButton.linux(),
+        const SizedBox(height: 8),
+        if (Config.appStoreUrl.isNotEmpty) ...[
+          DownloadButton.appStore(),
+          const SizedBox(height: 8),
+        ],
+        const DownloadButton.ios(),
+        const SizedBox(height: 8),
+        if (Config.googlePlayUrl.isNotEmpty) ...[
+          DownloadButton.googlePlay(),
+          const SizedBox(height: 8),
+        ],
+        const DownloadButton.android(),
       ],
     ),
   );
@@ -1171,19 +1158,13 @@ Widget _bar(MyProfileController c, BuildContext context) {
         children: [
           const SizedBox(width: 4),
           const StyledBackButton(),
-          Material(
-            elevation: 6,
-            type: MaterialType.circle,
-            shadowColor: style.colors.onBackgroundOpacity27,
-            color: style.colors.onPrimary,
-            child: Center(
-              child: Obx(() {
-                return AvatarWidget.fromMyUser(
-                  c.myUser.value,
-                  radius: AvatarRadius.medium,
-                );
-              }),
-            ),
+          Center(
+            child: Obx(() {
+              return AvatarWidget.fromMyUser(
+                c.myUser.value,
+                radius: AvatarRadius.medium,
+              );
+            }),
           ),
           const SizedBox(width: 10),
           Flexible(

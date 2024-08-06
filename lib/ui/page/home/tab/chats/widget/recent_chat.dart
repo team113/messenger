@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:get/get.dart';
@@ -165,7 +166,9 @@ class RecentChatTile extends StatelessWidget {
       final style = Theme.of(context).style;
 
       final Chat chat = rxChat.chat.value;
-      final bool isRoute = chat.isRoute(router.route, me);
+      final String? lastRoute =
+          router.routes.lastWhereOrNull((e) => e.startsWith(Routes.chats));
+      final bool isRoute = chat.isRoute(lastRoute ?? '', me);
       final bool inverted = selected || (invertible && isRoute);
 
       return Slidable(
@@ -240,7 +243,7 @@ class RecentChatTile extends StatelessWidget {
             ),
           ],
           actions: [
-            if (chat.isDialog && inContacts != null) ...[
+            if (chat.isDialog && inContacts != null && onContact != null) ...[
               if (inContacts!.call() == true)
                 ContextMenuButton(
                   label: 'btn_delete_from_contacts'.l10n,
@@ -542,15 +545,27 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: userOrFuture is RxUser? ? null : userOrFuture,
                   initialData: userOrFuture is RxUser? ? userOrFuture : null,
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(
-                          snapshot.data,
-                          radius: AvatarRadius.smaller,
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item.author.id),
-                          radius: AvatarRadius.smaller,
-                        ),
+                  builder: (_, snapshot) {
+                    final FutureOr<RxUser?> rxUser = snapshot.data ??
+                        userOrFuture ??
+                        rxChat.members.values
+                            .firstWhereOrNull(
+                              (e) => e.user.id == item.author.id,
+                            )
+                            ?.user;
+
+                    if (rxUser is RxUser?) {
+                      return AvatarWidget.fromRxUser(
+                        rxUser,
+                        radius: AvatarRadius.smaller,
+                      );
+                    }
+
+                    return AvatarWidget.fromUser(
+                      chat.getUser(item.author.id),
+                      radius: AvatarRadius.smaller,
+                    );
+                  },
                 ),
               ),
             if (desc.isEmpty)

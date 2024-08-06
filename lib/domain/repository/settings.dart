@@ -35,6 +35,9 @@ abstract class AbstractSettingsRepository {
   /// Returns the stored [Uint8List] of the background.
   Rx<Uint8List?> get background;
 
+  /// Initializes the [applicationSettings] and [mediaSettings].
+  Future<void> init();
+
   /// Clears the stored settings.
   Future<void> clearCache();
 
@@ -77,7 +80,7 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
-  Rect? getCallRect(ChatId id);
+  Future<Rect?> getCallRect(ChatId id);
 
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);

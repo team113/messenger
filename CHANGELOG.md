@@ -6,6 +6,102 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.2.0] · 2024-??-??
+[0.2.0]: /../../tree/v0.2.0
+
+[Diff](/../../compare/v0.1.4...v0.2.0) | [Milestone](/../../milestone/28)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Updated messages color. ([#1069])
+- iOS:
+    - Better described microphone and camera usage prompts. ([#1066])
+
+### Fixed
+
+- Windows:
+    - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
+
+[#1066]: /../../pull/1066
+[#1069]: /../../pull/1069
+[#1070]: /../../pull/1070
+
+
+
+
+## [0.1.4] · 2024-07-11
+[0.1.4]: /../../tree/v0.1.4
+
+[Diff](/../../compare/v0.1.3...v0.1.4) | [Milestone](/../../milestone/27)
+
+### Fixed
+
+- UI:
+    - Selected language not persisting. ([#1055])
+
+[#1055]: /../../pull/1055
+
+
+
+
+## [0.1.3] · 2024-07-04
+[0.1.3]: /../../tree/v0.1.3
+
+[Diff](/../../compare/v0.1.0...v0.1.3) | [Milestone](/../../milestone/26)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Blurred previews under single images. ([#1057], [#985])
+
+[#985]: /../../issues/985
+[#1057]: /../../pull/1057
+
+
+
+
+## [0.1.0] · 2024-06-27
+[0.1.0]: /../../tree/v0.1.0
+
+[Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0) | [Milestone](/../../milestone/24)
+
+### Added
+
+- UI:
+    - Home page:
+        - Link tab. ([#1012])
+- Deep links. ([#1035], [#799])
+
+### Changed
+
+- UI:
+    - Update available popup displaying critical updates. ([#973], [#896])
+    - Home page:
+        - Removed contacts tab. ([#1012])
+        - Removed work with us tab. ([#1012])
+    - Chat page:
+        - Direct links in messages opening within application. ([#1012], [#800])
+
+### Fixed
+
+- Web:
+    - Audio playback stopping when receiving or sending message on iOS. ([#1039], [#968])
+
+[#799]: /../../issues/799
+[#800]: /../../issues/800
+[#896]: /../../issues/896
+[#968]: /../../issues/968
+[#973]: /../../pull/973
+[#1012]: /../../pull/1012
+[#1035]: /../../pull/1035
+[#1039]: /../../pull/1039
+
+
+
+
 ## [0.1.0-alpha.13.5] · 2024-05-13
 [0.1.0-alpha.13.5]: /../../tree/v0.1.0-alpha.13.5
 
@@ -40,8 +136,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#312]: /../../issues/312
 [#566]: /../../issues/566
+[#896]: /../../issues/896
 [#948]: /../../issues/948
 [#950]: /../../issues/950
+[#973]: /../../pull/973
 [#975]: /../../pull/975
 [#978]: /../../pull/978
 [#979]: /../../issues/979

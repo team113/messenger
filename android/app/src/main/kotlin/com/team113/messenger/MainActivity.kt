@@ -68,6 +68,12 @@ class MainActivity : FlutterActivity() {
                         null,
                     )
                 }
+            } else if (call.method == "cancelNotification") {
+                val args = call.arguments as java.util.HashMap<String, String>
+                result.success(cancelNotification(args))
+            } else if (call.method == "cancelNotificationsContaining") {
+                val args = call.arguments as java.util.HashMap<String, String>
+                result.success(cancelNotificationsContaining(args))
             } else {
                 result.notImplemented()
             }
@@ -138,5 +144,43 @@ class MainActivity : FlutterActivity() {
             completed = false
         }
         return completed
+    }
+
+    /**
+     * Cancels an active notification with the provided tag.
+     */
+    private fun cancelNotification(arguments: HashMap<String, String>): Boolean {
+        var result = false;
+
+        val notificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
+        val notifications = notificationManager.getActiveNotifications();
+        for (notification in notifications) {
+            if (notification.getTag() == arguments["tag"]) {
+                notificationManager.cancel(arguments["tag"], notification.getId());
+                result = true;
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Cancels an active notification containing the provided thread.
+     */
+    private fun cancelNotificationsContaining(arguments: HashMap<String, String>): Boolean {
+        var result = false;
+
+        val notificationManager =
+            getSystemService(NOTIFICATION_SERVICE) as NotificationManager;
+        val notifications = notificationManager.getActiveNotifications();
+        for (notification in notifications) {
+            if (notification.getTag().contains(arguments["thread"] as String)) {
+                notificationManager.cancel(notification.getTag(), notification.getId());
+                result = true;
+            }
+        }
+
+        return result;
     }
 }

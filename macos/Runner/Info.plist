@@ -29,8 +29,19 @@
   <key>NSPrincipalClass</key>
   <string>NSApplication</string>
   <key>NSCameraUsageDescription</key>
-  <string>We need access to your camera to take photos/videos</string>
+  <string>Camera is used to stream your camera feed during video calls.</string>
   <key>NSMicrophoneUsageDescription</key>
-  <string>We need access to your microphone to record it</string>
+  <string>Microphone is used to stream your voice during audio and video calls.</string>
+  <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleURLName</key>
+      <string>scheme</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+        <string>gapopa</string>
+      </array>
+    </dict>
+  </array>
 </dict>
 </plist>

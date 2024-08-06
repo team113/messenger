@@ -17,7 +17,6 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -26,24 +25,24 @@ import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -58,45 +57,15 @@ import 'chat_members_test.mocks.dart';
 void main() async {
   setUp(Get.reset);
 
-  Hive.init('./test/.temp_hive/chat_members_unit');
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  final graphQlProvider = Get.put(MockGraphQlProvider());
+  final graphQlProvider = MockGraphQlProvider();
+  Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  var credentialsProvider = Get.put(CredentialsHiveProvider());
-  await credentialsProvider.init();
-  var chatProvider = Get.put(ChatHiveProvider());
-  await chatProvider.init();
-  var chatHiveProvider = Get.put(ChatHiveProvider());
-  await chatHiveProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
-  var draftProvider = DraftHiveProvider();
-  await draftProvider.init();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
-  await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
-  await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
   var recentChats = {
     'recentChats': {
@@ -271,17 +240,33 @@ void main() async {
   );
 
   Future<ChatService> init(GraphQlProvider graphQlProvider) async {
-    AbstractSettingsRepository settingsRepository = Get.put(
+    final settingsProvider = Get.put(SettingsDriftProvider(common));
+    final myUserProvider = Get.put(MyUserDriftProvider(common));
+    final userProvider = UserDriftProvider(common, scoped);
+    final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+    final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+    final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+    final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+    final callCredentialsProvider =
+        Get.put(CallCredentialsDriftProvider(common, scoped));
+    final chatCredentialsProvider =
+        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+    final monologProvider = Get.put(MonologDriftProvider(common));
+    final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+    final sessionProvider = Get.put(VersionDriftProvider(common));
+
+    final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
     );
 
     Get.put(graphQlProvider);
-    AuthService authService = Get.put(
+    final AuthService authService = Get.put(
       AuthService(
         Get.put<AbstractAuthRepository>(AuthRepository(
           Get.find(),
@@ -294,7 +279,7 @@ void main() async {
     );
     authService.init();
 
-    UserRepository userRepository =
+    final UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
     final CallRepository callRepository = Get.put(
       CallRepository(
@@ -306,12 +291,13 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+    final AbstractChatRepository chatRepository =
+        Get.put<AbstractChatRepository>(
       ChatRepository(
         graphQlProvider,
         chatProvider,
-        recentChatProvider,
-        favoriteChatProvider,
+        chatItemProvider,
+        chatMemberProvider,
         callRepository,
         draftProvider,
         userRepository,
@@ -320,6 +306,7 @@ void main() async {
         me: const UserId('me'),
       ),
     );
+
     return Get.put(ChatService(chatRepository, authService));
   }
 
@@ -338,7 +325,8 @@ void main() async {
     last: null,
     before: null,
   )).thenAnswer(
-      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+    (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+  );
 
   when(graphQlProvider.getChat(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -362,8 +350,6 @@ void main() async {
     any,
   )).thenAnswer((_) => const Stream.empty());
 
-  ChatService chatService = await init(graphQlProvider);
-
   test('ChatService successfully adds a participant to chat', () async {
     when(graphQlProvider.addChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -371,6 +357,8 @@ void main() async {
     )).thenAnswer((_) => Future.value(
         AddChatMember$Mutation.fromJson(addChatMemberData).addChatMember
             as AddChatMember$Mutation$AddChatMember$ChatEventsVersioned));
+
+    final ChatService chatService = await init(graphQlProvider);
 
     await chatService.addChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -389,6 +377,8 @@ void main() async {
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
     )).thenThrow(const AddChatMemberException(AddChatMemberErrorCode.blocked));
+
+    final ChatService chatService = await init(graphQlProvider);
 
     expect(
       () async => await chatService.addChatMember(
@@ -410,10 +400,14 @@ void main() async {
     when(graphQlProvider.removeChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    )).thenAnswer((_) => Future.value(RemoveChatMember$Mutation.fromJson(
-          removeChatMemberData,
-        ).removeChatMember
-            as RemoveChatMember$Mutation$RemoveChatMember$ChatEventsVersioned));
+    )).thenAnswer(
+      (_) => Future.value(RemoveChatMember$Mutation.fromJson(
+        removeChatMemberData,
+      ).removeChatMember
+          as RemoveChatMember$Mutation$RemoveChatMember$ChatEventsVersioned),
+    );
+
+    final ChatService chatService = await init(graphQlProvider);
 
     await chatService.removeChatMember(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -434,6 +428,8 @@ void main() async {
     )).thenThrow(
         const RemoveChatMemberException(RemoveChatMemberErrorCode.unknownChat));
 
+    final ChatService chatService = await init(graphQlProvider);
+
     expect(
       () async => await chatService.removeChatMember(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -447,4 +443,6 @@ void main() async {
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
     ));
   });
+
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

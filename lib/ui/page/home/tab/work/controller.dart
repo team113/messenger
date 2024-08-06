@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Controller of the [HomeTab.work] tab.
+/// Controller of the `HomeTab.work` tab.
 class WorkTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();

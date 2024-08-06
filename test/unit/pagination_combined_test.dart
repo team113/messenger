@@ -81,6 +81,11 @@ class _ListPageProvider implements PageProvider<int, int, int> {
   Future<Page<int, int>?> init(int? item, int count) async => null;
 
   @override
+  void dispose() {
+    // No-op.
+  }
+
+  @override
   FutureOr<Page<int, int>> around(int? item, int? cursor, int count) {
     final int half = count ~/ 2;
 
@@ -147,7 +152,7 @@ class _ListPageProvider implements PageProvider<int, int, int> {
 
   @override
   Future<void> put(
-    int item, {
+    Iterable<int> items, {
     bool ignoreBounds = false,
     int Function(int, int)? compare,
   }) async {}

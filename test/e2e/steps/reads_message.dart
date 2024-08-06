@@ -68,7 +68,7 @@ final StepDefinitionGeneric readsAllMessages =
 
     final ChatId chatId = context.world.groups[name]!;
     final ChatItemId lastItemId =
-        (await provider.getChat(chatId)).chat!.lastItem!.toHive().value.id;
+        (await provider.getChat(chatId)).chat!.lastItem!.toDto().value.id;
 
     await provider.readChat(chatId, lastItemId);
 

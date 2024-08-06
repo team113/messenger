@@ -193,16 +193,21 @@ class CallController extends GetxController {
   int hoveredParticipantTimeout = 0;
 
   /// Minimized view current width.
-  late final RxDouble width;
+  final RxDouble width = RxDouble(200);
 
   /// Minimized view current height.
-  late final RxDouble height;
+  final RxDouble height = RxDouble(200);
 
   /// Minimized view current top position.
-  late final RxDouble top;
+  final RxDouble top = RxDouble(0);
 
   /// Minimized view current left position.
-  late final RxDouble left;
+  final RxDouble left = RxDouble(0);
+
+  /// Indicator whether the view shouldn't be visible.
+  ///
+  /// Used to prevent [width], [height], [left] and [top] flickering.
+  final RxBool hidden = RxBool(true);
 
   /// Indicator whether more panel is displayed.
   final RxBool displayMore = RxBool(false);
@@ -414,6 +419,9 @@ class CallController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   );
 
+  /// [Timer] setting [hidden] to `false` on timeout.
+  Timer? _hiddenTimer;
+
   /// Returns the [ChatId] of the [Chat] this [OngoingCall] is taking place in.
   Rx<ChatId> get chatId => _currentCall.value.chatId;
 
@@ -585,8 +593,6 @@ class CallController extends GetxController {
 
     _currentCall.value.init(getChat: _chatService.get);
 
-    final Size size = router.context!.mediaQuerySize;
-
     HardwareKeyboard.instance.addHandler(_onKey);
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
@@ -595,44 +601,29 @@ class CallController extends GetxController {
     speakerSwitched = RxBool(!PlatformUtils.isIOS);
 
     fullscreen = RxBool(false);
-    minimized = RxBool(!router.context!.isMobile && !WebUtils.isPopup);
+    minimized = RxBool(!PlatformUtils.isMobile && !WebUtils.isPopup);
     isMobile = PlatformUtils.isMobile;
 
-    final Rect? prefs =
-        _settingsRepository.getCallRect(_currentCall.value.chatId.value);
+    _hiddenTimer = Timer(const Duration(seconds: 1), () {
+      if (hidden.value) {
+        hidden.value = false;
+        refresh();
+      }
+    });
 
-    if (isMobile) {
-      Size size = router.context!.mediaQuerySize;
-      width = RxDouble(prefs?.width ?? size.width);
-      height = RxDouble(prefs?.height ?? size.height);
-    } else {
-      width = RxDouble(
-        prefs?.width ??
-            min(
-              max(
-                min(
-                  500,
-                  size.shortestSide * _maxWidth,
-                ),
-                _minWidth,
-              ),
-              size.height * _maxHeight,
-            ),
-      );
-      height = RxDouble(prefs?.height ?? width.value);
-    }
+    _applyRect(null);
+    _settingsRepository.getCallRect(_currentCall.value.chatId.value).then((v) {
+      if (hidden.value) {
+        hidden.value = false;
+        refresh();
+      }
+      _applyRect(v);
+    });
 
     final double secondarySize =
-        (this.size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
+        (size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
     secondaryWidth = RxDouble(secondarySize);
     secondaryHeight = RxDouble(secondarySize);
-
-    left = size.width - width.value - 50 > 0
-        ? RxDouble(prefs?.left ?? size.width - width.value - 50)
-        : RxDouble(prefs?.left ?? size.width / 2 - width.value / 2);
-    top = height.value + 50 < size.height
-        ? RxDouble(prefs?.top ?? 50)
-        : RxDouble(prefs?.top ?? size.height / 2 - height.value / 2);
 
     _chatWorker = ever(
       _currentCall.value.chatId,
@@ -874,6 +865,7 @@ class CallController extends GetxController {
     _settingsWorker?.dispose();
     _reconnectAudio?.cancel();
     _reconnectWorker?.dispose();
+    _hiddenTimer?.cancel();
 
     secondaryEntry?.remove();
 
@@ -2265,6 +2257,31 @@ class CallController extends GetxController {
         _durationSubscription = duration.listen((_) => updateTitle());
       }
     }
+  }
+
+  /// Applies the [prefs] to form [width], [height], [left] and [top] positions.
+  void _applyRect(Rect? prefs) {
+    final Size size = router.context!.mediaQuerySize;
+
+    if (isMobile) {
+      final Size size = router.context!.mediaQuerySize;
+      width.value = prefs?.width ?? size.width;
+      height.value = prefs?.height ?? size.height;
+    } else {
+      width.value = prefs?.width ??
+          min(
+            max(min(500, size.shortestSide * _maxWidth), _minWidth),
+            size.height * _maxHeight,
+          );
+      height.value = prefs?.height ?? width.value;
+    }
+
+    left.value = size.width - width.value - 50 > 0
+        ? prefs?.left ?? size.width - width.value - 50
+        : prefs?.left ?? size.width / 2 - width.value / 2;
+    top.value = height.value + 50 < size.height
+        ? prefs?.top ?? 50
+        : prefs?.top ?? size.height / 2 - height.value / 2;
   }
 }
 

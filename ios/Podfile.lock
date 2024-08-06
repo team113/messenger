@@ -1,11 +1,13 @@
 PODS:
   - all_sensors (0.0.1):
     - Flutter
+  - app_links (0.0.1):
+    - Flutter
   - audio_session (0.0.1):
     - Flutter
   - connectivity_plus (0.0.1):
     - Flutter
-    - ReachabilitySwift
+    - FlutterMacOS
   - device_info_plus (0.0.1):
     - Flutter
   - DKImagePickerController/Core (4.3.9):
@@ -47,10 +49,10 @@ PODS:
   - Firebase/Messaging (10.25.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 10.25.0)
-  - firebase_core (2.31.0):
+  - firebase_core (2.32.0):
     - Firebase/CoreOnly (= 10.25.0)
     - Flutter
-  - firebase_messaging (14.7.16):
+  - firebase_messaging (14.9.4):
     - Firebase/Messaging (= 10.25.0)
     - firebase_core
     - Flutter
@@ -58,9 +60,9 @@ PODS:
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
     - GoogleUtilities/Logger (~> 7.12)
-  - FirebaseCoreInternal (10.25.0):
+  - FirebaseCoreInternal (10.29.0):
     - "GoogleUtilities/NSData+zlib (~> 7.8)"
-  - FirebaseInstallations (10.25.0):
+  - FirebaseInstallations (10.29.0):
     - FirebaseCore (~> 10.0)
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
@@ -83,29 +85,29 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - nanopb (< 2.30911.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/AppDelegateSwizzler (7.13.2):
+  - GoogleUtilities/AppDelegateSwizzler (7.13.3):
     - GoogleUtilities/Environment
     - GoogleUtilities/Logger
     - GoogleUtilities/Network
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Environment (7.13.2):
+  - GoogleUtilities/Environment (7.13.3):
     - GoogleUtilities/Privacy
     - PromisesObjC (< 3.0, >= 1.2)
-  - GoogleUtilities/Logger (7.13.2):
+  - GoogleUtilities/Logger (7.13.3):
     - GoogleUtilities/Environment
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Network (7.13.2):
+  - GoogleUtilities/Network (7.13.3):
     - GoogleUtilities/Logger
     - "GoogleUtilities/NSData+zlib"
     - GoogleUtilities/Privacy
     - GoogleUtilities/Reachability
-  - "GoogleUtilities/NSData+zlib (7.13.2)":
+  - "GoogleUtilities/NSData+zlib (7.13.3)":
     - GoogleUtilities/Privacy
-  - GoogleUtilities/Privacy (7.13.2)
-  - GoogleUtilities/Reachability (7.13.2):
+  - GoogleUtilities/Privacy (7.13.3)
+  - GoogleUtilities/Reachability (7.13.3):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - GoogleUtilities/UserDefaults (7.13.2):
+  - GoogleUtilities/UserDefaults (7.13.3):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
   - image_gallery_saver (2.0.2):
@@ -145,26 +147,44 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - PromisesObjC (2.4.0)
-  - ReachabilitySwift (5.2.2)
   - screen_brightness_ios (0.1.0):
     - Flutter
-  - SDWebImage (5.19.2):
-    - SDWebImage/Core (= 5.19.2)
-  - SDWebImage/Core (5.19.2)
+  - SDWebImage (5.19.4):
+    - SDWebImage/Core (= 5.19.4)
+  - SDWebImage/Core (5.19.4)
   - sensors (0.0.1):
     - Flutter
-  - Sentry/HybridSDK (8.21.0):
-    - SentryPrivate (= 8.21.0)
-  - sentry_flutter (0.0.1):
+  - Sentry/HybridSDK (8.32.0)
+  - sentry_flutter (8.6.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.21.0)
-  - SentryPrivate (8.21.0)
+    - Sentry/HybridSDK (= 8.32.0)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
+  - SQLite.swift (0.15.3):
+    - SQLite.swift/standard (= 0.15.3)
+  - SQLite.swift/standard (0.15.3)
+  - "sqlite3 (3.46.0+1)":
+    - "sqlite3/common (= 3.46.0+1)"
+  - "sqlite3/common (3.46.0+1)"
+  - "sqlite3/dbstatvtab (3.46.0+1)":
+    - sqlite3/common
+  - "sqlite3/fts5 (3.46.0+1)":
+    - sqlite3/common
+  - "sqlite3/perf-threadsafe (3.46.0+1)":
+    - sqlite3/common
+  - "sqlite3/rtree (3.46.0+1)":
+    - sqlite3/common
+  - sqlite3_flutter_libs (0.0.1):
+    - Flutter
+    - "sqlite3 (~> 3.46.0+1)"
+    - sqlite3/dbstatvtab
+    - sqlite3/fts5
+    - sqlite3/perf-threadsafe
+    - sqlite3/rtree
   - SwiftyGif (5.4.5)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -177,8 +197,9 @@ PODS:
 
 DEPENDENCIES:
   - all_sensors (from `.symlinks/plugins/all_sensors/ios`)
+  - app_links (from `.symlinks/plugins/app_links/ios`)
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
-  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/ios`)
+  - connectivity_plus (from `.symlinks/plugins/connectivity_plus/darwin`)
   - device_info_plus (from `.symlinks/plugins/device_info_plus/ios`)
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Firebase/Messaging
@@ -205,6 +226,8 @@ DEPENDENCIES:
   - sentry_flutter (from `.symlinks/plugins/sentry_flutter/ios`)
   - share_plus (from `.symlinks/plugins/share_plus/ios`)
   - shared_preferences_foundation (from `.symlinks/plugins/shared_preferences_foundation/darwin`)
+  - SQLite.swift
+  - sqlite3_flutter_libs (from `.symlinks/plugins/sqlite3_flutter_libs/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - vibration (from `.symlinks/plugins/vibration/ios`)
   - volume_controller (from `.symlinks/plugins/volume_controller/ios`)
@@ -225,19 +248,21 @@ SPEC REPOS:
     - libyuv-iOS
     - nanopb
     - PromisesObjC
-    - ReachabilitySwift
     - SDWebImage
     - Sentry
-    - SentryPrivate
+    - SQLite.swift
+    - sqlite3
     - SwiftyGif
 
 EXTERNAL SOURCES:
   all_sensors:
     :path: ".symlinks/plugins/all_sensors/ios"
+  app_links:
+    :path: ".symlinks/plugins/app_links/ios"
   audio_session:
     :path: ".symlinks/plugins/audio_session/ios"
   connectivity_plus:
-    :path: ".symlinks/plugins/connectivity_plus/ios"
+    :path: ".symlinks/plugins/connectivity_plus/darwin"
   device_info_plus:
     :path: ".symlinks/plugins/device_info_plus/ios"
   file_picker:
@@ -288,6 +313,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/share_plus/ios"
   shared_preferences_foundation:
     :path: ".symlinks/plugins/shared_preferences_foundation/darwin"
+  sqlite3_flutter_libs:
+    :path: ".symlinks/plugins/sqlite3_flutter_libs/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   vibration:
@@ -299,28 +326,29 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   all_sensors: 13f46502204bebbd1e06b65ff3d7cdaa03d88b26
-  audio_session: 4f3e461722055d21515cf3261b64c973c062f345
-  connectivity_plus: bf0076dd84a130856aa636df1c71ccaff908fa1d
+  app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
+  audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
+  connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
   DKImagePickerController: 946cec48c7873164274ecc4624d19e3da4c1ef3c
   DKPhotoGallery: b3834fecb755ee09a593d7c9e389d8b5d6deed60
-  file_picker: 15fd9539e4eb735dc54bae8c0534a7a9511a03de
+  file_picker: 09aa5ec1ab24135ccd7a1621c46c84134bfd6655
   Firebase: 0312a2352584f782ea56f66d91606891d4607f06
-  firebase_core: 0b39f4f424e02eecabb2356ddf331fa07b772af8
-  firebase_messaging: 74f1fcdbb6fa3e67d0ada8bdaf5c14bfe6f6b3a1
+  firebase_core: a626d00494efa398e7c54f25f1454a64c8abf197
+  firebase_messaging: 06391e8f35dc65a00c56580266285263d2861f10
   FirebaseCore: 7ec4d0484817f12c3373955bc87762d96842d483
-  FirebaseCoreInternal: 910a81992c33715fec9263ca7381d59ab3a750b7
-  FirebaseInstallations: 91950fe859846fff0fbd296180909dd273103b09
+  FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
+  FirebaseInstallations: 913cf60d0400ebd5d6b63a28b290372ab44590dd
   FirebaseMessaging: 88950ba9485052891ebe26f6c43a52bb62248952
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   flutter_app_badger: b87fc231847b03b92ce1412aa351842e7e97932f
   flutter_local_notifications: 4cde75091f6327eb8517fa068a0a5950212d2086
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
-  GoogleUtilities: c56430aef51a1aa57b25da78c3f8397e522c67b7
+  GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
-  image_picker_ios: b786a5dcf033a8336a657191401bfdf12017dabb
+  image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
   instrumentisto-libwebrtc-bin: 295e1721ff9a8ccfc030c0de5f095c7d6b3e53ce
-  integration_test: 13825b8a9334a850581300559b8839134b124670
+  integration_test: ce0a3ffa1de96d1a89ca0ac26fca7ea18a749ef4
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
   libyuv-iOS: 5a154ccc84ec754029886ecb607512731fe30640
   medea_flutter_webrtc: ca2335744f08d45963f26f8db159c6dcd19a31a3
@@ -330,25 +358,26 @@ SPEC CHECKSUMS:
   media_kit_video: 5da63f157170e5bf303bf85453b7ef6971218a2e
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
   open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
-  package_info_plus: 115f4ad11e0698c8c1c5d8a689390df880f47e85
-  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
-  permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
+  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  ReachabilitySwift: 2128f3a8c9107e1ad33574c6e58e8285d460b149
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
-  SDWebImage: dfe95b2466a9823cf9f0c6d01217c06550d7b29a
+  SDWebImage: 066c47b573f408f18caa467d71deace7c0f8280d
   sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
-  Sentry: ebc12276bd17613a114ab359074096b6b3725203
-  sentry_flutter: dff1df05dc39c83d04f9330b36360fc374574c5e
-  SentryPrivate: d651efb234cf385ec9a1cdd3eff94b5e78a0e0fe
-  share_plus: c3fef564749587fc939ef86ffb283ceac0baf9f5
-  shared_preferences_foundation: b4c3b4cddf1c21f02770737f147a3f5da9d39695
+  Sentry: 96ae1dcdf01a644bc3a3b1dc279cecaf48a833fb
+  sentry_flutter: 090351ce1ff5f96a4b33ef9455b7e3b28185387d
+  share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
+  SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
+  sqlite3: fc1bf263f36b89316edebfe48e2358334a9c79ad
+  sqlite3_flutter_libs: c00457ebd31e59fa6bb830380ddba24d44fbcd3b
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
-  url_launcher_ios: bbd758c6e7f9fd7b5b1d4cde34d2b95fcce5e812
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
   volume_controller: 531ddf792994285c9b17f9d8a7e4dcdd29b3eae9
-  wakelock_plus: 8b09852c8876491e4b6d179e17dfe2a0b5f60d47
+  wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
 
-PODFILE CHECKSUM: 138c677207479d912b992fe10e92106347aa5d39
+PODFILE CHECKSUM: 9b3462c8576c33ce44d05061d54f03eb9377f0f9
 
 COCOAPODS: 1.15.2

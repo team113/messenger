@@ -22,6 +22,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:get/get.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -269,6 +270,7 @@ class IntroductionView extends StatelessWidget {
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
+                key: const Key('IntroductionScrollable'),
                 controller: c.scrollController,
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
@@ -337,18 +339,24 @@ class IntroductionView extends StatelessWidget {
             child: ListView(
               padding: ModalPopup.padding(context),
               shrinkWrap: true,
-              children: const [
-                DownloadButton.windows(),
-                SizedBox(height: 8),
-                DownloadButton.macos(),
-                SizedBox(height: 8),
-                DownloadButton.linux(),
-                SizedBox(height: 8),
-                DownloadButton.appStore(),
-                SizedBox(height: 8),
-                DownloadButton.googlePlay(),
-                SizedBox(height: 8),
-                DownloadButton.android(),
+              children: [
+                const DownloadButton.windows(),
+                const SizedBox(height: 8),
+                const DownloadButton.macos(),
+                const SizedBox(height: 8),
+                const DownloadButton.linux(),
+                const SizedBox(height: 8),
+                if (Config.appStoreUrl.isNotEmpty) ...[
+                  DownloadButton.appStore(),
+                  const SizedBox(height: 8),
+                ],
+                const DownloadButton.ios(),
+                const SizedBox(height: 8),
+                if (Config.googlePlayUrl.isNotEmpty) ...[
+                  DownloadButton.googlePlay(),
+                  const SizedBox(height: 8),
+                ],
+                const DownloadButton.android(),
               ],
             ),
           ),

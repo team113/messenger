@@ -19,12 +19,11 @@ import 'dart:math';
 
 import 'package:email_validator/email_validator.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/api/backend/schema.dart';
 import '/config.dart';
 import '/domain/model/contact.dart';
-import '/domain/model_type_id.dart';
 import '/l10n/l10n.dart';
 import '/util/new_type.dart';
 import 'avatar.dart';
@@ -35,8 +34,8 @@ import 'user_call_cover.dart';
 part 'user.g.dart';
 
 /// User of a system impersonating a real person.
-@HiveType(typeId: ModelTypeId.user)
-class User extends HiveObject {
+@JsonSerializable()
+class User {
   User(
     this.id,
     this.num, {
@@ -55,10 +54,12 @@ class User extends HiveObject {
     this.contacts = const [],
   }) : _dialog = dialog;
 
+  /// Constructs a [User] from the provided [json].
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
   /// Unique ID of this [User].
   ///
   /// Once assigned it never changes.
-  @HiveField(0)
   final UserId id;
 
   /// Unique number of this [User].
@@ -71,7 +72,6 @@ class User extends HiveObject {
   ///
   /// It may be reused by another [User] in future, once this [User] becomes
   /// unreachable (sign-in for this [User] is impossible).
-  @HiveField(1)
   final UserNum num;
 
   /// Name of this [User].
@@ -81,35 +81,28 @@ class User extends HiveObject {
   /// It can be either first name, or last name of an [User], both of them, or
   /// even some nickname. [User] is free to choose how exactly he should be
   /// displayed for other [User]s.
-  @HiveField(2)
   UserName? name;
 
   /// Arbitrary descriptive information about this [User].
-  @HiveField(3)
   UserBio? bio;
 
   /// Avatar of this [User].
-  @HiveField(4)
   UserAvatar? avatar;
 
   /// Call cover of this [User].
   ///
   /// [callCover] is an image helping to identify an [User] visually in
   /// [UserCallCover]s.
-  @HiveField(5)
   UserCallCover? callCover;
 
   /// Number of mutual [ChatContact]s that this [User] has with the
   /// authenticated [MyUser].
-  @HiveField(6)
   int mutualContactsCount;
 
   /// Online state of this [User].
-  @HiveField(7)
   bool online;
 
   /// Presence of this [User].
-  @HiveField(8)
   int? presenceIndex;
 
   Presence? get presence =>
@@ -119,27 +112,21 @@ class User extends HiveObject {
   }
 
   /// Custom text status of this [User].
-  @HiveField(9)
   UserTextStatus? status;
 
   /// Indicator whether this [User] is deleted.
-  @HiveField(10)
   bool isDeleted;
 
   /// Dialog [Chat] between this [User] and the authenticated [MyUser].
-  @HiveField(11)
   ChatId? _dialog;
 
   /// Indicator whether this [User] is blocked by the authenticated [MyUser].
-  @HiveField(12)
   BlocklistRecord? isBlocked;
 
   /// [PreciseDateTime] when this [User] was seen online last time.
-  @HiveField(13)
   PreciseDateTime? lastSeenAt;
 
   /// List of [NestedChatContact]s this [User] is linked to.
-  @HiveField(14)
   final List<NestedChatContact> contacts;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
@@ -154,14 +141,22 @@ class User extends HiveObject {
 
   @override
   String toString() => '$runtimeType($id)';
+
+  /// Returns a [Map] representing this [User].
+  Map<String, dynamic> toJson() => _$UserToJson(this);
 }
 
 /// Unique ID of an [User].
 ///
 /// See more details in [User.id].
-@HiveType(typeId: ModelTypeId.userId)
 class UserId extends NewType<String> implements Comparable<UserId> {
   const UserId(super.val);
+
+  /// Constructs a [UserId] from the provided [val].
+  factory UserId.fromJson(String val) = UserId;
+
+  /// Returns a [String] representing this [UserId].
+  String toJson() => val;
 
   @override
   int compareTo(UserId other) => val.compareTo(other.val);
@@ -170,12 +165,14 @@ class UserId extends NewType<String> implements Comparable<UserId> {
 /// Unique number of an [User].
 ///
 /// See more details in [User.num].
-@HiveType(typeId: ModelTypeId.userNum)
 class UserNum extends NewType<String> {
   const UserNum._(super.val);
 
   /// Creates an object without any validation.
   const factory UserNum.unchecked(String val) = UserNum._;
+
+  /// Constructs a [UserNum] from the provided [val].
+  factory UserNum.fromJson(String val) = UserNum.unchecked;
 
   factory UserNum(String val) {
     val = val.replaceAll(' ', '');
@@ -214,13 +211,15 @@ class UserNum extends NewType<String> {
     }
     return formattedUserNum.trim();
   }
+
+  /// Returns a [String] representing this [UserId].
+  String toJson() => val;
 }
 
 /// Unique login of an [User].
 ///
 /// [UserLogin] allows [User] to perform a sign-in, when combined with a
 /// password.
-@HiveType(typeId: ModelTypeId.userLogin)
 class UserLogin extends NewType<String> {
   const UserLogin._(super.val);
 
@@ -235,6 +234,9 @@ class UserLogin extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserLogin.unchecked(String val) = UserLogin._;
 
+  /// Constructs a [UserLogin] from the provided [val].
+  factory UserLogin.fromJson(String val) = UserLogin.unchecked;
+
   /// Regular expression for basic [UserLogin] validation.
   static final RegExp _regExp = RegExp(r'^[a-z0-9][a-z0-9_-]{1,18}[a-z0-9]$');
 
@@ -247,12 +249,14 @@ class UserLogin extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserLogin].
+  String toJson() => val;
 }
 
 /// Name of an [User].
 ///
 /// See more details in [User.name].
-@HiveType(typeId: ModelTypeId.userName)
 class UserName extends NewType<String> {
   const UserName._(super.val);
 
@@ -264,6 +268,9 @@ class UserName extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory UserName.unchecked(String val) = UserName._;
+
+  /// Constructs a [UserName] from the provided [val].
+  factory UserName.fromJson(String val) = UserName.unchecked;
 
   /// Regular expression for basic [UserName] validation.
   static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
@@ -277,6 +284,9 @@ class UserName extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserName].
+  String toJson() => val;
 }
 
 /// Password of an [User].
@@ -299,6 +309,9 @@ class UserPassword extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPassword.unchecked(String val) = UserPassword._;
 
+  /// Constructs a [UserPassword] from the provided [val].
+  factory UserPassword.fromJson(String val) = UserPassword.unchecked;
+
   /// Regular expression for basic [UserPassword] validation.
   static final RegExp _regExp = RegExp(r'^[^\s](.{0,248}[^\s])?$');
 
@@ -311,10 +324,12 @@ class UserPassword extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserPassword].
+  String toJson() => val;
 }
 
 /// Email address of an [User].
-@HiveType(typeId: ModelTypeId.userEmail)
 class UserEmail extends NewType<String> {
   const UserEmail._(super.val);
 
@@ -327,6 +342,9 @@ class UserEmail extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserEmail.unchecked(String val) = UserEmail._;
 
+  /// Constructs a [UserEmail] from the provided [val].
+  factory UserEmail.fromJson(String val) = UserEmail.unchecked;
+
   /// Parses the provided [val] as a [UserEmail], if [val] meets the validation,
   /// or returns `null` otherwise.
   static UserEmail? tryParse(String val) {
@@ -336,10 +354,12 @@ class UserEmail extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserEmail].
+  String toJson() => val;
 }
 
 /// Arbitrary descriptive information about a [User].
-@HiveType(typeId: ModelTypeId.userBio)
 class UserBio extends NewType<String> {
   const UserBio._(super.val);
 
@@ -356,6 +376,9 @@ class UserBio extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserBio.unchecked(String val) = UserBio._;
 
+  /// Constructs a [UserBio] from the provided [val].
+  factory UserBio.fromJson(String val) = UserBio.unchecked;
+
   /// Parses the provided [val] as a [UserBio], if [val] meets the validation,
   /// or returns `null` otherwise.
   static UserBio? tryParse(String val) {
@@ -365,10 +388,12 @@ class UserBio extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserBio].
+  String toJson() => val;
 }
 
 /// Phone number of an [User].
-@HiveType(typeId: ModelTypeId.userPhone)
 class UserPhone extends NewType<String> {
   const UserPhone._(super.val);
 
@@ -389,6 +414,9 @@ class UserPhone extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserPhone.unchecked(String val) = UserPhone._;
 
+  /// Constructs a [UserPhone] from the provided [val].
+  factory UserPhone.fromJson(String val) = UserPhone.unchecked;
+
   /// Regular expression for basic [UserPhone] validation.
   static final RegExp _regExp = RegExp(
     r'^\+[0-9]{0,3}[\s]?[(]?[0-9]{0,3}[)]?[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}[-\s]?[0-9]{0,4}$',
@@ -403,22 +431,27 @@ class UserPhone extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserPhone].
+  String toJson() => val;
 }
 
 /// Direct link to a `Chat`.
-@HiveType(typeId: ModelTypeId.chatDirectLink)
+@JsonSerializable()
 class ChatDirectLink {
   ChatDirectLink({
     required this.slug,
     this.usageCount = 0,
   });
 
+  /// Constructs a [ChatDirectLink] from the provided [json].
+  factory ChatDirectLink.fromJson(Map<String, dynamic> json) =>
+      _$ChatDirectLinkFromJson(json);
+
   /// Unique slug associated with this [ChatDirectLink].
-  @HiveField(0)
   ChatDirectLinkSlug slug;
 
   /// Number of times this [ChatDirectLink] has been used.
-  @HiveField(1)
   int usageCount;
 
   @override
@@ -429,10 +462,12 @@ class ChatDirectLink {
 
   @override
   int get hashCode => Object.hash(slug, usageCount);
+
+  /// Returns a [Map] representing this [ChatDirectLink].
+  Map<String, dynamic> toJson() => _$ChatDirectLinkToJson(this);
 }
 
 /// Slug of a [ChatDirectLink].
-@HiveType(typeId: ModelTypeId.chatDirectLinkSlug)
 class ChatDirectLinkSlug extends NewType<String> {
   const ChatDirectLinkSlug._(super.val);
 
@@ -448,6 +483,10 @@ class ChatDirectLinkSlug extends NewType<String> {
 
   /// Creates an object without any validation.
   const factory ChatDirectLinkSlug.unchecked(String val) = ChatDirectLinkSlug._;
+
+  /// Constructs a [ChatDirectLinkSlug] from the provided [val].
+  factory ChatDirectLinkSlug.fromJson(String val) =
+      ChatDirectLinkSlug.unchecked;
 
   /// Creates a random [ChatDirectLinkSlug] of the provided [length].
   factory ChatDirectLinkSlug.generate([int length = 10]) {
@@ -487,10 +526,12 @@ class ChatDirectLinkSlug extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [ChatDirectLinkSlug].
+  String toJson() => val;
 }
 
 /// Status of an [User].
-@HiveType(typeId: ModelTypeId.userTextStatus)
 class UserTextStatus extends NewType<String> {
   const UserTextStatus._(super.val);
 
@@ -505,6 +546,9 @@ class UserTextStatus extends NewType<String> {
   /// Creates an object without any validation.
   const factory UserTextStatus.unchecked(String val) = UserTextStatus._;
 
+  /// Constructs a [UserTextStatus] from the provided [val].
+  factory UserTextStatus.fromJson(String val) = UserTextStatus.unchecked;
+
   /// Parses the provided [val] as a [UserTextStatus], if [val] meets the
   /// validation, or returns `null` otherwise.
   static UserTextStatus? tryParse(String val) {
@@ -514,10 +558,13 @@ class UserTextStatus extends NewType<String> {
       return null;
     }
   }
+
+  /// Returns a [String] representing this [UserTextStatus].
+  String toJson() => val;
 }
 
 /// [User]'s record in a blocklist of the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blocklistRecord)
+@JsonSerializable()
 class BlocklistRecord implements Comparable<BlocklistRecord> {
   BlocklistRecord({
     required this.userId,
@@ -525,16 +572,17 @@ class BlocklistRecord implements Comparable<BlocklistRecord> {
     required this.at,
   });
 
+  /// Constructs a [BlocklistRecord] from the provided [json].
+  factory BlocklistRecord.fromJson(Map<String, dynamic> json) =>
+      _$BlocklistRecordFromJson(json);
+
   /// Blocked [User].
-  @HiveField(0)
   final UserId userId;
 
   /// Reason of why the [User] was blocked.
-  @HiveField(1)
   final BlocklistReason? reason;
 
   /// [PreciseDateTime] when the [User] was blocked.
-  @HiveField(2)
   final PreciseDateTime at;
 
   @override
@@ -549,16 +597,37 @@ class BlocklistRecord implements Comparable<BlocklistRecord> {
     final int result = other.at.compareTo(at);
     return result == 0 ? userId.compareTo(other.userId) : result;
   }
+
+  /// Returns a [Map] representing this [BlocklistRecord].
+  Map<String, dynamic> toJson() => _$BlocklistRecordToJson(this);
 }
 
 /// Reason of blocking a [User] by the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.blocklistReason)
+@JsonSerializable()
 class BlocklistReason extends NewType<String> {
-  const BlocklistReason(super.val);
+  const BlocklistReason._(super.val);
+
+  BlocklistReason(String val) : super(val) {
+    if (!_regExp.hasMatch(val)) {
+      throw const FormatException('Does not match validation RegExp');
+    }
+  }
+
+  /// Creates an object without any validation.
+  const factory BlocklistReason.unchecked(String val) = BlocklistReason._;
+
+  /// Regular expression for basic [BlocklistReason] validation.
+  static final RegExp _regExp = RegExp(r'^[^\s].{0,98}[^\s]$');
+
+  /// Constructs a [BlocklistRecord] from the provided [val].
+  factory BlocklistReason.fromJson(String val) = BlocklistReason;
+
+  /// Returns a [String] representing this [BlocklistReason].
+  String toJson() => val;
 }
 
 /// Record in an address book of the authenticated [MyUser].
-@HiveType(typeId: ModelTypeId.nestedChatContact)
+@JsonSerializable()
 class NestedChatContact {
   NestedChatContact(this.id, this.name);
 
@@ -567,12 +636,17 @@ class NestedChatContact {
       : id = contact.id,
         name = contact.name;
 
+  /// Constructs a [NestedChatContact] from the provided [json].
+  factory NestedChatContact.fromJson(Map<String, dynamic> json) =>
+      _$NestedChatContactFromJson(json);
+
   /// Unique ID of this [NestedChatContact].
-  @HiveField(0)
   final ChatContactId id;
 
   /// Custom [UserName] of this [NestedChatContact] given by the authenticated
   /// [MyUser].
-  @HiveField(1)
   UserName name;
+
+  /// Returns a [Map] representing this [NestedChatContact].
+  Map<String, dynamic> toJson() => _$NestedChatContactToJson(this);
 }

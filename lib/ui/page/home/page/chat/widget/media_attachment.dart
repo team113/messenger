@@ -152,8 +152,10 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
         final bool narrow = ratio > 3 || ratio < 0.33;
+        final bool single =
+            widget.width != double.infinity && widget.height != double.infinity;
 
-        if (narrow) {
+        if (narrow || single) {
           final ThumbHash? thumbhash =
               (attachment.original as ImageFile).thumbhash ??
                   attachment.big.thumbhash ??
@@ -233,6 +235,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     }
 
     return Stack(
+      key: Key('Attachment_${widget.attachment.id}'),
       fit: StackFit.passthrough,
       children: [
         if (preview != null) Positioned.fill(child: preview),

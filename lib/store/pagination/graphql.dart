@@ -40,6 +40,11 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
   }
 
   @override
+  void dispose() {
+    // No-op.
+  }
+
+  @override
   Future<Page<T, C>> around(K? key, C? cursor, int count) async {
     final int half = count ~/ 2;
 
@@ -81,7 +86,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
   @override
   Future<void> put(
-    T item, {
+    Iterable<T> items, {
     bool ignoreBounds = false,
     int Function(T, T)? compare,
   }) async {

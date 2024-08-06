@@ -15,12 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
+part 'web.g.dart';
+
 /// [DateTime] considering the microseconds on any platform, including Web.
+@JsonSerializable()
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(super.val, {this.microsecond = 0});
@@ -37,10 +39,16 @@ class PreciseDateTime extends NewType<DateTime>
   /// ```
   PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
       : microsecond = microsecondsSinceEpoch % 1000,
-        super(DateTime.fromMillisecondsSinceEpoch(
-          (microsecondsSinceEpoch / 1000).floor(),
-          isUtc: true,
-        ));
+        super(
+          DateTime.fromMillisecondsSinceEpoch(
+            (microsecondsSinceEpoch / 1000).floor(),
+            isUtc: true,
+          ),
+        );
+
+  /// Constructs a [PreciseDateTime] from the provided [json].
+  factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>
+      _$PreciseDateTimeFromJson(json);
 
   /// Microsecond part of this [PreciseDateTime].
   final int microsecond;
@@ -59,20 +67,23 @@ class PreciseDateTime extends NewType<DateTime>
   int get microsecondsSinceEpoch => val.microsecondsSinceEpoch + microsecond;
 
   @override
-  int compareTo(PreciseDateTime other) {
-    if (val == other.val) {
-      return microsecond.compareTo(other.microsecond);
-    }
-    return val.compareTo(other.val);
-  }
-
-  @override
   int get hashCode => Object.hash(val, microsecond);
 
   @override
   bool operator ==(Object other) =>
       other is PreciseDateTime &&
       microsecondsSinceEpoch == other.microsecondsSinceEpoch;
+
+  /// Returns a [Map] representing this [PreciseDateTime].
+  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
+
+  @override
+  int compareTo(PreciseDateTime other) {
+    if (val == other.val) {
+      return microsecond.compareTo(other.microsecond);
+    }
+    return val.compareTo(other.val);
+  }
 
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///
@@ -230,21 +241,5 @@ class PreciseDateTime extends NewType<DateTime>
     }
 
     return formattedString;
-  }
-}
-
-/// [Hive] adapter for a [PreciseDateTime].
-class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
-  @override
-  final typeId = ModelTypeId.preciseDateTime;
-
-  @override
-  PreciseDateTime read(BinaryReader reader) =>
-      PreciseDateTime(reader.read() as DateTime, microsecond: reader.readInt());
-
-  @override
-  void write(BinaryWriter writer, PreciseDateTime obj) {
-    writer.write(obj.val);
-    writer.writeInt(obj.microsecond);
   }
 }

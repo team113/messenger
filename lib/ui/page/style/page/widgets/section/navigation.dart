@@ -82,6 +82,7 @@ class NavigationSection {
               currentIndex: p.value,
               onTap: (t) => p.value = t,
               items: [
+                const CustomNavigationBarItem.link(),
                 const CustomNavigationBarItem.work(),
                 const CustomNavigationBarItem.contacts(),
                 CustomNavigationBarItem.chats(),

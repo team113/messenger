@@ -234,6 +234,7 @@ btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_open_separately = открыть отдельно
+btn_or_input_someones_link = Ввести прямую ссылку
 btn_participants = Список участников
 btn_participants_desc =
     Список
@@ -293,21 +294,17 @@ colon_space = :{" "}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_password_recovery =
-    Код восстановления {$domain}: {$token}
-    Действителен до {$expiresAt}.
-    {$domain}
-email_password_recovery_subject = Код восстановления {$domain}
-email_verification_code =
+email_confirmation_code =
     Код подтверждения {$domain}: {$token}
     Действителен до {$expiresAt}.
     {$domain}
-email_verification_code_subject = Код подтверждения {$domain}
+email_confirmation_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
 err_blocked_by_multiple = Один или несколько выбранных пользователей внесли Вас в чёрный список.
+err_blocklist_reason_does_not_meet_regexp = Причина блокировки должна содержать от 2 до 100 символов.
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -524,6 +521,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } исключил Вас из группы
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
@@ -625,7 +623,7 @@ label_avatar_updated = {$author} обновил аватар
 label_avatar_updated1 = {$author}
 label_avatar_updated2 = {" "}обновил аватар
 label_away = отошёл
-label_background = Бэкграунд
+label_background = Фон
 label_besides_freelance_is_an_option_too1 = Кроме того, предусмотрена возможность сотрудничества в качестве фриланс разработчика. Со списком задач и условиями сотрудничества можно ознакомится на странице{" "}
 label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Заблокировать
@@ -713,6 +711,7 @@ label_count_seconds = {$count} { $count ->
        [few] секунды
        *[other] секунд
    }
+label_critical_update_is_available = Текущая версия не поддерживается
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
@@ -913,6 +912,7 @@ label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
 label_open_chat = Открыть чат
+label_or = Или
 label_or_register = или регистрация
 label_outgoing_call = Звоним
 label_participants = Участников: {$count}
@@ -935,10 +935,8 @@ label_personal_data_deletion_description =
     - Ваш аватар;
     - Ваше имя;
     - Ваша биография;
-    - Ваш логин;
     - все Ваши e-mail адреса;
-    - все Ваши номера телефонов;
-    - Ваш список контактов.
+    - все Ваши номера телефонов.
 
     Информация, которая не будет удалена:
     - Ваш Gapopa ID, поскольку он не является персональной информацией;
@@ -1077,7 +1075,7 @@ label_tech_stack_freelance =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1086,7 +1084,7 @@ label_tech_stack_frontend_developer =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1098,12 +1096,14 @@ label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
+label_unknown_chat_direct_link = Данная прямая ссылка недействительна. Она могла быть удалена автором. Перепроверьте, пожалуйста, ссылку.
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
     *[other] {$quantity} непрочитанных сообщений
 }
 label_update_is_available = Доступно обновление
+label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}

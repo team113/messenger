@@ -18,18 +18,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
@@ -39,27 +39,18 @@ import 'package:messenger/store/user.dart';
 import '../mock/graphql_provider.dart';
 
 void main() async {
-  Hive.init('./test/.temp_hive/profile_unit');
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
-  await blockedUsersProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  var blocklistSortingProvider = BlocklistSortingHiveProvider();
-  await blocklistSortingProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-  final credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
+
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
+  final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final sessionProvider = Get.put(VersionDriftProvider(common));
 
   test('MyProfile test', () async {
     Get.reset();
-
-    final getStorage = CredentialsHiveProvider();
-    await getStorage.init();
 
     final graphQlProvider = FakeGraphQlProvider();
 
@@ -69,7 +60,7 @@ void main() async {
         myUserProvider,
         credentialsProvider,
       ),
-      getStorage,
+      credentialsProvider,
       accountProvider,
     ));
 
@@ -79,10 +70,11 @@ void main() async {
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        blockedUsersProvider,
-        blocklistSortingProvider,
+        blocklistProvider,
         userRepository,
         sessionProvider,
+        myUserProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -102,6 +94,8 @@ void main() async {
 
     assert(profileService.myUser.value == profileService.myUser.value);
   });
+
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 class FakeGraphQlProvider extends MockedGraphQlProvider {
@@ -136,7 +130,9 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+  Future<Stream<QueryResult>> myUserEvents(
+    Future<MyUserVersion?> Function()? getVer,
+  ) async {
     return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,

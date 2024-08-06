@@ -546,16 +546,7 @@ class ChatInfoView extends StatelessWidget {
     final Widget title = Row(
       children: [
         const StyledBackButton(),
-        Material(
-          elevation: 6,
-          type: MaterialType.circle,
-          shadowColor: style.colors.onBackgroundOpacity27,
-          color: style.colors.onPrimary,
-          child: AvatarWidget.fromRxChat(
-            c.chat,
-            radius: AvatarRadius.medium,
-          ),
-        ),
+        AvatarWidget.fromRxChat(c.chat, radius: AvatarRadius.medium),
         const SizedBox(width: 10),
         Flexible(
           child: DefaultTextStyle.merge(

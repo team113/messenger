@@ -21,28 +21,30 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
+import 'package:yaml/yaml.dart';
 
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'pubspec.g.dart';
 import 'routes.dart';
+import 'util/ios_utils.dart';
 
 /// Configuration of this application.
 class Config {
   /// Backend's HTTP URL.
-  static late String url;
+  static String url = 'http://localhost';
 
   /// Backend's HTTP port.
-  static late int port;
+  static int port = 80;
 
   /// GraphQL API endpoint of HTTP backend server.
-  static late String graphql;
+  static String graphql = '/api/graphql';
 
   /// Backend's WebSocket URL.
-  static late String ws;
+  static String ws = 'ws://localhost';
 
   /// File storage HTTP URL.
-  static late String files;
+  static String files = 'http://localhost/files';
 
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
@@ -60,8 +62,22 @@ class Config {
   /// Directory to download files to.
   static String downloads = '';
 
+  /// Indicator whether download links should be present within application.
+  ///
+  /// Should be `false` for builds uploaded to application stores, as usually
+  /// those prohibit such links being present.
+  static bool downloadable = true;
+
+  /// URL of the application entry in App Store.
+  static String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
+
+  /// URL of the application entry in Google Play.
+  static String googlePlayUrl =
+      'https://play.google.com/store/apps/details?id=com.team113.messenger';
+
   /// VAPID (Voluntary Application Server Identification) key for Web Push.
-  static String vapidKey = '';
+  static String vapidKey =
+      'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
 
   /// Indicator whether all looped animations should be disabled.
   ///
@@ -69,13 +85,13 @@ class Config {
   static bool disableInfiniteAnimations = false;
 
   /// Product identifier of `User-Agent` header to put in network queries.
-  static String userAgentProduct = '';
+  static String userAgentProduct = 'Gapopa';
 
   /// Version identifier of `User-Agent` header to put in network queries.
   static String userAgentVersion = '';
 
   /// Unique identifier of Windows application.
-  static late String clsid;
+  static String clsid = '';
 
   /// Version of the application, used to clear cache if mismatch is detected.
   ///
@@ -86,13 +102,6 @@ class Config {
 
   /// Level of [Log]ger to log.
   static me.LogLevel logLevel = me.LogLevel.info;
-
-  /// Version of the [Hive] schema, used to clear cache if mismatch is detected.
-  static String? schema = '1';
-
-  /// Version of the [CredentialsHiveProvider] schema, used to clear it, if
-  /// mismatch is detected.
-  static String? credentials = '0';
 
   /// URL of a Sparkle Appcast XML file.
   ///
@@ -110,6 +119,22 @@ class Config {
   /// URL of the repository (or anything else) for users to report bugs to.
   static String repository = 'https://github.com/team113/messenger/issues';
 
+  /// Schema version of the [CommonDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int commonVersion = 1;
+
+  /// Schema version of the [ScopedDatabase].
+  ///
+  /// Should be bumped up, when breaking changes in this scheme occur, however
+  /// be sure to write migrations and test them.
+  static int scopedVersion = 1;
+
+  /// Custom URL scheme to associate the application with when opening the deep
+  /// links.
+  static String scheme = 'gapopa';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -124,15 +149,15 @@ class Config {
 
     graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
         ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
-        : (document['server']?['http']?['graphql'] ?? '/api/graphql');
+        : (document['server']?['http']?['graphql'] ?? graphql);
 
     port = const bool.hasEnvironment('SOCAPP_HTTP_PORT')
         ? const int.fromEnvironment('SOCAPP_HTTP_PORT')
-        : (document['server']?['http']?['port'] ?? 80);
+        : (document['server']?['http']?['port'] ?? port);
 
     url = const bool.hasEnvironment('SOCAPP_HTTP_URL')
         ? const String.fromEnvironment('SOCAPP_HTTP_URL')
-        : (document['server']?['http']?['url'] ?? 'http://localhost');
+        : (document['server']?['http']?['url'] ?? url);
 
     String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
         ? const String.fromEnvironment('SOCAPP_WS_URL')
@@ -144,42 +169,52 @@ class Config {
 
     files = const bool.hasEnvironment('SOCAPP_FILES_URL')
         ? const String.fromEnvironment('SOCAPP_FILES_URL')
-        : (document['files']?['url'] ?? 'http://localhost/files');
+        : (document['files']?['url'] ?? files);
 
     sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
         ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
-        : (document['sentry']?['dsn'] ?? '');
+        : (document['sentry']?['dsn'] ?? sentryDsn);
 
     downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
         ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        : (document['downloads']?['directory'] ?? '');
+        : (document['downloads']?['directory'] ?? downloads);
+
+    downloadable = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+        ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+        : (document['downloads']?['downloadable'] ?? downloadable);
+
+    appStoreUrl = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+        : (document['downloads']?['app_store_url'] ?? appStoreUrl);
+
+    googlePlayUrl =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            ? const String.fromEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
+            : (document['downloads']?['google_play_url'] ?? googlePlayUrl);
 
     userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
-        : (document['user']?['agent']?['product'] ?? 'Gapopa');
+        : (document['user']?['agent']?['product'] ?? userAgentProduct);
 
     String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
         ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
         : (document['user']?['agent']?['version'] ?? '');
 
-    userAgentVersion = version.isNotEmpty
-        ? version
-        : (Pubspec.ref ?? Config.version ?? Pubspec.version);
+    userAgentVersion = version.isNotEmpty ? version : Pubspec.ref;
 
     clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
         ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
-        : (document['windows']?['clsid'] ?? '');
+        : (document['windows']?['clsid'] ?? clsid);
 
     vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
         ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
-        : (document['fcm']?['vapidKey'] ??
-            'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0');
+        : (document['fcm']?['vapidKey'] ?? vapidKey);
 
     origin = url;
 
     link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
         ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
-        : (document['link']?['prefix'] ?? '');
+        : (document['link']?['prefix'] ?? link);
 
     logLevel = me.LogLevel.values.firstWhere(
       (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
@@ -204,6 +239,10 @@ class Config {
     repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
         ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
         : (document['legal']?['repository'] ?? repository);
+
+    scheme = const bool.hasEnvironment('SOCAPP_LINK_SCHEME')
+        ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
+        : (document['link']?['scheme'] ?? scheme);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -243,10 +282,15 @@ class Config {
     if (confRemote) {
       try {
         final response = await (await PlatformUtils.dio)
-            .fetch(RequestOptions(path: '$url:$port/conf.toml'));
+            .fetch(RequestOptions(path: '$url:$port/conf'));
         if (response.statusCode == 200) {
-          final Map<String, dynamic> remote =
-              TomlDocument.parse(response.data.toString()).toMap();
+          dynamic remote;
+
+          try {
+            remote = TomlDocument.parse(response.data.toString()).toMap();
+          } catch (e) {
+            remote = loadYaml(response.data.toString());
+          }
 
           confRemote = remote['conf']?['remote'] ?? confRemote;
           if (confRemote) {
@@ -265,7 +309,7 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
-            copyright = remote['legal']?[Uri.base.host]['copyright'] ??
+            copyright = remote['legal']?[Uri.base.host]?['copyright'] ??
                 remote['legal']?['copyright'] ??
                 copyright;
             support = remote['legal']?['support'] ?? support;
@@ -298,6 +342,13 @@ class Config {
     }
 
     ws = '$wsUrl:$wsPort$graphql';
+
+    // Notification Service Extension needs those to send message received
+    // notification to backend.
+    if (PlatformUtils.isIOS) {
+      IosUtils.writeDefaults('url', url);
+      IosUtils.writeDefaults('endpoint', graphql);
+    }
   }
 }
 

@@ -34,3 +34,17 @@ data:
 
   nginx.conf: |
     {{- tpl (.Files.Get "conf/nginx.conf") . | nindent 4 }}
+
+  template.sh: |
+    #!/bin/bash
+
+    set -ex
+
+    # Comma separated hosts to pass to `omit`.
+    keys="$(echo $INGRESS_HOSTS | sed 's| |", "|g;s|.*|"&"|')"
+
+    for e in $INGRESS_HOSTS
+    do
+        yq -oy '. * (."'$e'" // {}) | . |= omit(['"$keys"'])' $CONF_FILE \
+        > $OUT_DIR/$e.yaml
+    done

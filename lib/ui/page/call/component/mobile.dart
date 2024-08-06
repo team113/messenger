@@ -57,7 +57,7 @@ Widget mobileCall(CallController c, BuildContext context) {
   final style = Theme.of(context).style;
 
   return LayoutBuilder(builder: (context, constraints) {
-    bool isOutgoing =
+    final bool isOutgoing =
         (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
 
     // Call stackable content.
@@ -302,7 +302,7 @@ Widget mobileCall(CallController c, BuildContext context) {
           ),
         );
 
-    List<Widget> ui = [
+    final List<Widget> ui = [
       // Dimmed container if any video is displayed while calling.
       Obx(() {
         return IgnorePointer(
@@ -470,7 +470,7 @@ Widget mobileCall(CallController c, BuildContext context) {
 
       // Sliding from the bottom buttons panel.
       Obx(() {
-        bool showUi =
+        final bool showUi =
             (c.showUi.isTrue || c.state.value != OngoingCallState.active) &&
                 !c.minimized.value;
 
@@ -519,146 +519,134 @@ Widget mobileCall(CallController c, BuildContext context) {
           ];
         }
 
-        return SafeAnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          child: panel
-              ? AnimatedSlider(
-                  beginOffset: Offset(0, minHeight),
-                  isOpen: showUi,
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeOutQuad,
-                  reverseCurve: Curves.easeOutQuad,
-                  listener: () => Future.delayed(
-                    Duration.zero,
-                    () => c.dockRect.value = c.dockKey.globalPaintBounds,
+        final Widget child;
+
+        if (panel) {
+          child = AnimatedSlider(
+            beginOffset: Offset(0, minHeight),
+            isOpen: showUi,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutQuad,
+            reverseCurve: Curves.easeOutQuad,
+            listener: () => Future.delayed(
+              Duration.zero,
+              () => c.dockRect.value = c.dockKey.globalPaintBounds,
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(size: c.size),
+              child: SlidingUpPanel(
+                controller: c.panelController,
+                boxShadow: null,
+                color: PlatformUtils.isIOS && WebUtils.isSafari
+                    ? style.colors.primaryDarkOpacity90
+                    : style.colors.primaryDarkOpacity70,
+                backdropEnabled: true,
+                backdropOpacity: 0,
+                minHeight: minHeight,
+                maxHeight: panelHeight,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+                panel: ConditionalBackdropFilter(
+                  key: c.dockKey,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
                   ),
-                  child: MediaQuery(
-                    data: MediaQuery.of(context).copyWith(size: c.size),
-                    child: SlidingUpPanel(
-                      controller: c.panelController,
-                      boxShadow: null,
-                      color: PlatformUtils.isIOS && WebUtils.isSafari
-                          ? style.colors.primaryDarkOpacity90
-                          : style.colors.primaryDarkOpacity70,
-                      backdropEnabled: true,
-                      backdropOpacity: 0,
-                      minHeight: minHeight,
-                      maxHeight: panelHeight,
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(10),
-                        topRight: Radius.circular(10),
-                      ),
-                      panel: ConditionalBackdropFilter(
-                        key: c.dockKey,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(10),
-                          topRight: Radius.circular(10),
-                        ),
-                        condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 12),
-                            Center(
-                              child: Container(
-                                width: 60,
-                                height: 3,
-                                decoration: BoxDecoration(
-                                  color: style.colors.onPrimaryOpacity50,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Expanded(child: Column(children: panelChildren)),
-                          ],
-                        ),
-                      ),
-                      onPanelSlide: (d) {
-                        c.keepUi(true);
-                        c.isPanelOpen.value = d > 0;
-                        c.dockRect.value = c.dockKey.globalPaintBounds;
-                      },
-                      onPanelOpened: () {
-                        c.keepUi(true);
-                        c.isPanelOpen.value = true;
-                      },
-                      onPanelClosed: () {
-                        c.keepUi();
-                        c.isPanelOpen.value = false;
-                      },
-                    ),
-                  ),
-                )
-              : Center(
+                  condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Padding(
-                        padding: EdgeInsets.only(
-                          bottom: isOutgoing
-                              ? max(
-                                  0,
-                                  MediaQuery.of(context).padding.bottom - 30,
-                                )
-                              : max(30, MediaQuery.of(context).padding.bottom),
-                        ),
-                        child: buttons(
-                          isOutgoing
-                              ? [
-                                  if (PlatformUtils.isMobile)
-                                    padding(
-                                      c.videoState.value.isEnabled
-                                          ? SwitchButton(c).build(
-                                              hinted: false,
-                                              opaque: true,
-                                            )
-                                          : SpeakerButton(c).build(
-                                              hinted: false,
-                                              opaque: true,
-                                            ),
-                                    ),
-                                  padding(
-                                    AudioButton(c).build(
-                                      hinted: false,
-                                      opaque: true,
-                                    ),
-                                  ),
-                                  padding(
-                                    VideoButton(c).build(
-                                      hinted: false,
-                                      opaque: true,
-                                    ),
-                                  ),
-                                  padding(
-                                    CancelButton(c).build(
-                                      hinted: false,
-                                      opaque: true,
-                                    ),
-                                  ),
-                                ]
-                              : [
-                                  padding(
-                                    AcceptAudioButton(
-                                      c,
-                                      highlight: !c.withVideo,
-                                    ).build(expanded: true),
-                                  ),
-                                  padding(
-                                    AcceptVideoButton(
-                                      c,
-                                      highlight: c.withVideo,
-                                    ).build(expanded: true),
-                                  ),
-                                  padding(
-                                    DeclineButton(c).build(expanded: true),
-                                  ),
-                                ],
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          width: 60,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: style.colors.onPrimaryOpacity50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      Expanded(child: Column(children: panelChildren)),
                     ],
                   ),
                 ),
+                onPanelSlide: (d) {
+                  c.keepUi(true);
+                  c.isPanelOpen.value = d > 0;
+                  c.dockRect.value = c.dockKey.globalPaintBounds;
+                },
+                onPanelOpened: () {
+                  c.keepUi(true);
+                  c.isPanelOpen.value = true;
+                },
+                onPanelClosed: () {
+                  c.keepUi();
+                  c.isPanelOpen.value = false;
+                },
+              ),
+            ),
+          );
+        } else {
+          final List<Widget> widgets;
+
+          if (isOutgoing) {
+            widgets = [
+              if (PlatformUtils.isMobile)
+                padding(
+                  c.videoState.value.isEnabled
+                      ? SwitchButton(c).build(hinted: false, opaque: true)
+                      : SpeakerButton(c).build(hinted: false, opaque: true),
+                ),
+              padding(AudioButton(c).build(hinted: false, opaque: true)),
+              padding(VideoButton(c).build(hinted: false, opaque: true)),
+              padding(CancelButton(c).build(hinted: false, opaque: true)),
+            ];
+          } else {
+            widgets = [
+              padding(
+                AcceptAudioButton(
+                  c,
+                  highlight: !c.withVideo,
+                ).build(expanded: true),
+              ),
+              padding(
+                AcceptVideoButton(
+                  c,
+                  highlight: c.withVideo,
+                ).build(expanded: true),
+              ),
+              padding(DeclineButton(c).build(expanded: true)),
+            ];
+          }
+
+          child = Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: isOutgoing
+                        ? max(0, MediaQuery.of(context).padding.bottom - 30)
+                        : max(30, MediaQuery.of(context).padding.bottom),
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: c.minimized.value ? 0 : 1,
+                    child: buttons(widgets),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: child,
         );
       }),
     ];

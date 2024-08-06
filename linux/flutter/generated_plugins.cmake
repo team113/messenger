@@ -4,13 +4,16 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
+  file_selector_linux
   flutter_custom_cursor
+  gtk
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_linux
   media_kit_video
   screen_retriever
   sentry_flutter
+  sqlite3_flutter_libs
   url_launcher_linux
   window_manager
 )

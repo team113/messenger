@@ -10,6 +10,7 @@ analyzer:
     - '**/*.g.dart'
     - '**/*.graphql.dart'
     - '**/*.mocks.dart'
+    - 'build/**.dart'
 
 linter:
   # List of all available lints can be found here:

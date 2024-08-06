@@ -18,20 +18,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/l10n/l10n.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/contact.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/themes.dart';
@@ -49,24 +47,19 @@ void main() async {
   PlatformUtils = PlatformUtilsMock();
   TestWidgetsFlutterBinding.ensureInitialized();
   Config.disableInfiniteAnimations = true;
-  Hive.init('./test/.temp_hive/password_recovery');
+
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
+
   await L10n.init();
 
-  var credentialsProvider = CredentialsHiveProvider();
   var graphQlProvider = MockGraphQlProvider();
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await credentialsProvider.init();
-  await credentialsProvider.clear();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  var contactProvider = ContactHiveProvider();
-  await contactProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  var chatProvider = ChatHiveProvider();
-  await chatProvider.init();
+
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -78,11 +71,9 @@ void main() async {
   testWidgets('LoginView successfully recovers account access',
       (WidgetTester tester) async {
     Get.put(myUserProvider);
-    Get.put(contactProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
     Get.put(credentialsProvider);
-    Get.put(chatProvider);
 
     AuthService authService = Get.put(
       AuthService(
@@ -161,6 +152,14 @@ void main() async {
       graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
           ConfirmationCode('1234'), UserPassword('test123')),
     ]);
+
+    common.close();
+    scoped.close();
+
+    for (int i = 0; i < 20; i++) {
+      await tester.pump(const Duration(seconds: 2));
+      await tester.runAsync(() => Future.delayed(1.milliseconds));
+    }
 
     await Get.deleteAll(force: true);
   });

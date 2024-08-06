@@ -15,37 +15,34 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import 'precise_date_time/precise_date_time.dart';
 
 part 'mute_duration.g.dart';
 
 /// Mute duration of a [Chat] or [MyUser].
-@HiveType(typeId: ModelTypeId.muteDuration)
+@JsonSerializable()
 class MuteDuration {
-  /// Mute duration until an exact [PreciseDateTime].
-  ///
-  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
-  /// be considered as automatically unmuted.
-  @HiveField(0)
-  PreciseDateTime? until;
-
-  /// Forever mute duration.
-  @HiveField(1)
-  bool? forever;
-
-  @HiveField(2)
-  MuteDuration({
-    this.until,
-    this.forever,
-  });
+  MuteDuration({this.until, this.forever});
 
   factory MuteDuration.forever() => MuteDuration(forever: true);
 
   factory MuteDuration.until(PreciseDateTime until) =>
       MuteDuration(until: until);
+
+  /// Constructs a [MuteDuration] from the provided [json].
+  factory MuteDuration.fromJson(Map<String, dynamic> json) =>
+      _$MuteDurationFromJson(json);
+
+  /// Mute duration until an exact [PreciseDateTime].
+  ///
+  /// Once this [PreciseDateTime] pasts (or is in the past already), it should
+  /// be considered as automatically unmuted.
+  PreciseDateTime? until;
+
+  /// Forever mute duration.
+  bool? forever;
 
   @override
   bool operator ==(Object other) =>
@@ -53,4 +50,7 @@ class MuteDuration {
 
   @override
   int get hashCode => Object.hash(until, forever);
+
+  /// Returns a [Map] representing this [MuteDuration].
+  Map<String, dynamic> toJson() => _$MuteDurationToJson(this);
 }

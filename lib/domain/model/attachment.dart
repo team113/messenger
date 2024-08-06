@@ -19,10 +19,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:uuid/uuid.dart';
 
-import '../model_type_id.dart';
 import '/ui/worker/cache.dart';
 import '/util/new_type.dart';
 import '/util/platform_utils.dart';
@@ -33,23 +32,29 @@ import 'sending_status.dart';
 part 'attachment.g.dart';
 
 /// Attachment of a [ChatItem].
-abstract class Attachment extends HiveObject {
+abstract class Attachment {
   Attachment({
     required this.id,
     required this.original,
     required this.filename,
   });
 
+  /// Constructs an [Attachment] from the provided [json].
+  factory Attachment.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'ImageAttachment' => ImageAttachment.fromJson(json),
+        'FileAttachment' => FileAttachment.fromJson(json),
+        'LocalAttachment' => LocalAttachment.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType'])
+      };
+
   /// Unique ID of this [Attachment].
-  @HiveField(0)
   AttachmentId id;
 
   /// Original [StorageFile] representing this [Attachment].
-  @HiveField(1)
   StorageFile original;
 
   /// Uploaded file's name.
-  @HiveField(2)
   String filename;
 
   /// Returns the [Downloading] of this [Attachment], if any.
@@ -62,10 +67,18 @@ abstract class Attachment extends HiveObject {
   /// Returns [DownloadStatus] of this [Attachment].
   DownloadStatus get downloadStatus =>
       downloading?.status.value ?? DownloadStatus.notStarted;
+
+  /// Returns a [Map] representing this [Attachment].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+        const (ImageAttachment) => (this as ImageAttachment).toJson(),
+        const (FileAttachment) => (this as FileAttachment).toJson(),
+        const (LocalAttachment) => (this as LocalAttachment).toJson(),
+        _ => throw UnimplementedError(runtimeType.toString()),
+      };
 }
 
 /// Image [Attachment].
-@HiveType(typeId: ModelTypeId.imageAttachment)
+@JsonSerializable()
 class ImageAttachment extends Attachment {
   ImageAttachment({
     required super.id,
@@ -76,30 +89,40 @@ class ImageAttachment extends Attachment {
     required this.small,
   });
 
+  /// Constructs a [ImageAttachment] from the provided [json].
+  factory ImageAttachment.fromJson(Map<String, dynamic> json) =>
+      _$ImageAttachmentFromJson(json);
+
   /// Big view [ImageFile] of this [ImageAttachment], scaled proportionally to
   /// `800px` of its maximum dimension (either width or height).
-  @HiveField(3)
   ImageFile big;
 
   /// Medium view [ImageFile] of this [ImageAttachment], scaled proportionally
   /// to `200px` of its maximum dimension (either width or height).
-  @HiveField(4)
   ImageFile medium;
 
   /// Small view [ImageFile] of this [ImageAttachment], scaled proportionally to
   /// `30px` of its maximum dimension (either width or height).
-  @HiveField(5)
   ImageFile small;
+
+  /// Returns a [Map] representing this [ImageAttachment].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ImageAttachmentToJson(this)..['runtimeType'] = 'ImageAttachment';
 }
 
 /// Plain file [Attachment].
-@HiveType(typeId: ModelTypeId.fileAttachment)
+@JsonSerializable()
 class FileAttachment extends Attachment {
   FileAttachment({
     required super.id,
     required super.original,
     required super.filename,
   });
+
+  /// Constructs a [FileAttachment] from the provided [json].
+  factory FileAttachment.fromJson(Map<String, dynamic> json) =>
+      _$FileAttachmentFromJson(json);
 
   /// Indicator whether this [FileAttachment] has already been [init]ialized.
   bool _initialized = false;
@@ -149,19 +172,29 @@ class FileAttachment extends Attachment {
 
   /// Cancels the [downloading] of this [FileAttachment].
   void cancelDownload() => downloading?.cancel();
+
+  /// Returns a [Map] representing this [FileAttachment].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$FileAttachmentToJson(this)..['runtimeType'] = 'FileAttachment';
 }
 
 /// Unique ID of an [Attachment].
-@HiveType(typeId: ModelTypeId.attachmentId)
 class AttachmentId extends NewType<String> {
   const AttachmentId(super.val);
 
   /// Constructs a dummy [AttachmentId].
   factory AttachmentId.local() => AttachmentId('local_${const Uuid().v4()}');
+
+  /// Constructs a [AttachmentId] from the provided [val].
+  factory AttachmentId.fromJson(String val) = AttachmentId;
+
+  /// Returns a [String] representing this [AttachmentId].
+  String toJson() => val;
 }
 
 /// [Attachment] stored in a [NativeFile] locally.
-@HiveType(typeId: ModelTypeId.localAttachment)
+@JsonSerializable()
 class LocalAttachment extends Attachment {
   LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
       : status = Rx(status),
@@ -176,11 +209,15 @@ class LocalAttachment extends Attachment {
           filename: file.name,
         );
 
+  /// Constructs a [LocalAttachment] from the provided [json].
+  factory LocalAttachment.fromJson(Map<String, dynamic> json) =>
+      _$LocalAttachmentFromJson(json);
+
   /// [NativeFile] representing this [LocalAttachment].
-  @HiveField(3)
   NativeFile file;
 
   /// [SendingStatus] of this [LocalAttachment].
+  @JsonKey(toJson: SendingStatusJson.toJson)
   final Rx<SendingStatus> status;
 
   /// Upload progress of this [LocalAttachment].
@@ -191,4 +228,9 @@ class LocalAttachment extends Attachment {
 
   /// [Completer] resolving once this [LocalAttachment]'s reading is finished.
   final Rx<Completer<void>?> read = Rx<Completer<void>?>(null);
+
+  /// Returns a [Map] representing this [LocalAttachment].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$LocalAttachmentToJson(this)..['runtimeType'] = 'LocalAttachment';
 }

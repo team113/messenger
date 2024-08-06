@@ -59,6 +59,7 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
           context.world.appDriver.findBy('ChatView', FindType.key),
         );
       },
+      timeout: const Duration(seconds: 30),
     );
   },
 );
