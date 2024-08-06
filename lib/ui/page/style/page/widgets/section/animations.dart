@@ -44,6 +44,12 @@ class AnimationsSection {
             widget: SizedBox(child: Center(child: CustomProgressIndicator()))
           ),
           (
+            headline: 'CustomProgressIndicator.small',
+            widget: SizedBox(
+              child: Center(child: CustomProgressIndicator.small()),
+            )
+          ),
+          (
             headline: 'CustomProgressIndicator.big',
             widget: SizedBox(
               child: Center(child: CustomProgressIndicator.big()),

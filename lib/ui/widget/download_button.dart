@@ -25,10 +25,11 @@ import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import 'progress_indicator.dart';
 
 /// [PrefixButton] stylized with the provided [asset] and [title] downloading a
 /// file by the specified [link] when pressed.
-class DownloadButton extends StatelessWidget {
+class DownloadButton extends StatefulWidget {
   /// Constructs a [DownloadButton] for downloading the Windows application.
   const DownloadButton.windows({super.key, this.link = 'messenger-windows.zip'})
       : asset = SvgIcons.windows,
@@ -89,32 +90,69 @@ class DownloadButton extends StatelessWidget {
   final bool download;
 
   @override
+  State<DownloadButton> createState() => _DownloadButtonState();
+}
+
+/// [State] of a [DownloadButton] to display progress of
+/// [PlatformUtilsImpl.saveTo].
+class _DownloadButtonState extends State<DownloadButton> {
+  /// [PlatformUtilsImpl.saveTo] current progress, if any.
+  double? _progress;
+
+  @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return PrefixButton(
-      title: title,
-      onPressed: link == null
+      title: widget.title,
+      onPressed: widget.link == null || _progress != null
           ? null
-          : download
+          : widget.download
               ? () async {
-                  String url = link!;
+                  String url = widget.link!;
 
                   if (!url.startsWith('http')) {
                     url = '${Config.origin}/artifacts/$url';
                   }
 
-                  final file = await PlatformUtils.saveTo(url);
-                  if (file != null) {
-                    MessagePopup.success('label_file_downloaded'.l10n);
+                  if (mounted) {
+                    setState(() => _progress = 0);
+                  }
+
+                  try {
+                    final file = await PlatformUtils.saveTo(
+                      url,
+                      onReceiveProgress: (a, b) {
+                        if (b != 0) {
+                          _progress = a / b;
+                          setState(() {});
+                        }
+                      },
+                    );
+
+                    if (file != null) {
+                      MessagePopup.success('label_file_downloaded'.l10n);
+                    }
+                  } finally {
+                    if (mounted) {
+                      setState(() => _progress = null);
+                    }
                   }
                 }
-              : () => launchUrlString(link!),
-      prefix: asset == null
+              : () => launchUrlString(widget.link!),
+      prefix: widget.asset == null
           ? null
-          : Padding(
-              padding: const EdgeInsets.only(left: 20), child: SvgIcon(asset!)),
-      style: link == null
+          : _progress == null
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 20),
+                  child: SvgIcon(widget.asset!),
+                )
+              : Padding(
+                  key: const Key('Loading'),
+                  padding: const EdgeInsets.only(left: 14),
+                  child: CustomProgressIndicator.small(value: _progress),
+                ),
+      style: widget.link == null
           ? style.fonts.normal.regular.onBackground
           : style.fonts.normal.regular.primary,
     );

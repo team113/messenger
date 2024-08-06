@@ -382,7 +382,12 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads a file by provided [url] using `save as` dialog.
-  Future<File?> saveTo(String url) async {
+  ///
+  /// [onReceiveProgress] is only meaningful on non-Web platforms.
+  Future<File?> saveTo(
+    String url, {
+    Function(int count, int total)? onReceiveProgress,
+  }) async {
     String? to;
 
     if (!isWeb) {
@@ -401,6 +406,7 @@ class PlatformUtilsImpl {
       url.split('/').lastOrNull ?? 'file',
       null,
       path: to,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
