@@ -21,9 +21,14 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Chat page:
+        - Typing being infinitely displayed after focus is lost. ([#995], [#988])
 - Windows:
     - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
 
+[#988]: /../../issues/988
+[#995]: /../../pull/995
 [#1066]: /../../pull/1066
 [#1069]: /../../pull/1069
 [#1070]: /../../pull/1070
