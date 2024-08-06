@@ -66,14 +66,6 @@ class MyUserService extends DisposableService {
     super.onInit();
   }
 
-  @override
-  void onClose() {
-    Log.debug('onClose()', '$runtimeType');
-
-    _userRepo.dispose();
-    super.onClose();
-  }
-
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
   /// If [name] is `null`, then resets [MyUser.name] field.

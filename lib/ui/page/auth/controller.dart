@@ -58,6 +58,10 @@ class AuthController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [profiles] subscription to set [screen] to [AuthScreen.signIn] when
+  /// [profiles] become empty.
+  StreamSubscription? _accountsSubscription;
+
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -70,12 +74,20 @@ class AuthController extends GetxController {
   @override
   void onReady() {
     SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
+    _accountsSubscription = profiles.listen((accounts) {
+      if (accounts.isEmpty) {
+        screen.value = AuthScreen.signIn;
+      }
+    });
+
     super.onReady();
   }
 
   @override
   void onClose() {
     _animationTimer?.cancel();
+    _accountsSubscription?.cancel();
     super.onClose();
   }
 

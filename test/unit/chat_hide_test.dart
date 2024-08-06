@@ -332,5 +332,13 @@ void main() async {
     );
   });
 
-  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
+  tearDown(() async {
+    await Future.wait(
+      [
+        Get.delete(),
+        common.close(),
+        scoped.close(),
+      ],
+    );
+  });
 }

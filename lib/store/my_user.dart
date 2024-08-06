@@ -51,7 +51,8 @@ import 'model/my_user.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
-class MyUserRepository implements AbstractMyUserRepository {
+class MyUserRepository extends DisposableInterface
+    implements AbstractMyUserRepository {
   MyUserRepository(
     this._graphQlProvider,
     this._driftMyUser,
@@ -109,6 +110,10 @@ class MyUserRepository implements AbstractMyUserRepository {
   /// [EventPool] debouncing [MyUserField] related [MyUserEvent]s handling.
   final EventPool<MyUserField> _pool = EventPool();
 
+  /// [Timer] retrying [_initLocalSubscription] when [_accountLocal] returns no
+  /// [UserId].
+  Timer? _localSubscriptionRetry;
+
   /// Returns the currently active [DtoMyUser] from the storage.
   Future<DtoMyUser?> get _active async {
     final UserId? userId = _accountLocal.userId;
@@ -153,8 +158,8 @@ class MyUserRepository implements AbstractMyUserRepository {
   }
 
   @override
-  void dispose() {
-    Log.debug('dispose()', '$runtimeType');
+  void onClose() {
+    Log.debug('onClose()', '$runtimeType');
 
     _disposed = true;
     _localSubscription?.cancel();
@@ -162,6 +167,9 @@ class MyUserRepository implements AbstractMyUserRepository {
     _keepOnlineSubscription?.cancel(immediate: true);
     _onFocusChanged?.cancel();
     _pool.dispose();
+    _localSubscriptionRetry?.cancel();
+
+    super.onClose();
   }
 
   @override
@@ -633,14 +641,26 @@ class MyUserRepository implements AbstractMyUserRepository {
 
   /// Initializes [MyUserDriftProvider.watchSingle] subscription.
   Future<void> _initLocalSubscription() async {
+    _localSubscriptionRetry?.cancel();
+
+    if (isClosed) {
+      return;
+    }
+
     Log.debug('_initLocalSubscription()', '$runtimeType');
 
-    final UserId? id = _accountLocal.userId;
+    final UserId? id = await _accountLocal.read();
     if (id == null) {
       Log.debug(
         'Unexpected `null` when getting `_accountLocal.userId` for `_initLocalSubscription`',
         '$runtimeType',
       );
+
+      _localSubscriptionRetry = Timer(
+        const Duration(seconds: 1),
+        _initLocalSubscription,
+      );
+
       return;
     }
 
