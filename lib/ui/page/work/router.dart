@@ -74,10 +74,9 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
       pages: _pages,
-      onPopPage: (route, result) {
+      onDidRemovePage: (Page<Object?> page) {
         _state.pop();
         notifyListeners();
-        return route.didPop(result);
       },
     );
   }

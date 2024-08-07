@@ -862,12 +862,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             key: navigatorKey,
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
-            onPopPage: (Route<dynamic> route, dynamic result) {
-              final bool success = route.didPop(result);
+            onDidRemovePage: (Page<Object?> page) {
+              final bool success = page.canPop;
               if (success) {
                 _state.pop();
               }
-              return success;
             },
           ),
         ),

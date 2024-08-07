@@ -148,10 +148,9 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       pages: _pages,
       observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-      onPopPage: (route, result) {
+      onDidRemovePage: (Page<Object?> page) {
         _state.pop();
         notifyListeners();
-        return route.didPop(result);
       },
     );
   }
