@@ -36,7 +36,7 @@ Feature: Messages selection
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-    When I long press "01" message
+    When I right click "01" message
     And I tap `Select` button
     And I tap "02" message
     And I tap "03" message
@@ -61,7 +61,7 @@ Feature: Messages selection
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-    When I long press "01" message
+    When I right click "01" message
     And I tap `Select` button
     And I tap "02" message
     And I tap "03" message
