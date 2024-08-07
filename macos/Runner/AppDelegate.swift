@@ -2,7 +2,7 @@ import app_links
 import Cocoa
 import FlutterMacOS
 
-@NSApplicationMain
+@main
 class AppDelegate: FlutterAppDelegate {
   public override func application(_ application: NSApplication,
                                   continue userActivity: NSUserActivity,

@@ -285,13 +285,13 @@ class _HomeViewState extends State<HomeView> {
 
         // Nested navigation widget that displays [navigator] in an [Expanded]
         // to take all the remaining from the [sideBar] space.
-        Widget navigation = IgnorePointer(
+        final Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
           child: LayoutBuilder(builder: (context, constraints) {
             return Row(
               children: [
                 Obx(() {
-                  double width = c.sideBarWidth.value;
+                  final double width = c.sideBarWidth.value;
                   return ConstrainedBox(
                     constraints:
                         BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
