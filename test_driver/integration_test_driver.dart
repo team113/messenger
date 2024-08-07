@@ -35,9 +35,6 @@ Future<void> main() {
     }
   };
 
-  // If available, test report will be saved in this directory.
-  integration_test_driver.testOutputsDirectory = 'test/e2e/reports';
-
   return integration_test_driver.integrationDriver(
     timeout: const Duration(minutes: 60),
     responseDataCallback: (data) async {
