@@ -25,10 +25,11 @@ packages:
   all_sensors:
     dependency: "direct main"
     description:
-      name: all_sensors
-      sha256: "5de1d20c3fee63d18be29ed27c368143d980e7fc5a805c3903946028816ac375"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "3602ea3459c274e043d9cf3e25486db2e3a5f664"
+      url: "https://github.com/SleepySquash/all_sensors"
+    source: git
     version: "0.4.2"
   analyzer:
     dependency: "direct overridden"
@@ -403,12 +404,11 @@ packages:
   dough:
     dependency: "direct main"
     description:
-      path: "packages/dough"
-      ref: HEAD
-      resolved-ref: "6dfcd716552c8f86d4a92d5af21a821bfdce5a1d"
-      url: "https://github.com/krida2000/dough"
-    source: git
-    version: "1.0.3"
+      name: dough
+      sha256: f491b78cea2a2080f024b2c2015b6fac0edf553771dd090e6571c5346f086142
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   drift:
     dependency: "direct main"
     description:
@@ -586,10 +586,11 @@ packages:
   flutter_app_badger:
     dependency: "direct main"
     description:
-      name: flutter_app_badger
-      sha256: "64d4a279bab862ed28850431b9b446b9820aaae0bf363322d51077419f930fa8"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: f2f391acb17773511b6b89fb77a55f29b60a6f9e
+      url: "https://github.com/SleepySquash/flutter_app_badger"
+    source: git
     version: "1.5.0"
   flutter_callkit_incoming:
     dependency: "direct main"
@@ -993,10 +994,11 @@ packages:
   image_gallery_saver:
     dependency: "direct main"
     description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "328950a954652c58e4357c34e3167ea0bc1a95b7"
+      url: "https://github.com/SleepySquash/image_gallery_saver"
+    source: git
     version: "2.0.3"
   image_picker:
     dependency: "direct main"
@@ -1732,14 +1734,6 @@ packages:
       url: "https://github.com/SleepySquash/scrollable_positioned_list"
     source: git
     version: "0.3.5"
-  sensors:
-    dependency: transitive
-    description:
-      name: sensors
-      sha256: "69c10fe94a63dd7c6f5e6557366e5329a713bf6c45d885d95a56642dd8722e35"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   sentry:
     dependency: transitive
     description:
