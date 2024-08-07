@@ -186,13 +186,7 @@ Future<void> main() async {
 
     WebUtils.deleteLoader();
 
-    runApp(
-      DefaultAssetBundle(
-        key: UniqueKey(),
-        bundle: SentryAssetBundle(),
-        child: const App(),
-      ),
-    );
+    runApp(App(key: UniqueKey()));
   }
 
   // No need to initialize the Sentry if no DSN is provided, otherwise useless
