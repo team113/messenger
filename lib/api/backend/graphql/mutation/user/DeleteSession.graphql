@@ -23,8 +23,8 @@ mutation DeleteSession(
         id: $id
         confirmation: $confirmation
     ) {
+        __typename
         ... on SessionEventsVersioned {
-            __typename
             ...SessionEventsVersioned
         }
         ... on DeleteSessionError {

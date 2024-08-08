@@ -17,8 +17,8 @@
 
 mutation DeleteMyUser($confirmation: MyUserCredentials) {
     deleteMyUser(confirmation: $confirmation) {
+        __typename
         ... on MyUserEventsVersioned {
-            __typename
             ...MyUserEventsVersioned
         }
         ... on DeleteMyUserError {

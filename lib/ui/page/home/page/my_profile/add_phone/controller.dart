@@ -20,12 +20,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserPhoneErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -95,12 +93,13 @@ class AddPhoneController extends GetxController {
             await _myUserService.confirmPhoneCode(code);
             pop?.call();
             s.clear();
-          } on ConfirmUserPhoneException catch (e) {
-            if (e.code == ConfirmUserPhoneErrorCode.occupied) {
-              s.resubmitOnError.value = true;
-            }
+            // TODO(impl)
+            // } on ConfirmUserPhoneException catch (e) {
+            //   if (e.code == ConfirmUserPhoneErrorCode.occupied) {
+            //     s.resubmitOnError.value = true;
+            //   }
 
-            s.error.value = e.toMessage();
+            //   s.error.value = e.toMessage();
           } catch (e) {
             s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
@@ -131,8 +130,9 @@ class AddPhoneController extends GetxController {
       await _myUserService.resendPhone();
       resent.value = true;
       _setResendPhoneTimer(true);
-    } on ResendUserPhoneConfirmationException catch (e) {
-      code.error.value = e.toMessage();
+      // TODO(impl)
+      // } on ResendUserPhoneConfirmationException catch (e) {
+      //   code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

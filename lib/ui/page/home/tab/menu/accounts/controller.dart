@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -225,23 +224,24 @@ class AccountsController extends GetxController {
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
-        } on ConfirmUserEmailException catch (e) {
-          switch (e.code) {
-            case ConfirmUserEmailErrorCode.wrongCode:
-              s.error.value = e.toMessage();
+          // TODO(impl)
+          // } on ConfirmUserEmailException catch (e) {
+          //   switch (e.code) {
+          //     case ConfirmUserEmailErrorCode.wrongCode:
+          //       s.error.value = e.toMessage();
 
-              ++codeAttempts;
-              if (codeAttempts >= 3) {
-                codeAttempts = 0;
-                _setCodeTimer();
-              }
-              s.status.value = RxStatus.empty();
-              break;
+          //       ++codeAttempts;
+          //       if (codeAttempts >= 3) {
+          //         codeAttempts = 0;
+          //         _setCodeTimer();
+          //       }
+          //       s.status.value = RxStatus.empty();
+          //       break;
 
-            default:
-              s.error.value = e.toMessage();
-              break;
-          }
+          //     default:
+          //       s.error.value = e.toMessage();
+          //       break;
+          //   }
         } on FormatException catch (_) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
           s.status.value = RxStatus.empty();
@@ -474,8 +474,9 @@ class AccountsController extends GetxController {
 
     try {
       await _authService.resendSignUpEmail();
-    } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
+      // TODO(impl)
+      // } on ResendUserEmailConfirmationException catch (e) {
+      //   emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;
       _setResendEmailTimer(false);

@@ -23,8 +23,8 @@ mutation DeleteUserEmail(
         email: $email
         confirmation: $confirmation
     ) {
+        __typename
         ... on MyUserEventsVersioned {
-            __typename
             ...MyUserEventsVersioned
         }
         ... on DeleteUserEmailError {

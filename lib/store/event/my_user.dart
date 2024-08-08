@@ -41,7 +41,6 @@ enum MyUserEventKind {
   directLinkDeleted,
   directLinkUpdated,
   emailAdded,
-  emailConfirmed,
   emailDeleted,
   loginDeleted,
   loginUpdated,
@@ -49,7 +48,6 @@ enum MyUserEventKind {
   nameUpdated,
   passwordUpdated,
   phoneAdded,
-  phoneConfirmed,
   phoneDeleted,
   presenceUpdated,
   statusDeleted,
@@ -267,35 +265,26 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
 class EventUserEmailAdded extends MyUserEvent {
-  const EventUserEmailAdded(super.userId, this.email);
+  const EventUserEmailAdded(super.userId, this.email, this.confirmed);
 
   /// Added [UserEmail].
   final UserEmail email;
+
+  /// Indicator whether the added [UserEmail] address is confirmed.
+  ///
+  /// If `true`, then the [UserEmail] address was added to the
+  /// [MyUserEmails.confirmed] ones, otherwise was set as the
+  /// [MyUserEmails.unconfirmed] one.
+  final bool confirmed;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailAdded;
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserEmailAdded && email == other.email;
-
-  @override
-  int get hashCode => email.hashCode;
-}
-
-/// Event of an [MyUser]'s email address being confirmed.
-class EventUserEmailConfirmed extends MyUserEvent {
-  const EventUserEmailConfirmed(super.userId, this.email);
-
-  /// Confirmed [UserEmail].
-  final UserEmail email;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.emailConfirmed;
-
-  @override
-  bool operator ==(Object other) =>
-      other is EventUserEmailConfirmed && email == other.email;
+      other is EventUserEmailAdded &&
+      email == other.email &&
+      confirmed == other.confirmed;
 
   @override
   int get hashCode => email.hashCode;
@@ -414,35 +403,26 @@ class EventUserPasswordUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s phone number being added.
 class EventUserPhoneAdded extends MyUserEvent {
-  const EventUserPhoneAdded(super.userId, this.phone);
+  const EventUserPhoneAdded(super.userId, this.phone, this.confirmed);
 
   /// Added [UserPhone].
   final UserPhone phone;
+
+  /// Indicator whether the added [UserPhone] address is confirmed.
+  ///
+  /// If `true`, then the [UserPhone] address was added to the
+  /// [MyUserPhones.confirmed] ones, otherwise was set as the
+  /// [MyUserPhones.unconfirmed] one.
+  final bool confirmed;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneAdded;
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserPhoneAdded && phone == other.phone;
-
-  @override
-  int get hashCode => phone.hashCode;
-}
-
-/// Event of an [MyUser]'s phone number being confirmed.
-class EventUserPhoneConfirmed extends MyUserEvent {
-  const EventUserPhoneConfirmed(super.userId, this.phone);
-
-  /// Confirmed [UserPhone].
-  final UserPhone phone;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.phoneConfirmed;
-
-  @override
-  bool operator ==(Object other) =>
-      other is EventUserPhoneConfirmed && phone == other.phone;
+      other is EventUserPhoneAdded &&
+      phone == other.phone &&
+      confirmed == other.confirmed;
 
   @override
   int get hashCode => phone.hashCode;

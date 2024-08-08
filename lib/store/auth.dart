@@ -134,10 +134,11 @@ class AuthRepository extends DisposableInterface
     Log.debug('signUp()', '$runtimeType');
 
     final response = await _graphQlProvider.signUp();
+    final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-    _myUserProvider.upsert(response.createUser.user.toDto());
+    _myUserProvider.upsert(success.user.toDto());
 
-    return response.toModel();
+    return success.toModel();
   }
 
   @override
@@ -168,9 +169,10 @@ class AuthRepository extends DisposableInterface
     _signUpCredentials = null;
 
     final response = await _graphQlProvider.signUp();
+    final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-    _signedUpUser = response.createUser.user.toDto();
-    _signUpCredentials = response.toModel();
+    _signedUpUser = success.user.toDto();
+    _signUpCredentials = success.toModel();
 
     await _graphQlProvider.addUserEmail(
       email,
@@ -190,10 +192,11 @@ class AuthRepository extends DisposableInterface
       throw ArgumentError.notNull('_signedUpUser');
     }
 
-    await _graphQlProvider.confirmEmailCode(
-      code,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
+    // TODO(impl)
+    // await _graphQlProvider.confirmEmailCode(
+    //   code,
+    //   raw: RawClientOptions(_signUpCredentials!.access.secret),
+    // );
 
     _myUserProvider.upsert(_signedUpUser!);
 
@@ -208,9 +211,10 @@ class AuthRepository extends DisposableInterface
       throw ArgumentError.notNull('_signUpCredentials');
     }
 
-    await _graphQlProvider.resendEmail(
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
+    // TODO(impl)
+    // await _graphQlProvider.resendEmail(
+    //   raw: RawClientOptions(_signUpCredentials!.access.secret),
+    // );
   }
 
   @override
@@ -231,7 +235,7 @@ class AuthRepository extends DisposableInterface
 
     await _graphQlProvider.deleteSession(
       id: id,
-      password: password,
+      confirmation: password == null ? null : MyUserCredentials(password: password),
       token: accessToken,
     );
 
@@ -293,7 +297,8 @@ class AuthRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    await _graphQlProvider.recoverUserPassword(login, num, email, phone);
+    // TODO(impl)
+    // await _graphQlProvider.recoverUserPassword(login, num, email, phone);
   }
 
   @override
@@ -309,13 +314,14 @@ class AuthRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    await _graphQlProvider.validateUserPasswordRecoveryCode(
-      login,
-      num,
-      email,
-      phone,
-      code,
-    );
+    // TODO(impl)
+    // await _graphQlProvider.validateUserPasswordRecoveryCode(
+    //   login,
+    //   num,
+    //   email,
+    //   phone,
+    //   code,
+    // );
   }
 
   @override
@@ -332,14 +338,15 @@ class AuthRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    await _graphQlProvider.resetUserPassword(
-      login,
-      num,
-      email,
-      phone,
-      code,
-      newPassword,
-    );
+    // TODO(impl)
+    // await _graphQlProvider.resetUserPassword(
+    //   login,
+    //   num,
+    //   email,
+    //   phone,
+    //   code,
+    //   newPassword,
+    // );
   }
 
   @override

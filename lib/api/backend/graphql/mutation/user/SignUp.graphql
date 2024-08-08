@@ -23,6 +23,7 @@ mutation SignUp(
         login: $login
         password: $password
     ) {
+        __typename
         ... on CreateSessionOk {
             user {
                 __typename

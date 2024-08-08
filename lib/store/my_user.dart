@@ -250,7 +250,8 @@ class MyUserRepository extends DisposableInterface
     myUser.update((u) => u?.hasPassword = true);
 
     try {
-      await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+      // TODO(impl)
+      // await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
     } catch (_) {
       if (hasPassword != null) {
         myUser.update((u) => u?.hasPassword = hasPassword);
@@ -343,7 +344,8 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserPhone(phone);
+        throw UnimplementedError();
+        // await _graphQlProvider.deleteUserPhone(phone);
       } catch (_) {
         if (i != -1) {
           i = min(i, myUser.value?.phones.confirmed.length ?? 0);
@@ -390,13 +392,15 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.phones.unconfirmed,
       value: phone,
       mutation: (value, previous) async {
-        if (previous != null) {
-          return await _graphQlProvider.deleteUserPhone(previous);
-        } else if (value != null) {
-          return await _graphQlProvider.addUserPhone(value);
-        }
+        throw UnimplementedError();
 
-        return null;
+        // if (previous != null) {
+        //   return await _graphQlProvider.deleteUserPhone(previous);
+        // } else if (value != null) {
+        //   return await _graphQlProvider.addUserPhone(value);
+        // }
+
+        // return null;
       },
       update: (v, p) => myUser.update(
         (u) => p != null
@@ -412,7 +416,8 @@ class MyUserRepository extends DisposableInterface
 
     final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
 
-    await _graphQlProvider.confirmEmailCode(code);
+    // TODO(impl)
+    // await _graphQlProvider.confirmEmailCode(code);
 
     myUser.update(
       (u) {
@@ -429,31 +434,37 @@ class MyUserRepository extends DisposableInterface
   Future<void> confirmPhoneCode(ConfirmationCode code) async {
     Log.debug('confirmPhoneCode($code)', '$runtimeType');
 
-    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
+    throw UnimplementedError();
 
-    await _graphQlProvider.confirmPhoneCode(code);
+    // final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
 
-    myUser.update(
-      (u) {
-        u?.phones.confirmed.addIf(
-          !u.phones.confirmed.contains(unconfirmed),
-          unconfirmed!,
-        );
-        u?.phones.unconfirmed = null;
-      },
-    );
+    // await _graphQlProvider.confirmPhoneCode(code);
+
+    // myUser.update(
+    //   (u) {
+    //     u?.phones.confirmed.addIf(
+    //       !u.phones.confirmed.contains(unconfirmed),
+    //       unconfirmed!,
+    //     );
+    //     u?.phones.unconfirmed = null;
+    //   },
+    // );
   }
 
   @override
   Future<void> resendEmail() async {
     Log.debug('resendEmail()', '$runtimeType');
-    await _graphQlProvider.resendEmail();
+
+    // TODO(impl)
+    // await _graphQlProvider.resendEmail();
   }
 
   @override
   Future<void> resendPhone() async {
     Log.debug('resendPhone()', '$runtimeType');
-    await _graphQlProvider.resendPhone();
+
+    // TODO(impl)
+    // await _graphQlProvider.resendPhone();
   }
 
   @override
@@ -931,17 +942,16 @@ class MyUserRepository extends DisposableInterface
 
         case MyUserEventKind.emailAdded:
           event as EventUserEmailAdded;
-          userEntity.value.emails.unconfirmed = event.email;
-          break;
-
-        case MyUserEventKind.emailConfirmed:
-          event as EventUserEmailConfirmed;
-          userEntity.value.emails.confirmed.addIf(
-            !userEntity.value.emails.confirmed.contains(event.email),
-            event.email,
-          );
-          if (userEntity.value.emails.unconfirmed == event.email) {
-            userEntity.value.emails.unconfirmed = null;
+          if (event.confirmed) {
+            userEntity.value.emails.confirmed.addIf(
+              !userEntity.value.emails.confirmed.contains(event.email),
+              event.email,
+            );
+            if (userEntity.value.emails.unconfirmed == event.email) {
+              userEntity.value.emails.unconfirmed = null;
+            }
+          } else {
+            userEntity.value.emails.unconfirmed = event.email;
           }
           break;
 
@@ -956,17 +966,16 @@ class MyUserRepository extends DisposableInterface
 
         case MyUserEventKind.phoneAdded:
           event as EventUserPhoneAdded;
-          userEntity.value.phones.unconfirmed = event.phone;
-          break;
-
-        case MyUserEventKind.phoneConfirmed:
-          event as EventUserPhoneConfirmed;
-          userEntity.value.phones.confirmed.addIf(
-            !userEntity.value.phones.confirmed.contains(event.phone),
-            event.phone,
-          );
-          if (userEntity.value.phones.unconfirmed == event.phone) {
-            userEntity.value.phones.unconfirmed = null;
+          if (event.confirmed) {
+            userEntity.value.phones.confirmed.addIf(
+              !userEntity.value.phones.confirmed.contains(event.phone),
+              event.phone,
+            );
+            if (userEntity.value.phones.unconfirmed == event.phone) {
+              userEntity.value.phones.unconfirmed = null;
+            }
+          } else {
+            userEntity.value.phones.unconfirmed = event.phone;
           }
           break;
 
@@ -1147,19 +1156,13 @@ class MyUserRepository extends DisposableInterface
       return EventUserLoginDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
-      return EventUserEmailAdded(node.userId, node.email);
-    } else if (e.$$typename == 'EventUserEmailConfirmed') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailConfirmed;
-      return EventUserEmailConfirmed(node.userId, node.email);
+      return EventUserEmailAdded(node.userId, node.email, node.confirmed);
     } else if (e.$$typename == 'EventUserEmailDeleted') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
       return EventUserEmailDeleted(node.userId, node.email);
     } else if (e.$$typename == 'EventUserPhoneAdded') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
-      return EventUserPhoneAdded(node.userId, node.phone);
-    } else if (e.$$typename == 'EventUserPhoneConfirmed') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneConfirmed;
-      return EventUserPhoneConfirmed(node.userId, node.phone);
+      return EventUserPhoneAdded(node.userId, node.phone, node.confirmed);
     } else if (e.$$typename == 'EventUserPhoneDeleted') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
       return EventUserPhoneDeleted(node.userId, node.phone);
@@ -1207,18 +1210,6 @@ class MyUserRepository extends DisposableInterface
     } else if (e.$$typename == 'EventUserCameOnline') {
       var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
-    } else if (e.$$typename == 'EventBlocklistRecordAdded') {
-      var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(
-        node.user.toDto(),
-        node.at,
-        node.reason,
-      );
-    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
-      return EventBlocklistRecordRemoved(node.user.toDto(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }

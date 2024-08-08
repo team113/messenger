@@ -69,6 +69,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             email
             at
+            confirmed
         }
         ... on EventUserEmailDeleted {
             userId
@@ -117,6 +118,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             phone
             at
+            confirmed
         }
         ... on EventUserPhoneDeleted {
             userId

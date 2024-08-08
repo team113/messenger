@@ -319,15 +319,17 @@ mixin UserGraphQlMixin {
   ///
   /// Each time renews the password (recalculates hash) even if it's the same
   /// one.
-  Future<MyUserEventsVersionedMixin?> updateUserPassword(
-    UserPassword? oldPassword,
-    UserPassword newPassword,
-  ) async {
+  Future<MyUserEventsVersionedMixin?> updateUserPassword({
+    MyUserIdentifier? identifier,
+    required UserPassword newPassword,
+    MyUserCredentials? confirmation,
+  }) async {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final variables = UpdateUserPasswordArguments(
-      old: oldPassword,
+      ident: identifier,
       kw$new: newPassword,
+      confirmation: confirmation,
     );
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -364,16 +366,26 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Once deleted [MyUser] cannot be deleted again.
-  Future<MyUserEventsVersionedMixin> deleteMyUser() async {
+  Future<MyUserEventsVersionedMixin> deleteMyUser({
+    MyUserCredentials? confirmation,
+  }) async {
     Log.debug('deleteMyUser()', '$runtimeType');
 
-    QueryResult res = await client.mutate(
+    final variables = DeleteMyUserArguments(confirmation: confirmation);
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'DeleteMyUser',
-        document: DeleteMyUserMutation().document,
+        document: DeleteMyUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => DeleteMyUserException(
+        (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
+                as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
+            .code,
       ),
     );
-    return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser;
+    return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser
+        as DeleteMyUser$Mutation$DeleteMyUser$MyUserEventsVersioned;
   }
 
   /// Subscribes to [MyUserEvent]s of the authenticated [MyUser].
@@ -534,12 +546,20 @@ mixin UserGraphQlMixin {
     Log.debug('deleteUserEmail($email)', '$runtimeType');
 
     final variables = DeleteUserEmailArguments(email: email);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserEmail',
-      document: DeleteUserEmailMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail;
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'DeleteUserEmail',
+        document: DeleteUserEmailMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => DeleteUserEmailException(
+        (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
+                as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
+            .code,
+      ),
+    );
+    return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail
+        as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
@@ -561,13 +581,15 @@ mixin UserGraphQlMixin {
   Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
     Log.debug('deleteUserPhone($phone)', '$runtimeType');
 
-    final variables = DeleteUserPhoneArguments(phone: phone);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserPhone',
-      document: DeleteUserPhoneMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserPhone$Mutation.fromJson(result.data!).deleteUserPhone;
+    throw UnimplementedError();
+    // final variables = DeleteUserPhoneArguments(phone: phone);
+    // final QueryResult result = await client.mutate(MutationOptions(
+    //   operationName: 'DeleteUserPhone',
+    //   document: DeleteUserPhoneMutation(variables: variables).document,
+    //   variables: variables.toJson(),
+    // ));
+    // return DeleteUserPhone$Mutation.fromJson(result.data!).deleteUserPhone
+    //     as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
   }
 
   /// Adds a new email address for the authenticated [MyUser].
@@ -666,159 +688,6 @@ mixin UserGraphQlMixin {
     );
     return AddUserPhone$Mutation.fromJson(result.data!).addUserPhone
         as MyUserEventsVersionedMixin?;
-  }
-
-  /// Confirms the given unconfirmed email address with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserEmailConfirmed].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
-  /// already.
-  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code, {
-    RawClientOptions? raw,
-  }) async {
-    Log.debug('confirmEmailCode($code, $raw)', '$runtimeType');
-
-    final variables = ConfirmUserEmailArguments(code: code);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'ConfirmUserEmail',
-        document: ConfirmUserEmailMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      raw: raw,
-      onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
-                      .fromJson(data)
-                  .confirmUserEmail
-              as ConfirmUserEmail$Mutation$ConfirmUserEmail$ConfirmUserEmailError)
-          .code),
-    );
-    return ConfirmUserEmail$Mutation.fromJson(result.data!).confirmUserEmail
-        as MyUserEventsVersionedMixin?;
-  }
-
-  /// Confirms the given unconfirmed phone number with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserPhoneConfirmed].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
-  /// already.
-  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-    ConfirmationCode code,
-  ) async {
-    Log.debug('confirmPhoneCode($code)', '$runtimeType');
-
-    final variables = ConfirmUserPhoneArguments(code: code);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'ConfirmUserPhone',
-        document: ConfirmUserPhoneMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => ConfirmUserPhoneException((ConfirmUserPhone$Mutation
-                      .fromJson(data)
-                  .confirmUserPhone
-              as ConfirmUserPhone$Mutation$ConfirmUserPhone$ConfirmUserPhoneError)
-          .code),
-    );
-    return ConfirmUserPhone$Mutation.fromJson(result.data!).confirmUserPhone
-        as MyUserEventsVersionedMixin?;
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address
-  /// for the authenticated [MyUser].
-  ///
-  /// Once [User] successfully uses this [ConfirmationCode] in a
-  /// [confirmEmailCode], the given email address moves to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Always returns `null` on success.
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail({RawClientOptions? raw}) async {
-    Log.debug('resendEmail($raw)', '$runtimeType');
-
-    await client.mutate(
-      MutationOptions(
-        operationName: 'ResendUserEmailConfirmation',
-        document: ResendUserEmailConfirmationMutation().document,
-      ),
-      raw: raw,
-      onException: (data) => ResendUserEmailConfirmationException(
-          ResendUserEmailConfirmation$Mutation.fromJson(data)
-                  .resendUserEmailConfirmation
-              as ResendUserEmailConfirmationErrorCode),
-    );
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
-  /// the authenticated [MyUser].
-  ///
-  /// Once [User] successfully uses this [ConfirmationCode] in a
-  /// [confirmPhoneCode], the given phone number moves to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Always returns `null` on success.
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time generates a new [ConfirmationCode].
-  Future<void> resendPhone() async {
-    Log.debug('resendPhone()', '$runtimeType');
-
-    await client.mutate(
-      MutationOptions(
-        operationName: 'ResendUserPhoneConfirmation',
-        document: ResendUserPhoneConfirmationMutation().document,
-      ),
-      onException: (data) => ResendUserPhoneConfirmationException(
-          ResendUserPhoneConfirmation$Mutation.fromJson(data)
-                  .resendUserPhoneConfirmation
-              as ResendUserPhoneConfirmationErrorCode),
-    );
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -1341,19 +1210,17 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is not registered already.
-  Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
+  Future<void> unregisterFcmDevice(FcmRegistrationToken token) async {
     Log.debug('unregisterFcmDevice($token)', '$runtimeType');
 
     final variables = UnregisterFcmDeviceArguments(token: token);
-    final QueryResult result = await client.mutate(
+    await client.mutate(
       MutationOptions(
         operationName: 'UnregisterFcmDevice',
         document: UnregisterFcmDeviceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
-    return UnregisterFcmDevice$Mutation.fromJson(result.data!)
-        .unregisterFcmDevice;
   }
 
   /// Returns all active [Session]s of the authenticated [MyUser].
@@ -1376,6 +1243,6 @@ mixin UserGraphQlMixin {
         document: SessionsQuery().document,
       ),
     );
-    return Sessions$Query.fromJson(result.data!).sessions;
+    return Sessions$Query.fromJson(result.data!).sessions.list;
   }
 }
