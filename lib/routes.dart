@@ -488,12 +488,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         ),
       ];
     } else if (_state.route == Routes.nowhere) {
+      final style =
+          router.context == null ? null : Theme.of(router.context!).style;
+
       return [
         MaterialPage(
           key: const ValueKey('NowherePage'),
           name: Routes.nowhere,
           child: Scaffold(
-            backgroundColor: Theme.of(router.context!).style.colors.background,
+            backgroundColor: style?.colors.background,
             body: const Center(child: CustomProgressIndicator.big()),
           ),
         ),
