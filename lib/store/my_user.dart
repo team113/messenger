@@ -250,8 +250,12 @@ class MyUserRepository extends DisposableInterface
     myUser.update((u) => u?.hasPassword = true);
 
     try {
-      // TODO(impl)
-      // await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+      await _graphQlProvider.updateUserPassword(
+        confirmation: oldPassword == null
+            ? null
+            : MyUserCredentials(password: oldPassword),
+        newPassword: newPassword,
+      );
     } catch (_) {
       if (hasPassword != null) {
         myUser.update((u) => u?.hasPassword = hasPassword);
