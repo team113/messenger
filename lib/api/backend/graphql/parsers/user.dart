@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:messenger/store/model/blocklist.dart';
+
 import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
@@ -1060,4 +1062,67 @@ List<String?>?
             ?.map((e) =>
                 fromDartBlocklistReasonNullableToGraphQLBlocklistReasonNullable(
                     e))
+            .toList();
+
+// BlocklistVersion
+
+BlocklistVersion fromGraphQLBlocklistVersionToDartBlocklistVersion(String v) =>
+    BlocklistVersion(v);
+String fromDartBlocklistVersionToGraphQLBlocklistVersion(BlocklistVersion v) =>
+    v.toString();
+List<BlocklistVersion> fromGraphQLListBlocklistVersionToDartListBlocklistVersion(
+        List<Object?> v) =>
+    v
+        .map((e) => fromGraphQLBlocklistVersionToDartBlocklistVersion(e as String))
+        .toList();
+List<String> fromDartListBlocklistVersionToGraphQLListBlocklistVersion(
+        List<BlocklistVersion> v) =>
+    v.map((e) => fromDartBlocklistVersionToGraphQLBlocklistVersion(e)).toList();
+List<BlocklistVersion>?
+    fromGraphQLListNullableBlocklistVersionToDartListNullableBlocklistVersion(
+            List<Object?>? v) =>
+        v
+            ?.map(
+                (e) => fromGraphQLBlocklistVersionToDartBlocklistVersion(e as String))
+            .toList();
+List<String>?
+    fromDartListNullableBlocklistVersionToGraphQLListNullableBlocklistVersion(
+            List<BlocklistVersion>? v) =>
+        v?.map((e) => fromDartBlocklistVersionToGraphQLBlocklistVersion(e)).toList();
+
+BlocklistVersion? fromGraphQLBlocklistVersionNullableToDartBlocklistVersionNullable(
+        String? v) =>
+    v == null ? null : BlocklistVersion(v);
+String? fromDartBlocklistVersionNullableToGraphQLBlocklistVersionNullable(
+        BlocklistVersion? v) =>
+    v?.toString();
+List<BlocklistVersion?>
+    fromGraphQLListBlocklistVersionNullableToDartListBlocklistVersionNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLBlocklistVersionNullableToDartBlocklistVersionNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListBlocklistVersionNullableToGraphQLListBlocklistVersionNullable(
+            List<BlocklistVersion?> v) =>
+        v
+            .map((e) =>
+                fromDartBlocklistVersionNullableToGraphQLBlocklistVersionNullable(e))
+            .toList();
+List<BlocklistVersion?>?
+    fromGraphQLListNullableBlocklistVersionNullableToDartListNullableBlocklistVersionNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLBlocklistVersionNullableToDartBlocklistVersionNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableBlocklistVersionNullableToGraphQLListNullableBlocklistVersionNullable(
+            List<BlocklistVersion?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartBlocklistVersionNullableToGraphQLBlocklistVersionNullable(e))
             .toList();

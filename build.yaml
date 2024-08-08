@@ -33,6 +33,12 @@ targets:
                 name: BlocklistReason
                 imports:
                   - "package:messenger/domain/model/user.dart"
+            - graphql_type: BlocklistVersion
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: BlocklistVersion
+                imports:
+                  - "package:messenger/store/model/blocklist.dart"
             - graphql_type: ChatCallCredentials
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
@@ -211,6 +217,12 @@ targets:
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
               dart_type:
                 name: SessionVersion
+                imports:
+                  - "package:messenger/store/model/session.dart"
+            - graphql_type: SessionsListVersion
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: SessionsListVersion
                 imports:
                   - "package:messenger/store/model/session.dart"
             - graphql_type: ThumbHash

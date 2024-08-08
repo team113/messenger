@@ -15,23 +15,34 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation SignUp {
-    createUser {
-        user {
-            __typename
-            ...MyUser
+mutation SignUp(
+    $login: UserLogin
+    $password: UserPassword
+) {
+    createUser(
+        login: $login
+        password: $password
+    ) {
+        ... on CreateSessionOk {
+            user {
+                __typename
+                ...MyUser
+            }
+            session {
+                __typename
+                ...Session
+            }
+            accessToken {
+                __typename
+                ...AccessToken
+            }
+            refreshToken {
+                __typename
+                ...RefreshToken
+            }
         }
-        session {
-            __typename
-            ...Session
-        }
-        accessToken {
-            __typename
-            ...AccessToken
-        }
-        refreshToken {
-            __typename
-            ...RefreshToken
+        ... on CreateUserError {
+            code
         }
     }
 }
