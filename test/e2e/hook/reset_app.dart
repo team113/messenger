@@ -22,7 +22,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/provider/drift/drift.dart';
-import 'package:messenger/routes.dart';
 import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/get.dart';
 import 'package:messenger/util/platform_utils.dart';
@@ -73,10 +72,8 @@ class ResetAppHook extends Hook {
     TestConfiguration config,
     String scenario,
     Iterable<Tag> tags,
-  ) {
-    router.nowhere();
-    return onBeforeScenario(config, scenario, tags);
-  }
+  ) =>
+      onBeforeScenario(config, scenario, tags);
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {
