@@ -3,11 +3,12 @@ version: 0.1.4
 publish_to: none
 
 environment:
-  flutter: ">=3.22.0"
-  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.24.0"
+  sdk: ">=3.5.0 <4.0.0"
 
 dependencies:
-  all_sensors: ^0.4.2
+  all_sensors:
+    git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^4.0.0
   app_links: ^6.1.1
   apple_product_name: ^3.0.0
@@ -23,10 +24,7 @@ dependencies:
       path: packages/desktop_drop
   device_info_plus: ^10.1.0
   dio: ^5.1.2
-  dough:
-    git:
-      url: https://github.com/krida2000/dough
-      path: packages/dough/
+  dough: ^2.0.0
   drift: ^2.19.1+1
   email_validator: ^3.0.0
   ffi: ^2.0.2
@@ -38,7 +36,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_app_badger: ^1.5.0
+  flutter_app_badger:
+    git: https://github.com/SleepySquash/flutter_app_badger
   flutter_callkit_incoming:
     git: https://github.com/SleepySquash/flutter_callkit_incoming_android
   flutter_custom_cursor: ^0.0.4
@@ -59,7 +58,8 @@ dependencies:
   graphql_flutter: ^5.2.0-beta.7
   http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
-  image_gallery_saver: ^2.0.3
+  image_gallery_saver:
+    git: https://github.com/SleepySquash/image_gallery_saver
   image_picker: ^1.1.1
   intl: ^0.17.0
   json_annotation: ^4.9.0
@@ -120,7 +120,7 @@ dev_dependencies:
     git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
   build_runner: ^2.4.11
-  dartdoc: 8.0.6 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
+  dartdoc: ^8.0.13
   drift_dev: ^2.19.1
   flutter_driver:
     sdk: flutter

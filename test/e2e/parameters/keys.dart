@@ -37,6 +37,7 @@ enum WidgetKey {
   Blocklist,
   BlocklistLoading,
   BlocklistView,
+  CancelSelecting,
   ChangeAvatar,
   ChangeLanguage,
   ChangePassword,
