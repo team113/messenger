@@ -399,8 +399,6 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
-
       final ImageFile? image = maxWidth > 250
           ? avatar?.full
           : maxWidth > 100
@@ -446,26 +444,10 @@ class AvatarWidget extends StatelessWidget {
           maxWidth: maxWidth,
           maxHeight: maxHeight,
         ),
-        child: Badge(
-          largeSize: badgeSize * 1.16,
-          isLabelVisible: isOnline,
-          alignment: Alignment.bottomRight,
-          backgroundColor: style.colors.onPrimary,
-          padding: EdgeInsets.all(badgeSize / 12),
-          offset:
-              maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
-          label: SizedBox(
-            width: badgeSize,
-            height: badgeSize,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isAway
-                    ? style.colors.warning
-                    : style.colors.acceptAuxiliary,
-              ),
-            ),
-          ),
+        child: WithBadge(
+          size: maxWidth,
+          online: isOnline,
+          away: isAway,
           child: Stack(
             children: [
               if (avatar == null) defaultAvatar,
@@ -561,5 +543,76 @@ extension BrightnessColorExtension on Color {
         hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
 
     return hslLight.toColor();
+  }
+}
+
+/// [Stack] of the provided [child] with a single circular dot in bottom-right
+/// corner.
+class WithBadge extends StatelessWidget {
+  const WithBadge({
+    super.key,
+    this.size = 16,
+    this.online = false,
+    this.away = false,
+    required this.child,
+  });
+
+  /// Size the [child] is allowed to occupy.
+  final double size;
+
+  /// Indicator whether the dot should be of [Palette.acceptAuxiliary] color.
+  final bool online;
+
+  /// Indicator whether the dot should be of [Palette.warning] color.
+  final bool away;
+
+  /// [Widget] to display the dot over.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!away && !online) {
+      return child;
+    }
+
+    final style = Theme.of(context).style;
+
+    final double badgeSize = size >= 40
+        ? size / 4
+        : size > 60
+            ? size / 3.75
+            : size > 30
+                ? size / 3
+                : size / 2;
+
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Transform.translate(
+            offset: size > 40
+                ? const Offset(-1.4, -1.4)
+                : size > 30
+                    ? const Offset(1, 1)
+                    : const Offset(2.5, 2.5),
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                border: Border.all(color: style.colors.onPrimary),
+                shape: BoxShape.circle,
+                color: away
+                    ? style.colors.warning
+                    : online
+                        ? style.colors.acceptAuxiliary
+                        : style.colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
