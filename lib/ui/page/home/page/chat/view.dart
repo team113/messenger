@@ -321,6 +321,7 @@ class ChatView extends StatelessWidget {
 
                                 if (c.selecting.value) {
                                   child = AnimatedButton(
+                                    key: const Key('CancelSelecting'),
                                     onPressed: c.selecting.toggle,
                                     child: Container(
                                       padding: const EdgeInsets.only(left: 10),
@@ -1426,11 +1427,8 @@ class ChatView extends StatelessWidget {
             Row(
               children: [
                 Expanded(
-                  child: c.selecting.value
-                      ? SelectionContainer.disabled(
-                          child: IgnorePointer(child: child),
-                        )
-                      : child,
+                  child:
+                      c.selecting.value ? IgnorePointer(child: child) : child,
                 ),
                 if (!overlay)
                   AnimatedSize(
