@@ -397,8 +397,9 @@ class ChatRepository extends DisposableInterface
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
 
-    final ChatData chat =
-        _chat(await _graphQlProvider.createGroupChat(memberIds, name: name));
+    final ChatData chat = _chat(
+      await _graphQlProvider.createGroupChat(memberIds, name: name),
+    );
     return _putEntry(chat);
   }
 
@@ -596,8 +597,9 @@ class ChatRepository extends DisposableInterface
     try {
       // If this [Chat] is local monolog, make it remote first.
       if (id.isLocalWith(me)) {
-        monologData =
-            _chat(await _graphQlProvider.createMonologChat(isHidden: true));
+        monologData = _chat(
+          await _graphQlProvider.createMonologChat(isHidden: true),
+        );
 
         // Dispose and delete local monolog, since it's just been replaced with
         // a remote one.
@@ -1791,7 +1793,7 @@ class ChatRepository extends DisposableInterface
 
           // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
           // and might not be happening remotely at all.
-          _putEntry(
+          await _putEntry(
             ChatData(
               event.value!
                 ..value.ongoingCall = null
@@ -1806,7 +1808,7 @@ class ChatRepository extends DisposableInterface
           break;
 
         case OperationKind.removed:
-          remove(event.value!.value.id);
+          await remove(event.value!.value.id);
           break;
       }
     });
@@ -1966,7 +1968,7 @@ class ChatRepository extends DisposableInterface
         case OperationKind.added:
         case OperationKind.updated:
           final ChatData chatData = ChatData(event.value!, null, null);
-          _putEntry(
+          await _putEntry(
             chatData,
             pagination: true,
             ignoreVersion: event.op == OperationKind.added,
@@ -2195,6 +2197,8 @@ class ChatRepository extends DisposableInterface
 
       if (data.lastReadItem != null) {
         entry.put(data.lastReadItem!, ignoreBounds: true);
+      }
+      if (data.lastItem != null) {
         entry.put(data.lastItem!);
       }
 
@@ -2213,6 +2217,14 @@ class ChatRepository extends DisposableInterface
 
     for (var m in q.members.nodes) {
       _userRepo.put(m.user.toDto());
+    }
+
+    if (q.lastReadItem != null) {
+      _itemsLocal.upsert(q.lastReadItem!.toDto());
+    }
+
+    if (q.lastItem != null) {
+      _itemsLocal.upsert(q.lastItem!.toDto());
     }
 
     return q.toData(recentCursor, favoriteCursor);

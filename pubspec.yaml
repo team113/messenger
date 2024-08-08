@@ -57,7 +57,7 @@ dependencies:
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.7
-  http: ^0.13.6
+  http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
   image_gallery_saver: ^2.0.3
   image_picker: ^1.1.1
@@ -116,7 +116,8 @@ dependencies:
   yaml: ^3.1.2
 
 dev_dependencies:
-  artemis: ^7.13.1
+  artemis:
+    git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
   build_runner: ^2.4.11
   dartdoc: 8.0.6 # TODO: Unpin, when `analyzer: ^6.5.0` is used.
@@ -151,15 +152,7 @@ dependency_overrides:
       url: https://github.com/simolus3/drift
       path: drift_dev
       ref: develop
-  # TODO: Remove when `artemis` updates.
-  gql: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_exec: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_http_link: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_link: ^1.0.0
-  # TODO: Remove when `artemis` updates.
+  # TODO: Remove when `flutter_gherkin` updates.
   http: ^1.1.0
   image_picker_ios:
     git:

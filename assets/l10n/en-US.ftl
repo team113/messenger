@@ -179,6 +179,7 @@ btn_change_account_desc =
     account
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
@@ -877,6 +878,8 @@ label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
 label_no_users = No users
+label_no_updates_are_available_title = No updates are available
+label_no_updates_are_available_subtitle = You have the latest version installed.
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
@@ -1090,6 +1093,7 @@ label_users = Users
 label_users_count = Users: {$count}
 label_verify = Verify
 label_verify_number = Verify phone number
+label_version_semicolon = Version: {$version}
 label_video = Video
 label_video_call = Video call{$by ->
         [x]{""}

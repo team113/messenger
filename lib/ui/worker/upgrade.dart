@@ -17,7 +17,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/scheduler.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:xml/xml.dart';
@@ -64,12 +63,15 @@ class UpgradeWorker extends DisposableService {
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
-  @visibleForTesting
-  Future<void> fetchUpdates() async {
-    Log.debug('fetchUpdates()', '$runtimeType');
+  ///
+  /// Returns `true`, if new update is detected.
+  ///
+  /// If [force] is `true`, then ignores the [_skippedLocal] stored one.
+  Future<bool> fetchUpdates({bool force = false}) async {
+    Log.debug('fetchUpdates(force: $force)', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
-      return;
+      return false;
     }
 
     try {
@@ -129,9 +131,11 @@ class UpgradeWorker extends DisposableService {
               '$runtimeType',
             );
 
-            final bool skipped = await _skippedLocal?.read() == release.name;
+            final bool skipped =
+                !force && await _skippedLocal?.read() == release.name;
             if (critical || (lower && !skipped && Config.downloadable)) {
-              _schedulePopup(release, critical: critical);
+              _schedulePopup(release, critical: critical, delay: !force);
+              return true;
             }
           }
         }
@@ -139,21 +143,35 @@ class UpgradeWorker extends DisposableService {
     } catch (e) {
       Log.info('Failed to fetch releases: $e', '$runtimeType');
     }
+
+    return false;
   }
 
   /// Schedules an [UpgradePopupView] prompt displaying.
-  void _schedulePopup(Release release, {bool critical = false}) {
+  Future<void> _schedulePopup(
+    Release release, {
+    bool critical = false,
+    bool delay = true,
+  }) async {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
-    Future.delayed(_popupDelay, () {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        await UpgradePopupView.show(
-          router.context!,
-          release: release,
-          critical: critical,
+    Future<void> displayPopup() async {
+      await UpgradePopupView.show(
+        router.context!,
+        release: release,
+        critical: critical,
+      );
+    }
+
+    if (delay) {
+      await Future.delayed(_popupDelay, () {
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) async => await displayPopup(),
         );
       });
-    });
+    } else {
+      await displayPopup();
+    }
   }
 }
 

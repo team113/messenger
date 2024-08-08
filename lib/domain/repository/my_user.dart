@@ -47,9 +47,6 @@ abstract class AbstractMyUserRepository {
     required Function() onPasswordUpdated,
   });
 
-  /// Disposes the repository.
-  void dispose();
-
   /// Updates [MyUser.name] field for the authenticated [MyUser].
   ///
   /// Resets [MyUser.name] field to `null` for the authenticated [MyUser] if

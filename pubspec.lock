@@ -85,10 +85,10 @@ packages:
     dependency: transitive
     description:
       name: app_links_web
-      sha256: "74586ed5f3c4786341e82a0fa43c39ec3f13108a550f74e80d8bf68aa11349d1"
+      sha256: af060ed76183f9e2b87510a9480e56a5352b6c249778d07bd2c95fc35632a555
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   apple_product_name:
     dependency: "direct main"
     description:
@@ -116,10 +116,11 @@ packages:
   artemis:
     dependency: "direct dev"
     description:
-      name: artemis
-      sha256: "06a268b75948a9822572f65280cc679bfe889bf84fa02283ed75470670d2a3e0"
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: HEAD
+      resolved-ref: "447e43c241c5c114dc56ed0bf7cf59070884185c"
+      url: "https://github.com/SleepySquash/artemis"
+    source: git
     version: "7.13.1"
   async:
     dependency: "direct main"
@@ -819,29 +820,37 @@ packages:
     source: hosted
     version: "1.0.0"
   gql:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: gql
-      sha256: "994e0c530b5ca9fce716945031b90c7925eb00bd37624c43ad4cb51883f383b3"
+      sha256: "8ecd3585bb9e40d671aa58f52575d950670f99e5ffab18e2b34a757e071a6693"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0+1"
+    version: "1.0.1-alpha+1717789143880"
   gql_code_builder:
     dependency: transitive
     description:
       name: gql_code_builder
-      sha256: "6e386a85f5d91daae82915337f566a43dfeb0a0df38caa372387fbc07d31b8c1"
+      sha256: e1002177a33fc4460ffde86187d01f3fc714627e9418dff7c4a8cf6f26119d63
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.2"
+    version: "0.13.0"
+  gql_code_builder_serializers:
+    dependency: transitive
+    description:
+      name: gql_code_builder_serializers
+      sha256: "5344091f97afb44b15840e32889cacc18116e095105d07671ba762e897c465d4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.0"
   gql_dedupe_link:
     dependency: transitive
     description:
       name: gql_dedupe_link
-      sha256: "89681048cf956348e865da872a40081499b8c087fc84dd4d4b9c134bd70d27b3"
+      sha256: "10bee0564d67c24e0c8bd08bd56e0682b64a135e58afabbeed30d85d5e9fea96"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.3+1"
+    version: "2.0.4-alpha+1715521079596"
   gql_error_link:
     dependency: transitive
     description:
@@ -851,15 +860,15 @@ packages:
     source: hosted
     version: "1.0.0+1"
   gql_exec:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: gql_exec
-      sha256: "957db95ba37028001f76c1904e18b848f57cfef878e572ce77c6d898fafecf8f"
+      sha256: "394944626fae900f1d34343ecf2d62e44eb984826189c8979d305f0ae5846e38"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0+1"
+    version: "1.1.1-alpha+1699813812660"
   gql_http_link:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: gql_http_link
       sha256: ef6ad24d31beb5a30113e9b919eec20876903cc4b0ee0d31550047aaaba7d5dd
@@ -867,18 +876,26 @@ packages:
     source: hosted
     version: "1.1.0"
   gql_link:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: gql_link
-      sha256: "4aa288a1e67c899b0d746a2209e949fd0dc87e56d9b759a5cdc46a7069722cf3"
+      sha256: "70fd5b5cbcc50601679f4b9fea3bcc994e583f59cfec7e1fec11113074b1a565"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0+1"
+    version: "1.0.1-alpha+1717789143896"
   gql_transform_link:
     dependency: transitive
     description:
       name: gql_transform_link
       sha256: "0645fdd874ca1be695fd327271fdfb24c0cd6fa40774a64b946062f321a59709"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
+  gql_tristate_value:
+    dependency: transitive
+    description:
+      name: gql_tristate_value
+      sha256: ae045e7e272fbfd030084315140c683c9b032a9861a37165f68c2ecd8a759664
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
@@ -1461,10 +1478,10 @@ packages:
     dependency: transitive
     description:
       name: permission_handler_android
-      sha256: b29a799ca03be9f999aa6c39f7de5209482d638e6f857f6b93b0875c618b7e54
+      sha256: eaf2a1ec4472775451e88ca6a7b86559ef2f1d1ed903942ed135e38ea0097dca
       url: "https://pub.dev"
     source: hosted
-    version: "12.0.7"
+    version: "12.0.8"
   permission_handler_apple:
     dependency: transitive
     description:
@@ -1486,10 +1503,10 @@ packages:
     dependency: transitive
     description:
       name: permission_handler_platform_interface
-      sha256: "48d4fcf201a1dad93ee869ab0d4101d084f49136ec82a8a06ed9cfeacab9fd20"
+      sha256: fe0ffe274d665be8e34f9c59705441a7d248edebbe5d9e3ec2665f88b79358ea
       url: "https://pub.dev"
     source: hosted
-    version: "4.2.1"
+    version: "4.2.2"
   permission_handler_windows:
     dependency: transitive
     description:
