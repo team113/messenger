@@ -289,7 +289,7 @@ packages:
     source: hosted
     version: "1.18.0"
   connectivity_plus:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: connectivity_plus
       sha256: "3e7d1d9dbae40ae82cbe6c23c518f0c4ffe32764ee9749b9a99d32cbac8734f6"
@@ -365,7 +365,7 @@ packages:
     description:
       path: "packages/desktop_drop"
       ref: HEAD
-      resolved-ref: d1c9369331518fec50ca02ddc05ec403eace0c1f
+      resolved-ref: "7d3d552dc39fb9c78259c5fa9b9a3d2f822f99a5"
       url: "https://github.com/MixinNetwork/flutter-plugins"
     source: git
     version: "0.4.4"
@@ -412,18 +412,20 @@ packages:
   drift:
     dependency: "direct main"
     description:
-      name: drift
-      sha256: "4e0ffee40d23f0b809e6cff1ad202886f51d629649073ed42d9cd1d194ea943e"
-      url: "https://pub.dev"
-    source: hosted
+      path: drift
+      ref: develop
+      resolved-ref: "58f4504e9203b15a6a34a1306961d2c41234f243"
+      url: "https://github.com/simolus3/drift"
+    source: git
     version: "2.19.1+1"
   drift_dev:
     dependency: "direct dev"
     description:
-      name: drift_dev
-      sha256: ac7647c6cedca99724ca300cff9181f6dd799428f8ed71f94159ed0528eaec26
-      url: "https://pub.dev"
-    source: hosted
+      path: drift_dev
+      ref: develop
+      resolved-ref: "58f4504e9203b15a6a34a1306961d2c41234f243"
+      url: "https://github.com/simolus3/drift"
+    source: git
     version: "2.19.1"
   email_validator:
     dependency: "direct main"
@@ -652,10 +654,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: dd6676d8c2926537eccdf9f72128bbb2a9d0814689527b17f92c248ff192eaf3
+      sha256: c500d5d9e7e553f06b61877ca6b9c8b92c570a4c8db371038702e8ce57f8a50f
       url: "https://pub.dev"
     source: hosted
-    version: "17.2.1+2"
+    version: "17.2.2"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -676,10 +678,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_markdown
-      sha256: "2e8a801b1ded5ea001a4529c97b1f213dcb11c6b20668e081cafb23468593514"
+      sha256: a23c41ee57573e62fc2190a1f36a0480c4d90bde3a8a8d7126e5d5992fb53fb7
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.3"
+    version: "0.7.3+1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1242,25 +1244,25 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "8b2d48c9a673f5218d4b3f800f2575dc7f478304910bf1b4531bc2e429a81ef0"
+      sha256: "24cba246eef6e60e13c914b6ec237bb9e70b66d6c4c34c6af321a03b14bb5b26"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3"
+    version: "0.10.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: ac7f9f28c7544c390f70adae7d59dc12e00a397d34811d61d47478023d2e55e1
+      sha256: "6050141a471228d73cbc58c1740b2d28d3bb25510be8fa2fcf68a178fd959dfe"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0-dev+rev.d615057ffe2c7031112c3047c1a11b4edc6c2454"
+    version: "0.5.0"
   media_kit:
     dependency: "direct main"
     description:
       path: media_kit
-      ref: HEAD
-      resolved-ref: "50c510d018cc5286eb6730f3ea165290f19dc5f6"
-      url: "https://github.com/media-kit/media-kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.1.10+1"
   media_kit_libs_android_video:
@@ -1320,9 +1322,9 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit_video
-      ref: HEAD
-      resolved-ref: "50c510d018cc5286eb6730f3ea165290f19dc5f6"
-      url: "https://github.com/media-kit/media-kit"
+      ref: migrate-to-wasm
+      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
+      url: "https://github.com/SleepySquash/media-kit.git"
     source: git
     version: "1.2.4"
   meta:
@@ -1381,14 +1383,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.8.2+1"
-  open_file:
+  open_filex:
     dependency: "direct main"
     description:
-      name: open_file
-      sha256: a5a32d44acb7c899987d0999e1e3cbb0a0f1adebbf41ac813ec6d2d8faa0af20
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.3.2"
+      path: "."
+      ref: HEAD
+      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
+      url: "https://github.com/raldhafiri/open_filex"
+    source: git
+    version: "4.4.0"
   package_config:
     dependency: transitive
     description:
@@ -1502,12 +1505,13 @@ packages:
     source: hosted
     version: "9.4.5"
   permission_handler_html:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_html
-      sha256: "6cac773d389e045a8d4f85418d07ad58ef9e42a56e063629ce14c4c26344de24"
-      url: "https://pub.dev"
-    source: hosted
+      path: permission_handler_html
+      ref: HEAD
+      resolved-ref: "42e1c85b7d2c12528be4ae667db9b3318c77bda7"
+      url: "https://github.com/raldhafiri/flutter-permission-handler.git"
+    source: git
     version: "0.1.2"
   permission_handler_platform_interface:
     dependency: transitive
@@ -1552,11 +1556,12 @@ packages:
   platform_detect:
     dependency: "direct main"
     description:
-      name: platform_detect
-      sha256: a62f99417fc4fa2d099ce0ccdbb1bd3977920f2a64292c326271f049d4bc3a4f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      url: "https://github.com/SleepySquash/platform_detect.git"
+    source: git
+    version: "2.0.13"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1673,50 +1678,50 @@ packages:
     dependency: transitive
     description:
       name: screen_brightness
-      sha256: ed8da4a4511e79422fc1aa88138e920e4008cd312b72cdaa15ccb426c0faaedd
+      sha256: "7d4ac84ae26b37c01d6f5db7123a72db7933e1f2a2a8c369a51e08f81b3178d8"
       url: "https://pub.dev"
     source: hosted
-    version: "0.2.2+1"
+    version: "1.0.1"
   screen_brightness_android:
     dependency: transitive
     description:
       name: screen_brightness_android
-      sha256: "3df10961e3a9e968a5e076fe27e7f4741fa8a1d3950bdeb48cf121ed529d0caf"
+      sha256: "8c69d3ac475e4d625e7fa682a3a51a69ff59abe5b4a9e57f6ec7d830a6c69bd6"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0+2"
+    version: "1.0.1"
   screen_brightness_ios:
     dependency: transitive
     description:
       name: screen_brightness_ios
-      sha256: "99adc3ca5490b8294284aad5fcc87f061ad685050e03cf45d3d018fe398fd9a2"
+      sha256: f08f70ca1ac3e30719764b5cfb8b3fe1e28163065018a41b3e6f243ab146c2f1
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "1.0.1"
   screen_brightness_macos:
     dependency: transitive
     description:
       name: screen_brightness_macos
-      sha256: "64b34e7e3f4900d7687c8e8fb514246845a73ecec05ab53483ed025bd4a899fd"
+      sha256: "70c2efa4534e22b927e82693488f127dd4a0f008469fccf4f0eefe9061bbdd6a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0+1"
+    version: "1.0.1"
   screen_brightness_platform_interface:
     dependency: transitive
     description:
       name: screen_brightness_platform_interface
-      sha256: b211d07f0c96637a15fb06f6168617e18030d5d74ad03795dd8547a52717c171
+      sha256: "9f3ebf7f22d5487e7676fe9ddaf3fc55b6ff8057707cf6dc0121c7dfda346a16"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.0"
+    version: "1.0.1"
   screen_brightness_windows:
     dependency: transitive
     description:
       name: screen_brightness_windows
-      sha256: "9261bf33d0fc2707d8cf16339ce25768100a65e70af0fcabaf032fc12408ba86"
+      sha256: c8e12a91cf6dd912a48bd41fcf749282a51afa17f536c3460d8d05702fb89ffa
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.3"
+    version: "1.0.1"
   screen_retriever:
     dependency: transitive
     description:
@@ -2111,10 +2116,10 @@ packages:
     dependency: transitive
     description:
       name: url_launcher_linux
-      sha256: ab360eb661f8879369acac07b6bb3ff09d9471155357da8443fd5d3cf7363811
+      sha256: e2b9622b4007f97f504cd64c0128309dfb978ae66adbe944125ed9e1750f06af
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.1"
+    version: "3.2.0"
   url_launcher_macos:
     dependency: transitive
     description:
@@ -2255,10 +2260,10 @@ packages:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: d88238e5eac9a42bb43ca4e721edba3c08c6354d4a53063afaa568516217621b
+      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.5"
   webdriver:
     dependency: transitive
     description:

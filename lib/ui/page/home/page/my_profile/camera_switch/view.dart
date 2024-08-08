@@ -110,7 +110,7 @@ class CameraSwitchView extends StatelessWidget {
                       }
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                         child: Text(
                           c.error.value!,
                           style: style.fonts.normal.regular.danger,

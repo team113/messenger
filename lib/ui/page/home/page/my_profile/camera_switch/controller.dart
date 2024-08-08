@@ -81,8 +81,12 @@ class CameraSwitchController extends GetxController {
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {
-      error.value = e.toString();
-      rethrow;
+      if (e.toString().contains('Permission denied')) {
+        error.value = 'err_camera_permission_denied'.l10n;
+      } else {
+        error.value = e.toString();
+        rethrow;
+      }
     }
 
     super.onInit();
