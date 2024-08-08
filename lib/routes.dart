@@ -248,21 +248,32 @@ class RouterState extends ChangeNotifier {
   ///
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
-  void pop() {
+  void pop([String? page]) {
     if (routes.isNotEmpty) {
+      if (page != null && !routes.contains(page)) {
+        return;
+      }
+
       if (routes.length == 1) {
-        String last = routes.last.split('/').last;
-        routes.last = routes.last.replaceFirst('/$last', '');
-        if (routes.last == '' ||
-            (_auth.status.value.isSuccess && routes.last == Routes.work) ||
-            routes.last == Routes.contacts ||
-            routes.last == Routes.chats ||
-            routes.last == Routes.menu ||
-            routes.last == Routes.user) {
-          routes.last = Routes.home;
+        final String split = routes.last.split('/').last;
+        String last = routes.last.replaceFirst('/$split', '');
+        if (last == '' ||
+            (_auth.status.value.isSuccess && last == Routes.work) ||
+            last == Routes.contacts ||
+            last == Routes.chats ||
+            last == Routes.menu ||
+            last == Routes.user) {
+          last = Routes.home;
         }
+
+        routes.last = last;
       } else {
-        routes.removeLast();
+        if (page != null) {
+          routes.remove(page);
+        } else {
+          routes.removeLast();
+        }
+
         if (routes.isEmpty) {
           routes.add(Routes.home);
         }
@@ -477,12 +488,15 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         ),
       ];
     } else if (_state.route == Routes.nowhere) {
+      final style =
+          router.context == null ? null : Theme.of(router.context!).style;
+
       return [
         MaterialPage(
           key: const ValueKey('NowherePage'),
           name: Routes.nowhere,
           child: Scaffold(
-            backgroundColor: Theme.of(router.context!).style.colors.background,
+            backgroundColor: style?.colors.background,
             body: const Center(child: CustomProgressIndicator.big()),
           ),
         ),
@@ -862,12 +876,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             key: navigatorKey,
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
-            onPopPage: (Route<dynamic> route, dynamic result) {
-              final bool success = route.didPop(result);
+            onDidRemovePage: (Page<Object?> page) {
+              final bool success = page.canPop;
               if (success) {
-                _state.pop();
+                _state.pop(page.name);
               }
-              return success;
             },
           ),
         ),

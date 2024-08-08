@@ -1065,7 +1065,7 @@ class _ReorderableDraggableState<T extends Object>
       data: DoughRecipeData(
         adhesion: 4,
         viscosity: 2000,
-        draggablePrefs: DraggableDoughPrefs(
+        draggableRecipe: DraggableDoughRecipeData(
           breakDistance: 50,
           useHapticsOnBreak: false,
         ),

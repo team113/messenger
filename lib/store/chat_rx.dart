@@ -1631,7 +1631,7 @@ class RxChatImpl extends RxChat {
 
   /// Updates the reactive [chat] to the provided [DtoChat], if any.
   DtoChat? _setChat(DtoChat? e) {
-    Log.debug('_setChat($e)', '$runtimeType');
+    Log.trace('_setChat($e)', '$runtimeType');
 
     if (chat.value == e?.value) {
       return null;

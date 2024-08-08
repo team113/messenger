@@ -46,7 +46,7 @@ final StepDefinitionGeneric tapMessage = then1<String, CustomWorld>(
     final Finder finder =
         context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
 
-    await context.world.appDriver.nativeDriver.tap(finder);
+    await context.world.appDriver.nativeDriver.tap(finder, warnIfMissed: false);
     await context.world.appDriver.waitForAppToSettle();
   },
 );
