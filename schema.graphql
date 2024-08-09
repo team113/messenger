@@ -81,7 +81,7 @@ enum AddChatMemberErrorCode {
   UNKNOWN_CHAT
 
   """
-  `User` with the provided ID doesn't exist.
+  `User` with the provided ID doesn't exist or was deleted.
 
   Status code: 404 Not Found.
   """
@@ -107,11 +107,25 @@ enum AddUserEmailErrorCode {
   BUSY
 
   """
-  Authenticated `MyUser` has reached maximum allowed number of email addresses.
+  Authenticated `MyUser` has reached maximum allowed number of confirmed email addresses.
 
   Status code: 403 Forbidden.
   """
   TOO_MANY
+
+  """
+  Email address being confirmed is occupied by another `User` already.
+
+  Status code: 409 Conflict.
+  """
+  OCCUPIED
+
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
 }
 
 """Result of performing `Mutation.addUserEmail`."""
@@ -133,11 +147,25 @@ enum AddUserPhoneErrorCode {
   BUSY
 
   """
-  Authenticated `MyUser` has reached maximum allowed number of phone numbers.
+  Authenticated `MyUser` has reached maximum allowed number of confirmed phone numbers.
 
   Status code: 403 Forbidden.
   """
   TOO_MANY
+
+  """
+  Phone number being confirmed is occupied by another `User` already.
+
+  Status code: 409 Conflict.
+  """
+  OCCUPIED
+
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
 }
 
 """Result of performing `Mutation.addUserPhone`."""
@@ -185,79 +213,12 @@ interface Attachment {
 """Type of an `Attachment`'s ID."""
 scalar AttachmentId
 
-"""
-[Connection] with `BlocklistRecord`s.
-
-[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-"""
-type BlocklistConnection {
+"""List of `BlocklistRecord`s."""
+type Blocklist {
   """
-  List of `BlocklistRecord` [Edges] in this [Connection].
+  Returns `User`s blocked by authenticated `MyUser` as `BlocklistRecord`s.
 
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
-  """
-  edges: [BlocklistEdge!]!
-
-  """
-  List of `BlocklistRecord`s in this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  """
-  nodes: [BlocklistRecord!]!
-
-  """
-  [PageInfo] of this [Connection].
-
-  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
-  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
-  """
-  pageInfo: PageInfo!
-
-  """Total count of `BlocklistRecord`s."""
-  totalCount: Int!
-}
-
-"""Cursor of `BlocklistRecord`s."""
-scalar BlocklistCursor
-
-"""
-[Edge] with a `BlocklistRecord`.
-
-[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-"""
-type BlocklistEdge {
-  """
-  [Cursor] of this [Edge].
-
-  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  """
-  cursor: BlocklistCursor!
-
-  """
-  `BlocklistRecord` [Node] at the end of this [Edge].
-
-  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
-  [Node]: https://tinyurl.com/gql-relay#sec-Node
-  """
-  node: BlocklistRecord!
-}
-
-"""Event of a `User` being added or removed to/from `Query.blocklist`."""
-interface BlocklistEvent {
-  """`DateTime` when this `BlocklistEvent` happened."""
-  at: DateTime!
-
-  """`User` this `BlocklistEvent` is about."""
-  user: User!
-}
-
-"""`BlocklistEvent`s along with the corresponding `MyUserVersion`."""
-type BlocklistEventsVersioned {
-  """
-  Actual state of the `MyUser.blocklist` after this `BlocklistEvent`
-  has been emitted. Alias of `MyUser.blocklist`.
+  Alias of `Query.blocklist`.
 
   ## Sorting
 
@@ -297,17 +258,100 @@ type BlocklistEventsVersioned {
     """Number of prior `BlocklistRecord`s to return."""
     last: Int
   ): BlocklistConnection!
+}
 
-  """`BlocklistEvent`s themselves."""
-  events: [BlocklistEvent!]!
+"""
+[Connection] with `BlocklistRecord`s.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type BlocklistConnection {
+  """
+  List of `BlocklistRecord` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [BlocklistEdge!]!
 
   """
-  Version of the `MyUser`'s state updated by these `BlocklistEvent`s.
+  List of `BlocklistRecord`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [BlocklistRecord!]!
+
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+
+  """Total count of `BlocklistRecord`s."""
+  totalCount: Int!
+
+  """
+  Version of this `BlocklistRecord`s list.
 
   It increases monotonically, so may be used (and is intended to) for
   tracking state's actuality.
   """
-  ver: MyUserVersion!
+  ver: BlocklistVersion!
+}
+
+"""Cursor of `BlocklistRecord`s."""
+scalar BlocklistCursor
+
+"""
+[Edge] with a `BlocklistRecord`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type BlocklistEdge {
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: BlocklistCursor!
+
+  """
+  `BlocklistRecord` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: BlocklistRecord!
+}
+
+"""Event of a `User` being added or removed to/from `Query.blocklist`."""
+interface BlocklistEvent {
+  """`DateTime` when this `BlocklistEvent` happened."""
+  at: DateTime!
+
+  """`User` this `BlocklistEvent` is about."""
+  user: User!
+}
+
+"""Events emitted by `Subscription.blocklistEvents`."""
+union BlocklistEvents = Blocklist | BlocklistEventsVersioned | SubscriptionInitialized
+
+"""`BlocklistEvent`s along with the corresponding `BlocklistVersion`."""
+type BlocklistEventsVersioned {
+  """`BlocklistEvent`s themselves."""
+  events: [BlocklistEvent!]!
+
+  """
+  Version of the `BlocklistRecord`s list state updated by these
+  `BlocklistEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: BlocklistVersion!
 }
 
 """Reason of blocking a `User` by the authenticated `MyUser`."""
@@ -324,6 +368,14 @@ type BlocklistRecord {
   """Blocked `User`."""
   user: User!
 }
+
+"""
+Version of `MyUser`s `BlocklistRecord`s list.
+
+It increases monotonically, so may be used (and is intended to) for tracking
+state's actuality.
+"""
+scalar BlocklistVersion
 
 """Error of performing `Mutation.blockUser`."""
 type BlockUserError {
@@ -344,17 +396,17 @@ enum BlockUserErrorCode {
 """Result of performing `Mutation.blockUser`."""
 union BlockUserResult = BlockUserError | BlocklistEventsVersioned
 
-"""Changed `Attachment`s of a `ChatMessage`."""
+"""Changed `Attachment`s."""
 type ChangedChatMessageAttachments {
   """
-  New `Attachment`s of the `ChatMessage`.
+  New `Attachment`s.
 
   Empty list means that the previous `Attachment`s were deleted.
 
   ## Sorting
 
   Returned `Attachment`s are sorted in the same order as were provided to
-  the `Mutation.editChatMessage` by the `ChatMessage`'s author.
+  the correspondent mutation.
   """
   changed: [Attachment!]!
 }
@@ -374,7 +426,7 @@ type ChangedChatMessageReplies {
   changed: [ChatItemQuote!]!
 }
 
-"""Changed `ChatMessageText` of a `ChatMessage`."""
+"""Changed `ChatMessageText`."""
 type ChangedChatMessageText {
   """
   Changed `ChatMessageText`.
@@ -413,6 +465,9 @@ type Chat {
   """
   `ChatItem`s of this `Chat` ordered by their posting time.
 
+  Specifying `filter` argument allows to filter out returned `ChatItem`s
+  by the desired criteria.
+
   ## Sorting
 
   Returned `ChatItem`s are sorted primarily by their posting `DateTime`,
@@ -444,16 +499,14 @@ type Chat {
     """
     before: ChatItemsCursor
 
+    """Optional criteria to filter out returned `ChatItem`s by."""
+    filter: ChatItemsFilter
+
     """Number of next `ChatItem`s to return."""
     first: Int
 
     """Number of prior `ChatItem`s to return."""
     last: Int
-
-    """
-    Indicator whether to filter out all the `ChatItem`s without attachments.
-    """
-    onlyAttachments: Boolean = false
   ): ChatItemsConnection!
 
   """Kind of this `Chat`."""
@@ -690,27 +743,6 @@ type ChatCall implements ChatItem {
 
   """Unique ID of this `ChatCall`."""
   id: ChatItemId!
-
-  """
-  Link for joining this `ChatCall`'s room on [Medea] media server.
-
-  Should be used in conjunction with `ChatCallCredentials` (generated for
-  `Mutation.startChatCall` or `Mutation.joinChatCall`) to properly
-  authenticate on [Medea] media server.
-
-  If `null` then `ChatCall`'s room on [Medea] media server isn't ready yet
-  to be joined, and `EventChatCallRoomReady` should be awaited via
-  `Subscription.chatCallEvents` before doing so.
-
-  Bound to a concrete device of the authenticated `MyUser`, and so, is
-  `null` in any operations where a concrete `ChatCallDeviceId` is unknown.
-  This means that every device of the authenticated `MyUser` must obtain
-  its own `ChatCallRoomJoinLink` via separate
-  `Subscription.chatCallEvents`.
-
-  [Medea]: https://github.com/instrumetisto/medea
-  """
-  joinLink: ChatCallRoomJoinLink
 
   """
   `ChatCallMember`s of this `ChatCall`.
@@ -1104,7 +1136,7 @@ type ChatContactsList {
     Indicator whether favorite `ChatContact`s should be excluded from the result.
     """
     noFavorite: Boolean = false
-  ): ChatContactsConnection!
+  ): ChatContactsConnection! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns favorited `ChatContact`s of the authenticated `MyUser` ordered
@@ -1129,7 +1161,7 @@ type ChatContactsList {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
-  ): FavoriteChatContactsConnection!
+  ): FavoriteChatContactsConnection! @deprecated(reason: "Unimplemented. Do not use it.")
 }
 
 """
@@ -1150,7 +1182,18 @@ scalar ChatContactVersion
 
 """Direct link to a `Chat`."""
 type ChatDirectLink {
-  """Unique slug associated with this `ChatDirectLink`."""
+  """`DateTime` when this `ChatDirectLink` was created."""
+  createdAt: DateTime!
+
+  """
+  Unique [slug] associated with this `ChatDirectLink`.
+
+  `ChatDirectLink`s are unique in a case-insensitive manner, meaning that
+  `direct-link` and `Direct-Link` [slug] values are considered as the same
+  one.
+
+  [slug]: https://en.wikipedia.org/wiki/Clean_URL#Slug
+  """
   slug: ChatDirectLinkSlug!
 
   """Counter of this `ChatDirectLink` being used."""
@@ -1158,12 +1201,16 @@ type ChatDirectLink {
 }
 
 """
-Type of a `ChatDirectLink`'s [slug] value.
+[Slug][slug] value of a `ChatDirectLink`.
 
 Its values are always considered to be non-empty, and meet the following
 requirements:
-- have only latin letters (`A-Z`, `a-z`), digits (`0-9`) or `_-`symbols;
+- have only latin letters (`A-Z`, `a-z`), digits (`0-9`) or `_-` symbols;
 - be at least 1 and maximum 100 characters long.
+
+`ChatDirectLink`s are unique in a case-insensitive manner, meaning that
+`direct-link` and `Direct-Link` [slug] values are considered as the same
+one.
 
 [slug]: https://en.wikipedia.org/wiki/Clean_URL#Slug
 """
@@ -1460,6 +1507,27 @@ type ChatItemsEdge {
 }
 
 """
+Criteria for filtering `ChatItem`s by, returned in a `ChatItemsConnection`.
+"""
+input ChatItemsFilter {
+  """
+  Indicator whether to filter out all the `ChatItem`s without attachments.
+
+  Applies to `ChatMessage`s and `ChatForward`s only.
+  """
+  onlyAttachments: Boolean
+
+  """
+  `ChatMessageText` that returned `ChatItems`s should contain.
+
+  The match is case-insensitive.
+
+  Applies to `ChatMessage`s and `ChatForward`s only.
+  """
+  withText: ChatMessageText
+}
+
+"""
 Version of `ChatItem`'s state.
 
 It increases monotonically, so may be used (and is intended to) for tracking
@@ -1731,71 +1799,11 @@ enum ClearChatErrorCode {
 union ClearChatResult = ChatEventsVersioned | ClearChatError
 
 """
-Code used for email addresses confirmation, password recovery, etc.
-
-Its values are always considered to be 4-digit strings.
+Single-use secret code used for additional authentication of a `MyUser` on
+certain operations (like `UserEmail` address confirmation, `UserPhone`
+number confirmation, password recovery, etc.).
 """
 scalar ConfirmationCode
-
-"""Error of performing `Mutation.confirmUserEmail`."""
-type ConfirmUserEmailError {
-  """Code indicating why this error has happened."""
-  code: ConfirmUserEmailErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.confirmUserEmail`."""
-enum ConfirmUserEmailErrorCode {
-  """
-  Email address being confirmed is occupied by another `User` already.
-
-  Authenticated `MyUser` should delete his current unconfirmed email address via
-  `Mutation.deleteUserEmail`, choose another email address and set it via
-  `Mutation.addUserEmail`.
-
-  Status code: 409 Conflict.
-  """
-  OCCUPIED
-
-  """
-  Provided `ConfirmationCode` is wrong.
-
-  Status code: 403 Forbidden.
-  """
-  WRONG_CODE
-}
-
-"""Result of performing `Mutation.confirmUserEmail`."""
-union ConfirmUserEmailResult = ConfirmUserEmailError | MyUserEventsVersioned
-
-"""Error of performing `Mutation.confirmUserPhone`."""
-type ConfirmUserPhoneError {
-  """Code indicating why this error has happened."""
-  code: ConfirmUserPhoneErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.confirmUserPhone`."""
-enum ConfirmUserPhoneErrorCode {
-  """
-  Phone number being confirmed is occupied by another `User` already.
-
-  Authenticated `MyUser` should delete his current unconfirmed phone number via
-  `Mutation.deleteUserPhone`, choose another phone number and set it via
-  `Mutation.addUserPhone`.
-
-  Status code: 409 Conflict.
-  """
-  OCCUPIED
-
-  """
-  Provided `ConfirmationCode` is wrong.
-
-  Status code: 403 Forbidden.
-  """
-  WRONG_CODE
-}
-
-"""Result of performing `Mutation.confirmUserPhone`."""
-union ConfirmUserPhoneResult = ConfirmUserPhoneError | MyUserEventsVersioned
 
 """Error of performing `Mutation.createChatContact`."""
 type CreateChatContactError {
@@ -1829,7 +1837,7 @@ enum CreateChatContactErrorCode {
   NOT_GROUP
 
   """
-  `User` with the provided ID doesn't exist.
+  `User` with the provided ID doesn't exist or was deleted.
 
   Status code: 404 Not Found.
   """
@@ -1953,7 +1961,7 @@ enum CreateChatDirectLinkErrorCode {
   """
   `ChatDirectLink` with the specified `slug` is occupied by another `User` or `Chat`-group already.
 
-  Status code: 403 Forbidden.
+  Status code: 409 Conflict.
   """
   OCCUPIED
 
@@ -1998,7 +2006,7 @@ enum CreateDialogChatErrorCode {
   USE_MONOLOG
 
   """
-  `User` with the provided ID doesn't exist.
+  `User` with the provided ID doesn't exist or was deleted.
 
   Status code: 404 Not Found.
   """
@@ -2031,7 +2039,7 @@ enum CreateGroupChatErrorCode {
   WRONG_MEMBERS_COUNT
 
   """
-  `User` with the provided ID doesn't exist.
+  `User` with the provided ID doesn't exist or was deleted.
 
   Status code: 404 Not Found.
   """
@@ -2050,7 +2058,14 @@ type CreateSessionError {
 """Possible error codes of performing `Mutation.createSession`."""
 enum CreateSessionErrorCode {
   """
-  Provided password is wrong or `MyUser` with the provided identifier doesn't exist.
+  Provided `ConfirmationCode` is wrong or no `MyUser` exists by the provided `MyUserIdentifier`.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided password is wrong or no `MyUser` exists by the provided `MyUserIdentifier`.
 
   Status code: 403 Forbidden.
   """
@@ -2091,6 +2106,25 @@ type CreateSessionOk {
 
 """Result of performing `Mutation.createSession`."""
 union CreateSessionResult = CreateSessionError | CreateSessionOk
+
+"""Error of performing `Mutation.createUser`."""
+type CreateUserError {
+  """Code indicating why this error has happened."""
+  code: CreateUserErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.createUser`."""
+enum CreateUserErrorCode {
+  """
+  Provided login is occupied by another `User` already.
+
+  Status code: 409 Conflict.
+  """
+  OCCUPIED
+}
+
+"""Result of performing `Mutation.createUser`."""
+union CreateUserResult = CreateSessionOk | CreateUserError
 
 """
 Area for an image cropping.
@@ -2305,15 +2339,137 @@ enum DeleteChatMessageErrorCode {
 """Result of performing `Mutation.deleteChatMessage`."""
 union DeleteChatMessageResult = ChatEventsVersioned | DeleteChatMessageError
 
-"""Possible error codes of performing `Mutation.deleteSession`."""
-enum DeleteSessionErrorCode {
+"""Error of performing `Mutation.deleteMyUser`."""
+type DeleteMyUserError {
+  """Code indicating why this error has happened."""
+  code: DeleteMyUserErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.deleteMyUser`."""
+enum DeleteMyUserErrorCode {
   """
-  Provided password is wrong.
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
 
   Status code: 403 Forbidden.
   """
   WRONG_PASSWORD
+
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """
+  CONFIRMATION_REQUIRED
 }
+
+"""Result of performing `Mutation.deleteMyUser`."""
+union DeleteMyUserResult = DeleteMyUserError | MyUserEventsVersioned
+
+"""Error of performing `Mutation.deleteSession`."""
+type DeleteSessionError {
+  """Code indicating why this error has happened."""
+  code: DeleteSessionErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.deleteSession`."""
+enum DeleteSessionErrorCode {
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_PASSWORD
+
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """
+  CONFIRMATION_REQUIRED
+}
+
+"""Result of performing `Mutation.deleteSession`."""
+union DeleteSessionResult = DeleteSessionError | SessionEventsVersioned
+
+"""Error of performing `Mutation.deleteUserEmail`."""
+type DeleteUserEmailError {
+  """Code indicating why this error has happened."""
+  code: DeleteUserEmailErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.deleteUserEmail`."""
+enum DeleteUserEmailErrorCode {
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_PASSWORD
+
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """
+  CONFIRMATION_REQUIRED
+}
+
+"""Result of performing `Mutation.deleteUserEmail`."""
+union DeleteUserEmailResult = DeleteUserEmailError | MyUserEventsVersioned
+
+"""Error of performing `Mutation.deleteUserPhone`."""
+type DeleteUserPhoneError {
+  """Code indicating why this error has happened."""
+  code: DeleteUserPhoneErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.deleteUserPhone`."""
+enum DeleteUserPhoneErrorCode {
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_PASSWORD
+
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """
+  CONFIRMATION_REQUIRED
+}
+
+"""Result of performing `Mutation.deleteUserPhone`."""
+union DeleteUserPhoneResult = DeleteUserPhoneError | MyUserEventsVersioned
 
 """Error of performing `Mutation.editChatMessage`."""
 type EditChatMessageError {
@@ -2716,15 +2872,17 @@ Event of a [Medea] room being ready to accept the connection with the
 authenticated `MyUser`.
 
 Client side should connect to [Medea] media server when this event is
-received. Use `EventChatCallRoomReady.joinLink` to reach the [Medea] media
+received. Use `EventChatCallRoomReady.joinLink` to reach [Medea] media
 server and the `ChatCallCredentials` (generated for
 `Mutation.startChatCall` or `Mutation.joinChatCall`) to authenticate.
 Otherwise, the authenticated `MyUser` will be kicked from the `ChatCall` by
 timeout.
 
 This event may be emitted multiple times during the same `Call`. Each time
-client side should reconnect to the [Medea] media server using the returned
-`EventChatCallRoomReady.joinLink`.
+client side should reconnect to [Medea] media server using the changed
+`EventChatCallRoomReady.joinLink`. If it hasn't changed, then the [Medea]
+room remains the same, and client side may continue use the already
+established connection.
 
 [Medea]: https://github.com/instrumetisto/medea
 """
@@ -2754,10 +2912,25 @@ type EventChatCallRoomReady implements ChatCallEvent {
   chatId: ChatId!
 
   """
-  Link for joining the room on [Medea] media server.
+  Link for joining the `ChatCall`'s room on [Medea] media server.
 
   Use `ChatCallCredentials` (generated for `Mutation.startChatCall` or
   `Mutation.joinChatCall`) to authenticate.
+
+  Should be used in conjunction with `ChatCallCredentials` (generated for
+  `Mutation.startChatCall` or `Mutation.joinChatCall`) to properly
+  authenticate on [Medea] media server.
+
+  Bound to the current device of the authenticated `MyUser`, meaning that
+  every device of the authenticated `MyUser` must obtain its own unique
+  `ChatCallRoomJoinLink` via separate `Subscription.chatCallEvents`.
+
+  If this value has changed during the same `Call`, it means that the
+  correspondent [Medea] room has been re-created, and so, client side
+  should reconnect o [Medea] media server using the changed
+  `ChatCallRoomJoinLink`. If it hasn't changed, then the [Medea] room
+  remains the same, and client side may continue use the already
+  established connection.
 
   [Medea]: https://github.com/instrumetisto/medea
   """
@@ -3206,6 +3379,45 @@ type EventRecentChatsTopChatUpdated {
   chat: RecentChatsEdge!
 }
 
+"""Event of a new `Session` being created."""
+type EventSessionCreated implements SessionEvent {
+  """`DateTime` when the `Session` was created."""
+  at: DateTime!
+
+  """ID of the created `Session`."""
+  id: SessionId!
+
+  """
+  Indicator whether the created `Session` is remembered and is allowed to
+  be refreshed via `Mutation.refreshSession`.
+  """
+  remembered: Boolean!
+
+  """`UserAgent` the `Session` was created by."""
+  userAgent: UserAgent!
+}
+
+"""Event of a `Session` being deleted."""
+type EventSessionDeleted implements SessionEvent {
+  """`DateTime` when the `Session` was deleted."""
+  at: DateTime!
+
+  """ID of the deleted `Session`."""
+  id: SessionId!
+}
+
+"""Event of a `Session` being refreshed."""
+type EventSessionRefreshed implements SessionEvent {
+  """`DateTime` when the `Session` was refreshed."""
+  at: DateTime!
+
+  """ID of the refreshed `Session`."""
+  id: SessionId!
+
+  """`UserAgent` the `Session` was refreshed by."""
+  userAgent: UserAgent!
+}
+
 """Event of a `UserAvatar` being deleted."""
 type EventUserAvatarDeleted implements UserEvent {
   """`DateTime` when the `UserAvatar` was deleted."""
@@ -3308,39 +3520,45 @@ type EventUserDirectLinkUpdated {
   userId: UserId!
 }
 
-"""Event of a `User`'s email address being added."""
+"""Event of a `User`'s `ChatDirectLink.usageCount` being updated."""
+type EventUserDirectLinkUsageCountUpdated {
+  """New `User`'s `ChatDirectLink.usageCount`."""
+  usageCount: Int!
+
+  """ID of the `User` whose `ChatDirectLink` was updated."""
+  userId: UserId!
+}
+
+"""Event of a new `UserEmail` address being added to `MyUser.emails`."""
 type EventUserEmailAdded {
-  """`DateTime` when the `User`'s email address was added."""
+  """`DateTime` when the `UserEmail` address was added."""
   at: DateTime!
 
-  """Added `UserEmail`."""
+  """
+  Indicator whether the added `UserEmail` address is `confirmed`.
+
+  If `true`, then the `UserEmail` address was added to the
+  `MyUser.emails.confirmed` ones, otherwise was set as the
+  `MyUser.emails.unconfirmed` one.
+  """
+  confirmed: Boolean!
+
+  """Added `UserEmail` address."""
   email: UserEmail!
 
-  """ID of the `User` whose email address was added."""
+  """ID of the `User` who added the `UserEmail` address."""
   userId: UserId!
 }
 
-"""Event of a `User`'s email address being confirmed."""
-type EventUserEmailConfirmed {
-  """`DateTime` when the `User`'s email address was confirmed."""
-  at: DateTime!
-
-  """Confirmed `UserEmail`."""
-  email: UserEmail!
-
-  """ID of the `User` whose email address was confirmed."""
-  userId: UserId!
-}
-
-"""Event of a `User`'s email address being deleted."""
+"""Event of a `UserEmail` address being deleted from `MyUser.emails`."""
 type EventUserEmailDeleted {
-  """`DateTime` when the `User`'s email address was deleted."""
+  """`DateTime` when the `UserEmail` address was deleted."""
   at: DateTime!
 
-  """Deleted `UserEmail`."""
+  """Deleted `UserEmail` address."""
   email: UserEmail!
 
-  """ID of the `User` whose email address was deleted."""
+  """ID of the `User` who removed his `UserEmail` address."""
   userId: UserId!
 }
 
@@ -3404,39 +3622,36 @@ type EventUserPasswordUpdated {
   userId: UserId!
 }
 
-"""Event of a `User`'s phone number being added."""
+"""Event of a new `UserPhone` number being added to `MyUser.phones`."""
 type EventUserPhoneAdded {
-  """`DateTime` when the `User`'s phone number was added."""
+  """`DateTime` when the `UserPhone` number was added."""
   at: DateTime!
 
-  """Added `UserPhone`."""
+  """
+  Indicator whether the added `UserPhone` number is `confirmed`.
+
+  If `true`, then the `UserPhone` number was added to the
+  `MyUser.phones.confirmed` ones, otherwise was set as the
+  `MyUser.phones.unconfirmed` one.
+  """
+  confirmed: Boolean!
+
+  """Added `UserPhone` number."""
   phone: UserPhone!
 
-  """ID of the `User` whose phone number was added."""
+  """ID of the `User` who added the `UserPhone` number."""
   userId: UserId!
 }
 
-"""Event of a `User`'s phone number being confirmed."""
-type EventUserPhoneConfirmed {
-  """`DateTime` when the `User`'s phone number was confirmed."""
-  at: DateTime!
-
-  """Confirmed `UserPhone`."""
-  phone: UserPhone!
-
-  """ID of the `User` whose phone number was confirmed."""
-  userId: UserId!
-}
-
-"""Event of a `User`'s phone number being deleted."""
+"""Event of a `UserPhone` number being deleted from `MyUser.phones`."""
 type EventUserPhoneDeleted {
-  """`DateTime` when the `User`'s phone number was deleted."""
+  """`DateTime` when the `UserPhone` number was deleted."""
   at: DateTime!
 
-  """Deleted `UserPhone`."""
+  """Deleted `UserPhone` number."""
   phone: UserPhone!
 
-  """ID of the `User` whose phone number was deleted."""
+  """ID of the `User` who removed his `UserPhone` number."""
   userId: UserId!
 }
 
@@ -3485,6 +3700,39 @@ type EventUserUnreadChatsCountUpdated {
   count: Int!
 
   """ID of the `User` whose unread `Chat`s count was updated."""
+  userId: UserId!
+}
+
+"""Event of a `WelcomeMessage` being deleted by its author."""
+type EventUserWelcomeMessageDeleted implements UserEvent {
+  """`DateTime` when the `WelcomeMessage` was deleted."""
+  at: DateTime!
+
+  """ID of the `User` whose `WelcomeMessage` was deleted."""
+  userId: UserId!
+}
+
+"""Event of a `WelcomeMessage` being updated by its author."""
+type EventUserWelcomeMessageUpdated implements UserEvent {
+  """`DateTime` when the `WelcomeMessage` was updated."""
+  at: DateTime!
+
+  """
+  Edited `WelcomeMessage.attachments`.
+
+  `null` means that the previous `WelcomeMessage.attachments` remain
+  unchanged.
+  """
+  attachments: ChangedChatMessageAttachments
+
+  """
+  Edited `WelcomeMessage.text`.
+
+  `null` means that the previous `WelcomeMessage.text` remains unchanged.
+  """
+  text: ChangedChatMessageText
+
+  """ID of the `User` whose `WelcomeMessage` was updated."""
   userId: UserId!
 }
 
@@ -3860,6 +4108,15 @@ enum ForwardChatItemsErrorCode {
   UNKNOWN_FORWARDED_ITEM
 
   """
+  The `User` who receives the `ChatForward` was deleted.
+
+  This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_USER
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
@@ -4094,6 +4351,14 @@ type IncomingChatCallsTop {
 union IncomingChatCallsTopEvents = EventIncomingChatCallsTopChatCallAdded | EventIncomingChatCallsTopChatCallRemoved | IncomingChatCallsTop | SubscriptionInitialized
 
 """
+Either an [IPv4] or [IPv6] address.
+
+[IPv4]: https://en.wikipedia.org/wiki/IPv4
+[IPv6]: https://en.wikipedia.org/wiki/IPv6
+"""
+scalar IP
+
+"""
 Information about some `User` being present in a `Query.blocklist` of the
 authenticated `MyUser`.
 """
@@ -4105,8 +4370,8 @@ type IsBlocked {
   """
   record: BlocklistRecord
 
-  """Version of the authenticated `MyUser`'s state."""
-  ver: MyUserVersion!
+  """Version of the authenticated `MyUser`'s `Blocklist`."""
+  ver: BlocklistVersion!
 }
 
 """Error of performing `Mutation.joinChatCall`."""
@@ -4221,15 +4486,28 @@ type Mutation {
   """
   Adds a new `email` address for the authenticated `MyUser`.
 
-  Sets the given `email` address as an `unconfirmed` sub-field of a
-  `MyUser.emails` field and sends to this address an email message with a
-  `ConfirmationCode`. Once the `MyUser` successfully uses this
-  `ConfirmationCode` in a `Mutation.confirmUserEmail`, the `email` address
-  becomes a confirmed one and moves to `MyUser.emails.confirmed` sub-field
-  unlocking the related capabilities.
+  Sets the provided `email` address as the `MyUser.emails.unconfirmed`
+  field and sends to this address an email message with a new
+  `ConfirmationCode`. If the sent `ConfirmationCode` is provided as the
+  `confirmation` argument, then moves the provided `email` address to the
+  `MyUser.emails.confirmed` field, unlocking the related capabilities.
+
+  To resend a new `ConfirmationCode` to the provided `email` address, just
+  call this mutation again with the same arguments, or use the
+  `Mutation.createConfirmationCode` with this `email` address provided.
 
   `MyUser` can have maximum one `MyUser.emails.unconfirmed` address at the
   same time.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
+
+  ## Localization
+
+  You may provide the preferred locale via the
+  [`Accept-Language` HTTP header][3], which will localize the sent email
+  message with a new `ConfirmationCode` using the [best match][4] of the
+  supported locales.
 
   ## Authentication
 
@@ -4243,10 +4521,26 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the provided `email`
-  is already present in a `MyUser.emails` field (either in `confirmed` or
-  `unconfirmed` sub-field).
+  address is already present in a `MyUser.emails` field (either in
+  `confirmed` or `unconfirmed` sub-field).
+
+  However, always sends a new `ConfirmationCode` to the provided `email`
+  address if the `confirmation` argument is not provided, and always uses
+  the provided `ConfirmationCode` otherwise, disallowing to use it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
+  [3]: https://developer.mozilla.org/docs/Web/HTTP/Headers/Accept-Language
+  [4]: https://www.ietf.org/rfc/rfc4647.html#section-3.3
   """
   addUserEmail(
+    """
+    Single-use `ConfirmationCode` confirming ownership of the added `email` address for the authenticated `MyUser`.
+
+    If absent or `null` then the `email` address is added as an `unconfirmed`
+    and a new `ConfirmationCode` is sent to this address.
+    """
+    confirmation: ConfirmationCode
+
     """Email address to add to `MyUser.emails`."""
     email: UserEmail!
   ): AddUserEmailResult
@@ -4254,15 +4548,28 @@ type Mutation {
   """
   Adds a new `phone` number for the authenticated `MyUser`.
 
-  Sets the given `phone` number as an `unconfirmed` sub-field of a
-  `MyUser.phones` field and sends to this number SMS with a
-  `ConfirmationCode`. Once the `MyUser` successfully uses this
-  `ConfirmationCode` in a `Mutation.confirmUserPhone`, the `phone` number
-  becomes a confirmed one and moves to `MyUser.phones.confirmed` sub-field
-  unlocking the related capabilities.
+  Sets the provided `phone` number as the `MyUser.phones.unconfirmed`
+  field and sends to this number an SMS with a new `ConfirmationCode`.
+  If the sent `ConfirmationCode` is provided as the `confirmation`
+  argument, then moves the provided `phone` number to the
+  `MyUser.phones.confirmed` field, unlocking the related capabilities.
 
-  `MyUser` can have maximum one `MyUser.phone.unconfirmed` number at the
+  To resend a new `ConfirmationCode` to the provided `phone` number, just
+  call this mutation again with the same arguments, or use the
+  `Mutation.createConfirmationCode` with this `phone` number provided.
+
+  `MyUser` can have maximum one `MyUser.phones.unconfirmed` number at the
   same time.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
+
+  ## Localization
+
+  You may provide the preferred locale via the
+  [`Accept-Language` HTTP header][3], which will localize the sent SMS
+  with a new `ConfirmationCode` using the [best match][4] of the supported
+  locales.
 
   ## Authentication
 
@@ -4276,13 +4583,29 @@ type Mutation {
   ## Idempotent
 
   Succeeds as no-op (and returns no `MyUserEvent`) if the provided `phone`
-  already is present in a `MyUser.phones` field (either in `confirmed` or
-  `unconfirmed` sub-field).
+  number is already present in a `MyUser.phones` field (either in
+  `confirmed` or `unconfirmed` sub-field).
+
+  However, always sends a new `ConfirmationCode` to the provided `phone`
+  number if the `confirmation` argument is not provided, and always uses
+  the provided `ConfirmationCode` otherwise, disallowing to use it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
+  [3]: https://developer.mozilla.org/docs/Web/HTTP/Headers/Accept-Language
+  [4]: https://www.ietf.org/rfc/rfc4647.html#section-3.3
   """
   addUserPhone(
+    """
+    Single-use `ConfirmationCode` confirming ownership of the added `phone` number for the authenticated `MyUser`.
+
+    If absent or `null` then the `phone` number is added as an `unconfirmed` and
+    a new `ConfirmationCode` is sent to this number.
+    """
+    confirmation: ConfirmationCode
+
     """Phone number to add to `MyUser.phones`."""
     phone: UserPhone!
-  ): AddUserPhoneResult
+  ): AddUserPhoneResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Blocks the specified `User` for the authenticated `MyUser`.
@@ -4342,54 +4665,6 @@ type Mutation {
   ): ClearChatResult
 
   """
-  Confirms the `MyUser.emails.unconfirmed` address with the provided
-  `ConfirmationCode` for the authenticated `MyUser`, and moves it to the
-  `MyUser.emails.confirmed` sub-field unlocking the related capabilities.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` is always produced on success:
-  - `EventUserEmailConfirmed`.
-
-  ## Non-idempotent
-
-  Errors with `WRONG_CODE` if the provided `ConfirmationCode` has been
-  used already.
-  """
-  confirmUserEmail(
-    """Email address `ConfirmationCode`."""
-    code: ConfirmationCode!
-  ): ConfirmUserEmailResult!
-
-  """
-  Confirms the `MyUser.phones.unconfirmed` number with the provided
-  `ConfirmationCode` for the authenticated `MyUser`, and moves it to the
-  `MyUser.phones.confirmed` sub-field unlocking the related capabilities.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Only the following `MyUserEvent` is always produced on success:
-  - `EventUserPhoneConfirmed`.
-
-  ## Non-idempotent
-
-  Errors with `WRONG_CODE` if the provided `ConfirmationCode` has been
-  used already.
-  """
-  confirmUserPhone(
-    """Phone number `ConfirmationCode`."""
-    code: ConfirmationCode!
-  ): ConfirmUserPhoneResult!
-
-  """
   Creates a new `ChatContact` in the authenticated `MyUser`'s address
   book.
 
@@ -4422,7 +4697,7 @@ type Mutation {
     Optional `ChatContactRecord`s to create and attach to the created `ChatContact`.
     """
     records: [ChatContactRecord!] = []
-  ): CreateChatContactResult!
+  ): CreateChatContactResult! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Creates a new `ChatContactRecord` in the specified `ChatContact` of the
@@ -4451,7 +4726,7 @@ type Mutation {
 
     """`ChatContactRecord` to create."""
     record: ChatContactRecord!
-  ): CreateChatContactRecordResult
+  ): CreateChatContactRecordResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Creates new multiple `ChatContactRecord`s in the specified `ChatContact`
@@ -4482,7 +4757,7 @@ type Mutation {
 
     """`ChatContactRecord`s to create."""
     records: [ChatContactRecord!]!
-  ): CreateChatContactRecordsResult
+  ): CreateChatContactRecordsResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Creates a new `ChatDirectLink` with the specified `ChatDirectLinkSlug`
@@ -4500,7 +4775,7 @@ type Mutation {
 
   Only the following `ChatEvent`/`MyUserEvent` may be produced on success:
   - `EventChatDirectLinkCreated` (if `group_id` argument is not `null`);
-  - `EventUserDirectLinkCreated` (if `group_id` argument is `null`);.
+  - `EventUserDirectLinkCreated` (if `group_id` argument is `null`).
 
   ## Idempotent
 
@@ -4519,6 +4794,55 @@ type Mutation {
     """Slug to create the `ChatDirectLink` with."""
     slug: ChatDirectLinkSlug!
   ): CreateChatDirectLinkResult
+
+  """
+  Generates and sends a new single-use `ConfirmationCode` for the `MyUser`
+  identified by the provided `MyUserIdentifier`.
+
+  If the concrete `MyUserIdentifier.email` address or
+  `MyUserIdentifier.phone` number is provided, then sends the generated
+  `ConfirmationCode` only there. Otherwise, if a `MyUserIdentifier.num` or
+  a `MyUserIdentifier.login` is provided, then sends the generated
+  `ConfirmationCode`s to all the possessed `MyUser.emails.confirmed` and
+  `MyUser.phones.confirmed`.
+
+  If the `MyUser` has no password yet, then this mutation still may be
+  used for recovering his sign-in capability.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
+
+  ## Localization
+
+  You may provide the preferred locale via the
+  [`Accept-Language` HTTP header][3], which will localize the sent email
+  messages (or SMS) with the generated `ConfirmationCode` using the
+  [best match][4] of the supported locales.
+
+  ## Authentication
+
+  None.
+
+  ## Result
+
+  Always returns `true` on success.
+
+  ## Non-idempotent
+
+  Each time generates and sends a new unique `ConfirmationCode`.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
+  [3]: https://developer.mozilla.org/docs/Web/HTTP/Headers/Accept-Language
+  [4]: https://www.ietf.org/rfc/rfc4647.html#section-3.3
+  """
+  createConfirmationCode(
+    """
+    `MyUserIdentifier` of the `MyUser` to generate and send a new `ConfirmationCode` for.
+
+    Exactly one of fourth should be specified.
+    """
+    ident: MyUserIdentifier!
+  ): Boolean!
 
   """
   Creates a `Chat`-dialog with the provided responder `User` for the
@@ -4584,15 +4908,24 @@ type Mutation {
 
   """
   Creates a new `Session` for the `MyUser` identified by the provided
-  `num`/`login`/`email` (exactly one of three should be specified).
+  `MyUserIdentifier`.
 
   Represents a sign-in action.
 
   `AccessToken` of the created `Session` may be prolonged via
   `Mutation.refreshSession`.
 
-  [`User-Agent` HTTP header][0] must be specified for this action and meet
-  the `UserAgent` scalar format.
+  If the provided `MyUserIdentifier.email` address (or
+  `MyUserIdentifier.phone` number) is not occupied by any existing
+  `MyUser` yet, then, along with provided `MyUserCredentials.code`,
+  creates a new `MyUser` with the authenticated `UserEmail` address (or
+  `UserPhone` number) being assigned to him. This means, that there is no
+  difference between sing-in and sign-up actions in this mutation when a
+  `UserEmail` address (or `UserPhone` number) is used in combination with
+  a `ConfirmationCode`.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -4602,23 +4935,21 @@ type Mutation {
 
   Each time creates a new `Session`.
 
+  Additionally, always uses the provided `ConfirmationCode`, disallowing
+  to use it again.
+
   [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
   createSession(
-    """Email address of `MyUser` to create the `Session` for."""
-    email: UserEmail
+    """`MyUserCredentials` to authenticate with."""
+    credentials: MyUserCredentials!
 
-    """Login of `MyUser` to create the `Session` for."""
-    login: UserLogin
+    """
+    `MyUserIdentifier` of the `MyUser` to create the `Session` for.
 
-    """Number of `MyUser` to create the `Session` for."""
-    num: UserNum
-
-    """Password of `MyUser` to authenticate with."""
-    password: UserPassword!
-
-    """Phone number of `MyUser` to create the `Session` for."""
-    phone: UserPhone
+    Exactly one of fourth should be specified.
+    """
+    ident: MyUserIdentifier!
   ): CreateSessionResult!
 
   """
@@ -4629,11 +4960,12 @@ type Mutation {
   `Mutation.refreshSession`.
 
   Once the created `Session` expires and cannot be refreshed, the created
-  `MyUser` looses its access, if he doesn't provide a password via
-  `Mutation.updateUserPassword` within that period of time.
+  `MyUser` looses its access, if he doesn't provide the `password`
+  argument now or sets it later via `Mutation.updateUserPassword` within
+  that period of time.
 
-  [`User-Agent` HTTP header][0] must be specified for this action and meet
-  the `UserAgent` scalar format.
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -4645,7 +4977,13 @@ type Mutation {
 
   [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  createUser: CreateSessionOk!
+  createUser(
+    """Optional login to create the `MyUser` with."""
+    login: UserLogin
+
+    """Optional password to create the `MyUser` with."""
+    password: UserPassword
+  ): CreateUserResult!
 
   """
   Declines the ongoing `ChatCall` in the specified `Chat` by the
@@ -4696,7 +5034,7 @@ type Mutation {
   deleteChatContact(
     """ID of the `ChatContact` to delete."""
     id: ChatContactId!
-  ): ChatContactEventsVersioned
+  ): ChatContactEventsVersioned @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Removes the specified `ChatContactRecord` from the specified
@@ -4725,7 +5063,7 @@ type Mutation {
 
     """`ChatContactRecord` to remove."""
     record: ChatContactRecord!
-  ): DeleteChatContactRecordResult
+  ): DeleteChatContactRecordResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Deletes the current `ChatDirectLink` of the given `Chat`-group or the
@@ -4825,56 +5163,99 @@ type Mutation {
 
   Also deletes all the `Session`s of the authenticated `MyUser`.
 
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
+
   ## Authentication
 
   Mandatory.
 
   ## Result
 
-  Only the following `MyUserEvent` is always produced on success:
+  Only the following `MyUserEvent` may be produced on success:
   - `EventUserDeleted`.
-
-  ## Non-idempotent
-
-  Once deleted `MyUser` cannot be deleted again.
-  """
-  deleteMyUser: MyUserEventsVersioned!
-
-  """
-  Destroys the specified `Session` of the authenticated `MyUser`, or the
-  current one (if its `id` is not specified).
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Always returns `null` on success.
 
   ## Idempotent
 
-  Succeeds as no-op if the specified `Session` has been deleted already.
+  Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
+  `MyUser` has been deleted already.
+
+  However, always uses the provided `ConfirmationCode`, disallowing to use
+  it again.
+
+  Also, beware that short after the deletion all the `Session`s of the
+  authenticated `MyUser` will be deleted.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
+  """
+  deleteMyUser(
+    """
+    `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
+
+    May be absent or `null` if the deleted `MyUser` doesn't have its
+    `UserPassword` set or any means to send a `ConfirmationCode` to.
+    """
+    confirmation: MyUserCredentials
+  ): DeleteMyUserResult
+
+  """
+  Destroys the specified `Session` of the authenticated `MyUser`, or the
+  current one (if the `id` argument is not provided).
+
+  If the `id` argument is provided, then the `confirmation` argument is
+  mandatory, unless the authenticated `MyUser` has no means for it (has
+  neither `MyUser.hasPassword`, nor
+  `MyUser.emails.confirmed`/`MyUser.phones.confirmed`).
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Only the following `SessionEvent` may be produced on success:
+  - `EventSessionDeleted`.
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `SessionEvent`) if the specified
+  `Session` has been deleted already.
+
+  However, always uses the provided `ConfirmationCode`, disallowing to use
+  it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
   deleteSession(
     """
+    `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
+
+    Only makes sense if the `id` argument is provided.
+    """
+    confirmation: MyUserCredentials
+
+    """
     ID of the `Session` to destroy.
 
-    Only makes sense if the `password` is provided.
+    Only makes sense if the `confirmation` argument is provided.
     """
     id: SessionId
-
-    """
-    Password of `MyUser` to confirm the `Session` destroying with.
-
-    Only makes sense if the `id` is provided.
-    """
-    password: UserPassword
-  ): DeleteSessionErrorCode
+  ): DeleteSessionResult
 
   """
   Deletes the provided `email` address from the `MyUser.emails` field of
   the authenticated `MyUser`.
+
+  If the provided `email` address is still `unconfirmed`, then the
+  `confirmation` argument is not required. Otherwise, it's mandatory to
+  authenticate this operation additionally by providing the `confirmation`
+  argument.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -4890,15 +5271,35 @@ type Mutation {
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
   `MyUser` doesn't have the provided `email` in his `MyUser.emails`
   already.
+
+  However, always uses the provided `ConfirmationCode`, disallowing to use
+  it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
   deleteUserEmail(
+    """
+    `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
+
+    May be absent or `null` if the deleted `UserEmail` address is still `unconfirmed`.
+    """
+    confirmation: MyUserCredentials
+
     """`UserEmail` address to delete from `MyUser.emails`."""
     email: UserEmail!
-  ): MyUserEventsVersioned
+  ): DeleteUserEmailResult
 
   """
   Deletes the provided `phone` number from the `MyUser.phones` field of
   the authenticated `MyUser`.
+
+  If the provided `phone` number is still `unconfirmed`, then the
+  `confirmation` argument is not required. Otherwise, it's mandatory to
+  authenticate this operation additionally by providing the `confirmation`
+  argument.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -4914,11 +5315,23 @@ type Mutation {
   Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
   `MyUser` doesn't have the provided `phone` in his `MyUser.phones`
   already.
+
+  However, always uses the provided `ConfirmationCode`, disallowing to use
+  it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
   deleteUserPhone(
+    """
+    `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
+
+    May be absent or `null` if the deleted `UserPhone` number is still `unconfirmed`.
+    """
+    confirmation: MyUserCredentials
+
     """`UserPhone` number to delete from `MyUser.phones`."""
     phone: UserPhone!
-  ): MyUserEventsVersioned
+  ): DeleteUserPhoneResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Edits a `ChatMessage` by the authenticated `MyUser` with the provided
@@ -5044,7 +5457,7 @@ type Mutation {
 
     """Position of the `ChatContact` in a favorites list."""
     pos: ChatContactFavoritePosition!
-  ): FavoriteChatContactResult
+  ): FavoriteChatContactResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Forwards `ChatItem`s to the specified `Chat` by the authenticated
@@ -5357,46 +5770,6 @@ type Mutation {
   ): ReadChatResult
 
   """
-  Initiates password recovery for the `MyUser` identified by the provided
-  `num`/`login`/`email`/`phone` (exactly one of fourth should be
-  specified).
-
-  Sends a recovery `ConfirmationCode` to the `MyUser`'s `email` addresses
-  and `phone` numbers.
-
-  If the `MyUser` has no password yet, then this mutation still may be
-  used for recovering his sign-in capability.
-
-  The number of generated `ConfirmationCode`s is limited up to 10 per 1
-  hour.
-
-  ## Authentication
-
-  None.
-
-  ## Result
-
-  Always returns `true` on success.
-
-  ## Non-idempotent
-
-  Each time sends a new unique password recovery `ConfirmationCode`.
-  """
-  recoverUserPassword(
-    """Email address of `MyUser`."""
-    email: UserEmail
-
-    """Login of `MyUser`."""
-    login: UserLogin
-
-    """Number of `MyUser`."""
-    num: UserNum
-
-    """Phone number of `MyUser`."""
-    phone: UserPhone
-  ): Boolean!
-
-  """
   Redials a `ChatMember` who left or declined the ongoing `ChatCall` in
   the specified `Chat`-group by the authenticated `MyUser`.
 
@@ -5456,8 +5829,8 @@ type Mutation {
   `Session` cannot be either refreshed or accessed anymore. To create a
   new `Session` use the `Mutation.createSession`.
 
-  [`User-Agent` HTTP header][0] must be specified for this action and meet
-  the `UserAgent` scalar format.
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -5620,103 +5993,6 @@ type Mutation {
   ): RenameChatResult
 
   """
-  Resends a new `ConfirmationCode` to the `MyUser.emails.unconfirmed`
-  address of the authenticated `MyUser`.
-
-  Once the authenticated `MyUser` successfully uses this
-  `ConfirmationCode` in the `Mutation.confirmUserEmail`, the given `email`
-  address moves to the `MyUser.emails.confirmed` sub-field unlocking the
-  related capabilities.
-
-  The number of generated `ConfirmationCode`s is limited up to 10 per 1
-  hour.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Always returns `null` on success.
-
-  ## Non-idempotent
-
-  Each time generates a new `ConfirmationCode`.
-  """
-  resendUserEmailConfirmation: ResendUserEmailConfirmationErrorCode
-
-  """
-  Resends a new `ConfirmationCode` to the `MyUser.phones.unconfirmed`
-  number of the authenticated `MyUser`.
-
-  Once the authenticated `MyUser` successfully uses this
-  `ConfirmationCode` in the `Mutation.confirmUserPhone`, the given `phone`
-  number moves to the `MyUser.phones.confirmed` sub-field unlocking the
-  related capabilities.
-
-  The number of generated `ConfirmationCode`s is limited up to 10 per 1
-  hour.
-
-  ## Authentication
-
-  Mandatory.
-
-  ## Result
-
-  Always returns `null` on success.
-
-  ## Non-idempotent
-
-  Each time generates a new `ConfirmationCode`.
-  """
-  resendUserPhoneConfirmation: ResendUserPhoneConfirmationErrorCode
-
-  """
-  Resets password for the `MyUser` identified by the provided
-  `num`/`login`/`email`/`phone` (exactly one of fourth should be
-  specified), authenticating the mutation with the provided recovery
-  `ConfirmationCode`.
-
-  If the `MyUser` has no password yet, then `new_password` will be his
-  first password unlocking the sign-in capability.
-
-  ## Authentication
-
-  None.
-
-  ## Result
-
-  Only the following `MyUserEvent` is always produced on success:
-  - `EventUserPasswordUpdated`.
-
-  ## Non-idempotent
-
-  Errors with `WRONG_CODE` if the provided `ConfirmationCode` was used
-  already.
-  """
-  resetUserPassword(
-    """
-    Recovery `ConfirmationCode` for `MyUser` identification and mutation authentication.
-    """
-    code: ConfirmationCode!
-
-    """Email address of `MyUser`."""
-    email: UserEmail
-
-    """Login of `MyUser`."""
-    login: UserLogin
-
-    """Password to update `MyUser` with."""
-    newPassword: UserPassword!
-
-    """Number of `MyUser`."""
-    num: UserNum
-
-    """Phone number of `MyUser`."""
-    phone: UserPhone
-  ): ResetUserPasswordResult!
-
-  """
   Starts a new `ChatCall` in the specified `Chat` by the authenticated
   `MyUser`.
 
@@ -5861,7 +6137,7 @@ type Mutation {
 
   ## Result
 
-  One of the following `ChatEvent` may be produced on success:
+  One of the following `ChatEvent`s may be produced on success:
   - `EventChatMuted` (if `until` argument is not `null`);
   - `EventChatUnmuted` (if `until` argument is `null`).
 
@@ -5905,7 +6181,7 @@ type Mutation {
 
   ## Result
 
-  One of the following `MyUserEvent` may be produced on success:
+  One of the following `MyUserEvent`s may be produced on success:
   - `EventUserMuted` (if `mute` argument is not `null`);
   - `EventUserUnmuted` (if `mute` argument is `null`).
 
@@ -6038,7 +6314,7 @@ type Mutation {
   unfavoriteChatContact(
     """ID of the `ChatContact` to remove from the favorites list."""
     id: ChatContactId!
-  ): UnfavoriteChatContactResult
+  ): UnfavoriteChatContactResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Unregisters a device (Android, iOS, or Web) from receiving notifications
@@ -6061,7 +6337,7 @@ type Mutation {
   unregisterFcmDevice(
     """Registration token of the device to unregister."""
     token: FcmRegistrationToken!
-  ): Boolean!
+  ): UnregisterFcmDeviceErrorCode
 
   """
   Updates the `Chat.avatar` field with the provided image, or resets it to
@@ -6138,7 +6414,7 @@ type Mutation {
 
     """Name to update the `ChatContact` with."""
     name: UserName!
-  ): UpdateChatContactNameResult
+  ): UpdateChatContactNameResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Updates or resets the `MyUser.avatar` field with the provided image
@@ -6205,7 +6481,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserBioUpdated` (if the `bio` argument is specified);
-  - `EventUserBioDeleted` (if the `bio` argument is absent or is `null`).
+  - `EventUserBioDeleted` (if the `bio` argument is absent or `null`).
 
   ## Idempotent
 
@@ -6216,7 +6492,7 @@ type Mutation {
     """
     Bio to update the authenticated `MyUser` with.
 
-    If absent or is `null` then the `MyUser.bio` field will be reset.
+    If absent or `null` then the `MyUser.bio` field will be reset.
     """
     bio: UserBio
   ): MyUserEventsVersioned
@@ -6287,7 +6563,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserLoginUpdated` (if `login` argument is specified);
-  - `EventUserLoginDeleted` (if `login` argument is absent or is `null`).
+  - `EventUserLoginDeleted` (if `login` argument is absent or `null`).
 
   ## Idempotent
 
@@ -6298,7 +6574,7 @@ type Mutation {
     """
     Login to update `MyUser` with.
 
-    If absent or is `null` then the `MyUser.login` field will be reset.
+    If absent or `null` then the `MyUser.login` field will be reset.
     """
     login: UserLogin
   ): UpdateUserLoginResult
@@ -6314,7 +6590,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserNameUpdated` (if `name` argument is specified);
-  - `EventUserNameDeleted` (if `name` argument is absent or is `null`).
+  - `EventUserNameDeleted` (if `name` argument is absent or `null`).
 
   ## Idempotent
 
@@ -6325,21 +6601,40 @@ type Mutation {
     """
     Name to update `MyUser` with.
 
-    If absent or is `null` then the `MyUser.name` field will be reset.
+    If absent or `null` then the `MyUser.name` field will be reset.
     """
     name: UserName
   ): MyUserEventsVersioned
 
   """
-  Updates password of the authenticated `MyUser`.
+  Updates or resets password of the authenticated `MyUser` or the one
+  identified by the provided `MyUserIdentifier`.
 
-  If the authenticated `MyUser` has no password yet (when sets his
-  password), then `old` password is not required. Otherwise (when changes
-  his password), it's mandatory to specify the `old` one.
+  If the `MyUser` has no password yet, then the `confirmation` argument is
+  not required. Otherwise, it's mandatory to authenticate this operation
+  additionally by providing the `confirmation` argument.
+
+  This mutation can be used for both changing the `MyUser`'s password and
+  recovering it. Use the `Mutation.createConfirmationCode` to create a new
+  `ConfirmationCode` for authenticating the password recovery, and provide
+  it as the `confirmation` argument along with the `ident` argument to
+  this mutation.
+
+  If the concrete `MyUserIdentifier.email` address or
+  `MyUserIdentifier.phone` number is provided, then the provided
+  `ConfirmationCode` is validated against it exclusively, meaning that
+  providing `ConfirmationCode`s sent to any other
+  `MyUser.emails.confirmed` or `MyUser.phones.confirmed` is invalid.
+  Otherwise, if a `MyUserIdentifier.num` or a `MyUserIdentifier.login` is
+  provided, then a `ConfirmationCode` sent to any of
+  `MyUser.emails.confirmed` or `MyUser.phones.confirmed` is suitable.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
-  Mandatory.
+  Mandatory if the `ident` argument is absent or `null`.
 
   ## Result
 
@@ -6350,13 +6645,31 @@ type Mutation {
 
   Each time renews the password (recalculates hash) even if it's the same
   one.
+
+  Additionally, always uses the provided `ConfirmationCode`, disallowing
+  to use it again.
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
   updateUserPassword(
-    """Password to update `MyUser` with."""
-    new: UserPassword!
+    """
+    `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
 
-    """Current password of `MyUser` for mutation authentication (if exists)."""
-    old: UserPassword
+    May be absent or `null` if the `MyUser` has no password yet.
+    """
+    confirmation: MyUserCredentials
+
+    """
+    `MyUserIdentifier` of the `MyUser` to reset password of.
+
+    Exactly one of fourth should be specified.
+
+    Mandatory when there is no authentication.
+    """
+    ident: MyUserIdentifier
+
+    """New password to update the `MyUser` with."""
+    new: UserPassword!
   ): UpdateUserPasswordResult!
 
   """
@@ -6393,7 +6706,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserStatusUpdated` (if `text` argument is specified);
-  - `EventUserStatusDeleted` (if `text` argument is absent or is `null`).
+  - `EventUserStatusDeleted` (if `text` argument is absent or `null`).
 
   ## Idempotent
 
@@ -6404,10 +6717,48 @@ type Mutation {
     """
     `UserTextStatus` to update `MyUser` with.
 
-    If absent or is `null` then the `MyUser.status` field will be reset.
+    If absent or `null` then the `MyUser.status` field will be reset.
     """
     text: UserTextStatus
   ): MyUserEventsVersioned
+
+  """
+  Updates the `WelcomeMessage` of the authenticated `MyUser`.
+
+  For the `WelcomeMessage` to be meaningful, at least one of the
+  `content.text` or `content.attachments` arguments must be specified and
+  non-empty.
+
+  To attach some `Attachment`s to the `WelcomeMessage`, first, they should
+  be uploaded with `Mutation.uploadAttachment`, and only then, the
+  returned `Attachment.id`s may be used as the `content.attachments`
+  argument of this mutation.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  One of the following `MyUserEvent`s may be produced on success:
+  - `EventUserWelcomeMessageUpdated` (if `content` argument is specified);
+  - `EventUserWelcomeMessageDeleted` (if `content` argument is absent or
+    `null`).
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `MyUserEvent`) if the authenticated
+  `MyUser`'s `WelcomeMessage` already has the specified `content.text` and
+  `content.attachments` in the same order.
+  """
+  updateWelcomeMessage(
+    """
+    Content to update the `WelcomeMessage` with.
+
+    If absent or `null` then the `MyUser.welcomeMessage` field will be reset.
+    """
+    content: WelcomeMessageInput
+  ): UpdateWelcomeMessageResult
 
   """
   Creates a new `Attachment` linked to the authenticated `MyUser` for a
@@ -6477,9 +6828,20 @@ type Mutation {
   ): UseChatDirectLinkResult!
 
   """
-  Validates the provided password recovery `ConfirmationCode` for the
-  `MyUser` identified by the provided `num`/`login`/`email`/`phone`
-  (exactly one of fourth should be specified).
+  Validates the provided `ConfirmationCode` for the `MyUser` identified by
+  the provided `MyUserIdentifier` without using it.
+
+  If the concrete `MyUserIdentifier.email` address or
+  `MyUserIdentifier.phone` number is provided, then the provided
+  `ConfirmationCode` is validated against it exclusively, meaning that
+  providing `ConfirmationCode`s sent to any other
+  `MyUser.emails.confirmed` or `MyUser.phones.confirmed` is invalid.
+  Otherwise, if a `MyUserIdentifier.num` or a `MyUserIdentifier.login` is
+  provided, then a `ConfirmationCode` sent to any of
+  `MyUser.emails.confirmed` or `MyUser.phones.confirmed` is suitable.
+
+  [`User-Agent` HTTP header][0] must be specified for this mutation and
+  meet the `UserAgent` scalar format.
 
   ## Authentication
 
@@ -6492,23 +6854,20 @@ type Mutation {
   ## Idempotent
 
   `ConfirmationCode` can be validated unlimited number of times (for now).
+
+  [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  validateUserPasswordRecoveryCode(
-    """Recovery `ConfirmationCode` to validate."""
+  validateConfirmationCode(
+    """`ConfirmationCode` to be validated."""
     code: ConfirmationCode!
 
-    """Email address of `MyUser`."""
-    email: UserEmail
+    """
+    `MyUserIdentifier` of the `MyUser` to validate the provided `ConfirmationCode` for.
 
-    """Login of `MyUser`."""
-    login: UserLogin
-
-    """Number of `MyUser`."""
-    num: UserNum
-
-    """Phone number of `MyUser`."""
-    phone: UserPhone
-  ): ValidateUserPasswordRecoveryErrorCode
+    Exactly one of fourth should be specified.
+    """
+    ident: MyUserIdentifier!
+  ): ValidateConfirmationCodeErrorCode
 }
 
 """Mute duration of a `Chat` or the authenticated `MyUser`."""
@@ -6565,6 +6924,8 @@ type MyUser {
   """
   Returns `User`s blocked by this `MyUser` as `BlocklistRecord`s.
 
+  Alias of `Query.blocklist`.
+
   ## Sorting
 
   Returned `User`s are sorted primarily by their blocking `DateTime`, and
@@ -6585,6 +6946,15 @@ type MyUser {
 
   If no arguments are provided, then `first` parameter will be considered
   as `50`.
+
+  ## Versioning
+
+  Returned `BlocklistConnection` is versioned by its own
+  `BlocklistVersion` and not by the `MyUserVersion` of this `MyUser`.
+
+  Use `Subscription.blocklistEvents` instead of
+  `Subscription.myUserEvents` to be up-to-date with the returned
+  `BlocklistConnection` changes.
   """
   blocklist(
     """
@@ -6615,7 +6985,7 @@ type MyUser {
   """`ChatDirectLink` to the `Chat` with this `MyUser`."""
   chatDirectLink: ChatDirectLink
 
-  """List of email addresses of this `MyUser`."""
+  """List of `UserEmail` addresses of this `MyUser`."""
   emails: UserEmails!
 
   """
@@ -6688,8 +7058,8 @@ type MyUser {
   """
   online: UserOnlineState!
 
-  """List of phone numbers of this `MyUser`."""
-  phones: UserPhones!
+  """List of `UserPhone` numbers of this `MyUser`."""
+  phones: UserPhones! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """`Presence` of this `MyUser`."""
   presence: Presence!
@@ -6707,10 +7077,30 @@ type MyUser {
   tracking state's actuality.
   """
   ver: MyUserVersion!
+
+  """`WelcomeMessage` of this `MyUser`."""
+  welcomeMessage: WelcomeMessage
+}
+
+"""
+Possible credentials for authentication of a `MyUser`.
+
+Exactly one should be specified.
+"""
+input MyUserCredentials {
+  """
+  Single-use `ConfirmationCode` generated by the `MyUser`.
+
+  Use the `Mutation.createConfirmationCode` to create and send a new one.
+  """
+  code: ConfirmationCode
+
+  """Current password of the `MyUser`."""
+  password: UserPassword
 }
 
 """Events happening with `MyUser`."""
-union MyUserEvent = EventBlocklistRecordAdded | EventBlocklistRecordRemoved | EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserEmailAdded | EventUserEmailConfirmed | EventUserEmailDeleted | EventUserLoginDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneConfirmed | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated
+union MyUserEvent = EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserCameOffline | EventUserCameOnline | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserDirectLinkUsageCountUpdated | EventUserEmailAdded | EventUserEmailDeleted | EventUserLoginDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated | EventUserWelcomeMessageDeleted | EventUserWelcomeMessageUpdated
 
 """Events emitted by `Subscription.myUserEvents`."""
 union MyUserEvents = MyUser | MyUserEventsVersioned | SubscriptionInitialized
@@ -6734,6 +7124,25 @@ type MyUserEventsVersioned {
   tracking state's actuality.
   """
   ver: MyUserVersion!
+}
+
+"""
+Possible identifiers of a `MyUser`.
+
+Exactly one of fourth should be specified.
+"""
+input MyUserIdentifier {
+  """Unique `UserEmail` address identifying the `MyUser`."""
+  email: UserEmail
+
+  """Unique `UserLogin` identifying the `MyUser`."""
+  login: UserLogin
+
+  """Unique `UserNum` identifying the `MyUser`."""
+  num: UserNum
+
+  """Unique `UserPhone` number identifying the `MyUser`."""
+  phone: UserPhone
 }
 
 """
@@ -6931,6 +7340,15 @@ enum PostChatMessageErrorCode {
   UNKNOWN_REPLYING_CHAT_ITEM
 
   """
+  The `User` who receives the `ChatMessage` was deleted.
+
+  This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_USER
+
+  """
   `Chat` with the provided ID doesn't exist.
 
   Status code: 404 Not Found.
@@ -7031,7 +7449,7 @@ type Query {
   chatContact(
     """ID of the `ChatContact` to be returned."""
     id: ChatContactId!
-  ): ChatContact
+  ): ChatContact @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns address book of the authenticated `MyUser` ordered
@@ -7085,7 +7503,7 @@ type Query {
     Indicator whether favorite `ChatContact`s should be excluded from the result.
     """
     noFavorite: Boolean = false
-  ): ChatContactsConnection!
+  ): ChatContactsConnection! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns a `ChatItem` by its ID.
@@ -7187,7 +7605,7 @@ type Query {
 
     """Number of prior `ChatContact`s to return."""
     last: Int
-  ): FavoriteChatContactsConnection!
+  ): FavoriteChatContactsConnection! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns favorite `Chat`s of the authenticated `MyUser` ordered by the
@@ -7330,7 +7748,7 @@ type Query {
   linkedChatContacts(
     """ID of the `User` returned `ChatContacts` should be linked to."""
     userId: UserId!
-  ): [ChatContact!]
+  ): [ChatContact!] @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns the monolog `Chat` of the authenticated `MyUser`.
@@ -7365,7 +7783,7 @@ type Query {
   mutualChatContactsCount(
     """ID of the `User` to return a number of mutual `ChatContact`s with."""
     userId: UserId!
-  ): Int
+  ): Int @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Returns the current authenticated `MyUser`.
@@ -7440,7 +7858,7 @@ type Query {
   ): RecentChatsConnection!
 
   """
-  Searches `ChatContact`s by the given criteria.
+  Searches `ChatContact`s by the provided criteria.
 
   Exactly one of `name`/`email`/`phone` arguments must be specified (be
   non-`null`).
@@ -7505,7 +7923,7 @@ type Query {
 
     """`UserPhone` to search `ChatContact`s with."""
     phone: UserPhone
-  ): ChatContactsConnection!
+  ): ChatContactsConnection! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Searches `User`s by the given criteria.
@@ -7579,10 +7997,18 @@ type Query {
     """
     last: Int
 
-    """`UserLogin` to search `User`s with."""
+    """
+    `UserLogin` to search `User`s with.
+
+    Unimplemented. Do not use it.
+    """
     login: UserLogin
 
-    """Part of `UserName` to fuzzy search `User` with."""
+    """
+    Part of `UserName` to fuzzy search `User` with.
+
+    Unimplemented. Do not use it.
+    """
     name: UserName
 
     """`UserNum` to search `User`s with."""
@@ -7602,7 +8028,7 @@ type Query {
   `DateTime`, and secondary by their IDs (if the last activity `DateTime`
   is the same), in descending order.
   """
-  sessions: [Session!]!
+  sessions: SessionsList!
 
   """
   Returns a `User` by its `id`.
@@ -7773,6 +8199,13 @@ enum RedialChatCallMemberErrorCode {
   Status code: 404 Not Found.
   """
   UNKNOWN_CHAT
+
+  """
+  `User` with the provided ID doesn't exist or was deleted.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_USER
 }
 
 """Result of performing `Mutation.redialChatCallMember`."""
@@ -7840,11 +8273,11 @@ scalar RefreshTokenSecret
 """Possible error codes of performing `Mutation.registerFcmDevice`."""
 enum RegisterFcmDeviceErrorCode {
   """
-  Invalid `FcmRegistrationToken` provided.
+  Firebase Cloud Messaging is temporary unavailable. Retry later.
 
-  Status code: 400 Bad Request.
+  Status code: 503 Service Unavailable.
   """
-  INVALID_REGISTRATION_TOKEN
+  FCM_UNAVAILABLE
 
   """
   Unknown `FcmRegistrationToken` provided.
@@ -7939,67 +8372,13 @@ enum RenameChatErrorCode {
 """Result of performing `Mutation.renameChat`."""
 union RenameChatResult = ChatEventsVersioned | RenameChatError
 
-"""
-Possible error codes of performing `Mutation.resendUserEmailConfirmation`.
-"""
-enum ResendUserEmailConfirmationErrorCode {
-  """
-  Authenticated `MyUser` has no unconfirmed email addresses.
-
-  Status code: 404 Not Found.
-  """
-  NO_UNCONFIRMED
-
-  """
-  Exceeded limit of sending email address `ConfirmationCode`s. Try again in 1 hour.
-
-  Status code: 403 Forbidden.
-  """
-  CODE_LIMIT_EXCEEDED
-}
-
-"""
-Possible error codes of performing `Mutation.resendUserPhoneConfirmation`.
-"""
-enum ResendUserPhoneConfirmationErrorCode {
-  """
-  Authenticated `MyUser` has no unconfirmed phone number.
-
-  Status code: 404 Not Found.
-  """
-  NO_UNCONFIRMED
-
-  """
-  Exceeded limit of sending phone number `ConfirmationCode`s. Try again in 1 hour.
-
-  Status code: 403 Forbidden.
-  """
-  CODE_LIMIT_EXCEEDED
-}
-
-"""Error of performing `Mutation.resetUserPassword`."""
-type ResetUserPasswordError {
-  """Code indicating why this error has happened."""
-  code: ResetUserPasswordErrorCode!
-}
-
-"""Possible error codes of performing `Mutation.resetUserPassword`."""
-enum ResetUserPasswordErrorCode {
-  """
-  Provided `ConfirmationCode` is wrong or `MyUser` with the provided identifier doesn't exist.
-
-  Status code: 403 Forbidden.
-  """
-  WRONG_CODE
-}
-
-"""Result of performing `Mutation.resetUserPassword`."""
-union ResetUserPasswordResult = MyUserEventsVersioned | ResetUserPasswordError
-
 """Session of a `MyUser` being signed-in."""
 type Session {
   """Unique ID of this `Session`."""
   id: SessionId!
+
+  """`IP` of the device, that used this `Session` last time."""
+  ip: IP!
 
   """Indicator whether this `Session` is `MyUser`'s current `Session`."""
   isCurrent: Boolean!
@@ -8022,8 +8401,75 @@ type Session {
   ver: SessionVersion!
 }
 
+"""Events happening in a `Session`."""
+interface SessionEvent {
+  """`DateTime` when this `SessionEvent` happened."""
+  at: DateTime!
+
+  """ID of the `Session` this `SessionEvent` is related to."""
+  id: SessionId!
+}
+
+"""
+`SessionEvent`s along with the corresponding `SessionVersion` and
+`SessionsListVersion`.
+"""
+type SessionEventsVersioned {
+  """`SessionEvent`s themselves."""
+  events: [SessionEvent!]!
+
+  """
+  Version of the `SessionsList` state updated by these `SessionEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking list state's actuality.
+
+  Also, intended to be used in `Subscription.sessionsEvents`.
+  """
+  listVer: SessionsListVersion!
+
+  """
+  Version of the `Session` state updated by these `SessionEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking concrete `Session` state's actuality.
+
+  If the `events` contain `SessionEvent`s related to different `Session`s,
+  then this version is applicable for all of them.
+  """
+  ver: SessionVersion!
+}
+
 """Type of `Session`'s ID."""
 scalar SessionId
+
+"""Events indicating changes in a `Query.sessions`."""
+union SessionsEvents = SessionEventsVersioned | SessionsList | SubscriptionInitialized
+
+"""Represents `Session`s list of authenticated `MyUser`."""
+type SessionsList {
+  """
+  List of `Session`s.
+
+  ## Sorting
+
+  Returned `Session`s are sorted primarily by their last activity
+  `DateTime`, and secondary by their IDs (if the last activity `DateTime`
+  is the same), in descending order.
+  """
+  list: [Session!]!
+
+  """Version of this `Session`s list."""
+  listVer: SessionsListVersion!
+}
+
+"""
+Version of a `Session`s list.
+
+It increases monotonically, so may be used (and is intended to) for tracking
+state's actuality.
+"""
+scalar SessionsListVersion
 
 """
 Version of `Session`'s state.
@@ -8049,6 +8495,15 @@ enum StartChatCallErrorCode {
   Status code: 403 Forbidden.
   """
   BLOCKED
+
+  """
+  The `User` who responds to the `ChatCall` was deleted.
+
+  This error can happen only if `Chat` represents a dialog (consists only of two `User`s).
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_USER
 
   """
   `Chat` with the provided ID doesn't exist.
@@ -8085,6 +8540,67 @@ type StartChatCallOk {
 union StartChatCallResult = StartChatCallError | StartChatCallOk
 
 type Subscription {
+  """
+  Subscribes to `BlocklistEvent`s of the authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Initialization
+
+  Once this subscription is initialized completely, it immediately emits
+  `SubscriptionInitialized`.
+
+  If nothing has been emitted for a long period of time after establishing
+  this subscription (while not being completed), it should be considered
+  as an unexpected server error. This fact can be used on a client side to
+  decide whether this subscription has been initialized successfully.
+
+  ## Result
+
+  If `ver` argument is not specified (or is `null`) an initial state of
+  the `Blocklist` will be emitted after `SubscriptionInitialized` and
+  before any other `BlocklistEvent`s (and won't be emitted ever again
+  until this subscription completes). This allows to skip calling
+  `Query.blocklist` before establishing this subscription.
+
+  If the specified `ver` is not fresh (was queried quite a time ago), it
+  may become stale, so this subscription will return `STALE_VERSION` error
+  on initialization. In such case:
+  - either a fresh version should be obtained via `Query.blocklist`;
+  - or a re-subscription should be done without specifying a `ver`
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `Blocklist`).
+
+  ## Completion
+
+  Infinite.
+
+  Completes requiring a re-subscription when:
+  - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+  - An error occurs on the server (error is emitted).
+  - The server is shutting down or becoming unreachable (unexpectedly
+    completes after initialization).
+
+  ## Idempotency
+
+  It's possible that in rare scenarios this subscription could emit an
+  event which have already been applied to the state of some
+  `BlocklistRecord`, so a client side is expected to handle all the events
+  idempotently considering the `BlocklistRecord.ver`.
+  """
+  blocklistEvents(
+    """
+    `BlocklistConnection.ver` to start returning `BlocklistEvent`s from.
+
+    If omitted (or is `null`) then an initial state of the `Blocklist` will be
+    emitted after `SubscriptionInitialized` and before any other
+    `BlocklistEvent`s.
+    """
+    ver: BlocklistVersion
+  ): BlocklistEvents!
+
   """
   Subscribes to `ChatCallEvent`s of a `ChatCall`.
 
@@ -8213,7 +8729,7 @@ type Subscription {
     `ChatContactEvent`s.
     """
     ver: ChatContactsListVersion
-  ): ChatContactsEvents!
+  ): ChatContactsEvents! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Subscribes to `ChatEvent`s of the specified `Chat`.
@@ -8601,6 +9117,71 @@ type Subscription {
   ): RecentChatsTopEvents!
 
   """
+  Subscribes to `SessionEvent`s of all `Session`s of the authenticated
+  `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Initialization
+
+  Once this subscription is initialized completely, it immediately emits
+  `SubscriptionInitialized`.
+
+  If nothing has been emitted for a long period of time after establishing
+  this subscription (while not being completed), it should be considered
+  as an unexpected server error. This fact can be used on a client side to
+  decide whether this subscription has been initialized successfully.
+
+  ## Result
+
+  If `ver` argument is not specified (or is `null`) an initial state of
+  the `Session`s list will be emitted after `SubscriptionInitialized`
+  and before any other `SessionEvent`s (and won't be emitted ever
+  again until this subscription completes). This allows to skip doing
+  `Query.sessions` before establishing this subscription.
+
+  If the specified `ver` is not fresh (was queried quite a time ago), it
+  may become stale, so this subscription will return `STALE_VERSION` error
+  on initialization. In such case:
+  - either a fresh version should be obtained via `Query.sessions`;
+  - or a re-subscription should be done without specifying a `ver`
+    argument (so the fresh `ver` may be obtained in the emitted initial
+    state of the `Session`s list).
+
+  ## Completion
+
+  Infinite.
+
+  Completes requiring a re-subscription when:
+  - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+  - An error occurs on the server (error is emitted).
+  - The server is shutting down or becoming unreachable (unexpectedly
+    completes after initialization).
+
+  ## Idempotency
+
+  It's possible that in rare scenarios this subscription could emit an
+  event which have already been applied to the state of some
+  `Session`, so a client side is expected to handle all the events
+  idempotently considering the `Session.ver`.
+  """
+  sessionsEvents(
+    """
+    Version of a `Session`s list to start returning `SessionEvent`s from.
+
+    Get it from `Query.sessions.ver`.
+
+
+    If omitted (or is `null`) then an initial state of the `Session`s list will
+    be emitted after `SubscriptionInitialized` and before any other
+    `SessionEvent`s.
+    """
+    ver: SessionsListVersion
+  ): SessionsEvents!
+
+  """
   Subscribes to `UserEvent`s of the specified `User`.
 
   ## Authentication
@@ -8818,7 +9399,7 @@ enum TransformDialogCallIntoGroupCallErrorCode {
   UNKNOWN_CHAT
 
   """
-  `User` with the provided ID doesn't exist.
+  `User` with the provided ID doesn't exist or was deleted.
 
   Status code: 404 Not Found.
   """
@@ -8884,6 +9465,16 @@ enum UnfavoriteChatErrorCode {
 
 """Result of performing `Mutation.unfavoriteChat`."""
 union UnfavoriteChatResult = ChatEventsVersioned | UnfavoriteChatError
+
+"""Possible error codes of performing `Mutation.unregisterFcmDevice`."""
+enum UnregisterFcmDeviceErrorCode {
+  """
+  Firebase Cloud Messaging is temporary unavailable. Retry later.
+
+  Status code: 503 Service Unavailable.
+  """
+  FCM_UNAVAILABLE
+}
 
 """Error of performing `Mutation.updateChatAvatar`."""
 type UpdateChatAvatarError {
@@ -9092,7 +9683,7 @@ type UpdateUserLoginError {
 """Possible error codes of performing `Mutation.updateUserLogin`."""
 enum UpdateUserLoginErrorCode {
   """
-  Provided login is occupied by another `User` already.
+  Provided `login` is occupied by another `User` already.
 
   Status code: 409 Conflict.
   """
@@ -9111,15 +9702,62 @@ type UpdateUserPasswordError {
 """Possible error codes of performing `Mutation.updateUserPassword`."""
 enum UpdateUserPasswordErrorCode {
   """
-  Provided `old` password of `MyUser` is wrong.
+  Provided `ConfirmationCode` is wrong or no `MyUser` exists by the provided `MyUserIdentifier`.
+
+  Status code: 403 Forbidden.
+  """
+  WRONG_CODE
+
+  """
+  Provided old `UserPassword` is wrong or no `MyUser` exists by the provided `MyUserIdentifier`.
 
   Status code: 403 Forbidden.
   """
   WRONG_OLD_PASSWORD
+
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """
+  CONFIRMATION_REQUIRED
 }
 
 """Result of performing `Mutation.updateUserPassword`."""
 union UpdateUserPasswordResult = MyUserEventsVersioned | UpdateUserPasswordError
+
+"""Error of performing `Mutation.updateWelcomeMessage`."""
+type UpdateWelcomeMessageError {
+  """Code indicating why this error has happened."""
+  code: UpdateWelcomeMessageErrorCode!
+}
+
+"""Possible error codes of performing `Mutation.updateWelcomeMessage`."""
+enum UpdateWelcomeMessageErrorCode {
+  """
+  List of `Attachment`s should contain at most 100 elements.
+
+  Status code: 400 Bad Request.
+  """
+  WRONG_ATTACHMENTS_COUNT
+
+  """
+  One of the specified `Attachment`s doesn't exist.
+
+  Status code: 404 Not Found.
+  """
+  UNKNOWN_ATTACHMENT
+
+  """
+  `WelcomeMessage.text` can be set as `null` only if there is at least 1 `WelcomeMessage.attachments`.
+
+  Status code: 400 Bad Request.
+  """
+  NO_TEXT_AND_NO_ATTACHMENT
+}
+
+"""Result of performing `Mutation.updateWelcomeMessage`."""
+union UpdateWelcomeMessageResult = MyUserEventsVersioned | UpdateWelcomeMessageError
 
 """
 Type of [GraphQL multipart request][1] upload.
@@ -9248,7 +9886,7 @@ type User {
   Shortcut for `Query.linkedChatContacts` with `userId` of this `User`, so
   is not considered in the `User.ver` field.
   """
-  contacts: [ChatContact!]!
+  contacts: [ChatContact!]! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Dialog `Chat` between this `User` and the authenticated `MyUser`.
@@ -9280,7 +9918,7 @@ type User {
   Shortcut for `Query.mutualChatContactsCount` with `userId` of this
   `User`, so is not considered in the `User.ver` field.
   """
-  mutualContactsCount: Int!
+  mutualContactsCount: Int! @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
   Name of this `User`.
@@ -9332,6 +9970,9 @@ type User {
   tracking state's actuality.
   """
   ver: UserVersion!
+
+  """`WelcomeMessage` of this `User`."""
+  welcomeMessage: WelcomeMessage
 }
 
 """
@@ -9433,26 +10074,28 @@ Its values are always considered to represent a valid email address.
 """
 scalar UserEmail
 
-"""List of email addresses associated with a `MyUser`."""
+"""List of `UserEmail` addresses associated with a `MyUser`."""
 type UserEmails {
   """
-  List of already confirmed email addresses.
+  List of already confirmed `UserEmail` addresses.
 
-  Any `confirmed` email address can be used in combination with `password`
-  to sign-in a `MyUser`.
+  Any `confirmed` `UserEmail` address can be used in combination with
+  `password` to sign-in a `MyUser`.
 
-  All `confirmed` email addresses can be used for a `password` recovery.
+  All `confirmed` `UserEmail` addresses can be used for a `password`
+  recovery.
   """
   confirmed: [UserEmail!]!
 
   """
-  Email address that still requires a confirmation.
+  `UserEmail` address that still requires a confirmation.
 
-  `unconfirmed` email address doesn't provide any functionality like
+  `unconfirmed` `UserEmail` address doesn't provide any functionality like
   `confirmed` ones do.
 
-  `unconfirmed` email address can be moved to `confirmed` ones after
-  completion of confirmation process via `Mutation.confirmUserEmail` only.
+  `unconfirmed` `UserEmail` address is moved to `confirmed` ones only
+  after completion of the confirmation process via `Mutation.addUserEmail`
+  (with the `confirmation` argument provided).
   """
   unconfirmed: UserEmail
 }
@@ -9491,14 +10134,17 @@ type UserEventsVersioned {
 scalar UserId
 
 """
-Type of a `MyUser`'s login.
+Login of a `MyUser`.
 
 Its values are always considered to be non-empty and meet the following
 requirements:
-- have only lowercase latin letters (`a-z`), digits (`0-9`) or `_-`symbols;
+- have only latin letters (`A-Z`, `a-z`), digits (`0-9`) or `_-` symbols;
 - start and end with letter or digit;
 - do not contain digits only;
 - be at least 3 and maximum 20 characters long.
+
+`UserLogin`s are unique in a case-insensitive manner, meaning that `loGin`
+and `LOgIN` values are considered as the same one.
 """
 scalar UserLogin
 
@@ -9565,26 +10211,28 @@ Its values are always considered to represent a valid phone number in
 """
 scalar UserPhone
 
-"""List of phone numbers associated with a `MyUser`."""
+"""List of `UserPhone` numbers associated with a `MyUser`."""
 type UserPhones {
   """
-  List of already confirmed phone numbers.
+  List of already confirmed `UserPhone` numbers.
 
-  Any `confirmed` phone number can be used in combination with `password`
-  to sign-in a `MyUser`.
+  Any `confirmed` `UserPhone` number can be used in combination with
+  `password` to sign-in a `MyUser`.
 
-  All `confirmed` phone numbers can be used for a `password` recovery.
+  All `confirmed` `UserPhone` numbers can be used for a `password`
+  recovery.
   """
   confirmed: [UserPhone!]!
 
   """
-  Phone number that still requires a confirmation.
+  `UserPhone` number that still requires a confirmation.
 
-  `unconfirmed` phone number doesn't provide any functionality like
+  `unconfirmed` `UserPhone` number doesn't provide any functionality like
   `confirmed` ones do.
 
-  `unconfirmed` phone number can be moved to `confirmed` ones after
-  completion of confirmation process via `Mutation.confirmUserPhone` only.
+  `unconfirmed` `UserPhone` number is moved to `confirmed` ones only after
+  completion of the confirmation process via `Mutation.addUserPhone` (with
+  the `confirmation` argument provided).
   """
   unconfirmed: UserPhone
 }
@@ -9663,13 +10311,78 @@ state's actuality.
 scalar UserVersion
 
 """
-Possible error codes of performing `Mutation.validateUserPasswordRecoveryCode`.
+Possible error codes of performing `Mutation.validateConfirmationCode`.
 """
-enum ValidateUserPasswordRecoveryErrorCode {
+enum ValidateConfirmationCodeErrorCode {
   """
-  Provided `ConfirmationCode` is wrong or `MyUser` with the provided identifier doesn't exist.
+  Provided `ConfirmationCode` is wrong or no `MyUser` exists by the provided `MyUserIdentifier`.
 
   Status code: 403 Forbidden.
   """
   WRONG_CODE
+}
+
+"""
+Welcome message of a `User` to be posted in new `Chat`-dialogs with him.
+"""
+type WelcomeMessage {
+  """
+  `DateTime` when this `WelcomeMessage` was posted or edited.
+
+  Only available for the owner of this `WelcomeMessage`.
+  """
+  at: DateTime
+
+  """
+  `Attachment`s of this `WelcomeMessage`.
+
+  ## Sorting
+
+  Returned `Attachment`s are sorted in the same order as was provided to
+  the `Mutation.updateWelcomeMessage` by this `WelcomeMessage`'s owner.
+  """
+  attachments: [Attachment!]!
+
+  """Text of this `WelcomeMessage`."""
+  text: ChatMessageText
+}
+
+"""
+Content of a `WelcomeMessage`, used as an input of
+`Mutation.updateWelcomeMessage`.
+"""
+input WelcomeMessageInput {
+  """
+  IDs of `Attachment`s to assign to the `WelcomeMessage`.
+
+  - If `null`, then the previous `WelcomeMessage.attachments` will remain
+    unchanged.
+  - If `ChatMessageAttachmentsInput.new` is empty, then the previous
+    `WelcomeMessage.attachments` will be deleted.
+  - Otherwise, the specified `ChatMessageAttachmentsInput.new` will
+    replace the previous `WelcomeMessage.attachments`.
+
+  `ChatMessageAttachmentsInput.new` can be empty only if the resulting
+  `WelcomeMessage` has its `ChatMessageText`.
+
+  Mandatory, if the `text` argument is absent or `null`.
+  """
+  attachments: ChatMessageAttachmentsInput
+
+  """
+  New text to assign to the `WelcomeMessage`.
+
+  - If `null`, then the previous `WelcomeMessage.text` will remain
+    unchanged.
+  - If `ChatMessageTextInput.new` is empty, then the previous
+    `WelcomeMessage.text` will be deleted.
+  - Otherwise, the specified `ChatMessageTextInput.new` will replace the
+    previous `WelcomeMessage.text`.
+
+  `ChatMessageTextInput.new` can be `null` only if the resulting
+  `WelcomeMessage` has at least one `Attachment`.
+
+  Mandatory, if the `attachments` argument is absent or `null`.
+  """
+  text: ChatMessageTextInput
 }

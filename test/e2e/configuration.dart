@@ -23,6 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/extension/credentials.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
@@ -362,19 +363,20 @@ Future<CustomUser> createUser({
 }) async {
   final provider = GraphQlProvider();
   final result = await provider.signUp();
+  final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
   final CustomUser customUser = CustomUser(
-    result.toModel(),
-    result.createUser.user.num,
+    success.toModel(),
+    success.user.num,
   );
 
   if (user != null && world != null) {
     world.sessions[user.name] = customUser;
 
-    provider.token = result.createUser.accessToken.secret;
+    provider.token = success.accessToken.secret;
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
-      await provider.updateUserPassword(null, password);
+      await provider.updateUserPassword(newPassword: password);
       world.sessions[user.name]?.password = password;
 
       final result =

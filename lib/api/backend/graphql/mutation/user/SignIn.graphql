@@ -16,18 +16,12 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 mutation SignIn(
-    $email: UserEmail
-    $phone: UserPhone
-    $login: UserLogin
-    $num: UserNum
-    $password: UserPassword!
+    $ident: MyUserIdentifier!
+    $credentials: MyUserCredentials!
 ) {
     createSession(
-        email: $email
-        login: $login
-        num: $num
-        password: $password
-        phone: $phone
+        ident: $ident
+        credentials: $credentials
     ) {
         __typename
         ... on CreateSessionOk {

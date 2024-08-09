@@ -43,7 +43,6 @@ extension ChatCallConversion on ChatCallMixin {
         conversationStartedAt: conversationStartedAt,
         finishReasonIndex: finishReason?.index,
         finishedAt: finishedAt,
-        joinLink: joinLink,
         dialed: dialed?.toModel(),
       );
 }

@@ -17,10 +17,18 @@
 
 mutation DeleteSession(
     $id: SessionId
-    $password: UserPassword
+    $confirmation: MyUserCredentials
 ) {
     deleteSession(
         id: $id
-        password: $password
-    )
+        confirmation: $confirmation
+    ) {
+        __typename
+        ... on SessionEventsVersioned {
+            ...SessionEventsVersioned
+        }
+        ... on DeleteSessionError {
+            code
+        }
+    }
 }

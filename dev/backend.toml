@@ -10,12 +10,13 @@ total = 20
 total = 30
 
 [fcm]
+sender_id = 985927661367
 files_url = "http://localhost/files"
 
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]
 [l10n.fluent.refresh]
-url = "https://raw.githubusercontent.com/team113/messenger/push-notifications-improvements/assets/l10n"
+url = "https://raw.githubusercontent.com/team113/messenger/main/assets/l10n"
 
 [smtp]
 port = 1025
@@ -30,16 +31,11 @@ bind_port = 8090
 min_relay_port = 49160
 max_relay_port = 49200
 
-[chat.call.room]
-member_join_timeout = "24s" # 20s (instance restart time) + 4s (event handlers)
-
-[background.event_handler.ensure_call_member_joined_room]
-period = "300ms"
-[background.event_handler.initialize_call]
+[background.event_handler.init_call]
 period = "300ms"
 [background.event_handler.invalidate_chat_counts]
 period = "500ms"
-[background.event_handler.synchronize_call_room]
+[background.event_handler.sync_call_room]
 period = "300ms"
 [background.event_handler.transcode_image_set]
 timeout = "5m"
@@ -69,7 +65,14 @@ period = "300ms"
 timeout = "300ms"
 
 [background.watchdog.call_participations]
-stale_timeout = "24s" # 20s (instance restart time) + 4s (event handlers)
+timeout = "3s"
+stale_timeout = "24s" # 20s (instance restart time) + 3s (watchdog) + 1s (poller)
+[background.watchdog.call_room_members]
+period = "300ms"
+timeout = "3s"
+stale_timeout = "24s" # 20s (instance restart time) + 3s (watchdog) + 1s (poller)
 [background.watchdog.chat_typings]
 period = "500ms"
 stale_timeout = "3s"
+[background.watchdog.push_devices]
+period = "1m"

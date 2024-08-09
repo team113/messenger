@@ -98,27 +98,6 @@ void main() async {
     graphQlProvider.contactsEvents(any),
   ).thenAnswer((_) => contactEvents.stream);
 
-  when(graphQlProvider.favoriteChatContacts(
-    first: anyNamed('first'),
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-    (_) => Future.value(
-      FavoriteContacts$Query.fromJson(favoriteChatContacts)
-          .favoriteChatContacts,
-    ),
-  );
-
-  when(graphQlProvider.chatContacts(
-    first: anyNamed('first'),
-    noFavorite: true,
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
-
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),

@@ -47,7 +47,6 @@ fragment ChatCall on ChatCall {
     conversationStartedAt
     finishReason
     finishedAt
-    joinLink
     members {
         __typename
         ...ChatCallMember

@@ -21,7 +21,7 @@ query GetMessages(
     $after: ChatItemsCursor
     $last: Int
     $before: ChatItemsCursor
-    $onlyAttachments: Boolean = false
+    $filter: ChatItemsFilter
 ) {
     chat(id: $id) {
         items(
@@ -29,7 +29,7 @@ query GetMessages(
             after: $after
             last: $last
             before: $before
-            onlyAttachments: $onlyAttachments
+            filter: $filter
         ) {
             edges {
                 node {

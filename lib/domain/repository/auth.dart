@@ -118,37 +118,13 @@ abstract class AbstractAuthRepository {
     bool reconnect,
   });
 
-  /// Initiates password recovery for a [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
-  ///
-  /// Sends a recovery [ConfirmationCode] to [MyUser]'s `email` and `phone`.
-  ///
-  /// If [MyUser] has no password yet, then this method still may be used for
-  /// recovering his sign-in capability.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  Future<void> recoverUserPassword(
-      {UserLogin? login, UserNum? num, UserEmail? email, UserPhone? phone});
-
-  /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
-  /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of
-  /// fourth should be specified).
-  Future<void> validateUserPasswordRecoveryCode({
-    required ConfirmationCode code,
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  });
-
   /// Resets password for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified)
   /// and recovery [ConfirmationCode].
   ///
   /// If [MyUser] has no password yet, then [newPassword] will be his first
   /// password unlocking the sign-in capability.
-  Future<void> resetUserPassword({
+  Future<void> updateUserPassword({
     required ConfirmationCode code,
     required UserPassword newPassword,
     UserLogin? login,
@@ -164,4 +140,24 @@ abstract class AbstractAuthRepository {
   // TODO: Replace with real-time updates, when backend supports those.
   /// Updates the [sessions] list.
   Future<void> updateSessions();
+
+  /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
+  /// identified by the provided [login], [num], [email] and/or [phone].
+  Future<void> createConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    String? locale,
+  });
+
+  /// Validates the provided ConfirmationCode for the MyUser identified by the
+  /// provided [login], [num], [email] and/or [phone] without using it.
+  Future<void> validateConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    required ConfirmationCode code,
+  });
 }

@@ -318,6 +318,7 @@ err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied.
 err_code_limit_exceeded =
     Exceeded limit of sending recovery code. Try again in 1 hour.
+err_confirmation_required = A password must be provided to acomplish that action.
 err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
@@ -328,6 +329,7 @@ err_data_transfer =
 err_dialog = Can't perform this action in a dialog
 err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels.
 err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
+err_fcm_unavailable = FCM is unavailable.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
@@ -389,6 +391,7 @@ err_unsupported_forwarded_item = Unsupported forwarded item
 err_uploaded_file_malformed = File is malformed. Please, ensure uploaded file integrity.
 err_use_monolog = Can't create dialog with yourself
 err_wrong_attachments_items_count = Wrong attachments count
+err_wrong_code = Provided code is wrong.
 err_wrong_items_count = Wrong items count
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_old_password = Wrong password.
@@ -655,23 +658,20 @@ label_code_requirements_tests = - the code needs to be covered with unit, widget
 label_code_sent_again = The code has been re-sent.
 label_conditions = Conditions
 label_conditions_backend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_frontend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_ui_ux_designer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost

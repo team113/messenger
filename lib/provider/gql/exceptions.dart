@@ -233,6 +233,8 @@ class CreateSessionException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case CreateSessionErrorCode.wrongPassword:
         return 'err_incorrect_login_or_password'.l10n;
+      case CreateSessionErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
       case CreateSessionErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -344,6 +346,8 @@ class StartChatCallException with LocalizedExceptionMixin implements Exception {
         return 'err_blocked'.l10n;
       case StartChatCallErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
+      case StartChatCallErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
       case StartChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -490,6 +494,10 @@ class UpdateUserPasswordException
     switch (code) {
       case UpdateUserPasswordErrorCode.wrongOldPassword:
         return 'err_wrong_old_password'.l10n;
+      case UpdateUserPasswordErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case UpdateUserPasswordErrorCode.confirmationRequired:
+        return 'err_confirmation_required'.l10n;
       case UpdateUserPasswordErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -521,53 +529,6 @@ class CreateChatContactException
         return 'err_contact_too_many'.l10n;
       case CreateChatContactErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.validateUserPasswordRecoveryCode` described in the
-/// [code].
-class ValidateUserPasswordRecoveryCodeException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ValidateUserPasswordRecoveryCodeException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ValidateUserPasswordRecoveryErrorCode code;
-
-  @override
-  String toString() => 'ValidateUserPasswordRecoveryCodeException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ValidateUserPasswordRecoveryErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case ValidateUserPasswordRecoveryErrorCode.wrongCode:
-        return 'err_wrong_recovery_code'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.resetUserPassword` described in the [code].
-class ResetUserPasswordException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ResetUserPasswordException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ResetUserPasswordErrorCode code;
-
-  @override
-  String toString() => 'ResetUserPasswordException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ResetUserPasswordErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case ResetUserPasswordErrorCode.wrongCode:
-        return 'err_wrong_recovery_code'.l10n;
     }
   }
 }
@@ -651,6 +612,8 @@ class PostChatMessageException
         return 'err_unknown_replying_chat_item'.l10n;
       case PostChatMessageErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
+      case PostChatMessageErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
       case PostChatMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -718,108 +681,12 @@ class AddUserEmailException with LocalizedExceptionMixin implements Exception {
         return 'err_data_transfer'.l10n;
       case AddUserEmailErrorCode.busy:
         return 'err_you_already_has_unconfirmed_email'.l10n;
+      case AddUserEmailErrorCode.occupied:
+        return 'err_email_occupied'.l10n;
+      case AddUserEmailErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
       case AddUserEmailErrorCode.tooMany:
         return 'err_too_many_emails'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.resendUserEmailConfirmation` described in the [code].
-class ResendUserEmailConfirmationException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ResendUserEmailConfirmationException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ResendUserEmailConfirmationErrorCode code;
-
-  @override
-  String toString() => 'ResendUserEmailConfirmationException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ResendUserEmailConfirmationErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case ResendUserEmailConfirmationErrorCode.codeLimitExceeded:
-        return 'err_code_limit_exceeded'.l10n;
-      case ResendUserEmailConfirmationErrorCode.noUnconfirmed:
-        return 'err_no_unconfirmed_email'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.resendUserPhoneConfirmation` described in the [code].
-class ResendUserPhoneConfirmationException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ResendUserPhoneConfirmationException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ResendUserPhoneConfirmationErrorCode code;
-
-  @override
-  String toString() => 'ResendUserPhoneConfirmationException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ResendUserPhoneConfirmationErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case ResendUserPhoneConfirmationErrorCode.codeLimitExceeded:
-        return 'err_code_limit_exceeded'.l10n;
-      case ResendUserPhoneConfirmationErrorCode.noUnconfirmed:
-        return 'err_no_unconfirmed_phone'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.confirmUserEmail` described in the [code].
-class ConfirmUserEmailException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ConfirmUserEmailException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ConfirmUserEmailErrorCode code;
-
-  @override
-  String toString() => 'ConfirmUserEmailException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ConfirmUserEmailErrorCode.artemisUnknown:
-        return 'err_data_transfer'.l10n;
-      case ConfirmUserEmailErrorCode.occupied:
-        return 'err_email_occupied'.l10n;
-      case ConfirmUserEmailErrorCode.wrongCode:
-        return 'err_wrong_recovery_code'.l10n;
-    }
-  }
-}
-
-/// Exception of `Mutation.confirmUserPhone` described in the [code].
-class ConfirmUserPhoneException
-    with LocalizedExceptionMixin
-    implements Exception {
-  const ConfirmUserPhoneException(this.code);
-
-  /// Reason of why the mutation has failed.
-  final ConfirmUserPhoneErrorCode code;
-
-  @override
-  String toString() => 'ConfirmUserPhoneException($code)';
-
-  @override
-  String toMessage() {
-    switch (code) {
-      case ConfirmUserPhoneErrorCode.artemisUnknown:
-        return 'err_unknown'.l10n;
-      case ConfirmUserPhoneErrorCode.occupied:
-        return 'err_wrong_recovery_code'.l10n;
-      case ConfirmUserPhoneErrorCode.wrongCode:
-        return 'err_wrong_recovery_code'.l10n;
     }
   }
 }
@@ -841,6 +708,10 @@ class AddUserPhoneException with LocalizedExceptionMixin implements Exception {
         return 'err_data_transfer'.l10n;
       case AddUserPhoneErrorCode.busy:
         return 'err_you_already_has_unconfirmed_phone'.l10n;
+      case AddUserPhoneErrorCode.occupied:
+        return 'err_phone_occupied'.l10n;
+      case AddUserPhoneErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
       case AddUserPhoneErrorCode.tooMany:
         return 'err_too_many_phones'.l10n;
     }
@@ -997,6 +868,8 @@ class RedialChatCallMemberException
         return 'err_call_not_found'.l10n;
       case RedialChatCallMemberErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
+      case RedialChatCallMemberErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
       case RedialChatCallMemberErrorCode.notChatMember:
         return 'err_not_member'.l10n;
       case RedialChatCallMemberErrorCode.notGroup:
@@ -1267,6 +1140,8 @@ class ForwardChatItemsException
         return 'err_no_text_and_no_attachment'.l10n;
       case ForwardChatItemsErrorCode.unknownChat:
         return 'err_unknown_chat'.l10n;
+      case ForwardChatItemsErrorCode.unknownUser:
+        return 'err_unknown_user'.l10n;
       case ForwardChatItemsErrorCode.wrongItemsCount:
         return 'err_wrong_items_count'.l10n;
       case ForwardChatItemsErrorCode.unknownForwardedAttachment:
@@ -1544,10 +1419,10 @@ class RegisterFcmDeviceException
   @override
   String toMessage() {
     switch (code) {
-      case RegisterFcmDeviceErrorCode.invalidRegistrationToken:
-        return 'err_invalid_registration_token'.l10n;
       case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
         return 'err_unknown_registration_token'.l10n;
+      case RegisterFcmDeviceErrorCode.fcmUnavailable:
+        return 'err_fcm_unavailable'.l10n;
       case RegisterFcmDeviceErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1569,7 +1444,136 @@ class DeleteSessionException with LocalizedExceptionMixin implements Exception {
     switch (code) {
       case DeleteSessionErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
+      case DeleteSessionErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case DeleteSessionErrorCode.confirmationRequired:
+        return 'err_confirmation_required'.l10n;
       case DeleteSessionErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.createSession` described in the [code].
+class SignUpException with LocalizedExceptionMixin implements Exception {
+  const SignUpException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final CreateSessionErrorCode code;
+
+  @override
+  String toString() => 'SignUpException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case CreateSessionErrorCode.wrongPassword:
+        return 'err_wrong_password'.l10n;
+      case CreateSessionErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case CreateSessionErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.deleteMyUser` described in the [code].
+class DeleteMyUserException with LocalizedExceptionMixin implements Exception {
+  const DeleteMyUserException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final DeleteMyUserErrorCode code;
+
+  @override
+  String toString() => 'DeleteMyUserException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case DeleteMyUserErrorCode.confirmationRequired:
+        return 'err_confirmation_required'.l10n;
+      case DeleteMyUserErrorCode.wrongPassword:
+        return 'err_wrong_password'.l10n;
+      case DeleteMyUserErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case DeleteMyUserErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.deleteUserEmail` described in the [code].
+class DeleteUserEmailException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const DeleteUserEmailException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final DeleteUserEmailErrorCode code;
+
+  @override
+  String toString() => 'DeleteUserEmailException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case DeleteUserEmailErrorCode.confirmationRequired:
+        return 'err_confirmation_required'.l10n;
+      case DeleteUserEmailErrorCode.wrongPassword:
+        return 'err_wrong_password'.l10n;
+      case DeleteUserEmailErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case DeleteUserEmailErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.deleteUserPhone` described in the [code].
+class DeleteUserPhoneException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const DeleteUserPhoneException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final DeleteUserPhoneErrorCode code;
+
+  @override
+  String toString() => 'DeleteUsePhoneException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case DeleteUserPhoneErrorCode.confirmationRequired:
+        return 'err_confirmation_required'.l10n;
+      case DeleteUserPhoneErrorCode.wrongPassword:
+        return 'err_wrong_password'.l10n;
+      case DeleteUserPhoneErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case DeleteUserPhoneErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.validateConfirmationCode` described in the [code].
+class ValidateConfirmationCodeException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ValidateConfirmationCodeException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ValidateConfirmationCodeErrorCode code;
+
+  @override
+  String toString() => 'ValidateConfirmationCodeException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ValidateConfirmationCodeErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case ValidateConfirmationCodeErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

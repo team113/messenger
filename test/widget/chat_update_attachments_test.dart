@@ -228,28 +228,6 @@ void main() async {
     (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
   );
 
-  when(graphQlProvider.favoriteChatContacts(
-    first: anyNamed('first'),
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-    (_) => Future.value(
-      FavoriteContacts$Query.fromJson(favoriteChatContacts)
-          .favoriteChatContacts,
-    ),
-  );
-
-  when(graphQlProvider.chatContacts(
-    first: anyNamed('first'),
-    noFavorite: true,
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-    (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts),
-  );
-
   when(graphQlProvider.attachments(any)).thenAnswer(
     (_) => Future.value(GetAttachments$Query.fromJson({
       'chatItem': {

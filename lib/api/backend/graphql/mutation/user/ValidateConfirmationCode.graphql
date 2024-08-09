@@ -15,28 +15,12 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation ResetUserPassword(
-    $num: UserNum
-    $login: UserLogin
-    $email: UserEmail
-    $phone: UserPhone
+mutation ValidateConfirmationCode(
+    $ident: MyUserIdentifier!
     $code: ConfirmationCode!
-    $newPassword: UserPassword!
 ) {
-    resetUserPassword(
-        num: $num
-        email: $email
-        login: $login
-        phone: $phone
+    validateConfirmationCode(
+        ident: $ident
         code: $code
-        newPassword: $newPassword
-    ){
-        __typename
-        ... on MyUserEventsVersioned {
-            ...MyUserEventsVersioned
-        }
-        ... on ResetUserPasswordError{
-            code
-        }
-    }
+    )
 }

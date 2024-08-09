@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
+import '/api/backend/schema.dart' show UpdateUserPasswordErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -28,12 +28,10 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddUserEmailException,
-        ConfirmUserEmailException,
         ConnectionException,
         CreateSessionException,
-        ResendUserEmailConfirmationException,
-        ResetUserPasswordException,
-        ValidateUserPasswordRecoveryCodeException;
+        UpdateUserPasswordException,
+        ValidateConfirmationCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -223,7 +221,7 @@ class LoginController extends GetxController {
           emailCode.clear();
           stage.value = LoginViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -247,27 +245,28 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService
-              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
+          // await _authService
+          //     .confirmSignUpEmail(ConfirmationCode(emailCode.text));
 
           (onSuccess ?? router.home)(signedUp: true);
-        } on ConfirmUserEmailException catch (e) {
-          switch (e.code) {
-            case ConfirmUserEmailErrorCode.wrongCode:
-              s.error.value = e.toMessage();
+          // TODO(impl)
+          // } on ConfirmUserEmailException catch (e) {
+          //   switch (e.code) {
+          //     case ConfirmUserEmailErrorCode.wrongCode:
+          //       s.error.value = e.toMessage();
 
-              ++codeAttempts;
-              if (codeAttempts >= 3) {
-                codeAttempts = 0;
-                _setCodeTimer();
-              }
-              s.status.value = RxStatus.empty();
-              break;
+          //       ++codeAttempts;
+          //       if (codeAttempts >= 3) {
+          //         codeAttempts = 0;
+          //         _setCodeTimer();
+          //       }
+          //       s.status.value = RxStatus.empty();
+          //       break;
 
-            default:
-              s.error.value = 'err_wrong_recovery_code'.l10n;
-              break;
-          }
+          //     default:
+          //       s.error.value = 'err_wrong_recovery_code'.l10n;
+          //       break;
+          //   }
         } on FormatException catch (_) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
           s.status.value = RxStatus.empty();
@@ -428,11 +427,12 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.recoverUserPassword(
+      await _authService.createConfirmationCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
         phone: _recoveryPhone,
+        locale: L10n.chosen.value?.toString(),
       );
 
       stage.value = LoginViewStage.recoveryCode;
@@ -468,7 +468,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.validateUserPasswordRecoveryCode(
+      await _authService.validateConfirmationCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -483,7 +483,7 @@ class LoginController extends GetxController {
       recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ArgumentError {
       recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
-    } on ValidateUserPasswordRecoveryCodeException catch (e) {
+    } on ValidateConfirmationCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
       recoveryCode.unsubmit();
@@ -499,7 +499,9 @@ class LoginController extends GetxController {
   /// Resets password for the [MyUser] identified by the provided in
   /// [recoverAccess] identity and [ConfirmationCode].
   Future<void> resetUserPassword() async {
-    if (newPassword.error.value != null || repeatPassword.error.value != null) {
+    if (newPassword.error.value != null ||
+        repeatPassword.error.value != null ||
+        recoveryCode.error.value != null) {
       return;
     }
 
@@ -538,7 +540,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _authService.resetUserPassword(
+      await _authService.updateUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -553,8 +555,17 @@ class LoginController extends GetxController {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
-    } on ResetUserPasswordException catch (e) {
-      repeatPassword.error.value = e.toMessage();
+    } on UpdateUserPasswordException catch (e) {
+      switch (e.code) {
+        case UpdateUserPasswordErrorCode.wrongOldPassword:
+          repeatPassword.error.value = 'err_wrong_old_password'.l10n;
+        case UpdateUserPasswordErrorCode.wrongCode:
+          recoveryCode.error.value = 'err_wrong_code'.l10n;
+        case UpdateUserPasswordErrorCode.confirmationRequired:
+          repeatPassword.error.value = 'err_confirmation_required'.l10n;
+        case UpdateUserPasswordErrorCode.artemisUnknown:
+          repeatPassword.error.value = 'err_unknown'.l10n;
+      }
     } catch (e) {
       repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;
@@ -572,9 +583,10 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
-    } on ResendUserEmailConfirmationException catch (e) {
-      emailCode.error.value = e.toMessage();
+      // await _authService.resendSignUpEmail();
+      // TODO(impl)
+      // } on ResendUserEmailConfirmationException catch (e) {
+      //   emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.resubmitOnError.value = true;
       emailCode.error.value = 'err_data_transfer'.l10n;

@@ -17,7 +17,7 @@
 
 import '/domain/model/user.dart';
 import '/util/new_type.dart';
-import 'my_user.dart';
+import 'blocklist.dart';
 import 'version.dart';
 
 /// Persisted in storage [User]'s [value].
@@ -37,7 +37,7 @@ class DtoUser {
   ///
   /// It increases monotonically, so may be used (and is intended to) for
   /// tracking state's actuality.
-  MyUserVersion blockedVer;
+  BlocklistVersion blockedVer;
 
   /// Returns the [UserId] of [value].
   UserId get id => value.id;

@@ -463,7 +463,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
             const SizedBox(height: 4),
             WidgetButton(
               key: const Key('VerifyPhone'),
-              onPressed: () => AddPhoneView.show(context),
+              onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
               child: Text(
                 'label_verify'.l10n,
                 style: style.fonts.small.regular.primary,
