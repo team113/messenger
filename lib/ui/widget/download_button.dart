@@ -49,7 +49,7 @@ class DownloadButton extends StatefulWidget {
         download = true;
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
-  const DownloadButton.ios({super.key, this.link = 'messenger-ios.zip'})
+  const DownloadButton.ios({super.key, this.link = 'messenger-ios.ipa'})
       : asset = SvgIcons.appStore,
         title = 'iOS',
         download = true;
