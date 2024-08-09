@@ -323,7 +323,7 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// [ConfirmationCode] can be validated unlimited number of times (for now).
-  Future<RefreshSession$Mutation> validateConfirmationCode({
+  Future<void> validateConfirmationCode({
     required MyUserIdentifier identifier,
     required ConfirmationCode code,
   }) async {
@@ -334,7 +334,7 @@ mixin AuthGraphQlMixin {
 
     final variables =
         ValidateConfirmationCodeArguments(ident: identifier, code: code);
-    final QueryResult result = await client.mutate(
+    await client.mutate(
       MutationOptions(
         operationName: 'ValidateConfirmationCode',
         document:
@@ -346,6 +346,5 @@ mixin AuthGraphQlMixin {
             .validateConfirmationCode)!,
       ),
     );
-    return RefreshSession$Mutation.fromJson(result.data!);
   }
 }

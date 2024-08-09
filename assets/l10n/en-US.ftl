@@ -658,23 +658,20 @@ label_code_requirements_tests = - the code needs to be covered with unit, widget
 label_code_sent_again = The code has been re-sent.
 label_conditions = Conditions
 label_conditions_backend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_frontend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_ui_ux_designer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_confirm = Confirm
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost

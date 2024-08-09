@@ -98,6 +98,14 @@ void main() async {
         locale: 'en-US',
       ),
     ).thenAnswer((_) => Future.value());
+
+    when(
+      graphQlProvider.validateConfirmationCode(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        code: ConfirmationCode('1234'),
+      ),
+    ).thenAnswer((_) => Future.value());
+
     when(
       graphQlProvider.updateUserPassword(
         identifier: MyUserIdentifier(login: UserLogin('login')),
@@ -155,6 +163,10 @@ void main() async {
       graphQlProvider.createConfirmationCode(
         MyUserIdentifier(login: UserLogin('login')),
         locale: 'en-US',
+      ),
+      graphQlProvider.validateConfirmationCode(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        code: ConfirmationCode('1234'),
       ),
       graphQlProvider.updateUserPassword(
         identifier: MyUserIdentifier(login: UserLogin('login')),

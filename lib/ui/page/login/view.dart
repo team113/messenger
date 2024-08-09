@@ -209,9 +209,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.medium.regular.primary,
+                    style.fonts.normal.regular.primary,
                   ),
-                  style: style.fonts.medium.regular.onBackground,
+                  style: style.fonts.normal.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -219,7 +219,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.medium.regular.onBackground,
+                    style: style.fonts.normal.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -233,8 +233,8 @@ class LoginView extends StatelessWidget {
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
                       style: enabled
-                          ? style.fonts.medium.regular.primary
-                          : style.fonts.medium.regular.onBackground,
+                          ? style.fonts.normal.regular.primary
+                          : style.fonts.normal.regular.onBackground,
                     ),
                   );
                 }),
