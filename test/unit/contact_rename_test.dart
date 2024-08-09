@@ -73,47 +73,47 @@ void main() async {
     'ver': '0'
   };
 
-  var chatContacts = {
-    'chatContacts': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0',
-    }
-  };
+  // var chatContacts = {
+  //   'chatContacts': {
+  //     'edges': [],
+  //     'pageInfo': {
+  //       'endCursor': 'endCursor',
+  //       'hasNextPage': false,
+  //       'startCursor': 'startCursor',
+  //       'hasPreviousPage': false,
+  //     },
+  //     'ver': '0',
+  //   }
+  // };
 
-  var favoriteChatContacts = {
-    'favoriteChatContacts': {
-      'edges': [],
-      'pageInfo': {
-        'endCursor': 'endCursor',
-        'hasNextPage': false,
-        'startCursor': 'startCursor',
-        'hasPreviousPage': false,
-      },
-      'ver': '0',
-    }
-  };
+  // var favoriteChatContacts = {
+  //   'favoriteChatContacts': {
+  //     'edges': [],
+  //     'pageInfo': {
+  //       'endCursor': 'endCursor',
+  //       'hasNextPage': false,
+  //       'startCursor': 'startCursor',
+  //       'hasPreviousPage': false,
+  //     },
+  //     'ver': '0',
+  //   }
+  // };
 
-  var updateChatContact = {
-    'updateChatContactName': {
-      '__typename': 'ChatContactEventsVersioned',
-      'events': [
-        {
-          '__typename': 'EventChatContactNameUpdated',
-          'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
-          'name': 'newname',
-          'at': DateTime.now().toString(),
-        }
-      ],
-      'ver': '1',
-      'listVer': '1',
-    }
-  };
+  // var updateChatContact = {
+  //   'updateChatContactName': {
+  //     '__typename': 'ChatContactEventsVersioned',
+  //     'events': [
+  //       {
+  //         '__typename': 'EventChatContactNameUpdated',
+  //         'contactId': '08164fb1-ff60-49f6-8ff2-7fede51c3aed',
+  //         'name': 'newname',
+  //         'at': DateTime.now().toString(),
+  //       }
+  //     ],
+  //     'ver': '1',
+  //     'listVer': '1',
+  //   }
+  // };
 
   Future<ContactService> init(GraphQlProvider graphQlProvider) async {
     UserRepository userRepo = UserRepository(graphQlProvider, userProvider);
@@ -148,38 +148,38 @@ void main() async {
       ]),
     );
 
-    when(graphQlProvider.chatContacts(
-      first: anyNamed('first'),
-      noFavorite: true,
-      before: null,
-      after: null,
-      last: null,
-    )).thenAnswer((_) =>
-        Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
+    // when(graphQlProvider.chatContacts(
+    //   first: anyNamed('first'),
+    //   noFavorite: true,
+    //   before: null,
+    //   after: null,
+    //   last: null,
+    // )).thenAnswer((_) =>
+    //     Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
-    when(graphQlProvider.favoriteChatContacts(
-      first: anyNamed('first'),
-      before: null,
-      after: null,
-      last: null,
-    )).thenAnswer(
-      (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
-          .favoriteChatContacts),
-    );
+    // when(graphQlProvider.favoriteChatContacts(
+    //   first: anyNamed('first'),
+    //   before: null,
+    //   after: null,
+    //   last: null,
+    // )).thenAnswer(
+    //   (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
+    //       .favoriteChatContacts),
+    // );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-    when(
-      graphQlProvider.changeContactName(
-        const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
-        UserName('newname'),
-      ),
-    ).thenAnswer(
-      (_) => Future.value(UpdateChatContactName$Mutation.fromJson(
-        updateChatContact,
-      ).updateChatContactName
-          as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
-    );
+    // when(
+    //   graphQlProvider.changeContactName(
+    //     const ChatContactId('08164fb1-ff60-49f6-8ff2-7fede51c3aed'),
+    //     UserName('newname'),
+    //   ),
+    // ).thenAnswer(
+    //   (_) => Future.value(UpdateChatContactName$Mutation.fromJson(
+    //     updateChatContact,
+    //   ).updateChatContactName
+    //       as UpdateChatContactName$Mutation$UpdateChatContactName$ChatContactEventsVersioned),
+    // );
 
     ContactService contactService = await init(graphQlProvider);
 

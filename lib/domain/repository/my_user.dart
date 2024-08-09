@@ -104,14 +104,22 @@ abstract class AbstractMyUserRepository {
   /// Sets the given [email] address as an [MyUserEmails.unconfirmed] sub-field
   /// of a [MyUser.emails] field and sends to this address an email message with
   /// a [ConfirmationCode].
-  Future<void> addUserEmail(UserEmail email, {ConfirmationCode? confirmation, String? locale,});
+  Future<void> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  });
 
   /// Adds a new [phone] number for the authenticated [MyUser].
   ///
   /// Sets the given [phone] number as an [MyUserPhones.unconfirmed] sub-field
   /// of a [MyUser.phones] field and sends to this number SMS with a
   /// [ConfirmationCode].
-  Future<void> addUserPhone(UserPhone phone, {ConfirmationCode? confirmation, String? locale,});
+  Future<void> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  });
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]

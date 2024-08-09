@@ -22,7 +22,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
-import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -152,25 +151,6 @@ void main() async {
         .thenAnswer((_) => const Stream.empty());
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.chatContacts(
-      first: anyNamed('first'),
-      noFavorite: true,
-      before: null,
-      after: null,
-      last: null,
-    )).thenAnswer((_) =>
-        Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
-
-    when(graphQlProvider.favoriteChatContacts(
-      first: anyNamed('first'),
-      before: null,
-      after: null,
-      last: null,
-    )).thenAnswer(
-      (_) => Future.value(FavoriteContacts$Query.fromJson(favoriteChatContacts)
-          .favoriteChatContacts),
-    );
-
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) async => const Stream.empty(),
     );
@@ -224,117 +204,117 @@ void main() async {
       graphQlProvider.myUserEvents(any),
     ).thenAnswer((_) async => myUserEvents.stream);
 
-    when(graphQlProvider.createChatContact(
-      name: UserName('user name'),
-      records: [
-        ChatContactRecord(
-          userId: const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
-        )
-      ],
-    )).thenAnswer((_) {
-      var event1 = {
-        '__typename': 'EventChatContactCreated',
-        'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-        'at': DateTime.now().toString(),
-        'name': '1009422423626377'
-      };
+    // when(graphQlProvider.createChatContact(
+    //   name: UserName('user name'),
+    //   records: [
+    //     ChatContactRecord(
+    //       userId: const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),
+    //     )
+    //   ],
+    // )).thenAnswer((_) {
+    //   var event1 = {
+    //     '__typename': 'EventChatContactCreated',
+    //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+    //     'at': DateTime.now().toString(),
+    //     'name': '1009422423626377'
+    //   };
 
-      var event2 = {
-        '__typename': 'EventChatContactUserAdded',
-        'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-        'at': DateTime.now().toString(),
-        'user': {
-          '__typename': 'User',
-          'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
-          'num': '5769236098621822',
-          'name': 'user name',
-          'avatar': null,
-          'callCover': null,
-          'mutualContactsCount': 0,
-          'contacts': [
-            {
-              'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-              'name': '1009422423626377',
-            }
-          ],
-          'online': {
-            '__typename': 'UserOffline',
-            'lastSeenAt': '2022-03-14T12:55:28.415454+00:00'
-          },
-          'presence': 'PRESENT',
-          'status': null,
-          'isDeleted': false,
-          'dialog': null,
-          'isBlocked': {'ver': '5'},
-          'ver': '4'
-        },
-      };
+    //   var event2 = {
+    //     '__typename': 'EventChatContactUserAdded',
+    //     'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+    //     'at': DateTime.now().toString(),
+    //     'user': {
+    //       '__typename': 'User',
+    //       'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1be',
+    //       'num': '5769236098621822',
+    //       'name': 'user name',
+    //       'avatar': null,
+    //       'callCover': null,
+    //       'mutualContactsCount': 0,
+    //       'contacts': [
+    //         {
+    //           'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+    //           'name': '1009422423626377',
+    //         }
+    //       ],
+    //       'online': {
+    //         '__typename': 'UserOffline',
+    //         'lastSeenAt': '2022-03-14T12:55:28.415454+00:00'
+    //       },
+    //       'presence': 'PRESENT',
+    //       'status': null,
+    //       'isDeleted': false,
+    //       'dialog': null,
+    //       'isBlocked': {'ver': '5'},
+    //       'ver': '4'
+    //     },
+    //   };
 
-      contactEvents.add(QueryResult.internal(
-        data: {
-          'chatContactsEvents': {
-            '__typename': 'ChatContactEventsVersioned',
-            'events': [event1, event2],
-            'ver': '5',
-            'listVer': '5',
-          }
-        },
-        parserFn: (_) => null,
-        source: null,
-      ));
+    //   contactEvents.add(QueryResult.internal(
+    //     data: {
+    //       'chatContactsEvents': {
+    //         '__typename': 'ChatContactEventsVersioned',
+    //         'events': [event1, event2],
+    //         'ver': '5',
+    //         'listVer': '5',
+    //       }
+    //     },
+    //     parserFn: (_) => null,
+    //     source: null,
+    //   ));
 
-      return Future.value(CreateChatContact$Mutation.fromJson({
-        'createChatContact': {
-          '__typename': 'ChatContactEventsVersioned',
-          'events': [event1, event2],
-          'ver': '6',
-          'listVer': '6',
-        }
-      }).createChatContact as ChatContactEventsVersionedMixin?);
-    });
+    //   return Future.value(CreateChatContact$Mutation.fromJson({
+    //     'createChatContact': {
+    //       '__typename': 'ChatContactEventsVersioned',
+    //       'events': [event1, event2],
+    //       'ver': '6',
+    //       'listVer': '6',
+    //     }
+    //   }).createChatContact as ChatContactEventsVersionedMixin?);
+    // });
 
-    when(graphQlProvider.deleteChatContact(
-      const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
-    )).thenAnswer((_) {
-      var event = {
-        '__typename': 'ChatContactEventsVersioned',
-        'events': [
-          {
-            '__typename': 'EventChatContactDeleted',
-            'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-            'at': '2022-03-21T12:58:29.700441900+00:00',
-          }
-        ],
-        'ver': '7',
-        'listVer': '7'
-      };
+    // when(graphQlProvider.deleteChatContact(
+    //   const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
+    // )).thenAnswer((_) {
+    //   var event = {
+    //     '__typename': 'ChatContactEventsVersioned',
+    //     'events': [
+    //       {
+    //         '__typename': 'EventChatContactDeleted',
+    //         'contactId': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+    //         'at': '2022-03-21T12:58:29.700441900+00:00',
+    //       }
+    //     ],
+    //     'ver': '7',
+    //     'listVer': '7'
+    //   };
 
-      contactEvents.add(QueryResult.internal(
-        data: {'chatContactsEvents': event},
-        parserFn: (_) => null,
-        source: null,
-      ));
+    //   contactEvents.add(QueryResult.internal(
+    //     data: {'chatContactsEvents': event},
+    //     parserFn: (_) => null,
+    //     source: null,
+    //   ));
 
-      return Future.value(
-          DeleteChatContact$Mutation.fromJson({'deleteChatContact': event}));
-    });
+    //   return Future.value(
+    //       DeleteChatContact$Mutation.fromJson({'deleteChatContact': event}));
+    // });
 
-    when(graphQlProvider.chatContact(
-      const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
-    )).thenAnswer(
-      (_) => Future.value(GetContact$Query.fromJson({
-        'chatContact': {
-          'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
-          'name': '1009422423626377',
-          'users': [newUserData],
-          'groups': [],
-          'emails': [],
-          'phones': [],
-          'favoritePosition': null,
-          'ver': '0',
-        }
-      })),
-    );
+    // when(graphQlProvider.chatContact(
+    //   const ChatContactId('9188c6b1-c2d7-4af2-a662-f68c0a00a1b2'),
+    // )).thenAnswer(
+    //   (_) => Future.value(GetContact$Query.fromJson({
+    //     'chatContact': {
+    //       'id': '9188c6b1-c2d7-4af2-a662-f68c0a00a1b2',
+    //       'name': '1009422423626377',
+    //       'users': [newUserData],
+    //       'groups': [],
+    //       'emails': [],
+    //       'phones': [],
+    //       'favoritePosition': null,
+    //       'ver': '0',
+    //     }
+    //   })),
+    // );
 
     when(graphQlProvider.getUser(
       const UserId('9188c6b1-c2d7-4af2-a662-f68c0a00a1be'),

@@ -43,6 +43,7 @@ import '/util/obs/obs.dart';
 import '/util/stream_utils.dart';
 import 'event/contact.dart';
 import 'model/contact.dart';
+import 'model/page_info.dart';
 import 'model/session_data.dart';
 import 'model/user.dart';
 import 'paginated.dart';
@@ -333,10 +334,10 @@ class ContactRepository extends DisposableInterface
         // }
 
         if (contact == null) {
-          final query = (await _graphQlProvider.chatContact(id)).chatContact;
-          if (query != null) {
-            contact = await _putChatContact(query.toDto());
-          }
+          // final query = (await _graphQlProvider.chatContact(id)).chatContact;
+          // if (query != null) {
+          //   contact = await _putChatContact(query.toDto());
+          // }
         }
 
         if (contact != null) {
@@ -496,35 +497,37 @@ class ContactRepository extends DisposableInterface
   }) async {
     Log.debug('_search($name, $email, $phone, $after, $first)', '$runtimeType');
 
-    const maxInt = 120;
-    var query = await _graphQlProvider.searchChatContacts(
-      name: name,
-      email: email,
-      phone: phone,
-      after: after,
-      first: first ?? maxInt,
-    );
+    return Page(RxList([]), PageInfo());
 
-    final List<DtoChatContact> result =
-        query.searchChatContacts.edges.map((c) => c.node.toDto()).toList();
+    // const maxInt = 120;
+    // var query = await _graphQlProvider.searchChatContacts(
+    //   name: name,
+    //   email: email,
+    //   phone: phone,
+    //   after: after,
+    //   first: first ?? maxInt,
+    // );
 
-    for (DtoChatContact user in result) {
-      _putChatContact(user);
-    }
+    // final List<DtoChatContact> result =
+    //     query.searchChatContacts.edges.map((c) => c.node.toDto()).toList();
 
-    // Wait for local storage to populate the added [DtoChatContact] from
-    // [_putChatContact] invoked earlier.
-    await Future.delayed(Duration.zero);
+    // for (DtoChatContact user in result) {
+    //   _putChatContact(user);
+    // }
 
-    final List<RxChatContact> contacts =
-        (await Future.wait(result.map((e) async => await get(e.value.id))))
-            .whereNotNull()
-            .toList();
+    // // Wait for local storage to populate the added [DtoChatContact] from
+    // // [_putChatContact] invoked earlier.
+    // await Future.delayed(Duration.zero);
 
-    return Page(
-      RxList(contacts),
-      query.searchChatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
-    );
+    // final List<RxChatContact> contacts =
+    //     (await Future.wait(result.map((e) async => await get(e.value.id))))
+    //         .whereNotNull()
+    //         .toList();
+
+    // return Page(
+    //   RxList(contacts),
+    //   query.searchChatContacts.pageInfo.toModel((c) => ChatContactsCursor(c)),
+    // );
   }
 
   /// Puts the provided [contact] to [Pagination] and local storage.
@@ -802,13 +805,15 @@ class ContactRepository extends DisposableInterface
     }
 
     return mutex.protect(() async {
-      final DtoChatContact? contact =
-          (await _graphQlProvider.chatContact(id)).chatContact?.toDto();
-      if (contact != null) {
-        _putChatContact(contact);
-      }
+      return null;
 
-      return contact;
+      // final DtoChatContact? contact =
+      //     (await _graphQlProvider.chatContact(id)).chatContact?.toDto();
+      // if (contact != null) {
+      //   _putChatContact(contact);
+      // }
+
+      // return contact;
     });
   }
 
@@ -906,26 +911,26 @@ class ContactRepository extends DisposableInterface
         '$runtimeType',
       );
 
-      var events =
-          ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
+      // final events =
+      //     ContactsEvents$Subscription.fromJson(event.data!).chatContactsEvents;
 
-      if (events.$$typename == 'SubscriptionInitialized') {
-        events
-            as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
-        yield const ChatContactsEventsInitialized();
-      } else if (events.$$typename == 'ChatContactsList') {
-        // No-op, as contacts are loaded through [_pagination].
-      } else if (events.$$typename == 'ChatContactEventsVersioned') {
-        var mixin = events
-            as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
-        yield ChatContactsEventsEvent(
-          ChatContactEventsVersioned(
-            mixin.events.map((e) => _contactEvent(e)).toList(),
-            mixin.ver,
-            mixin.listVer,
-          ),
-        );
-      }
+      // if (events.$$typename == 'SubscriptionInitialized') {
+      //   events
+      //       as ContactsEvents$Subscription$ChatContactsEvents$SubscriptionInitialized;
+      //   yield const ChatContactsEventsInitialized();
+      // } else if (events.$$typename == 'ChatContactsList') {
+      //   // No-op, as contacts are loaded through [_pagination].
+      // } else if (events.$$typename == 'ChatContactEventsVersioned') {
+      //   var mixin = events
+      //       as ContactsEvents$Subscription$ChatContactsEvents$ChatContactEventsVersioned;
+      //   yield ChatContactsEventsEvent(
+      //     ChatContactEventsVersioned(
+      //       mixin.events.map((e) => _contactEvent(e)).toList(),
+      //       mixin.ver,
+      //       mixin.listVer,
+      //     ),
+      //   );
+      // }
     });
   }
 
