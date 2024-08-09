@@ -150,4 +150,14 @@ abstract class AbstractAuthRepository {
     UserPhone? phone,
     String? locale,
   });
+
+  /// Validates the provided ConfirmationCode for the MyUser identified by the
+  /// provided [login], [num], [email] and/or [phone] without using it.
+  Future<void> validateConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    required ConfirmationCode code,
+  });
 }

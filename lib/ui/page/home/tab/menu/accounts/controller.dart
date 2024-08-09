@@ -188,7 +188,7 @@ class AccountsController extends GetxController {
           emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            // await _authService.signUpWithEmail(email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -212,10 +212,10 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService.confirmSignUpEmail(
-            ConfirmationCode(emailCode.text),
-            force: true,
-          );
+          // await _authService.confirmSignUpEmail(
+          //   ConfirmationCode(emailCode.text),
+          //   force: true,
+          // );
 
           // TODO: This is a hack that should be removed, as whenever the
           //       account is changed, the [HomeView] and its dependencies must

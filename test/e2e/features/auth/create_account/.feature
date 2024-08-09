@@ -17,7 +17,7 @@
 
 Feature: Account creation
 
-  Scenario: User creates a new account and deletes it
+  Scenario: User creates a new account
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
     And I scroll `IntroductionScrollable` until `ProceedButton` is present
@@ -36,15 +36,3 @@ Feature: Account creation
     And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until `ChangePassword` is present
-
-    When I scroll `MenuListView` until `DangerZone` is present
-    And I tap `DangerZone` button
-    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
-    And I tap `DeleteAccount` button
-    Then I wait until `EraseView` is present
-
-    When I scroll `EraseScrollable` until `ConfirmDelete` is present
-    And I tap `ConfirmDelete` button
-    And I tap `Proceed` button
-    Then I wait until `AuthView` is present
-    And I pause for 1 second

@@ -50,10 +50,6 @@ extension MyUserConversion on MyUserMixin {
           unconfirmed: emails.unconfirmed,
         ),
         phones: MyUserPhones(confirmed: []),
-        // phones: MyUserPhones(
-        //   confirmed: phones.confirmed,
-        //   unconfirmed: phones.unconfirmed,
-        // ),
         muted: muted != null
             ? muted!.$$typename == 'MuteForeverDuration'
                 ? MuteDuration.forever()

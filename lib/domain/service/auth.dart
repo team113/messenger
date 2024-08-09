@@ -262,6 +262,29 @@ class AuthService extends DisposableService {
     );
   }
 
+  /// Validates the provided ConfirmationCode for the MyUser identified by the
+  /// provided [login], [num], [email] and/or [phone] without using it.
+  Future<void> validateConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    required ConfirmationCode code,
+  }) async {
+    Log.debug(
+      'validateConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured})',
+      '$runtimeType',
+    );
+
+    await _authRepository.validateConfirmationCode(
+      login: login,
+      num: num,
+      email: email,
+      phone: phone,
+      code: code,
+    );
+  }
+
   /// Resets password for a [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified)
   /// and recovery [ConfirmationCode].

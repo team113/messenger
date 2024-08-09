@@ -1555,3 +1555,26 @@ class DeleteUserPhoneException
     }
   }
 }
+
+/// Exception of `Mutation.validateConfirmationCode` described in the [code].
+class ValidateConfirmationCodeException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const ValidateConfirmationCodeException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final ValidateConfirmationCodeErrorCode code;
+
+  @override
+  String toString() => 'ValidateConfirmationCodeException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case ValidateConfirmationCodeErrorCode.wrongCode:
+        return 'err_wrong_code'.l10n;
+      case ValidateConfirmationCodeErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

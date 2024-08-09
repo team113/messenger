@@ -97,7 +97,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -115,7 +115,7 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.recoveryPassword:
+            case LoginViewStage.recoveryCode:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_recover_account'.l10n,
@@ -124,7 +124,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -134,9 +134,26 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
+                PrimaryButton(
+                  key: const Key('Proceed'),
+                  title: 'btn_proceed'.l10n,
+                  onPressed: c.recoveryCode.isEmpty.value
+                      ? null
+                      : c.recoveryCode.submit,
+                ),
+              ];
+              break;
+
+            case LoginViewStage.recoveryPassword:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signIn,
+                text: 'label_recover_account'.l10n,
+              );
+
+              children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -169,7 +186,8 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 25),
                 Obx(() {
                   final bool enabled = !c.newPassword.isEmpty.value &&
-                      !c.repeatPassword.isEmpty.value;
+                      !c.repeatPassword.isEmpty.value &&
+                      !c.recoveryCode.isEmpty.value;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),

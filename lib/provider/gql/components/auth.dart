@@ -297,4 +297,55 @@ mixin AuthGraphQlMixin {
       operationName: query.operationName,
     );
   }
+
+  /// Validates the provided [ConfirmationCode] for the MyUser identified by the provided [MyUserIdentifier] without using it.
+  ///
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then the provided
+  /// [ConfirmationCode] is validated against it exclusively, meaning that
+  /// providing [ConfirmationCode]s sent to any other [MyUserEmails.confirmed]
+  /// or [MyUserPhones.confirmed] is invalid. Otherwise, if a
+  /// [MyUserIdentifier.num] or a [MyUserIdentifier.login] is provided, then a
+  /// [ConfirmationCode] sent to any of [MyUserEmails.confirmed] or
+  /// [MyUserPhones.confirmed] is suitable.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
+  ///
+  /// ### Authentication
+  ///
+  /// None.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `null` on success.
+  ///
+  /// ### Idempotent
+  ///
+  /// [ConfirmationCode] can be validated unlimited number of times (for now).
+  Future<RefreshSession$Mutation> validateConfirmationCode({
+    required MyUserIdentifier identifier,
+    required ConfirmationCode code,
+  }) async {
+    Log.debug(
+      'validateConfirmationCode(identifier: $identifier, code: $code)',
+      '$runtimeType',
+    );
+
+    final variables =
+        ValidateConfirmationCodeArguments(ident: identifier, code: code);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'ValidateConfirmationCode',
+        document:
+            ValidateConfirmationCodeMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => ValidateConfirmationCodeException(
+        (ValidateConfirmationCode$Mutation.fromJson(data)
+            .validateConfirmationCode)!,
+      ),
+    );
+    return RefreshSession$Mutation.fromJson(result.data!);
+  }
 }

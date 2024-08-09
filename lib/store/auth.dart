@@ -350,4 +350,28 @@ class AuthRepository extends DisposableInterface
       locale: locale,
     );
   }
+
+  @override
+  Future<void> validateConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    required ConfirmationCode code,
+  }) async {
+    Log.debug(
+      'validateConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, code: $code)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.validateConfirmationCode(
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      code: code,
+    );
+  }
 }

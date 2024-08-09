@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show UpdateUserPasswordErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -29,7 +30,8 @@ import '/provider/gql/exceptions.dart'
         AddUserEmailException,
         ConnectionException,
         CreateSessionException,
-        UpdateUserPasswordException;
+        UpdateUserPasswordException,
+        ValidateConfirmationCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -37,6 +39,7 @@ import '/util/message_popup.dart';
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
   recovery,
+  recoveryCode,
   recoveryPassword,
   signIn,
   signInWithPassword,
@@ -177,12 +180,7 @@ class LoginController extends GetxController {
 
     recovery = TextFieldState(onSubmitted: (s) => recoverAccess());
 
-    recoveryCode = TextFieldState(
-      onSubmitted: (s) {
-        newPassword.focus.requestFocus();
-        s.unsubmit();
-      },
-    );
+    recoveryCode = TextFieldState(onSubmitted: (s) => validateCode());
 
     newPassword = TextFieldState(
       onChanged: (_) {
@@ -223,7 +221,7 @@ class LoginController extends GetxController {
           emailCode.clear();
           stage.value = LoginViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -247,8 +245,8 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService
-              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
+          // await _authService
+          //     .confirmSignUpEmail(ConfirmationCode(emailCode.text));
 
           (onSuccess ?? router.home)(signedUp: true);
           // TODO(impl)
@@ -437,7 +435,7 @@ class LoginController extends GetxController {
         locale: L10n.chosen.value?.toString(),
       );
 
-      stage.value = LoginViewStage.recoveryPassword;
+      stage.value = LoginViewStage.recoveryCode;
       recovery.status.value = RxStatus.success();
       recovery.editable.value = false;
     } on FormatException {
@@ -455,10 +453,55 @@ class LoginController extends GetxController {
     }
   }
 
+  /// Validates the provided password recovery [ConfirmationCode] for the
+  /// [MyUser] identified by the provided in [recoverAccess] identity.
+  Future<void> validateCode() async {
+    recoveryCode.editable.value = false;
+    recoveryCode.status.value = RxStatus.loading();
+    recoveryCode.error.value = null;
+
+    if (recoveryCode.text.isEmpty) {
+      recoveryCode.editable.value = true;
+      recoveryCode.status.value = RxStatus.empty();
+      recoveryCode.error.value = 'err_input_empty'.l10n;
+      return;
+    }
+
+    try {
+      await _authService.validateConfirmationCode(
+        login: _recoveryLogin,
+        num: _recoveryNum,
+        email: _recoveryEmail,
+        phone: _recoveryPhone,
+        code: ConfirmationCode(recoveryCode.text.toLowerCase()),
+      );
+
+      recoveryCode.editable.value = false;
+      recoveryCode.status.value = RxStatus.success();
+      stage.value = LoginViewStage.recoveryPassword;
+    } on FormatException {
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+    } on ArgumentError {
+      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
+    } on ValidateConfirmationCodeException catch (e) {
+      recoveryCode.error.value = e.toMessage();
+    } catch (e) {
+      recoveryCode.unsubmit();
+      recoveryCode.resubmitOnError.value = true;
+      recoveryCode.error.value = 'err_data_transfer'.l10n;
+      rethrow;
+    } finally {
+      recoveryCode.editable.value = true;
+      recoveryCode.status.value = RxStatus.empty();
+    }
+  }
+
   /// Resets password for the [MyUser] identified by the provided in
   /// [recoverAccess] identity and [ConfirmationCode].
   Future<void> resetUserPassword() async {
-    if (newPassword.error.value != null || repeatPassword.error.value != null) {
+    if (newPassword.error.value != null ||
+        repeatPassword.error.value != null ||
+        recoveryCode.error.value != null) {
       return;
     }
 
@@ -513,7 +556,16 @@ class LoginController extends GetxController {
     } on ArgumentError {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on UpdateUserPasswordException catch (e) {
-      repeatPassword.error.value = e.toMessage();
+      switch (e.code) {
+        case UpdateUserPasswordErrorCode.wrongOldPassword:
+          repeatPassword.error.value = 'err_wrong_old_password'.l10n;
+        case UpdateUserPasswordErrorCode.wrongCode:
+          recoveryCode.error.value = 'err_wrong_code'.l10n;
+        case UpdateUserPasswordErrorCode.confirmationRequired:
+          repeatPassword.error.value = 'err_confirmation_required'.l10n;
+        case UpdateUserPasswordErrorCode.artemisUnknown:
+          repeatPassword.error.value = 'err_unknown'.l10n;
+      }
     } catch (e) {
       repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;
@@ -531,7 +583,7 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
+      // await _authService.resendSignUpEmail();
       // TODO(impl)
       // } on ResendUserEmailConfirmationException catch (e) {
       //   emailCode.error.value = e.toMessage();

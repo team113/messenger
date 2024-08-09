@@ -135,6 +135,10 @@ void main() async {
     await tester.enterText(codeField, '1234');
     await tester.pumpAndSettle();
 
+    await tester.tap(find.byKey(const Key('Proceed')));
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(seconds: 1));
+
     final password1 = find.byKey(const ValueKey('PasswordField'));
     expect(password1, findsOneWidget);
     final password2 = find.byKey(const ValueKey('RepeatPasswordField'));
