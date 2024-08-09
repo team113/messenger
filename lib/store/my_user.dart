@@ -56,8 +56,8 @@ class MyUserRepository extends DisposableInterface
   MyUserRepository(
     this._graphQlProvider,
     this._driftMyUser,
-    this._blocklistRepo,
-    this._userRepo,
+    this._blocklistRepository,
+    this._userRepository,
     this._accountLocal,
   );
 
@@ -83,10 +83,10 @@ class MyUserRepository extends DisposableInterface
   final AccountDriftProvider _accountLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
-  final BlocklistRepository _blocklistRepo;
+  final BlocklistRepository _blocklistRepository;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
-  final UserRepository _userRepo;
+  final UserRepository _userRepository;
 
   /// [MyUserDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
@@ -243,7 +243,10 @@ class MyUserRepository extends DisposableInterface
     UserPassword? oldPassword,
     UserPassword newPassword,
   ) async {
-    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
+    Log.debug(
+      'updateUserPassword(${oldPassword?.obscured}, ${newPassword.obscured})',
+      '$runtimeType',
+    );
 
     final bool? hasPassword = myUser.value?.hasPassword;
 
@@ -266,14 +269,32 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteMyUser() async {
-    Log.debug('deleteMyUser()', '$runtimeType');
-    await _graphQlProvider.deleteMyUser();
+  Future<void> deleteMyUser({
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteMyUser(password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.deleteMyUser(
+      confirmation: confirmation == null && password == null
+          ? null
+          : MyUserCredentials(code: confirmation, password: password),
+    );
   }
 
   @override
-  Future<void> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', '$runtimeType');
+  Future<void> deleteUserEmail(
+    UserEmail email, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserEmail($email, password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     if (myUser.value?.emails.unconfirmed == email) {
       await _debounce(
@@ -283,9 +304,17 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserEmail(previous);
+            return await _graphQlProvider.deleteUserEmail(
+              previous,
+              confirmation: confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
+            );
           } else if (value != null) {
-            return await _graphQlProvider.addUserEmail(value);
+            return await _graphQlProvider.addUserEmail(
+              value,
+              confirmation: confirmation,
+            );
           }
 
           return null;
@@ -304,7 +333,12 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserEmail(email);
+        await _graphQlProvider.deleteUserEmail(
+          email,
+          confirmation: confirmation == null && password == null
+              ? null
+              : MyUserCredentials(code: confirmation, password: password),
+        );
       } catch (_) {
         if (i != -1) {
           i = min(i, myUser.value?.emails.confirmed.length ?? 0);
@@ -316,8 +350,15 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+  Future<void> deleteUserPhone(
+    UserPhone phone, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserPhone($phone, password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     if (myUser.value?.phones.unconfirmed == phone) {
       await _debounce(
@@ -327,9 +368,17 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserPhone(previous);
+            return await _graphQlProvider.deleteUserPhone(
+              previous,
+              confirmation: confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
+            );
           } else if (value != null) {
-            return await _graphQlProvider.addUserPhone(value);
+            return await _graphQlProvider.addUserPhone(
+              value,
+              confirmation: confirmation,
+            );
           }
 
           return null;
@@ -348,8 +397,12 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        throw UnimplementedError();
-        // await _graphQlProvider.deleteUserPhone(phone);
+        await _graphQlProvider.deleteUserPhone(
+          phone,
+          confirmation: confirmation == null && password == null
+              ? null
+              : MyUserCredentials(code: confirmation, password: password),
+        );
       } catch (_) {
         if (i != -1) {
           i = min(i, myUser.value?.phones.confirmed.length ?? 0);
@@ -361,8 +414,15 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> addUserEmail(UserEmail email) async {
-    Log.debug('addUserEmail($email)', '$runtimeType');
+  Future<void> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserEmail($email, confirmation: $confirmation, locale: $locale)',
+      '$runtimeType',
+    );
 
     await _debounce(
       field: MyUserField.email,
@@ -371,9 +431,18 @@ class MyUserRepository extends DisposableInterface
       value: email,
       mutation: (value, previous) async {
         if (previous != null) {
-          return await _graphQlProvider.deleteUserEmail(previous);
+          return await _graphQlProvider.deleteUserEmail(
+            previous,
+            confirmation: confirmation == null
+                ? null
+                : MyUserCredentials(code: confirmation),
+          );
         } else if (value != null) {
-          return await _graphQlProvider.addUserEmail(value);
+          return await _graphQlProvider.addUserEmail(
+            value,
+            confirmation: confirmation,
+            locale: locale,
+          );
         }
 
         return null;
@@ -387,8 +456,15 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', '$runtimeType');
+  Future<void> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserPhone($phone, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     await _debounce(
       field: MyUserField.phone,
@@ -396,15 +472,22 @@ class MyUserRepository extends DisposableInterface
       saved: () async => (await _active)?.value.phones.unconfirmed,
       value: phone,
       mutation: (value, previous) async {
-        throw UnimplementedError();
+        if (previous != null) {
+          return await _graphQlProvider.deleteUserPhone(
+            previous,
+            confirmation: confirmation == null
+                ? null
+                : MyUserCredentials(code: confirmation),
+          );
+        } else if (value != null) {
+          return await _graphQlProvider.addUserPhone(
+            value,
+            confirmation: confirmation,
+            locale: locale,
+          );
+        }
 
-        // if (previous != null) {
-        //   return await _graphQlProvider.deleteUserPhone(previous);
-        // } else if (value != null) {
-        //   return await _graphQlProvider.addUserPhone(value);
-        // }
-
-        // return null;
+        return null;
       },
       update: (v, p) => myUser.update(
         (u) => p != null
@@ -412,63 +495,6 @@ class MyUserRepository extends DisposableInterface
             : u?.phones.unconfirmed = v,
       ),
     );
-  }
-
-  @override
-  Future<void> confirmEmailCode(ConfirmationCode code) async {
-    Log.debug('confirmEmailCode($code)', '$runtimeType');
-
-    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
-
-    // TODO(impl)
-    // await _graphQlProvider.confirmEmailCode(code);
-
-    myUser.update(
-      (u) {
-        u?.emails.confirmed.addIf(
-          !u.emails.confirmed.contains(unconfirmed),
-          unconfirmed!,
-        );
-        u?.emails.unconfirmed = null;
-      },
-    );
-  }
-
-  @override
-  Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode($code)', '$runtimeType');
-
-    throw UnimplementedError();
-
-    // final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
-
-    // await _graphQlProvider.confirmPhoneCode(code);
-
-    // myUser.update(
-    //   (u) {
-    //     u?.phones.confirmed.addIf(
-    //       !u.phones.confirmed.contains(unconfirmed),
-    //       unconfirmed!,
-    //     );
-    //     u?.phones.unconfirmed = null;
-    //   },
-    // );
-  }
-
-  @override
-  Future<void> resendEmail() async {
-    Log.debug('resendEmail()', '$runtimeType');
-
-    // TODO(impl)
-    // await _graphQlProvider.resendEmail();
-  }
-
-  @override
-  Future<void> resendPhone() async {
-    Log.debug('resendPhone()', '$runtimeType');
-
-    // TODO(impl)
-    // await _graphQlProvider.resendPhone();
   }
 
   @override
@@ -774,7 +800,7 @@ class MyUserRepository extends DisposableInterface
           _myUserRemoteEvent,
           onError: (e) async {
             if (e is StaleVersionException) {
-              await _blocklistRepo.reset();
+              await _blocklistRepository.reset();
             }
           },
         );
@@ -852,16 +878,17 @@ class MyUserRepository extends DisposableInterface
     for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
+        final FutureOr<RxUser?> userOrFuture =
+            _userRepository.get(event.userId);
 
         if (userOrFuture is RxUser?) {
           if (userOrFuture != null) {
-            _userRepo.update(convertor(userOrFuture.user.value));
+            _userRepository.update(convertor(userOrFuture.user.value));
           }
         } else {
           userOrFuture.then((user) {
             if (user != null) {
-              _userRepo.update(convertor(user.user.value));
+              _userRepository.update(convertor(user.user.value));
             }
           });
         }
@@ -1056,7 +1083,7 @@ class MyUserRepository extends DisposableInterface
             userEntity.value.blocklistCount =
                 userEntity.value.blocklistCount! + 1;
           }
-          _blocklistRepo.put(
+          _blocklistRepository.put(
             DtoBlocklistRecord(event.user.value.isBlocked!, null),
           );
           break;
@@ -1067,7 +1094,7 @@ class MyUserRepository extends DisposableInterface
             userEntity.value.blocklistCount =
                 max(userEntity.value.blocklistCount! - 1, 0);
           }
-          _blocklistRepo.remove(event.user.value.id);
+          _blocklistRepository.remove(event.user.value.id);
           break;
       }
     }

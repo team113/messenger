@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/user.dart';
@@ -92,12 +93,16 @@ void main() async {
     router.provider = MockPlatformRouteInformationProvider();
 
     when(
-      graphQlProvider.validateUserPasswordRecoveryCode(
-          UserLogin('login'), null, null, null, ConfirmationCode('1234')),
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
+      ),
     ).thenAnswer((_) => Future.value());
     when(
-      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-          ConfirmationCode('1234'), UserPassword('test123')),
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1234')),
+        newPassword: UserPassword('test123'),
+      ),
     ).thenAnswer((_) => Future.value());
 
     await tester.pumpWidget(
@@ -146,11 +151,14 @@ void main() async {
     await tester.pumpAndSettle();
 
     verifyInOrder([
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-      graphQlProvider.validateUserPasswordRecoveryCode(
-          UserLogin('login'), null, null, null, ConfirmationCode('1234')),
-      graphQlProvider.resetUserPassword(UserLogin('login'), null, null, null,
-          ConfirmationCode('1234'), UserPassword('test123')),
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
+      ),
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1234')),
+        newPassword: UserPassword('test123'),
+      ),
     ]);
 
     common.close();

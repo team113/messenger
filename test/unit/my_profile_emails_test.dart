@@ -81,7 +81,7 @@ void main() async {
       ]),
     );
 
-    when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru'))).thenAnswer(
+    when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com'))).thenAnswer(
       (_) async => AddUserEmail$Mutation.fromJson({
         'addUserEmail': {
           '__typename': 'MyUserEventsVersioned',
@@ -89,7 +89,8 @@ void main() async {
             {
               '__typename': 'EventUserEmailAdded',
               'userId': 'id',
-              'email': 'test@mail.ru',
+              'email': 'test@dummy.com',
+              'confirmed': false,
               'at': DateTime.now().toString(),
             }
           ],
@@ -100,18 +101,21 @@ void main() async {
           as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
     );
 
-    when(graphQlProvider.resendEmail()).thenAnswer((_) => Future.value());
-    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
-
-    when(graphQlProvider.confirmEmailCode(ConfirmationCode('1234'))).thenAnswer(
-      (_) async => ConfirmUserEmail$Mutation.fromJson({
-        'confirmUserEmail': {
+    when(
+      graphQlProvider.addUserEmail(
+        UserEmail('test@dummy.com'),
+        confirmation: ConfirmationCode('1234'),
+      ),
+    ).thenAnswer(
+      (_) async => AddUserEmail$Mutation.fromJson({
+        'addUserEmail': {
           '__typename': 'MyUserEventsVersioned',
           'events': [
             {
-              '__typename': 'EventUserEmailConfirmed',
+              '__typename': 'EventUserEmailAdded',
               'userId': 'id',
-              'email': 'test@mail.ru',
+              'email': 'test@dummy.com',
+              'confirmed': true,
               'at': DateTime.now().toString(),
             }
           ],
@@ -119,11 +123,14 @@ void main() async {
           'ver':
               '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
-      }).confirmUserEmail
-          as ConfirmUserEmail$Mutation$ConfirmUserEmail$MyUserEventsVersioned,
+      }).addUserEmail
+          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
     );
 
-    when(graphQlProvider.deleteUserEmail(UserEmail('test@mail.ru'))).thenAnswer(
+    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+
+    when(graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')))
+        .thenAnswer(
       (_) async => DeleteUserEmail$Mutation.fromJson({
         'deleteUserEmail': {
           '__typename': 'MyUserEventsVersioned',
@@ -131,7 +138,7 @@ void main() async {
             {
               '__typename': 'EventUserEmailDeleted',
               'userId': 'id',
-              'email': 'test@mail.ru',
+              'email': 'test@dummy.com',
               'at': DateTime.now().toString(),
             }
           ],
@@ -139,7 +146,8 @@ void main() async {
           'ver':
               '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
         }
-      }).deleteUserEmail,
+      }).deleteUserEmail
+          as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned,
     );
 
     when(graphQlProvider.getBlocklist(
@@ -188,16 +196,20 @@ void main() async {
 
     MyUserService myUserService = MyUserService(authService, myUserRepository);
 
-    await myUserService.addUserEmail(UserEmail('test@mail.ru'));
-    await myUserService.resendEmail();
-    await myUserService.confirmEmailCode(ConfirmationCode('1234'));
-    await myUserService.deleteUserEmail(UserEmail('test@mail.ru'));
+    await myUserService.addUserEmail(UserEmail('test@dummy.com'));
+    await myUserService.addUserEmail(
+      UserEmail('test@dummy.com'),
+      confirmation: ConfirmationCode('1234'),
+    );
+    await myUserService.deleteUserEmail(UserEmail('test@dummy.com'));
 
     verifyInOrder([
-      graphQlProvider.addUserEmail(UserEmail('test@mail.ru')),
-      graphQlProvider.resendEmail(),
-      graphQlProvider.confirmEmailCode(ConfirmationCode('1234')),
-      graphQlProvider.deleteUserEmail(UserEmail('test@mail.ru'))
+      graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+      graphQlProvider.addUserEmail(
+        UserEmail('test@dummy.com'),
+        confirmation: ConfirmationCode('1234'),
+      ),
+      graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com'))
     ]);
   });
 
@@ -216,15 +228,13 @@ void main() async {
       ]),
     );
 
-    when(graphQlProvider.addUserEmail(UserEmail('test@mail.ru')))
+    when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com')))
         .thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));
 
-    when(graphQlProvider.resendEmail()).thenThrow(
-        const ResendUserEmailConfirmationException(
-            ResendUserEmailConfirmationErrorCode.codeLimitExceeded));
-
-    when(graphQlProvider.confirmEmailCode(ConfirmationCode('1234'))).thenThrow(
-        const ConfirmUserEmailException(ConfirmUserEmailErrorCode.wrongCode));
+    when(graphQlProvider.addUserEmail(
+      UserEmail('test@dummy.com'),
+      confirmation: ConfirmationCode('1234'),
+    )).thenThrow(const AddUserEmailException(AddUserEmailErrorCode.wrongCode));
 
     AuthService authService = Get.put(
       AuthService(
@@ -251,7 +261,7 @@ void main() async {
       ),
     );
 
-    AbstractMyUserRepository myUserRepository = MyUserRepository(
+    final AbstractMyUserRepository myUserRepository = MyUserRepository(
       graphQlProvider,
       myUserProvider,
       blocklistRepository,
@@ -259,25 +269,31 @@ void main() async {
       accountProvider,
     );
     myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
-    MyUserService myUserService = MyUserService(authService, myUserRepository);
+    final MyUserService myUserService = MyUserService(
+      authService,
+      myUserRepository,
+    );
     await Future.delayed(Duration.zero);
 
     await expectLater(
-        () async => await myUserService.addUserEmail(UserEmail('test@mail.ru')),
-        throwsA(isA<AddUserEmailException>()));
-
-    await expectLater(() async => await myUserService.resendEmail(),
-        throwsA(isA<ResendUserEmailConfirmationException>()));
+      () async => await myUserService.addUserEmail(UserEmail('test@dummy.com')),
+      throwsA(isA<AddUserEmailException>()),
+    );
 
     await expectLater(
-        () async =>
-            await myUserService.confirmEmailCode(ConfirmationCode('1234')),
-        throwsA(isA<ConfirmUserEmailException>()));
+      () async => await myUserService.addUserEmail(
+        UserEmail('test@dummy.com'),
+        confirmation: ConfirmationCode('1234'),
+      ),
+      throwsA(isA<AddUserEmailException>()),
+    );
 
     verifyInOrder([
-      graphQlProvider.addUserEmail(UserEmail('test@mail.ru')),
-      graphQlProvider.resendEmail(),
-      graphQlProvider.confirmEmailCode(ConfirmationCode('1234')),
+      graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+      graphQlProvider.addUserEmail(
+        UserEmail('test@dummy.com'),
+        confirmation: ConfirmationCode('1234'),
+      ),
     ]);
   });
 

@@ -19,7 +19,6 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
-import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/base.dart';
@@ -58,27 +57,18 @@ class MockGraphQlProvider extends GraphQlProvider {
   void clearCache() => _client.clearCache();
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code, {
-    RawClientOptions? raw,
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+    UserEmail phone, {
+    MyUserCredentials? confirmation,
   }) async {
     return null;
   }
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-    ConfirmationCode code,
-  ) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail phone) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+    UserPhone phone, {
+    MyUserCredentials? confirmation,
+  }) async {
     return null;
   }
 }

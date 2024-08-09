@@ -235,7 +235,8 @@ class AuthRepository extends DisposableInterface
 
     await _graphQlProvider.deleteSession(
       id: id,
-      confirmation: password == null ? null : MyUserCredentials(password: password),
+      confirmation:
+          password == null ? null : MyUserCredentials(password: password),
       token: accessToken,
     );
 
@@ -286,46 +287,7 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<void> recoverUserPassword({
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  }) async {
-    Log.debug(
-      'recoverUserPassword($login, $num, $email, $phone)',
-      '$runtimeType',
-    );
-
-    // TODO(impl)
-    // await _graphQlProvider.recoverUserPassword(login, num, email, phone);
-  }
-
-  @override
-  Future<void> validateUserPasswordRecoveryCode({
-    required ConfirmationCode code,
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  }) async {
-    Log.debug(
-      'validateUserPasswordRecoveryCode($code, $login, $num, $email, $phone)',
-      '$runtimeType',
-    );
-
-    // TODO(impl)
-    // await _graphQlProvider.validateUserPasswordRecoveryCode(
-    //   login,
-    //   num,
-    //   email,
-    //   phone,
-    //   code,
-    // );
-  }
-
-  @override
-  Future<void> resetUserPassword({
+  Future<void> updateUserPassword({
     required ConfirmationCode code,
     required UserPassword newPassword,
     UserLogin? login,
@@ -334,19 +296,20 @@ class AuthRepository extends DisposableInterface
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
+      'updateUserPassword($code, ***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
-    // TODO(impl)
-    // await _graphQlProvider.resetUserPassword(
-    //   login,
-    //   num,
-    //   email,
-    //   phone,
-    //   code,
-    //   newPassword,
-    // );
+    await _graphQlProvider.updateUserPassword(
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      confirmation: MyUserCredentials(code: code),
+      newPassword: newPassword,
+    );
   }
 
   @override
@@ -362,5 +325,29 @@ class AuthRepository extends DisposableInterface
     Log.debug('updateSessions()', '$runtimeType');
     sessions.value =
         (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
+  }
+
+  @override
+  Future<void> createConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    String? locale,
+  }) async {
+    Log.debug(
+      'createConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, locale: $locale)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.createConfirmationCode(
+      MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      locale: locale,
+    );
   }
 }

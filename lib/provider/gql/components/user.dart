@@ -542,10 +542,17 @@ mixin UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', '$runtimeType');
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+    UserEmail email, {
+    MyUserCredentials? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserEmail($email, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
-    final variables = DeleteUserEmailArguments(email: email);
+    final variables =
+        DeleteUserEmailArguments(email: email, confirmation: confirmation);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteUserEmail',
@@ -578,8 +585,14 @@ mixin UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+    UserPhone phone, {
+    MyUserCredentials? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserPhone($phone, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     throw UnimplementedError();
     // final variables = DeleteUserPhoneArguments(phone: phone);
@@ -622,25 +635,53 @@ mixin UserGraphQlMixin {
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserEmail(
     UserEmail email, {
+    ConfirmationCode? confirmation,
     RawClientOptions? raw,
+    String? locale,
   }) async {
-    Log.debug('addUserEmail($email, $raw)', '$runtimeType');
+    Log.debug(
+      'addUserEmail($email, confirmation: $confirmation, raw: $raw, locale: $locale)',
+      '$runtimeType',
+    );
 
-    final variables = AddUserEmailArguments(email: email);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'AddUserEmail',
-        document: AddUserEmailMutation(variables: variables).document,
-        variables: variables.toJson(),
+    final variables =
+        AddUserEmailArguments(email: email, confirmation: confirmation);
+    final query = MutationOptions(
+      operationName: 'AddUserEmail',
+      document: AddUserEmailMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    final response = await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': raw?.token ?? token,
+      }),
+      options: dio.Options(
+        headers: {
+          if (locale != null) 'Accept-Language': locale,
+        },
       ),
-      raw: raw,
+      operationName: query.operationName,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
               .code),
     );
-    return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
-        as MyUserEventsVersionedMixin?;
+
+    if (response.data['data'] == null) {
+      throw GraphQlException(
+        [GraphQLError(message: response.data.toString())],
+      );
+    }
+
+    return (AddUserEmail$Mutation.fromJson(response.data['data']).addUserEmail
+        as MyUserEventsVersionedMixin?);
   }
 
   /// Adds a new phone number for the authenticated [MyUser].
@@ -671,23 +712,33 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the provided [phone]
   /// already is present in a [MyUser.phones] field (either in confirmed or
   /// unconfirmed sub-field).
-  Future<MyUserEventsVersionedMixin?> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', '$runtimeType');
+  Future<MyUserEventsVersionedMixin?> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    throw UnimplementedError();
 
-    final variables = AddUserPhoneArguments(phone: phone);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'AddUserPhone',
-        document: AddUserPhoneMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => AddUserPhoneException(
-          (AddUserPhone$Mutation.fromJson(data).addUserPhone
-                  as AddUserPhone$Mutation$AddUserPhone$AddUserPhoneError)
-              .code),
-    );
-    return AddUserPhone$Mutation.fromJson(result.data!).addUserPhone
-        as MyUserEventsVersionedMixin?;
+    // Log.debug(
+    //   'addUserPhone($phone, confirmation: $confirmation)',
+    //   '$runtimeType',
+    // );
+
+    // final variables =
+    //     AddUserPhoneArguments(phone: phone, confirmation: confirmation);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'AddUserPhone',
+    //     document: AddUserPhoneMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => AddUserPhoneException(
+    //       (AddUserPhone$Mutation.fromJson(data).addUserPhone
+    //               as AddUserPhone$Mutation$AddUserPhone$AddUserPhoneError)
+    //           .code),
+    // );
+    // return AddUserPhone$Mutation.fromJson(result.data!).addUserPhone
+    //     as MyUserEventsVersionedMixin?;
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -807,7 +858,7 @@ mixin UserGraphQlMixin {
     final encodedBody = json.encode(body);
 
     try {
-      var response = await client.post(
+      final response = await client.post(
         file == null
             ? encodedBody
             : dio.FormData.fromMap({

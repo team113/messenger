@@ -20,10 +20,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show AddUserPhoneErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show AddUserPhoneException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -37,12 +39,16 @@ class AddPhoneController extends GetxController {
   AddPhoneController(
     this._myUserService, {
     this.pop,
+    required this.phone,
     bool timeout = false,
   }) {
     if (timeout) {
       _setResendPhoneTimer();
     }
   }
+
+  /// [UserPhone] the [AddPhoneView] is about.
+  final UserPhone phone;
 
   /// Callback, called when a [AddPhoneView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -90,16 +96,19 @@ class AddPhoneController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmPhoneCode(code);
+            await _myUserService.addUserPhone(
+              phone,
+              confirmation: code,
+              locale: L10n.chosen.value?.toString(),
+            );
             pop?.call();
             s.clear();
-            // TODO(impl)
-            // } on ConfirmUserPhoneException catch (e) {
-            //   if (e.code == ConfirmUserPhoneErrorCode.occupied) {
-            //     s.resubmitOnError.value = true;
-            //   }
+          } on AddUserPhoneException catch (e) {
+            if (e.code == AddUserPhoneErrorCode.occupied) {
+              s.resubmitOnError.value = true;
+            }
 
-            //   s.error.value = e.toMessage();
+            s.error.value = e.toMessage();
           } catch (e) {
             s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
@@ -127,7 +136,10 @@ class AddPhoneController extends GetxController {
   /// [MyUser].
   Future<void> resendPhone() async {
     try {
-      await _myUserService.resendPhone();
+      await _myUserService.addUserPhone(
+        phone,
+        locale: L10n.chosen.value?.toString(),
+      );
       resent.value = true;
       _setResendPhoneTimer(true);
       // TODO(impl)

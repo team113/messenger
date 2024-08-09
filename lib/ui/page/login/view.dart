@@ -115,7 +115,7 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.recoveryCode:
+            case LoginViewStage.recoveryPassword:
               header = ModalPopupHeader(
                 onBack: () => c.stage.value = LoginViewStage.signIn,
                 text: 'label_recover_account'.l10n,
@@ -134,23 +134,6 @@ class LoginView extends StatelessWidget {
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
-                PrimaryButton(
-                  key: const Key('Proceed'),
-                  title: 'btn_proceed'.l10n,
-                  onPressed: c.recoveryCode.isEmpty.value
-                      ? null
-                      : c.recoveryCode.submit,
-                ),
-              ];
-              break;
-
-            case LoginViewStage.recoveryPassword:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signIn,
-                text: 'label_recover_account'.l10n,
-              );
-
-              children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
                   style: style.fonts.medium.regular.secondary,

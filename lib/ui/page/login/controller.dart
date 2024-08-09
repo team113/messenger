@@ -25,7 +25,11 @@ import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
-    show AddUserEmailException, ConnectionException, CreateSessionException;
+    show
+        AddUserEmailException,
+        ConnectionException,
+        CreateSessionException,
+        UpdateUserPasswordException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -33,7 +37,6 @@ import '/util/message_popup.dart';
 /// Possible [LoginView] flow stage.
 enum LoginViewStage {
   recovery,
-  recoveryCode,
   recoveryPassword,
   signIn,
   signInWithPassword,
@@ -174,7 +177,12 @@ class LoginController extends GetxController {
 
     recovery = TextFieldState(onSubmitted: (s) => recoverAccess());
 
-    recoveryCode = TextFieldState(onSubmitted: (s) => validateCode());
+    recoveryCode = TextFieldState(
+      onSubmitted: (s) {
+        newPassword.focus.requestFocus();
+        s.unsubmit();
+      },
+    );
 
     newPassword = TextFieldState(
       onChanged: (_) {
@@ -421,14 +429,15 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.recoverUserPassword(
+      await _authService.createConfirmationCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
         phone: _recoveryPhone,
+        locale: L10n.chosen.value?.toString(),
       );
 
-      stage.value = LoginViewStage.recoveryCode;
+      stage.value = LoginViewStage.recoveryPassword;
       recovery.status.value = RxStatus.success();
       recovery.editable.value = false;
     } on FormatException {
@@ -443,50 +452,6 @@ class LoginController extends GetxController {
     } finally {
       recovery.status.value = RxStatus.empty();
       recovery.editable.value = true;
-    }
-  }
-
-  /// Validates the provided password recovery [ConfirmationCode] for the
-  /// [MyUser] identified by the provided in [recoverAccess] identity.
-  Future<void> validateCode() async {
-    recoveryCode.editable.value = false;
-    recoveryCode.status.value = RxStatus.loading();
-    recoveryCode.error.value = null;
-
-    if (recoveryCode.text.isEmpty) {
-      recoveryCode.editable.value = true;
-      recoveryCode.status.value = RxStatus.empty();
-      recoveryCode.error.value = 'err_input_empty'.l10n;
-      return;
-    }
-
-    try {
-      await _authService.validateUserPasswordRecoveryCode(
-        login: _recoveryLogin,
-        num: _recoveryNum,
-        email: _recoveryEmail,
-        phone: _recoveryPhone,
-        code: ConfirmationCode(recoveryCode.text.toLowerCase()),
-      );
-
-      recoveryCode.editable.value = false;
-      recoveryCode.status.value = RxStatus.success();
-      stage.value = LoginViewStage.recoveryPassword;
-    } on FormatException {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
-    } on ArgumentError {
-      recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
-      // TODO(impl)
-      // } on ValidateUserPasswordRecoveryCodeException catch (e) {
-      //   recoveryCode.error.value = e.toMessage();
-    } catch (e) {
-      recoveryCode.unsubmit();
-      recoveryCode.resubmitOnError.value = true;
-      recoveryCode.error.value = 'err_data_transfer'.l10n;
-      rethrow;
-    } finally {
-      recoveryCode.editable.value = true;
-      recoveryCode.status.value = RxStatus.empty();
     }
   }
 
@@ -532,7 +497,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _authService.resetUserPassword(
+      await _authService.updateUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -547,9 +512,8 @@ class LoginController extends GetxController {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
-      // TODO(impl)
-      // } on ResetUserPasswordException catch (e) {
-      //   repeatPassword.error.value = e.toMessage();
+    } on UpdateUserPasswordException catch (e) {
+      repeatPassword.error.value = e.toMessage();
     } catch (e) {
       repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;

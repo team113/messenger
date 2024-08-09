@@ -239,56 +239,26 @@ class AuthService extends DisposableService {
     return accounts[userId]?.value != null;
   }
 
-  /// Initiates password recovery for a [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
-  ///
-  /// Sends a recovery [ConfirmationCode] to [MyUser]'s [email] and [phone].
-  ///
-  /// If [MyUser] has no password yet, then this method still may be used for
-  /// recovering his sign-in capability.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  Future<void> recoverUserPassword({
+  /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
+  /// identified by the provided [login], [num], [email] and/or [phone].
+  Future<void> createConfirmationCode({
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    String? locale,
   }) async {
     Log.debug(
-      'recoverUserPassword(login: $login, num: $num, email: ***, phone: ***)',
+      'createConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, locale: $locale)',
       '$runtimeType',
     );
 
-    await _authRepository.recoverUserPassword(
+    await _authRepository.createConfirmationCode(
       login: login,
       num: num,
       email: email,
       phone: phone,
-    );
-  }
-
-  /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
-  /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of
-  /// fourth should be specified).
-  Future<void> validateUserPasswordRecoveryCode({
-    required ConfirmationCode code,
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  }) async {
-    Log.debug(
-      'validateUserPasswordRecoveryCode(code: $code, login: $login, num: $num, email: ***, phone: ***)',
-      '$runtimeType',
-    );
-
-    await _authRepository.validateUserPasswordRecoveryCode(
-      login: login,
-      num: num,
-      email: email,
-      phone: phone,
-      code: code,
+      locale: locale,
     );
   }
 
@@ -298,7 +268,7 @@ class AuthService extends DisposableService {
   ///
   /// If [MyUser] has no password yet, then [newPassword] will be his first
   /// password unlocking the sign-in capability.
-  Future<void> resetUserPassword({
+  Future<void> updateUserPassword({
     required ConfirmationCode code,
     required UserPassword newPassword,
     UserLogin? login,
@@ -307,11 +277,11 @@ class AuthService extends DisposableService {
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword(code: $code, newPassword: ***, login: $login, num: $num, email: ***, phone: ***)',
+      'updateUserPassword(code: $code, newPassword: ${newPassword.obscured}, login: $login, num: $num, email: ${email?.obscured}, ${phone?.obscured})',
       '$runtimeType',
     );
 
-    await _authRepository.resetUserPassword(
+    await _authRepository.updateUserPassword(
       login: login,
       num: num,
       email: email,

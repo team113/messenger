@@ -20,10 +20,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show AddUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/exceptions.dart' show AddUserEmailException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -33,6 +35,7 @@ export 'view.dart';
 class AddEmailController extends GetxController {
   AddEmailController(
     this._myUserService, {
+    required this.email,
     this.pop,
     bool timeout = false,
   }) {
@@ -40,6 +43,9 @@ class AddEmailController extends GetxController {
       _setResendEmailTimer();
     }
   }
+
+  /// [UserEmail] the [AddEmailView] is about.
+  final UserEmail email;
 
   /// Callback, called when a [AddEmailView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -87,16 +93,19 @@ class AddEmailController extends GetxController {
           s.editable.value = false;
           s.status.value = RxStatus.loading();
           try {
-            await _myUserService.confirmEmailCode(code);
+            await _myUserService.addUserEmail(
+              email,
+              confirmation: code,
+              locale: L10n.chosen.value?.toString(),
+            );
             pop?.call();
             s.clear();
-            // TODO(impl)
-            // } on ConfirmUserEmailException catch (e) {
-            //   if (e.code == ConfirmUserEmailErrorCode.occupied) {
-            //     s.resubmitOnError.value = true;
-            //   }
+          } on AddUserEmailException catch (e) {
+            if (e.code == AddUserEmailErrorCode.occupied) {
+              s.resubmitOnError.value = true;
+            }
 
-            //   s.error.value = e.toMessage();
+            s.error.value = e.toMessage();
           } catch (e) {
             s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
@@ -124,7 +133,10 @@ class AddEmailController extends GetxController {
   /// [MyUser].
   Future<void> resendEmail() async {
     try {
-      await _myUserService.resendEmail();
+      await _myUserService.addUserEmail(
+        email,
+        locale: L10n.chosen.value?.toString(),
+      );
       resent.value = true;
       _setResendEmailTimer(true);
       // TODO(impl)

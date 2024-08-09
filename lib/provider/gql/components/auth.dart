@@ -15,6 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+
+import 'package:dio/dio.dart' as dio
+    show Options, FormData;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -229,5 +233,69 @@ mixin AuthGraphQlMixin {
       raw: const RawClientOptions(),
     );
     return RefreshSession$Mutation.fromJson(result.data!);
+  }
+
+  /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
+  /// identified by the provided [MyUserIdentifier].
+  ///
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then sends the generated
+  /// [ConfirmationCode] only there. Otherwise, if a [MyUserIdentifier.num] or a
+  /// [MyUserIdentifier.login] is provided, then sends the generated
+  /// [ConfirmationCode]s to all the possessed [MyUserEmails.confirmed] and
+  /// [MyUserPhones.confirmed].
+  ///
+  /// If the [MyUser] has no password yet, then this mutation still may be used
+  /// for recovering his sign-in capability.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
+  ///
+  /// ### Localization
+  ///
+  /// You may provide the preferred locale via the `Accept-Language` HTTP
+  /// header, which will localize the sent email messages (or SMS) with the
+  /// generated [ConfirmationCode] using the best match of the supported
+  /// locales.
+  ///
+  /// ### Authentication
+  ///
+  /// None.
+  ///
+  /// ### Result
+  ///
+  /// Always returns `true` on success.
+  ///
+  /// ### Non-idempotent
+  ///
+  /// Each time generates and sends a new unique [ConfirmationCode].
+  Future<void> createConfirmationCode(
+    MyUserIdentifier identifier, {
+    String? locale,
+  }) async {
+    Log.debug('createConfirmationCode($identifier)', '$runtimeType');
+
+    final variables = CreateConfirmationCodeArguments(ident: identifier);
+    final query = MutationOptions(
+      operationName: 'CreateConfirmationCode',
+      document: CreateConfirmationCodeMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': const RawClientOptions().token ?? token,
+      }),
+      options: dio.Options(
+        headers: {if (locale != null) 'Accept-Language': locale},
+      ),
+      operationName: query.operationName,
+    );
   }
 }
