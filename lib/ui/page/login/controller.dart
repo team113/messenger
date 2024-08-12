@@ -20,7 +20,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show UpdateUserPasswordErrorCode;
+import '/api/backend/schema.dart'
+    show AddUserEmailErrorCode, UpdateUserPasswordErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -245,28 +246,27 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          // await _authService
-          //     .confirmSignUpEmail(ConfirmationCode(emailCode.text));
+          await _authService
+              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
 
           (onSuccess ?? router.home)(signedUp: true);
-          // TODO(impl)
-          // } on ConfirmUserEmailException catch (e) {
-          //   switch (e.code) {
-          //     case ConfirmUserEmailErrorCode.wrongCode:
-          //       s.error.value = e.toMessage();
+        } on AddUserEmailException catch (e) {
+          switch (e.code) {
+            case AddUserEmailErrorCode.wrongCode:
+              s.error.value = e.toMessage();
 
-          //       ++codeAttempts;
-          //       if (codeAttempts >= 3) {
-          //         codeAttempts = 0;
-          //         _setCodeTimer();
-          //       }
-          //       s.status.value = RxStatus.empty();
-          //       break;
+              ++codeAttempts;
+              if (codeAttempts >= 3) {
+                codeAttempts = 0;
+                _setCodeTimer();
+              }
+              s.status.value = RxStatus.empty();
+              break;
 
-          //     default:
-          //       s.error.value = 'err_wrong_recovery_code'.l10n;
-          //       break;
-          //   }
+            default:
+              s.error.value = 'err_wrong_recovery_code'.l10n;
+              break;
+          }
         } on FormatException catch (_) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
           s.status.value = RxStatus.empty();
@@ -583,10 +583,9 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      // await _authService.resendSignUpEmail();
-      // TODO(impl)
-      // } on ResendUserEmailConfirmationException catch (e) {
-      //   emailCode.error.value = e.toMessage();
+      await _authService.resendSignUpEmail();
+    } on AddUserEmailException catch (e) {
+      emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.resubmitOnError.value = true;
       emailCode.error.value = 'err_data_transfer'.l10n;

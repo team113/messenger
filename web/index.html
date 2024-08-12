@@ -186,8 +186,14 @@
     window.addEventListener('load', function (ev) {
       // Download main.dart.js
       _flutter.loader.loadEntrypoint({
+        // TODO: Remove, when flutter/flutter#152995 is fixed.
+        entrypointUrl: "/main.dart.js",
+
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
+
+          // TODO: Remove, when flutter/flutter#152995 is fixed.
+          serviceWorkerUrl: "/flutter_service_worker.js?v=",
         },
         onEntrypointLoaded: async function (engineInitializer) {
           try {

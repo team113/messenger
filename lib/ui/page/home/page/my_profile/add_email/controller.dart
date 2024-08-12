@@ -139,9 +139,8 @@ class AddEmailController extends GetxController {
       );
       resent.value = true;
       _setResendEmailTimer(true);
-      // TODO(impl)
-      // } on ResendUserEmailConfirmationException catch (e) {
-      //   code.error.value = e.toMessage();
+    } on AddUserEmailException catch (e) {
+      code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

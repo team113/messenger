@@ -65,6 +65,10 @@ class AuthRepository extends DisposableInterface
   final CredentialsDriftProvider _credentialsProvider;
 
   // TODO: Temporary solution, wait for support from backend.
+  /// [UserEmail] used with [signUpWithEmail] to [confirmSignUpEmail].
+  UserEmail? _signUpEmail;
+
+  // TODO: Temporary solution, wait for support from backend.
   /// [Credentials] of [Session] created with [signUpWithEmail] returned in
   /// successful [confirmSignUpEmail].
   Credentials? _signUpCredentials;
@@ -173,6 +177,7 @@ class AuthRepository extends DisposableInterface
 
     _signedUpUser = success.user.toDto();
     _signUpCredentials = success.toModel();
+    _signUpEmail = email;
 
     await _graphQlProvider.addUserEmail(
       email,
@@ -190,13 +195,15 @@ class AuthRepository extends DisposableInterface
       throw ArgumentError.notNull('_signUpCredentials');
     } else if (_signedUpUser == null) {
       throw ArgumentError.notNull('_signedUpUser');
+    } else if (_signUpEmail == null) {
+      throw ArgumentError.notNull('_signUpEmail');
     }
 
-    // TODO(impl)
-    // await _graphQlProvider.confirmEmailCode(
-    //   code,
-    //   raw: RawClientOptions(_signUpCredentials!.access.secret),
-    // );
+    await _graphQlProvider.addUserEmail(
+      _signUpEmail!,
+      confirmation: code,
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
+    );
 
     _myUserProvider.upsert(_signedUpUser!);
 
@@ -209,12 +216,14 @@ class AuthRepository extends DisposableInterface
 
     if (_signUpCredentials == null) {
       throw ArgumentError.notNull('_signUpCredentials');
+    } else if (_signUpEmail == null) {
+      throw ArgumentError.notNull('_signUpEmail');
     }
 
-    // TODO(impl)
-    // await _graphQlProvider.resendEmail(
-    //   raw: RawClientOptions(_signUpCredentials!.access.secret),
-    // );
+    await _graphQlProvider.addUserEmail(
+      _signUpEmail!,
+      raw: RawClientOptions(_signUpCredentials!.access.secret),
+    );
   }
 
   @override

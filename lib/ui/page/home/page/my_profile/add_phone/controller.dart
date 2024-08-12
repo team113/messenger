@@ -142,9 +142,8 @@ class AddPhoneController extends GetxController {
       );
       resent.value = true;
       _setResendPhoneTimer(true);
-      // TODO(impl)
-      // } on ResendUserPhoneConfirmationException catch (e) {
-      //   code.error.value = e.toMessage();
+    } on AddUserPhoneException catch (e) {
+      code.error.value = e.toMessage();
     } catch (e) {
       MessagePopup.error(e);
       rethrow;

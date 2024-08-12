@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show AddUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -188,7 +189,7 @@ class AccountsController extends GetxController {
           emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
           try {
-            // await _authService.signUpWithEmail(email);
+            await _authService.signUpWithEmail(email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -212,10 +213,10 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          // await _authService.confirmSignUpEmail(
-          //   ConfirmationCode(emailCode.text),
-          //   force: true,
-          // );
+          await _authService.confirmSignUpEmail(
+            ConfirmationCode(emailCode.text),
+            force: true,
+          );
 
           // TODO: This is a hack that should be removed, as whenever the
           //       account is changed, the [HomeView] and its dependencies must
@@ -224,24 +225,23 @@ class AccountsController extends GetxController {
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
-          // TODO(impl)
-          // } on ConfirmUserEmailException catch (e) {
-          //   switch (e.code) {
-          //     case ConfirmUserEmailErrorCode.wrongCode:
-          //       s.error.value = e.toMessage();
+        } on AddUserEmailException catch (e) {
+          switch (e.code) {
+            case AddUserEmailErrorCode.wrongCode:
+              s.error.value = e.toMessage();
 
-          //       ++codeAttempts;
-          //       if (codeAttempts >= 3) {
-          //         codeAttempts = 0;
-          //         _setCodeTimer();
-          //       }
-          //       s.status.value = RxStatus.empty();
-          //       break;
+              ++codeAttempts;
+              if (codeAttempts >= 3) {
+                codeAttempts = 0;
+                _setCodeTimer();
+              }
+              s.status.value = RxStatus.empty();
+              break;
 
-          //     default:
-          //       s.error.value = e.toMessage();
-          //       break;
-          //   }
+            default:
+              s.error.value = e.toMessage();
+              break;
+          }
         } on FormatException catch (_) {
           s.error.value = 'err_wrong_recovery_code'.l10n;
           s.status.value = RxStatus.empty();
@@ -474,9 +474,8 @@ class AccountsController extends GetxController {
 
     try {
       await _authService.resendSignUpEmail();
-      // TODO(impl)
-      // } on ResendUserEmailConfirmationException catch (e) {
-      //   emailCode.error.value = e.toMessage();
+    } on AddUserEmailException catch (e) {
+      emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;
       _setResendEmailTimer(false);
