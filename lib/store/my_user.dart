@@ -424,35 +424,32 @@ class MyUserRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    await _debounce(
-      field: MyUserField.email,
-      current: () => myUser.value?.emails.unconfirmed,
-      saved: () async => (await _active)?.value.emails.unconfirmed,
-      value: email,
-      mutation: (value, previous) async {
-        if (previous != null) {
-          return await _graphQlProvider.deleteUserEmail(
-            previous,
-            confirmation: confirmation == null
-                ? null
-                : MyUserCredentials(code: confirmation),
+    // TODO: Add optimism.
+    final events = await _graphQlProvider.addUserEmail(
+      email,
+      confirmation: confirmation,
+      locale: locale,
+    );
+
+    for (var e in events?.events ?? []) {
+      final event = _myUserEvent(e);
+
+      if (event is EventUserEmailAdded) {
+        if (event.confirmed) {
+          myUser.value?.emails.confirmed.addIf(
+            myUser.value?.emails.confirmed.contains(email) == false,
+            email,
           );
-        } else if (value != null) {
-          return await _graphQlProvider.addUserEmail(
-            value,
-            confirmation: confirmation,
-            locale: locale,
-          );
+          if (myUser.value?.emails.unconfirmed == email) {
+            myUser.value?.emails.unconfirmed = null;
+          }
+        } else {
+          myUser.value?.emails.unconfirmed = email;
         }
 
-        return null;
-      },
-      update: (v, p) => myUser.update(
-        (u) => p != null
-            ? u?.emails.unconfirmed = null
-            : u?.emails.unconfirmed = v,
-      ),
-    );
+        myUser.refresh();
+      }
+    }
   }
 
   @override

@@ -19,6 +19,7 @@ import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
+import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/provider/gql/base.dart';
@@ -55,6 +56,50 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   void clearCache() => _client.clearCache();
+
+  @override
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    RawClientOptions? raw,
+    String? locale,
+  }) async {
+    if (confirmation != null) {
+      return AddUserEmail$Mutation.fromJson({
+        'addUserEmail': {
+          '__typename': 'MyUserEventsVersioned',
+          'events': [
+            {
+              '__typename': 'EventUserEmailAdded',
+              'userId': 'id',
+              'email': '$email',
+              'confirmed': true,
+              'at': DateTime.now().toString(),
+            }
+          ],
+          'ver': '9' * 58,
+        }
+      }).addUserEmail
+          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+    }
+
+    final variables =
+        AddUserEmailArguments(email: email, confirmation: confirmation);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'AddUserEmail',
+        document: AddUserEmailMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => AddUserEmailException(
+        (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+            .code,
+      ),
+    );
+    return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
+        as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+  }
 
   @override
   Future<MyUserEventsVersionedMixin?> deleteUserEmail(
