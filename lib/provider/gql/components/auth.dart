@@ -39,11 +39,16 @@ mixin AuthGraphQlMixin {
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
   ///
-  /// The created [Session] should be prolonged via [refreshSession].
+  /// [AccessToken] of the created [Session] may be prolonged via
+  /// [refreshSession].
   ///
-  /// Once the created [Session] expires and cannot be prolonged, the created
-  /// [MyUser] looses its access, if he doesn't provide a password via
-  /// `Mutation.updateUserPassword` within that period of time.
+  /// Once the created [Session] expires and cannot be refreshed, the created
+  /// [MyUser] looses its access, if he doesn't provide the [password] argument
+  /// now or sets it later via `Mutation.updateUserPassword` within that period
+  /// of time.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -74,7 +79,15 @@ mixin AuthGraphQlMixin {
   }
 
   /// Destroys the specified [Session] of the authenticated [MyUser], or the
-  /// current one (if its [id] is not specified).
+  /// current one (if the [id] argument is not provided).
+  ///
+  /// If the [id] argument is provided, then the confirmation argument is
+  /// mandatory, unless the authenticated [MyUser] has no means for it (has
+  /// neither [MyUser.hasPassword], nor
+  /// [MyUserEmails.confirmed]/[MyUserPhones.confirmed]).
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -82,11 +95,16 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Always returns `null` on success.
+  /// Only the following SessionEvent may be produced on success:
+  /// - `EventSessionDeleted`.
   ///
-  /// ### Idempotent
+  /// Idempotent
   ///
-  /// Succeeds as no-op if the specified [Session] has been deleted already.
+  /// Succeeds as no-op (and returns no `SessionEvent`) if the specified
+  /// [Session] has been deleted already.
+  ///
+  /// However, always uses the provided [ConfirmationCode], disallowing to use
+  /// it again.
   Future<void> deleteSession({
     SessionId? id,
     MyUserCredentials? confirmation,
@@ -119,12 +137,24 @@ mixin AuthGraphQlMixin {
   }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
+  /// [MyUserIdentifier].
   ///
   /// Represents a sign-in action.
   ///
-  /// The created [Session] has expiration, which may be prolonged via
+  /// [AccessToken] of the created [Session] may be prolonged via
   /// [refreshSession].
+  ///
+  /// If the provided [MyUserIdentifier.email] address (or
+  /// [MyUserIdentifier.phone] number) is not occupied by any existing [MyUser]
+  /// yet, then, along with provided [MyUserCredentials.code], creates a new
+  /// [MyUser] with the authenticated [UserEmail] address (or [UserPhone]
+  /// number) being assigned to him. This means, that there is no difference
+  /// between sign-in and sign-up actions in this mutation when a [UserEmail]
+  /// address (or [UserPhone] number) is used in combination with a
+  /// [ConfirmationCode].
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -133,6 +163,9 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time creates a new [Session].
+  ///
+  /// Additionally, always uses the provided [ConfirmationCode], disallowing to
+  /// use it again.
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
     UserPassword password,
     UserLogin? login,

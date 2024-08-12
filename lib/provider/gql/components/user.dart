@@ -300,16 +300,34 @@ mixin UserGraphQlMixin {
     return UpdateUserPresence$Mutation.fromJson(res.data!).updateUserPresence;
   }
 
-  /// Updates password for the authenticated [MyUser].
+  /// Updates or resets password of the authenticated [MyUser] or the one
+  /// identified by the provided [MyUserIdentifier].
   ///
-  /// If [MyUser] has no password yet (when sets his password), then `old`
-  /// password is not required. Otherwise (when changes his password), it's
-  /// mandatory to specify the `old` one.
+  /// If the [MyUser] has no password yet, then the [confirmation] argument is
+  /// not required. Otherwise, it's mandatory to authenticate this operation
+  /// additionally by providing the [confirmation] argument.
+  ///
+  /// This mutation can be used for both changing the [MyUser]'s password and
+  /// recovering it. Use the `Mutation.createConfirmationCode` to create a new
+  /// [ConfirmationCode] for authenticating the password recovery, and provide
+  /// it as the confirmation argument along with the [identifier] argument to
+  /// this mutation.
+  ///
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then the provided
+  /// [ConfirmationCode] is validated against it exclusively, meaning that
+  /// providing [ConfirmationCode]s sent to any other [MyUserEmails.confirmed]
+  /// or [MyUserPhones.confirmed] is invalid. Otherwise, if a
+  /// [MyUserIdentifier.num] or a [MyUserIdentifier.login] is provided, then a
+  /// [ConfirmationCode] sent to any of [MyUserEmails.confirmed] or
+  /// [MyUserPhones.confirmed] is suitable.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
-  /// Mandatory.
-  ///
+  /// Mandatory if the [identifier] argument is absent or `null`.
   /// ### Result
   ///
   /// Only the following [MyUserEvent] is always produced on success:
@@ -317,8 +335,9 @@ mixin UserGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time renews the password (recalculates hash) even if it's the same
-  /// one.
+  /// Each time renews the password (recalculates hash) even if it's the same one.
+  ///
+  /// Additionally, always uses the provided ConfirmationCode, disallowing to use it again.
   Future<MyUserEventsVersionedMixin?> updateUserPassword({
     MyUserIdentifier? identifier,
     required UserPassword newPassword,
