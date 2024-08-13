@@ -1,2 +1,5 @@
 - Added blurred preview to messages with single image attachment.
+- Added current version information to profile page.
+- Updated colors for messages in chat.
 - Fixed selected application language not being persisted.
+- Fixed infinite typing being display in chats list.

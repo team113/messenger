@@ -1,1 +1,5 @@
-- Fixed selected application language not being persisted.
+- Added current version information to profile page.
+- Added download progress displaying on download button.
+- Updated colors for messages in chat.
+- Fixed infinite typing being display in chats list after losing a focus.
+- Fixed application not launching due to `MSVCP140.dll` library being missing on Windows.
