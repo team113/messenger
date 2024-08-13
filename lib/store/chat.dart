@@ -2060,7 +2060,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
+    final query = (await _graphQlProvider.recentChats(
       first: first,
       after: after,
       last: last,

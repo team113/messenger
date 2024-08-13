@@ -124,7 +124,11 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _lifecycleWorker = ever(router.lifecycle, (e) async {
         if (e.inForeground) {
-          await FlutterCallkitIncoming.endAllCalls();
+          try {
+            await FlutterCallkitIncoming.endAllCalls();
+          } catch (_) {
+            // No-op.
+          }
 
           _callService.calls.forEach((id, call) {
             if (_answeredCalls.contains(id) && !call.value.isActive) {
