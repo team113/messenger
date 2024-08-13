@@ -291,10 +291,10 @@ mixin ChatGraphQlMixin {
     ChatItemsCursor? after,
     int? last,
     ChatItemsCursor? before,
-    bool onlyAttachments = false,
+    ChatItemsFilter? filter,
   }) async {
     Log.debug(
-      'chatItems($id, first: $first, after: $after, last: $last, before: $before, onlyAttachments: $onlyAttachments)',
+      'chatItems($id, first: $first, after: $after, last: $last, before: $before, filter: $filter)',
       '$runtimeType',
     );
 
@@ -304,7 +304,7 @@ mixin ChatGraphQlMixin {
       after: after,
       last: last,
       before: before,
-      onlyAttachments: onlyAttachments,
+      filter: filter,
     );
     final QueryResult result = await client.query(
       QueryOptions(

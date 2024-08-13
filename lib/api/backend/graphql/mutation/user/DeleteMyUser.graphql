@@ -15,9 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteMyUser {
-    deleteMyUser {
+mutation DeleteMyUser($confirmation: MyUserCredentials) {
+    deleteMyUser(confirmation: $confirmation) {
         __typename
-        ...MyUserEventsVersioned
+        ... on MyUserEventsVersioned {
+            ...MyUserEventsVersioned
+        }
+        ... on DeleteMyUserError {
+            code
+        }
     }
 }

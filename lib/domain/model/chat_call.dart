@@ -40,7 +40,6 @@ class ChatCall extends ChatItem {
     this.conversationStartedAt,
     this.finishReasonIndex,
     this.finishedAt,
-    this.joinLink,
     this.dialed,
   });
 
@@ -53,9 +52,6 @@ class ChatCall extends ChatItem {
 
   /// [ChatCallMember]s of this [ChatCall].
   List<ChatCallMember> members;
-
-  /// Link for joining this [ChatCall]'s room on a media server.
-  ChatCallRoomJoinLink? joinLink;
 
   /// [PreciseDateTime] when the actual conversation in this [ChatCall] was
   /// started (after ringing had been finished).
@@ -103,7 +99,6 @@ class ChatCall extends ChatItem {
         conversationStartedAt == other.conversationStartedAt &&
         finishReasonIndex == other.finishReasonIndex &&
         finishedAt == other.finishedAt &&
-        joinLink == other.joinLink &&
         dialed == other.dialed;
   }
 
@@ -118,7 +113,6 @@ class ChatCall extends ChatItem {
         conversationStartedAt,
         finishReasonIndex,
         finishedAt,
-        joinLink,
         dialed,
       );
 }

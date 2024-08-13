@@ -17,7 +17,6 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -463,7 +462,7 @@ Widget _phones(BuildContext context, MyProfileController c) {
             const SizedBox(height: 4),
             WidgetButton(
               key: const Key('VerifyPhone'),
-              onPressed: () => AddPhoneView.show(context),
+              onPressed: () => AddPhoneView.show(context, phone: unconfirmed),
               child: Text(
                 'label_verify'.l10n,
                 style: style.fonts.small.regular.primary,
@@ -538,17 +537,6 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           c.myUser.value?.emails.unconfirmed,
         ].whereNotNull();
 
-        final phone = ReactiveTextField(
-          key: const Key('Phone'),
-          state: c.phone,
-          label: 'label_add_phone'.l10n,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          hint: '+34 123 123 53 53',
-          clearable: false,
-          formatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[\d+ ]')),
-          ],
-        );
         final email = ReactiveTextField(
           key: const Key('Email'),
           state: c.email,
@@ -567,40 +555,40 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             const SizedBox(height: 12),
             _password(context, c),
             const SizedBox(height: 6),
-            const SizedBox(height: 12),
-            WidgetButton(
-              key: const Key('ExpandSigning'),
-              onPressed: c.expanded.toggle,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      height: 0.5,
-                      color: style.colors.primary,
+            if (emails.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              WidgetButton(
+                key: const Key('ExpandSigning'),
+                onPressed: c.expanded.toggle,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        height: 0.5,
+                        color: style.colors.primary,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    c.expanded.value ? 'btn_hide'.l10n : 'btn_add'.l10n,
-                    style: style.fonts.small.regular.primary,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Container(
-                      width: double.infinity,
-                      height: 0.5,
-                      color: style.colors.primary,
+                    const SizedBox(width: 8),
+                    Text(
+                      c.expanded.value ? 'btn_hide'.l10n : 'btn_add'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Container(
+                        width: double.infinity,
+                        height: 0.5,
+                        color: style.colors.primary,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            if (c.expanded.value) ...[
-              const SizedBox(height: 24),
-              phone,
-              if (emails.isNotEmpty) const SizedBox(height: 24),
-              if (emails.isNotEmpty) email,
+              if (c.expanded.value) ...[
+                const SizedBox(height: 24),
+                email,
+              ],
             ],
           ],
         );

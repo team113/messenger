@@ -1068,7 +1068,9 @@ class ChatRepository extends DisposableInterface
       after: after,
       last: last,
       before: before,
-      onlyAttachments: onlyAttachments,
+      filter: onlyAttachments
+          ? ChatItemsFilter(onlyAttachments: onlyAttachments)
+          : null,
     );
 
     return Page(

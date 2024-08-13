@@ -15,6 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
+
+import 'package:dio/dio.dart' as dio show Options, FormData;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
@@ -36,11 +39,16 @@ mixin AuthGraphQlMixin {
   /// Creates a new [MyUser] having only `id` and unique `num` fields, along
   /// with a [Session] for him (valid for the returned expiration).
   ///
-  /// The created [Session] should be prolonged via [refreshSession].
+  /// [AccessToken] of the created [Session] may be prolonged via
+  /// [refreshSession].
   ///
-  /// Once the created [Session] expires and cannot be prolonged, the created
-  /// [MyUser] looses its access, if he doesn't provide a password via
-  /// `Mutation.updateUserPassword` within that period of time.
+  /// Once the created [Session] expires and cannot be refreshed, the created
+  /// [MyUser] looses its access, if he doesn't provide the [password] argument
+  /// now or sets it later via `Mutation.updateUserPassword` within that period
+  /// of time.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -49,21 +57,37 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time creates a new unique [MyUser] and a new [Session].
-  Future<SignUp$Mutation> signUp() async {
+  Future<SignUp$Mutation$CreateUser> signUp({
+    UserLogin? login,
+    UserPassword? password,
+  }) async {
     Log.debug('signUp()', '$runtimeType');
 
+    final variables = SignUpArguments(login: login, password: password);
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'SignUp',
-        document: SignUpMutation().document,
+        document: SignUpMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => SignUpException(
+        SignUp$Mutation.fromJson(data).createUser as CreateSessionErrorCode,
       ),
       raw: const RawClientOptions(),
     );
-    return SignUp$Mutation.fromJson(result.data!);
+    return SignUp$Mutation.fromJson(result.data!).createUser;
   }
 
   /// Destroys the specified [Session] of the authenticated [MyUser], or the
-  /// current one (if its [id] is not specified).
+  /// current one (if the [id] argument is not provided).
+  ///
+  /// If the [id] argument is provided, then the confirmation argument is
+  /// mandatory, unless the authenticated [MyUser] has no means for it (has
+  /// neither [MyUser.hasPassword], nor
+  /// [MyUserEmails.confirmed]/[MyUserPhones.confirmed]).
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -71,25 +95,31 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Always returns `null` on success.
+  /// Only the following SessionEvent may be produced on success:
+  /// - `EventSessionDeleted`.
   ///
-  /// ### Idempotent
+  /// Idempotent
   ///
-  /// Succeeds as no-op if the specified [Session] has been deleted already.
+  /// Succeeds as no-op (and returns no `SessionEvent`) if the specified
+  /// [Session] has been deleted already.
+  ///
+  /// However, always uses the provided [ConfirmationCode], disallowing to use
+  /// it again.
   Future<void> deleteSession({
     SessionId? id,
-    UserPassword? password,
+    MyUserCredentials? confirmation,
     AccessTokenSecret? token,
   }) async {
     token ??= this.token;
 
     Log.debug(
-      'deleteSession(id: $id, password: ${password?.obscured}, token: $token)',
+      'deleteSession(id: $id, confirmation: ***, token: $token)',
       '$runtimeType',
     );
 
     if (token != null) {
-      final variables = DeleteSessionArguments(id: id, password: password);
+      final variables =
+          DeleteSessionArguments(id: id, confirmation: confirmation);
       final QueryResult result = await client.mutate(
         MutationOptions(
           operationName: 'DeleteSession',
@@ -107,12 +137,24 @@ mixin AuthGraphQlMixin {
   }
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
+  /// [MyUserIdentifier].
   ///
   /// Represents a sign-in action.
   ///
-  /// The created [Session] has expiration, which may be prolonged via
+  /// [AccessToken] of the created [Session] may be prolonged via
   /// [refreshSession].
+  ///
+  /// If the provided [MyUserIdentifier.email] address (or
+  /// [MyUserIdentifier.phone] number) is not occupied by any existing [MyUser]
+  /// yet, then, along with provided [MyUserCredentials.code], creates a new
+  /// [MyUser] with the authenticated [UserEmail] address (or [UserPhone]
+  /// number) being assigned to him. This means, that there is no difference
+  /// between sign-in and sign-up actions in this mutation when a [UserEmail]
+  /// address (or [UserPhone] number) is used in combination with a
+  /// [ConfirmationCode].
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -121,6 +163,9 @@ mixin AuthGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Each time creates a new [Session].
+  ///
+  /// Additionally, always uses the provided [ConfirmationCode], disallowing to
+  /// use it again.
   Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
     UserPassword password,
     UserLogin? login,
@@ -131,11 +176,13 @@ mixin AuthGraphQlMixin {
     Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
 
     final variables = SignInArguments(
-      password: password,
-      login: login,
-      num: num,
-      email: email,
-      phone: phone,
+      credentials: MyUserCredentials(password: password),
+      ident: MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
@@ -220,16 +267,28 @@ mixin AuthGraphQlMixin {
     return RefreshSession$Mutation.fromJson(result.data!);
   }
 
-  /// Initiates password recovery for a [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified).
+  /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
+  /// identified by the provided [MyUserIdentifier].
   ///
-  /// Sends a recovery [ConfirmationCode] to [MyUser]'s `email` and `phone`.
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then sends the generated
+  /// [ConfirmationCode] only there. Otherwise, if a [MyUserIdentifier.num] or a
+  /// [MyUserIdentifier.login] is provided, then sends the generated
+  /// [ConfirmationCode]s to all the possessed [MyUserEmails.confirmed] and
+  /// [MyUserPhones.confirmed].
   ///
-  /// If [MyUser] has no password yet, then this mutation still may be used for
-  /// recovering his sign-in capability.
+  /// If the [MyUser] has no password yet, then this mutation still may be used
+  /// for recovering his sign-in capability.
   ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
+  ///
+  /// ### Localization
+  ///
+  /// You may provide the preferred locale via the `Accept-Language` HTTP
+  /// header, which will localize the sent email messages (or SMS) with the
+  /// generated [ConfirmationCode] using the best match of the supported
+  /// locales.
   ///
   /// ### Authentication
   ///
@@ -237,47 +296,54 @@ mixin AuthGraphQlMixin {
   ///
   /// ### Result
   ///
-  /// Always returns `null` on success.
+  /// Always returns `true` on success.
   ///
   /// ### Non-idempotent
   ///
-  /// Each time sends a new unique password recovery [ConfirmationCode].
-  Future<void> recoverUserPassword(
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  ) async {
-    Log.debug(
-      'recoverUserPassword($login, $num, $email, $phone)',
-      '$runtimeType',
+  /// Each time generates and sends a new unique [ConfirmationCode].
+  Future<void> createConfirmationCode(
+    MyUserIdentifier identifier, {
+    String? locale,
+  }) async {
+    Log.debug('createConfirmationCode($identifier)', '$runtimeType');
+
+    final variables = CreateConfirmationCodeArguments(ident: identifier);
+    final query = MutationOptions(
+      operationName: 'CreateConfirmationCode',
+      document: CreateConfirmationCodeMutation(variables: variables).document,
+      variables: variables.toJson(),
     );
 
-    if ([login, num, email, phone].where((e) => e != null).length != 1) {
-      throw ArgumentError(
-        'Exactly one of num/login/email/phone should be specified.',
-      );
-    }
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
 
-    final variables = RecoverUserPasswordArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-    );
-    await client.mutate(
-      MutationOptions(
-        operationName: 'RecoverUserPassword',
-        document: RecoverUserPasswordMutation(variables: variables).document,
-        variables: variables.toJson(),
+    await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': const RawClientOptions().token ?? token,
+      }),
+      options: dio.Options(
+        headers: {if (locale != null) 'Accept-Language': locale},
       ),
-      raw: const RawClientOptions(),
+      operationName: query.operationName,
     );
   }
 
-  /// Validates the provided password recovery [ConfirmationCode] for a [MyUser]
-  /// identified by the provided [num]/[login]/[email]/[phone] (exactly one of
-  /// fourth should be specified).
+  /// Validates the provided [ConfirmationCode] for the MyUser identified by the provided [MyUserIdentifier] without using it.
+  ///
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then the provided
+  /// [ConfirmationCode] is validated against it exclusively, meaning that
+  /// providing [ConfirmationCode]s sent to any other [MyUserEmails.confirmed]
+  /// or [MyUserPhones.confirmed] is invalid. Otherwise, if a
+  /// [MyUserIdentifier.num] or a [MyUserIdentifier.login] is provided, then a
+  /// [ConfirmationCode] sent to any of [MyUserEmails.confirmed] or
+  /// [MyUserPhones.confirmed] is suitable.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
@@ -290,106 +356,28 @@ mixin AuthGraphQlMixin {
   /// ### Idempotent
   ///
   /// [ConfirmationCode] can be validated unlimited number of times (for now).
-  Future<void> validateUserPasswordRecoveryCode(
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-    ConfirmationCode code,
-  ) async {
+  Future<void> validateConfirmationCode({
+    required MyUserIdentifier identifier,
+    required ConfirmationCode code,
+  }) async {
     Log.debug(
-      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code)',
+      'validateConfirmationCode(identifier: $identifier, code: $code)',
       '$runtimeType',
     );
 
-    if ([login, num, email, phone].where((e) => e != null).length != 1) {
-      throw ArgumentError(
-          'Exactly one of num/login/email/phone should be specified.');
-    }
-
-    final variables = ValidateUserPasswordRecoveryCodeArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-      code: code,
-    );
+    final variables =
+        ValidateConfirmationCodeArguments(ident: identifier, code: code);
     await client.mutate(
       MutationOptions(
-        operationName: 'ValidateUserPasswordRecoveryCode',
-        document: ValidateUserPasswordRecoveryCodeMutation(variables: variables)
-            .document,
+        operationName: 'ValidateConfirmationCode',
+        document:
+            ValidateConfirmationCodeMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ValidateUserPasswordRecoveryCodeException(
-        ValidateUserPasswordRecoveryCode$Mutation.fromJson(data)
-                .validateUserPasswordRecoveryCode
-            as ValidateUserPasswordRecoveryErrorCode,
+      onException: (data) => ValidateConfirmationCodeException(
+        (ValidateConfirmationCode$Mutation.fromJson(data)
+            .validateConfirmationCode)!,
       ),
-      raw: const RawClientOptions(),
-    );
-  }
-
-  /// Resets password for a [MyUser] identified by the provided
-  /// [num]/[login]/[email]/[phone] (exactly one of fourth should be specified),
-  /// and authenticating the mutation with the provided recovery
-  /// [ConfirmationCode].
-  ///
-  /// If [MyUser] has no password yet, then [newPassword] will be his first
-  /// password unlocking the sign-in capability.
-  ///
-  /// ### Authentication
-  ///
-  /// None.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserPasswordUpdated].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] was used
-  /// already.
-  Future<void> resetUserPassword(
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-    ConfirmationCode code,
-    UserPassword newPassword,
-  ) async {
-    Log.debug(
-      'validateUserPasswordRecoveryCode($login, $num, $email, $phone, $code, newPassword)',
-      '$runtimeType',
-    );
-
-    if ([login, num, email, phone].where((e) => e != null).length != 1) {
-      throw ArgumentError(
-        'Exactly one of num/login/email/phone should be specified.',
-      );
-    }
-
-    final variables = ResetUserPasswordArguments(
-      num: num,
-      login: login,
-      email: email,
-      phone: phone,
-      code: code,
-      newPassword: newPassword,
-    );
-    await client.mutate(
-      MutationOptions(
-        operationName: 'ResetUserPassword',
-        document: ResetUserPasswordMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => ResetUserPasswordException(
-        (ResetUserPassword$Mutation.fromJson(data).resetUserPassword
-                as ResetUserPassword$Mutation$ResetUserPassword$ResetUserPasswordError)
-            .code,
-      ),
-      raw: const RawClientOptions(),
     );
   }
 }

@@ -27,3 +27,11 @@ class SessionVersion extends NewType<BigInt> {
 
   factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
 }
+
+/// Version of a [Session]s list.
+class SessionsListVersion extends NewType<BigInt> {
+  const SessionsListVersion(super.val);
+
+  factory SessionsListVersion.parse(String val) =>
+      SessionsListVersion(BigInt.parse(val));
+}

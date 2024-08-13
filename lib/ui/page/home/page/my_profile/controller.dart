@@ -239,7 +239,12 @@ class MyProfileController extends GetxController {
 
         bool modalVisible = true;
 
-        _myUserService.addUserPhone(phone).onError(
+        _myUserService
+            .addUserPhone(
+          phone,
+          locale: L10n.chosen.value?.toString(),
+        )
+            .onError(
           (e, __) {
             s.unchecked = phone.val;
 
@@ -262,6 +267,7 @@ class MyProfileController extends GetxController {
         await AddPhoneView.show(
           router.context!,
           timeout: true,
+          phone: phone,
         ).then((_) => modalVisible = false);
       },
     );
@@ -294,7 +300,12 @@ class MyProfileController extends GetxController {
 
         bool modalVisible = true;
 
-        _myUserService.addUserEmail(email).onError((e, __) {
+        _myUserService
+            .addUserEmail(
+          email,
+          locale: L10n.chosen.value?.toString(),
+        )
+            .onError((e, __) {
           s.unchecked = email.val;
 
           if (e is AddUserEmailException) {

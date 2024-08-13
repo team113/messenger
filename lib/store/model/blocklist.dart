@@ -17,6 +17,7 @@
 
 import '/domain/model/user.dart';
 import 'my_user.dart';
+import 'version.dart';
 
 /// Persisted in storage [BlocklistRecord]'s [value].
 class DtoBlocklistRecord implements Comparable<DtoBlocklistRecord> {
@@ -40,4 +41,9 @@ class DtoBlocklistRecord implements Comparable<DtoBlocklistRecord> {
 
     return result;
   }
+}
+
+/// Version of [MyUser]'s [BlocklistRecord]s list.
+class BlocklistVersion extends Version {
+  BlocklistVersion(super.val);
 }

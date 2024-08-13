@@ -97,7 +97,7 @@ class LoginView extends StatelessWidget {
                 const SizedBox(height: 12),
                 Text(
                   'label_recover_account_description'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -124,7 +124,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_code_sent'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -153,7 +153,7 @@ class LoginView extends StatelessWidget {
               children = [
                 Text(
                   'label_recovery_enter_new_password'.l10n,
-                  style: style.fonts.medium.regular.secondary,
+                  style: style.fonts.normal.regular.secondary,
                 ),
                 const SizedBox(height: 25),
                 ReactiveTextField(
@@ -208,9 +208,9 @@ class LoginView extends StatelessWidget {
                   'label_sign_up_code_email_sent'
                       .l10nfmt({'text': c.email.text}).parseLinks(
                     [],
-                    style.fonts.medium.regular.primary,
+                    style.fonts.normal.regular.primary,
                   ),
-                  style: style.fonts.medium.regular.onBackground,
+                  style: style.fonts.normal.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
                 Obx(() {
@@ -218,7 +218,7 @@ class LoginView extends StatelessWidget {
                     c.resendEmailTimeout.value == 0
                         ? 'label_did_not_receive_code'.l10n
                         : 'label_code_sent_again'.l10n,
-                    style: style.fonts.medium.regular.onBackground,
+                    style: style.fonts.normal.regular.onBackground,
                   );
                 }),
                 Obx(() {
@@ -232,8 +232,8 @@ class LoginView extends StatelessWidget {
                           : 'label_wait_seconds'
                               .l10nfmt({'for': c.resendEmailTimeout.value}),
                       style: enabled
-                          ? style.fonts.medium.regular.primary
-                          : style.fonts.medium.regular.onBackground,
+                          ? style.fonts.normal.regular.primary
+                          : style.fonts.normal.regular.onBackground,
                     ),
                   );
                 }),

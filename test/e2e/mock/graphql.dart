@@ -58,27 +58,62 @@ class MockGraphQlProvider extends GraphQlProvider {
   void clearCache() => _client.clearCache();
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code, {
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
     RawClientOptions? raw,
+    String? locale,
+  }) async {
+    if (confirmation != null) {
+      return AddUserEmail$Mutation.fromJson({
+        'addUserEmail': {
+          '__typename': 'MyUserEventsVersioned',
+          'events': [
+            {
+              '__typename': 'EventUserEmailAdded',
+              'userId': 'id',
+              'email': '$email',
+              'confirmed': true,
+              'at': DateTime.now().toString(),
+            }
+          ],
+          'ver': '9' * 58,
+        }
+      }).addUserEmail
+          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+    }
+
+    final variables =
+        AddUserEmailArguments(email: email, confirmation: confirmation);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'AddUserEmail',
+        document: AddUserEmailMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => AddUserEmailException(
+        (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+            .code,
+      ),
+    );
+    return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
+        as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+    UserEmail phone, {
+    MyUserCredentials? confirmation,
   }) async {
     return null;
   }
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-    ConfirmationCode code,
-  ) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail phone) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+    UserPhone phone, {
+    MyUserCredentials? confirmation,
+  }) async {
     return null;
   }
 }
