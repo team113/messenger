@@ -33,6 +33,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/get.dart';
 import '/util/message_popup.dart';
+import 'confirm_delete/view.dart';
 import 'controller.dart';
 
 /// [Routes.erase] page.
@@ -165,7 +166,14 @@ class EraseView extends StatelessWidget {
     );
 
     if (result == true) {
-      await c.deleteAccount();
+      if (context.mounted) {
+        if (c.myUser?.value?.emails.confirmed.isNotEmpty == true ||
+            c.myUser?.value?.hasPassword == true) {
+          await ConfirmDeleteView.show(context);
+        } else {
+          await c.deleteAccount();
+        }
+      }
     }
   }
 }

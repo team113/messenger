@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/primary_button.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/text_field.dart';
 import 'controller.dart';
 
 class ConfirmDeleteView extends StatelessWidget {
@@ -14,20 +19,75 @@ class ConfirmDeleteView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
-      init: ConfirmDeleteController(Get.find()),
+      key: const Key('ConfirmAccountDeletion'),
+      init: ConfirmDeleteController(Get.find(), Get.find()),
       builder: (ConfirmDeleteController c) {
         return Obx(() {
           final List<Widget> children = [];
 
-          if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {}
+          if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {
+            children.addAll([
+              Text(
+                'label_add_email_confirmation_sent_to'.l10nfmt(
+                  {'email': '${c.myUser.value?.emails.confirmed.firstOrNull}'},
+                ),
+                style: style.fonts.small.regular.secondary,
+              ),
+              ReactiveTextField(state: c.code),
+              PrimaryButton(
+                key: const Key('Proceed'),
+                onPressed: c.deleteAccount,
+                title: 'btn_proceed'.l10n,
+              ),
+            ]);
+          } else if (c.myUser.value?.hasPassword == true) {
+            children.addAll([
+              const SizedBox(height: 12),
+              Text(
+                'label_enter_password_below'.l10n,
+                style: style.fonts.normal.regular.secondary,
+              ),
+              const SizedBox(height: 12),
+              Obx(() {
+                return ReactiveTextField(
+                  key: const Key('PasswordField'),
+                  state: c.password,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
+                  ),
+                  hint: 'label_password'.l10n,
+                );
+              }),
+              const SizedBox(height: 25),
+              Obx(() {
+                final bool enabled =
+                    !c.password.isEmpty.value && c.password.error.value == null;
+
+                return PrimaryButton(
+                  key: const Key('Proceed'),
+                  onPressed: enabled ? c.deleteAccount : null,
+                  title: 'btn_proceed'.l10n,
+                );
+              }),
+              const SizedBox(height: 16),
+            ]);
+          }
 
           return Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(text: ''),
+              ModalPopupHeader(text: 'label_confirm_account_deletion'.l10n),
               Flexible(
                 child: ListView(
+                  padding: ModalPopup.padding(context),
                   shrinkWrap: true,
                   children: children,
                 ),
