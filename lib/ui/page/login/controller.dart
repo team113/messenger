@@ -31,6 +31,7 @@ import '/provider/gql/exceptions.dart'
         AddUserEmailException,
         ConnectionException,
         CreateSessionException,
+        SignUpException,
         UpdateUserPasswordException,
         ValidateConfirmationCodeException;
 import '/routes.dart';
@@ -168,6 +169,7 @@ class LoginController extends GetxController {
       onChanged: (_) {
         password.error.value = null;
         password.unsubmit();
+        repeatPassword.unsubmit();
       },
       onSubmitted: (s) {
         password.focus.requestFocus();
@@ -235,6 +237,8 @@ class LoginController extends GetxController {
 
             try {
               await register(login: userLogin, password: userPassword);
+            } on SignUpException catch (e) {
+              login.error.value = e.toMessage();
             } catch (e) {
               password.error.value = 'err_data_transfer'.l10n;
               rethrow;
@@ -431,6 +435,8 @@ class LoginController extends GetxController {
     try {
       await _authService.register(password: password, login: login);
       (onSuccess ?? router.home)();
+    } on SignUpException catch (e) {
+      this.login.error.value = e.toMessage();
     } on ConnectionException {
       MessagePopup.error('err_data_transfer'.l10n);
     } catch (e) {

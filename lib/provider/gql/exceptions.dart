@@ -1459,7 +1459,7 @@ class SignUpException with LocalizedExceptionMixin implements Exception {
   const SignUpException(this.code);
 
   /// Reason of why the mutation has failed.
-  final CreateSessionErrorCode code;
+  final CreateUserErrorCode code;
 
   @override
   String toString() => 'SignUpException($code)';
@@ -1467,11 +1467,9 @@ class SignUpException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateSessionErrorCode.wrongPassword:
-        return 'err_wrong_password'.l10n;
-      case CreateSessionErrorCode.wrongCode:
-        return 'err_wrong_code'.l10n;
-      case CreateSessionErrorCode.artemisUnknown:
+      case CreateUserErrorCode.occupied:
+        return 'err_login_occupied'.l10n;
+      case CreateUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
