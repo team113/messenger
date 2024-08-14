@@ -133,7 +133,7 @@ class MyUserRepository extends DisposableInterface
     this.onPasswordUpdated = onPasswordUpdated;
     this.onUserDeleted = onUserDeleted;
 
-    _active.then((v) => myUser.value = v?.value ?? myUser.value);
+    _active.then((v) => myUser.value = (v?.value ?? myUser.value));
 
     _initProfiles();
     _initLocalSubscription();

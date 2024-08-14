@@ -7,8 +7,10 @@ import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
+/// View of the [MyUser] deletion confirmation.
 class ConfirmDeleteView extends StatelessWidget {
   const ConfirmDeleteView({super.key});
 
@@ -30,18 +32,50 @@ class ConfirmDeleteView extends StatelessWidget {
 
           if (c.myUser.value?.emails.confirmed.isNotEmpty == true) {
             children.addAll([
+              const SizedBox(height: 12),
               Text(
                 'label_add_email_confirmation_sent_to'.l10nfmt(
                   {'email': '${c.myUser.value?.emails.confirmed.firstOrNull}'},
                 ),
-                style: style.fonts.small.regular.secondary,
+                style: style.fonts.normal.regular.onBackground,
               ),
-              ReactiveTextField(state: c.code),
+              const SizedBox(height: 16),
+              Obx(() {
+                return Text(
+                  c.resendEmailTimeout.value == 0
+                      ? 'label_did_not_receive_code'.l10n
+                      : 'label_code_sent_again'.l10n,
+                  style: style.fonts.normal.regular.onBackground,
+                );
+              }),
+              Obx(() {
+                final bool enabled = c.resendEmailTimeout.value == 0;
+
+                return WidgetButton(
+                  onPressed: enabled ? c.sendConfirmationCode : null,
+                  child: Text(
+                    enabled
+                        ? 'btn_resend_code'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.resendEmailTimeout.value}),
+                    style: enabled
+                        ? style.fonts.normal.regular.primary
+                        : style.fonts.normal.regular.onBackground,
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
+              ReactiveTextField(
+                state: c.code,
+                hint: 'label_confirmation_code'.l10n,
+              ),
+              const SizedBox(height: 25),
               PrimaryButton(
                 key: const Key('Proceed'),
                 onPressed: c.deleteAccount,
                 title: 'btn_proceed'.l10n,
               ),
+              const SizedBox(height: 16),
             ]);
           } else if (c.myUser.value?.hasPassword == true) {
             children.addAll([
