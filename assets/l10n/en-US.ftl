@@ -530,6 +530,7 @@ label_add_chat_member = Add member
 label_add_email = Add E-mail
 label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_confirmation_sent_to = A confirmation code has been sent to the {$email}. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_description = A confirmation code will be sent to the indicated E-mail.
 label_add_email_hint = Write your email address
 label_add_number = Add phone
@@ -673,6 +674,7 @@ label_conditions_ui_ux_designer =
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices.
 label_confirm = Confirm
+label_confirm_account_deletion = Confirm account deletion
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
@@ -752,6 +754,7 @@ label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
+label_enter_password_below = Please, enter your password in the field below.
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite

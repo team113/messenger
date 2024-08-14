@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Support page:
         - Current version information. ([#1079], [#896])
+    - Profile page:
+        - Credentials confirmation of account deletion. ([#1086])
 
 ### Changed
 
@@ -46,6 +48,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1070]: /../../pull/1070
 [#1078]: /../../pull/1078
 [#1079]: /../../pull/1079
+[#1086]: /../../pull/1086
 
 
 

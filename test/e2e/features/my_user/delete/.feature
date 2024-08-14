@@ -15,29 +15,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Account creation
+Feature: Account deletion
 
-  Scenario: User creates a new account
+  Scenario: User creates and deletes account without confirmation
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
     And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
 
     When I tap `MenuButton` button
-    And I tap `PublicInformation` button
-    And I wait until `MyProfileView` is present
-    And I wait until `NameField` is present
-    And I fill `NameField` field with "Alice"
-
-    When I scroll `MyProfileScrollable` until `SetPassword` is present
-    And I tap `SetPassword` button
-    And I fill `NewPasswordField` field with "123"
-    And I fill `RepeatPasswordField` field with "123"
-    And I tap `Proceed` button
-    And I tap `CloseButton` button
-    Then I wait until `ChangePassword` is present
-
-    When I scroll `MenuListView` until `DangerZone` is present
+    And I scroll `MenuListView` until `DangerZone` is present
     And I tap `DangerZone` button
     And I scroll `MyProfileScrollable` until `DeleteAccount` is present
     And I tap `DeleteAccount` button
@@ -45,10 +32,6 @@ Feature: Account creation
 
     When I scroll `EraseScrollable` until `ConfirmDelete` is present
     And I tap `ConfirmDelete` button
-    And I tap `Proceed` button
-    Then I wait until `ConfirmAccountDeletion` is present
-
-    When I fill `PasswordField` field with "123"
     And I tap `Proceed` button
 
     Then I wait until `AuthView` is present
