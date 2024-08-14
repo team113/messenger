@@ -57,6 +57,7 @@ enum WidgetKey {
   ChatView,
   ClearHistoryButton,
   CloseButton,
+  ConfirmAccountDeletion,
   ConfirmationCode,
   ConfirmationPhone,
   ConfirmDelete,

@@ -542,6 +542,7 @@ label_add_chat_member = Добавление участника
 label_add_email = Добавить E-mail
 label_add_email_confirmation_sent = На указанный Вами E-mail был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_confirmation_sent_again = На указанный Вами E-mail повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
+label_add_email_confirmation_sent_to = На {$email} был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_description = На указанный Вами E-mail будет отправлен код подтверждения.
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить телефон
@@ -698,6 +699,7 @@ label_conditions_ui_ux_designer =
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок.
 label_confirm = Подтвердить
+label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
@@ -778,6 +780,7 @@ label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
+label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
