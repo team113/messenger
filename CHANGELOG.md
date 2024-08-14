@@ -18,6 +18,8 @@ All user visible changes to this project will be documented in this file. This p
         - Current version information. ([#1079], [#896])
     - Profile page:
         - Credentials confirmation of account deletion. ([#1086])
+    - Auth page:
+        - Signing up by login and password. ([#1087])
 
 ### Changed
 
@@ -49,6 +51,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1078]: /../../pull/1078
 [#1079]: /../../pull/1079
 [#1086]: /../../pull/1086
+[#1087]: /../../pull/1087
 
 
 
