@@ -262,6 +262,69 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signUpWithPassword:
+              header = ModalPopupHeader(
+                text: 'label_sign_up_with_password'.l10n,
+                onBack: () => c.stage.value = LoginViewStage.signUp,
+              );
+
+              children = [
+                const SizedBox(height: 12),
+                ReactiveTextField(
+                  key: const Key('UsernameField'),
+                  state: c.login,
+                  label: 'label_login'.l10n,
+                  hint: 'alphanumeric-login_123',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const ValueKey('PasswordField'),
+                  state: c.password,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscurePassword.value,
+                  onSuffixPressed: c.obscurePassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgIcon(
+                    c.obscurePassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
+                  ),
+                  hint: '***',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const SizedBox(height: 16),
+                ReactiveTextField(
+                  key: const ValueKey('RepeatPasswordField'),
+                  state: c.repeatPassword,
+                  label: 'label_password'.l10n,
+                  obscure: c.obscureRepeatPassword.value,
+                  onSuffixPressed: c.obscureRepeatPassword.toggle,
+                  treatErrorAsStatus: false,
+                  trailing: SvgIcon(
+                    c.obscureRepeatPassword.value
+                        ? SvgIcons.visibleOff
+                        : SvgIcons.visibleOn,
+                  ),
+                  hint: '***',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled = !c.login.isEmpty.value &&
+                      !c.password.isEmpty.value &&
+                      !c.repeatPassword.isEmpty.value &&
+                      !c.authStatus.value.isLoading;
+
+                  return PrimaryButton(
+                    key: const Key('RegisterButton'),
+                    title: 'btn_sign_up'.l10n,
+                    onPressed: enabled ? c.repeatPassword.submit : null,
+                  );
+                }),
+              ];
+              break;
+
             case LoginViewStage.signUpWithEmail:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
@@ -304,6 +367,15 @@ class LoginView extends StatelessWidget {
 
               children = [
                 SignButton(
+                  key: const Key('LoginAndPassword'),
+                  title: 'btn_login_and_password'.l10n,
+                  icon: const SvgIcon(SvgIcons.password),
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signUpWithPassword,
+                ),
+                const SizedBox(height: 16),
+                SignButton(
+                  key: const Key('Email'),
                   title: 'btn_email'.l10n,
                   icon: const SvgIcon(SvgIcons.email),
                   onPressed: () =>

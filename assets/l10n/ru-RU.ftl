@@ -226,6 +226,7 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
+btn_login_and_password = Логин и пароль
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
@@ -1045,6 +1046,7 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
+label_sign_up_with_password = Регистрация с паролем
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация

@@ -134,10 +134,19 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signUp() async {
-    Log.debug('signUp()', '$runtimeType');
+  Future<Credentials> signUp({
+    UserPassword? password,
+    UserLogin? login,
+  }) async {
+    Log.debug(
+      'signUp(password: ${password?.obscured}, login: $login)',
+      '$runtimeType',
+    );
 
-    final response = await _graphQlProvider.signUp();
+    final response = await _graphQlProvider.signUp(
+      login: login,
+      password: password,
+    );
     final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
     _myUserProvider.upsert(success.user.toDto());

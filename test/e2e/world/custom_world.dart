@@ -42,6 +42,9 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [UserId] of the currently authenticated [MyUser].
   UserId? me;
+
+  /// [UserLogin] being a random one.
+  UserLogin? randomLogin;
 }
 
 /// [Session] with some additional info about the [User] it represents.

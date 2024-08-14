@@ -36,3 +36,21 @@ Feature: Account creation
     And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until `ChangePassword` is present
+
+  Scenario: User creates a new account with login and password
+    When I tap `RegisterButton` button
+    Then I wait until `LoginView` is present
+
+    When I tap `LoginAndPassword` button
+    And I fill `UsernameField` field with random login
+    And I fill `PasswordField` field with "123"
+    And I fill `RepeatPasswordField` field with "123"
+
+    When I tap `RegisterButton` button
+    Then I wait until `HomeView` is present
+
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    Then I wait until `MyProfileView` is present
+    And I scroll `MyProfileScrollable` until `LoginField` is present
+    And I scroll `MyProfileScrollable` until `ChangePassword` is present
