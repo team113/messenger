@@ -31,6 +31,7 @@ import '/provider/gql/exceptions.dart'
         AddUserEmailException,
         ConnectionException,
         CreateSessionException,
+        SignUpException,
         UpdateUserPasswordException,
         ValidateConfirmationCodeException;
 import '/routes.dart';
@@ -45,6 +46,7 @@ enum LoginViewStage {
   signIn,
   signInWithPassword,
   signUp,
+  signUpWithPassword,
   signUpWithEmail,
   signUpWithEmailCode,
   signUpOrSignIn,
@@ -167,6 +169,7 @@ class LoginController extends GetxController {
       onChanged: (_) {
         password.error.value = null;
         password.unsubmit();
+        repeatPassword.unsubmit();
       },
       onSubmitted: (s) {
         password.focus.requestFocus();
@@ -176,6 +179,12 @@ class LoginController extends GetxController {
 
     password = TextFieldState(
       onFocus: (s) => s.unsubmit(),
+      onChanged: (_) {
+        password.error.value = null;
+        password.unsubmit();
+        repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
+      },
       onSubmitted: (s) => signIn(),
     );
 
@@ -196,11 +205,51 @@ class LoginController extends GetxController {
 
     repeatPassword = TextFieldState(
       onFocus: (s) {
-        if (s.text != newPassword.text && newPassword.isValidated) {
-          s.error.value = 'err_passwords_mismatch'.l10n;
+        switch (stage.value) {
+          case LoginViewStage.signUpWithPassword:
+            if (s.text != password.text && password.isValidated) {
+              s.error.value = 'err_passwords_mismatch'.l10n;
+            }
+            break;
+
+          default:
+            if (s.text != newPassword.text && newPassword.isValidated) {
+              s.error.value = 'err_passwords_mismatch'.l10n;
+            }
+            break;
         }
       },
-      onSubmitted: (s) => resetUserPassword(),
+      onSubmitted: (s) async {
+        switch (stage.value) {
+          case LoginViewStage.signUpWithPassword:
+            final userLogin = UserLogin.tryParse(login.text);
+            final userPassword = UserPassword.tryParse(password.text);
+
+            if (userLogin == null) {
+              login.error.value = 'err_incorrect_login_input'.l10n;
+              return;
+            }
+
+            if (userPassword == null) {
+              password.error.value = 'err_password_incorrect'.l10n;
+              return;
+            }
+
+            try {
+              await register(login: userLogin, password: userPassword);
+            } on SignUpException catch (e) {
+              login.error.value = e.toMessage();
+            } catch (e) {
+              password.error.value = 'err_data_transfer'.l10n;
+              rethrow;
+            }
+            break;
+
+          default:
+            await resetUserPassword();
+            break;
+        }
+      },
     );
 
     email = TextFieldState(
@@ -379,10 +428,15 @@ class LoginController extends GetxController {
   }
 
   /// Creates a new one-time account right away.
-  Future<void> register() async {
+  Future<void> register({
+    UserPassword? password,
+    UserLogin? login,
+  }) async {
     try {
-      await _authService.register();
+      await _authService.register(password: password, login: login);
       (onSuccess ?? router.home)();
+    } on SignUpException catch (e) {
+      this.login.error.value = e.toMessage();
     } on ConnectionException {
       MessagePopup.error('err_data_transfer'.l10n);
     } catch (e) {

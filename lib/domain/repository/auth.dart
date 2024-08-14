@@ -54,7 +54,10 @@ abstract class AbstractAuthRepository {
   ///
   /// Once the created [Session] expires, the created [MyUser] looses access, if
   /// he doesn't re-sign in within that period of time.
-  Future<Credentials> signUp();
+  Future<Credentials> signUp({
+    UserPassword? password,
+    UserLogin? login,
+  });
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).

@@ -322,7 +322,11 @@ class AuthService extends DisposableService {
   ///
   /// If [status] is already authorized, then this method does nothing, however,
   /// this logic can be ignored by specifying [force] as `true`.
-  Future<void> register({bool force = false}) async {
+  Future<void> register({
+    UserPassword? password,
+    UserLogin? login,
+    bool force = false,
+  }) async {
     Log.debug('register(force: $force)', '$runtimeType');
 
     status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
@@ -336,7 +340,10 @@ class AuthService extends DisposableService {
       }
 
       try {
-        final Credentials data = await _authRepository.signUp();
+        final Credentials data = await _authRepository.signUp(
+          login: login,
+          password: password,
+        );
         await _authorized(data);
         status.value = RxStatus.success();
       } catch (e) {

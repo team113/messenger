@@ -71,7 +71,9 @@ mixin AuthGraphQlMixin {
         variables: variables.toJson(),
       ),
       onException: (data) => SignUpException(
-        SignUp$Mutation.fromJson(data).createUser as CreateSessionErrorCode,
+        (SignUp$Mutation.fromJson(data).createUser
+                as SignUp$Mutation$CreateUser$CreateUserError)
+            .code,
       ),
       raw: const RawClientOptions(),
     );

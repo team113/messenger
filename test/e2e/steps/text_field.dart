@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
@@ -119,6 +120,22 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the random [UserLogin] to the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - When I fill `LoginField` field with random login
+StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
+  'I fill {key} field with random login',
+  (key, context) async {
+    context.world.randomLogin ??= UserLogin(
+      ChatDirectLinkSlug.generate(18).val.toLowerCase(),
+    );
+    await _fillField(key, '${context.world.randomLogin}', context);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 18),
 );
 
 /// Copies the value of the widget with the provided [WidgetKey] to the

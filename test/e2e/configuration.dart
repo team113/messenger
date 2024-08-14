@@ -179,6 +179,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillField,
         fillFieldN,
         fillFieldWithMyCredential,
+        fillFieldWithRandomLogin,
         fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
