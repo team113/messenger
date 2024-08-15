@@ -84,7 +84,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -826,8 +826,6 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   Widget device(Session session) {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
@@ -881,22 +879,16 @@ Widget _devices(BuildContext context, MyProfileController c) {
           }),
         ),
       ),
-      const SizedBox(height: 10),
       Obx(() {
-        if (c.sessionsUpdating.isFalse) {
-          return Center(
-            child: WidgetButton(
-              onPressed: c.updateSessions,
-              child: Text(
-                'btn_refresh'.l10n,
-                style: style.fonts.small.regular.primary,
-              ),
-            ),
-          );
+        if (c.sessions.isNotEmpty) {
+          return const SizedBox();
         } else {
-          return const SizedBox.square(
-            dimension: 17,
-            child: CircularProgressIndicator(strokeWidth: 2),
+          return const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: SizedBox.square(
+              dimension: 17,
+              child: CustomProgressIndicator(),
+            ),
           );
         }
       }),

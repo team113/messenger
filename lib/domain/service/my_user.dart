@@ -54,6 +54,9 @@ class MyUserService extends DisposableService {
   /// Returns a reactive map of all the known [MyUser] profiles.
   RxObsMap<UserId, Rx<MyUser>> get profiles => _myUserRepository.profiles;
 
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions => _myUserRepository.sessions;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -309,4 +312,5 @@ class MyUserService extends DisposableService {
       router.auth();
     }
   }
+
 }

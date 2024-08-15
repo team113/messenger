@@ -21,16 +21,20 @@ import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
 
 /// Session of a [MyUser] being signed-in.
-class Session {
+class Session implements Comparable<Session> {
   const Session({
     required this.id,
+    required this.ip,
     required this.userAgent,
-    this.isCurrent = true,
+    this.isCurrent = false,
     required this.lastActivatedAt,
   });
 
   /// Unique ID of this [Session].
   final SessionId id;
+
+  /// [IpAddress] of the device, that used this [Session] last time.
+  final IpAddress ip;
 
   /// [UserAgent] of the device, that used this [Session] last time.
   final UserAgent userAgent;
@@ -41,6 +45,22 @@ class Session {
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
   final PreciseDateTime lastActivatedAt;
+
+  @override
+  int compareTo(Session other) {
+    if (isCurrent && !other.isCurrent) {
+      return 1;
+    } else if (!isCurrent && other.isCurrent) {
+      return -1;
+    }
+
+    final result = other.lastActivatedAt.compareTo(lastActivatedAt);
+    if (result == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+
+    return result;
+  }
 }
 
 /// Type of [Session]'s ID.
@@ -56,6 +76,11 @@ class SessionId extends NewType<String> {
 /// - contain at least one non-space-like character.
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
+}
+
+/// Either an IPv4 or IPv6 address.
+class IpAddress extends NewType<String> {
+  const IpAddress(super.val);
 }
 
 /// Token used for authenticating a [Session].

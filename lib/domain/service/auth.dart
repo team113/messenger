@@ -97,9 +97,6 @@ class AuthService extends DisposableService {
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
-  /// Returns the reactive list of active [Session]s.
-  RxList<Session> get sessions => _authRepository.sessions;
-
   // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
   /// Returns the reactive list of known [MyUser]s.
   RxList<MyUser> get profiles => _authRepository.profiles;
@@ -791,12 +788,6 @@ class AuthService extends DisposableService {
     return await _authRepository.useChatDirectLink(slug);
   }
 
-  /// Updates the [sessions] list.
-  Future<void> updateSessions() async {
-    Log.debug('updateSessions()', '$runtimeType');
-    await _authRepository.updateSessions();
-  }
-
   /// Puts the provided [creds] to [accounts].
   void _putCredentials(Credentials creds) {
     Log.debug('_putCredentials($creds)', '$runtimeType');
@@ -880,7 +871,6 @@ class AuthService extends DisposableService {
     }
 
     _authRepository.token = null;
-    _authRepository.sessions.clear();
     credentials.value = null;
     status.value = RxStatus.empty();
 

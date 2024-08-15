@@ -28,9 +28,6 @@ import '/provider/gql/exceptions.dart';
 ///
 /// All methods may throw [ConnectionException] and [GraphQlException].
 abstract class AbstractAuthRepository {
-  /// Returns the reactive list of active [Session]s.
-  RxList<Session> get sessions;
-
   // TODO: Remove, [AbstractMyUserRepository.profiles] should be used instead.
   /// Returns the known [MyUser] profiles.
   RxList<MyUser> get profiles;
@@ -139,10 +136,6 @@ abstract class AbstractAuthRepository {
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
   Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug);
-
-  // TODO: Replace with real-time updates, when backend supports those.
-  /// Updates the [sessions] list.
-  Future<void> updateSessions();
 
   /// Generates and sends a new single-use [ConfirmationCode] for the [MyUser]
   /// identified by the provided [login], [num], [email] and/or [phone].

@@ -35,7 +35,6 @@ import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
-import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -53,11 +52,7 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(
-    this._myUserService,
-    this._authService,
-    this._settingsRepo,
-  );
+  MyProfileController(this._myUserService, this._settingsRepo);
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -114,9 +109,6 @@ class MyProfileController extends GetxController {
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  /// [AuthService] used to get [sessions] value.
-  final AuthService _authService;
-
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
@@ -154,7 +146,7 @@ class MyProfileController extends GetxController {
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
   /// Returns the list of active [Session]s.
-  RxList<Session> get sessions => _authService.sessions;
+  RxList<Session> get sessions => _myUserService.sessions;
 
   @override
   void onInit() {
@@ -166,13 +158,6 @@ class MyProfileController extends GetxController {
       } catch (_) {
         // No-op, shouldn't break the view.
       }
-    }
-
-    // [List.isEmpty] can be used as an indicator to fetch the [Session]s here,
-    // as our current [Session] must be on the list, so the length must be at
-    // least 1 to be up to date.
-    if (sessions.isEmpty) {
-      updateSessions();
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -495,18 +480,6 @@ class MyProfileController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlightIndex.value = null;
     });
-  }
-
-  // TODO: Remove, when backend supports real-time updates.
-  /// Updates the [sessions] value.
-  Future<void> updateSessions() async {
-    sessionsUpdating.value = true;
-
-    try {
-      await _authService.updateSessions();
-    } finally {
-      sessionsUpdating.value = false;
-    }
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].

@@ -21,6 +21,10 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/provider/drift/session.dart';
+import 'package:messenger/provider/drift/version.dart';
+import 'package:messenger/util/obs/obs.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
@@ -46,8 +50,11 @@ import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'blocklist.dart';
 import 'event/my_user.dart';
+import 'event/session.dart';
 import 'model/blocklist.dart';
 import 'model/my_user.dart';
+import 'model/session.dart';
+import 'model/session_data.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
@@ -59,6 +66,8 @@ class MyUserRepository extends DisposableInterface
     this._blocklistRepository,
     this._userRepository,
     this._accountLocal,
+    this._versionLocal,
+    this._sessionLocal,
   );
 
   @override
@@ -66,6 +75,9 @@ class MyUserRepository extends DisposableInterface
 
   @override
   final RxObsMap<UserId, Rx<MyUser>> profiles = RxObsMap();
+
+  @override
+  final RxList<Session> sessions = RxList();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -82,6 +94,9 @@ class MyUserRepository extends DisposableInterface
   /// Storage providing the [UserId] of the currently active [MyUser].
   final AccountDriftProvider _accountLocal;
 
+  final VersionDriftProvider _versionLocal;
+  final SessionDriftProvider _sessionLocal;
+
   /// Blocked [User]s repository, used to update it on the appropriate events.
   final BlocklistRepository _blocklistRepository;
 
@@ -95,6 +110,14 @@ class MyUserRepository extends DisposableInterface
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
+
+  /// [_sessionRemoteEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamQueue<SessionEventsVersioned>? _sessionSubscription;
+
+  /// [SessionDriftProvider.watch] subscription.
+  StreamSubscription? _sessionLocalSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamQueue? _keepOnlineSubscription;
@@ -138,6 +161,8 @@ class MyUserRepository extends DisposableInterface
     _initProfiles();
     _initLocalSubscription();
     _initRemoteSubscription();
+    _initSessionSubscription();
+    _initSessionLocalSubscription();
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -165,6 +190,8 @@ class MyUserRepository extends DisposableInterface
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel(immediate: true);
+    _sessionSubscription?.close(immediate: true);
+    _sessionLocalSubscription?.cancel();
     _onFocusChanged?.cancel();
     _pool.dispose();
     _localSubscriptionRetry?.cancel();
@@ -1299,6 +1326,214 @@ class MyUserRepository extends DisposableInterface
         return false;
       },
     );
+  }
+
+  /// Initializes [MyUserDriftProvider.watchSingle] subscription.
+  Future<void> _initSessionLocalSubscription() async {
+    _localSubscriptionRetry?.cancel();
+
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initSessionLocalSubscription()', '$runtimeType');
+
+    _localSubscription = _sessionLocal.watch().listen((events) {
+      for (var e in events) {
+        switch (e.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            final existing = sessions.indexWhere((o) => o.id == e.key);
+            if (existing == -1) {
+              sessions.insert(0, e.value!);
+            } else {
+              sessions[existing] = e.value!;
+            }
+            sessions.sort();
+            sessions.refresh();
+            break;
+
+          case OperationKind.removed:
+            sessions.removeWhere((s) => s.id == e.key);
+            sessions.sort();
+            sessions.refresh();
+            break;
+        }
+      }
+    });
+  }
+
+  /// Initializes [_sessionRemoteEvents] subscription.
+  Future<void> _initSessionSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initSessionSubscription()', '$runtimeType');
+
+    _sessionSubscription?.cancel(immediate: true);
+
+    await WebUtils.protect(
+      () async {
+        _sessionSubscription = StreamQueue(
+          await _sessionRemoteEvents(
+            _versionLocal.data[myUser.value?.id]?.sessionsListVersion,
+          ),
+        );
+
+        await _sessionSubscription!.execute(
+          _sessionRemoteEvent,
+          onError: (e) {
+            sessions.clear();
+          },
+        );
+      },
+      tag: 'sessionsEvents',
+    );
+  }
+
+  /// Handles [SessionEvent] from the [_sessionRemoteEvents] subscription.
+  Future<void> _sessionRemoteEvent(
+    SessionEventsVersioned versioned, {
+    bool updateVersion = true,
+  }) async {
+    final listVer = _versionLocal.data[myUser.value?.id]?.sessionsListVersion;
+    if (versioned.listVer < listVer) {
+      Log.debug(
+        '_sessionRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+      return;
+    } else {
+      Log.debug(
+        '_sessionRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+    }
+
+    _versionLocal.upsert(
+      myUser.value!.id,
+      SessionData(sessionsListVersion: versioned.listVer),
+    );
+
+    for (final SessionEvent event in versioned.events) {
+      switch (event.kind) {
+        case SessionEventKind.created:
+          event as EventSessionCreated;
+
+          final session = Session(
+            id: event.id,
+
+            // TODO: Wait for backend to fix.
+            ip: const IpAddress(''),
+
+            userAgent: event.userAgent,
+            lastActivatedAt: event.at,
+          );
+
+          _sessionLocal.upsert(session);
+          sessions.insert(0, session);
+          sessions.sort();
+          sessions.refresh();
+          break;
+
+        case SessionEventKind.deleted:
+          event as EventSessionDeleted;
+          _sessionLocal.delete(event.id);
+          sessions.removeWhere((e) => e.id == event.id);
+          sessions.sort();
+          sessions.refresh();
+          break;
+
+        case SessionEventKind.refreshed:
+          event as EventSessionRefreshed;
+
+          final session = Session(
+            id: event.id,
+
+            // TODO: Wait for backend to fix.
+            ip: const IpAddress(''),
+
+            userAgent: event.userAgent,
+            lastActivatedAt: event.at,
+          );
+
+          _sessionLocal.upsert(session);
+
+          final existing = sessions.indexWhere((e) => e.id == event.id);
+          if (existing == -1) {
+            sessions.insert(0, session);
+          } else {
+            sessions[existing] = session;
+            sessions.sort();
+            sessions.refresh();
+          }
+          break;
+      }
+    }
+  }
+
+  /// Subscribes to remote [SessionEvent]s of the authenticated [MyUser].
+  Future<Stream<SessionEventsVersioned>> _sessionRemoteEvents(
+    SessionsListVersion? ver,
+  ) async {
+    Log.debug('_sessionRemoteEvents(ver)', '$runtimeType');
+
+    return (_graphQlProvider.sessionsEvents(ver)).asyncExpand((event) async* {
+      Log.trace('_sessionRemoteEvents(ver): ${event.data}', '$runtimeType');
+
+      final events =
+          SessionsEvents$Subscription.fromJson(event.data!).sessionsEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_sessionRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+      } else if (events.$$typename == 'SessionsList') {
+        Log.debug('_sessionRemoteEvents(ver): SessionsList', '$runtimeType');
+
+        final e =
+            events as SessionsEvents$Subscription$SessionsEvents$SessionsList;
+        final sessions = e.list.map((e) => e.toModel()).toList();
+
+        _sessionLocal.upsertBulk(sessions);
+        _versionLocal.upsert(
+          myUser.value!.id,
+          SessionData(sessionsListVersion: e.listVer),
+        );
+
+        for (var e in sessions) {
+          this.sessions.add(e);
+        }
+        this.sessions.sort();
+        this.sessions.refresh();
+      } else if (events.$$typename == 'SessionEventsVersioned') {
+        var mixin = events as SessionEventsVersionedMixin;
+        yield SessionEventsVersioned(
+          mixin.events.map((e) => _sessionEvent(e)).toList(),
+          mixin.ver,
+          mixin.listVer,
+        );
+      }
+    });
+  }
+
+  /// Constructs a [SessionEvent] from the [MyUserEventsVersionedMixin$Events].
+  SessionEvent _sessionEvent(SessionEventsVersionedMixin$Events e) {
+    Log.trace('_sessionEvent($e)', '$runtimeType');
+
+    if (e.$$typename == 'EventSessionCreated') {
+      var node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
+      return EventSessionCreated(e.id, e.at, node.userAgent, node.remembered);
+    } else if (e.$$typename == 'EventSessionDeleted') {
+      return EventSessionDeleted(e.id, e.at);
+    } else if (e.$$typename == 'EventSessionRefreshed') {
+      var node = e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
+      return EventSessionRefreshed(e.id, e.at, node.userAgent);
+    } else {
+      throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
+    }
   }
 }
 

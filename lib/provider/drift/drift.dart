@@ -45,6 +45,7 @@ import 'download.dart';
 import 'draft.dart';
 import 'monolog.dart';
 import 'my_user.dart';
+import 'session.dart';
 import 'settings.dart';
 import 'skipped_version.dart';
 import 'user.dart';
@@ -84,8 +85,12 @@ class CommonDatabase extends _$CommonDatabase {
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          for (var e in m.database.allTables) {
-            await m.deleteTable(e.actualTableName);
+          if (a == 2 && b == 1) {
+            await m.addColumn(versions, versions.sessionsListVersion);
+          } else {
+            for (var e in m.database.allTables) {
+              await m.deleteTable(e.actualTableName);
+            }
           }
         }
 
@@ -137,6 +142,7 @@ class CommonDatabase extends _$CommonDatabase {
     ChatMembers,
     Chats,
     Drafts,
+    Sessions,
     Users,
   ],
   queries: {

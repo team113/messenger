@@ -1,0 +1,18 @@
+subscription SessionsEvents($ver: SessionsListVersion) {
+    sessionsEvents(ver: $ver) {
+        __typename
+        ... on SubscriptionInitialized {
+            ok
+        }
+        ... on SessionsList {
+            list {
+                __typename
+                ...Session
+            }
+            listVer
+        }
+        ... on SessionEventsVersioned {
+            ...SessionEventsVersioned
+        }
+    }
+}

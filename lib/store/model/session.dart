@@ -17,6 +17,7 @@
 
 import '/domain/model/session.dart';
 import '/util/new_type.dart';
+import 'version.dart';
 
 /// Version of [Session]'s state.
 ///
@@ -29,9 +30,6 @@ class SessionVersion extends NewType<BigInt> {
 }
 
 /// Version of a [Session]s list.
-class SessionsListVersion extends NewType<BigInt> {
-  const SessionsListVersion(super.val);
-
-  factory SessionsListVersion.parse(String val) =>
-      SessionsListVersion(BigInt.parse(val));
+class SessionsListVersion extends Version {
+  SessionsListVersion(super.val);
 }
