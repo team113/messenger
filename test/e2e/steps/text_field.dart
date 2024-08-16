@@ -54,7 +54,8 @@ StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
   'I fill {key} field with {user}\'s {credential}',
   (key, user, credential, context) async {
-    final CustomUser? customUser = context.world.sessions[user.name];
+    final CustomUser? customUser =
+        context.world.sessions[user.name]?.firstOrNull;
 
     if (customUser == null) {
       throw ArgumentError(
@@ -80,7 +81,8 @@ StepDefinitionGeneric fillFieldWithMyCredential =
   (key, credential, context) async {
     final CustomUser? me = context.world.sessions.values
         .where((user) => user.userId == context.world.me)
-        .firstOrNull;
+        .firstOrNull
+        ?.firstOrNull;
 
     if (me == null) {
       throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');

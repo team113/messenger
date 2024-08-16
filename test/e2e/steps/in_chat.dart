@@ -32,7 +32,7 @@ final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        final CustomUser customUser = context.world.sessions[user.name]!;
+        final CustomUser customUser = context.world.sessions[user.name]!.first;
         router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
 
         return context.world.appDriver.isPresent(

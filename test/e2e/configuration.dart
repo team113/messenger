@@ -271,6 +271,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setCredential,
         setMyCredential,
         signInAs,
+        signsOutSession,
         tapAccountInAccounts,
         tapChat,
         tapContact,
@@ -372,7 +373,7 @@ Future<CustomUser> createUser({
   );
 
   if (user != null && world != null) {
-    world.sessions[user.name] = customUser;
+    world.sessions[user.name] = [customUser];
 
     provider.token = success.accessToken.secret;
     await provider.updateUserName(UserName(user.name));

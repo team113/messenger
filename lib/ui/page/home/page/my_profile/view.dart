@@ -832,6 +832,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InfoTile(
+        key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
         title: isCurrent
             ? 'label_this_device'.l10n
             : session.lastActivatedAt.val.yMdHm,

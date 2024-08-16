@@ -17,17 +17,19 @@
 
 Feature: MyUser's sessions
 
-  Scenario: Bob sees Alice changing her online status
+  Scenario: Alice sees her other sessions being created and deleted
     Given I am Alice
 
     When I wait until `HomeView` is present
     And I tap `MenuButton` button
-    And I scroll `MenuListView` until `LogoutButton` is present
-    And I tap `LogoutButton` button
-    And I tap `KeepCredentialsSwitch` button
-    And I tap `ConfirmLogoutButton` button
-    Then I wait until `AuthView` is present
-    And Bob sees Alice as offline
+    And I scroll `MenuListView` until `Devices` is present
+    And I tap `Devices` button
+    Then I see 1 active sessions
+    And I wait until `CurrentSession` is present
 
-    When I sign in as Alice
-    Then Bob sees Alice as online
+    When Alice has another active session
+    Then I see 2 active sessions
+
+    When Alice signs out of another active sessions
+    Then I see 1 active sessions
+    And I wait until `CurrentSession` is present

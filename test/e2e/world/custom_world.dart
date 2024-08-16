@@ -29,7 +29,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
-  final Map<String, CustomUser> sessions = {};
+  final Map<String, List<CustomUser>> sessions = {};
 
   /// [Map] of group [Chat]s identified by their names.
   final Map<String, ChatId> groups = {};
@@ -45,6 +45,19 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [UserLogin] being a random one.
   UserLogin? randomLogin;
+}
+
+extension Ext on List<CustomUser> {
+  UserId get userId => first.userId;
+  AccessTokenSecret? get token => firstOrNull?.token;
+  UserNum get userNum => first.userNum;
+  FutureOr<Credentials> get credentials => first.credentials;
+  ChatId? get dialog => firstOrNull?.dialog;
+  set dialog(ChatId? id) => firstOrNull?.dialog = id;
+  UserPassword? get password => firstOrNull?.password;
+  set password(UserPassword? value) => firstOrNull?.password = value;
+  set credentials(FutureOr<Credentials?> creds) =>
+      firstOrNull?.credentials = creds;
 }
 
 /// [Session] with some additional info about the [User] it represents.
