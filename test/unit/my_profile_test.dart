@@ -28,6 +28,7 @@ import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
@@ -47,7 +48,8 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
 
   test('MyProfile test', () async {
     Get.reset();
@@ -72,7 +74,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -87,6 +89,8 @@ void main() async {
           blocklistRepository,
           userRepository,
           accountProvider,
+          versionProvider,
+          sessionProvider,
         ),
       ),
     );

@@ -99,6 +99,7 @@ void main() async {
           const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
+        const SessionId('me'),
         const UserId('me'),
       ),
     );

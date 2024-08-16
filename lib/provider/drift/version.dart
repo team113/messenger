@@ -18,13 +18,13 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
-import 'package:messenger/store/model/session.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/user.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
+import '/store/model/session.dart';
 import 'drift.dart';
 
 /// [SessionData] to be stored in a [Table].

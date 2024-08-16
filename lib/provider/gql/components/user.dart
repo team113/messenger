@@ -20,7 +20,6 @@ import 'dart:convert';
 import 'package:dio/dio.dart' as dio
     show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:messenger/store/model/session.dart';
 
 import '../base.dart';
 import '../exceptions.dart';
@@ -32,6 +31,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
+import '/store/model/session.dart';
 import '/store/model/user.dart';
 import '/util/log.dart';
 

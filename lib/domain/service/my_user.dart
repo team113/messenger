@@ -312,5 +312,4 @@ class MyUserService extends DisposableService {
       router.auth();
     }
   }
-
 }

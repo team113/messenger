@@ -48,6 +48,7 @@ import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/model/chat.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/store/model/session.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/view.dart';
 import 'package:messenger/util/audio_utils.dart';
@@ -242,6 +243,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         'session': {
           '__typename': 'Session',
           'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+          'ip': '127.0.0.1',
           'userAgent':
               'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
           'isCurrent': true,
@@ -285,6 +287,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Stream<QueryResult<Object?>> keepOnline() {
+    return const Stream.empty();
+  }
+
+  @override
+  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
     return const Stream.empty();
   }
 

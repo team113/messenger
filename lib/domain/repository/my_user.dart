@@ -34,8 +34,7 @@ abstract class AbstractMyUserRepository {
   ///
   /// __Note__, that having a [MyUser] here doesn't mean that
   /// [AbstractAuthRepository] can sign into that account: it must also have
-  /// non-stale [Credentials], which can be found in [AuthService.sessions]
-  /// field.
+  /// non-stale [Credentials], which can be found in [sessions] field.
   RxObsMap<UserId, Rx<MyUser>> get profiles;
 
   /// Returns the reactive list of active [Session]s.

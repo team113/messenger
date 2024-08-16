@@ -143,7 +143,7 @@ class RefreshTokenSecret extends NewType<String> {
 /// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
 class Credentials {
-  const Credentials(this.access, this.refresh, this.userId);
+  const Credentials(this.access, this.refresh, this.sessionId, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
@@ -152,6 +152,9 @@ class Credentials {
 
   /// [RefreshToken] of these [Credentials].
   final RefreshToken refresh;
+
+  /// ID of the [Session] these [Credentials] represent.
+  final SessionId sessionId;
 
   /// ID of the currently authenticated [MyUser].
   final UserId userId;
@@ -167,6 +170,7 @@ class Credentials {
         RefreshTokenSecret(data['refresh']['secret']),
         PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
+      SessionId(data['sessionId']),
       UserId(data['userId']),
     );
   }
@@ -182,6 +186,7 @@ class Credentials {
         'secret': refresh.secret.val,
         'expireAt': refresh.expireAt.toString(),
       },
+      'sessionId': sessionId.val,
       'userId': userId.val,
     };
   }
