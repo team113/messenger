@@ -54,7 +54,7 @@ class SessionData {
   /// remote, meaning no queries should be made.
   bool? blocklistSynchronized;
 
-  /// Persisted [ChatContactsListVersion] data.
+  /// Persisted [SessionsListVersion] data.
   SessionsListVersion? sessionsListVersion;
 
   /// Returns a copy of this [SessionData] from the [other].

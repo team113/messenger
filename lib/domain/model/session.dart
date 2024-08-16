@@ -160,7 +160,7 @@ class Credentials {
         RefreshTokenSecret(data['refresh']['secret']),
         PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
-      SessionId(data['sessionId']),
+      SessionId(data['sessionId'] ?? ''),
       UserId(data['userId']),
     );
   }

@@ -15,11 +15,9 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/domain/model/avatar.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
-import '/domain/model/user.dart';
 import '/store/model/session.dart';
 
 /// Possible kinds of [SessionEvent].
@@ -83,9 +81,22 @@ class EventSessionCreated extends SessionEvent {
 
   @override
   int get hashCode => Object.hash(id, at, userAgent, remembered);
+
+  /// Constructs a [Session] from this event.
+  Session toModel() {
+    return Session(
+      id: id,
+
+      // TODO: Wait for backend to fix.
+      ip: const IpAddress(''),
+
+      userAgent: userAgent,
+      lastActivatedAt: at,
+    );
+  }
 }
 
-/// Event of an [UserAvatar] being updated.
+/// Event of a [Session] being deleted.
 class EventSessionDeleted extends SessionEvent {
   const EventSessionDeleted(super.id, super.at);
 
@@ -100,7 +111,7 @@ class EventSessionDeleted extends SessionEvent {
   int get hashCode => Object.hash(id, at);
 }
 
-/// Event of a [UserBio] being deleted.
+/// Event of a [Session] being refreshed.
 class EventSessionRefreshed extends SessionEvent {
   const EventSessionRefreshed(super.userId, super.at, this.userAgent);
 
@@ -119,4 +130,17 @@ class EventSessionRefreshed extends SessionEvent {
 
   @override
   int get hashCode => Object.hash(id, at, userAgent);
+
+  /// Constructs a [Session] from this event.
+  Session toModel() {
+    return Session(
+      id: id,
+
+      // TODO: Wait for backend to fix.
+      ip: const IpAddress(''),
+
+      userAgent: userAgent,
+      lastActivatedAt: at,
+    );
+  }
 }

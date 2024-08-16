@@ -1422,15 +1422,7 @@ class MyUserRepository extends DisposableInterface
         case SessionEventKind.created:
           event as EventSessionCreated;
 
-          final session = Session(
-            id: event.id,
-
-            // TODO: Wait for backend to fix.
-            ip: const IpAddress(''),
-
-            userAgent: event.userAgent,
-            lastActivatedAt: event.at,
-          );
+          final session = event.toModel();
 
           _sessionLocal.upsert(session);
           final existing = sessions.indexWhere((e) => e.id == event.id);
@@ -1454,15 +1446,7 @@ class MyUserRepository extends DisposableInterface
         case SessionEventKind.refreshed:
           event as EventSessionRefreshed;
 
-          final session = Session(
-            id: event.id,
-
-            // TODO: Wait for backend to fix.
-            ip: const IpAddress(''),
-
-            userAgent: event.userAgent,
-            lastActivatedAt: event.at,
-          );
+          final session = event.toModel();
 
           _sessionLocal.upsert(session);
           final existing = sessions.indexWhere((e) => e.id == event.id);
@@ -1525,7 +1509,7 @@ class MyUserRepository extends DisposableInterface
     });
   }
 
-  /// Constructs a [SessionEvent] from the [MyUserEventsVersionedMixin$Events].
+  /// Constructs a [SessionEvent] from the [SessionEventsVersionedMixin$Events].
   SessionEvent _sessionEvent(SessionEventsVersionedMixin$Events e) {
     Log.trace('_sessionEvent($e)', '$runtimeType');
 

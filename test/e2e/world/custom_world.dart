@@ -47,15 +47,33 @@ class CustomWorld extends FlutterWidgetTesterWorld {
   UserLogin? randomLogin;
 }
 
-extension Ext on List<CustomUser> {
+/// Extension adding quick access to the first [CustomUser] in the [List].
+extension CustomUserHelpers on List<CustomUser> {
+  /// Returns the [UserId] of the first [CustomUser].
   UserId get userId => first.userId;
+
+  /// Returns the [AccessTokenSecret] of the first [CustomUser].
   AccessTokenSecret? get token => firstOrNull?.token;
+
+  /// Returns the [UserNum] of the first [CustomUser].
   UserNum get userNum => first.userNum;
+
+  /// Returns the [Credentials] of the first [CustomUser].
   FutureOr<Credentials> get credentials => first.credentials;
+
+  /// Returns the [ChatId] of the first [CustomUser].
   ChatId? get dialog => firstOrNull?.dialog;
-  set dialog(ChatId? id) => firstOrNull?.dialog = id;
+
+  /// Sets the [ChatId] of the first [CustomUser] to the [chatId].
+  set dialog(ChatId? chatId) => firstOrNull?.dialog = chatId;
+
+  /// Returns the [UserPassword] of the first [CustomUser].
   UserPassword? get password => firstOrNull?.password;
+
+  /// Sets the [UserPassword] of the first [CustomUser] to the [value].
   set password(UserPassword? value) => firstOrNull?.password = value;
+
+  /// sets the [Credentials] of the first [CustomUser] to the [creds].
   set credentials(FutureOr<Credentials?> creds) =>
       firstOrNull?.credentials = creds;
 }
