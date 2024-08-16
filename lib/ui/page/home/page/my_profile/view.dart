@@ -84,7 +84,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -827,14 +827,16 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
   Widget device(Session session) {
+    final bool isCurrent = session.id == c.credentials.value?.sessionId;
+
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InfoTile(
-        title: session.isCurrent
+        title: isCurrent
             ? 'label_this_device'.l10n
             : session.lastActivatedAt.val.yMdHm,
         content: session.userAgent.localized,
-        trailing: session.isCurrent
+        trailing: isCurrent
             ? null
             : WidgetButton(
                 key: const Key('DeleteSessionButton'),
@@ -855,8 +857,9 @@ Widget _devices(BuildContext context, MyProfileController c) {
           child: Obx(() {
             final List<Session> sessions = c.sessions.toList();
 
-            final Session? current =
-                sessions.firstWhereOrNull((e) => e.isCurrent);
+            final Session? current = sessions.firstWhereOrNull(
+              (e) => e.id == c.credentials.value?.sessionId,
+            );
 
             if (current != null) {
               sessions.remove(current);

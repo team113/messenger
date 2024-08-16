@@ -2,7 +2,6 @@ fragment Session on Session {
     id
     userAgent
     ip
-    isCurrent
     lastActivatedAt
     ver
 }

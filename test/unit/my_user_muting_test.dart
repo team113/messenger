@@ -84,6 +84,8 @@ void main() async {
     when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
       (_) => const Stream.empty(),
     );
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
       (_) => Future.value(ToggleMyUserMute$Mutation.fromJson({
@@ -165,6 +167,8 @@ void main() async {
         ),
       ]),
     );
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.toggleMyUserMute(null)).thenThrow(
       const ToggleMyUserMuteException(ToggleMyUserMuteErrorCode.artemisUnknown),

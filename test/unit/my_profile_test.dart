@@ -34,6 +34,7 @@ import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/store/model/session.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 
@@ -161,5 +162,10 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     int? last,
   }) {
     return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
+  }
+
+  @override
+  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+    return const Stream.empty();
   }
 }

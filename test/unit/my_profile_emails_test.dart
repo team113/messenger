@@ -130,6 +130,8 @@ void main() async {
     );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')))
         .thenAnswer(
@@ -231,6 +233,8 @@ void main() async {
         ),
       ]),
     );
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com')))
         .thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));

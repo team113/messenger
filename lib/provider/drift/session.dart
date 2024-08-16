@@ -34,7 +34,6 @@ class Sessions extends Table {
   TextColumn get id => text()();
   TextColumn get ip => text()();
   TextColumn get userAgent => text()();
-  BoolColumn get isCurrent => boolean().withDefault(const Constant(false))();
   IntColumn get lastActivatedAt =>
       integer().map(const PreciseDateTimeConverter())();
 }
@@ -116,7 +115,6 @@ extension _SessionDb on Session {
       id: SessionId(e.id),
       ip: IpAddress(e.ip),
       userAgent: UserAgent(e.userAgent),
-      isCurrent: e.isCurrent,
       lastActivatedAt: e.lastActivatedAt,
     );
   }
@@ -127,7 +125,6 @@ extension _SessionDb on Session {
       id: id.val,
       ip: ip.val,
       userAgent: userAgent.val,
-      isCurrent: isCurrent,
       lastActivatedAt: lastActivatedAt,
     );
   }

@@ -35,6 +35,7 @@ import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -52,7 +53,11 @@ export 'view.dart';
 
 /// Controller of the [Routes.me] page.
 class MyProfileController extends GetxController {
-  MyProfileController(this._myUserService, this._settingsRepo);
+  MyProfileController(
+    this._myUserService,
+    this._settingsRepo,
+    this._authService,
+  );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
   ///
@@ -106,6 +111,9 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [sessions] are being updated.
   final RxBool sessionsUpdating = RxBool(false);
 
+  /// Service managing current [Credentials].
+  final AuthService _authService;
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
@@ -147,6 +155,9 @@ class MyProfileController extends GetxController {
 
   /// Returns the list of active [Session]s.
   RxList<Session> get sessions => _myUserService.sessions;
+
+  /// Returns the current [Credentials].
+  Rx<Credentials?> get credentials => _authService.credentials;
 
   @override
   void onInit() {

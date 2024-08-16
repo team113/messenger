@@ -26,7 +26,6 @@ class Session implements Comparable<Session> {
     required this.id,
     required this.ip,
     required this.userAgent,
-    this.isCurrent = false,
     required this.lastActivatedAt,
   });
 
@@ -39,21 +38,12 @@ class Session implements Comparable<Session> {
   /// [UserAgent] of the device, that used this [Session] last time.
   final UserAgent userAgent;
 
-  /// Indicator whether this [Session] is [MyUser]'s current [Session].
-  final bool isCurrent;
-
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
   final PreciseDateTime lastActivatedAt;
 
   @override
   int compareTo(Session other) {
-    if (isCurrent && !other.isCurrent) {
-      return 1;
-    } else if (!isCurrent && other.isCurrent) {
-      return -1;
-    }
-
     final result = other.lastActivatedAt.compareTo(lastActivatedAt);
     if (result == 0) {
       return id.val.compareTo(other.id.val);

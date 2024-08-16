@@ -97,7 +97,6 @@ extension SessionExtension on SessionMixin {
       id: id,
       ip: ip,
       lastActivatedAt: lastActivatedAt,
-      isCurrent: isCurrent,
       userAgent: userAgent,
     );
   }

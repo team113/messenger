@@ -74,6 +74,7 @@ void main() async {
           'session': {
             '__typename': 'Session',
             'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+            'ip': '127.0.0.1',
             'userAgent':
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             'isCurrent': true,
