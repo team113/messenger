@@ -1431,9 +1431,14 @@ class MyUserRepository extends DisposableInterface
           );
 
           _sessionLocal.upsert(session);
-          sessions.insert(0, session);
-          sessions.sort();
-          sessions.refresh();
+          final existing = sessions.indexWhere((e) => e.id == event.id);
+          if (existing == -1) {
+            sessions.insert(0, session);
+          } else {
+            sessions[existing] = session;
+            sessions.sort();
+            sessions.refresh();
+          }
           break;
 
         case SessionEventKind.deleted:
@@ -1458,7 +1463,6 @@ class MyUserRepository extends DisposableInterface
           );
 
           _sessionLocal.upsert(session);
-
           final existing = sessions.indexWhere((e) => e.id == event.id);
           if (existing == -1) {
             sessions.insert(0, session);
@@ -1496,6 +1500,7 @@ class MyUserRepository extends DisposableInterface
             events as SessionsEvents$Subscription$SessionsEvents$SessionsList;
         final sessions = e.list.map((e) => e.toModel()).toList();
 
+        await _sessionLocal.clear();
         _sessionLocal.upsertBulk(sessions);
         _versionLocal.upsert(
           myUser.value!.id,
