@@ -93,7 +93,11 @@ class MyUserRepository extends DisposableInterface
   /// Storage providing the [UserId] of the currently active [MyUser].
   final AccountDriftProvider _accountLocal;
 
+  /// [VersionDriftProvider] used to retrieve the
+  /// [SessionData.sessionsListVersion].
   final VersionDriftProvider _versionLocal;
+
+  /// [SessionDriftProvider] of the locally stored [Session]s.
   final SessionDriftProvider _sessionLocal;
 
   /// Blocked [User]s repository, used to update it on the appropriate events.
