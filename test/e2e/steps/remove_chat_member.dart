@@ -31,8 +31,8 @@ final StepDefinitionGeneric removeGroupMember =
     then3<TestUser, TestUser, String, CustomWorld>(
   RegExp(r'{user} removes {user} from {string} group'),
   (TestUser user, TestUser member, String groupName, context) async {
-    final CustomUser? kicker = context.world.sessions[user.name];
-    final CustomUser? kicked = context.world.sessions[member.name];
+    final CustomUser? kicker = context.world.sessions[user.name]?.firstOrNull;
+    final CustomUser? kicked = context.world.sessions[member.name]?.firstOrNull;
     final ChatId? groupId = context.world.groups[groupName];
 
     if (kicker == null) {

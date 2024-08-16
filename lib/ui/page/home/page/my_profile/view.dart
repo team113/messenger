@@ -826,17 +826,18 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   Widget device(Session session) {
+    final bool isCurrent = session.id == c.credentials.value?.sessionId;
+
     return Padding(
       padding: const EdgeInsets.only(left: 10, right: 10),
       child: InfoTile(
-        title: session.isCurrent
+        key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
+        title: isCurrent
             ? 'label_this_device'.l10n
             : session.lastActivatedAt.val.yMdHm,
         content: session.userAgent.localized,
-        trailing: session.isCurrent
+        trailing: isCurrent
             ? null
             : WidgetButton(
                 key: const Key('DeleteSessionButton'),
@@ -857,8 +858,9 @@ Widget _devices(BuildContext context, MyProfileController c) {
           child: Obx(() {
             final List<Session> sessions = c.sessions.toList();
 
-            final Session? current =
-                sessions.firstWhereOrNull((e) => e.isCurrent);
+            final Session? current = sessions.firstWhereOrNull(
+              (e) => e.id == c.credentials.value?.sessionId,
+            );
 
             if (current != null) {
               sessions.remove(current);
@@ -881,22 +883,16 @@ Widget _devices(BuildContext context, MyProfileController c) {
           }),
         ),
       ),
-      const SizedBox(height: 10),
       Obx(() {
-        if (c.sessionsUpdating.isFalse) {
-          return Center(
-            child: WidgetButton(
-              onPressed: c.updateSessions,
-              child: Text(
-                'btn_refresh'.l10n,
-                style: style.fonts.small.regular.primary,
-              ),
-            ),
-          );
+        if (c.sessions.isNotEmpty) {
+          return const SizedBox();
         } else {
-          return const SizedBox.square(
-            dimension: 17,
-            child: CircularProgressIndicator(strokeWidth: 2),
+          return const Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: SizedBox.square(
+              dimension: 17,
+              child: CustomProgressIndicator(),
+            ),
           );
         }
       }),

@@ -33,7 +33,7 @@ final StepDefinitionGeneric favoriteGroup =
   (TestUser user, String name, context) async {
     final provider = GraphQlProvider();
 
-    final CustomUser customUser = context.world.sessions[user.name]!;
+    final CustomUser customUser = context.world.sessions[user.name]!.first;
     provider.token = (await customUser.credentials).access.secret;
 
     // TODO: Should use `searchChats` query or something, when backend

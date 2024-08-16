@@ -50,9 +50,6 @@ class AuthRepository extends DisposableInterface
   );
 
   @override
-  final RxList<Session> sessions = RxList();
-
-  @override
   final RxList<MyUser> profiles = RxList();
 
   /// GraphQL API provider.
@@ -87,6 +84,8 @@ class AuthRepository extends DisposableInterface
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
+    } else {
+      _graphQlProvider.reconnect();
     }
   }
 
@@ -257,10 +256,6 @@ class AuthRepository extends DisposableInterface
           password == null ? null : MyUserCredentials(password: password),
       token: accessToken,
     );
-
-    if (id != null) {
-      sessions.removeWhere((e) => e.id == id);
-    }
   }
 
   @override
@@ -336,13 +331,6 @@ class AuthRepository extends DisposableInterface
 
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
-  }
-
-  @override
-  Future<void> updateSessions() async {
-    Log.debug('updateSessions()', '$runtimeType');
-    sessions.value =
-        (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
   }
 
   @override

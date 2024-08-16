@@ -15,7 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment AccessToken on AccessToken {
-    secret
-    expiresAt
-}
+Feature: MyUser's sessions
+
+  Scenario: Alice sees her other sessions being created and deleted
+    Given I am Alice
+
+    When I wait until `HomeView` is present
+    And I tap `MenuButton` button
+    And I scroll `MenuListView` until `Devices` is present
+    And I tap `Devices` button
+    Then I see 1 active sessions
+    And I wait until `CurrentSession` is present
+
+    When Alice has another active session
+    Then I see 2 active sessions
+
+    When Alice signs out of another active sessions
+    Then I see 1 active sessions
+    And I wait until `CurrentSession` is present

@@ -330,7 +330,7 @@ List<String?>?
 
 SessionsListVersion fromGraphQLSessionsListVersionToDartSessionsListVersion(
         String v) =>
-    SessionsListVersion.parse(v);
+    SessionsListVersion(v);
 String fromDartSessionsListVersionToGraphQLSessionsListVersion(
         SessionsListVersion v) =>
     v.toString();
@@ -365,7 +365,7 @@ List<String>?
 SessionsListVersion?
     fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
             String? v) =>
-        v == null ? null : SessionsListVersion.parse(v);
+        v == null ? null : SessionsListVersion(v);
 String? fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
         SessionsListVersion? v) =>
     v?.toString();
@@ -401,3 +401,31 @@ List<String?>?
                 fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
                     e))
             .toList();
+
+// Ip -> IpAddress
+
+IpAddress fromGraphQLIpToDartIpAddress(String v) => IpAddress(v);
+String fromDartIpAddressToGraphQLIp(IpAddress v) => v.val;
+List<IpAddress> fromGraphQLListIpToDartListIpAddress(List<Object?> v) =>
+    v.map((e) => fromGraphQLIpToDartIpAddress(e as String)).toList();
+List<String> fromDartListIpAddressToGraphQLListDataTime(List<IpAddress> v) =>
+    v.map((e) => fromDartIpAddressToGraphQLIp(e)).toList();
+List<IpAddress>? fromGraphQLListNullableIpToDartListNullableIpAddress(
+        List<Object?>? v) =>
+    v?.map((e) => fromGraphQLIpToDartIpAddress(e as String)).toList();
+List<String>? fromDartListNullableIpAddressToGraphQLListNullableIp(
+        List<IpAddress>? v) =>
+    v?.map((e) => fromDartIpAddressToGraphQLIp(e)).toList();
+
+IpAddress? fromGraphQLIpNullableToDartIpAddressNullable(String? v) =>
+    v == null ? null : IpAddress(v);
+String? fromDartIpAddressNullableToGraphQLIpNullable(IpAddress? v) => v?.val;
+
+List<IpAddress?> fromGraphQLListIpNullableToDartListIpAddressNullable(
+        List<Object?> v) =>
+    v
+        .map((e) => fromGraphQLIpNullableToDartIpAddressNullable(e as String?))
+        .toList();
+List<String?> fromDartListIpAddressNullableToGraphQLListIpNullable(
+        List<IpAddress?> v) =>
+    v.map((e) => fromDartIpAddressNullableToGraphQLIpNullable(e)).toList();

@@ -38,6 +38,7 @@ extension SignUpCredentials on SignUp$Mutation$CreateUser$CreateSessionOk {
     return Credentials(
       accessToken.toModel(),
       refreshToken.toModel(),
+      session.id,
       user.id,
     );
   }
@@ -49,7 +50,12 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
   /// Constructs the new [Credentials] from this
   /// [SignIn$Mutation$CreateSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
+    return Credentials(
+      accessToken.toModel(),
+      refreshToken.toModel(),
+      session.id,
+      user.id,
+    );
   }
 }
 
@@ -60,6 +66,11 @@ extension RefreshSessionCredentials
   /// Constructs the new [Credentials] from this
   /// [RefreshSession$Mutation$RefreshSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
+    return Credentials(
+      accessToken.toModel(),
+      refreshToken.toModel(),
+      session.id,
+      user.id,
+    );
   }
 }

@@ -29,7 +29,7 @@ import 'package:messenger/provider/gql/graphql.dart';
 /// [FlutterWidgetTesterWorld] storing a custom state during a single test.
 class CustomWorld extends FlutterWidgetTesterWorld {
   /// [Map] of [Session]s simulating [User]s identified by their names.
-  final Map<String, CustomUser> sessions = {};
+  final Map<String, List<CustomUser>> sessions = {};
 
   /// [Map] of group [Chat]s identified by their names.
   final Map<String, ChatId> groups = {};
@@ -45,6 +45,37 @@ class CustomWorld extends FlutterWidgetTesterWorld {
 
   /// [UserLogin] being a random one.
   UserLogin? randomLogin;
+}
+
+/// Extension adding quick access to the first [CustomUser] in the [List].
+extension CustomUserHelpers on List<CustomUser> {
+  /// Returns the [UserId] of the first [CustomUser].
+  UserId get userId => first.userId;
+
+  /// Returns the [AccessTokenSecret] of the first [CustomUser].
+  AccessTokenSecret? get token => firstOrNull?.token;
+
+  /// Returns the [UserNum] of the first [CustomUser].
+  UserNum get userNum => first.userNum;
+
+  /// Returns the [Credentials] of the first [CustomUser].
+  FutureOr<Credentials> get credentials => first.credentials;
+
+  /// Returns the [ChatId] of the first [CustomUser].
+  ChatId? get dialog => firstOrNull?.dialog;
+
+  /// Sets the [ChatId] of the first [CustomUser] to the [chatId].
+  set dialog(ChatId? chatId) => firstOrNull?.dialog = chatId;
+
+  /// Returns the [UserPassword] of the first [CustomUser].
+  UserPassword? get password => firstOrNull?.password;
+
+  /// Sets the [UserPassword] of the first [CustomUser] to the [value].
+  set password(UserPassword? value) => firstOrNull?.password = value;
+
+  /// sets the [Credentials] of the first [CustomUser] to the [creds].
+  set credentials(FutureOr<Credentials?> creds) =>
+      firstOrNull?.credentials = creds;
 }
 
 /// [Session] with some additional info about the [User] it represents.

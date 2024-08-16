@@ -15,7 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-fragment AccessToken on AccessToken {
-    secret
-    expiresAt
+subscription SessionsEvents($ver: SessionsListVersion) {
+    sessionsEvents(ver: $ver) {
+        __typename
+        ... on SubscriptionInitialized {
+            ok
+        }
+        ... on SessionsList {
+            list {
+                __typename
+                ...Session
+            }
+            listVer
+        }
+        ... on SessionEventsVersioned {
+            ...SessionEventsVersioned
+        }
+    }
 }

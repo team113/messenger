@@ -95,8 +95,8 @@ extension SessionExtension on SessionMixin {
   Session toModel() {
     return Session(
       id: id,
+      ip: ip,
       lastActivatedAt: lastActivatedAt,
-      isCurrent: isCurrent,
       userAgent: userAgent,
     );
   }

@@ -55,6 +55,7 @@ import 'provider/drift/chat_member.dart';
 import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/monolog.dart';
+import 'provider/drift/session.dart';
 import 'provider/drift/user.dart';
 import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
@@ -536,6 +537,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectDriftProvider(Get.find(), scoped));
               deps.put(MonologDriftProvider(Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
+              deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
 
               final AbstractSettingsRepository settingsRepository =
@@ -613,6 +615,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   blocklistRepository,
                   userRepository,
                   Get.find(),
+                  Get.find(),
+                  Get.find(),
                 ),
               );
 
@@ -672,8 +676,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(CallRectDriftProvider(common, scoped));
             final monologProvider = deps.put(MonologDriftProvider(common));
             final draftProvider = deps.put(DraftDriftProvider(common, scoped));
-            final sessionProvider = deps.put(VersionDriftProvider(common));
-            await sessionProvider.init();
+            final sessionProvider =
+                deps.put(SessionDriftProvider(Get.find(), scoped));
+            final versionProvider = deps.put(VersionDriftProvider(common));
+            await versionProvider.init();
 
             final GraphQlProvider graphQlProvider = Get.find();
 
@@ -733,7 +739,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
               draftProvider,
               userRepository,
-              sessionProvider,
+              versionProvider,
               monologProvider,
               me: me,
             );
@@ -748,7 +754,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ContactRepository(
                 graphQlProvider,
                 userRepository,
-                sessionProvider,
+                versionProvider,
                 me: me,
               ),
             );
@@ -758,7 +764,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               graphQlProvider,
               blocklistProvider,
               userRepository,
-              sessionProvider,
+              versionProvider,
               Get.find(),
               me: me,
             );
@@ -771,6 +777,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 blocklistRepository,
                 userRepository,
                 Get.find(),
+                versionProvider,
+                sessionProvider,
               ),
             );
 

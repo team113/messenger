@@ -21,26 +21,36 @@ import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
 
 /// Session of a [MyUser] being signed-in.
-class Session {
+class Session implements Comparable<Session> {
   const Session({
     required this.id,
+    required this.ip,
     required this.userAgent,
-    this.isCurrent = true,
     required this.lastActivatedAt,
   });
 
   /// Unique ID of this [Session].
   final SessionId id;
 
+  /// [IpAddress] of the device, that used this [Session] last time.
+  final IpAddress ip;
+
   /// [UserAgent] of the device, that used this [Session] last time.
   final UserAgent userAgent;
-
-  /// Indicator whether this [Session] is [MyUser]'s current [Session].
-  final bool isCurrent;
 
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
   final PreciseDateTime lastActivatedAt;
+
+  @override
+  int compareTo(Session other) {
+    final result = other.lastActivatedAt.compareTo(lastActivatedAt);
+    if (result == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+
+    return result;
+  }
 }
 
 /// Type of [Session]'s ID.
@@ -56,6 +66,11 @@ class SessionId extends NewType<String> {
 /// - contain at least one non-space-like character.
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
+}
+
+/// Either an IPv4 or IPv6 address.
+class IpAddress extends NewType<String> {
+  const IpAddress(super.val);
 }
 
 /// Token used for authenticating a [Session].
@@ -118,7 +133,7 @@ class RefreshTokenSecret extends NewType<String> {
 /// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
 class Credentials {
-  const Credentials(this.access, this.refresh, this.userId);
+  const Credentials(this.access, this.refresh, this.sessionId, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
@@ -127,6 +142,9 @@ class Credentials {
 
   /// [RefreshToken] of these [Credentials].
   final RefreshToken refresh;
+
+  /// ID of the [Session] these [Credentials] represent.
+  final SessionId sessionId;
 
   /// ID of the currently authenticated [MyUser].
   final UserId userId;
@@ -142,6 +160,7 @@ class Credentials {
         RefreshTokenSecret(data['refresh']['secret']),
         PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
+      SessionId(data['sessionId'] ?? ''),
       UserId(data['userId']),
     );
   }
@@ -157,6 +176,7 @@ class Credentials {
         'secret': refresh.secret.val,
         'expireAt': refresh.expireAt.toString(),
       },
+      'sessionId': sessionId.val,
       'userId': userId.val,
     };
   }

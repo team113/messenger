@@ -15,8 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/api/backend/extension/credentials.dart';
+import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
@@ -96,7 +100,8 @@ final StepDefinitionGeneric logout = then<CustomWorld>(
   'I logout',
   (context) async {
     final CustomUser me = context.world.sessions.values
-        .firstWhere((e) => e.userId == context.world.me);
+        .firstWhere((e) => e.userId == context.world.me)
+        .first;
     router.go(await Get.find<AuthService>().logout());
     me.credentials = null;
   },
@@ -169,9 +174,37 @@ final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
   (TestUser testUser, context) async {
     final provider = GraphQlProvider();
 
-    CustomUser user = context.world.sessions[testUser.name]!;
+    final CustomUser user = context.world.sessions[testUser.name]!.first;
 
-    await provider.signIn(user.password!, null, user.userNum, null, null);
+    final result =
+        await provider.signIn(user.password!, null, user.userNum, null, null);
+
+    final CustomUser newUser = CustomUser(result.toModel(), result.user.num);
+    context.world.sessions[testUser.name]?.add(newUser);
+
+    provider.disconnect();
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+/// Signs out as the provided [TestUser] from any additional [Session] for them.
+///
+/// Examples:
+/// - `Alice signs out of another active sessions`
+final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
+  '{user} signs out of another active sessions',
+  (TestUser testUser, context) async {
+    final provider = GraphQlProvider();
+
+    final sessions = context.world.sessions[testUser.name] ?? [];
+
+    for (var e in sessions.skip(1)) {
+      await provider.deleteSession(token: e.token);
+    }
+
+    sessions.removeRange(min(sessions.length, 0), sessions.length);
+
     provider.disconnect();
   },
   configuration: StepDefinitionConfiguration()

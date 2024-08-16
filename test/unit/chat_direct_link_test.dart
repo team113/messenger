@@ -42,6 +42,7 @@ import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -96,6 +97,8 @@ void main() async {
         .thenAnswer((_) => const Stream.empty());
     when(graphQlProvider.incomingCallsTopEvents(3))
         .thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -148,7 +151,8 @@ void main() async {
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
-    final sessionProvider = Get.put(VersionDriftProvider(common));
+    final versionProvider = Get.put(VersionDriftProvider(common));
+    final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
 
     final AuthService authService = Get.put(
       AuthService(
@@ -171,7 +175,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -183,6 +187,8 @@ void main() async {
       blocklistRepository,
       userRepository,
       Get.find(),
+      versionProvider,
+      sessionProvider,
     );
 
     Get.put(MyUserService(authService, myUserRepository));
