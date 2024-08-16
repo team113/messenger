@@ -84,6 +84,8 @@ class AuthRepository extends DisposableInterface
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
+    } else {
+      _graphQlProvider.reconnect();
     }
   }
 

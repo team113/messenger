@@ -1383,7 +1383,9 @@ class MyUserRepository extends DisposableInterface
         await _sessionSubscription!.execute(
           _sessionRemoteEvent,
           onError: (e) {
-            sessions.clear();
+            if (e is StaleVersionException) {
+              sessions.clear();
+            }
           },
         );
       },
