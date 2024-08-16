@@ -549,6 +549,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
 
   @override
+  Future<void> reconnect() async {
+    // No-op.
+  }
+
+  @override
   Stream<QueryResult> callEvents(
     ChatItemId id,
     ChatCallDeviceId deviceId,
