@@ -383,10 +383,7 @@ Future<CustomUser> createUser({
 
       final result = await provider.signIn(
         credentials: MyUserCredentials(password: password),
-        identifier: MyUserIdentifier(
-          num: customUser.userNum
-        ),
-
+        identifier: MyUserIdentifier(num: customUser.userNum),
       );
       world.sessions[user.name]?.credentials = result.toModel();
     }

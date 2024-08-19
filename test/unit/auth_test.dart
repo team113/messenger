@@ -62,11 +62,8 @@ void main() async {
 
     when(
       graphQlProvider.signIn(
-        UserPassword('123'),
-        UserLogin('user'),
-        null,
-        null,
-        null,
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
       ),
     ).thenAnswer(
       (_) => Future.value(
@@ -136,8 +133,12 @@ void main() async {
     await authService.logout();
 
     expect(authService.status.value.isEmpty, true);
-    verify(graphQlProvider.signIn(
-        UserPassword('123'), UserLogin('user'), null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
+      ),
+    );
   });
 
   test('AuthService successfully logins with saved session', () async {
@@ -188,17 +189,21 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(UserPassword('123'), null, null, null, null))
-        .thenThrow(
+    when(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    ).thenThrow(
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(
+    final AuthRepository authRepository = Get.put(AuthRepository(
       graphQlProvider,
       myUserProvider,
       credsProvider,
     ));
-    AuthService authService = Get.put(AuthService(
+    final AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,
       accountProvider,
@@ -212,7 +217,12 @@ void main() async {
       expect(e, isA<CreateSessionException>());
     }
 
-    verify(graphQlProvider.signIn(UserPassword('123'), null, null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    );
   });
 
   test('AuthService successfully resets password', () async {
