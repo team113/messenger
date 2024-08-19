@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:messenger/api/backend/extension/credentials.dart';
+import 'package:messenger/api/backend/schema.graphql.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/contact.dart';
 import 'package:messenger/domain/model/session.dart';
@@ -115,11 +116,9 @@ class CustomUser {
       return Future(() async {
         final provider = GraphQlProvider();
         final response = await provider.signIn(
-          password ?? UserPassword('123'),
-          null,
-          userNum,
-          null,
-          null,
+          identifier: MyUserIdentifier(num: userNum),
+          credentials:
+              MyUserCredentials(password: password ?? UserPassword('123')),
         );
         _credentials = response.toModel();
 

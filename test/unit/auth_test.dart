@@ -122,7 +122,10 @@ void main() async {
 
     expect(await authService.init(), Routes.auth);
 
-    await authService.signIn(UserPassword('123'), login: UserLogin('user'));
+    await authService.signIn(
+      password: UserPassword('123'),
+      login: UserLogin('user'),
+    );
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -203,7 +206,7 @@ void main() async {
 
     expect(await authService.init(), Routes.auth);
     try {
-      await authService.signIn(UserPassword('123'));
+      await authService.signIn(password: UserPassword('123'));
       fail('Exception is not thrown');
     } catch (e) {
       expect(e, isA<CreateSessionException>());

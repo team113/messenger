@@ -118,7 +118,7 @@ class MyUserService extends DisposableService {
 
         // TODO: Replace `unsafe` with something more granular and correct.
         await _authService.signIn(
-          newPassword,
+          password: newPassword,
           num: myUser.value?.num,
           unsafe: true,
           force: true,

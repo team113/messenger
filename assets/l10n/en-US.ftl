@@ -888,6 +888,7 @@ label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
+label_one_time_password = One-time password
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window

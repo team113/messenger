@@ -168,23 +168,18 @@ mixin AuthGraphQlMixin {
   ///
   /// Additionally, always uses the provided [ConfirmationCode], disallowing to
   /// use it again.
-  Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
-    UserPassword password,
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  ) async {
-    Log.debug('signIn(***, $login, $num, $email, $phone)', '$runtimeType');
+  Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn({
+    required MyUserCredentials credentials,
+    required MyUserIdentifier identifier,
+  }) async {
+    Log.debug(
+      'signIn(identifier: identifier, credentials: credentials)',
+      '$runtimeType',
+    );
 
     final variables = SignInArguments(
-      credentials: MyUserCredentials(password: password),
-      ident: MyUserIdentifier(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-      ),
+      credentials: credentials,
+      ident: identifier,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(

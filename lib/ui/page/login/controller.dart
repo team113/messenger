@@ -45,6 +45,8 @@ enum LoginViewStage {
   recoveryPassword,
   signIn,
   signInWithPassword,
+  signInWithEmail,
+  signInWithEmailCode,
   signUp,
   signUpWithPassword,
   signUpWithEmail,
@@ -269,7 +271,15 @@ class LoginController extends GetxController {
           s.error.value = 'err_incorrect_email'.l10n;
         } else {
           emailCode.clear();
-          stage.value = LoginViewStage.signUpWithEmailCode;
+
+          final LoginViewStage previous = stage.value;
+
+          stage.value = switch (stage.value) {
+            LoginViewStage.signInWithEmail =>
+              LoginViewStage.signInWithEmailCode,
+            (_) => LoginViewStage.signUpWithEmailCode,
+          };
+
           try {
             await _authService.createConfirmationCode(email: email);
             s.unsubmit();
@@ -277,14 +287,14 @@ class LoginController extends GetxController {
             s.error.value = e.toMessage();
             _setResendEmailTimer(false);
 
-            stage.value = LoginViewStage.signUpWithEmail;
+            stage.value = previous;
           } catch (_) {
             s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             _setResendEmailTimer(false);
             s.unsubmit();
 
-            stage.value = LoginViewStage.signUpWithEmail;
+            stage.value = previous;
             rethrow;
           }
         }
@@ -295,8 +305,10 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService
-              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
+          await _authService.signIn(
+            email: UserEmail(email.text),
+            code: ConfirmationCode(emailCode.text),
+          );
 
           (onSuccess ?? router.home)(signedUp: true);
         } on AddUserEmailException catch (e) {
@@ -379,7 +391,7 @@ class LoginController extends GetxController {
       final bool authorized = _authService.isAuthorized();
 
       await _authService.signIn(
-        userPassword,
+        password: userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
@@ -637,7 +649,7 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
+      await _authService.createConfirmationCode(email: UserEmail(email.text));
     } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
