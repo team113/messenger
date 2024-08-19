@@ -35,7 +35,6 @@ import '/ui/page/home/page/chat/message_field/widget/close_button.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -296,19 +295,10 @@ class WelcomeFieldView extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 10),
-            Obx(() {
-              return SafeAnimatedSwitcher(
-                duration: 300.milliseconds,
-                child: ChatButtonWidget.send(
-                  key: c.forwarding.value
-                      ? const Key('Forward')
-                      : sendKey ?? const Key('Send'),
-                  forwarding: c.forwarding.value,
-                  onPressed: c.field.submit,
-                  onLongPress: canForward ? c.forwarding.toggle : null,
-                ),
-              );
-            }),
+            ChatButtonWidget.send(
+              key: sendKey ?? const Key('Send'),
+              onPressed: c.field.submit,
+            ),
             const SizedBox(width: 3),
           ],
         ),

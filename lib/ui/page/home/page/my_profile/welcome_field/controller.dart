@@ -41,7 +41,7 @@ import 'component/more.dart';
 
 export 'view.dart';
 
-/// Controller of a [MessageFieldView].
+/// Controller of a [WelcomeFieldView].
 class WelcomeFieldController extends GetxController {
   WelcomeFieldController(this._chatService, {this.onSubmit}) {
     field = TextFieldState(
@@ -137,12 +137,6 @@ class WelcomeFieldController extends GetxController {
   /// [Attachment] being hovered.
   final Rx<Attachment?> hoveredAttachment = Rx(null);
 
-  /// Replied [ChatItem] being hovered.
-  final Rx<ChatItem?> hoveredReply = Rx(null);
-
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding = RxBool(false);
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
@@ -215,10 +209,9 @@ class WelcomeFieldController extends GetxController {
     super.onClose();
   }
 
-  /// Resets the [replied], [attachments] and [field].
+  /// Resets the [attachments] and [field].
   void clear({bool unfocus = true}) {
     attachments.clear();
-    forwarding.value = false;
     field.clear(unfocus: unfocus);
     field.unsubmit();
   }

@@ -1594,9 +1594,9 @@ class UpdateWelcomeMessageException
     switch (code) {
       case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
         return 'err_wrong_attachments_items_count'.l10n;
-         case UpdateWelcomeMessageErrorCode.unknownAttachment:
+      case UpdateWelcomeMessageErrorCode.unknownAttachment:
         return 'err_unknown_attachment'.l10n;
-         case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
+      case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
         return 'err_no_text_and_no_attachment'.l10n;
       case UpdateWelcomeMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
