@@ -85,6 +85,7 @@ enum WidgetKey {
   DeleteMemberButton,
   DeletePhone,
   DeleteSessionButton,
+  DeleteWelcomeMessage,
   Devices,
   EditNameButton,
   Email,
@@ -130,6 +131,7 @@ enum WidgetKey {
   NoLeftButton,
   NoMessages,
   NoRightButton,
+  NoWelcomeMessage,
   NumCopyable,
   OkButton,
   PasswordButton,
@@ -138,6 +140,7 @@ enum WidgetKey {
   PasswordStage,
   Phone,
   PhonesExpandable,
+  PostWelcomeMessage,
   PresenceDropdown,
   Proceed,
   ProceedButton,
@@ -189,6 +192,8 @@ enum WidgetKey {
   UserScrollable,
   VerifyEmail,
   VerifyPhone,
+  WelcomeMessage,
+  WelcomeMessageField,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

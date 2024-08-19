@@ -146,6 +146,28 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             count
         }
+        ... on EventUserWelcomeMessageDeleted {
+            userId
+            at
+        }
+        ... on EventUserWelcomeMessageUpdated {
+            userId
+            text {
+                changed
+            }
+            attachments {
+                changed {
+                    __typename
+                    ... on ImageAttachment {
+                        ...ImageAttachment
+                    }
+                    ... on FileAttachment {
+                        ...FileAttachment
+                    }
+                }
+            }
+            at
+        }
     }
     ver
 }

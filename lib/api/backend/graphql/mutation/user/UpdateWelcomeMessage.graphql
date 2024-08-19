@@ -1,0 +1,11 @@
+mutation UpdateWelcomeMessage($content: WelcomeMessageInput) {
+    updateWelcomeMessage(content: $content) {
+        __typename
+        ... on MyUserEventsVersioned {
+            ...MyUserEventsVersioned
+        }
+        ... on UpdateWelcomeMessageError {
+            code
+        }
+    }
+}

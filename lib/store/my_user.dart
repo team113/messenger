@@ -21,7 +21,12 @@ import 'dart:math';
 import 'package:async/async.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
+import 'package:messenger/domain/model/attachment.dart';
+import 'package:messenger/domain/model/chat_item.dart';
+import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
+import 'package:messenger/domain/model/welcome_message.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -266,6 +271,56 @@ class MyUserRepository extends DisposableInterface
           await _graphQlProvider.updateUserPresence(s ?? presence),
       update: (v, _) => myUser.update((u) => u?.presence = v ?? presence),
     );
+  }
+
+  @override
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    Log.debug(
+      'updateWelcomeMessage(text: $text, attachments: $attachments)',
+      '$runtimeType',
+    );
+
+    final bool reset =
+        text?.val.isEmpty == true && attachments?.isEmpty == true;
+
+    final WelcomeMessage? previous = myUser.value?.welcomeMessage;
+
+    myUser.update(
+      (u) => u
+        ?..welcomeMessage = reset
+            ? null
+            : WelcomeMessage(
+                text: text,
+                attachments: attachments ?? [],
+                at: PreciseDateTime.now(),
+              ),
+    );
+
+    try {
+      await _graphQlProvider.updateWelcomeMessage(
+        reset
+            ? null
+            : WelcomeMessageInput(
+                text: text == null
+                    ? null
+                    : ChatMessageTextInput(
+                        kw$new: text.val.isEmpty ? null : text),
+                attachments: attachments == null
+                    ? null
+                    : ChatMessageAttachmentsInput(
+                        kw$new: attachments.map((e) => e.id).toList(),
+                      ),
+              ),
+      );
+    } catch (_) {
+      myUser.update((u) => u?..welcomeMessage = previous);
+      rethrow;
+    }
   }
 
   @override
@@ -1123,6 +1178,29 @@ class MyUserRepository extends DisposableInterface
           }
           _blocklistRepository.remove(event.user.value.id);
           break;
+
+        case MyUserEventKind.welcomeMessageDeleted:
+          event as EventUserWelcomeMessageDeleted;
+          userEntity.value.welcomeMessage = null;
+          put((u) => u..welcomeMessage = null);
+          break;
+
+        case MyUserEventKind.welcomeMessageUpdated:
+          event as EventUserWelcomeMessageUpdated;
+
+          final message = WelcomeMessage(
+            text: event.text == null
+                ? userEntity.value.welcomeMessage?.text
+                : event.text?.changed,
+            attachments: event.attachments == null
+                ? userEntity.value.welcomeMessage?.attachments ?? []
+                : event.attachments?.attachments ?? [],
+            at: event.at,
+          );
+
+          userEntity.value.welcomeMessage = message;
+          put((u) => u..welcomeMessage = message);
+          break;
       }
     }
 
@@ -1171,65 +1249,69 @@ class MyUserRepository extends DisposableInterface
     Log.trace('_myUserEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventUserNameUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name);
     } else if (e.$$typename == 'EventUserNameDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserNameDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(node.userId, node.avatar.toModel());
     } else if (e.$$typename == 'EventUserAvatarDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId);
     } else if (e.$$typename == 'EventUserBioUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else if (e.$$typename == 'EventUserBioDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
       return EventUserBioDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(node.userId, node.callCover.toModel());
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId);
     } else if (e.$$typename == 'EventUserPresenceUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPresenceUpdated;
       return EventUserPresenceUpdated(node.userId, node.presence);
     } else if (e.$$typename == 'EventUserStatusUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status);
     } else if (e.$$typename == 'EventUserStatusDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserStatusDeleted;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserStatusDeleted;
       return EventUserStatusDeleted(node.userId);
     } else if (e.$$typename == 'EventUserLoginUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
       return EventUserLoginUpdated(node.userId, node.login);
     } else if (e.$$typename == 'EventUserLoginDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
       return EventUserLoginDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
       return EventUserEmailAdded(node.userId, node.email, node.confirmed);
     } else if (e.$$typename == 'EventUserEmailDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
       return EventUserEmailDeleted(node.userId, node.email);
     } else if (e.$$typename == 'EventUserPhoneAdded') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
       return EventUserPhoneAdded(node.userId, node.phone, node.confirmed);
     } else if (e.$$typename == 'EventUserPhoneDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
       return EventUserPhoneDeleted(node.userId, node.phone);
     } else if (e.$$typename == 'EventUserPasswordUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPasswordUpdated;
       return EventUserPasswordUpdated(node.userId);
     } else if (e.$$typename == 'EventUserMuted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserMuted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserMuted;
       return EventUserMuted(
         node.userId,
         node.until.$$typename == 'MuteForeverDuration'
@@ -1239,14 +1321,14 @@ class MyUserRepository extends DisposableInterface
                 .until),
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
-      var node = e
+      final node = e
           as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
       return EventUserUnreadChatsCountUpdated(node.userId, node.count);
     } else if (e.$$typename == 'EventUserDirectLinkUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkUpdated;
       return EventUserDirectLinkUpdated(
         node.userId,
@@ -1256,18 +1338,35 @@ class MyUserRepository extends DisposableInterface
         ),
       );
     } else if (e.$$typename == 'EventUserDirectLinkDeleted') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkDeleted;
       return EventUserDirectLinkDeleted(node.userId);
     } else if (e.$$typename == 'EventUserDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserDeleted;
       return EventUserDeleted(node.userId);
     } else if (e.$$typename == 'EventUserUnmuted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserUnmuted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserUnmuted;
       return EventUserUnmuted(node.userId);
     } else if (e.$$typename == 'EventUserCameOnline') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
+    } else if (e.$$typename == 'EventUserWelcomeMessageDeleted') {
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageDeleted;
+      return EventUserWelcomeMessageDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageUpdated') {
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated;
+      return EventUserWelcomeMessageUpdated(
+        node.userId,
+        node.at,
+        node.text == null ? null : ChangedChatMessageText(node.text!.changed),
+        node.attachments == null
+            ? null
+            : ChangedChatMessageAttachments(
+                node.attachments!.changed.map((e) => e.toModel()).toList(),
+              ),
+      );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }
@@ -1416,10 +1515,12 @@ class MyUserRepository extends DisposableInterface
       );
     }
 
-    _versionLocal.upsert(
-      myUser.value!.id,
-      SessionData(sessionsListVersion: versioned.listVer),
-    );
+    if (myUser.value != null) {
+      _versionLocal.upsert(
+        myUser.value!.id,
+        SessionData(sessionsListVersion: versioned.listVer),
+      );
+    }
 
     for (final SessionEvent event in versioned.events) {
       switch (event.kind) {
@@ -1518,12 +1619,13 @@ class MyUserRepository extends DisposableInterface
     Log.trace('_sessionEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventSessionCreated') {
-      var node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
+      final node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
       return EventSessionCreated(e.id, e.at, node.userAgent, node.remembered);
     } else if (e.$$typename == 'EventSessionDeleted') {
       return EventSessionDeleted(e.id, e.at);
     } else if (e.$$typename == 'EventSessionRefreshed') {
-      var node = e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
+      final node =
+          e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
       return EventSessionRefreshed(e.id, e.at, node.userAgent);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');

@@ -879,9 +879,10 @@ label_no_contacts = No contacts
 label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
-label_no_users = No users
-label_no_updates_are_available_title = No updates are available
 label_no_updates_are_available_subtitle = You have the latest version installed.
+label_no_updates_are_available_title = No updates are available
+label_no_users = No users
+label_no_welcome_message = Welcome message has not been added
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
@@ -1120,6 +1121,9 @@ label_we_welcome_backend_developer =
     - Skill in Memcached technologies;
     - Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Welcome message
+label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
+label_welcome_message_hint = Add, edit, delete
 label_welcome_message_freelance =
     Good afternoon. Please, specify:
     - login on GitHub;

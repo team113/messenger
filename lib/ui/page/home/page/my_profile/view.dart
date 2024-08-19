@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
@@ -23,18 +25,24 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
 import '/domain/model/application_settings.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/auth/widget/cupertino_button.dart';
+import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/erase/view.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/chat/widget/chat_item.dart';
 import '/ui/page/home/page/my_profile/widget/switch_field.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -71,6 +79,7 @@ import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'session/controller.dart';
+import 'welcome_field/view.dart';
 import 'widget/background_preview.dart';
 import 'widget/bio.dart';
 import 'widget/login.dart';
@@ -84,7 +93,7 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(Get.find(), Get.find(), Get.find(), Get.find()),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -273,6 +282,19 @@ class MyProfileView extends StatelessWidget {
                       }
 
                       return block(children: [_media(context, c)]);
+
+                    case ProfileTab.welcome:
+                      return Obx(() {
+                        return Block(
+                          title: tab.l10n,
+                          highlight: c.highlightIndex.value == i,
+                          padding: Block.defaultPadding.copyWith(
+                            right: 0,
+                            left: 0,
+                          ),
+                          children: [_welcome(context, c)],
+                        );
+                      });
 
                     case ProfileTab.notifications:
                       return block(
@@ -780,6 +802,297 @@ Widget _media(BuildContext context, MyProfileController c) {
           }),
         ),
       ],
+    ],
+  );
+}
+
+/// Returns the contents of a [ProfileTab.welcome] section.
+Widget _welcome(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
+  Widget info({required Widget child}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Center(
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+            border: style.systemMessageBorder,
+            color: style.systemMessageColor,
+          ),
+          child: DefaultTextStyle(
+            style: style.systemMessageStyle,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget message({
+    String text = '123',
+    List<Attachment> attachments = const [],
+    PreciseDateTime? at,
+  }) {
+    final List<Attachment> media = attachments.where((e) {
+      return ((e is ImageAttachment) ||
+          (e is FileAttachment && e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+    }).toList();
+
+    final List<Attachment> files = attachments.where((e) {
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+    }).toList();
+
+    final bool timeInBubble = attachments.isNotEmpty;
+
+    Widget? timeline;
+    if (at != null) {
+      timeline = SelectionContainer.disabled(
+        child: Text(
+          at.val.toLocal().hm,
+          style: style.systemMessageStyle.copyWith(fontSize: 11),
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(5 * 2, 6, 5 * 2, 6),
+      child: Stack(
+        children: [
+          IntrinsicWidth(
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 500),
+              decoration: BoxDecoration(
+                color: style.readMessageColor,
+                borderRadius: BorderRadius.circular(15),
+                border: style.secondaryBorder,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (text.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: text),
+                            if (timeline != null)
+                              WidgetSpan(
+                                child: Opacity(opacity: 0, child: timeline),
+                              ),
+                          ],
+                        ),
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
+                    ),
+                  if (files.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                      child: Column(
+                        children: files
+                            .map((e) => ChatItemWidget.fileAttachment(e))
+                            .toList(),
+                      ),
+                    ),
+                  if (media.isNotEmpty)
+                    ClipRRect(
+                      borderRadius: BorderRadius.only(
+                        topLeft: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        topRight: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                                ? const Radius.circular(15)
+                                : Radius.zero,
+                        bottomLeft: const Radius.circular(15),
+                        bottomRight: const Radius.circular(15),
+                      ),
+                      child: media.length == 1
+                          ? ChatItemWidget.mediaAttachment(
+                              context,
+                              media.first,
+                              media,
+                              filled: false,
+                            )
+                          : SizedBox(
+                              width: media.length * 120,
+                              height: max(media.length * 60, 300),
+                              child: FitView(
+                                dividerColor: Colors.transparent,
+                                children: media
+                                    .mapIndexed(
+                                      (i, e) => ChatItemWidget.mediaAttachment(
+                                        context,
+                                        e,
+                                        media,
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (timeline != null)
+            Positioned(
+              right: timeInBubble ? 4 : 8,
+              bottom: 4,
+              child: timeInBubble
+                  ? Container(
+                      padding: const EdgeInsets.only(
+                        left: 5,
+                        right: 5,
+                        top: 2,
+                        bottom: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: style.readMessageColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: timeline,
+                    )
+                  : timeline,
+            )
+        ],
+      ),
+    );
+  }
+
+  final Widget editOrDelete = info(
+    child: Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        WidgetButton(
+          key: const Key('EditWelcomeMessage'),
+          onPressed: () async {
+            final WelcomeMessage? message = c.myUser.value?.welcomeMessage;
+
+            c.welcome.edited.value = message;
+            c.welcome.field.unchecked = message?.text?.val;
+            c.welcome.attachments.value = message?.attachments
+                    .map((e) => MapEntry(GlobalKey(), e))
+                    .toList() ??
+                [];
+            c.welcome.field.unsubmit();
+          },
+          child: Text('btn_edit'.l10n, style: style.systemMessagePrimary),
+        ),
+        Text('space_or_space'.l10n, style: style.systemMessageStyle),
+        WidgetButton(
+          key: const Key('DeleteWelcomeMessage'),
+          onPressed: () => c.updateWelcomeMessage(
+            text: const ChatMessageText(''),
+            attachments: [],
+          ),
+          child: Text(
+            'btn_delete'.l10n.toLowerCase(),
+            style: style.systemMessagePrimary,
+          ),
+        ),
+      ],
+    ),
+  );
+
+  return Column(
+    children: [
+      Padding(
+        padding: Block.defaultPadding
+            .copyWith(top: 0, bottom: 0)
+            .add(const EdgeInsets.fromLTRB(8, 0, 8, 0)),
+        child: Text(
+          'label_welcome_message_description'.l10n,
+          style: style.fonts.small.regular.secondary,
+        ),
+      ),
+      const SizedBox(height: 16),
+      Stack(
+        children: [
+          Positioned.fill(
+            child: Container(
+              decoration: BoxDecoration(
+                border: style.primaryBorder,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Obx(() {
+                return ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: c.background.value == null
+                      ? const SvgImage.asset(
+                          'assets/images/background_light.svg',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.memory(c.background.value!, fit: BoxFit.cover),
+                );
+              }),
+            ),
+          ),
+          Obx(() {
+            return Column(
+              children: [
+                const SizedBox(height: 16),
+                if (c.myUser.value?.welcomeMessage == null)
+                  Padding(
+                    key: const Key('NoWelcomeMessage'),
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
+                    child: SizedBox(
+                      height: 60 * 1.5,
+                      child: info(
+                        child: Text(
+                          'label_no_welcome_message'.l10n,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                  )
+                else ...[
+                  info(
+                    child: Text(
+                      c.myUser.value?.welcomeMessage?.at?.val.toRelative() ??
+                          '',
+                    ),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 16),
+                      child: IgnorePointer(
+                        child: message(
+                          text: c.myUser.value?.welcomeMessage?.text?.val ?? '',
+                          attachments:
+                              c.myUser.value?.welcomeMessage?.attachments ?? [],
+                          at: c.myUser.value?.welcomeMessage?.at,
+                        ),
+                      ),
+                    ),
+                  ),
+                  editOrDelete,
+                ],
+                Padding(
+                  key: const Key('WelcomeMessageField'),
+                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
+                  child: WelcomeFieldView(
+                    key: c.welcomeFieldKey,
+                    sendKey: const Key('PostWelcomeMessage'),
+                    constraints: const BoxConstraints(),
+                    controller: c.welcome,
+                  ),
+                ),
+              ],
+            );
+          }),
+        ],
+      ),
     ],
   );
 }

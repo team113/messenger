@@ -509,6 +509,22 @@ extension ChatMessageAttachmentsConversion on ChatMessageMixin$Attachments {
   Attachment toModel() => _attachment(this);
 }
 
+/// Extension adding models construction from [WelcomeMessageMixin$Attachments].
+extension WelcomeMessageAttachmentsConversion
+    on WelcomeMessageMixin$Attachments {
+  /// Constructs a new [Attachment] from this [WelcomeMessageMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+    on MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  Attachment toModel() => _attachment(this);
+}
+
 /// Extension adding models construction from
 /// [NestedChatMessageMixin$Attachments].
 extension NestedChatMessageAttachmentsConversion

@@ -1378,4 +1378,54 @@ mixin UserGraphQlMixin {
       ),
     );
   }
+
+  /// Updates the WelcomeMessage of the authenticated [MyUser].
+  ///
+  /// For the [WelcomeMessage] to be meaningful, at least one of the
+  /// [WelcomeMessageInput.text] or [WelcomeMessageInput.attachments] arguments
+  /// must be specified and non-empty.
+  ///
+  /// To attach some [Attachment]s to the [WelcomeMessage], first, they should
+  /// be uploaded with `Mutation.uploadAttachment`, and only then, the returned
+  /// [Attachment.id]s may be used as the [WelcomeMessageInput.attachments]
+  /// argument of this mutation.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserWelcomeMessageUpdated] (if [content] argument is specified);
+  /// - [EventUserWelcomeMessageDeleted] (if [content] argument is absent or
+  /// `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser]'s [WelcomeMessage] already has the specified
+  /// [WelcomeMessageInput.text] and [WelcomeMessageInput.attachments] in the
+  /// same order.
+  Future<MyUserEventsVersionedMixin?> updateWelcomeMessage(
+    WelcomeMessageInput? content,
+  ) async {
+    Log.debug('updateWelcomeMessage($content)', '$runtimeType');
+
+    final variables = UpdateWelcomeMessageArguments(content: content);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UpdateWelcomeMessage',
+        document: UpdateWelcomeMessageMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UpdateWelcomeMessageException(
+        (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
+                as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
+            .code,
+      ),
+    );
+    return DeleteUserDirectLink$Mutation.fromJson(result.data!)
+        .deleteChatDirectLink as MyUserEventsVersionedMixin?;
+  }
 }

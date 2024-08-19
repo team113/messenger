@@ -1576,3 +1576,30 @@ class ValidateConfirmationCodeException
     }
   }
 }
+
+/// Exception of `Mutation.updateWelcomeMessage` described in the [code].
+class UpdateWelcomeMessageException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateWelcomeMessageException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateWelcomeMessageErrorCode code;
+
+  @override
+  String toString() => 'UpdateWelcomeMessageException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
+        return 'err_wrong_attachments_items_count'.l10n;
+         case UpdateWelcomeMessageErrorCode.unknownAttachment:
+        return 'err_unknown_attachment'.l10n;
+         case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
+        return 'err_no_text_and_no_attachment'.l10n;
+      case UpdateWelcomeMessageErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}

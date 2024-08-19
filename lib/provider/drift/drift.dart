@@ -85,12 +85,12 @@ class CommonDatabase extends _$CommonDatabase {
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          if (a == 2 && b == 1) {
+          if (a >= 3 && b <= 2) {
+            await m.addColumn(myUsers, myUsers.welcomeMessage);
+          }
+
+          if (a >= 2 && b <= 1) {
             await m.addColumn(versions, versions.sessionsListVersion);
-          } else {
-            for (var e in m.database.allTables) {
-              await m.deleteTable(e.actualTableName);
-            }
           }
         }
 

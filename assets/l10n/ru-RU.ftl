@@ -906,9 +906,10 @@ label_no_contacts = Нет контактов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
-label_no_users = Нет пользователей
-label_no_updates_are_available_title = Нет доступных обновлений
 label_no_updates_are_available_subtitle = У Вас установлена наиболее актуальная версия.
+label_no_updates_are_available_title = Нет доступных обновлений
+label_no_users = Нет пользователей
+label_no_welcome_message = Приветственное сообщение не добавлено
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
@@ -1150,6 +1151,9 @@ label_we_welcome_backend_developer =
     - навык работы по CQRS+ES парадигме;
     - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Приветственное сообщение
+label_welcome_message_description = Приветствие не отображается пользователям, которым написали Вы. Отображается только у пользователей, которые добавили Вас в свой список чатов.
+label_welcome_message_hint = Добавить, редактировать, удалить
 label_welcome_message_freelance =
     Добрый день. Пожалуйста, укажите:
     - логин на GitHub'е;

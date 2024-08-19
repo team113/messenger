@@ -1,0 +1,13 @@
+fragment WelcomeMessage on WelcomeMessage {
+    text
+    attachments {
+        __typename
+        ... on ImageAttachment {
+            ...ImageAttachment
+        }
+        ... on FileAttachment {
+            ...FileAttachment
+        }
+    }
+    at
+}

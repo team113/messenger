@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
@@ -67,6 +69,12 @@ abstract class AbstractMyUserRepository {
 
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence);
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  });
 
   /// Updates password for the authenticated [MyUser].
   ///

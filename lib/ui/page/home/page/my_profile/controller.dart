@@ -28,6 +28,8 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '/api/backend/schema.dart'
     show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -36,6 +38,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -48,6 +51,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/controller.dart';
+import 'welcome_field/controller.dart';
 
 export 'view.dart';
 
@@ -57,6 +61,7 @@ class MyProfileController extends GetxController {
     this._myUserService,
     this._settingsRepo,
     this._authService,
+    this._chatService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -111,6 +116,11 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [sessions] are being updated.
   final RxBool sessionsUpdating = RxBool(false);
 
+  /// [WelcomeFieldController] for forming and editing a [WelcomeMessage].
+  late final WelcomeFieldController welcome;
+
+  final GlobalKey welcomeFieldKey = GlobalKey();
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -119,6 +129,9 @@ class MyProfileController extends GetxController {
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
+  final ChatService _chatService;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -329,6 +342,23 @@ class MyProfileController extends GetxController {
 
     scrollController.addListener(_ensureNameDisplayed);
 
+    welcome = WelcomeFieldController(
+      _chatService,
+      onSubmit: () async {
+        final text = welcome.field.text.trim();
+
+        if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
+          await updateWelcomeMessage(
+            text: text.isEmpty ? null : ChatMessageText(text),
+            attachments: welcome.attachments.map((e) => e.value).toList(),
+          );
+
+          welcome.edited.value = null;
+          welcome.clear();
+        }
+      },
+    );
+
     super.onInit();
   }
 
@@ -470,10 +500,19 @@ class MyProfileController extends GetxController {
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
-  ///
-  /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    await _myUserService.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
   }
 
   /// Deletes the cache used by the application.

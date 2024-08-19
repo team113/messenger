@@ -16,7 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -55,6 +57,8 @@ enum MyUserEventKind {
   unmuted,
   unreadChatsCountUpdated,
   userMuted,
+  welcomeMessageDeleted,
+  welcomeMessageUpdated,
 }
 
 /// [MyUserEvent]s along with the corresponding [MyUserVersion].
@@ -580,4 +584,76 @@ class EventBlocklistRecordRemoved extends BlocklistEvent {
 
   @override
   int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being deleted by its author.
+class EventUserWelcomeMessageDeleted extends MyUserEvent {
+  EventUserWelcomeMessageDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventBlocklistRecordRemoved && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being updated by its author.
+class EventUserWelcomeMessageUpdated extends MyUserEvent {
+  EventUserWelcomeMessageUpdated(
+    super.userId,
+    this.at,
+    this.text,
+    this.attachments,
+  );
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was updated.
+  final PreciseDateTime at;
+
+  /// Edited [WelcomeMessage.text].
+  ///
+  /// `null` means that the previous [WelcomeMessage.text] remains unchanged.
+  final ChangedChatMessageText? text;
+
+  /// Edited [WelcomeMessage.attachments].
+  ///
+  /// `null` means that the previous [WelcomeMessage.attachments] remain
+  /// unchanged.
+  final ChangedChatMessageAttachments? attachments;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageUpdated && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Changed [ChatMessageText].
+class ChangedChatMessageText {
+  const ChangedChatMessageText(this.changed);
+
+  /// Changed [ChatMessageText].
+  ///
+  /// `null` means that the previous [ChatMessageText] was deleted.
+  final ChatMessageText? changed;
+}
+
+/// Changed [Attachment]s.
+class ChangedChatMessageAttachments {
+  const ChangedChatMessageAttachments(this.attachments);
+
+  /// New [Attachment]s.
+  ///
+  /// Empty list means that the previous [Attachment]s were deleted.
+  final List<Attachment> attachments;
 }
