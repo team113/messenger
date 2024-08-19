@@ -571,8 +571,7 @@ class LoginView extends StatelessWidget {
                   subtitle: 'label_one_time_password'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
-                  icon: const SvgIcon(SvgIcons.password),
-                  padding: const EdgeInsets.only(left: 1),
+                  icon: const SvgIcon(SvgIcons.email),
                 ),
                 const SizedBox(height: 16),
               ];
