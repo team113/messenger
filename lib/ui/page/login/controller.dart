@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
-    show AddUserEmailErrorCode, UpdateUserPasswordErrorCode;
+    show CreateSessionErrorCode, UpdateUserPasswordErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -311,9 +311,9 @@ class LoginController extends GetxController {
           );
 
           (onSuccess ?? router.home)(signedUp: true);
-        } on AddUserEmailException catch (e) {
+        } on CreateSessionException catch (e) {
           switch (e.code) {
-            case AddUserEmailErrorCode.wrongCode:
+            case CreateSessionErrorCode.wrongCode:
               s.error.value = e.toMessage();
 
               ++codeAttempts;
