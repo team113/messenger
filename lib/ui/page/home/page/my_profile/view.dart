@@ -107,7 +107,6 @@ class MyProfileView extends StatelessWidget {
                 controller: c.listController,
                 delegate: FlutterListViewDelegate(
                   (context, i) => _block(context, c, i),
-                  // ignore: invalid_use_of_protected_member
                   childCount: ProfileTab.values.length,
                   stickyAtTailer: true,
                   keepPosition: true,
@@ -135,6 +134,7 @@ class MyProfileView extends StatelessWidget {
   }
 }
 
+/// Builds the [ProfileTab] at the specified [i] index.
 Widget _block(BuildContext context, MyProfileController c, int i) {
   final ProfileTab tab = ProfileTab.values[i];
 

@@ -76,7 +76,7 @@ class MyProfileController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  /// [FlutterListViewController]
+  /// [FlutterListViewController] to pass to a [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
   /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]

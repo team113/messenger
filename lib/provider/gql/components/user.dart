@@ -1379,7 +1379,7 @@ mixin UserGraphQlMixin {
     );
   }
 
-  /// Updates the WelcomeMessage of the authenticated [MyUser].
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
   ///
   /// For the [WelcomeMessage] to be meaningful, at least one of the
   /// [WelcomeMessageInput.text] or [WelcomeMessageInput.attachments] arguments

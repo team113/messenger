@@ -87,12 +87,6 @@ abstract class ChatItem {
       };
 }
 
-mixin EditableMessageMixin {
-  PreciseDateTime get at;
-  ChatMessageText? get text;
-  List<Attachment> get attachments;
-}
-
 /// Message in a [Chat].
 @JsonSerializable()
 class ChatMessage extends ChatItem {

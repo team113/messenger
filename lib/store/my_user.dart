@@ -274,8 +274,6 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-
-  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
   Future<void> updateWelcomeMessage({
     ChatMessageText? text,
     List<Attachment>? attachments,
