@@ -197,71 +197,6 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
-            case LoginViewStage.signUpWithEmailCode:
-              header = ModalPopupHeader(
-                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
-                text: 'label_sign_up'.l10n,
-              );
-
-              children = [
-                Text.rich(
-                  'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks(
-                    [],
-                    style.fonts.normal.regular.primary,
-                  ),
-                  style: style.fonts.normal.regular.onBackground,
-                ),
-                const SizedBox(height: 16),
-                Obx(() {
-                  return Text(
-                    c.resendEmailTimeout.value == 0
-                        ? 'label_did_not_receive_code'.l10n
-                        : 'label_code_sent_again'.l10n,
-                    style: style.fonts.normal.regular.onBackground,
-                  );
-                }),
-                Obx(() {
-                  final bool enabled = c.resendEmailTimeout.value == 0;
-
-                  return WidgetButton(
-                    onPressed: enabled ? c.resendEmail : null,
-                    child: Text(
-                      enabled
-                          ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: enabled
-                          ? style.fonts.normal.regular.primary
-                          : style.fonts.normal.regular.onBackground,
-                    ),
-                  );
-                }),
-                const SizedBox(height: 25),
-                ReactiveTextField(
-                  key: const Key('EmailCodeField'),
-                  state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
-                  type: TextInputType.number,
-                ),
-                const SizedBox(height: 25),
-                Obx(() {
-                  final bool enabled = !c.emailCode.isEmpty.value &&
-                      c.codeTimeout.value == 0 &&
-                      c.authStatus.value.isEmpty;
-
-                  return PrimaryButton(
-                    key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
-                    onPressed: enabled ? c.emailCode.submit : null,
-                  );
-                }),
-              ];
-              break;
-
             case LoginViewStage.signUpWithPassword:
               header = ModalPopupHeader(
                 text: 'label_sign_up_with_password'.l10n,
@@ -386,6 +321,71 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signUpWithEmailCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signUpWithEmail,
+                text: 'label_sign_up'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  'label_sign_up_code_email_sent'
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.normal.regular.primary,
+                  ),
+                  style: style.fonts.normal.regular.onBackground,
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  return Text(
+                    c.resendEmailTimeout.value == 0
+                        ? 'label_did_not_receive_code'.l10n
+                        : 'label_code_sent_again'.l10n,
+                    style: style.fonts.normal.regular.onBackground,
+                  );
+                }),
+                Obx(() {
+                  final bool enabled = c.resendEmailTimeout.value == 0;
+
+                  return WidgetButton(
+                    onPressed: enabled ? c.resendEmail : null,
+                    child: Text(
+                      enabled
+                          ? 'btn_resend_code'.l10n
+                          : 'label_wait_seconds'
+                              .l10nfmt({'for': c.resendEmailTimeout.value}),
+                      style: enabled
+                          ? style.fonts.normal.regular.primary
+                          : style.fonts.normal.regular.onBackground,
+                    ),
+                  );
+                }),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: c.codeTimeout.value == 0
+                        ? 'btn_send'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.codeTimeout.value}),
+                    onPressed: enabled ? c.emailCode.submit : null,
+                  );
+                }),
+              ];
+              break;
+
             case LoginViewStage.signInWithPassword:
               header = ModalPopupHeader(
                 text: 'label_sign_in_with_password'.l10n,
@@ -450,6 +450,103 @@ class LoginView extends StatelessWidget {
               ];
               break;
 
+            case LoginViewStage.signInWithEmail:
+              header = ModalPopupHeader(
+                text: 'label_sign_in'.l10n,
+                onBack: () {
+                  c.stage.value = LoginViewStage.signIn;
+                  c.email.unsubmit();
+                },
+              );
+
+              children = [
+                ReactiveTextField(
+                  state: c.email,
+                  label: 'label_email'.l10n,
+                  hint: 'example@domain.com',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                  style: style.fonts.normal.regular.onBackground,
+                  treatErrorAsStatus: false,
+                ),
+                const SizedBox(height: 25),
+                Center(
+                  child: Obx(() {
+                    final bool enabled = !c.email.isEmpty.value;
+
+                    return PrimaryButton(
+                      onPressed: enabled ? c.email.submit : null,
+                      title: 'btn_proceed'.l10n,
+                    );
+                  }),
+                ),
+              ];
+              break;
+
+            case LoginViewStage.signInWithEmailCode:
+              header = ModalPopupHeader(
+                onBack: () => c.stage.value = LoginViewStage.signInWithEmail,
+                text: 'label_sign_in'.l10n,
+              );
+
+              children = [
+                Text.rich(
+                  'label_sign_up_code_email_sent'
+                      .l10nfmt({'text': c.email.text}).parseLinks(
+                    [],
+                    style.fonts.normal.regular.primary,
+                  ),
+                  style: style.fonts.normal.regular.onBackground,
+                ),
+                const SizedBox(height: 16),
+                Obx(() {
+                  return Text(
+                    c.resendEmailTimeout.value == 0
+                        ? 'label_did_not_receive_code'.l10n
+                        : 'label_code_sent_again'.l10n,
+                    style: style.fonts.normal.regular.onBackground,
+                  );
+                }),
+                Obx(() {
+                  final bool enabled = c.resendEmailTimeout.value == 0;
+
+                  return WidgetButton(
+                    onPressed: enabled ? c.resendEmail : null,
+                    child: Text(
+                      enabled
+                          ? 'btn_resend_code'.l10n
+                          : 'label_wait_seconds'
+                              .l10nfmt({'for': c.resendEmailTimeout.value}),
+                      style: enabled
+                          ? style.fonts.normal.regular.primary
+                          : style.fonts.normal.regular.onBackground,
+                    ),
+                  );
+                }),
+                const SizedBox(height: 25),
+                ReactiveTextField(
+                  key: const Key('EmailCodeField'),
+                  state: c.emailCode,
+                  label: 'label_confirmation_code'.l10n,
+                  type: TextInputType.number,
+                ),
+                const SizedBox(height: 25),
+                Obx(() {
+                  final bool enabled = !c.emailCode.isEmpty.value &&
+                      c.codeTimeout.value == 0 &&
+                      c.authStatus.value.isEmpty;
+
+                  return PrimaryButton(
+                    key: const Key('Proceed'),
+                    title: c.codeTimeout.value == 0
+                        ? 'btn_send'.l10n
+                        : 'label_wait_seconds'
+                            .l10nfmt({'for': c.codeTimeout.value}),
+                    onPressed: enabled ? c.emailCode.submit : null,
+                  );
+                }),
+              ];
+              break;
+
             case LoginViewStage.signIn:
               header = ModalPopupHeader(
                 text: 'label_sign_in'.l10n,
@@ -466,6 +563,15 @@ class LoginView extends StatelessWidget {
                       c.stage.value = LoginViewStage.signInWithPassword,
                   icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
+                ),
+                const SizedBox(height: 16),
+                SignButton(
+                  key: const Key('EmailButton'),
+                  title: 'btn_email'.l10n,
+                  subtitle: 'label_one_time_password'.l10n,
+                  onPressed: () =>
+                      c.stage.value = LoginViewStage.signInWithEmail,
+                  icon: const SvgIcon(SvgIcons.email),
                 ),
                 const SizedBox(height: 16),
               ];

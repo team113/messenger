@@ -915,6 +915,7 @@ label_notifications = Уведомления
 label_num = Gapopa ID
 label_off = Выкл
 label_offline = офлайн
+label_one_time_password = Одноразовый пароль
 label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
