@@ -19,6 +19,7 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -101,267 +102,17 @@ class MyProfileView extends StatelessWidget {
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(builder: (context) {
-              final Widget child = ScrollablePositionedList.builder(
+              final Widget child = FlutterListView(
                 key: const Key('MyProfileScrollable'),
-                initialScrollIndex: c.listInitIndex,
-                scrollController: c.scrollController,
-                itemScrollController: c.itemScrollController,
-                itemPositionsListener: c.positionsListener,
-                itemCount: ProfileTab.values.length,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: (context, i) {
-                  final ProfileTab tab = ProfileTab.values[i];
-
-                  // Builds a [Block] wrapped with [Obx] to highlight it.
-                  Widget block({
-                    String? title,
-                    required List<Widget> children,
-                  }) {
-                    return Obx(() {
-                      return Block(
-                        title: title ?? tab.l10n,
-                        highlight: c.highlightIndex.value == i,
-                        children: children,
-                      );
-                    });
-                  }
-
-                  switch (tab) {
-                    case ProfileTab.public:
-                      return Obx(() {
-                        return HighlightedContainer(
-                          highlight: c.highlightIndex.value == i,
-                          child: Column(
-                            children: [
-                              block(
-                                children: [
-                                  Obx(() {
-                                    return BigAvatarWidget.myUser(
-                                      c.myUser.value,
-                                      loading: c.avatarUpload.value.isLoading,
-                                      onUpload: c.uploadAvatar,
-                                      onDelete: c.myUser.value?.avatar != null
-                                          ? c.deleteAvatar
-                                          : null,
-                                    );
-                                  }),
-                                ],
-                              ),
-                              block(
-                                title: 'label_about'.l10n,
-                                children: [
-                                  Paddings.basic(
-                                    Obx(() {
-                                      return UserNameField(
-                                        c.myUser.value?.name,
-                                        onSubmit: c.updateUserName,
-                                      );
-                                    }),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Paddings.basic(
-                                    Obx(() {
-                                      return UserBioField(
-                                        c.myUser.value?.bio,
-                                        onSubmit: c.updateUserBio,
-                                      );
-                                    }),
-                                  ),
-                                ],
-                              )
-                            ],
-                          ),
-                        );
-                      });
-
-                    case ProfileTab.signing:
-                      return block(
-                        children: [
-                          Paddings.basic(
-                            Obx(() {
-                              return InfoTile(
-                                title: 'label_num'.l10n,
-                                content: c.myUser.value?.num.toString() ?? '',
-                                trailing: CopyOrShareButton(
-                                  c.myUser.value?.num.toString() ?? '',
-                                ),
-                              );
-                            }),
-                          ),
-                          Obx(() {
-                            if (c.myUser.value?.login == null) {
-                              return const SizedBox();
-                            }
-
-                            return Padding(
-                              padding: const EdgeInsets.only(top: 6),
-                              child: UserLoginField(
-                                c.myUser.value?.login,
-                                onSubmit: (s) async {
-                                  await c.updateUserLogin(s);
-                                },
-                              ),
-                            );
-                          }),
-                          const SizedBox(height: 8),
-                          _emails(context, c),
-                          _phones(context, c),
-                          _addInfo(context, c),
-                        ],
-                      );
-
-                    case ProfileTab.link:
-                      return block(
-                        title: 'label_your_direct_link'.l10n,
-                        children: [
-                          Obx(() {
-                            return DirectLinkField(
-                              c.myUser.value?.chatDirectLink,
-                              onSubmit: (s) async {
-                                if (s == null) {
-                                  await c.deleteChatDirectLink();
-                                } else {
-                                  await c.createChatDirectLink(s);
-                                }
-                              },
-                              background: c.background.value,
-                              onEditing: (b) {
-                                if (b) {
-                                  final ItemPosition? first = c
-                                      .positionsListener
-                                      .itemPositions
-                                      .value
-                                      .firstOrNull;
-
-                                  // If the [Block] containing this widget isn't
-                                  // fully visible, then animate to it's
-                                  // beginning.
-                                  if (first?.index == i &&
-                                      first!.itemLeadingEdge < 0) {
-                                    c.itemScrollController.scrollTo(
-                                      index: i,
-                                      curve: Curves.ease,
-                                      duration:
-                                          const Duration(milliseconds: 600),
-                                    );
-                                    c.highlight(ProfileTab.link);
-                                  }
-                                }
-                              },
-                            );
-                          }),
-                        ],
-                      );
-
-                    case ProfileTab.background:
-                      return block(
-                        children: [
-                          Obx(() {
-                            return BackgroundPreview(
-                              c.background.value,
-                              onPick: c.pickBackground,
-                              onRemove: c.removeBackground,
-                            );
-                          }),
-                        ],
-                      );
-
-                    case ProfileTab.chats:
-                      return block(children: [_chats(context, c)]);
-
-                    case ProfileTab.calls:
-                      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-                        return const SizedBox();
-                      }
-
-                      return block(children: [_call(context, c)]);
-
-                    case ProfileTab.media:
-                      if (PlatformUtils.isMobile) {
-                        return const SizedBox();
-                      }
-
-                      return block(children: [_media(context, c)]);
-
-                    case ProfileTab.welcome:
-                      return Obx(() {
-                        return Block(
-                          title: tab.l10n,
-                          highlight: c.highlightIndex.value == i,
-                          padding: Block.defaultPadding.copyWith(
-                            right: 0,
-                            left: 0,
-                          ),
-                          children: [_welcome(context, c)],
-                        );
-                      });
-
-                    case ProfileTab.notifications:
-                      return block(
-                        title: 'label_audio_notifications'.l10n,
-                        children: [
-                          Paddings.dense(
-                            Obx(() {
-                              final bool isMuted =
-                                  c.myUser.value?.muted == null;
-
-                              return SwitchField(
-                                text: isMuted
-                                    ? 'label_enabled'.l10n
-                                    : 'label_disabled'.l10n,
-                                value: isMuted,
-                                onChanged:
-                                    c.isMuting.value ? null : c.toggleMute,
-                              );
-                            }),
-                          ),
-                        ],
-                      );
-
-                    case ProfileTab.storage:
-                      if (PlatformUtils.isWeb) {
-                        return const SizedBox();
-                      }
-
-                      return block(children: [_storage(context, c)]);
-
-                    case ProfileTab.language:
-                      return block(children: [_language(context, c)]);
-
-                    case ProfileTab.blocklist:
-                      return block(children: [_blockedUsers(context, c)]);
-
-                    case ProfileTab.devices:
-                      return block(children: [_devices(context, c)]);
-
-                    case ProfileTab.download:
-                      if (!PlatformUtils.isWeb) {
-                        return const SizedBox();
-                      }
-
-                      return block(
-                        title: 'label_download_application'.l10n,
-                        children: [_downloads(context, c)],
-                      );
-
-                    case ProfileTab.danger:
-                      return block(children: [_danger(context, c)]);
-
-                    case ProfileTab.legal:
-                      return block(children: [_legal(context, c)]);
-
-                    case ProfileTab.support:
-                      return const SizedBox();
-
-                    case ProfileTab.logout:
-                      return const SafeArea(
-                        top: false,
-                        right: false,
-                        left: false,
-                        child: SizedBox(),
-                      );
-                  }
-                },
+                controller: c.listController,
+                delegate: FlutterListViewDelegate(
+                  (context, i) => _block(context, c, i),
+                  // ignore: invalid_use_of_protected_member
+                  childCount: ProfileTab.values.length,
+                  stickyAtTailer: true,
+                  keepPosition: true,
+                  disableCacheItems: true,
+                ),
               );
 
               if (PlatformUtils.isMobile) {
@@ -381,6 +132,251 @@ class MyProfileView extends StatelessWidget {
         );
       },
     );
+  }
+}
+
+Widget _block(BuildContext context, MyProfileController c, int i) {
+  final ProfileTab tab = ProfileTab.values[i];
+
+  // Builds a [Block] wrapped with [Obx] to highlight it.
+  Widget block({
+    String? title,
+    required List<Widget> children,
+  }) {
+    return Obx(() {
+      return Block(
+        title: title ?? tab.l10n,
+        highlight: c.highlightIndex.value == i,
+        children: children,
+      );
+    });
+  }
+
+  switch (tab) {
+    case ProfileTab.public:
+      return Obx(() {
+        return HighlightedContainer(
+          highlight: c.highlightIndex.value == i,
+          child: Column(
+            children: [
+              block(
+                children: [
+                  Obx(() {
+                    return BigAvatarWidget.myUser(
+                      c.myUser.value,
+                      loading: c.avatarUpload.value.isLoading,
+                      onUpload: c.uploadAvatar,
+                      onDelete: c.myUser.value?.avatar != null
+                          ? c.deleteAvatar
+                          : null,
+                    );
+                  }),
+                ],
+              ),
+              block(
+                title: 'label_about'.l10n,
+                children: [
+                  Paddings.basic(
+                    Obx(() {
+                      return UserNameField(
+                        c.myUser.value?.name,
+                        onSubmit: c.updateUserName,
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 6),
+                  Paddings.basic(
+                    Obx(() {
+                      return UserBioField(
+                        c.myUser.value?.bio,
+                        onSubmit: c.updateUserBio,
+                      );
+                    }),
+                  ),
+                ],
+              )
+            ],
+          ),
+        );
+      });
+
+    case ProfileTab.signing:
+      return block(
+        children: [
+          Paddings.basic(
+            Obx(() {
+              return InfoTile(
+                title: 'label_num'.l10n,
+                content: c.myUser.value?.num.toString() ?? '',
+                trailing: CopyOrShareButton(
+                  c.myUser.value?.num.toString() ?? '',
+                ),
+              );
+            }),
+          ),
+          Obx(() {
+            if (c.myUser.value?.login == null) {
+              return const SizedBox();
+            }
+
+            return Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: UserLoginField(
+                c.myUser.value?.login,
+                onSubmit: (s) async {
+                  await c.updateUserLogin(s);
+                },
+              ),
+            );
+          }),
+          const SizedBox(height: 8),
+          _emails(context, c),
+          _phones(context, c),
+          _addInfo(context, c),
+        ],
+      );
+
+    case ProfileTab.link:
+      return block(
+        title: 'label_your_direct_link'.l10n,
+        children: [
+          Obx(() {
+            return DirectLinkField(
+              c.myUser.value?.chatDirectLink,
+              onSubmit: (s) async {
+                if (s == null) {
+                  await c.deleteChatDirectLink();
+                } else {
+                  await c.createChatDirectLink(s);
+                }
+              },
+              background: c.background.value,
+              onEditing: (b) {
+                if (b) {
+                  final ItemPosition? first =
+                      c.positionsListener.itemPositions.value.firstOrNull;
+
+                  // If the [Block] containing this widget isn't
+                  // fully visible, then animate to it's
+                  // beginning.
+                  if (first?.index == i && first!.itemLeadingEdge < 0) {
+                    c.itemScrollController.scrollTo(
+                      index: i,
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 600),
+                    );
+                    c.highlight(ProfileTab.link);
+                  }
+                }
+              },
+            );
+          }),
+        ],
+      );
+
+    case ProfileTab.background:
+      return block(
+        children: [
+          Obx(() {
+            return BackgroundPreview(
+              c.background.value,
+              onPick: c.pickBackground,
+              onRemove: c.removeBackground,
+            );
+          }),
+        ],
+      );
+
+    case ProfileTab.chats:
+      return block(children: [_chats(context, c)]);
+
+    case ProfileTab.calls:
+      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
+        return const SizedBox();
+      }
+
+      return block(children: [_call(context, c)]);
+
+    case ProfileTab.media:
+      if (PlatformUtils.isMobile) {
+        return const SizedBox();
+      }
+
+      return block(children: [_media(context, c)]);
+
+    case ProfileTab.welcome:
+      return Obx(() {
+        return Block(
+          title: tab.l10n,
+          highlight: c.highlightIndex.value == i,
+          padding: Block.defaultPadding.copyWith(
+            right: 0,
+            left: 0,
+          ),
+          children: [_welcome(context, c)],
+        );
+      });
+
+    case ProfileTab.notifications:
+      return block(
+        title: 'label_audio_notifications'.l10n,
+        children: [
+          Paddings.dense(
+            Obx(() {
+              final bool isMuted = c.myUser.value?.muted == null;
+
+              return SwitchField(
+                text: isMuted ? 'label_enabled'.l10n : 'label_disabled'.l10n,
+                value: isMuted,
+                onChanged: c.isMuting.value ? null : c.toggleMute,
+              );
+            }),
+          ),
+        ],
+      );
+
+    case ProfileTab.storage:
+      if (PlatformUtils.isWeb) {
+        return const SizedBox();
+      }
+
+      return block(children: [_storage(context, c)]);
+
+    case ProfileTab.language:
+      return block(children: [_language(context, c)]);
+
+    case ProfileTab.blocklist:
+      return block(children: [_blockedUsers(context, c)]);
+
+    case ProfileTab.devices:
+      return block(children: [_devices(context, c)]);
+
+    case ProfileTab.download:
+      if (!PlatformUtils.isWeb) {
+        return const SizedBox();
+      }
+
+      return block(
+        title: 'label_download_application'.l10n,
+        children: [_downloads(context, c)],
+      );
+
+    case ProfileTab.danger:
+      return block(children: [_danger(context, c)]);
+
+    case ProfileTab.legal:
+      return block(children: [_legal(context, c)]);
+
+    case ProfileTab.support:
+      return const SizedBox();
+
+    case ProfileTab.logout:
+      return const SafeArea(
+        top: false,
+        right: false,
+        left: false,
+        child: SizedBox(),
+      );
   }
 }
 
@@ -1079,10 +1075,10 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                   editOrDelete,
                 ],
                 Padding(
-                  key: const Key('WelcomeMessageField'),
                   padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
                   child: WelcomeFieldView(
                     key: c.welcomeFieldKey,
+                    fieldKey: const Key('WelcomeMessageField'),
                     sendKey: const Key('PostWelcomeMessage'),
                     constraints: const BoxConstraints(),
                     controller: c.welcome,

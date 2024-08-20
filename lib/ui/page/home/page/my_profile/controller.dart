@@ -21,6 +21,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -46,6 +47,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -73,6 +75,9 @@ class MyProfileController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [FlutterListViewController]
+  final FlutterListViewController listController = FlutterListViewController();
 
   /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
   /// section.
@@ -119,6 +124,7 @@ class MyProfileController extends GetxController {
   /// [WelcomeFieldController] for forming and editing a [WelcomeMessage].
   late final WelcomeFieldController welcome;
 
+  /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
   final GlobalKey welcomeFieldKey = GlobalKey();
 
   /// Service managing current [Credentials].
@@ -196,8 +202,8 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
+          await listController.sliverController.animateToIndex(
+            tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );
@@ -348,10 +354,25 @@ class MyProfileController extends GetxController {
         final text = welcome.field.text.trim();
 
         if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
-          await updateWelcomeMessage(
+          final String previousText = text.toString();
+          final List<Attachment> previousAttachments =
+              welcome.attachments.map((e) => e.value).toList();
+
+          updateWelcomeMessage(
             text: text.isEmpty ? null : ChatMessageText(text),
             attachments: welcome.attachments.map((e) => e.value).toList(),
-          );
+          ).onError((e, _) {
+            welcome.field.unchecked = previousText;
+            welcome.attachments.addAll(
+              previousAttachments.map((e) => MapEntry(GlobalKey(), e)),
+            );
+
+            if (e is LocalizedExceptionMixin) {
+              MessagePopup.error(e.toMessage());
+            } else {
+              MessagePopup.error('err_data_transfer'.l10n);
+            }
+          });
 
           welcome.edited.value = null;
           welcome.clear();

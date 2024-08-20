@@ -20,6 +20,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/chat/message_field/view.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
@@ -43,13 +44,14 @@ import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View for writing and editing a [ChatMessage] or a [ChatForward].
-class WelcomeFieldView extends StatelessWidget {
+class WelcomeFieldView extends StatefulWidget {
   const WelcomeFieldView({
     super.key,
     this.controller,
     this.onChanged,
     this.onAttachmentError,
     this.fieldKey,
+    this.containerKey,
     this.sendKey,
     this.canForward = false,
     this.canAttach = true,
@@ -61,6 +63,8 @@ class WelcomeFieldView extends StatelessWidget {
 
   /// [Key] of a [ReactiveTextField] this [WelcomeFieldView] has.
   final Key? fieldKey;
+
+  final Key? containerKey;
 
   /// [Key] of a send button this [WelcomeFieldView] has.
   final Key? sendKey;
@@ -81,78 +85,51 @@ class WelcomeFieldView extends StatelessWidget {
   /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
   final BoxConstraints? constraints;
 
-  /// Returns a [ThemeData] to decorate a [ReactiveTextField] with.
-  static ThemeData theme(BuildContext context) {
-    final style = Theme.of(context).style;
+  @override
+  State<WelcomeFieldView> createState() => _WelcomeFieldViewState();
+}
 
-    final OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(25),
-      borderSide: BorderSide.none,
-    );
+class _WelcomeFieldViewState extends State<WelcomeFieldView> {
+  late final WelcomeFieldController c;
 
-    return Theme.of(context).copyWith(
-      shadowColor: style.colors.onBackgroundOpacity27,
-      iconTheme: IconThemeData(color: style.colors.primaryHighlight),
-      inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-            border: border,
-            errorBorder: border,
-            enabledBorder: border,
-            focusedBorder: border,
-            disabledBorder: border,
-            focusedErrorBorder: border,
-            focusColor: style.colors.onPrimary,
-            fillColor: style.colors.onPrimary,
-            hoverColor: style.colors.transparent,
-            filled: true,
-            isDense: true,
-            contentPadding: EdgeInsets.fromLTRB(
-              15,
-              PlatformUtils.isDesktop ? 30 : 23,
-              15,
-              0,
-            ),
-          ),
-    );
+  @override
+  void initState() {
+    c = widget.controller ?? WelcomeFieldController(Get.find());
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return GetBuilder(
-      init: controller ?? WelcomeFieldController(Get.find()),
-      global: false,
-      builder: (WelcomeFieldController c) {
-        return Theme(
-          data: theme(context),
-          child: SafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
+    return Theme(
+      data: MessageFieldView.theme(context),
+      child: SafeArea(
+        child: Container(
+          key: const Key('SendField'),
+          decoration: BoxDecoration(
+            borderRadius: style.cardRadius,
+            boxShadow: [
+              CustomBoxShadow(
+                blurRadius: 8,
+                color: style.colors.onBackgroundOpacity13,
               ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
-                ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
-                ),
-              ),
+            ],
+          ),
+          child: ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(
+              sigmaX: style.cardBlur,
+              sigmaY: style.cardBlur,
+            ),
+            borderRadius: style.cardRadius,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [_buildHeader(c, context), _buildField(c, context)],
             ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 
@@ -241,69 +218,67 @@ class WelcomeFieldView extends StatelessWidget {
   Widget _buildField(WelcomeFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        key: c.fieldKey,
-        constraints: const BoxConstraints(minHeight: 56),
-        decoration: BoxDecoration(color: style.cardColor),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            WidgetButton(
-              onPressed: canAttach ? c.toggleMore : null,
-              child: AnimatedButton(
-                child: SizedBox(
-                  width: 50,
-                  height: 56,
-                  child: Center(
-                    child: Obx(() {
-                      return AnimatedScale(
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.bounceInOut,
-                        scale: c.moreOpened.value ? 1.1 : 1,
-                        child: const SvgIcon(SvgIcons.chatMore),
-                      );
-                    }),
-                  ),
+    return Container(
+      key: widget.containerKey ?? c.fieldKey,
+      constraints: const BoxConstraints(minHeight: 56),
+      decoration: BoxDecoration(color: style.cardColor),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          WidgetButton(
+            onPressed: widget.canAttach ? c.toggleMore : null,
+            child: AnimatedButton(
+              child: SizedBox(
+                width: 50,
+                height: 56,
+                child: Center(
+                  child: Obx(() {
+                    return AnimatedScale(
+                      duration: const Duration(milliseconds: 150),
+                      curve: Curves.bounceInOut,
+                      scale: c.moreOpened.value ? 1.1 : 1,
+                      child: const SvgIcon(SvgIcons.chatMore),
+                    );
+                  }),
                 ),
               ),
             ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                  bottom: 13,
-                ),
-                child: Transform.translate(
-                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                  child: ReactiveTextField(
-                    onChanged: onChanged,
-                    key: fieldKey ?? const Key('MessageField'),
-                    state: c.field,
-                    hint: 'label_send_message_hint'.l10n,
-                    minLines: 1,
-                    maxLines: 7,
-                    filled: false,
-                    dense: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    style: style.fonts.medium.regular.onBackground,
-                    type: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                  ),
+          ),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                bottom: 13,
+              ),
+              child: Transform.translate(
+                offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                child: ReactiveTextField(
+                  onChanged: widget.onChanged,
+                  key: widget.fieldKey ?? const Key('MessageField'),
+                  state: c.field,
+                  hint: 'label_send_message_hint'.l10n,
+                  minLines: 1,
+                  maxLines: 7,
+                  filled: false,
+                  dense: true,
+                  padding: const EdgeInsets.symmetric(vertical: 8),
+                  style: style.fonts.medium.regular.onBackground,
+                  type: TextInputType.multiline,
+                  textInputAction: TextInputAction.newline,
                 ),
               ),
             ),
-            const SizedBox(width: 10),
-            ChatButtonWidget.send(
-              key: sendKey ?? const Key('Send'),
-              onPressed: c.field.submit,
-            ),
-            const SizedBox(width: 3),
-          ],
-        ),
-      );
-    });
+          ),
+          const SizedBox(width: 10),
+          ChatButtonWidget.send(
+            key: widget.sendKey ?? const Key('Send'),
+            onPressed: c.field.submit,
+          ),
+          const SizedBox(width: 3),
+        ],
+      ),
+    );
   }
 
   /// Returns a visual representation of the provided [Attachment].
