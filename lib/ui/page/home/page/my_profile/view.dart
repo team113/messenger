@@ -19,7 +19,6 @@ import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
@@ -102,16 +101,15 @@ class MyProfileView extends StatelessWidget {
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(builder: (context) {
-              final Widget child = FlutterListView(
+              final Widget child = ScrollablePositionedList.builder(
                 key: const Key('MyProfileScrollable'),
-                controller: c.listController,
-                delegate: FlutterListViewDelegate(
-                  (context, i) => _block(context, c, i),
-                  childCount: ProfileTab.values.length,
-                  stickyAtTailer: true,
-                  keepPosition: true,
-                  disableCacheItems: true,
-                ),
+                initialScrollIndex: c.listInitIndex,
+                scrollController: c.scrollController,
+                itemScrollController: c.itemScrollController,
+                itemPositionsListener: c.positionsListener,
+                itemCount: ProfileTab.values.length,
+                physics: const ClampingScrollPhysics(),
+                itemBuilder: (context, i) => _block(context, c, i),
               );
 
               if (PlatformUtils.isMobile) {

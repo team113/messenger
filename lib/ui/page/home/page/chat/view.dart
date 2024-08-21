@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
@@ -26,6 +27,7 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
@@ -34,6 +36,7 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -600,6 +603,85 @@ class ChatView extends StatelessWidget {
                           if ((c.chat!.status.value.isSuccess ||
                                   c.chat!.status.value.isEmpty) &&
                               c.chat!.messages.isEmpty) {
+                            final welcome = c.welcomeMessage;
+                            if (welcome != null) {
+                              final media = welcome.attachments.where(
+                                (e) =>
+                                    e is ImageAttachment ||
+                                    e is FileAttachment && e.isVideo,
+                              );
+
+                              final files = welcome.attachments.where(
+                                (e) => e is FileAttachment && !e.isVideo,
+                              );
+
+                              return Align(
+                                alignment: Alignment.centerLeft,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: style.messageColor,
+                                    borderRadius: style.cardRadius,
+                                  ),
+                                  margin: const EdgeInsets.all(8),
+                                  child: IntrinsicWidth(
+                                    child: ClipRRect(
+                                      borderRadius: style.cardRadius,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          if (media.isNotEmpty)
+                                            media.length == 1
+                                                ? ChatItemWidget
+                                                    .mediaAttachment(
+                                                    context,
+                                                    media.first,
+                                                    media,
+                                                    filled: false,
+                                                  )
+                                                : SizedBox(
+                                                    width: media.length * 120,
+                                                    height: max(
+                                                        media.length * 60, 300),
+                                                    child: FitView(
+                                                      dividerColor: style
+                                                          .colors.transparent,
+                                                      children: media
+                                                          .mapIndexed(
+                                                            (i, e) => ChatItemWidget
+                                                                .mediaAttachment(
+                                                              context,
+                                                              e,
+                                                              media,
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                    ),
+                                                  ),
+                                          Padding(
+                                            padding: const EdgeInsets.all(6),
+                                            child: Text(
+                                              '${welcome.text}',
+                                              style: style.fonts.medium.regular
+                                                  .onBackground,
+                                            ),
+                                          ),
+                                          ...files.expand(
+                                            (e) => [
+                                              ChatItemWidget.fileAttachment(e),
+                                              if (files.last != e)
+                                                const SizedBox(height: 6),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }
+
                             return Center(
                               child: SystemInfoPrompt(
                                 key: const Key('NoMessages'),

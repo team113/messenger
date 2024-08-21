@@ -20,7 +20,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:get/get.dart';
-import 'package:messenger/ui/page/home/page/chat/message_field/view.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/attachment.dart';
@@ -31,6 +30,7 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/page/chat/controller.dart';
+import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/page/chat/message_field/widget/chat_button.dart';
 import '/ui/page/home/page/chat/message_field/widget/close_button.dart';
 import '/ui/page/home/page/chat/widget/media_attachment.dart';

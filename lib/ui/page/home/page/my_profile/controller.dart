@@ -21,7 +21,6 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
@@ -75,9 +74,6 @@ class MyProfileController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
-
-  /// [FlutterListViewController] to pass to a [FlutterListView].
-  final FlutterListViewController listController = FlutterListViewController();
 
   /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
   /// section.
@@ -202,8 +198,8 @@ class MyProfileController extends GetxController {
           ignoreWorker = false;
         } else {
           ignorePositions = true;
-          await listController.sliverController.animateToIndex(
-            tab?.index ?? 0,
+          await itemScrollController.scrollTo(
+            index: tab?.index ?? 0,
             duration: 200.milliseconds,
             curve: Curves.ease,
           );

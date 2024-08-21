@@ -212,13 +212,13 @@ class ScopedDatabase extends _$ScopedDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, a, b) async {
+      onUpgrade: (m, b, a) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          for (var e in m.database.allTables) {
-            await m.deleteTable(e.actualTableName);
+          if (a >= 2 && b <= 1) {
+            await m.addColumn(users, users.welcomeMessage);
           }
         }
 
