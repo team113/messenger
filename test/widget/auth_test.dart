@@ -227,14 +227,14 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   };
 
   @override
-  Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn(
-    UserPassword password,
-    UserLogin? username,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  ) async {
-    if (username == null && num == null && email == null && phone == null) {
+  Future<SignIn$Mutation$CreateSession$CreateSessionOk> signIn({
+    required MyUserIdentifier identifier,
+    required MyUserCredentials credentials,
+  }) async {
+    if (identifier.email == null &&
+        identifier.num == null &&
+        identifier.login == null &&
+        identifier.phone == null) {
       throw Exception('Username or num or email or phone must not be null');
     }
 

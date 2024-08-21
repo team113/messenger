@@ -354,60 +354,6 @@ class AuthService extends DisposableService {
     });
   }
 
-  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
-  ///
-  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
-  /// [confirmSignUpEmail] in order to successfully sign up.
-  ///
-  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
-  Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail(***)', '$runtimeType');
-    await _authRepository.signUpWithEmail(email);
-  }
-
-  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
-  ///
-  /// If [status] is already authorized, then this method does nothing, however,
-  /// this logic can be ignored by specifying [force] as `true`.
-  Future<void> confirmSignUpEmail(
-    ConfirmationCode code, {
-    bool force = false,
-  }) async {
-    Log.debug('confirmSignUpEmail($code, force: $force)', '$runtimeType');
-
-    status.value = force ? RxStatus.loadingMore() : RxStatus.loading();
-
-    await WebUtils.protect(() async {
-      // If service is already authorized, then no-op, as this operation is
-      // meant to be invoked only during unauthorized phase, or otherwise the
-      // dependencies will be broken as of now.
-      if (!force && _hasAuthorization) {
-        return;
-      }
-
-      try {
-        final Credentials data = await _authRepository.confirmSignUpEmail(code);
-        await _authorized(data);
-        status.value = RxStatus.success();
-      } catch (e) {
-        if (force) {
-          status.value = RxStatus.success();
-        } else {
-          _unauthorized();
-        }
-
-        rethrow;
-      }
-    });
-  }
-
-  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
-  /// [signUpWithEmail].
-  Future<void> resendSignUpEmail() async {
-    Log.debug('resendSignUpEmail()', '$runtimeType');
-    await _authRepository.resendSignUpEmail();
-  }
-
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
   ///
@@ -421,17 +367,18 @@ class AuthService extends DisposableService {
   /// If [unsafe] is `true` then this method ignores possible [WebUtils.protect]
   /// races - you may want to lock it before invoking this method to be
   /// async-safe.
-  Future<void> signIn(
-    UserPassword password, {
+  Future<void> signIn({
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    UserPassword? password,
+    ConfirmationCode? code,
     bool unsafe = false,
     bool force = false,
   }) async {
     Log.debug(
-      'signIn(***, login: $login, num: $num, email: ***, phone: ***, unsafe: $unsafe, force: $force)',
+      'signIn(password: ${password?.obscured}, code: $code, login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, unsafe: $unsafe, force: $force)',
       '$runtimeType',
     );
 
@@ -443,7 +390,8 @@ class AuthService extends DisposableService {
     await protect(() async {
       try {
         final Credentials creds = await _authRepository.signIn(
-          password,
+          password: password,
+          code: code,
           login: login,
           num: num,
           email: email,

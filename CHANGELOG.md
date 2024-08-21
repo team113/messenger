@@ -21,6 +21,7 @@ All user visible changes to this project will be documented in this file. This p
         - Welcome message. ([#1090], [#553])
     - Auth page:
         - Signing up by login and password. ([#1087])
+        - Signing in by one-time password sent to e-mail. ([#1089], [#555])
 
 ### Changed
 
@@ -43,6 +44,7 @@ All user visible changes to this project will be documented in this file. This p
     - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
 
 [#553]: /../../issues/553
+[#555]: /../../issues/555
 [#896]: /../../issues/896
 [#900]: /../../issues/900
 [#988]: /../../issues/988
@@ -54,6 +56,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1079]: /../../pull/1079
 [#1086]: /../../pull/1086
 [#1087]: /../../pull/1087
+[#1089]: /../../pull/1089
 [#1090]: /../../pull/1090
 
 

@@ -20,6 +20,7 @@ import 'dart:math';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/extension/credentials.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
@@ -79,7 +80,7 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
           .signInWith(await context.world.sessions[user.name]!.credentials);
     } catch (_) {
       await Get.find<AuthService>().signIn(
-        UserPassword('123'),
+        password: UserPassword('123'),
         num: context.world.sessions[user.name]!.userNum,
         unsafe: true,
         force: true,
@@ -176,8 +177,10 @@ final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
 
     final CustomUser user = context.world.sessions[testUser.name]!.first;
 
-    final result =
-        await provider.signIn(user.password!, null, user.userNum, null, null);
+    final result = await provider.signIn(
+      identifier: MyUserIdentifier(num: user.userNum),
+      credentials: MyUserCredentials(password: user.password),
+    );
 
     final CustomUser newUser = CustomUser(result.toModel(), result.user.num);
     context.world.sessions[testUser.name]?.add(newUser);

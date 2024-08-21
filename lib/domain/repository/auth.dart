@@ -58,12 +58,13 @@ abstract class AbstractAuthRepository {
 
   /// Creates a new [Session] for the [MyUser] identified by the provided
   /// [num]/[login]/[email]/[phone] (exactly one of four should be specified).
-  Future<Credentials> signIn(
-    UserPassword password, {
+  Future<Credentials> signIn({
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    UserPassword? password,
+    ConfirmationCode? code,
   });
 
   /// Invalidates a [Session] with the provided [id] of the [MyUser] identified
@@ -83,21 +84,6 @@ abstract class AbstractAuthRepository {
   ///
   /// If [keepProfile] is `true`, then keeps the [MyUser] in the [profiles].
   Future<void> removeAccount(UserId id, {bool keepProfile = false});
-
-  /// Sends a [ConfirmationCode] to the provided [email] for signing up with it.
-  ///
-  /// [ConfirmationCode] is sent to the [email], which should be confirmed with
-  /// [confirmSignUpEmail] in order to successfully sign up.
-  ///
-  /// [ConfirmationCode] sent can be resent with [resendSignUpEmail].
-  Future<void> signUpWithEmail(UserEmail email);
-
-  /// Confirms the [signUpWithEmail] with the provided [ConfirmationCode].
-  Future<Credentials> confirmSignUpEmail(ConfirmationCode code);
-
-  /// Resends a new [ConfirmationCode] to the [UserEmail] specified in
-  /// [signUpWithEmail].
-  Future<void> resendSignUpEmail();
 
   /// Validates the [AccessToken] of the provided [Credentials].
   Future<void> validateToken(Credentials credentials);

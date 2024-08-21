@@ -116,7 +116,7 @@ class EraseController extends GetxController {
       password.status.value = RxStatus.loading();
 
       await _authService.signIn(
-        UserPassword(password.text),
+        password: UserPassword(password.text),
         login: userLogin,
         num: num,
         email: email,
