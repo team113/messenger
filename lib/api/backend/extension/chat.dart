@@ -518,10 +518,19 @@ extension WelcomeMessageAttachmentsConversion
 
 /// Extension adding models construction from
 /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
-extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+extension EventMyUserWelcomeMessageUpdatedAttachmentsConversion
     on MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
   /// Constructs a new [Attachment] from this
   /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+    on UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 

@@ -867,46 +867,21 @@ Widget _welcome(BuildContext context, MyProfileController c) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (text.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
-                      child: Text.rich(
-                        TextSpan(
-                          children: [
-                            TextSpan(text: text),
-                            if (timeline != null)
-                              WidgetSpan(
-                                child: Opacity(opacity: 0, child: timeline),
-                              ),
-                          ],
-                        ),
-                        style: style.fonts.medium.regular.onBackground,
-                      ),
-                    ),
-                  if (files.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: Column(
-                        children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
-                            .toList(),
-                      ),
-                    ),
                   if (media.isNotEmpty)
                     ClipRRect(
                       borderRadius: BorderRadius.only(
-                        topLeft: text.isNotEmpty || files.isNotEmpty
+                        topLeft: const Radius.circular(15),
+                        topRight: const Radius.circular(15),
+                        bottomLeft: text.isNotEmpty || files.isNotEmpty
                             ? Radius.zero
                             : files.isEmpty
                                 ? const Radius.circular(15)
                                 : Radius.zero,
-                        topRight: text.isNotEmpty || files.isNotEmpty
+                        bottomRight: text.isNotEmpty || files.isNotEmpty
                             ? Radius.zero
                             : files.isEmpty
                                 ? const Radius.circular(15)
                                 : Radius.zero,
-                        bottomLeft: const Radius.circular(15),
-                        bottomRight: const Radius.circular(15),
                       ),
                       child: media.length == 1
                           ? ChatItemWidget.mediaAttachment(
@@ -931,6 +906,36 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                                     .toList(),
                               ),
                             ),
+                    ),
+                  if (text.isNotEmpty)
+                    Padding(
+                      padding: EdgeInsets.fromLTRB(
+                        8,
+                        6,
+                        8,
+                        files.isEmpty ? 6 : 0,
+                      ),
+                      child: Text.rich(
+                        TextSpan(
+                          children: [
+                            TextSpan(text: text),
+                            if (timeline != null)
+                              WidgetSpan(
+                                child: Opacity(opacity: 0, child: timeline),
+                              ),
+                          ],
+                        ),
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
+                    ),
+                  if (files.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
+                      child: Column(
+                        children: files
+                            .map((e) => ChatItemWidget.fileAttachment(e))
+                            .toList(),
+                      ),
                     ),
                 ],
               ),

@@ -28,10 +28,12 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -603,81 +605,23 @@ class ChatView extends StatelessWidget {
                           if ((c.chat!.status.value.isSuccess ||
                                   c.chat!.status.value.isEmpty) &&
                               c.chat!.messages.isEmpty) {
-                            final welcome = c.welcomeMessage;
+                            final Widget? welcome = _welcomeMessage(context, c);
+
                             if (welcome != null) {
-                              final media = welcome.attachments.where(
-                                (e) =>
-                                    e is ImageAttachment ||
-                                    e is FileAttachment && e.isVideo,
-                              );
-
-                              final files = welcome.attachments.where(
-                                (e) => e is FileAttachment && !e.isVideo,
-                              );
-
-                              return Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: style.messageColor,
-                                    borderRadius: style.cardRadius,
-                                  ),
-                                  margin: const EdgeInsets.all(8),
-                                  child: IntrinsicWidth(
-                                    child: ClipRRect(
-                                      borderRadius: style.cardRadius,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          if (media.isNotEmpty)
-                                            media.length == 1
-                                                ? ChatItemWidget
-                                                    .mediaAttachment(
-                                                    context,
-                                                    media.first,
-                                                    media,
-                                                    filled: false,
-                                                  )
-                                                : SizedBox(
-                                                    width: media.length * 120,
-                                                    height: max(
-                                                        media.length * 60, 300),
-                                                    child: FitView(
-                                                      dividerColor: style
-                                                          .colors.transparent,
-                                                      children: media
-                                                          .mapIndexed(
-                                                            (i, e) => ChatItemWidget
-                                                                .mediaAttachment(
-                                                              context,
-                                                              e,
-                                                              media,
-                                                            ),
-                                                          )
-                                                          .toList(),
-                                                    ),
-                                                  ),
-                                          Padding(
-                                            padding: const EdgeInsets.all(6),
-                                            child: Text(
-                                              '${welcome.text}',
-                                              style: style.fonts.medium.regular
-                                                  .onBackground,
-                                            ),
-                                          ),
-                                          ...files.expand(
-                                            (e) => [
-                                              ChatItemWidget.fileAttachment(e),
-                                              if (files.last != e)
-                                                const SizedBox(height: 6),
-                                            ],
-                                          ),
-                                        ],
+                              return Center(
+                                child: ListView(
+                                  shrinkWrap: true,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 550,
+                                        ),
+                                        child: welcome,
                                       ),
                                     ),
-                                  ),
+                                  ],
                                 ),
                               );
                             }
@@ -1536,6 +1480,98 @@ class ChatView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Builds a visual representation of the [WelcomeMessage] of this [Chat].
+  Widget? _welcomeMessage(BuildContext context, ChatController c) {
+    final welcome = c.welcomeMessage;
+    if (welcome == null) {
+      return null;
+    }
+
+    final style = Theme.of(context).style;
+
+    final media = welcome.attachments.where(
+      (e) => e is ImageAttachment || e is FileAttachment && e.isVideo,
+    );
+
+    final files =
+        welcome.attachments.where((e) => e is FileAttachment && !e.isVideo);
+
+    final item = ChatMessage(
+      const ChatItemId('dummy'),
+      const ChatId('dummy'),
+      User(
+        const UserId('dummy'),
+        UserNum('1234123412341234'),
+      ),
+      PreciseDateTime.now(),
+      attachments: media.toList(),
+    );
+
+    Paginated<ChatItemId, Rx<ChatItem>> onGallery() {
+      return SingleItemPaginated(const ChatItemId('dummy'), Rx(item));
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: style.messageColor,
+        borderRadius: style.cardRadius,
+      ),
+      margin: const EdgeInsets.all(8),
+      child: IntrinsicWidth(
+        child: ClipRRect(
+          borderRadius: style.cardRadius,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (media.isNotEmpty)
+                media.length == 1
+                    ? ChatItemWidget.mediaAttachment(
+                        context,
+                        media.first,
+                        media,
+                        filled: false,
+                        item: item,
+                        onGallery: onGallery,
+                      )
+                    : SizedBox(
+                        width: media.length * 120,
+                        height: max(media.length * 60, 300),
+                        child: FitView(
+                          dividerColor: style.colors.transparent,
+                          children: media
+                              .mapIndexed(
+                                (i, e) => ChatItemWidget.mediaAttachment(
+                                  context,
+                                  e,
+                                  media,
+                                  item: item,
+                                  onGallery: onGallery,
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+                child: Text(
+                  '${welcome.text}',
+                  style: style.fonts.medium.regular.onBackground,
+                ),
+              ),
+              ...files.expand(
+                (e) => [
+                  ChatItemWidget.fileAttachment(e),
+                  const SizedBox(height: 6),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
