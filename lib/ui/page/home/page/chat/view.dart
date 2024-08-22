@@ -1546,7 +1546,7 @@ class ChatView extends StatelessWidget {
                   })
                 else
                   SizedBox(
-                    width: media.length * 120,
+                    width: 550,
                     height: max(media.length * 60, 300),
                     child: FitView(
                       dividerColor: style.colors.transparent,
