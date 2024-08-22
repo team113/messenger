@@ -66,6 +66,7 @@ import 'call_buttons_switch/controller.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
+import 'delete_email/view.dart';
 import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
@@ -394,7 +395,12 @@ Widget _emails(BuildContext context, MyProfileController c) {
           key: const Key('UnconfirmedEmail'),
           content: unconfirmed.val,
           trailing: WidgetButton(
-            onPressed: () => _deleteEmail(c, context, unconfirmed),
+            onPressed: () => _deleteEmail(
+              c,
+              context,
+              unconfirmed,
+              confirmed: false,
+            ),
             child: const SvgIcon(SvgIcons.delete),
           ),
           title: 'label_email_not_verified'.l10n,
@@ -1218,8 +1224,9 @@ Widget _bar(MyProfileController c, BuildContext context) {
 Future<void> _deleteEmail(
   MyProfileController c,
   BuildContext context,
-  UserEmail email,
-) async {
+  UserEmail email, {
+  bool confirmed = true,
+}) async {
   final style = Theme.of(context).style;
 
   final bool? result = await MessagePopup.alert(
@@ -1232,7 +1239,18 @@ Future<void> _deleteEmail(
   );
 
   if (result == true) {
-    await c.deleteEmail(email);
+    if (context.mounted) {
+      if (confirmed) {
+        if (c.myUser.value?.emails.confirmed.isNotEmpty == true ||
+            c.myUser.value?.hasPassword == true) {
+          await DeleteEmailView.show(context, email: email);
+        } else {
+          await c.deleteEmail(email);
+        }
+      } else {
+        await c.deleteEmail(email);
+      }
+    }
   }
 }
 
