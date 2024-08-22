@@ -22,6 +22,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/user.dart';
 import 'file.dart';
+import 'my_user.dart';
 
 /// Extension adding models construction from an [UserMixin].
 extension UserConversion on UserMixin {
@@ -42,6 +43,7 @@ extension UserConversion on UserMixin {
         status: status,
         isDeleted: isDeleted,
         isBlocked: isBlocked.record?.toModel(id),
+        welcomeMessage: welcomeMessage?.toModel(),
       );
 
   /// Constructs a new [DtoUser] from this [UserMixin].

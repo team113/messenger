@@ -123,13 +123,13 @@ class Config {
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int commonVersion = 2;
+  static int commonVersion = 3;
 
   /// Schema version of the [ScopedDatabase].
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int scopedVersion = 1;
+  static int scopedVersion = 2;
 
   /// Custom URL scheme to associate the application with when opening the deep
   /// links.

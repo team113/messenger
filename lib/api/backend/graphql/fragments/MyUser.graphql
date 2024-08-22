@@ -41,6 +41,7 @@ fragment MyUser on MyUser {
     chatDirectLink {
         slug
         usageCount
+        createdAt
     }
     muted {
         __typename
@@ -62,4 +63,8 @@ fragment MyUser on MyUser {
     status
     unreadChatsCount
     ver
+    welcomeMessage {
+        __typename
+        ...WelcomeMessage
+    }
 }

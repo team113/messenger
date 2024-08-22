@@ -21,6 +21,8 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -93,6 +95,22 @@ class MyUserService extends DisposableService {
   Future<void> updateUserBio(UserBio? bio) async {
     Log.debug('updateUserBio($bio)', '$runtimeType');
     await _myUserRepository.updateUserBio(bio);
+  }
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    Log.debug(
+      'updateWelcomeMessage(text: $text, attachments: $attachments)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
   }
 
   /// Updates password for the authenticated [MyUser].

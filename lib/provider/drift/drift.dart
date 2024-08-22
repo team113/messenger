@@ -85,9 +85,19 @@ class CommonDatabase extends _$CommonDatabase {
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          if (a == 2 && b == 1) {
+          bool migrated = false;
+
+          if (a >= 3 && b <= 2) {
+            await m.addColumn(myUsers, myUsers.welcomeMessage);
+            migrated = true;
+          }
+
+          if (a >= 2 && b <= 1) {
             await m.addColumn(versions, versions.sessionsListVersion);
-          } else {
+            migrated = true;
+          }
+
+          if (!migrated) {
             for (var e in m.database.allTables) {
               await m.deleteTable(e.actualTableName);
             }
@@ -212,13 +222,13 @@ class ScopedDatabase extends _$ScopedDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, a, b) async {
+      onUpgrade: (m, b, a) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          for (var e in m.database.allTables) {
-            await m.deleteTable(e.actualTableName);
+          if (a >= 2 && b <= 1) {
+            await m.addColumn(users, users.welcomeMessage);
           }
         }
 

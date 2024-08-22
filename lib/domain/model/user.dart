@@ -30,6 +30,7 @@ import 'avatar.dart';
 import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
+import 'welcome_message.dart';
 
 part 'user.g.dart';
 
@@ -52,6 +53,7 @@ class User {
     this.isBlocked,
     this.lastSeenAt,
     this.contacts = const [],
+    this.welcomeMessage,
   }) : _dialog = dialog;
 
   /// Constructs a [User] from the provided [json].
@@ -128,6 +130,9 @@ class User {
 
   /// List of [NestedChatContact]s this [User] is linked to.
   final List<NestedChatContact> contacts;
+
+  /// [WelcomeMessage] of this [User].
+  WelcomeMessage? welcomeMessage;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);
