@@ -254,9 +254,8 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                   final ItemPosition? first =
                       c.positionsListener.itemPositions.value.firstOrNull;
 
-                  // If the [Block] containing this widget isn't
-                  // fully visible, then animate to it's
-                  // beginning.
+                  // If the [Block] containing this widget isn't fully visible,
+                  // then animate to it's beginning.
                   if (first?.index == i && first!.itemLeadingEdge < 0) {
                     c.itemScrollController.scrollTo(
                       index: i,
@@ -307,10 +306,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         return Block(
           title: tab.l10n,
           highlight: c.highlightIndex.value == i,
-          padding: Block.defaultPadding.copyWith(
-            right: 0,
-            left: 0,
-          ),
+          padding: Block.defaultPadding.copyWith(right: 0, left: 0),
           children: [_welcome(context, c)],
         );
       });
@@ -824,6 +820,7 @@ Widget _welcome(BuildContext context, MyProfileController c) {
     );
   }
 
+  // Builds the provided [text] and [attachments] as a [ChatMessage] widget.
   Widget message({
     String text = '123',
     List<Attachment> attachments = const [],
@@ -907,13 +904,22 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                               ),
                             ),
                     ),
+                  if (files.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
+                      child: Column(
+                        children: files
+                            .map((e) => ChatItemWidget.fileAttachment(e))
+                            .toList(),
+                      ),
+                    ),
                   if (text.isNotEmpty)
                     Padding(
                       padding: EdgeInsets.fromLTRB(
-                        8,
-                        6,
-                        8,
+                        12,
                         files.isEmpty ? 6 : 0,
+                        12,
+                        6,
                       ),
                       child: Text.rich(
                         TextSpan(
@@ -926,15 +932,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                           ],
                         ),
                         style: style.fonts.medium.regular.onBackground,
-                      ),
-                    ),
-                  if (files.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4, 0, 4),
-                      child: Column(
-                        children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
-                            .toList(),
                       ),
                     ),
                 ],
@@ -1083,7 +1080,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                     key: c.welcomeFieldKey,
                     fieldKey: const Key('WelcomeMessageField'),
                     sendKey: const Key('PostWelcomeMessage'),
-                    constraints: const BoxConstraints(),
                     controller: c.welcome,
                   ),
                 ),

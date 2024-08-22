@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -33,6 +32,7 @@ import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/page/home/page/chat/message_field/widget/buttons.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -51,63 +51,8 @@ class WelcomeFieldController extends GetxController {
         onSubmit?.call();
       },
       focus: FocusNode(
-        onKeyEvent: (FocusNode node, KeyEvent e) {
-          if ((e.logicalKey == LogicalKeyboardKey.enter ||
-                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-              e is KeyDownEvent) {
-            final Set<PhysicalKeyboardKey> pressed =
-                HardwareKeyboard.instance.physicalKeysPressed;
-
-            final bool isShiftPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.shiftLeft ||
-                key == PhysicalKeyboardKey.shiftRight);
-            final bool isAltPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.altLeft ||
-                key == PhysicalKeyboardKey.altRight);
-            final bool isControlPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.controlLeft ||
-                key == PhysicalKeyboardKey.controlRight);
-            final bool isMetaPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.metaLeft ||
-                key == PhysicalKeyboardKey.metaRight);
-
-            bool handled = isShiftPressed;
-
-            if (!PlatformUtils.isWeb) {
-              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = handled || isAltPressed || isControlPressed;
-              }
-            }
-
-            if (!handled) {
-              if (isAltPressed ||
-                  isControlPressed ||
-                  isMetaPressed ||
-                  isShiftPressed) {
-                int cursor;
-
-                if (field.controller.selection.isCollapsed) {
-                  cursor = field.controller.selection.base.offset;
-                  field.text =
-                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
-                } else {
-                  cursor = field.controller.selection.start;
-                  field.text =
-                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
-                }
-
-                field.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-              } else {
-                field.submit();
-                return KeyEventResult.handled;
-              }
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
+        onKeyEvent: (_, KeyEvent e) =>
+            MessageFieldController.handleNewLines(e, field),
       ),
     );
 
@@ -123,6 +68,7 @@ class WelcomeFieldController extends GetxController {
     });
   }
 
+  /// Callback, called when this [WelcomeFieldController] is submitted.
   final void Function()? onSubmit;
 
   /// [TextFieldState] for a [ChatMessageText].
@@ -160,6 +106,7 @@ class WelcomeFieldController extends GetxController {
   /// Maximum allowed [NativeFile.size] of an [Attachment].
   static const int maxAttachmentSize = 15 * 1024 * 1024;
 
+  /// [ChatService] used to upload [Attachment]s.
   final ChatService _chatService;
 
   /// [Worker] reacting on the [edited] changes.

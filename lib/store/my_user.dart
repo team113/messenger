@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
@@ -301,6 +302,30 @@ class MyUserRepository extends DisposableInterface
     );
 
     try {
+      final List<Future>? uploads = attachments
+          ?.mapIndexed((i, e) {
+            if (e is LocalAttachment) {
+              return e.upload.value?.future.then(
+                (a) {
+                  attachments[i] = a;
+                },
+                onError: (_) {
+                  // No-op, as failed upload attempts are handled below.
+                },
+              );
+            }
+          })
+          .whereNotNull()
+          .toList();
+
+      await Future.wait(uploads ?? []);
+
+      if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
+        throw const ConnectionException(UpdateWelcomeMessageException(
+          UpdateWelcomeMessageErrorCode.unknownAttachment,
+        ));
+      }
+
       await _graphQlProvider.updateWelcomeMessage(
         reset
             ? null
@@ -308,7 +333,8 @@ class MyUserRepository extends DisposableInterface
                 text: text == null
                     ? null
                     : ChatMessageTextInput(
-                        kw$new: text.val.isEmpty ? null : text),
+                        kw$new: text.val.isEmpty ? null : text,
+                      ),
                 attachments: attachments == null
                     ? null
                     : ChatMessageAttachmentsInput(

@@ -24,7 +24,7 @@ import '/ui/page/home/page/my_profile/welcome_field/controller.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Visual representation of the [MessageFieldController.panel].
+/// Visual representation of the [WelcomeFieldController.panel].
 ///
 /// Intended to be drawn in the overlay.
 class MessageFieldMore extends StatefulWidget {
@@ -50,7 +50,7 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   /// Animation of [FadeTransition] and [SlideTransition].
   late Animation<double> _animation;
 
-  /// [Worker] reacting on the [MessageFieldController.moreOpened] changes
+  /// [Worker] reacting on the [WelcomeFieldController.moreOpened] changes
   /// [dismiss]ing this [MessageFieldMore]
   Worker? _worker;
 

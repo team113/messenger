@@ -42,7 +42,7 @@ class WelcomeMessage {
   /// [Attachment]s of this [WelcomeMessage].
   final List<Attachment> attachments;
 
-  /// [DateTime] when this [WelcomeMessage] was posted or edited.
+  /// [PreciseDateTime] when this [WelcomeMessage] was posted or edited.
   ///
   /// Only available for the owner of this [WelcomeMessage].
   final PreciseDateTime? at;

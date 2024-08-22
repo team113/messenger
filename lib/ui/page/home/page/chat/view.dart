@@ -71,6 +71,7 @@ import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
+import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
@@ -618,7 +619,12 @@ class ChatView extends StatelessWidget {
                                         constraints: const BoxConstraints(
                                           maxWidth: 550,
                                         ),
-                                        child: welcome,
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 48,
+                                          ),
+                                          child: welcome,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -1491,26 +1497,25 @@ class ChatView extends StatelessWidget {
 
     final style = Theme.of(context).style;
 
-    final media = welcome.attachments.where(
+    final Iterable<Attachment> media = welcome.attachments.where(
       (e) => e is ImageAttachment || e is FileAttachment && e.isVideo,
     );
 
-    final files =
+    final Iterable<Attachment> files =
         welcome.attachments.where((e) => e is FileAttachment && !e.isVideo);
 
-    final item = ChatMessage(
+    // Construct a dummy [ChatMessage] to pass to a [SingleItemPaginated].
+    final ChatMessage item = ChatMessage(
       const ChatItemId('dummy'),
       const ChatId('dummy'),
-      User(
-        const UserId('dummy'),
-        UserNum('1234123412341234'),
-      ),
+      User(const UserId('dummy'), UserNum('1234123412341234')),
       PreciseDateTime.now(),
       attachments: media.toList(),
     );
 
+    // Returns a [SingleItemPaginated] to display in a [GalleryPopup].
     Paginated<ChatItemId, Rx<ChatItem>> onGallery() {
-      return SingleItemPaginated(const ChatItemId('dummy'), Rx(item));
+      return SingleItemPaginated(const ChatItemId('dummy'), Rx(item))..around();
     }
 
     return Container(
@@ -1526,47 +1531,56 @@ class ChatView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (media.isNotEmpty)
-                media.length == 1
-                    ? ChatItemWidget.mediaAttachment(
-                        context,
-                        media.first,
-                        media,
-                        filled: false,
-                        item: item,
-                        onGallery: onGallery,
-                      )
-                    : SizedBox(
-                        width: media.length * 120,
-                        height: max(media.length * 60, 300),
-                        child: FitView(
-                          dividerColor: style.colors.transparent,
-                          children: media
-                              .mapIndexed(
-                                (i, e) => ChatItemWidget.mediaAttachment(
-                                  context,
-                                  e,
-                                  media,
-                                  item: item,
-                                  onGallery: onGallery,
-                                ),
-                              )
-                              .toList(),
-                        ),
-                      ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
-                child: Text(
-                  '${welcome.text}',
-                  style: style.fonts.medium.regular.onBackground,
-                ),
-              ),
+              if (media.isNotEmpty) ...[
+                if (media.length == 1)
+                  WithGlobalKey((_, key) {
+                    return ChatItemWidget.mediaAttachment(
+                      context,
+                      media.first,
+                      media,
+                      filled: false,
+                      item: item,
+                      onGallery: onGallery,
+                      key: key,
+                    );
+                  })
+                else
+                  SizedBox(
+                    width: media.length * 120,
+                    height: max(media.length * 60, 300),
+                    child: FitView(
+                      dividerColor: style.colors.transparent,
+                      children: media.mapIndexed(
+                        (i, e) {
+                          return WithGlobalKey((_, key) {
+                            return ChatItemWidget.mediaAttachment(
+                              context,
+                              e,
+                              media,
+                              item: item,
+                              onGallery: onGallery,
+                              key: key,
+                            );
+                          });
+                        },
+                      ).toList(),
+                    ),
+                  ),
+              ],
               ...files.expand(
                 (e) => [
-                  ChatItemWidget.fileAttachment(e),
                   const SizedBox(height: 6),
+                  ChatItemWidget.fileAttachment(e),
                 ],
               ),
+              if (welcome.text != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                  child: Text(
+                    '${welcome.text}',
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
+                ),
             ],
           ),
         ),

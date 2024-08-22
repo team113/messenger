@@ -43,7 +43,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 
-/// View for writing and editing a [ChatMessage] or a [ChatForward].
+/// View for writing and editing a [WelcomeMessage].
 class WelcomeFieldView extends StatefulWidget {
   const WelcomeFieldView({
     super.key,
@@ -51,11 +51,7 @@ class WelcomeFieldView extends StatefulWidget {
     this.onChanged,
     this.onAttachmentError,
     this.fieldKey,
-    this.containerKey,
     this.sendKey,
-    this.canForward = false,
-    this.canAttach = true,
-    this.constraints,
   });
 
   /// Optionally provided external [WelcomeFieldController].
@@ -64,17 +60,8 @@ class WelcomeFieldView extends StatefulWidget {
   /// [Key] of a [ReactiveTextField] this [WelcomeFieldView] has.
   final Key? fieldKey;
 
-  final Key? containerKey;
-
   /// [Key] of a send button this [WelcomeFieldView] has.
   final Key? sendKey;
-
-  /// Indicator whether forwarding is possible within this [WelcomeFieldView].
-  final bool canForward;
-
-  /// Indicator whether [Attachment]s can be attached to this
-  /// [WelcomeFieldView].
-  final bool canAttach;
 
   /// Callback, called on the [ReactiveTextField] changes.
   final void Function()? onChanged;
@@ -82,14 +69,13 @@ class WelcomeFieldView extends StatefulWidget {
   /// Callback, called on the [Attachment] fetching errors.
   final Future<void> Function(ChatItem)? onAttachmentError;
 
-  /// [BoxConstraints] replies, attachments and quotes are allowed to occupy.
-  final BoxConstraints? constraints;
-
   @override
   State<WelcomeFieldView> createState() => _WelcomeFieldViewState();
 }
 
+/// State of a [WelcomeFieldView] to preserve a [WelcomeFieldController].
 class _WelcomeFieldViewState extends State<WelcomeFieldView> {
+  /// [WelcomeFieldController] controlling this [WelcomeFieldView].
   late final WelcomeFieldController c;
 
   @override
@@ -219,29 +205,27 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     final style = Theme.of(context).style;
 
     return Container(
-      key: widget.containerKey ?? c.fieldKey,
+      key: c.fieldKey,
       constraints: const BoxConstraints(minHeight: 56),
       decoration: BoxDecoration(color: style.cardColor),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          WidgetButton(
-            onPressed: widget.canAttach ? c.toggleMore : null,
-            child: AnimatedButton(
-              child: SizedBox(
-                width: 50,
-                height: 56,
-                child: Center(
-                  child: Obx(() {
-                    return AnimatedScale(
-                      duration: const Duration(milliseconds: 150),
-                      curve: Curves.bounceInOut,
-                      scale: c.moreOpened.value ? 1.1 : 1,
-                      child: const SvgIcon(SvgIcons.chatMore),
-                    );
-                  }),
-                ),
+          AnimatedButton(
+            onPressed: c.toggleMore,
+            child: SizedBox(
+              width: 50,
+              height: 56,
+              child: Center(
+                child: Obx(() {
+                  return AnimatedScale(
+                    duration: const Duration(milliseconds: 150),
+                    curve: Curves.bounceInOut,
+                    scale: c.moreOpened.value ? 1.1 : 1,
+                    child: const SvgIcon(SvgIcons.chatMore),
+                  );
+                }),
               ),
             ),
           ),
@@ -524,6 +508,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     );
   }
 
+  /// Builds the editing mode preview.
   Widget _buildPreview(
     BuildContext context,
     WelcomeFieldController c, {
@@ -534,9 +519,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     return Container(
       padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
