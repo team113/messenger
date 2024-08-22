@@ -25,6 +25,7 @@ import '/util/new_type.dart';
 import 'mute_duration.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user.dart';
+import 'welcome_message.dart';
 
 part 'my_user.g.dart';
 
@@ -50,6 +51,7 @@ class MyUser {
     this.muted,
     this.blocklistCount,
     this.lastSeenAt,
+    this.welcomeMessage,
   });
 
   /// Constructs a [MyUser] from the provided [json].
@@ -140,6 +142,9 @@ class MyUser {
   /// [PreciseDateTime] this [MyUser] was last seen online at.
   PreciseDateTime? lastSeenAt;
 
+  /// [WelcomeMessage] of this [MyUser].
+  WelcomeMessage? welcomeMessage;
+
   @override
   String toString() => '$runtimeType($id)';
 
@@ -163,6 +168,7 @@ class MyUser {
         muted: muted,
         blocklistCount: blocklistCount,
         lastSeenAt: lastSeenAt,
+        welcomeMessage: welcomeMessage,
       );
 
   /// Returns a [Map] representing this [MyUser].

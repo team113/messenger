@@ -23,6 +23,7 @@ import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import 'changed.dart';
 import 'my_user.dart' show BlocklistEvent;
 
 /// Possible kinds of [UserEvent].
@@ -41,6 +42,8 @@ enum UserEventKind {
   statusDeleted,
   statusUpdated,
   userDeleted,
+  welcomeMessageDeleted,
+  welcomeMessageUpdated,
 }
 
 /// Tag representing a [UserEvents] kind.
@@ -331,4 +334,56 @@ class EventUserStatusUpdated extends UserEvent {
 
   @override
   UserEventKind get kind => UserEventKind.statusUpdated;
+}
+
+/// Event of a [WelcomeMessage] being deleted by its author.
+class EventUserWelcomeMessageDeleted extends UserEvent {
+  EventUserWelcomeMessageDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.welcomeMessageDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageDeleted && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being updated by its author.
+class EventUserWelcomeMessageUpdated extends UserEvent {
+  EventUserWelcomeMessageUpdated(
+    super.userId,
+    this.at,
+    this.text,
+    this.attachments,
+  );
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was updated.
+  final PreciseDateTime at;
+
+  /// Edited [WelcomeMessage.text].
+  ///
+  /// `null` means that the previous [WelcomeMessage.text] remains unchanged.
+  final ChangedChatMessageText? text;
+
+  /// Edited [WelcomeMessage.attachments].
+  ///
+  /// `null` means that the previous [WelcomeMessage.attachments] remain
+  /// unchanged.
+  final ChangedChatMessageAttachments? attachments;
+
+  @override
+  UserEventKind get kind => UserEventKind.welcomeMessageUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageUpdated && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
 }

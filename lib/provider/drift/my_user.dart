@@ -27,6 +27,7 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/store/model/my_user.dart';
 import '/util/obs/obs.dart';
 import 'common.dart';
@@ -58,6 +59,7 @@ class MyUsers extends Table {
   IntColumn get lastSeenAt =>
       integer().nullable().map(const PreciseDateTimeConverter())();
   TextColumn get ver => text()();
+  TextColumn get welcomeMessage => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [MyUser]s.
@@ -219,6 +221,9 @@ extension _MyUserDb on DtoMyUser {
             : MuteDuration.fromJson(jsonDecode(e.muted!)),
         blocklistCount: e.blocklistCount,
         lastSeenAt: e.lastSeenAt,
+        welcomeMessage: e.welcomeMessage == null
+            ? null
+            : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
       ),
       MyUserVersion(e.ver),
     );
@@ -250,6 +255,9 @@ extension _MyUserDb on DtoMyUser {
       blocklistCount: value.blocklistCount,
       lastSeenAt: value.lastSeenAt,
       ver: ver.val,
+      welcomeMessage: value.welcomeMessage == null
+          ? null
+          : jsonEncode(value.welcomeMessage?.toJson()),
     );
   }
 }

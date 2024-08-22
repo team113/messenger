@@ -24,6 +24,7 @@ import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import 'changed.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -55,6 +56,8 @@ enum MyUserEventKind {
   unmuted,
   unreadChatsCountUpdated,
   userMuted,
+  welcomeMessageDeleted,
+  welcomeMessageUpdated,
 }
 
 /// [MyUserEvent]s along with the corresponding [MyUserVersion].
@@ -577,6 +580,61 @@ class EventBlocklistRecordRemoved extends BlocklistEvent {
 
   @override
   bool operator ==(Object other) => other is EventBlocklistRecordRemoved;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being deleted by its author.
+class EventUserWelcomeMessageDeleted extends MyUserEvent {
+  EventUserWelcomeMessageDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageDeleted && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being updated by its author.
+class EventUserWelcomeMessageUpdated extends MyUserEvent {
+  EventUserWelcomeMessageUpdated(
+    super.userId,
+    this.at,
+    this.text,
+    this.attachments,
+  );
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was updated.
+  final PreciseDateTime at;
+
+  /// Edited [WelcomeMessage.text].
+  ///
+  /// `null` means that the previous [WelcomeMessage.text] remains unchanged.
+  final ChangedChatMessageText? text;
+
+  /// Edited [WelcomeMessage.attachments].
+  ///
+  /// `null` means that the previous [WelcomeMessage.attachments] remain
+  /// unchanged.
+  final ChangedChatMessageAttachments? attachments;
+
+  @override
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageUpdated &&
+      other.at == at &&
+      other.text == text &&
+      other.attachments == attachments;
 
   @override
   int get hashCode => kind.hashCode;

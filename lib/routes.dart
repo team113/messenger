@@ -131,6 +131,7 @@ enum ProfileTab {
   chats,
   calls,
   media,
+  welcome,
   notifications,
   storage,
   language,

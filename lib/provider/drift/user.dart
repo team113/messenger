@@ -25,6 +25,7 @@ import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/user.dart';
 import 'common.dart';
@@ -55,6 +56,7 @@ class Users extends Table {
   TextColumn get contacts => text().withDefault(const Constant('[]'))();
   TextColumn get ver => text()();
   TextColumn get blockedVer => text()();
+  TextColumn get welcomeMessage => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [User]s.
@@ -181,6 +183,9 @@ extension UserDb on DtoUser {
             .map((e) => NestedChatContact.fromJson(e))
             .cast<NestedChatContact>()
             .toList(),
+        welcomeMessage: e.welcomeMessage == null
+            ? null
+            : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
       ),
       UserVersion(e.ver),
       BlocklistVersion(e.blockedVer),
@@ -211,6 +216,9 @@ extension UserDb on DtoUser {
       contacts: jsonEncode(value.contacts.map((e) => e.toJson()).toList()),
       ver: ver.val,
       blockedVer: blockedVer.val,
+      welcomeMessage: value.welcomeMessage == null
+          ? null
+          : jsonEncode(value.welcomeMessage?.toJson()),
     );
   }
 }

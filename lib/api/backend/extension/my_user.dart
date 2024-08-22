@@ -20,8 +20,10 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
+import 'chat.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
@@ -59,6 +61,7 @@ extension MyUserConversion on MyUserMixin {
         lastSeenAt: online.$$typename == 'UserOffline'
             ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
             : null,
+        welcomeMessage: welcomeMessage?.toModel(),
       );
 
   /// Constructs a new [DtoMyUser] from this [MyUserMixin].
@@ -98,6 +101,19 @@ extension SessionExtension on SessionMixin {
       ip: ip,
       lastActivatedAt: lastActivatedAt,
       userAgent: userAgent,
+    );
+  }
+}
+
+/// Extension adding [WelcomeMessage] model construction from a
+/// [WelcomeMessageMixin].
+extension WelcomeMessageExtension on WelcomeMessageMixin {
+  /// Constructs a new [WelcomeMessage] from this [WelcomeMessageMixin].
+  WelcomeMessage toModel() {
+    return WelcomeMessage(
+      text: text,
+      attachments: attachments.map((e) => e.toModel()).toList(),
+      at: at,
     );
   }
 }

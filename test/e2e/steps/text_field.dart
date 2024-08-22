@@ -199,10 +199,8 @@ Future<void> _fillField(
             .tap(finder, timeout: context.configuration.timeout);
         await context.world.appDriver.waitForAppToSettle();
 
-        final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-
         await context.world.appDriver.enterText(
-          finder2,
+          finder,
 
           // TODO: Implement more strict way to localize some phrases.
           switch (text) {

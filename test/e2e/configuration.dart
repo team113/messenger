@@ -354,6 +354,21 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+
+  final Function(FlutterErrorDetails)? presentError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final String exception = details.exception.toString();
+
+    // Silence the `GlobalKey` being duplicated errors:
+    // https://github.com/google/flutter.widgets/issues/137
+    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+        exception.contains('Multiple widgets used the same GlobalKey.')) {
+      return;
+    }
+
+    presentError?.call(details);
+  };
+
   return Future.sync(app.main);
 }
 
