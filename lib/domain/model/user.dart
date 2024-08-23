@@ -447,6 +447,7 @@ class ChatDirectLink {
   ChatDirectLink({
     required this.slug,
     this.usageCount = 0,
+    required this.createdAt,
   });
 
   /// Constructs a [ChatDirectLink] from the provided [json].
@@ -459,11 +460,15 @@ class ChatDirectLink {
   /// Number of times this [ChatDirectLink] has been used.
   int usageCount;
 
+  /// [PreciseDateTime] when this [ChatDirectLink] was created.
+  PreciseDateTime createdAt;
+
   @override
   bool operator ==(Object other) =>
       other is ChatDirectLink &&
       slug == other.slug &&
-      usageCount == other.usageCount;
+      usageCount == other.usageCount &&
+      createdAt == other.createdAt;
 
   @override
   int get hashCode => Object.hash(slug, usageCount);

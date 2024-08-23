@@ -612,7 +612,12 @@ class MyUserRepository extends DisposableInterface
     // link right away.
     await _graphQlProvider.createUserDirectLink(slug);
 
-    myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
+    myUser.update(
+      (u) => u?.chatDirectLink = ChatDirectLink(
+        slug: slug,
+        createdAt: PreciseDateTime.now(),
+      ),
+    );
   }
 
   @override
@@ -1365,6 +1370,7 @@ class MyUserRepository extends DisposableInterface
         ChatDirectLink(
           slug: node.directLink.slug,
           usageCount: node.directLink.usageCount,
+          createdAt: node.directLink.createdAt,
         ),
       );
     } else if (e.$$typename == 'EventUserDirectLinkDeleted') {

@@ -42,6 +42,7 @@ extension MyUserConversion on MyUserMixin {
             ? ChatDirectLink(
                 slug: chatDirectLink!.slug,
                 usageCount: chatDirectLink!.usageCount,
+                createdAt: chatDirectLink!.createdAt,
               )
             : null,
         avatar: avatar?.toModel(),

@@ -1971,6 +1971,10 @@ class ChatController extends GetxController {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();
+        } else if (_atBottom) {
+          await _loadNextPage();
+        } else if (_atTop) {
+          await _loadPreviousPage();
         }
       });
     }

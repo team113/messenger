@@ -56,6 +56,7 @@ extension ChatConversion on ChatMixin {
             ? ChatDirectLink(
                 slug: directLink!.slug,
                 usageCount: directLink!.usageCount,
+                createdAt: createdAt,
               )
             : null,
         createdAt: createdAt,
