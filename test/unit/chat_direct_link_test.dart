@@ -251,6 +251,7 @@ void main() async {
               'directLink': {
                 'slug': 'link',
                 'usageCount': 0,
+                'createdAt': DateTime.now().toString(),
               },
             }
           ],
@@ -271,6 +272,7 @@ void main() async {
               'directLink': {
                 'slug': 'link',
                 'usageCount': 0,
+                'createdAt': DateTime.now().toString(),
               },
             }
           ],
