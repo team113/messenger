@@ -133,7 +133,11 @@ class SessionRepository extends DisposableInterface
 
       final local = await _geoLocal.read(address);
       if (local != null) {
-        return local;
+        // Consider the persisted result as obsolete, if 30 days has passed
+        // since it was persisted.
+        if (local.updatedAt.val.difference(DateTime.now()).abs().inDays < 30) {
+          return local.value;
+        }
       }
 
       final response = await _geoProvider.get(address);

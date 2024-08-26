@@ -20,7 +20,10 @@ import 'dart:convert';
 
 import 'package:drift/drift.dart';
 
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
+import '/store/model/geo.dart';
+import 'common.dart';
 import 'drift.dart';
 
 /// [IpGeoLocation]s to be stored in a [Table].
@@ -31,6 +34,7 @@ class GeoLocations extends Table {
 
   TextColumn get ip => text()();
   TextColumn get data => text()();
+  IntColumn get updatedAt => integer().map(const PreciseDateTimeConverter())();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [IpGeoLocation].
@@ -38,13 +42,13 @@ class GeoLocationDriftProvider extends DriftProviderBase {
   GeoLocationDriftProvider(super.database);
 
   /// [IpGeoLocation] stored in the database and accessible synchronously.
-  final Map<IpAddress, IpGeoLocation> data = {};
+  final Map<IpAddress, DtoIpGeoLocation> data = {};
 
   /// Creates or updates the provided [geo] in the database.
   Future<void> upsert(IpAddress ip, IpGeoLocation geo) async {
-    data[ip] = geo;
+    data[ip] = DtoIpGeoLocation(geo, PreciseDateTime.now());
 
-    await safe<IpGeoLocation?>((db) async {
+    await safe<DtoIpGeoLocation?>((db) async {
       final result = await db.into(db.geoLocations).insertReturning(
             geo.toDb(ip),
             onConflict: DoUpdate((_) => geo.toDb(ip)),
@@ -56,13 +60,13 @@ class GeoLocationDriftProvider extends DriftProviderBase {
 
   /// Returns the [IpGeoLocation] stored in the database by the provided [ip],
   /// if any.
-  Future<IpGeoLocation?> read(IpAddress ip) async {
-    final IpGeoLocation? existing = data[ip];
+  Future<DtoIpGeoLocation?> read(IpAddress ip) async {
+    final DtoIpGeoLocation? existing = data[ip];
     if (existing != null) {
       return existing;
     }
 
-    final result = await safe<IpGeoLocation?>((db) async {
+    final result = await safe<DtoIpGeoLocation?>((db) async {
       final stmt = db.select(db.geoLocations)
         ..where((u) => u.ip.equals(ip.val));
       final GeoLocationRow? row = await stmt.getSingleOrNull();
@@ -107,12 +111,19 @@ class GeoLocationDriftProvider extends DriftProviderBase {
 /// [IpGeoLocation].
 extension _IpGeoLocationDb on IpGeoLocation {
   /// Constructs the [IpGeoLocation] from the provided [GeoLocationRow].
-  static IpGeoLocation fromDb(GeoLocationRow e) {
-    return IpGeoLocation.fromJson(jsonDecode(e.data));
+  static DtoIpGeoLocation fromDb(GeoLocationRow e) {
+    return DtoIpGeoLocation(
+      IpGeoLocation.fromJson(jsonDecode(e.data)),
+      e.updatedAt,
+    );
   }
 
   /// Constructs a [GeoLocationRow] from these [IpGeoLocation].
   GeoLocationRow toDb(IpAddress ip) {
-    return GeoLocationRow(ip: ip.val, data: jsonEncode(toJson()));
+    return GeoLocationRow(
+      ip: ip.val,
+      data: jsonEncode(toJson()),
+      updatedAt: PreciseDateTime.now(),
+    );
   }
 }
