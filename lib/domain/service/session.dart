@@ -19,7 +19,6 @@ import 'package:get/get.dart';
 
 import '/domain/model/session.dart';
 import '/domain/repository/session.dart';
-import '/util/log.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [Session]s management.
@@ -32,16 +31,8 @@ class SessionService extends DisposableService {
   /// Returns the reactive list of active [Session]s.
   RxList<RxSession> get sessions => _sessionRepository.sessions;
 
-  /// Language to receive Firebase Cloud Messaging notifications on.
-  String? _language;
-
   /// Sets the provided [language] as a preferred localization of
   /// [IpGeoLocation].
-  void setLanguage(String? language) async {
-    Log.debug('setLanguage($language)', '$runtimeType');
-
-    if (_language != language) {
-      _language = language;
-    }
-  }
+  void setLanguage(String? language) =>
+      _sessionRepository.setLanguage(language);
 }

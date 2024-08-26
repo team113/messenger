@@ -20,7 +20,11 @@ import '/domain/model/session.dart';
 
 /// Persisted in storage [IpGeoLocation]'s [value].
 class DtoIpGeoLocation {
-  const DtoIpGeoLocation(this.value, this.updatedAt);
+  const DtoIpGeoLocation(
+    this.value,
+    this.updatedAt, {
+    this.language,
+  });
 
   /// Persisted [IpGeoLocation] model.
   final IpGeoLocation value;
@@ -28,6 +32,9 @@ class DtoIpGeoLocation {
   /// [PreciseDateTime] when the [value] was persisted.
   final PreciseDateTime updatedAt;
 
+  /// Language this [value] is on.
+  final String? language;
+
   @override
-  String toString() => '$runtimeType($value, $updatedAt)';
+  String toString() => '$runtimeType($value, $updatedAt, $language)';
 }

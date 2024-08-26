@@ -86,7 +86,7 @@ class IpGeoLocation {
     required this.city,
   });
 
-  /// Constructs a [IpGeoLocation] from the provided [json].
+  /// Constructs an [IpGeoLocation] from the provided [json].
   factory IpGeoLocation.fromJson(Map<String, dynamic> json) =>
       _$IpGeoLocationFromJson(json);
 

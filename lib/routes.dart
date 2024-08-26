@@ -697,16 +697,36 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             // not the default ones.
             await settingsRepository.init();
 
+            SessionService? sessionService;
+
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
             await deps
                 .put(
                   SettingsWorker(
                     settingsRepository,
-                    onChanged: notificationService.setLanguage,
+                    onChanged: (language) {
+                      notificationService.setLanguage(language);
+                      sessionService?.setLanguage(language);
+                    },
                   ),
                 )
                 .init();
+
+            final AbstractSessionRepository sessionRepository =
+                deps.put<AbstractSessionRepository>(
+              SessionRepository(
+                graphQlProvider,
+                Get.find(),
+                versionProvider,
+                sessionProvider,
+                Get.find(),
+                Get.find(),
+              ),
+            );
+            sessionService =
+                deps.put<SessionService>(SessionService(sessionRepository));
+            sessionService.setLanguage(L10n.chosen.value?.locale.toString());
 
             notificationService.init(
               language: L10n.chosen.value?.locale.toString(),
@@ -781,19 +801,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 Get.find(),
               ),
             );
-
-            final AbstractSessionRepository sessionRepository =
-                deps.put<AbstractSessionRepository>(
-              SessionRepository(
-                graphQlProvider,
-                Get.find(),
-                versionProvider,
-                sessionProvider,
-                Get.find(),
-                Get.find(),
-              ),
-            );
-            deps.put(SessionService(sessionRepository));
 
             final MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));

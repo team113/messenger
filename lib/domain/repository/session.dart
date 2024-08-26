@@ -28,6 +28,10 @@ abstract class AbstractSessionRepository {
   ///
   /// Uses the current [IpAddress], if [ip] is not provided.
   Future<IpGeoLocation> fetch({IpAddress? ip});
+
+  /// Sets the provided [language] as a preferred localization of
+  /// [IpGeoLocation].
+  void setLanguage(String? language);
 }
 
 /// Reactive [Session] entity alongside its [IpGeoLocation] data.

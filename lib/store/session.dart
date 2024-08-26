@@ -91,6 +91,9 @@ class SessionRepository extends DisposableInterface
   /// [Mutex]ex guarding the [fetch]ing of the [IpAddress]es.
   final Map<IpAddress?, Mutex> _guards = {};
 
+  /// Language to receive [IpGeoLocation]s on.
+  String? _language;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
@@ -113,6 +116,8 @@ class SessionRepository extends DisposableInterface
 
   @override
   Future<IpGeoLocation> fetch({IpAddress? ip}) async {
+    Log.debug('fetch(ip: $ip) with $_language', '$runtimeType');
+
     Mutex? mutex = _guards[ip];
     if (mutex == null) {
       mutex = Mutex();
@@ -131,7 +136,7 @@ class SessionRepository extends DisposableInterface
         throw Exception('Unreachable');
       }
 
-      final local = await _geoLocal.read(address);
+      final local = await _geoLocal.read(address, language: _language);
       if (local != null) {
         // Consider the persisted result as obsolete, if 30 days has passed
         // since it was persisted.
@@ -140,11 +145,30 @@ class SessionRepository extends DisposableInterface
         }
       }
 
-      final response = await _geoProvider.get(address);
-      _geoLocal.upsert(address, response);
+      final response = await _geoProvider.get(address, language: _language);
+      _geoLocal.upsert(address, response, language: _language);
 
       return response;
     });
+  }
+
+  @override
+  Future<void> setLanguage(String? language) async {
+    Log.debug('setLanguage($language)', '$runtimeType');
+
+    final bool wasNull = _language == null;
+    if (_language != language) {
+      _language = language?.split('-').firstOrNull?.split('_').firstOrNull;
+
+      final List<Future> futures = [];
+      if (!wasNull) {
+        for (var e in sessions) {
+          futures.add(e.init());
+        }
+      }
+
+      await Future.wait(futures);
+    }
   }
 
   /// Initializes [SessionDriftProvider.watch] subscription.
@@ -372,6 +396,6 @@ class RxSessionImpl extends RxSession {
 
   /// Initializes this [RxSessionImpl].
   Future<void> init() async {
-    geo.value ??= await _repository.fetch(ip: session.value.ip);
+    geo.value = await _repository.fetch(ip: session.value.ip);
   }
 }

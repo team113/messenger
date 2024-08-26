@@ -30,10 +30,11 @@ import 'drift.dart';
 @DataClassName('GeoLocationRow')
 class GeoLocations extends Table {
   @override
-  Set<Column> get primaryKey => {ip};
+  Set<Column> get primaryKey => {ip, language};
 
   TextColumn get ip => text()();
   TextColumn get data => text()();
+  TextColumn get language => text().nullable()();
   IntColumn get updatedAt => integer().map(const PreciseDateTimeConverter())();
 }
 
@@ -42,16 +43,20 @@ class GeoLocationDriftProvider extends DriftProviderBase {
   GeoLocationDriftProvider(super.database);
 
   /// [IpGeoLocation] stored in the database and accessible synchronously.
-  final Map<IpAddress, DtoIpGeoLocation> data = {};
+  final Map<(IpAddress, String?), DtoIpGeoLocation> data = {};
 
   /// Creates or updates the provided [geo] in the database.
-  Future<void> upsert(IpAddress ip, IpGeoLocation geo) async {
-    data[ip] = DtoIpGeoLocation(geo, PreciseDateTime.now());
+  Future<void> upsert(
+    IpAddress ip,
+    IpGeoLocation geo, {
+    String? language,
+  }) async {
+    data[(ip, language)] = DtoIpGeoLocation(geo, PreciseDateTime.now());
 
     await safe<DtoIpGeoLocation?>((db) async {
       final result = await db.into(db.geoLocations).insertReturning(
-            geo.toDb(ip),
-            onConflict: DoUpdate((_) => geo.toDb(ip)),
+            geo.toDb(ip, language: language),
+            onConflict: DoUpdate((_) => geo.toDb(ip, language: language)),
           );
 
       return _IpGeoLocationDb.fromDb(result);
@@ -60,15 +65,20 @@ class GeoLocationDriftProvider extends DriftProviderBase {
 
   /// Returns the [IpGeoLocation] stored in the database by the provided [ip],
   /// if any.
-  Future<DtoIpGeoLocation?> read(IpAddress ip) async {
-    final DtoIpGeoLocation? existing = data[ip];
+  Future<DtoIpGeoLocation?> read(IpAddress ip, {String? language}) async {
+    final DtoIpGeoLocation? existing = data[(ip, language)];
     if (existing != null) {
       return existing;
     }
 
     final result = await safe<DtoIpGeoLocation?>((db) async {
-      final stmt = db.select(db.geoLocations)
-        ..where((u) => u.ip.equals(ip.val));
+      final stmt = db.select(db.geoLocations);
+
+      stmt.where((u) => u.ip.equals(ip.val));
+      if (language != null) {
+        stmt.where((u) => u.language.equals(language));
+      }
+
       final GeoLocationRow? row = await stmt.getSingleOrNull();
 
       if (row == null) {
@@ -82,17 +92,22 @@ class GeoLocationDriftProvider extends DriftProviderBase {
       return null;
     }
 
-    return data[ip] = result;
+    return data[(ip, language)] = result;
   }
 
   /// Deletes the [IpGeoLocation] identified by the provided [ip] from the
   /// database.
-  Future<void> delete(IpAddress ip) async {
-    data.remove(ip);
+  Future<void> delete(IpAddress ip, {String? language}) async {
+    data.remove((ip, language));
 
     await safe((db) async {
-      final stmt = db.delete(db.geoLocations)
-        ..where((e) => e.ip.equals(ip.val));
+      final stmt = db.delete(db.geoLocations);
+
+      stmt.where((u) => u.ip.equals(ip.val));
+      if (language != null) {
+        stmt.where((u) => u.language.equals(language));
+      }
+
       await stmt.go();
     });
   }
@@ -115,15 +130,17 @@ extension _IpGeoLocationDb on IpGeoLocation {
     return DtoIpGeoLocation(
       IpGeoLocation.fromJson(jsonDecode(e.data)),
       e.updatedAt,
+      language: e.language,
     );
   }
 
   /// Constructs a [GeoLocationRow] from these [IpGeoLocation].
-  GeoLocationRow toDb(IpAddress ip) {
+  GeoLocationRow toDb(IpAddress ip, {String? language}) {
     return GeoLocationRow(
       ip: ip.val,
       data: jsonEncode(toJson()),
       updatedAt: PreciseDateTime.now(),
+      language: language,
     );
   }
 }
