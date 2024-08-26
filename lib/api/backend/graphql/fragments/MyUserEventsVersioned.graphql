@@ -63,6 +63,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             directLink {
                 slug
                 usageCount
+                createdAt
             }
         }
         ... on EventUserEmailAdded {

@@ -215,7 +215,11 @@ void main() async {
           {
             '__typename': 'EventChatDirectLinkUpdated',
             'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-            'directLink': {'slug': 'link', 'usageCount': 0}
+            'directLink': {
+              'slug': 'link',
+              'usageCount': 0,
+              'createdAt': DateTime.now().toString(),
+            }
           }
         ],
         'ver': '$ver'
