@@ -34,6 +34,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/model/welcome_message.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -94,7 +95,13 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -1140,26 +1147,46 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
-  Widget device(Session session) {
-    final bool isCurrent = session.id == c.credentials.value?.sessionId;
+  Widget device(RxSession rxSession) {
+    return Obx(() {
+      final Session session = rxSession.session.value;
+      final IpGeoLocation? geo = rxSession.geo.value;
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: InfoTile(
-        key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
-        title: isCurrent
-            ? 'label_this_device'.l10n
-            : session.lastActivatedAt.val.yMdHm,
-        content: session.userAgent.localized,
-        trailing: isCurrent
-            ? null
-            : WidgetButton(
-                key: const Key('DeleteSessionButton'),
-                onPressed: () => DeleteSessionView.show(context, session),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-      ),
-    );
+      final bool isCurrent = session.id == c.credentials.value?.sessionId;
+
+      final String device = isCurrent
+          ? 'label_this_device'.l10n
+          : session.lastActivatedAt.val.yMdHm;
+
+      final String title;
+      if (geo == null) {
+        title = device;
+      } else {
+        title = 'comma_separated_a_b_c'.l10nfmt({
+          'a': isCurrent
+              ? 'label_this_device'.l10n
+              : session.lastActivatedAt.val.yMdHm,
+          'b': geo.city,
+          'c': geo.country,
+        });
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: InfoTile(
+          key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
+          title: title,
+          content: session.userAgent.localized,
+          trailing: isCurrent
+              ? null
+              : WidgetButton(
+                  key: const Key('DeleteSessionButton'),
+                  onPressed: () => DeleteSessionView.show(context, session),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
+        ),
+      );
+    });
   }
 
   return Column(
@@ -1170,9 +1197,9 @@ Widget _devices(BuildContext context, MyProfileController c) {
         child: Scrollbar(
           controller: c.devicesScrollController,
           child: Obx(() {
-            final List<Session> sessions = c.sessions.toList();
+            final List<RxSession> sessions = c.sessions.toList();
 
-            final Session? current = sessions.firstWhereOrNull(
+            final RxSession? current = sessions.firstWhereOrNull(
               (e) => e.id == c.credentials.value?.sessionId,
             );
 

@@ -58,10 +58,12 @@ import 'provider/drift/cache.dart';
 import 'provider/drift/credentials.dart';
 import 'provider/drift/download.dart';
 import 'provider/drift/drift.dart';
+import 'provider/drift/geolocation.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
 import 'provider/drift/window.dart';
+import 'provider/geo/geo.dart';
 import 'provider/gql/exceptions.dart';
 import 'provider/gql/graphql.dart';
 import 'pubspec.g.dart';
@@ -108,6 +110,7 @@ Future<void> main() async {
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
     Get.put(SettingsDriftProvider(Get.find()));
     Get.put(BackgroundDriftProvider(Get.find()));
+    Get.put(GeoLocationDriftProvider(Get.find()));
 
     if (!PlatformUtils.isWeb) {
       Get.put(WindowRectDriftProvider(Get.find()));
@@ -146,6 +149,7 @@ Future<void> main() async {
     }
 
     final graphQlProvider = Get.put(GraphQlProvider());
+    Get.put(GeoLocationProvider());
 
     final authRepository = Get.put<AbstractAuthRepository>(AuthRepository(
       graphQlProvider,

@@ -15,10 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:json_annotation/json_annotation.dart';
+
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
+
+part 'session.g.dart';
 
 /// Session of a [MyUser] being signed-in.
 class Session implements Comparable<Session> {
@@ -71,6 +75,32 @@ class UserAgent extends NewType<String> {
 /// Either an IPv4 or IPv6 address.
 class IpAddress extends NewType<String> {
   const IpAddress(super.val);
+}
+
+/// Geographical location information regarding certain [IpAddress].
+@JsonSerializable()
+class IpGeoLocation {
+  const IpGeoLocation({
+    required this.country,
+    required this.countryCode,
+    required this.city,
+  });
+
+  /// Constructs a [IpGeoLocation] from the provided [json].
+  factory IpGeoLocation.fromJson(Map<String, dynamic> json) =>
+      _$IpGeoLocationFromJson(json);
+
+  /// Localized name of the country.
+  final String country;
+
+  /// Country code.
+  final String countryCode;
+
+  /// Localized name of the city.
+  final String city;
+
+  /// Returns a [Map] representing this [IpGeoLocation].
+  Map<String, dynamic> toJson() => _$IpGeoLocationToJson(this);
 }
 
 /// Token used for authenticating a [Session].

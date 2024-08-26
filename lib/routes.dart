@@ -32,6 +32,7 @@ import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
 import 'domain/repository/my_user.dart';
+import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
 import 'domain/service/auth.dart';
@@ -41,6 +42,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
+import 'domain/service/session.dart';
 import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
@@ -64,6 +66,7 @@ import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
 import 'store/my_user.dart';
+import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
 import 'themes.dart';
@@ -616,8 +619,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   blocklistRepository,
                   userRepository,
                   Get.find(),
-                  Get.find(),
-                  Get.find(),
                 ),
               );
 
@@ -778,10 +779,21 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 blocklistRepository,
                 userRepository,
                 Get.find(),
-                versionProvider,
-                sessionProvider,
               ),
             );
+
+            final AbstractSessionRepository sessionRepository =
+                deps.put<AbstractSessionRepository>(
+              SessionRepository(
+                graphQlProvider,
+                Get.find(),
+                versionProvider,
+                sessionProvider,
+                Get.find(),
+                Get.find(),
+              ),
+            );
+            deps.put(SessionService(sessionRepository));
 
             final MyUserService myUserService =
                 deps.put(MyUserService(Get.find(), myUserRepository));

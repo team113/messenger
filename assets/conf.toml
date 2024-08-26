@@ -156,3 +156,15 @@
 #
 # Default:
 #   repository = "https://github.com/team113/messenger/issues"
+
+[geo]
+# URL address of HTTP geo determination API server.
+#
+# Default:
+#   endpoint = "http://ip-api.com/json"
+
+[ip]
+# URL address of HTTP IP determination API server.
+#
+# Default:
+#   endpoint = "https://api.ipify.org?format=json"

@@ -39,9 +39,6 @@ abstract class AbstractMyUserRepository {
   /// non-stale [Credentials], which can be found in [sessions] field.
   RxObsMap<UserId, Rx<MyUser>> get profiles;
 
-  /// Returns the reactive list of active [Session]s.
-  RxList<Session> get sessions;
-
   /// Initializes the repository.
   ///
   /// Callback [onUserDeleted] should be called when [myUser] is deleted.
