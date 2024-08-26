@@ -27,11 +27,13 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
+import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
+import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/appcast_version.dart';
@@ -353,6 +355,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
+  Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
   final Function(FlutterErrorDetails)? presentError = FlutterError.onError;

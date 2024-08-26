@@ -55,7 +55,6 @@ import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
-import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -340,7 +339,6 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final versionProvider = Get.put(VersionDriftProvider(common));
-  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -424,8 +422,6 @@ void main() async {
       blocklistRepository,
       userRepository,
       accountProvider,
-      versionProvider,
-      sessionProvider,
     );
     Get.put(MyUserService(authService, myUserRepository));
 
