@@ -19,7 +19,7 @@ All user visible changes to this project will be documented in this file. This p
     - Profile page:
         - Credentials confirmation of account deletion. ([#1086])
         - Welcome message. ([#1090], [#553])
-        - Geolocation of active sessions. ([#1094])
+        - Geolocation of active sessions. ([#1094], [#1005])
     - Auth page:
         - Signing up by login and password. ([#1087])
         - Signing in by one-time password sent to e-mail. ([#1089], [#555])
@@ -50,6 +50,7 @@ All user visible changes to this project will be documented in this file. This p
 [#900]: /../../issues/900
 [#988]: /../../issues/988
 [#995]: /../../pull/995
+[#1005]: /../../issues/1005
 [#1066]: /../../pull/1066
 [#1069]: /../../pull/1069
 [#1070]: /../../pull/1070

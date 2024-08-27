@@ -135,10 +135,10 @@ class Config {
   /// links.
   static String scheme = 'gapopa';
 
-  /// URL of geolocation determination API server.
+  /// URL address of IP geolocation API server.
   static String geoEndpoint = 'http://ip-api.com/json';
 
-  /// URL of IP determination API server.
+  /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
 
   /// Initializes this [Config] by applying values from the following sources
