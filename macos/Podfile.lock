@@ -12,20 +12,20 @@ PODS:
     - FlutterMacOS
   - file_selector_macos (0.0.1):
     - FlutterMacOS
-  - Firebase/CoreOnly (10.25.0):
-    - FirebaseCore (= 10.25.0)
-  - Firebase/Messaging (10.25.0):
+  - Firebase/CoreOnly (10.29.0):
+    - FirebaseCore (= 10.29.0)
+  - Firebase/Messaging (10.29.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 10.25.0)
-  - firebase_core (2.32.0):
-    - Firebase/CoreOnly (~> 10.25.0)
+    - FirebaseMessaging (~> 10.29.0)
+  - firebase_core (3.3.0):
+    - Firebase/CoreOnly (~> 10.29.0)
     - FlutterMacOS
-  - firebase_messaging (14.9.4):
-    - Firebase/CoreOnly (~> 10.25.0)
-    - Firebase/Messaging (~> 10.25.0)
+  - firebase_messaging (15.0.4):
+    - Firebase/CoreOnly (~> 10.29.0)
+    - Firebase/Messaging (~> 10.29.0)
     - firebase_core
     - FlutterMacOS
-  - FirebaseCore (10.25.0):
+  - FirebaseCore (10.29.0):
     - FirebaseCoreInternal (~> 10.0)
     - GoogleUtilities/Environment (~> 7.12)
     - GoogleUtilities/Logger (~> 7.12)
@@ -36,7 +36,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.8)
     - GoogleUtilities/UserDefaults (~> 7.8)
     - PromisesObjC (~> 2.1)
-  - FirebaseMessaging (10.25.0):
+  - FirebaseMessaging (10.29.0):
     - FirebaseCore (~> 10.0)
     - FirebaseInstallations (~> 10.0)
     - GoogleDataTransport (~> 9.3)
@@ -108,26 +108,26 @@ PODS:
     - FlutterMacOS
   - screen_retriever (0.0.1):
     - FlutterMacOS
-  - Sentry/HybridSDK (8.32.0)
-  - sentry_flutter (8.6.0):
+  - Sentry/HybridSDK (8.33.0)
+  - sentry_flutter (8.7.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.32.0)
+    - Sentry/HybridSDK (= 8.33.0)
   - share_plus (0.0.1):
     - FlutterMacOS
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - "sqlite3 (3.46.0+1)":
-    - "sqlite3/common (= 3.46.0+1)"
-  - "sqlite3/common (3.46.0+1)"
-  - "sqlite3/dbstatvtab (3.46.0+1)":
+  - "sqlite3 (3.46.1+1)":
+    - "sqlite3/common (= 3.46.1+1)"
+  - "sqlite3/common (3.46.1+1)"
+  - "sqlite3/dbstatvtab (3.46.1+1)":
     - sqlite3/common
-  - "sqlite3/fts5 (3.46.0+1)":
+  - "sqlite3/fts5 (3.46.1+1)":
     - sqlite3/common
-  - "sqlite3/perf-threadsafe (3.46.0+1)":
+  - "sqlite3/perf-threadsafe (3.46.1+1)":
     - sqlite3/common
-  - "sqlite3/rtree (3.46.0+1)":
+  - "sqlite3/rtree (3.46.1+1)":
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - FlutterMacOS
@@ -255,13 +255,13 @@ SPEC CHECKSUMS:
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   device_info_plus: ce1b7762849d3ec103d0e0517299f2db7ad60720
   file_selector_macos: 54fdab7caa3ac3fc43c9fac4d7d8d231277f8cf2
-  Firebase: 0312a2352584f782ea56f66d91606891d4607f06
-  firebase_core: b5b8b60dad71f93132bbaa21e8d1379367d824f0
-  firebase_messaging: d821ad7103878837085612e389fe66203c5c6c0c
-  FirebaseCore: 7ec4d0484817f12c3373955bc87762d96842d483
+  Firebase: cec914dab6fd7b1bd8ab56ea07ce4e03dd251c2d
+  firebase_core: 73185b844efc8a534e5744d68152e75e740922d2
+  firebase_messaging: 167fdd90971720e0b62ccd6fa8d430b8af4ca6e9
+  FirebaseCore: 30e9c1cbe3d38f5f5e75f48bfcea87d7c358ec16
   FirebaseCoreInternal: df84dd300b561c27d5571684f389bf60b0a5c934
   FirebaseInstallations: 913cf60d0400ebd5d6b63a28b290372ab44590dd
-  FirebaseMessaging: 88950ba9485052891ebe26f6c43a52bb62248952
+  FirebaseMessaging: 7b5d8033e183ab59eb5b852a53201559e976d366
   flutter_app_badger: 55a64b179f8438e89d574320c77b306e327a1730
   flutter_custom_cursor: 629957115075c672287bd0fa979d863ccf6024f7
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
@@ -280,11 +280,11 @@ SPEC CHECKSUMS:
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
   screen_retriever: 59634572a57080243dd1bf715e55b6c54f241a38
-  Sentry: 96ae1dcdf01a644bc3a3b1dc279cecaf48a833fb
-  sentry_flutter: 090351ce1ff5f96a4b33ef9455b7e3b28185387d
+  Sentry: 8560050221424aef0bebc8e31eedf00af80f90a6
+  sentry_flutter: e26b861f744e5037a3faf9bf56603ec65d658a61
   share_plus: 36537c04ce0c3e3f5bd297ce4318b6d5ee5fd6cf
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
-  sqlite3: fc1bf263f36b89316edebfe48e2358334a9c79ad
+  sqlite3: 0bb0e6389d824e40296f531b858a2a0b71c0d2fb
   sqlite3_flutter_libs: 5ca46c1a04eddfbeeb5b16566164aa7ad1616e7b
   url_launcher_macos: 5f437abeda8c85500ceb03f5c1938a8c5a705399
   wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
