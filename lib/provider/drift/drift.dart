@@ -43,6 +43,7 @@ import 'connection/connection.dart';
 import 'credentials.dart';
 import 'download.dart';
 import 'draft.dart';
+import 'geolocation.dart';
 import 'monolog.dart';
 import 'my_user.dart';
 import 'session.dart';
@@ -62,6 +63,7 @@ part 'drift.g.dart';
     Cache,
     CacheSummary,
     Downloads,
+    GeoLocations,
     Monologs,
     MyUsers,
     Settings,

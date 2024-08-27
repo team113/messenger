@@ -304,7 +304,7 @@ class NotificationService extends DisposableService {
 
   /// Sets the provided [language] as a preferred localization of the push
   /// notifications.
-  void setLanguage(String? language) async {
+  Future<void> setLanguage(String? language) async {
     Log.debug('setLanguage($language)', '$runtimeType');
 
     if (_language != language) {
