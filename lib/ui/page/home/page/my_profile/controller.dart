@@ -36,10 +36,12 @@ import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
@@ -60,6 +62,7 @@ export 'view.dart';
 class MyProfileController extends GetxController {
   MyProfileController(
     this._myUserService,
+    this._sessionService,
     this._settingsRepo,
     this._authService,
     this._chatService,
@@ -129,6 +132,9 @@ class MyProfileController extends GetxController {
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
+  /// Service responsible for [Session]s management.
+  final SessionService _sessionService;
+
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
 
@@ -168,8 +174,8 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns the list of active [Session]s.
-  RxList<Session> get sessions => _myUserService.sessions;
+  /// Returns the list of active [RxSession]s.
+  RxList<RxSession> get sessions => _sessionService.sessions;
 
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;

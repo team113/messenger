@@ -893,11 +893,11 @@ class ChatEntry implements Comparable<ChatEntry> {
     );
   }
 
-  /// [RxChat] itself.
-  final RxChat _chat;
-
   /// Indicator whether this [ChatEntry] is hidden.
   final RxBool hidden = RxBool(false);
+
+  /// [RxChat] itself.
+  final RxChat _chat;
 
   /// Worker capturing the [Chat] changes to invoke sorting on [_updatedAt] and
   /// [_hasCall] mismatches.
