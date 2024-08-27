@@ -646,7 +646,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query({'name': 'camera'}.toJSBox)
+          .query({'name': 'camera'}.jsify() as JSObject)
           .toDart;
       granted = permission.state == 'granted';
     }
@@ -674,7 +674,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query({'name': 'microphone'}.toJSBox)
+          .query({'name': 'microphone'}.jsify() as JSObject)
           .toDart;
       granted = permission.state == 'granted';
     }

@@ -39,7 +39,11 @@ class GeoLocationProvider {
       '${Config.geoEndpoint}/$ip?fields=country,countryCode,city${language == null ? '' : '&lang=$language'}',
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 ||
+        response.data is! Map<String, dynamic> ||
+        response.data?['country'] == null ||
+        response.data?['countryCode'] == null ||
+        response.data?['city'] == null) {
       throw Exception(
         'Failed to fetch geo information. Status code: ${response.statusCode}. Data: ${response.data}',
       );
