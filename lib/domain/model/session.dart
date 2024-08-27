@@ -87,8 +87,12 @@ class IpGeoLocation {
   });
 
   /// Constructs an [IpGeoLocation] from the provided [json].
-  factory IpGeoLocation.fromJson(Map<String, dynamic> json) =>
-      _$IpGeoLocationFromJson(json);
+  factory IpGeoLocation.fromJson(Map<String, dynamic> json) {
+    print('================ IpGeoLocation.fromJson');
+    print('================ stack trace: ${StackTrace.current}');
+
+    return _$IpGeoLocationFromJson(json);
+  }
 
   /// Localized name of the country.
   final String country;
