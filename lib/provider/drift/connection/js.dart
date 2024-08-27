@@ -27,7 +27,7 @@ import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect([UserId? userId]) {
-  // TODO: Wait for sqlite3 to support WebAssembly:
+  // TODO: Wait for `sqlite3` to support WebAssembly:
   //       https://github.com/simolus3/sqlite3.dart/issues/230
   if (kIsWasm) {
     return inMemory();
