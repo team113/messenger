@@ -150,11 +150,12 @@
     }
   </script>
 
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter_bootstrap.js" async></script>
 </head>
 
 <body>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter_bootstrap.js"></script>
+
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">
       <div style="display: flex; justify-content: center; margin-bottom: 12px;">
@@ -179,26 +180,6 @@
       </div>
     </div>
   </div>
-  <script>
-    window.addEventListener('load', function (ev) {
-      _flutter.loader.load({
-        serviceWorker: {
-          serviceWorkerVersion: '{{flutter_service_worker_version}}'
-        },
-        onEntrypointLoaded: async function (engineInitializer) {
-          try {
-            await window.jasonLoaded;
-          } catch (e) {
-            console.error(e);
-          }
-
-          engineInitializer.initializeEngine().then(function (appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
-  </script>
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;

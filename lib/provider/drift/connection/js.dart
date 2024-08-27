@@ -18,13 +18,21 @@
 import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
+import 'package:flutter/foundation.dart';
 import 'package:log_me/log_me.dart';
+import 'package:sqlite3/wasm.dart';
 
 import '/domain/model/user.dart';
 import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect([UserId? userId]) {
+  // TODO: Wait for sqlite3 to support WebAssembly:
+  //       https://github.com/simolus3/sqlite3.dart/issues/230
+  if (kIsWasm) {
+    return inMemory();
+  }
+
   return DatabaseConnection.delayed(Future(() async {
     final String dbName = userId?.val ?? 'common';
 
@@ -103,7 +111,9 @@ QueryExecutor connect([UserId? userId]) {
 
 /// Obtains an in-memory database connection for running `drift`.
 QueryExecutor inMemory() {
-  throw UnsupportedError(
-    'In-memory database isn\'t supported on this platform.',
-  );
+  return LazyDatabase(() async {
+    final sqlite3 = await WasmSqlite3.loadFromUrl(Uri.parse('/sqlite3.wasm'));
+    sqlite3.registerVirtualFileSystem(InMemoryFileSystem(), makeDefault: true);
+    return WasmDatabase.inMemory(sqlite3);
+  });
 }
