@@ -327,6 +327,9 @@ class OngoingCall {
   /// [Worker] reacting on the [state] changes updating the [_participated].
   Worker? _stateWorker;
 
+  /// [ChatCallRoomJoinLink] used to join the [_room], if any.
+  ChatCallRoomJoinLink? _joinLink;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -487,11 +490,6 @@ class OngoingCall {
       _initRoom();
       await _setInitialMediaSettings();
       await _initLocalMedia();
-
-      if (state.value == OngoingCallState.active &&
-          call.value?.joinLink != null) {
-        await _joinRoom(call.value!.joinLink!);
-      }
     }
   }
 
@@ -541,13 +539,6 @@ class OngoingCall {
                 state.value = node.call.conversationStartedAt == null
                     ? OngoingCallState.pending
                     : OngoingCallState.joining;
-              }
-
-              if (node.call.joinLink != null) {
-                if (!_background) {
-                  await _joinRoom(node.call.joinLink!);
-                }
-                state.value = OngoingCallState.active;
               }
 
               final ChatMembersDialed? dialed = node.call.dialed;
@@ -657,9 +648,6 @@ class OngoingCall {
                   if (!_background) {
                     await _joinRoom(node.joinLink);
                   }
-
-                  call.value?.joinLink = node.joinLink;
-                  call.refresh();
 
                   state.value = OngoingCallState.active;
                   break;
@@ -1801,7 +1789,9 @@ class OngoingCall {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
     Log.info('Joining the room...', '$runtimeType');
-    if (call.value?.joinLink != null && call.value?.joinLink != link) {
+    if (_joinLink != null && _joinLink != link) {
+      _joinLink = link;
+
       Log.info(
         'Closing the previous one and connecting to the new',
         '$runtimeType',
@@ -1823,6 +1813,8 @@ class OngoingCall {
       await _setInitialMediaSettings();
       await _initLocalMedia();
     }
+
+    _joinLink = link;
 
     try {
       await _room?.join('$link?token=$creds');

@@ -45,6 +45,7 @@ import 'download.dart';
 import 'draft.dart';
 import 'monolog.dart';
 import 'my_user.dart';
+import 'session.dart';
 import 'settings.dart';
 import 'skipped_version.dart';
 import 'user.dart';
@@ -84,8 +85,22 @@ class CommonDatabase extends _$CommonDatabase {
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          for (var e in m.database.allTables) {
-            await m.deleteTable(e.actualTableName);
+          bool migrated = false;
+
+          if (a >= 3 && b <= 2) {
+            await m.addColumn(myUsers, myUsers.welcomeMessage);
+            migrated = true;
+          }
+
+          if (a >= 2 && b <= 1) {
+            await m.addColumn(versions, versions.sessionsListVersion);
+            migrated = true;
+          }
+
+          if (!migrated) {
+            for (var e in m.database.allTables) {
+              await m.deleteTable(e.actualTableName);
+            }
           }
         }
 
@@ -137,6 +152,7 @@ class CommonDatabase extends _$CommonDatabase {
     ChatMembers,
     Chats,
     Drafts,
+    Sessions,
     Users,
   ],
   queries: {
@@ -206,13 +222,13 @@ class ScopedDatabase extends _$ScopedDatabase {
   @override
   MigrationStrategy get migration {
     return MigrationStrategy(
-      onUpgrade: (m, a, b) async {
+      onUpgrade: (m, b, a) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
 
         // TODO: Implement proper migrations.
         if (a != b) {
-          for (var e in m.database.allTables) {
-            await m.deleteTable(e.actualTableName);
+          if (a >= 2 && b <= 1) {
+            await m.addColumn(users, users.welcomeMessage);
           }
         }
 

@@ -32,13 +32,14 @@ extension AccessTokenConversion on AccessTokenMixin {
 
 /// Extension adding [Credentials] models construction from a
 /// [SignUp$Mutation] response.
-extension SignUpCredentials on SignUp$Mutation {
+extension SignUpCredentials on SignUp$Mutation$CreateUser$CreateSessionOk {
   /// Constructs the new [Credentials] from this [SignUp$Mutation].
   Credentials toModel() {
     return Credentials(
-      createUser.accessToken.toModel(),
-      createUser.refreshToken.toModel(),
-      createUser.user.id,
+      accessToken.toModel(),
+      refreshToken.toModel(),
+      session.id,
+      user.id,
     );
   }
 }
@@ -49,7 +50,12 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
   /// Constructs the new [Credentials] from this
   /// [SignIn$Mutation$CreateSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
+    return Credentials(
+      accessToken.toModel(),
+      refreshToken.toModel(),
+      session.id,
+      user.id,
+    );
   }
 }
 
@@ -60,6 +66,11 @@ extension RefreshSessionCredentials
   /// Constructs the new [Credentials] from this
   /// [RefreshSession$Mutation$RefreshSession$CreateSessionOk].
   Credentials toModel() {
-    return Credentials(accessToken.toModel(), refreshToken.toModel(), user.id);
+    return Credentials(
+      accessToken.toModel(),
+      refreshToken.toModel(),
+      session.id,
+      user.id,
+    );
   }
 }

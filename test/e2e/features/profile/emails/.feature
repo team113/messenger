@@ -36,4 +36,6 @@ Feature: User email
 
     When I tap `DeleteEmail` widget
     And I tap `Proceed` button
+    And I fill `PasswordField` field with "123"
+    And I tap `Proceed` button
     Then I wait until `ConfirmedEmail` is absent

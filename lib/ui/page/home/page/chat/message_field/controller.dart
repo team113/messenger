@@ -72,65 +72,7 @@ class MessageFieldController extends GetxController {
         field.unsubmit();
         onSubmit?.call();
       },
-      focus: FocusNode(
-        onKeyEvent: (FocusNode node, KeyEvent e) {
-          if ((e.logicalKey == LogicalKeyboardKey.enter ||
-                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-              e is KeyDownEvent) {
-            final Set<PhysicalKeyboardKey> pressed =
-                HardwareKeyboard.instance.physicalKeysPressed;
-
-            final bool isShiftPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.shiftLeft ||
-                key == PhysicalKeyboardKey.shiftRight);
-            final bool isAltPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.altLeft ||
-                key == PhysicalKeyboardKey.altRight);
-            final bool isControlPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.controlLeft ||
-                key == PhysicalKeyboardKey.controlRight);
-            final bool isMetaPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.metaLeft ||
-                key == PhysicalKeyboardKey.metaRight);
-
-            bool handled = isShiftPressed;
-
-            if (!PlatformUtils.isWeb) {
-              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = handled || isAltPressed || isControlPressed;
-              }
-            }
-
-            if (!handled) {
-              if (isAltPressed ||
-                  isControlPressed ||
-                  isMetaPressed ||
-                  isShiftPressed) {
-                int cursor;
-
-                if (field.controller.selection.isCollapsed) {
-                  cursor = field.controller.selection.base.offset;
-                  field.text =
-                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
-                } else {
-                  cursor = field.controller.selection.start;
-                  field.text =
-                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
-                }
-
-                field.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-              } else {
-                field.submit();
-                return KeyEventResult.handled;
-              }
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
+      focus: FocusNode(onKeyEvent: (_, KeyEvent e) => handleNewLines(e, field)),
     );
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
@@ -271,6 +213,65 @@ class MessageFieldController extends GetxController {
       _inCallWorker?.dispose();
       _inCallWorker = ever(inCall, _updateButtons);
     }
+  }
+
+  /// Handles the new lines for the provided [KeyEvent] in the [field].
+  static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
+    if ((e.logicalKey == LogicalKeyboardKey.enter ||
+            e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
+        e is KeyDownEvent) {
+      final Set<PhysicalKeyboardKey> pressed =
+          HardwareKeyboard.instance.physicalKeysPressed;
+
+      final bool isShiftPressed = pressed.any((key) =>
+          key == PhysicalKeyboardKey.shiftLeft ||
+          key == PhysicalKeyboardKey.shiftRight);
+      final bool isAltPressed = pressed.any((key) =>
+          key == PhysicalKeyboardKey.altLeft ||
+          key == PhysicalKeyboardKey.altRight);
+      final bool isControlPressed = pressed.any((key) =>
+          key == PhysicalKeyboardKey.controlLeft ||
+          key == PhysicalKeyboardKey.controlRight);
+      final bool isMetaPressed = pressed.any((key) =>
+          key == PhysicalKeyboardKey.metaLeft ||
+          key == PhysicalKeyboardKey.metaRight);
+
+      bool handled = isShiftPressed;
+
+      if (!PlatformUtils.isWeb) {
+        if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
+          handled = handled || isAltPressed || isControlPressed;
+        }
+      }
+
+      if (!handled) {
+        if (isAltPressed ||
+            isControlPressed ||
+            isMetaPressed ||
+            isShiftPressed) {
+          int cursor;
+
+          if (field.controller.selection.isCollapsed) {
+            cursor = field.controller.selection.base.offset;
+            field.text =
+                '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
+          } else {
+            cursor = field.controller.selection.start;
+            field.text =
+                '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
+          }
+
+          field.controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: cursor + 1),
+          );
+        } else {
+          field.submit();
+          return KeyEventResult.handled;
+        }
+      }
+    }
+
+    return KeyEventResult.ignored;
   }
 
   @override

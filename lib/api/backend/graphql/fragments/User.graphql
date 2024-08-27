@@ -28,11 +28,11 @@ fragment User on User {
         __typename
         ...UserCallCover
     }
-    mutualContactsCount
-    contacts {
-        __typename
-        ...NestedChatContact
-    }
+    # mutualContactsCount
+    # contacts {
+    #     __typename
+    #     ...NestedChatContact
+    # }
     online {
         __typename
         ... on UserOffline {
@@ -53,4 +53,8 @@ fragment User on User {
         ver
     }
     ver
+    welcomeMessage {
+        __typename
+        ...WelcomeMessage
+    }
 }

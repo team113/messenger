@@ -111,12 +111,16 @@ class _ChatGalleryState extends State<ChatGallery> {
     });
 
     _updates = widget.paginated?.updates.listen(null);
+
+    if (widget.paginated != null) {
+      for (var e in widget.paginated!.items.values) {
+        _add(e.value);
+      }
+    }
+
     _subscription = widget.paginated?.items.changes.listen((e) {
       switch (e.op) {
         case OperationKind.added:
-          _add(e.value!.value);
-          break;
-
         case OperationKind.updated:
           final existing = _items.firstWhereOrNull((o) => o.item.id == e.key);
           if (existing != null) {

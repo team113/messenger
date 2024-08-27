@@ -15,6 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation ResendUserEmailConfirmation {
-    resendUserEmailConfirmation
-}
+Feature: Welcome message
+
+  Scenario: User creates and deletes welcome message
+    Given I am Alice
+
+    When I tap `MenuButton` button
+    And I scroll `MenuListView` until `WelcomeMessage` is present
+    And I tap `WelcomeMessage` button
+    Then I wait until `NoWelcomeMessage` is present
+
+    When I fill `WelcomeMessageField` field with "Hello"
+    And I tap `PostWelcomeMessage` button
+    Then I wait until `NoWelcomeMessage` is absent
+
+    When I tap `DeleteWelcomeMessage` button
+    Then I wait until `NoWelcomeMessage` is present

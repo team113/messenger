@@ -19,35 +19,48 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:async/async.dart';
+import 'package:collection/collection.dart';
 import 'package:dio/dio.dart' as dio;
 import 'package:get/get.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
-import '/domain/model/user.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user_call_cover.dart';
+import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/domain/repository/my_user.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/my_user.dart';
+import '/provider/drift/session.dart';
+import '/provider/drift/version.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/util/event_pool.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
-import '/util/obs/rxmap.dart';
+import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
 import 'blocklist.dart';
+import 'event/changed.dart';
 import 'event/my_user.dart';
+import 'event/session.dart';
 import 'model/blocklist.dart';
 import 'model/my_user.dart';
+import 'model/session_data.dart';
+import 'model/session.dart';
 import 'user.dart';
 
 /// [MyUser] repository.
@@ -56,9 +69,11 @@ class MyUserRepository extends DisposableInterface
   MyUserRepository(
     this._graphQlProvider,
     this._driftMyUser,
-    this._blocklistRepo,
-    this._userRepo,
+    this._blocklistRepository,
+    this._userRepository,
     this._accountLocal,
+    this._versionLocal,
+    this._sessionLocal,
   );
 
   @override
@@ -66,6 +81,9 @@ class MyUserRepository extends DisposableInterface
 
   @override
   final RxObsMap<UserId, Rx<MyUser>> profiles = RxObsMap();
+
+  @override
+  final RxList<Session> sessions = RxList();
 
   /// Callback that is called when [MyUser] is deleted.
   late final void Function() onUserDeleted;
@@ -82,11 +100,18 @@ class MyUserRepository extends DisposableInterface
   /// Storage providing the [UserId] of the currently active [MyUser].
   final AccountDriftProvider _accountLocal;
 
+  /// [VersionDriftProvider] used to retrieve the
+  /// [SessionData.sessionsListVersion].
+  final VersionDriftProvider _versionLocal;
+
+  /// [SessionDriftProvider] of the locally stored [Session]s.
+  final SessionDriftProvider _sessionLocal;
+
   /// Blocked [User]s repository, used to update it on the appropriate events.
-  final BlocklistRepository _blocklistRepo;
+  final BlocklistRepository _blocklistRepository;
 
   /// [User]s repository, used to put the fetched [MyUser] into it.
-  final UserRepository _userRepo;
+  final UserRepository _userRepository;
 
   /// [MyUserDriftProvider.watch] subscription.
   StreamSubscription? _localSubscription;
@@ -95,6 +120,14 @@ class MyUserRepository extends DisposableInterface
   ///
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<MyUserEventsVersioned>? _remoteSubscription;
+
+  /// [_sessionRemoteEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamQueue<SessionEventsVersioned>? _sessionSubscription;
+
+  /// [SessionDriftProvider.watch] subscription.
+  StreamSubscription? _sessionLocalSubscription;
 
   /// [GraphQlProvider.keepOnline] subscription keeping the [MyUser] online.
   StreamQueue? _keepOnlineSubscription;
@@ -138,6 +171,8 @@ class MyUserRepository extends DisposableInterface
     _initProfiles();
     _initLocalSubscription();
     _initRemoteSubscription();
+    _initSessionSubscription();
+    _initSessionLocalSubscription();
 
     if (PlatformUtils.isDesktop || await PlatformUtils.isFocused) {
       _initKeepOnlineSubscription();
@@ -165,6 +200,8 @@ class MyUserRepository extends DisposableInterface
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _keepOnlineSubscription?.cancel(immediate: true);
+    _sessionSubscription?.close(immediate: true);
+    _sessionLocalSubscription?.cancel();
     _onFocusChanged?.cancel();
     _pool.dispose();
     _localSubscriptionRetry?.cancel();
@@ -239,18 +276,99 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    Log.debug(
+      'updateWelcomeMessage(text: $text, attachments: $attachments)',
+      '$runtimeType',
+    );
+
+    final bool reset =
+        text?.val.isEmpty == true && attachments?.isEmpty == true;
+
+    final WelcomeMessage? previous = myUser.value?.welcomeMessage;
+
+    myUser.update(
+      (u) => u
+        ?..welcomeMessage = reset
+            ? null
+            : WelcomeMessage(
+                text: text,
+                attachments: attachments ?? [],
+                at: PreciseDateTime.now(),
+              ),
+    );
+
+    try {
+      final List<Future>? uploads = attachments
+          ?.mapIndexed((i, e) {
+            if (e is LocalAttachment) {
+              return e.upload.value?.future.then(
+                (a) {
+                  attachments[i] = a;
+                },
+                onError: (_) {
+                  // No-op, as failed upload attempts are handled below.
+                },
+              );
+            }
+          })
+          .whereNotNull()
+          .toList();
+
+      await Future.wait(uploads ?? []);
+
+      if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
+        throw const ConnectionException(UpdateWelcomeMessageException(
+          UpdateWelcomeMessageErrorCode.unknownAttachment,
+        ));
+      }
+
+      await _graphQlProvider.updateWelcomeMessage(
+        reset
+            ? null
+            : WelcomeMessageInput(
+                text: text == null
+                    ? null
+                    : ChatMessageTextInput(
+                        kw$new: text.val.isEmpty ? null : text,
+                      ),
+                attachments: attachments == null
+                    ? null
+                    : ChatMessageAttachmentsInput(
+                        kw$new: attachments.map((e) => e.id).toList(),
+                      ),
+              ),
+      );
+    } catch (_) {
+      myUser.update((u) => u?..welcomeMessage = previous);
+      rethrow;
+    }
+  }
+
+  @override
   Future<void> updateUserPassword(
     UserPassword? oldPassword,
     UserPassword newPassword,
   ) async {
-    Log.debug('updateUserPassword(***, ***)', '$runtimeType');
+    Log.debug(
+      'updateUserPassword(${oldPassword?.obscured}, ${newPassword.obscured})',
+      '$runtimeType',
+    );
 
     final bool? hasPassword = myUser.value?.hasPassword;
 
     myUser.update((u) => u?.hasPassword = true);
 
     try {
-      await _graphQlProvider.updateUserPassword(oldPassword, newPassword);
+      await _graphQlProvider.updateUserPassword(
+        confirmation: oldPassword == null
+            ? null
+            : MyUserCredentials(password: oldPassword),
+        newPassword: newPassword,
+      );
     } catch (_) {
       if (hasPassword != null) {
         myUser.update((u) => u?.hasPassword = hasPassword);
@@ -261,14 +379,32 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteMyUser() async {
-    Log.debug('deleteMyUser()', '$runtimeType');
-    await _graphQlProvider.deleteMyUser();
+  Future<void> deleteMyUser({
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteMyUser(password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.deleteMyUser(
+      confirmation: confirmation == null && password == null
+          ? null
+          : MyUserCredentials(code: confirmation, password: password),
+    );
   }
 
   @override
-  Future<void> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', '$runtimeType');
+  Future<void> deleteUserEmail(
+    UserEmail email, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserEmail($email, password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     if (myUser.value?.emails.unconfirmed == email) {
       await _debounce(
@@ -278,9 +414,17 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserEmail(previous);
+            return await _graphQlProvider.deleteUserEmail(
+              previous,
+              confirmation: confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
+            );
           } else if (value != null) {
-            return await _graphQlProvider.addUserEmail(value);
+            return await _graphQlProvider.addUserEmail(
+              value,
+              confirmation: confirmation,
+            );
           }
 
           return null;
@@ -299,7 +443,12 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserEmail(email);
+        await _graphQlProvider.deleteUserEmail(
+          email,
+          confirmation: confirmation == null && password == null
+              ? null
+              : MyUserCredentials(code: confirmation, password: password),
+        );
       } catch (_) {
         if (i != -1) {
           i = min(i, myUser.value?.emails.confirmed.length ?? 0);
@@ -311,8 +460,15 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+  Future<void> deleteUserPhone(
+    UserPhone phone, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserPhone($phone, password: ${password?.obscured}, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     if (myUser.value?.phones.unconfirmed == phone) {
       await _debounce(
@@ -322,9 +478,17 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserPhone(previous);
+            return await _graphQlProvider.deleteUserPhone(
+              previous,
+              confirmation: confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
+            );
           } else if (value != null) {
-            return await _graphQlProvider.addUserPhone(value);
+            return await _graphQlProvider.addUserPhone(
+              value,
+              confirmation: confirmation,
+            );
           }
 
           return null;
@@ -343,7 +507,12 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserPhone(phone);
+        await _graphQlProvider.deleteUserPhone(
+          phone,
+          confirmation: confirmation == null && password == null
+              ? null
+              : MyUserCredentials(code: confirmation, password: password),
+        );
       } catch (_) {
         if (i != -1) {
           i = min(i, myUser.value?.phones.confirmed.length ?? 0);
@@ -355,34 +524,54 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> addUserEmail(UserEmail email) async {
-    Log.debug('addUserEmail($email)', '$runtimeType');
+  Future<void> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserEmail($email, confirmation: $confirmation, locale: $locale)',
+      '$runtimeType',
+    );
 
-    await _debounce(
-      field: MyUserField.email,
-      current: () => myUser.value?.emails.unconfirmed,
-      saved: () async => (await _active)?.value.emails.unconfirmed,
-      value: email,
-      mutation: (value, previous) async {
-        if (previous != null) {
-          return await _graphQlProvider.deleteUserEmail(previous);
-        } else if (value != null) {
-          return await _graphQlProvider.addUserEmail(value);
+    // TODO: Add optimism.
+    final events = await _graphQlProvider.addUserEmail(
+      email,
+      confirmation: confirmation,
+      locale: locale,
+    );
+
+    for (var e in events?.events ?? []) {
+      final event = _myUserEvent(e);
+
+      if (event is EventUserEmailAdded) {
+        if (event.confirmed) {
+          myUser.value?.emails.confirmed.addIf(
+            myUser.value?.emails.confirmed.contains(email) == false,
+            email,
+          );
+          if (myUser.value?.emails.unconfirmed == email) {
+            myUser.value?.emails.unconfirmed = null;
+          }
+        } else {
+          myUser.value?.emails.unconfirmed = email;
         }
 
-        return null;
-      },
-      update: (v, p) => myUser.update(
-        (u) => p != null
-            ? u?.emails.unconfirmed = null
-            : u?.emails.unconfirmed = v,
-      ),
-    );
+        myUser.refresh();
+      }
+    }
   }
 
   @override
-  Future<void> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', '$runtimeType');
+  Future<void> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserPhone($phone, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
     await _debounce(
       field: MyUserField.phone,
@@ -391,9 +580,18 @@ class MyUserRepository extends DisposableInterface
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
-          return await _graphQlProvider.deleteUserPhone(previous);
+          return await _graphQlProvider.deleteUserPhone(
+            previous,
+            confirmation: confirmation == null
+                ? null
+                : MyUserCredentials(code: confirmation),
+          );
         } else if (value != null) {
-          return await _graphQlProvider.addUserPhone(value);
+          return await _graphQlProvider.addUserPhone(
+            value,
+            confirmation: confirmation,
+            locale: locale,
+          );
         }
 
         return null;
@@ -407,56 +605,6 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> confirmEmailCode(ConfirmationCode code) async {
-    Log.debug('confirmEmailCode($code)', '$runtimeType');
-
-    final UserEmail? unconfirmed = myUser.value?.emails.unconfirmed;
-
-    await _graphQlProvider.confirmEmailCode(code);
-
-    myUser.update(
-      (u) {
-        u?.emails.confirmed.addIf(
-          !u.emails.confirmed.contains(unconfirmed),
-          unconfirmed!,
-        );
-        u?.emails.unconfirmed = null;
-      },
-    );
-  }
-
-  @override
-  Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode($code)', '$runtimeType');
-
-    final UserPhone? unconfirmed = myUser.value?.phones.unconfirmed;
-
-    await _graphQlProvider.confirmPhoneCode(code);
-
-    myUser.update(
-      (u) {
-        u?.phones.confirmed.addIf(
-          !u.phones.confirmed.contains(unconfirmed),
-          unconfirmed!,
-        );
-        u?.phones.unconfirmed = null;
-      },
-    );
-  }
-
-  @override
-  Future<void> resendEmail() async {
-    Log.debug('resendEmail()', '$runtimeType');
-    await _graphQlProvider.resendEmail();
-  }
-
-  @override
-  Future<void> resendPhone() async {
-    Log.debug('resendPhone()', '$runtimeType');
-    await _graphQlProvider.resendPhone();
-  }
-
-  @override
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
 
@@ -464,7 +612,12 @@ class MyUserRepository extends DisposableInterface
     // link right away.
     await _graphQlProvider.createUserDirectLink(slug);
 
-    myUser.update((u) => u?.chatDirectLink = ChatDirectLink(slug: slug));
+    myUser.update(
+      (u) => u?.chatDirectLink = ChatDirectLink(
+        slug: slug,
+        createdAt: PreciseDateTime.now(),
+      ),
+    );
   }
 
   @override
@@ -664,71 +817,8 @@ class MyUserRepository extends DisposableInterface
       return;
     }
 
-    _localSubscription = _driftMyUser.watchSingle(id).listen((e) {
-      final bool isCurrent =
-          (e?.id ?? id) == (myUser.value?.id ?? _accountLocal.userId);
-
-      if (e == null) {
-        if (isCurrent) {
-          myUser.value = null;
-          _remoteSubscription?.close(immediate: true);
-        }
-
-        profiles.remove(id);
-      } else {
-        final MyUser user = e.value;
-
-        if (isCurrent) {
-          // Copy [event.value], as it always contains the same [MyUser].
-          final MyUser value = user.copyWith();
-
-          // Don't update the [MyUserField]s considered locked in the [_pool], as
-          // those events might've been applied optimistically during mutations
-          // and await corresponding subscription events to be persisted.
-          if (_pool.lockedWith(MyUserField.name, value.name)) {
-            value.name = myUser.value?.name;
-          }
-
-          if (_pool.lockedWith(MyUserField.status, value.status)) {
-            value.status = myUser.value?.status;
-          }
-
-          if (_pool.lockedWith(MyUserField.bio, value.bio)) {
-            value.bio = myUser.value?.bio;
-          }
-
-          if (_pool.lockedWith(MyUserField.presence, value.presence)) {
-            value.presence = myUser.value?.presence ?? value.presence;
-          }
-
-          if (_pool.lockedWith(MyUserField.muted, value.muted)) {
-            value.muted = myUser.value?.muted;
-          }
-
-          if (_pool.lockedWith(MyUserField.email, value.emails.unconfirmed)) {
-            value.emails.unconfirmed = myUser.value?.emails.unconfirmed;
-          }
-
-          if (_pool.lockedWith(MyUserField.phone, value.phones.unconfirmed)) {
-            value.phones.unconfirmed = myUser.value?.phones.unconfirmed;
-          }
-
-          myUser.value = value;
-          profiles[e.id]?.value = value;
-        }
-
-        // This event is not of the currently active [MyUser], so just update
-        // the [profiles].
-        else {
-          final Rx<MyUser>? existing = profiles[e.id];
-          if (existing == null) {
-            profiles[e.id] = Rx(user);
-          } else {
-            existing.value = user;
-          }
-        }
-      }
-    });
+    _localSubscription =
+        _driftMyUser.watchSingle(id).listen((e) => _applyMyUser(id, e));
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
@@ -759,7 +849,7 @@ class MyUserRepository extends DisposableInterface
           _myUserRemoteEvent,
           onError: (e) async {
             if (e is StaleVersionException) {
-              await _blocklistRepo.reset();
+              await _blocklistRepository.reset();
             }
           },
         );
@@ -794,12 +884,80 @@ class MyUserRepository extends DisposableInterface
     if (ignoreVersion || user.ver >= (await _active)?.ver) {
       user.value.blocklistCount ??= (await _active)?.value.blocklistCount;
       await _driftMyUser.upsert(user);
+      _applyMyUser(user.id, user);
     } else {
       // Update the stored [MyUser], if the provided [user] has non-`null`
       // blocklist count, which is different from the stored one.
       if (user.value.blocklistCount != null &&
           user.value.blocklistCount != (await _active)?.value.blocklistCount) {
         await _driftMyUser.upsert(user);
+        _applyMyUser(user.id, user);
+      }
+    }
+  }
+
+  /// Applies the provided [DtoMyUser] to the reactive [myUser] value.
+  void _applyMyUser(UserId id, DtoMyUser? e) {
+    final bool isCurrent =
+        (e?.id ?? id) == (myUser.value?.id ?? _accountLocal.userId);
+
+    if (e == null) {
+      if (isCurrent) {
+        myUser.value = null;
+      }
+
+      profiles.remove(id);
+    } else {
+      final MyUser user = e.value;
+
+      if (isCurrent) {
+        // Copy [event.value], as it always contains the same [MyUser].
+        final MyUser value = user.copyWith();
+
+        // Don't update the [MyUserField]s considered locked in the [_pool], as
+        // those events might've been applied optimistically during mutations
+        // and await corresponding subscription events to be persisted.
+        if (_pool.lockedWith(MyUserField.name, value.name)) {
+          value.name = myUser.value?.name;
+        }
+
+        if (_pool.lockedWith(MyUserField.status, value.status)) {
+          value.status = myUser.value?.status;
+        }
+
+        if (_pool.lockedWith(MyUserField.bio, value.bio)) {
+          value.bio = myUser.value?.bio;
+        }
+
+        if (_pool.lockedWith(MyUserField.presence, value.presence)) {
+          value.presence = myUser.value?.presence ?? value.presence;
+        }
+
+        if (_pool.lockedWith(MyUserField.muted, value.muted)) {
+          value.muted = myUser.value?.muted;
+        }
+
+        if (_pool.lockedWith(MyUserField.email, value.emails.unconfirmed)) {
+          value.emails.unconfirmed = myUser.value?.emails.unconfirmed;
+        }
+
+        if (_pool.lockedWith(MyUserField.phone, value.phones.unconfirmed)) {
+          value.phones.unconfirmed = myUser.value?.phones.unconfirmed;
+        }
+
+        myUser.value = value;
+        profiles[e.id]?.value = value;
+      }
+
+      // This event is not of the currently active [MyUser], so just update the
+      // [profiles].
+      else {
+        final Rx<MyUser>? existing = profiles[e.id];
+        if (existing == null) {
+          profiles[e.id] = Rx(user);
+        } else {
+          existing.value = user;
+        }
       }
     }
   }
@@ -837,16 +995,17 @@ class MyUserRepository extends DisposableInterface
     for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        final FutureOr<RxUser?> userOrFuture = _userRepo.get(event.userId);
+        final FutureOr<RxUser?> userOrFuture =
+            _userRepository.get(event.userId);
 
         if (userOrFuture is RxUser?) {
           if (userOrFuture != null) {
-            _userRepo.update(convertor(userOrFuture.user.value));
+            _userRepository.update(convertor(userOrFuture.user.value));
           }
         } else {
           userOrFuture.then((user) {
             if (user != null) {
-              _userRepo.update(convertor(user.user.value));
+              _userRepository.update(convertor(user.user.value));
             }
           });
         }
@@ -931,17 +1090,16 @@ class MyUserRepository extends DisposableInterface
 
         case MyUserEventKind.emailAdded:
           event as EventUserEmailAdded;
-          userEntity.value.emails.unconfirmed = event.email;
-          break;
-
-        case MyUserEventKind.emailConfirmed:
-          event as EventUserEmailConfirmed;
-          userEntity.value.emails.confirmed.addIf(
-            !userEntity.value.emails.confirmed.contains(event.email),
-            event.email,
-          );
-          if (userEntity.value.emails.unconfirmed == event.email) {
-            userEntity.value.emails.unconfirmed = null;
+          if (event.confirmed) {
+            userEntity.value.emails.confirmed.addIf(
+              !userEntity.value.emails.confirmed.contains(event.email),
+              event.email,
+            );
+            if (userEntity.value.emails.unconfirmed == event.email) {
+              userEntity.value.emails.unconfirmed = null;
+            }
+          } else {
+            userEntity.value.emails.unconfirmed = event.email;
           }
           break;
 
@@ -956,17 +1114,16 @@ class MyUserRepository extends DisposableInterface
 
         case MyUserEventKind.phoneAdded:
           event as EventUserPhoneAdded;
-          userEntity.value.phones.unconfirmed = event.phone;
-          break;
-
-        case MyUserEventKind.phoneConfirmed:
-          event as EventUserPhoneConfirmed;
-          userEntity.value.phones.confirmed.addIf(
-            !userEntity.value.phones.confirmed.contains(event.phone),
-            event.phone,
-          );
-          if (userEntity.value.phones.unconfirmed == event.phone) {
-            userEntity.value.phones.unconfirmed = null;
+          if (event.confirmed) {
+            userEntity.value.phones.confirmed.addIf(
+              !userEntity.value.phones.confirmed.contains(event.phone),
+              event.phone,
+            );
+            if (userEntity.value.phones.unconfirmed == event.phone) {
+              userEntity.value.phones.unconfirmed = null;
+            }
+          } else {
+            userEntity.value.phones.unconfirmed = event.phone;
           }
           break;
 
@@ -1043,7 +1200,7 @@ class MyUserRepository extends DisposableInterface
             userEntity.value.blocklistCount =
                 userEntity.value.blocklistCount! + 1;
           }
-          _blocklistRepo.put(
+          _blocklistRepository.put(
             DtoBlocklistRecord(event.user.value.isBlocked!, null),
           );
           break;
@@ -1054,7 +1211,30 @@ class MyUserRepository extends DisposableInterface
             userEntity.value.blocklistCount =
                 max(userEntity.value.blocklistCount! - 1, 0);
           }
-          _blocklistRepo.remove(event.user.value.id);
+          _blocklistRepository.remove(event.user.value.id);
+          break;
+
+        case MyUserEventKind.welcomeMessageDeleted:
+          event as EventUserWelcomeMessageDeleted;
+          userEntity.value.welcomeMessage = null;
+          put((u) => u..welcomeMessage = null);
+          break;
+
+        case MyUserEventKind.welcomeMessageUpdated:
+          event as EventUserWelcomeMessageUpdated;
+
+          final message = WelcomeMessage(
+            text: event.text == null
+                ? userEntity.value.welcomeMessage?.text
+                : event.text?.changed,
+            attachments: event.attachments == null
+                ? userEntity.value.welcomeMessage?.attachments ?? []
+                : event.attachments?.attachments ?? [],
+            at: event.at,
+          );
+
+          userEntity.value.welcomeMessage = message;
+          put((u) => u..welcomeMessage = message);
           break;
       }
     }
@@ -1104,71 +1284,69 @@ class MyUserRepository extends DisposableInterface
     Log.trace('_myUserEvent($e)', '$runtimeType');
 
     if (e.$$typename == 'EventUserNameUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name);
     } else if (e.$$typename == 'EventUserNameDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserNameDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameDeleted;
       return EventUserNameDeleted(node.userId);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(node.userId, node.avatar.toModel());
     } else if (e.$$typename == 'EventUserAvatarDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
       return EventUserAvatarDeleted(node.userId);
     } else if (e.$$typename == 'EventUserBioUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
     } else if (e.$$typename == 'EventUserBioDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
       return EventUserBioDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(node.userId, node.callCover.toModel());
     } else if (e.$$typename == 'EventUserCallCoverDeleted') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
       return EventUserCallCoverDeleted(node.userId);
     } else if (e.$$typename == 'EventUserPresenceUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPresenceUpdated;
       return EventUserPresenceUpdated(node.userId, node.presence);
     } else if (e.$$typename == 'EventUserStatusUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status);
     } else if (e.$$typename == 'EventUserStatusDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserStatusDeleted;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserStatusDeleted;
       return EventUserStatusDeleted(node.userId);
     } else if (e.$$typename == 'EventUserLoginUpdated') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
       return EventUserLoginUpdated(node.userId, node.login);
     } else if (e.$$typename == 'EventUserLoginDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
       return EventUserLoginDeleted(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
-      return EventUserEmailAdded(node.userId, node.email);
-    } else if (e.$$typename == 'EventUserEmailConfirmed') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailConfirmed;
-      return EventUserEmailConfirmed(node.userId, node.email);
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
+      return EventUserEmailAdded(node.userId, node.email, node.confirmed);
     } else if (e.$$typename == 'EventUserEmailDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
       return EventUserEmailDeleted(node.userId, node.email);
     } else if (e.$$typename == 'EventUserPhoneAdded') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
-      return EventUserPhoneAdded(node.userId, node.phone);
-    } else if (e.$$typename == 'EventUserPhoneConfirmed') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneConfirmed;
-      return EventUserPhoneConfirmed(node.userId, node.phone);
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
+      return EventUserPhoneAdded(node.userId, node.phone, node.confirmed);
     } else if (e.$$typename == 'EventUserPhoneDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
       return EventUserPhoneDeleted(node.userId, node.phone);
     } else if (e.$$typename == 'EventUserPasswordUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPasswordUpdated;
       return EventUserPasswordUpdated(node.userId);
     } else if (e.$$typename == 'EventUserMuted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserMuted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserMuted;
       return EventUserMuted(
         node.userId,
         node.until.$$typename == 'MuteForeverDuration'
@@ -1178,47 +1356,53 @@ class MyUserRepository extends DisposableInterface
                 .until),
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
-      var node = e
+      final node = e
           as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
       return EventUserUnreadChatsCountUpdated(node.userId, node.count);
     } else if (e.$$typename == 'EventUserDirectLinkUpdated') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkUpdated;
       return EventUserDirectLinkUpdated(
         node.userId,
         ChatDirectLink(
           slug: node.directLink.slug,
           usageCount: node.directLink.usageCount,
+          createdAt: node.directLink.createdAt,
         ),
       );
     } else if (e.$$typename == 'EventUserDirectLinkDeleted') {
-      var node =
+      final node =
           e as MyUserEventsVersionedMixin$Events$EventUserDirectLinkDeleted;
       return EventUserDirectLinkDeleted(node.userId);
     } else if (e.$$typename == 'EventUserDeleted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserDeleted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserDeleted;
       return EventUserDeleted(node.userId);
     } else if (e.$$typename == 'EventUserUnmuted') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserUnmuted;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserUnmuted;
       return EventUserUnmuted(node.userId);
     } else if (e.$$typename == 'EventUserCameOnline') {
-      var node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOnline;
       return EventUserCameOnline(node.userId);
-    } else if (e.$$typename == 'EventBlocklistRecordAdded') {
-      var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordAdded;
-      return EventBlocklistRecordAdded(
-        node.user.toDto(),
+    } else if (e.$$typename == 'EventUserWelcomeMessageDeleted') {
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageDeleted;
+      return EventUserWelcomeMessageDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageUpdated') {
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated;
+      return EventUserWelcomeMessageUpdated(
+        node.userId,
         node.at,
-        node.reason,
+        node.text == null ? null : ChangedChatMessageText(node.text!.changed),
+        node.attachments == null
+            ? null
+            : ChangedChatMessageAttachments(
+                node.attachments!.changed.map((e) => e.toModel()).toList(),
+              ),
       );
-    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
-      var node =
-          e as MyUserEventsVersionedMixin$Events$EventBlocklistRecordRemoved;
-      return EventBlocklistRecordRemoved(node.user.toDto(), node.at);
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
     }
@@ -1280,6 +1464,208 @@ class MyUserRepository extends DisposableInterface
         return false;
       },
     );
+  }
+
+  /// Initializes [MyUserDriftProvider.watchSingle] subscription.
+  Future<void> _initSessionLocalSubscription() async {
+    _localSubscriptionRetry?.cancel();
+
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initSessionLocalSubscription()', '$runtimeType');
+
+    _localSubscription = _sessionLocal.watch().listen((events) {
+      for (var e in events) {
+        switch (e.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            final existing = sessions.indexWhere((o) => o.id == e.key);
+            if (existing == -1) {
+              sessions.insert(0, e.value!);
+            } else {
+              sessions[existing] = e.value!;
+            }
+            sessions.sort();
+            sessions.refresh();
+            break;
+
+          case OperationKind.removed:
+            sessions.removeWhere((s) => s.id == e.key);
+            sessions.sort();
+            sessions.refresh();
+            break;
+        }
+      }
+    });
+  }
+
+  /// Initializes [_sessionRemoteEvents] subscription.
+  Future<void> _initSessionSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initSessionSubscription()', '$runtimeType');
+
+    _sessionSubscription?.cancel(immediate: true);
+
+    await WebUtils.protect(
+      () async {
+        _sessionSubscription = StreamQueue(
+          await _sessionRemoteEvents(
+            _versionLocal.data[myUser.value?.id]?.sessionsListVersion,
+          ),
+        );
+
+        await _sessionSubscription!.execute(
+          _sessionRemoteEvent,
+          onError: (e) {
+            if (e is StaleVersionException) {
+              sessions.clear();
+            }
+          },
+        );
+      },
+      tag: 'sessionsEvents',
+    );
+  }
+
+  /// Handles [SessionEvent] from the [_sessionRemoteEvents] subscription.
+  Future<void> _sessionRemoteEvent(
+    SessionEventsVersioned versioned, {
+    bool updateVersion = true,
+  }) async {
+    final listVer = _versionLocal.data[myUser.value?.id]?.sessionsListVersion;
+    if (versioned.listVer < listVer) {
+      Log.debug(
+        '_sessionRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+      return;
+    } else {
+      Log.debug(
+        '_sessionRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
+        '$runtimeType',
+      );
+    }
+
+    if (myUser.value != null) {
+      _versionLocal.upsert(
+        myUser.value!.id,
+        SessionData(sessionsListVersion: versioned.listVer),
+      );
+    }
+
+    for (final SessionEvent event in versioned.events) {
+      switch (event.kind) {
+        case SessionEventKind.created:
+          event as EventSessionCreated;
+
+          final session = event.toModel();
+
+          _sessionLocal.upsert(session);
+          final existing = sessions.indexWhere((e) => e.id == event.id);
+          if (existing == -1) {
+            sessions.insert(0, session);
+          } else {
+            sessions[existing] = session;
+            sessions.sort();
+            sessions.refresh();
+          }
+          break;
+
+        case SessionEventKind.deleted:
+          event as EventSessionDeleted;
+          _sessionLocal.delete(event.id);
+          sessions.removeWhere((e) => e.id == event.id);
+          sessions.sort();
+          sessions.refresh();
+          break;
+
+        case SessionEventKind.refreshed:
+          event as EventSessionRefreshed;
+
+          final session = event.toModel();
+
+          _sessionLocal.upsert(session);
+          final existing = sessions.indexWhere((e) => e.id == event.id);
+          if (existing == -1) {
+            sessions.insert(0, session);
+          } else {
+            sessions[existing] = session;
+            sessions.sort();
+            sessions.refresh();
+          }
+          break;
+      }
+    }
+  }
+
+  /// Subscribes to remote [SessionEvent]s of the authenticated [MyUser].
+  Future<Stream<SessionEventsVersioned>> _sessionRemoteEvents(
+    SessionsListVersion? ver,
+  ) async {
+    Log.debug('_sessionRemoteEvents(ver)', '$runtimeType');
+
+    return (_graphQlProvider.sessionsEvents(ver)).asyncExpand((event) async* {
+      Log.trace('_sessionRemoteEvents(ver): ${event.data}', '$runtimeType');
+
+      final events =
+          SessionsEvents$Subscription.fromJson(event.data!).sessionsEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_sessionRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+      } else if (events.$$typename == 'SessionsList') {
+        Log.debug('_sessionRemoteEvents(ver): SessionsList', '$runtimeType');
+
+        final e =
+            events as SessionsEvents$Subscription$SessionsEvents$SessionsList;
+        final sessions = e.list.map((e) => e.toModel()).toList();
+
+        await _sessionLocal.clear();
+        _sessionLocal.upsertBulk(sessions);
+        _versionLocal.upsert(
+          myUser.value!.id,
+          SessionData(sessionsListVersion: e.listVer),
+        );
+
+        for (var e in sessions) {
+          this.sessions.add(e);
+        }
+        this.sessions.sort();
+        this.sessions.refresh();
+      } else if (events.$$typename == 'SessionEventsVersioned') {
+        var mixin = events as SessionEventsVersionedMixin;
+        yield SessionEventsVersioned(
+          mixin.events.map((e) => _sessionEvent(e)).toList(),
+          mixin.ver,
+          mixin.listVer,
+        );
+      }
+    });
+  }
+
+  /// Constructs a [SessionEvent] from the [SessionEventsVersionedMixin$Events].
+  SessionEvent _sessionEvent(SessionEventsVersionedMixin$Events e) {
+    Log.trace('_sessionEvent($e)', '$runtimeType');
+
+    if (e.$$typename == 'EventSessionCreated') {
+      final node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
+      return EventSessionCreated(e.id, e.at, node.userAgent, node.remembered);
+    } else if (e.$$typename == 'EventSessionDeleted') {
+      return EventSessionDeleted(e.id, e.at);
+    } else if (e.$$typename == 'EventSessionRefreshed') {
+      final node =
+          e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
+      return EventSessionRefreshed(e.id, e.at, node.userAgent);
+    } else {
+      throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
+    }
   }
 }
 

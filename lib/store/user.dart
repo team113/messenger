@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -41,8 +42,10 @@ import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import 'event/changed.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
+import 'model/page_info.dart';
 import 'paginated.dart';
 
 /// Implementation of an [AbstractUserRepository].
@@ -403,18 +406,25 @@ class UserRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    const maxInt = 120;
-    final response = await _graphQlProvider.searchUsers(
-      num: num,
-      name: name,
-      login: login,
-      link: link,
-      after: after,
-      first: first ?? maxInt,
-    );
+    final List<DtoUser> dtoUsers = [];
+    PageInfo<UsersCursor> pageInfo = PageInfo();
 
-    final List<DtoUser> dtoUsers =
-        response.searchUsers.edges.map((c) => c.node.toDto()).toList();
+    if (num != null || link != null) {
+      const maxInt = 120;
+      final response = await _graphQlProvider.searchUsers(
+        num: num,
+        name: name,
+        login: login,
+        link: link,
+        after: after,
+        first: first ?? maxInt,
+      );
+
+      pageInfo = response.searchUsers.pageInfo.toModel((c) => UsersCursor(c));
+      dtoUsers.addAll(
+        response.searchUsers.edges.map((c) => c.node.toDto()).toList(),
+      );
+    }
 
     dtoUsers.forEach(put);
 
@@ -439,10 +449,7 @@ class UserRepository extends DisposableInterface
 
     users.addAll((await Future.wait(futures)).whereNotNull());
 
-    return Page(
-      RxList(users),
-      response.searchUsers.pageInfo.toModel((c) => UsersCursor(c)),
-    );
+    return Page(RxList(users), pageInfo);
   }
 
   /// Constructs a [UserEvent] from the [UserEventsVersionedMixin$Events].
@@ -502,6 +509,23 @@ class UserRepository extends DisposableInterface
     } else if (e.$$typename == 'EventUserBioUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageDeleted') {
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserWelcomeMessageDeleted;
+      return EventUserWelcomeMessageDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageUpdated') {
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated;
+      return EventUserWelcomeMessageUpdated(
+        node.userId,
+        node.at,
+        node.text == null ? null : ChangedChatMessageText(node.text!.changed),
+        node.attachments == null
+            ? null
+            : ChangedChatMessageAttachments(
+                node.attachments!.changed.map((e) => e.toModel()).toList(),
+              ),
+      );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }

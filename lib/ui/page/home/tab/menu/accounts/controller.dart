@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
+import '/api/backend/schema.dart' show AddUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -189,7 +189,7 @@ class AccountsController extends GetxController {
           emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -213,8 +213,9 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService.confirmSignUpEmail(
-            ConfirmationCode(emailCode.text),
+          await _authService.signIn(
+            email: UserEmail(email.text),
+            code: ConfirmationCode(emailCode.text),
             force: true,
           );
 
@@ -225,9 +226,9 @@ class AccountsController extends GetxController {
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
-        } on ConfirmUserEmailException catch (e) {
+        } on AddUserEmailException catch (e) {
           switch (e.code) {
-            case ConfirmUserEmailErrorCode.wrongCode:
+            case AddUserEmailErrorCode.wrongCode:
               s.error.value = e.toMessage();
 
               ++codeAttempts;
@@ -299,7 +300,7 @@ class AccountsController extends GetxController {
       password.status.value = RxStatus.loading();
 
       await _authService.signIn(
-        userPassword,
+        password: userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
@@ -473,8 +474,8 @@ class AccountsController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
-    } on ResendUserEmailConfirmationException catch (e) {
+      await _authService.createConfirmationCode(email: UserEmail(email.text));
+    } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;

@@ -299,6 +299,7 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.chats => 'label_chats'.l10n,
       ProfileTab.calls => 'label_calls'.l10n,
       ProfileTab.media => 'label_media'.l10n,
+      ProfileTab.welcome => 'label_welcome_message'.l10n,
       ProfileTab.notifications => 'label_notifications'.l10n,
       ProfileTab.storage => 'label_storage'.l10n,
       ProfileTab.language => 'label_language'.l10n,

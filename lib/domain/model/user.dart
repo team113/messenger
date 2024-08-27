@@ -30,6 +30,7 @@ import 'avatar.dart';
 import 'chat.dart';
 import 'precise_date_time/precise_date_time.dart';
 import 'user_call_cover.dart';
+import 'welcome_message.dart';
 
 part 'user.g.dart';
 
@@ -52,6 +53,7 @@ class User {
     this.isBlocked,
     this.lastSeenAt,
     this.contacts = const [],
+    this.welcomeMessage,
   }) : _dialog = dialog;
 
   /// Constructs a [User] from the provided [json].
@@ -128,6 +130,9 @@ class User {
 
   /// List of [NestedChatContact]s this [User] is linked to.
   final List<NestedChatContact> contacts;
+
+  /// [WelcomeMessage] of this [User].
+  WelcomeMessage? welcomeMessage;
 
   /// Returns [ChatId] of the [Chat]-dialog with this [User].
   ChatId get dialog => _dialog ?? ChatId.local(id);
@@ -227,7 +232,7 @@ class UserLogin extends NewType<String> {
     if (val.isNumericOnly) {
       throw const FormatException('Can not contain only numbers');
     } else if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -262,7 +267,7 @@ class UserName extends NewType<String> {
 
   UserName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -302,7 +307,7 @@ class UserPassword extends NewType<String> {
     } else if (val.length > 250) {
       throw const FormatException('Must contain no more than 250 characters');
     } else if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -335,7 +340,7 @@ class UserEmail extends NewType<String> {
 
   UserEmail(String val) : super(val) {
     if (!EmailValidator.validate(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -407,7 +412,7 @@ class UserPhone extends NewType<String> {
     }
 
     if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -442,6 +447,7 @@ class ChatDirectLink {
   ChatDirectLink({
     required this.slug,
     this.usageCount = 0,
+    required this.createdAt,
   });
 
   /// Constructs a [ChatDirectLink] from the provided [json].
@@ -454,11 +460,15 @@ class ChatDirectLink {
   /// Number of times this [ChatDirectLink] has been used.
   int usageCount;
 
+  /// [PreciseDateTime] when this [ChatDirectLink] was created.
+  PreciseDateTime createdAt;
+
   @override
   bool operator ==(Object other) =>
       other is ChatDirectLink &&
       slug == other.slug &&
-      usageCount == other.usageCount;
+      usageCount == other.usageCount &&
+      createdAt == other.createdAt;
 
   @override
   int get hashCode => Object.hash(slug, usageCount);
@@ -477,7 +487,7 @@ class ChatDirectLinkSlug extends NewType<String> {
     } else if (val.isEmpty) {
       throw const FormatException('Must not be empty');
     } else if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
@@ -609,7 +619,7 @@ class BlocklistReason extends NewType<String> {
 
   BlocklistReason(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 

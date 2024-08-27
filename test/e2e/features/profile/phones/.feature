@@ -15,28 +15,28 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
- Feature: User phones
+#  Feature: User phones
 
-   Scenario: User adds, confirms and deletes phone
-     Given I am Alice
-     And I wait until `HomeView` is present
+#    Scenario: User adds, confirms and deletes phone
+#      Given I am Alice
+#      And I wait until `HomeView` is present
 
-     When I tap `MenuButton` button
-     And I tap `Signing` button
-     And I tap `ExpandSigning` button
-     Then I wait until `Phone` is present
+#      When I tap `MenuButton` button
+#      And I tap `Signing` button
+#      And I tap `ExpandSigning` button
+#      Then I wait until `Phone` is present
 
-     When I fill `Phone` field with "+380971234567"
-     And I tap `Approve` button
-     And I tap `CloseButton` button
-     Then I wait until `UnconfirmedPhone` is present
+#      When I fill `Phone` field with "+380971234567"
+#      And I tap `Approve` button
+#      And I tap `CloseButton` button
+#      Then I wait until `UnconfirmedPhone` is present
 
-     When I tap `VerifyPhone` widget
-     And I wait until `ConfirmationCode` is present
-     And I fill `ConfirmationCode` field with "1234"
-     And I tap `Proceed` button
-     Then I wait until `ConfirmedPhone` is present
+#      When I tap `VerifyPhone` widget
+#      And I wait until `ConfirmationCode` is present
+#      And I fill `ConfirmationCode` field with "1234"
+#      And I tap `Proceed` button
+#      Then I wait until `ConfirmedPhone` is present
 
-     When I tap `DeletePhone` widget
-     And I tap `Proceed` button
-     Then I wait until `ConfirmedPhone` is absent
+#      When I tap `DeletePhone` widget
+#      And I tap `Proceed` button
+#      Then I wait until `ConfirmedPhone` is absent

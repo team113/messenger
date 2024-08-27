@@ -436,7 +436,7 @@ class ChatName extends NewType<String> {
 
   ChatName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 

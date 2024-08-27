@@ -23,10 +23,10 @@ fragment MyUser on MyUser {
         confirmed
         unconfirmed
     }
-    phones {
-        confirmed
-        unconfirmed
-    }
+    # phones {
+    #     confirmed
+    #     unconfirmed
+    # }
     name
     bio
     avatar {
@@ -41,6 +41,7 @@ fragment MyUser on MyUser {
     chatDirectLink {
         slug
         usageCount
+        createdAt
     }
     muted {
         __typename
@@ -62,4 +63,8 @@ fragment MyUser on MyUser {
     status
     unreadChatsCount
     ver
+    welcomeMessage {
+        __typename
+        ...WelcomeMessage
+    }
 }

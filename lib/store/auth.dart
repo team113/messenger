@@ -31,12 +31,10 @@ import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/drift/credentials.dart';
 import '/provider/drift/my_user.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
-import 'model/my_user.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -50,9 +48,6 @@ class AuthRepository extends DisposableInterface
   );
 
   @override
-  final RxList<Session> sessions = RxList();
-
-  @override
   final RxList<MyUser> profiles = RxList();
 
   /// GraphQL API provider.
@@ -64,15 +59,6 @@ class AuthRepository extends DisposableInterface
   /// [CredentialsDriftProvider] for removing [Credentials].
   final CredentialsDriftProvider _credentialsProvider;
 
-  // TODO: Temporary solution, wait for support from backend.
-  /// [Credentials] of [Session] created with [signUpWithEmail] returned in
-  /// successful [confirmSignUpEmail].
-  Credentials? _signUpCredentials;
-
-  // TODO: Temporary solution, wait for support from backend.
-  /// [DtoMyUser] created with [signUpWithEmail].
-  DtoMyUser? _signedUpUser;
-
   /// [StreamSubscription] for the [MyUserDriftProvider.watch].
   StreamSubscription? _profilesSubscription;
 
@@ -83,6 +69,8 @@ class AuthRepository extends DisposableInterface
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
+    } else {
+      _graphQlProvider.reconnect();
     }
   }
 
@@ -130,87 +118,53 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signUp() async {
-    Log.debug('signUp()', '$runtimeType');
+  Future<Credentials> signUp({
+    UserPassword? password,
+    UserLogin? login,
+  }) async {
+    Log.debug(
+      'signUp(password: ${password?.obscured}, login: $login)',
+      '$runtimeType',
+    );
 
-    final response = await _graphQlProvider.signUp();
+    final response = await _graphQlProvider.signUp(
+      login: login,
+      password: password,
+    );
+    final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-    _myUserProvider.upsert(response.createUser.user.toDto());
+    _myUserProvider.upsert(success.user.toDto());
 
-    return response.toModel();
+    return success.toModel();
   }
 
   @override
-  Future<Credentials> signIn(
-    UserPassword password, {
+  Future<Credentials> signIn({
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    UserPassword? password,
+    ConfirmationCode? code,
   }) async {
     Log.debug(
-      'signIn(***, $login, $num, $email, $phone)',
+      'signIn(password: ${password?.obscured}, code: $code, login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured})',
       '$runtimeType',
     );
 
-    final response =
-        await _graphQlProvider.signIn(password, login, num, email, phone);
+    final response = await _graphQlProvider.signIn(
+      credentials: MyUserCredentials(code: code, password: password),
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        phone: phone,
+        email: email,
+      ),
+    );
 
     _myUserProvider.upsert(response.user.toDto());
 
     return response.toModel();
-  }
-
-  @override
-  Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail($email)', '$runtimeType');
-
-    _signUpCredentials = null;
-
-    final response = await _graphQlProvider.signUp();
-
-    _signedUpUser = response.createUser.user.toDto();
-    _signUpCredentials = response.toModel();
-
-    await _graphQlProvider.addUserEmail(
-      email,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
-  }
-
-  @override
-  Future<Credentials> confirmSignUpEmail(
-    ConfirmationCode code,
-  ) async {
-    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
-
-    if (_signUpCredentials == null) {
-      throw ArgumentError.notNull('_signUpCredentials');
-    } else if (_signedUpUser == null) {
-      throw ArgumentError.notNull('_signedUpUser');
-    }
-
-    await _graphQlProvider.confirmEmailCode(
-      code,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
-
-    _myUserProvider.upsert(_signedUpUser!);
-
-    return _signUpCredentials!;
-  }
-
-  @override
-  Future<void> resendSignUpEmail() async {
-    Log.debug('resendSignUpEmail()', '$runtimeType');
-
-    if (_signUpCredentials == null) {
-      throw ArgumentError.notNull('_signUpCredentials');
-    }
-
-    await _graphQlProvider.resendEmail(
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
   }
 
   @override
@@ -231,13 +185,10 @@ class AuthRepository extends DisposableInterface
 
     await _graphQlProvider.deleteSession(
       id: id,
-      password: password,
+      confirmation:
+          password == null ? null : MyUserCredentials(password: password),
       token: accessToken,
     );
-
-    if (id != null) {
-      sessions.removeWhere((e) => e.id == id);
-    }
   }
 
   @override
@@ -282,44 +233,7 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<void> recoverUserPassword({
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  }) async {
-    Log.debug(
-      'recoverUserPassword($login, $num, $email, $phone)',
-      '$runtimeType',
-    );
-
-    await _graphQlProvider.recoverUserPassword(login, num, email, phone);
-  }
-
-  @override
-  Future<void> validateUserPasswordRecoveryCode({
-    required ConfirmationCode code,
-    UserLogin? login,
-    UserNum? num,
-    UserEmail? email,
-    UserPhone? phone,
-  }) async {
-    Log.debug(
-      'validateUserPasswordRecoveryCode($code, $login, $num, $email, $phone)',
-      '$runtimeType',
-    );
-
-    await _graphQlProvider.validateUserPasswordRecoveryCode(
-      login,
-      num,
-      email,
-      phone,
-      code,
-    );
-  }
-
-  @override
-  Future<void> resetUserPassword({
+  Future<void> updateUserPassword({
     required ConfirmationCode code,
     required UserPassword newPassword,
     UserLogin? login,
@@ -328,17 +242,19 @@ class AuthRepository extends DisposableInterface
     UserPhone? phone,
   }) async {
     Log.debug(
-      'resetUserPassword($code, ***, $login, $num, $email, $phone)',
+      'updateUserPassword($code, ***, $login, $num, $email, $phone)',
       '$runtimeType',
     );
 
-    await _graphQlProvider.resetUserPassword(
-      login,
-      num,
-      email,
-      phone,
-      code,
-      newPassword,
+    await _graphQlProvider.updateUserPassword(
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      confirmation: MyUserCredentials(code: code),
+      newPassword: newPassword,
     );
   }
 
@@ -351,9 +267,50 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<void> updateSessions() async {
-    Log.debug('updateSessions()', '$runtimeType');
-    sessions.value =
-        (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
+  Future<void> createConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    String? locale,
+  }) async {
+    Log.debug(
+      'createConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, locale: $locale)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.createConfirmationCode(
+      MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      locale: locale,
+    );
+  }
+
+  @override
+  Future<void> validateConfirmationCode({
+    UserLogin? login,
+    UserNum? num,
+    UserEmail? email,
+    UserPhone? phone,
+    required ConfirmationCode code,
+  }) async {
+    Log.debug(
+      'validateConfirmationCode(login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured}, code: $code)',
+      '$runtimeType',
+    );
+
+    await _graphQlProvider.validateConfirmationCode(
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        email: email,
+        phone: phone,
+      ),
+      code: code,
+    );
   }
 }

@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show ClipboardData;
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/ui/page/home/page/my_profile/widget/copyable.dart';
 import 'package:messenger/ui/page/home/widget/num.dart';
@@ -53,7 +54,8 @@ StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
   'I fill {key} field with {user}\'s {credential}',
   (key, user, credential, context) async {
-    final CustomUser? customUser = context.world.sessions[user.name];
+    final CustomUser? customUser =
+        context.world.sessions[user.name]?.firstOrNull;
 
     if (customUser == null) {
       throw ArgumentError(
@@ -79,7 +81,8 @@ StepDefinitionGeneric fillFieldWithMyCredential =
   (key, credential, context) async {
     final CustomUser? me = context.world.sessions.values
         .where((user) => user.userId == context.world.me)
-        .firstOrNull;
+        .firstOrNull
+        ?.firstOrNull;
 
     if (me == null) {
       throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
@@ -119,6 +122,22 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(seconds: 30),
+);
+
+/// Enters the random [UserLogin] to the widget with the provided [WidgetKey].
+///
+/// Examples:
+/// - When I fill `LoginField` field with random login
+StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
+  'I fill {key} field with random login',
+  (key, context) async {
+    context.world.randomLogin ??= UserLogin(
+      ChatDirectLinkSlug.generate(18).val.toLowerCase(),
+    );
+    await _fillField(key, '${context.world.randomLogin}', context);
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 18),
 );
 
 /// Copies the value of the widget with the provided [WidgetKey] to the
@@ -180,10 +199,8 @@ Future<void> _fillField(
             .tap(finder, timeout: context.configuration.timeout);
         await context.world.appDriver.waitForAppToSettle();
 
-        final finder2 = context.world.appDriver.findByKeySkipOffstage(key.name);
-
         await context.world.appDriver.enterText(
-          finder2,
+          finder,
 
           // TODO: Implement more strict way to localize some phrases.
           switch (text) {

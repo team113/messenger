@@ -282,7 +282,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 14),
-                  _info(context, Text(DateTime.now().yMd)),
+                  _info(context, Text('${widget.link?.createdAt.val.yMd}')),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: ContextMenuRegion(

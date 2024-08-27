@@ -39,18 +39,19 @@ import '/api/backend/schema.dart'
         ChatMessageRepliesInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/domain/repository/call.dart'
     show
         CallAlreadyExistsException,
@@ -400,6 +401,9 @@ class ChatController extends GetxController {
   RxUser? get user => chat?.chat.value.isDialog == true
       ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
       : null;
+
+  /// Returns the [WelcomeMessage] of this [chat], if any.
+  WelcomeMessage? get welcomeMessage => user?.user.value.welcomeMessage;
 
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
@@ -1967,6 +1971,10 @@ class ChatController extends GetxController {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();
+        } else if (_atBottom) {
+          await _loadNextPage();
+        } else if (_atTop) {
+          await _loadPreviousPage();
         }
       });
     }

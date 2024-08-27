@@ -51,6 +51,7 @@ import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -97,27 +98,6 @@ void main() async {
   when(
     graphQlProvider.contactsEvents(any),
   ).thenAnswer((_) => contactEvents.stream);
-
-  when(graphQlProvider.favoriteChatContacts(
-    first: anyNamed('first'),
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-    (_) => Future.value(
-      FavoriteContacts$Query.fromJson(favoriteChatContacts)
-          .favoriteChatContacts,
-    ),
-  );
-
-  when(graphQlProvider.chatContacts(
-    first: anyNamed('first'),
-    noFavorite: true,
-    before: null,
-    after: null,
-    last: null,
-  )).thenAnswer(
-      (_) => Future.value(Contacts$Query.fromJson(chatContacts).chatContacts));
 
   final StreamController<QueryResult> chatEvents = StreamController();
   when(graphQlProvider.chatEvents(
@@ -248,6 +228,9 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) async => const Stream.empty());
 
+  when(graphQlProvider.sessionsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
   when(graphQlProvider.getBlocklist(
     first: anyNamed('first'),
     after: null,
@@ -296,6 +279,7 @@ void main() async {
         const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
+      const SessionId('me'),
       const UserId('me'),
     ),
   );
@@ -315,7 +299,8 @@ void main() async {
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -361,7 +346,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -383,7 +368,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -393,7 +378,7 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         me: const UserId('me'),
       ),
     );
@@ -405,6 +390,8 @@ void main() async {
       blocklistRepository,
       userRepository,
       accountProvider,
+      versionProvider,
+      sessionProvider,
     );
     Get.put(MyUserService(authService, myUserRepository));
 

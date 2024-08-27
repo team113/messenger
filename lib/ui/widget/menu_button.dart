@@ -50,6 +50,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.chats => 'label_chats_section_hint'.l10n,
           ProfileTab.calls => 'label_calls_displaying'.l10n,
           ProfileTab.media => 'label_media_section_hint'.l10n,
+          ProfileTab.welcome => 'label_welcome_message_hint'.l10n,
           ProfileTab.notifications => 'label_sound_and_vibrations'.l10n,
           ProfileTab.storage => 'label_cache_and_downloads'.l10n,
           ProfileTab.language =>
@@ -70,6 +71,7 @@ class MenuButton extends StatelessWidget {
           ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
           ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
           ProfileTab.media => const SvgIcon(SvgIcons.menuMedia),
+          ProfileTab.welcome => const SvgIcon(SvgIcons.menuWelcome),
           ProfileTab.notifications => const SvgIcon(SvgIcons.menuNotifications),
           ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
           ProfileTab.language => const SvgIcon(SvgIcons.menuLanguage),
@@ -91,6 +93,7 @@ class MenuButton extends StatelessWidget {
                 ProfileTab.chats => const Key('Chats'),
                 ProfileTab.calls => const Key('Calls'),
                 ProfileTab.media => const Key('Media'),
+                ProfileTab.welcome => const Key('WelcomeMessage'),
                 ProfileTab.notifications => const Key('Notifications'),
                 ProfileTab.storage => const Key('Storage'),
                 ProfileTab.language => const Key('Language'),

@@ -16,11 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/util/obs/rxmap.dart';
 
@@ -33,9 +36,11 @@ abstract class AbstractMyUserRepository {
   ///
   /// __Note__, that having a [MyUser] here doesn't mean that
   /// [AbstractAuthRepository] can sign into that account: it must also have
-  /// non-stale [Credentials], which can be found in [AuthService.sessions]
-  /// field.
+  /// non-stale [Credentials], which can be found in [sessions] field.
   RxObsMap<UserId, Rx<MyUser>> get profiles;
+
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions;
 
   /// Initializes the repository.
   ///
@@ -65,6 +70,12 @@ abstract class AbstractMyUserRepository {
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence);
 
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  });
+
   /// Updates password for the authenticated [MyUser].
   ///
   /// If [MyUser] has no password yet (when sets his password), then `old`
@@ -78,47 +89,48 @@ abstract class AbstractMyUserRepository {
   /// Deletes the authenticated [MyUser] completely.
   ///
   /// __This action cannot be reverted.__
-  Future<void> deleteMyUser();
+  Future<void> deleteMyUser({
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  });
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
-  Future<void> deleteUserEmail(UserEmail email);
+  Future<void> deleteUserEmail(
+    UserEmail email, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  });
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
-  Future<void> deleteUserPhone(UserPhone phone);
+  Future<void> deleteUserPhone(
+    UserPhone phone, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  });
 
   /// Adds a new [email] address for the authenticated [MyUser].
   ///
   /// Sets the given [email] address as an [MyUserEmails.unconfirmed] sub-field
   /// of a [MyUser.emails] field and sends to this address an email message with
   /// a [ConfirmationCode].
-  Future<void> addUserEmail(UserEmail email);
+  Future<void> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  });
 
   /// Adds a new [phone] number for the authenticated [MyUser].
   ///
   /// Sets the given [phone] number as an [MyUserPhones.unconfirmed] sub-field
   /// of a [MyUser.phones] field and sends to this number SMS with a
   /// [ConfirmationCode].
-  Future<void> addUserPhone(UserPhone phone);
-
-  /// Confirms the given [MyUserEmails.unconfirmed] address with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmEmailCode(ConfirmationCode confirmEmailCode);
-
-  /// Confirms the given [MyUserPhones.unconfirmed] number with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmPhoneCode(ConfirmationCode confirmPhoneCode);
-
-  /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
-  /// the authenticated [MyUser].
-  Future<void> resendEmail();
-
-  /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
-  /// the authenticated [MyUser].
-  Future<void> resendPhone();
+  Future<void> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  });
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
   /// deletes the current active [ChatDirectLink] of the authenticated [MyUser]

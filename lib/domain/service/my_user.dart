@@ -21,6 +21,8 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -36,30 +38,33 @@ import 'disposable_service.dart';
 
 /// Service responsible for [MyUser] management.
 class MyUserService extends DisposableService {
-  MyUserService(this._auth, this._userRepo);
+  MyUserService(this._authService, this._myUserRepository);
 
   /// Authentication service providing the authentication capabilities.
-  final AuthService _auth;
+  final AuthService _authService;
 
   /// Repository responsible for storing [MyUser].
-  final AbstractMyUserRepository _userRepo;
+  final AbstractMyUserRepository _myUserRepository;
 
   /// Mutex guarding [updateUserPassword] mutation and `onPasswordUpdated`
   /// logic.
   final Mutex _passwordChangeGuard = Mutex();
 
   /// Returns the currently authenticated [MyUser].
-  Rx<MyUser?> get myUser => _userRepo.myUser;
+  Rx<MyUser?> get myUser => _myUserRepository.myUser;
 
   /// Returns a reactive map of all the known [MyUser] profiles.
-  RxObsMap<UserId, Rx<MyUser>> get profiles => _userRepo.profiles;
+  RxObsMap<UserId, Rx<MyUser>> get profiles => _myUserRepository.profiles;
+
+  /// Returns the reactive list of active [Session]s.
+  RxList<Session> get sessions => _myUserRepository.sessions;
 
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
-    assert(_auth.initialized);
-    _userRepo.init(
+    assert(_authService.initialized);
+    _myUserRepository.init(
       onPasswordUpdated: _onPasswordUpdated,
       onUserDeleted: _onUserDeleted,
     );
@@ -71,27 +76,41 @@ class MyUserService extends DisposableService {
   /// If [name] is `null`, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     Log.debug('updateUserName($name)', '$runtimeType');
-    await _userRepo.updateUserName(name);
+    await _myUserRepository.updateUserName(name);
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
-  ///
-  /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin? login) async {
     Log.debug('updateUserLogin($login)', '$runtimeType');
-    await _userRepo.updateUserLogin(login);
+    await _myUserRepository.updateUserLogin(login);
   }
 
   /// Updates or resets the [MyUser.status] field of the authenticated [MyUser].
   Future<void> updateUserStatus(UserTextStatus? status) async {
     Log.debug('updateUserStatus($status)', '$runtimeType');
-    await _userRepo.updateUserStatus(status);
+    await _myUserRepository.updateUserStatus(status);
   }
 
   /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
   Future<void> updateUserBio(UserBio? bio) async {
     Log.debug('updateUserBio($bio)', '$runtimeType');
-    await _userRepo.updateUserBio(bio);
+    await _myUserRepository.updateUserBio(bio);
+  }
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    Log.debug(
+      'updateWelcomeMessage(text: $text, attachments: $attachments)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
   }
 
   /// Updates password for the authenticated [MyUser].
@@ -99,8 +118,6 @@ class MyUserService extends DisposableService {
   /// If [MyUser] has no password yet (when sets his password), then `old`
   /// password is not required. Otherwise (when changes his password), it's
   /// mandatory to specify the `old` one.
-  ///
-  /// Throws [UpdateUserPasswordException].
   Future<void> updateUserPassword({
     UserPassword? oldPassword,
     required UserPassword newPassword,
@@ -115,11 +132,11 @@ class MyUserService extends DisposableService {
       }
 
       await WebUtils.protect(() async {
-        await _userRepo.updateUserPassword(oldPassword, newPassword);
+        await _myUserRepository.updateUserPassword(oldPassword, newPassword);
 
         // TODO: Replace `unsafe` with something more granular and correct.
-        await _auth.signIn(
-          newPassword,
+        await _authService.signIn(
+          password: newPassword,
           num: myUser.value?.num,
           unsafe: true,
           force: true,
@@ -131,31 +148,65 @@ class MyUserService extends DisposableService {
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence) async {
     Log.debug('updateUserPresence($presence)', '$runtimeType');
-    await _userRepo.updateUserPresence(presence);
+    await _myUserRepository.updateUserPresence(presence);
   }
 
   /// Deletes the authenticated [MyUser] completely.
   ///
   /// __This action cannot be reverted.__
-  Future<void> deleteMyUser() async {
-    Log.debug('deleteMyUser()', '$runtimeType');
+  Future<void> deleteMyUser({
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteMyUser(password: ***, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
-    await _userRepo.deleteMyUser();
+    await _myUserRepository.deleteMyUser(
+      password: password,
+      confirmation: confirmation,
+    );
+
     _onUserDeleted();
   }
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
-  Future<void> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', '$runtimeType');
-    await _userRepo.deleteUserEmail(email);
+  Future<void> deleteUserEmail(
+    UserEmail email, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserEmail($email, password: ***, confirmation: $confirmation)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.deleteUserEmail(
+      email,
+      password: password,
+      confirmation: confirmation,
+    );
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
-  Future<void> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', '$runtimeType');
-    await _userRepo.deleteUserPhone(phone);
+  Future<void> deleteUserPhone(
+    UserPhone phone, {
+    UserPassword? password,
+    ConfirmationCode? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserPhone($phone, password: ***, confirmation: $confirmation)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.deleteUserPhone(
+      phone,
+      password: password,
+      confirmation: confirmation,
+    );
   }
 
   /// Adds a new [email] address for the authenticated [MyUser].
@@ -163,9 +214,21 @@ class MyUserService extends DisposableService {
   /// Sets the given [email] address as an [MyUserEmails.unconfirmed] sub-field
   /// of a [MyUser.emails] field and sends to this address an email message with
   /// a [ConfirmationCode].
-  Future<void> addUserEmail(UserEmail email) async {
-    Log.debug('addUserEmail($email)', '$runtimeType');
-    await _userRepo.addUserEmail(email);
+  Future<void> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserEmail($email, confirmation: $confirmation, locale: $locale)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.addUserEmail(
+      email,
+      confirmation: confirmation,
+      locale: locale,
+    );
   }
 
   /// Adds a new [phone] number for the authenticated [MyUser].
@@ -173,39 +236,21 @@ class MyUserService extends DisposableService {
   /// Sets the given [phone] number as an [MyUserPhones.unconfirmed] sub-field
   /// of a [MyUser.phones] field and sends to this number SMS with a
   /// [ConfirmationCode].
-  Future<void> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', '$runtimeType');
-    await _userRepo.addUserPhone(phone);
-  }
+  Future<void> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
+  }) async {
+    Log.debug(
+      'addUserPhone($phone, confirmation: $confirmation, locale: $locale)',
+      '$runtimeType',
+    );
 
-  /// Confirms the given [MyUserEmails.unconfirmed] address with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmEmailCode(ConfirmationCode code) async {
-    Log.debug('confirmEmailCode($code)', '$runtimeType');
-    await _userRepo.confirmEmailCode(code);
-  }
-
-  /// Confirms the given [MyUserPhones.unconfirmed] number with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  Future<void> confirmPhoneCode(ConfirmationCode code) async {
-    Log.debug('confirmPhoneCode($code)', '$runtimeType');
-    await _userRepo.confirmPhoneCode(code);
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address for
-  /// the authenticated [MyUser].
-  Future<void> resendEmail() async {
-    Log.debug('resendEmail()', '$runtimeType');
-    await _userRepo.resendEmail();
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
-  /// the authenticated [MyUser].
-  Future<void> resendPhone() async {
-    Log.debug('resendPhone()', '$runtimeType');
-    await _userRepo.resendPhone();
+    await _myUserRepository.addUserPhone(
+      phone,
+      confirmation: confirmation,
+      locale: locale,
+    );
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -213,13 +258,13 @@ class MyUserService extends DisposableService {
   /// (if any).
   Future<void> createChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('createChatDirectLink($slug)', '$runtimeType');
-    await _userRepo.createChatDirectLink(slug);
+    await _myUserRepository.createChatDirectLink(slug);
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
   Future<void> deleteChatDirectLink() async {
     Log.debug('deleteChatDirectLink()', '$runtimeType');
-    await _userRepo.deleteChatDirectLink();
+    await _myUserRepository.deleteChatDirectLink();
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
@@ -229,7 +274,7 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
-    await _userRepo.updateAvatar(file, onSendProgress: onSendProgress);
+    await _myUserRepository.updateAvatar(file, onSendProgress: onSendProgress);
   }
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
@@ -239,19 +284,20 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
-    await _userRepo.updateCallCover(file, onSendProgress: onSendProgress);
+    await _myUserRepository.updateCallCover(file,
+        onSendProgress: onSendProgress);
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].
   Future<void> toggleMute(MuteDuration? mute) async {
     Log.debug('toggleMute($mute)', '$runtimeType');
-    await _userRepo.toggleMute(mute);
+    await _myUserRepository.toggleMute(mute);
   }
 
   /// Refreshes the [MyUser] to be up to date.
   Future<void> refresh() async {
     Log.debug('refresh()', '$runtimeType');
-    await _userRepo.refresh();
+    await _myUserRepository.refresh();
   }
 
   /// Callback to be called when the active [MyUser]'s password is updated.
@@ -261,10 +307,10 @@ class MyUserService extends DisposableService {
     Log.debug('_onPasswordUpdated()', '$runtimeType');
 
     await _passwordChangeGuard.protect(() async {
-      final bool isTokenValid = await _auth.validateToken();
+      final bool isTokenValid = await _authService.validateToken();
       if (!isTokenValid) {
         try {
-          await _auth.deleteSession();
+          await _authService.deleteSession();
         } finally {
           router.auth();
         }
@@ -279,7 +325,7 @@ class MyUserService extends DisposableService {
     Log.debug('_onUserDeleted()', '$runtimeType');
 
     try {
-      await _auth.deleteSession(force: true);
+      await _authService.deleteSession(force: true);
     } finally {
       router.auth();
     }

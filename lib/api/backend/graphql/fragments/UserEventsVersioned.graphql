@@ -75,6 +75,26 @@ fragment UserEventsVersioned on UserEventsVersioned {
             status
             at
         }
+        ... on EventUserWelcomeMessageDeleted {
+            at
+        }
+        ... on EventUserWelcomeMessageUpdated {
+            text {
+                changed
+            }
+            attachments {
+                changed {
+                    __typename
+                    ... on ImageAttachment {
+                        ...ImageAttachment
+                    }
+                    ... on FileAttachment {
+                        ...FileAttachment
+                    }
+                }
+            }
+            at
+        }
     }
     user {
         __typename

@@ -31,6 +31,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
+import '/store/model/session.dart';
 import '/store/model/user.dart';
 import '/util/log.dart';
 
@@ -300,16 +301,34 @@ mixin UserGraphQlMixin {
     return UpdateUserPresence$Mutation.fromJson(res.data!).updateUserPresence;
   }
 
-  /// Updates password for the authenticated [MyUser].
+  /// Updates or resets password of the authenticated [MyUser] or the one
+  /// identified by the provided [MyUserIdentifier].
   ///
-  /// If [MyUser] has no password yet (when sets his password), then `old`
-  /// password is not required. Otherwise (when changes his password), it's
-  /// mandatory to specify the `old` one.
+  /// If the [MyUser] has no password yet, then the [confirmation] argument is
+  /// not required. Otherwise, it's mandatory to authenticate this operation
+  /// additionally by providing the [confirmation] argument.
+  ///
+  /// This mutation can be used for both changing the [MyUser]'s password and
+  /// recovering it. Use the `Mutation.createConfirmationCode` to create a new
+  /// [ConfirmationCode] for authenticating the password recovery, and provide
+  /// it as the confirmation argument along with the [identifier] argument to
+  /// this mutation.
+  ///
+  /// If the concrete [MyUserIdentifier.email] address or
+  /// [MyUserIdentifier.phone] number is provided, then the provided
+  /// [ConfirmationCode] is validated against it exclusively, meaning that
+  /// providing [ConfirmationCode]s sent to any other [MyUserEmails.confirmed]
+  /// or [MyUserPhones.confirmed] is invalid. Otherwise, if a
+  /// [MyUserIdentifier.num] or a [MyUserIdentifier.login] is provided, then a
+  /// [ConfirmationCode] sent to any of [MyUserEmails.confirmed] or
+  /// [MyUserPhones.confirmed] is suitable.
+  ///
+  /// `User-Agent` HTTP header must be specified for this mutation and meet the
+  /// [UserAgent] scalar format.
   ///
   /// ### Authentication
   ///
-  /// Mandatory.
-  ///
+  /// Mandatory if the [identifier] argument is absent or `null`.
   /// ### Result
   ///
   /// Only the following [MyUserEvent] is always produced on success:
@@ -317,17 +336,20 @@ mixin UserGraphQlMixin {
   ///
   /// ### Non-idempotent
   ///
-  /// Each time renews the password (recalculates hash) even if it's the same
-  /// one.
-  Future<MyUserEventsVersionedMixin?> updateUserPassword(
-    UserPassword? oldPassword,
-    UserPassword newPassword,
-  ) async {
+  /// Each time renews the password (recalculates hash) even if it's the same one.
+  ///
+  /// Additionally, always uses the provided ConfirmationCode, disallowing to use it again.
+  Future<MyUserEventsVersionedMixin?> updateUserPassword({
+    MyUserIdentifier? identifier,
+    required UserPassword newPassword,
+    MyUserCredentials? confirmation,
+  }) async {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final variables = UpdateUserPasswordArguments(
-      old: oldPassword,
+      ident: identifier,
       kw$new: newPassword,
+      confirmation: confirmation,
     );
     QueryResult res = await client.mutate(
       MutationOptions(
@@ -364,16 +386,26 @@ mixin UserGraphQlMixin {
   /// ### Non-idempotent
   ///
   /// Once deleted [MyUser] cannot be deleted again.
-  Future<MyUserEventsVersionedMixin> deleteMyUser() async {
+  Future<MyUserEventsVersionedMixin> deleteMyUser({
+    MyUserCredentials? confirmation,
+  }) async {
     Log.debug('deleteMyUser()', '$runtimeType');
 
-    QueryResult res = await client.mutate(
+    final variables = DeleteMyUserArguments(confirmation: confirmation);
+    final QueryResult res = await client.mutate(
       MutationOptions(
         operationName: 'DeleteMyUser',
-        document: DeleteMyUserMutation().document,
+        document: DeleteMyUserMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => DeleteMyUserException(
+        (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
+                as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
+            .code,
       ),
     );
-    return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser;
+    return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser
+        as DeleteMyUser$Mutation$DeleteMyUser$MyUserEventsVersioned;
   }
 
   /// Subscribes to [MyUserEvent]s of the authenticated [MyUser].
@@ -530,16 +562,31 @@ mixin UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail email) async {
-    Log.debug('deleteUserEmail($email)', '$runtimeType');
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+    UserEmail email, {
+    MyUserCredentials? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserEmail($email, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
-    final variables = DeleteUserEmailArguments(email: email);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserEmail',
-      document: DeleteUserEmailMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail;
+    final variables =
+        DeleteUserEmailArguments(email: email, confirmation: confirmation);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'DeleteUserEmail',
+        document: DeleteUserEmailMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => DeleteUserEmailException(
+        (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
+                as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
+            .code,
+      ),
+    );
+    return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail
+        as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
@@ -558,16 +605,24 @@ mixin UserGraphQlMixin {
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
-    Log.debug('deleteUserPhone($phone)', '$runtimeType');
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+    UserPhone phone, {
+    MyUserCredentials? confirmation,
+  }) async {
+    Log.debug(
+      'deleteUserPhone($phone, confirmation: $confirmation)',
+      '$runtimeType',
+    );
 
-    final variables = DeleteUserPhoneArguments(phone: phone);
-    final QueryResult result = await client.mutate(MutationOptions(
-      operationName: 'DeleteUserPhone',
-      document: DeleteUserPhoneMutation(variables: variables).document,
-      variables: variables.toJson(),
-    ));
-    return DeleteUserPhone$Mutation.fromJson(result.data!).deleteUserPhone;
+    throw UnimplementedError();
+    // final variables = DeleteUserPhoneArguments(phone: phone);
+    // final QueryResult result = await client.mutate(MutationOptions(
+    //   operationName: 'DeleteUserPhone',
+    //   document: DeleteUserPhoneMutation(variables: variables).document,
+    //   variables: variables.toJson(),
+    // ));
+    // return DeleteUserPhone$Mutation.fromJson(result.data!).deleteUserPhone
+    //     as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
   }
 
   /// Adds a new email address for the authenticated [MyUser].
@@ -600,25 +655,53 @@ mixin UserGraphQlMixin {
   /// unconfirmed sub-field).
   Future<MyUserEventsVersionedMixin?> addUserEmail(
     UserEmail email, {
+    ConfirmationCode? confirmation,
     RawClientOptions? raw,
+    String? locale,
   }) async {
-    Log.debug('addUserEmail($email, $raw)', '$runtimeType');
+    Log.debug(
+      'addUserEmail($email, confirmation: $confirmation, raw: $raw, locale: $locale)',
+      '$runtimeType',
+    );
 
-    final variables = AddUserEmailArguments(email: email);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'AddUserEmail',
-        document: AddUserEmailMutation(variables: variables).document,
-        variables: variables.toJson(),
+    final variables =
+        AddUserEmailArguments(email: email, confirmation: confirmation);
+    final query = MutationOptions(
+      operationName: 'AddUserEmail',
+      document: AddUserEmailMutation(variables: variables).document,
+      variables: variables.toJson(),
+    );
+
+    final request = query.asRequest;
+    final body = const RequestSerializer().serializeRequest(request);
+    final encodedBody = json.encode(body);
+
+    final response = await client.post(
+      dio.FormData.fromMap({
+        'operations': encodedBody,
+        'map': '{ "token": ["variables.token"] }',
+        'token': raw?.token ?? token,
+      }),
+      options: dio.Options(
+        headers: {
+          if (locale != null) 'Accept-Language': locale,
+        },
       ),
-      raw: raw,
+      operationName: query.operationName,
       onException: (data) => AddUserEmailException(
           (AddUserEmail$Mutation.fromJson(data).addUserEmail
                   as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
               .code),
     );
-    return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
-        as MyUserEventsVersionedMixin?;
+
+    if (response.data['data'] == null) {
+      throw GraphQlException(
+        [GraphQLError(message: response.data.toString())],
+      );
+    }
+
+    return (AddUserEmail$Mutation.fromJson(response.data['data']).addUserEmail
+        as MyUserEventsVersionedMixin?);
   }
 
   /// Adds a new phone number for the authenticated [MyUser].
@@ -649,176 +732,33 @@ mixin UserGraphQlMixin {
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the provided [phone]
   /// already is present in a [MyUser.phones] field (either in confirmed or
   /// unconfirmed sub-field).
-  Future<MyUserEventsVersionedMixin?> addUserPhone(UserPhone phone) async {
-    Log.debug('addUserPhone($phone)', '$runtimeType');
-
-    final variables = AddUserPhoneArguments(phone: phone);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'AddUserPhone',
-        document: AddUserPhoneMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => AddUserPhoneException(
-          (AddUserPhone$Mutation.fromJson(data).addUserPhone
-                  as AddUserPhone$Mutation$AddUserPhone$AddUserPhoneError)
-              .code),
-    );
-    return AddUserPhone$Mutation.fromJson(result.data!).addUserPhone
-        as MyUserEventsVersionedMixin?;
-  }
-
-  /// Confirms the given unconfirmed email address with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserEmailConfirmed].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
-  /// already.
-  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code, {
-    RawClientOptions? raw,
+  Future<MyUserEventsVersionedMixin?> addUserPhone(
+    UserPhone phone, {
+    ConfirmationCode? confirmation,
+    String? locale,
   }) async {
-    Log.debug('confirmEmailCode($code, $raw)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = ConfirmUserEmailArguments(code: code);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'ConfirmUserEmail',
-        document: ConfirmUserEmailMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      raw: raw,
-      onException: (data) => ConfirmUserEmailException((ConfirmUserEmail$Mutation
-                      .fromJson(data)
-                  .confirmUserEmail
-              as ConfirmUserEmail$Mutation$ConfirmUserEmail$ConfirmUserEmailError)
-          .code),
-    );
-    return ConfirmUserEmail$Mutation.fromJson(result.data!).confirmUserEmail
-        as MyUserEventsVersionedMixin?;
-  }
+    // Log.debug(
+    //   'addUserPhone($phone, confirmation: $confirmation)',
+    //   '$runtimeType',
+    // );
 
-  /// Confirms the given unconfirmed phone number with the provided
-  /// [ConfirmationCode] for the authenticated [MyUser], and moves it to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Only the following [MyUserEvent] is always produced on success:
-  /// - [EventUserPhoneConfirmed].
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Errors with `WRONG_CODE` if the provided [ConfirmationCode] has been used
-  /// already.
-  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-    ConfirmationCode code,
-  ) async {
-    Log.debug('confirmPhoneCode($code)', '$runtimeType');
-
-    final variables = ConfirmUserPhoneArguments(code: code);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'ConfirmUserPhone',
-        document: ConfirmUserPhoneMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => ConfirmUserPhoneException((ConfirmUserPhone$Mutation
-                      .fromJson(data)
-                  .confirmUserPhone
-              as ConfirmUserPhone$Mutation$ConfirmUserPhone$ConfirmUserPhoneError)
-          .code),
-    );
-    return ConfirmUserPhone$Mutation.fromJson(result.data!).confirmUserPhone
-        as MyUserEventsVersionedMixin?;
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserEmails.unconfirmed] address
-  /// for the authenticated [MyUser].
-  ///
-  /// Once [User] successfully uses this [ConfirmationCode] in a
-  /// [confirmEmailCode], the given email address moves to a
-  /// [MyUserEmails.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Always returns `null` on success.
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time generates a new [ConfirmationCode].
-  Future<void> resendEmail({RawClientOptions? raw}) async {
-    Log.debug('resendEmail($raw)', '$runtimeType');
-
-    await client.mutate(
-      MutationOptions(
-        operationName: 'ResendUserEmailConfirmation',
-        document: ResendUserEmailConfirmationMutation().document,
-      ),
-      raw: raw,
-      onException: (data) => ResendUserEmailConfirmationException(
-          ResendUserEmailConfirmation$Mutation.fromJson(data)
-                  .resendUserEmailConfirmation
-              as ResendUserEmailConfirmationErrorCode),
-    );
-  }
-
-  /// Resends a new [ConfirmationCode] to [MyUserPhones.unconfirmed] number for
-  /// the authenticated [MyUser].
-  ///
-  /// Once [User] successfully uses this [ConfirmationCode] in a
-  /// [confirmPhoneCode], the given phone number moves to a
-  /// [MyUserPhones.confirmed] sub-field unlocking the related capabilities.
-  ///
-  /// The number of generated [ConfirmationCode]s is limited up to 10 per 1
-  /// hour.
-  ///
-  /// ### Authentication
-  ///
-  /// Mandatory.
-  ///
-  /// ### Result
-  ///
-  /// Always returns `null` on success.
-  ///
-  /// ### Non-idempotent
-  ///
-  /// Each time generates a new [ConfirmationCode].
-  Future<void> resendPhone() async {
-    Log.debug('resendPhone()', '$runtimeType');
-
-    await client.mutate(
-      MutationOptions(
-        operationName: 'ResendUserPhoneConfirmation',
-        document: ResendUserPhoneConfirmationMutation().document,
-      ),
-      onException: (data) => ResendUserPhoneConfirmationException(
-          ResendUserPhoneConfirmation$Mutation.fromJson(data)
-                  .resendUserPhoneConfirmation
-              as ResendUserPhoneConfirmationErrorCode),
-    );
+    // final variables =
+    //     AddUserPhoneArguments(phone: phone, confirmation: confirmation);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'AddUserPhone',
+    //     document: AddUserPhoneMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => AddUserPhoneException(
+    //       (AddUserPhone$Mutation.fromJson(data).addUserPhone
+    //               as AddUserPhone$Mutation$AddUserPhone$AddUserPhoneError)
+    //           .code),
+    // );
+    // return AddUserPhone$Mutation.fromJson(result.data!).addUserPhone
+    //     as MyUserEventsVersionedMixin?;
   }
 
   /// Creates a new [ChatDirectLink] with the specified [ChatDirectLinkSlug] and
@@ -938,7 +878,7 @@ mixin UserGraphQlMixin {
     final encodedBody = json.encode(body);
 
     try {
-      var response = await client.post(
+      final response = await client.post(
         file == null
             ? encodedBody
             : dio.FormData.fromMap({
@@ -1341,19 +1281,17 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is not registered already.
-  Future<bool> unregisterFcmDevice(FcmRegistrationToken token) async {
+  Future<void> unregisterFcmDevice(FcmRegistrationToken token) async {
     Log.debug('unregisterFcmDevice($token)', '$runtimeType');
 
     final variables = UnregisterFcmDeviceArguments(token: token);
-    final QueryResult result = await client.mutate(
+    await client.mutate(
       MutationOptions(
         operationName: 'UnregisterFcmDevice',
         document: UnregisterFcmDeviceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
     );
-    return UnregisterFcmDevice$Mutation.fromJson(result.data!)
-        .unregisterFcmDevice;
   }
 
   /// Returns all active [Session]s of the authenticated [MyUser].
@@ -1376,6 +1314,118 @@ mixin UserGraphQlMixin {
         document: SessionsQuery().document,
       ),
     );
-    return Sessions$Query.fromJson(result.data!).sessions;
+    return Sessions$Query.fromJson(result.data!).sessions.list;
+  }
+
+  /// Subscribes to [SessionEvent]s of all [Session]s of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// [Session]s list will be emitted after `SubscriptionInitialized` and before
+  /// any other [SessionEvent]s (and won't be emitted ever again until this
+  /// subscription completes). This allows to skip doing [sessions] before
+  /// establishing this subscription.
+  ///
+  /// If the specified ver is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via [sessions];
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// [Session]s list).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - an error occurs on the server (error is emitted).
+  /// - the server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event
+  /// which have already been applied to the state of some Session, so a client
+  /// side is expected to handle all the events idempotently considering the
+  /// [ver].
+  Stream<QueryResult> sessionsEvents(SessionsListVersion? ver) {
+    Log.debug('sessionsEvents($ver)', '$runtimeType');
+
+    final variables = SessionsEventsArguments(ver: ver);
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'SessionsEvents',
+        document: SessionsEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+  }
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  ///
+  /// For the [WelcomeMessage] to be meaningful, at least one of the
+  /// [WelcomeMessageInput.text] or [WelcomeMessageInput.attachments] arguments
+  /// must be specified and non-empty.
+  ///
+  /// To attach some [Attachment]s to the [WelcomeMessage], first, they should
+  /// be uploaded with `Mutation.uploadAttachment`, and only then, the returned
+  /// [Attachment.id]s may be used as the [WelcomeMessageInput.attachments]
+  /// argument of this mutation.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserWelcomeMessageUpdated] (if [content] argument is specified);
+  /// - [EventUserWelcomeMessageDeleted] (if [content] argument is absent or
+  /// `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser]'s [WelcomeMessage] already has the specified
+  /// [WelcomeMessageInput.text] and [WelcomeMessageInput.attachments] in the
+  /// same order.
+  Future<MyUserEventsVersionedMixin?> updateWelcomeMessage(
+    WelcomeMessageInput? content,
+  ) async {
+    Log.debug('updateWelcomeMessage($content)', '$runtimeType');
+
+    final variables = UpdateWelcomeMessageArguments(content: content);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UpdateWelcomeMessage',
+        document: UpdateWelcomeMessageMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UpdateWelcomeMessageException(
+        (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
+                as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
+            .code,
+      ),
+    );
+    return DeleteUserDirectLink$Mutation.fromJson(result.data!)
+        .deleteChatDirectLink as MyUserEventsVersionedMixin?;
   }
 }

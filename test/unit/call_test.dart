@@ -99,6 +99,7 @@ void main() async {
           const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
+        const SessionId('me'),
         const UserId('me'),
       ),
     );
@@ -546,6 +547,11 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   set token(_) {}
 
   final StreamController<QueryResult> _heartbeat = StreamController.broadcast();
+
+  @override
+  Future<void> reconnect() async {
+    // No-op.
+  }
 
   @override
   Stream<QueryResult> callEvents(

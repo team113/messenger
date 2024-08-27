@@ -119,29 +119,34 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                 ),
                 const Spacer(),
                 const SizedBox(width: 16),
-                WidgetButton(
-                  onPressed: widget.onPin ?? () {},
-                  child: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: SafeAnimatedSwitcher(
-                          duration: 100.milliseconds,
-                          child: widget.pinned
-                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                              : Opacity(
-                                  key: const Key('Pin'),
-                                  opacity: widget.onPin == null || disabled
-                                      ? 0.6
-                                      : 1,
-                                  child: const SvgIcon(SvgIcons.pin),
-                                ),
+                if (widget.onPin != null) ...[
+                  WidgetButton(
+                    onPressed: widget.onPin ?? () {},
+                    child: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: AnimatedButton(
+                          child: SafeAnimatedSwitcher(
+                            duration: 100.milliseconds,
+                            child: widget.pinned
+                                ? const SvgIcon(
+                                    SvgIcons.unpin,
+                                    key: Key('Unpin'),
+                                  )
+                                : Opacity(
+                                    key: const Key('Pin'),
+                                    opacity: widget.onPin == null || disabled
+                                        ? 0.6
+                                        : 1,
+                                    child: const SvgIcon(SvgIcons.pin),
+                                  ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

@@ -25,6 +25,7 @@ class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
+    this.subtitle,
     this.icon,
     this.padding = EdgeInsets.zero,
     this.onPressed,
@@ -32,6 +33,9 @@ class SignButton extends StatelessWidget {
 
   /// Title of this [SignButton].
   final String title;
+
+  /// Subtitle of this [SignButton].
+  final String? subtitle;
 
   /// Widget to display as a [PrefixButton.prefix].
   final Widget? icon;
@@ -49,6 +53,7 @@ class SignButton extends StatelessWidget {
     return Center(
       child: PrefixButton(
         title: title,
+        subtitle: subtitle,
         style: onPressed == null
             ? style.fonts.medium.regular.secondary
             : style.fonts.medium.regular.onBackground,

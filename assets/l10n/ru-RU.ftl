@@ -226,6 +226,7 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
+btn_login_and_password = Логин и пароль
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
@@ -320,6 +321,7 @@ err_chat_direct_link_occupied = Ссылка занята.
 err_code_limit_exceeded =
     Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
+err_confirmation_required = Пароль должен быть предоставлен для данного действия.
 err_contact_not_group = Чат с указанным ID не является группой
 err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
@@ -330,6 +332,7 @@ err_data_transfer =
 err_dialog = Невозможно выполнить данное действие в диалоге
 err_dimensions_too_big = Разрешение файла превышает 32767 x 32767 пикселей.
 err_email_occupied = Указанный E-mail привязан к другому аккаунту. Пожалуйста, сначала аннулируйте предыдущую верификацию.
+err_fcm_unavailable = FCM недоступен.
 err_incorrect_chat_name = Некорректное имя
 err_incorrect_email = Некорректный E-mail.
 err_incorrect_input = Некорректный формат.
@@ -393,6 +396,7 @@ err_unsupported_forwarded_item = Неподдерживаемое пересыл
 err_uploaded_file_malformed = Файл повреждён. Пожалуйста, проверьте загружаемый файл.
 err_use_monolog = Невозможно создать диалог с собой
 err_wrong_attachments_items_count = Некорректное количество прикреплений
+err_wrong_code = Неверный код.
 err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный пароль.
@@ -540,6 +544,7 @@ label_add_chat_member = Добавление участника
 label_add_email = Добавить E-mail
 label_add_email_confirmation_sent = На указанный Вами E-mail был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_confirmation_sent_again = На указанный Вами E-mail повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
+label_add_email_confirmation_sent_to = На {$email} был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_description = На указанный Вами E-mail будет отправлен код подтверждения.
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить телефон
@@ -681,24 +686,22 @@ label_code_requirements_tests = - код должен быть покрыт мо
 label_code_sent_again = Код отправлен повторно.
 label_conditions = Условия
 label_conditions_backend_developer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_conditions_frontend_developer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_conditions_ui_ux_designer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_confirm = Подтвердить
+label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
@@ -779,6 +782,7 @@ label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
+label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
@@ -904,15 +908,17 @@ label_no_contacts = Нет контактов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
-label_no_users = Нет пользователей
-label_no_updates_are_available_title = Нет доступных обновлений
 label_no_updates_are_available_subtitle = У Вас установлена наиболее актуальная версия.
+label_no_updates_are_available_title = Нет доступных обновлений
+label_no_users = Нет пользователей
+label_no_welcome_message = Приветственное сообщение не добавлено
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_off = Выкл
 label_offline = офлайн
+label_one_time_password = Одноразовый пароль
 label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
@@ -1047,6 +1053,7 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
+label_sign_up_with_password = Регистрация с паролем
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
@@ -1147,6 +1154,9 @@ label_we_welcome_backend_developer =
     - навык работы по CQRS+ES парадигме;
     - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Приветственное сообщение
+label_welcome_message_description = Приветствие не отображается пользователям, которым написали Вы. Отображается только у пользователей, которые добавили Вас в свой список чатов.
+label_welcome_message_hint = Добавить, редактировать, удалить
 label_welcome_message_freelance =
     Добрый день. Пожалуйста, укажите:
     - логин на GitHub'е;

@@ -74,6 +74,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
             directLink {
                 slug
                 usageCount
+                createdAt
             }
         }
         ... on EventChatItemDeleted {
