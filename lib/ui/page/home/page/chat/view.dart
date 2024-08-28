@@ -901,6 +901,14 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onUserPressed: (user) {
+                    ChatId chatId = user.dialog;
+                    if (chatId.isLocalWith(c.me)) {
+                      chatId = c.monolog;
+                    }
+
+                    router.chat(chatId, push: true);
+                  },
                 ),
               ),
             );
