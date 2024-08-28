@@ -315,6 +315,7 @@ err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
+err_camera_permission_denied = Camera permission is denied. Please, ensure application has camera permissions.
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied.
@@ -345,8 +346,9 @@ err_invalid_registration_token = Invalid registration token
 err_invalid_symbols_in_link = Unacceptable symbols. The following symbols are allowed: A-z, -, _ and 0-9
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
-err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser's configuration doesn't allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
+err_microphone_permission_denied = Microphone permission is denied. Please, ensure application has microphone permissions.
 err_monolog = Can't perform this action in a monolog
 err_network = Connection to the server refused
 err_no_access_to_gallery = Access to the gallery denied. Please, make sure the application has permissions to access the gallery.

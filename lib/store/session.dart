@@ -396,6 +396,13 @@ class RxSessionImpl extends RxSession {
 
   /// Initializes this [RxSessionImpl].
   Future<void> init() async {
-    geo.value = await _repository.fetch(ip: session.value.ip);
+    try {
+      geo.value = await _repository.fetch(ip: session.value.ip);
+    } catch (e) {
+      Log.debug(
+        'Failed to retrieve IP geolocation information: $e',
+        '$runtimeType',
+      );
+    }
   }
 }
