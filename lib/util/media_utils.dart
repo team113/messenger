@@ -161,12 +161,14 @@ class MediaUtilsImpl {
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local =
-          await (await _mediaManager)!.initLocalTracks(
+      final List<LocalMediaTrack>? local =
+          await (await _mediaManager)?.initLocalTracks(
         _mediaStreamSettings(audio: audio, video: video, screen: screen),
       );
 
-      tracks.addAll(local);
+      if (local != null) {
+        tracks.addAll(local);
+      }
     }
 
     return tracks;
