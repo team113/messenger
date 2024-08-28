@@ -145,8 +145,7 @@ class RxChatImpl extends RxChat {
   /// [AttachmentsPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _attachments = [];
 
-  /// Subscriptions to the [MessagesPaginated.items] changes updating the
-  /// [reads].
+  /// Subscriptions to the [RxPaginatedImpl.items] changes updating the [reads].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
