@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:messenger/ui/widget/safe_area/safe_area.dart';
 
 import '/routes.dart';
 import '/util/platform_utils.dart';
@@ -62,7 +63,9 @@ class SafeScrollbar extends StatelessWidget {
         data: MediaQuery.of(router.context ?? context).copyWith(
           padding: EdgeInsets.only(
             top: top ? CustomAppBar.height - 5 : 0,
-            bottom: bottom ? CustomNavigationBar.height : 0,
+            bottom: bottom
+                ? CustomNavigationBar.height + (CustomSafeArea.isPwa ? 25 : 0)
+                : 0,
           ),
         ),
         child: Padding(

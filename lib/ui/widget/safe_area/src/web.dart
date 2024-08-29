@@ -48,6 +48,13 @@ class CustomSafeArea extends StatelessWidget {
   /// [Widget] to wrap with [SafeArea].
   final Widget child;
 
+  /// Indicates whether this device is considered to be running as a PWA on iOS.
+  static bool get isPwa {
+    return kIsWeb &&
+        web.window.matchMedia('(display-mode: standalone)').matches &&
+        web.window.navigator.userAgent.contains(RegExp(r'iPhone'));
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!PlatformUtils.isIOS) {
@@ -60,11 +67,6 @@ class CustomSafeArea extends StatelessWidget {
       );
     }
 
-    final bool isPwa =
-        kIsWeb && web.window.matchMedia('(display-mode: standalone)').matches;
-    final bool isIos =
-        kIsWeb && web.window.navigator.userAgent.contains(RegExp(r'iPhone'));
-
     final EdgeInsets padding = EdgeInsets.fromViewPadding(
       View.of(context).viewPadding,
       View.of(context).devicePixelRatio,
@@ -72,7 +74,7 @@ class CustomSafeArea extends StatelessWidget {
 
     return MediaQuery(
       data: MediaQuery.of(context).copyWith(
-        padding: padding.copyWith(bottom: isPwa && isIos ? 25 : padding.bottom),
+        padding: padding.copyWith(bottom: isPwa ? 25 : padding.bottom),
       ),
       child: SafeArea(
         top: top,

@@ -43,6 +43,9 @@ class CustomSafeArea extends StatelessWidget {
   /// [Widget] to wrap with [SafeArea].
   final Widget child;
 
+  /// Indicates whether this device is considered to be running as a PWA on iOS.
+  static bool get isPwa => false;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
