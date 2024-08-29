@@ -41,6 +41,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
@@ -982,7 +983,7 @@ class _GalleryPopupState extends State<GalleryPopup>
 
     widgets.addAll([
       if (widget.onTrashPressed != null)
-        SafeArea(
+        CustomSafeArea(
           child: FadeTransition(
             opacity: fade,
             child: Align(

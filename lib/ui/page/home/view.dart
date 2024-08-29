@@ -31,6 +31,7 @@ import '/ui/page/call/widget/scaler.dart';
 import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -211,7 +212,7 @@ class _HomeViewState extends State<HomeView> {
                       ],
                     ),
                     extendBody: true,
-                    bottomNavigationBar: SafeArea(
+                    bottomNavigationBar: CustomSafeArea(
                       child: Obx(() {
                         final List<HomeTab> tabs = c.tabs;
 

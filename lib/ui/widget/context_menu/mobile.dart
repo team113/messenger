@@ -30,6 +30,7 @@ import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 
 /// Animated context menu optimized and decorated for mobile screens.
@@ -311,7 +312,7 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           if (!widget.showAbove)
-                            SafeArea(
+                            CustomSafeArea(
                               right: false,
                               top: true,
                               left: false,

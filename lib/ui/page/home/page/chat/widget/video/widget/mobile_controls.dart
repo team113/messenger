@@ -23,6 +23,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 import 'centered_play_pause.dart';
 import 'position.dart';
@@ -217,7 +218,7 @@ class _MobileControlsState extends State<MobileControls>
             ],
           ),
         ),
-        child: SafeArea(
+        child: CustomSafeArea(
           child: Container(
             height: widget.barHeight,
             padding: const EdgeInsets.only(left: 20, bottom: 10),
