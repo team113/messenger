@@ -93,6 +93,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.onUserPressed = _defaultOnUserPressed,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -167,6 +168,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  /// Callback, called whenever some [User]'s name is being pressed.
+  final void Function(User) onUserPressed;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -327,6 +331,10 @@ class ChatItemWidget extends StatefulWidget {
       },
     );
   }
+
+  /// Opens the [User.dialog] chat.
+  static _defaultOnUserPressed(User user) =>
+      router.chat(user.dialog, push: true);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
@@ -495,8 +503,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by1'.l10nfmt(args),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () =>
-                            router.chat(user.user.value.dialog, push: true),
+                        ..onTap = () => widget.onUserPressed(user.user.value),
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
@@ -552,7 +559,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(author.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(author),
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
@@ -561,7 +568,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(user),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -581,7 +588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(user.dialog, push: true),
+                    ..onTap = () => widget.onUserPressed(user),
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
@@ -613,7 +620,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(author.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(author),
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
@@ -622,7 +629,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(user),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -642,7 +649,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(user.dialog, push: true),
+                    ..onTap = () => widget.onUserPressed(user),
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
@@ -678,7 +685,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.chat(user.dialog, push: true),
+                  ..onTap = () => widget.onUserPressed(user),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -714,7 +721,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.chat(user.dialog, push: true),
+                  ..onTap = () => widget.onUserPressed(user),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -790,8 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       TextSpan(
                         text: widget.user?.title ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.chat(_author.dialog, push: true),
+                          ..onTap = () => widget.onUserPressed(_author),
                       ),
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
@@ -1035,8 +1041,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         TextSpan(
                           text: widget.user?.title ?? 'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => router.chat(_author.dialog, push: true),
+                            ..onTap = () => widget.onUserPressed(_author),
                         ),
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
@@ -1465,8 +1470,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: widget.avatar
                     ? InkWell(
                         customBorder: const CircleBorder(),
-                        onTap: () =>
-                            router.chat(item.author.dialog, push: true),
+                        onTap: () => widget.onUserPressed(item.author),
                         child: AvatarWidget.fromRxUser(
                           widget.user,
                           radius: avatarRadius,
