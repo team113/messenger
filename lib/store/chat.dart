@@ -295,6 +295,10 @@ class ChatRepository extends DisposableInterface
   FutureOr<RxChatImpl?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
+    if (id.isLocalWith(me)) {
+      id = monolog;
+    }
+
     RxChatImpl? chat = chats[id];
     if (chat != null) {
       return chat;

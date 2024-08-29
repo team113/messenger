@@ -39,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Typing being infinitely displayed after focus is lost. ([#995], [#988])
+        - Notes being duplicated when pressing on authorized user's name in chat. ([#1097], [#1083])
 - Web:
     - Application becoming unresponsive when navigating back with gallery being opened. ([#1078], [#900])
 - Windows:
@@ -56,11 +57,13 @@ All user visible changes to this project will be documented in this file. This p
 [#1070]: /../../pull/1070
 [#1078]: /../../pull/1078
 [#1079]: /../../pull/1079
+[#1083]: /../../issues/1083
 [#1086]: /../../pull/1086
 [#1087]: /../../pull/1087
 [#1089]: /../../pull/1089
 [#1090]: /../../pull/1090
 [#1094]: /../../pull/1094
+[#1097]: /../../pull/1097
 
 
 
