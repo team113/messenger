@@ -16,9 +16,9 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:messenger/ui/widget/safe_area/safe_area.dart';
 
 import '/routes.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
