@@ -145,8 +145,7 @@ class RxChatImpl extends RxChat {
   /// [AttachmentsPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _attachments = [];
 
-  /// Subscriptions to the [MessagesPaginated.items] changes updating the
-  /// [reads].
+  /// Subscriptions to the [RxPaginatedImpl.items] changes updating the [reads].
   final List<StreamSubscription> _fragmentSubscriptions = [];
 
   /// [Worker] reacting on the [User] changes updating the [avatar].
@@ -1440,9 +1439,10 @@ class RxChatImpl extends RxChat {
 
   /// Adds the provided [ChatItem] to the [messages] list.
   void _add(ChatItem item) {
-    Log.debug('_add($item)', '$runtimeType($id)');
-
     final int i = messages.indexWhere((e) => e.value.id == item.id);
+
+    Log.debug('_add($item) at i = $i', '$runtimeType($id)');
+
     if (i == -1) {
       messages.insertAfter(
         Rx(item),
@@ -1450,6 +1450,7 @@ class RxChatImpl extends RxChat {
       );
     } else {
       messages[i].value = item;
+      messages[i].refresh();
     }
   }
 

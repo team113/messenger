@@ -36,10 +36,14 @@ class GeoLocationProvider {
   Future<IpGeoLocation> get(IpAddress ip, {String? language}) async {
     final Dio dio = await _dio;
     final Response response = await dio.get(
-      '${Config.geoEndpoint}/$ip?fields=country,countryCode,city${language == null ? '' : '&lang=$language'}',
+      '${Config.geoEndpoint}/$ip?fields=country,country_code,city${language == null ? '' : '&lang=$language'}',
     );
 
-    if (response.statusCode != 200) {
+    if (response.statusCode != 200 ||
+        response.data is! Map<String, dynamic> ||
+        response.data?['country'] == null ||
+        response.data?['country_code'] == null ||
+        response.data?['city'] == null) {
       throw Exception(
         'Failed to fetch geo information. Status code: ${response.statusCode}. Data: ${response.data}',
       );

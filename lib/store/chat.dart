@@ -1935,7 +1935,10 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            await recent?.put(e, store: false);
+            final ChatVersion? stored = paginated[e.id]?.ver;
+            if (stored == null || e.ver > stored) {
+              await recent?.put(e, store: false);
+            }
           },
           onRemoved: (e) async {
             await recent?.remove(e.value.id, store: false);
@@ -2070,7 +2073,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
+    final query = (await _graphQlProvider.recentChats(
       first: first,
       after: after,
       last: last,

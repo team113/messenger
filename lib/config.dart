@@ -136,7 +136,7 @@ class Config {
   static String scheme = 'gapopa';
 
   /// URL address of IP geolocation API server.
-  static String geoEndpoint = 'http://ip-api.com/json';
+  static String geoEndpoint = 'https://ipwho.is';
 
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
