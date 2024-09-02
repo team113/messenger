@@ -517,18 +517,18 @@ packages:
     dependency: transitive
     description:
       name: firebase_core_platform_interface
-      sha256: "3c3a1e92d6f4916c32deea79c4a7587aa0e9dbbe5889c7a16afcf005a485ee02"
+      sha256: f7d7180c7f99babd4b4c517754d41a09a4943a0f7a69b65c894ca5c68ba66315
       url: "https://pub.dev"
     source: hosted
-    version: "5.2.0"
+    version: "5.2.1"
   firebase_core_web:
     dependency: transitive
     description:
       name: firebase_core_web
-      sha256: e8d1e22de72cb21cdcfc5eed7acddab3e99cd83f3b317f54f7a96c32f25fd11e
+      sha256: "362e52457ed2b7b180964769c1e04d1e0ea0259fdf7025fdfedd019d4ae2bd88"
       url: "https://pub.dev"
     source: hosted
-    version: "2.17.4"
+    version: "2.17.5"
   firebase_messaging:
     dependency: "direct main"
     description:
@@ -692,10 +692,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: "7c5e94d037ccb0de7b5f7de3ff2491548d292b5aad01b01f5a5703f8aac9389b"
+      sha256: "7beb9cb4690916a6c4fd151d91dba53555ea258dbc029dd5f1bfba2e7bd32b86"
       url: "https://pub.dev"
     source: hosted
-    version: "1.82.4"
+    version: "2.2.0"
   flutter_shaders:
     dependency: transitive
     description:
@@ -1242,18 +1242,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "24cba246eef6e60e13c914b6ec237bb9e70b66d6c4c34c6af321a03b14bb5b26"
+      sha256: "45c86198bfd29077fb52aa2c180d75c07bd6225cc0a94080acd186fb13b5e594"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.0"
+    version: "0.11.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "6050141a471228d73cbc58c1740b2d28d3bb25510be8fa2fcf68a178fd959dfe"
+      sha256: "587aa2b201314fb4b303b0a5c1cc77d7e849a95aeab1b7e8523c7e30eb8a3e30"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.0"
+    version: "0.6.0"
   media_kit:
     dependency: "direct main"
     description:
@@ -1613,14 +1613,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  puppeteer:
-    dependency: transitive
-    description:
-      name: puppeteer
-      sha256: de3f921154e5d336b14cdc05b674ac3db5701a5338f3cb0042868a5146f16e67
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.12.0"
   qr:
     dependency: transitive
     description:
@@ -1730,10 +1722,10 @@ packages:
     description:
       path: "packages/scrollable_positioned_list"
       ref: HEAD
-      resolved-ref: "92f415e7fb2f861b52427216763b0c84ba0e2911"
+      resolved-ref: c9e3fb465ce6e6e023d13b3454be732830095a59
       url: "https://github.com/SleepySquash/scrollable_positioned_list"
     source: git
-    version: "0.3.5"
+    version: "0.3.8+1"
   sentry:
     dependency: transitive
     description:
@@ -1838,14 +1830,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  shelf_static:
-    dependency: transitive
-    description:
-      name: shelf_static
-      sha256: a41d3f53c4adf0f57480578c1d61d90342cd617de7fc8077b1304643c2d85c1e
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.1.2"
   shelf_web_socket:
     dependency: transitive
     description:
@@ -2207,10 +2191,10 @@ packages:
     dependency: transitive
     description:
       name: vm_service
-      sha256: f652077d0bdf60abe4c1f6377448e8655008eef28f128bc023f7b5e8dfeb48fc
+      sha256: "5c5f338a667b4c644744b661f309fb8080bb94b18a7e91ef1dbd343bed00ed6d"
       url: "https://pub.dev"
     source: hosted
-    version: "14.2.4"
+    version: "14.2.5"
   volume_controller:
     dependency: transitive
     description:

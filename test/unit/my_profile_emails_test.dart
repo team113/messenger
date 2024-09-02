@@ -56,7 +56,7 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
 
   setUp(() async {
     await myUserProvider.clear();
@@ -128,6 +128,8 @@ void main() async {
     );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')))
         .thenAnswer(
@@ -178,7 +180,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -227,6 +229,8 @@ void main() async {
         ),
       ]),
     );
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com')))
         .thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));
@@ -255,7 +259,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),

@@ -189,7 +189,7 @@ class AccountsController extends GetxController {
           emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -213,8 +213,9 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService.confirmSignUpEmail(
-            ConfirmationCode(emailCode.text),
+          await _authService.signIn(
+            email: UserEmail(email.text),
+            code: ConfirmationCode(emailCode.text),
             force: true,
           );
 
@@ -299,7 +300,7 @@ class AccountsController extends GetxController {
       password.status.value = RxStatus.loading();
 
       await _authService.signIn(
-        userPassword,
+        password: userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
@@ -473,7 +474,7 @@ class AccountsController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
+      await _authService.createConfirmationCode(email: UserEmail(email.text));
     } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {

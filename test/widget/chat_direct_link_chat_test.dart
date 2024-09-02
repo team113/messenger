@@ -99,6 +99,7 @@ void main() async {
         const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
+      const SessionId('me'),
       const UserId('me'),
     ),
   );
@@ -147,7 +148,7 @@ void main() async {
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -174,10 +175,11 @@ void main() async {
       any,
     )).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider
-            .getChat(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-        .thenAnswer(
-            (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+    when(graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    )).thenAnswer(
+      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
+    );
 
     when(graphQlProvider.recentChats(
       first: anyNamed('first'),
@@ -212,7 +214,11 @@ void main() async {
           {
             '__typename': 'EventChatDirectLinkUpdated',
             'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-            'directLink': {'slug': 'link', 'usageCount': 0}
+            'directLink': {
+              'slug': 'link',
+              'usageCount': 0,
+              'createdAt': DateTime.now().toString(),
+            }
           }
         ],
         'ver': '$ver'
@@ -290,6 +296,9 @@ void main() async {
     when(graphQlProvider.myUserEvents(any))
         .thenAnswer((_) async => const Stream.empty());
 
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
+
     UserRepository userRepository =
         Get.put(UserRepository(graphQlProvider, userProvider));
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -317,7 +326,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -325,7 +334,7 @@ void main() async {
     AbstractContactRepository contactRepository = ContactRepository(
       graphQlProvider,
       UserRepository(graphQlProvider, userProvider),
-      sessionProvider,
+      versionProvider,
       me: const UserId('me'),
     );
 
@@ -338,7 +347,7 @@ void main() async {
       graphQlProvider,
       blocklistProvider,
       userRepository,
-      sessionProvider,
+      versionProvider,
       myUserProvider,
       me: const UserId('me'),
     );

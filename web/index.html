@@ -44,7 +44,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
   <!-- iOS meta tags & icons -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="Gapopa">
 
@@ -68,6 +68,7 @@
 
   <title>Gapopa</title>
   <link rel="manifest" href="manifest.json">
+  <link rel="preconnect" href="https://fonts.gstatic.com/">
   <link href='https://fonts.googleapis.com/css?family=Noto Sans Display' rel='stylesheet'>
   <style type="text/css">
     body {
@@ -104,7 +105,7 @@
       }
     }
   </style>
-  <script type="module">
+  <script defer type="module">
     import init, {
       Jason,
       MediaStreamSettings,
@@ -128,7 +129,7 @@
       window.MediaSourceKind = MediaSourceKind;
     })();
   </script>
-  <script type="text/javascript">
+  <script defer type="text/javascript">
     window.isPopup = window.opener != null && window.opener !== window;
 
     if (window.isPopup) {
@@ -149,15 +150,12 @@
     }
   </script>
 
-  <script>
-    // The value below is injected by flutter build, do not touch.
-    var serviceWorkerVersion = null;
-  </script>
-  <!-- This script adds the flutter initialization JS code -->
-  <script src="flutter.js" defer></script>
 </head>
 
 <body>
+  <!-- This script adds the flutter initialization JS code -->
+  <script src="flutter_bootstrap.js"></script>
+
   <div id="loader" class="container content">
     <div style="vertical-align: middle;">
       <div style="display: flex; justify-content: center; margin-bottom: 12px;">
@@ -182,33 +180,6 @@
       </div>
     </div>
   </div>
-  <script>
-    window.addEventListener('load', function (ev) {
-      // Download main.dart.js
-      _flutter.loader.loadEntrypoint({
-        // TODO: Remove, when flutter/flutter#152995 is fixed.
-        entrypointUrl: "/main.dart.js",
-
-        serviceWorker: {
-          serviceWorkerVersion: serviceWorkerVersion,
-
-          // TODO: Remove, when flutter/flutter#152995 is fixed.
-          serviceWorkerUrl: "/flutter_service_worker.js?v=",
-        },
-        onEntrypointLoaded: async function (engineInitializer) {
-          try {
-            await window.jasonLoaded;
-          } catch (e) {
-            console.error(e);
-          }
-
-          engineInitializer.initializeEngine().then(function (appRunner) {
-            appRunner.runApp();
-          });
-        }
-      });
-    });
-  </script>
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;
@@ -263,7 +234,7 @@
       };
     }
   </script>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Animate the blinking loader -->
   <script>
     var interval;
@@ -290,14 +261,16 @@
       }, 45);
     }
 
-    $('html').on('click', function () {
-      if ($("#logo").length) {
-        animate();
-      }
-    });
+    window.addEventListener("load", function (event) {
+      $('html').on('click', function () {
+        if ($("#logo").length) {
+          animate();
+        }
+      });
+    }, false);
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
   <script>
     function webSaveAs(url, name) {
       saveAs(url, name);

@@ -28,26 +28,33 @@ import 'package:sentry_flutter/sentry_flutter.dart';
 import '/api/backend/schema.dart'
     show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
 import '/domain/model/application_settings.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/controller.dart';
+import 'welcome_field/controller.dart';
 
 export 'view.dart';
 
@@ -55,8 +62,10 @@ export 'view.dart';
 class MyProfileController extends GetxController {
   MyProfileController(
     this._myUserService,
-    this._authService,
+    this._sessionService,
     this._settingsRepo,
+    this._authService,
+    this._chatService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -111,14 +120,26 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [sessions] are being updated.
   final RxBool sessionsUpdating = RxBool(false);
 
+  /// [WelcomeFieldController] for forming and editing a [WelcomeMessage].
+  late final WelcomeFieldController welcome;
+
+  /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
+  final GlobalKey welcomeFieldKey = GlobalKey();
+
+  /// Service managing current [Credentials].
+  final AuthService _authService;
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  /// [AuthService] used to get [sessions] value.
-  final AuthService _authService;
+  /// Service responsible for [Session]s management.
+  final SessionService _sessionService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
+  final ChatService _chatService;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -153,8 +174,11 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns the list of active [Session]s.
-  RxList<Session> get sessions => _authService.sessions;
+  /// Returns the list of active [RxSession]s.
+  RxList<RxSession> get sessions => _sessionService.sessions;
+
+  /// Returns the current [Credentials].
+  Rx<Credentials?> get credentials => _authService.credentials;
 
   @override
   void onInit() {
@@ -166,13 +190,6 @@ class MyProfileController extends GetxController {
       } catch (_) {
         // No-op, shouldn't break the view.
       }
-    }
-
-    // [List.isEmpty] can be used as an indicator to fetch the [Session]s here,
-    // as our current [Session] must be on the list, so the length must be at
-    // least 1 to be up to date.
-    if (sessions.isEmpty) {
-      updateSessions();
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -333,6 +350,38 @@ class MyProfileController extends GetxController {
 
     scrollController.addListener(_ensureNameDisplayed);
 
+    welcome = WelcomeFieldController(
+      _chatService,
+      onSubmit: () async {
+        final text = welcome.field.text.trim();
+
+        if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
+          final String previousText = text.toString();
+          final List<Attachment> previousAttachments =
+              welcome.attachments.map((e) => e.value).toList();
+
+          updateWelcomeMessage(
+            text: text.isEmpty ? null : ChatMessageText(text),
+            attachments: welcome.attachments.map((e) => e.value).toList(),
+          ).onError((e, _) {
+            welcome.field.unchecked = previousText;
+            welcome.attachments.addAll(
+              previousAttachments.map((e) => MapEntry(GlobalKey(), e)),
+            );
+
+            if (e is LocalizedExceptionMixin) {
+              MessagePopup.error(e.toMessage());
+            } else {
+              MessagePopup.error('err_data_transfer'.l10n);
+            }
+          });
+
+          welcome.edited.value = null;
+          welcome.clear();
+        }
+      },
+    );
+
     super.onInit();
   }
 
@@ -474,10 +523,19 @@ class MyProfileController extends GetxController {
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
-  ///
-  /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    await _myUserService.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
   }
 
   /// Deletes the cache used by the application.
@@ -495,18 +553,6 @@ class MyProfileController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlightIndex.value = null;
     });
-  }
-
-  // TODO: Remove, when backend supports real-time updates.
-  /// Updates the [sessions] value.
-  Future<void> updateSessions() async {
-    sessionsUpdating.value = true;
-
-    try {
-      await _authService.updateSessions();
-    } finally {
-      sessionsUpdating.value = false;
-    }
   }
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].

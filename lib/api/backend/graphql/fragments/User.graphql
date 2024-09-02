@@ -53,4 +53,8 @@ fragment User on User {
         ver
     }
     ver
+    welcomeMessage {
+        __typename
+        ...WelcomeMessage
+    }
 }

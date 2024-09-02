@@ -24,6 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
@@ -282,6 +283,23 @@ class RxUserImpl extends RxUser {
 
             case UserEventKind.userDeleted:
               userEntity.value.isDeleted = true;
+              break;
+
+            case UserEventKind.welcomeMessageDeleted:
+              userEntity.value.welcomeMessage = null;
+              break;
+
+            case UserEventKind.welcomeMessageUpdated:
+              event as EventUserWelcomeMessageUpdated;
+              userEntity.value.welcomeMessage = WelcomeMessage(
+                text: event.text == null
+                    ? userEntity.value.welcomeMessage?.text
+                    : event.text?.changed,
+                attachments: event.attachments == null
+                    ? userEntity.value.welcomeMessage?.attachments ?? []
+                    : event.attachments?.attachments ?? [],
+                at: event.at,
+              );
               break;
           }
 

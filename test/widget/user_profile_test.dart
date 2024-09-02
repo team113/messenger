@@ -29,6 +29,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -42,8 +43,10 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -55,6 +58,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -63,6 +67,7 @@ import 'package:messenger/util/platform_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/geo_provider.dart';
 import 'user_profile_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -118,7 +123,9 @@ void main() async {
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
+  final geoProvider = Get.put(GeoLocationDriftProvider(common));
 
   Get.put(myUserProvider);
   Get.put(userProvider);
@@ -154,6 +161,9 @@ void main() async {
     when(graphQlProvider.myUserEvents(any)).thenAnswer(
       (_) async => const Stream.empty(),
     );
+
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.recentChats(
       first: anyNamed('first'),
@@ -342,7 +352,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -360,6 +370,18 @@ void main() async {
     );
     Get.put(MyUserService(authService, myUserRepository));
 
+    final sessionRepository = Get.put(
+      SessionRepository(
+        graphQlProvider,
+        accountProvider,
+        versionProvider,
+        sessionProvider,
+        geoProvider,
+        MockedGeoLocationProvider(),
+      ),
+    );
+    Get.put(SessionService(sessionRepository));
+
     final settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
@@ -372,7 +394,7 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         me: const UserId('me'),
       ),
     );
@@ -398,7 +420,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         monologProvider,
         me: const UserId('me'),
       ),

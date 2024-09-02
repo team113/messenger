@@ -1459,7 +1459,7 @@ class SignUpException with LocalizedExceptionMixin implements Exception {
   const SignUpException(this.code);
 
   /// Reason of why the mutation has failed.
-  final CreateSessionErrorCode code;
+  final CreateUserErrorCode code;
 
   @override
   String toString() => 'SignUpException($code)';
@@ -1467,11 +1467,9 @@ class SignUpException with LocalizedExceptionMixin implements Exception {
   @override
   String toMessage() {
     switch (code) {
-      case CreateSessionErrorCode.wrongPassword:
-        return 'err_wrong_password'.l10n;
-      case CreateSessionErrorCode.wrongCode:
-        return 'err_wrong_code'.l10n;
-      case CreateSessionErrorCode.artemisUnknown:
+      case CreateUserErrorCode.occupied:
+        return 'err_login_occupied'.l10n;
+      case CreateUserErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
@@ -1574,6 +1572,33 @@ class ValidateConfirmationCodeException
       case ValidateConfirmationCodeErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
       case ValidateConfirmationCodeErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+    }
+  }
+}
+
+/// Exception of `Mutation.updateWelcomeMessage` described in the [code].
+class UpdateWelcomeMessageException
+    with LocalizedExceptionMixin
+    implements Exception {
+  const UpdateWelcomeMessageException(this.code);
+
+  /// Reason of why the mutation has failed.
+  final UpdateWelcomeMessageErrorCode code;
+
+  @override
+  String toString() => 'UpdateWelcomeMessageException($code)';
+
+  @override
+  String toMessage() {
+    switch (code) {
+      case UpdateWelcomeMessageErrorCode.wrongAttachmentsCount:
+        return 'err_wrong_attachments_items_count'.l10n;
+      case UpdateWelcomeMessageErrorCode.unknownAttachment:
+        return 'err_unknown_attachment'.l10n;
+      case UpdateWelcomeMessageErrorCode.noTextAndNoAttachment:
+        return 'err_no_text_and_no_attachment'.l10n;
+      case UpdateWelcomeMessageErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

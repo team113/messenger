@@ -99,3 +99,40 @@ abstract class Paginated<K, T> {
   /// Fetches previous page of the [items].
   Future<void> previous();
 }
+
+/// [Paginated] with a single item.
+class SingleItemPaginated<K, T> extends Paginated<K, T> {
+  SingleItemPaginated(K key, T item) {
+    items[key] = item;
+  }
+
+  @override
+  RxBool get hasNext => RxBool(false);
+
+  @override
+  RxBool get hasPrevious => RxBool(false);
+
+  @override
+  RxBool get nextLoading => RxBool(false);
+
+  @override
+  RxBool get previousLoading => RxBool(false);
+
+  @override
+  int get perPage => 1;
+
+  @override
+  Future<void> ensureInitialized() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> next() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> previous() async {
+    // No-op.
+  }
+}

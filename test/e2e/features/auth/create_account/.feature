@@ -36,3 +36,38 @@ Feature: Account creation
     And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until `ChangePassword` is present
+
+    When I scroll `MenuListView` until `DangerZone` is present
+    And I tap `DangerZone` button
+    And I scroll `MyProfileScrollable` until `DeleteAccount` is present
+    And I tap `DeleteAccount` button
+    Then I wait until `EraseView` is present
+
+    When I scroll `EraseScrollable` until `ConfirmDelete` is present
+    And I tap `ConfirmDelete` button
+    And I tap `Proceed` button
+    Then I wait until `ConfirmAccountDeletion` is present
+
+    When I fill `PasswordField` field with "123"
+    And I tap `Proceed` button
+
+    Then I wait until `AuthView` is present
+    And I pause for 1 second
+
+  Scenario: User creates a new account with login and password
+    When I tap `RegisterButton` button
+    Then I wait until `LoginView` is present
+
+    When I tap `LoginAndPassword` button
+    And I fill `UsernameField` field with random login
+    And I fill `PasswordField` field with "123"
+    And I fill `RepeatPasswordField` field with "123"
+
+    When I tap `RegisterButton` button
+    Then I wait until `HomeView` is present
+
+    When I tap `MenuButton` button
+    And I tap `PublicInformation` button
+    Then I wait until `MyProfileView` is present
+    And I scroll `MyProfileScrollable` until `LoginField` is present
+    And I scroll `MyProfileScrollable` until `ChangePassword` is present

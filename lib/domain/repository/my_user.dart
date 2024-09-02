@@ -16,11 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:get/get.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/util/obs/rxmap.dart';
 
@@ -33,8 +36,7 @@ abstract class AbstractMyUserRepository {
   ///
   /// __Note__, that having a [MyUser] here doesn't mean that
   /// [AbstractAuthRepository] can sign into that account: it must also have
-  /// non-stale [Credentials], which can be found in [AuthService.sessions]
-  /// field.
+  /// non-stale [Credentials].
   RxObsMap<UserId, Rx<MyUser>> get profiles;
 
   /// Initializes the repository.
@@ -64,6 +66,12 @@ abstract class AbstractMyUserRepository {
 
   /// Updates [MyUser.presence] to the provided value.
   Future<void> updateUserPresence(Presence presence);
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  });
 
   /// Updates password for the authenticated [MyUser].
   ///

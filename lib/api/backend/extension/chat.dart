@@ -56,6 +56,7 @@ extension ChatConversion on ChatMixin {
             ? ChatDirectLink(
                 slug: directLink!.slug,
                 usageCount: directLink!.usageCount,
+                createdAt: createdAt,
               )
             : null,
         createdAt: createdAt,
@@ -506,6 +507,31 @@ extension UploadAttachmentConversion
 /// Extension adding models construction from [ChatMessageMixin$Attachments].
 extension ChatMessageAttachmentsConversion on ChatMessageMixin$Attachments {
   /// Constructs a new [Attachment] from this [ChatMessageMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from [WelcomeMessageMixin$Attachments].
+extension WelcomeMessageAttachmentsConversion
+    on WelcomeMessageMixin$Attachments {
+  /// Constructs a new [Attachment] from this [WelcomeMessageMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventMyUserWelcomeMessageUpdatedAttachmentsConversion
+    on MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+    on UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
   Attachment toModel() => _attachment(this);
 }
 

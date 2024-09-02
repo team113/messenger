@@ -96,6 +96,8 @@ void main() async {
         .thenAnswer((_) => const Stream.empty());
     when(graphQlProvider.incomingCallsTopEvents(3))
         .thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.sessionsEvents(any))
+        .thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.chatEvents(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -148,7 +150,7 @@ void main() async {
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
-    final sessionProvider = Get.put(VersionDriftProvider(common));
+    final versionProvider = Get.put(VersionDriftProvider(common));
 
     final AuthService authService = Get.put(
       AuthService(
@@ -171,7 +173,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -245,6 +247,7 @@ void main() async {
               'directLink': {
                 'slug': 'link',
                 'usageCount': 0,
+                'createdAt': DateTime.now().toString(),
               },
             }
           ],
@@ -265,6 +268,7 @@ void main() async {
               'directLink': {
                 'slug': 'link',
                 'usageCount': 0,
+                'createdAt': DateTime.now().toString(),
               },
             }
           ],

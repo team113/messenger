@@ -226,6 +226,7 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
+btn_login_and_password = Логин и пароль
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
@@ -292,6 +293,7 @@ btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
 colon_space = :{" "}
+comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
@@ -313,6 +315,7 @@ err_call_not_found = Данный звонок не найден
 err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
+err_camera_permission_denied = Доступ к камере отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к камере.
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
@@ -346,6 +349,7 @@ err_unknown_registration_token = Неизвестный регистрацион
 err_login_occupied = Данный логин уже занят.
 err_media_devices_are_null = Невозможно получить `MediaStream` с `video`, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.
 err_message_was_read = Сообщение было прочитано
+err_microphone_permission_denied = Доступ к микрофону отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к микрофону.
 err_monolog = Невозможно выполнить данное действие в монологе
 err_network = Ошибка подключения к серверу
 err_no_access_to_gallery = Доступ к галерее запрещён. Пожалуйста, убедитесь, что у приложения есть разрешения на доступ к галерее.
@@ -541,6 +545,7 @@ label_add_chat_member = Добавление участника
 label_add_email = Добавить E-mail
 label_add_email_confirmation_sent = На указанный Вами E-mail был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_confirmation_sent_again = На указанный Вами E-mail повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
+label_add_email_confirmation_sent_to = На {$email} был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_description = На указанный Вами E-mail будет отправлен код подтверждения.
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить телефон
@@ -697,6 +702,7 @@ label_conditions_ui_ux_designer =
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок.
 label_confirm = Подтвердить
+label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
@@ -777,6 +783,7 @@ label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
+label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
@@ -902,15 +909,17 @@ label_no_contacts = Нет контактов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
-label_no_users = Нет пользователей
-label_no_updates_are_available_title = Нет доступных обновлений
 label_no_updates_are_available_subtitle = У Вас установлена наиболее актуальная версия.
+label_no_updates_are_available_title = Нет доступных обновлений
+label_no_users = Нет пользователей
+label_no_welcome_message = Приветственное сообщение не добавлено
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_off = Выкл
 label_offline = офлайн
+label_one_time_password = Одноразовый пароль
 label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
@@ -1045,6 +1054,7 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
+label_sign_up_with_password = Регистрация с паролем
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
@@ -1145,6 +1155,9 @@ label_we_welcome_backend_developer =
     - навык работы по CQRS+ES парадигме;
     - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Приветственное сообщение
+label_welcome_message_description = Приветствие не отображается пользователям, которым написали Вы. Отображается только у пользователей, которые добавили Вас в свой список чатов.
+label_welcome_message_hint = Добавить, редактировать, удалить
 label_welcome_message_freelance =
     Добрый день. Пожалуйста, укажите:
     - логин на GitHub'е;

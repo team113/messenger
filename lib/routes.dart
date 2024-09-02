@@ -32,6 +32,7 @@ import 'domain/repository/call.dart';
 import 'domain/repository/chat.dart';
 import 'domain/repository/contact.dart';
 import 'domain/repository/my_user.dart';
+import 'domain/repository/session.dart';
 import 'domain/repository/settings.dart';
 import 'domain/repository/user.dart';
 import 'domain/service/auth.dart';
@@ -41,6 +42,7 @@ import 'domain/service/chat.dart';
 import 'domain/service/contact.dart';
 import 'domain/service/my_user.dart';
 import 'domain/service/notification.dart';
+import 'domain/service/session.dart';
 import 'domain/service/user.dart';
 import 'firebase_options.dart';
 import 'l10n/l10n.dart';
@@ -55,6 +57,7 @@ import 'provider/drift/chat_member.dart';
 import 'provider/drift/draft.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/monolog.dart';
+import 'provider/drift/session.dart';
 import 'provider/drift/user.dart';
 import 'provider/drift/version.dart';
 import 'provider/gql/graphql.dart';
@@ -63,6 +66,7 @@ import 'store/call.dart';
 import 'store/chat.dart';
 import 'store/contact.dart';
 import 'store/my_user.dart';
+import 'store/session.dart';
 import 'store/settings.dart';
 import 'store/user.dart';
 import 'themes.dart';
@@ -130,6 +134,7 @@ enum ProfileTab {
   chats,
   calls,
   media,
+  welcome,
   notifications,
   storage,
   language,
@@ -536,6 +541,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               deps.put(CallRectDriftProvider(Get.find(), scoped));
               deps.put(MonologDriftProvider(Get.find()));
               deps.put(DraftDriftProvider(Get.find(), scoped));
+              deps.put(SessionDriftProvider(Get.find(), scoped));
               await deps.put(VersionDriftProvider(Get.find())).init();
 
               final AbstractSettingsRepository settingsRepository =
@@ -672,8 +678,10 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 deps.put(CallRectDriftProvider(common, scoped));
             final monologProvider = deps.put(MonologDriftProvider(common));
             final draftProvider = deps.put(DraftDriftProvider(common, scoped));
-            final sessionProvider = deps.put(VersionDriftProvider(common));
-            await sessionProvider.init();
+            final sessionProvider =
+                deps.put(SessionDriftProvider(Get.find(), scoped));
+            final versionProvider = deps.put(VersionDriftProvider(common));
+            await versionProvider.init();
 
             final GraphQlProvider graphQlProvider = Get.find();
 
@@ -689,16 +697,36 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             // not the default ones.
             await settingsRepository.init();
 
+            SessionService? sessionService;
+
             // Should be initialized before any [L10n]-dependant entities as
             // it sets the stored [Language] from the [SettingsRepository].
             await deps
                 .put(
                   SettingsWorker(
                     settingsRepository,
-                    onChanged: notificationService.setLanguage,
+                    onChanged: (language) {
+                      notificationService.setLanguage(language);
+                      sessionService?.setLanguage(language);
+                    },
                   ),
                 )
                 .init();
+
+            final AbstractSessionRepository sessionRepository =
+                deps.put<AbstractSessionRepository>(
+              SessionRepository(
+                graphQlProvider,
+                Get.find(),
+                versionProvider,
+                sessionProvider,
+                Get.find(),
+                Get.find(),
+              ),
+            );
+            sessionService =
+                deps.put<SessionService>(SessionService(sessionRepository));
+            sessionService.setLanguage(L10n.chosen.value?.locale.toString());
 
             notificationService.init(
               language: L10n.chosen.value?.locale.toString(),
@@ -733,7 +761,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               callRepository,
               draftProvider,
               userRepository,
-              sessionProvider,
+              versionProvider,
               monologProvider,
               me: me,
             );
@@ -748,7 +776,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               ContactRepository(
                 graphQlProvider,
                 userRepository,
-                sessionProvider,
+                versionProvider,
                 me: me,
               ),
             );
@@ -758,7 +786,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               graphQlProvider,
               blocklistProvider,
               userRepository,
-              sessionProvider,
+              versionProvider,
               Get.find(),
               me: me,
             );

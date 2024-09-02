@@ -93,7 +93,7 @@ void main() async {
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
@@ -118,6 +118,8 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) async => const Stream.empty());
+  when(graphQlProvider.sessionsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.getUser(any))
       .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
@@ -272,7 +274,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -285,7 +287,7 @@ void main() async {
           ContactRepository(
             graphQlProvider,
             userRepository,
-            sessionProvider,
+            versionProvider,
             me: const UserId('me'),
           ),
         ),
@@ -331,7 +333,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         monologProvider,
         me: const UserId('me'),
       ),

@@ -226,6 +226,7 @@ btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_leave_group = Leave group
+btn_login_and_password = Login and password
 btn_logout = Logout
 btn_media_settings = Media settings
 btn_message_info = Message info
@@ -292,6 +293,7 @@ btn_work_with_us = Work with us
 btn_write_message = Write a message
 btn_your_profile = Your profile
 colon_space = :{" "}
+comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
@@ -313,6 +315,7 @@ err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
+err_camera_permission_denied = Camera permission is denied. Please, ensure application has camera permissions.
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied.
@@ -343,8 +346,9 @@ err_invalid_registration_token = Invalid registration token
 err_invalid_symbols_in_link = Unacceptable symbols. The following symbols are allowed: A-z, -, _ and 0-9
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
-err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser's configuration doesn't allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
+err_microphone_permission_denied = Microphone permission is denied. Please, ensure application has microphone permissions.
 err_monolog = Can't perform this action in a monolog
 err_network = Connection to the server refused
 err_no_access_to_gallery = Access to the gallery denied. Please, make sure the application has permissions to access the gallery.
@@ -530,6 +534,7 @@ label_add_chat_member = Add member
 label_add_email = Add E-mail
 label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_confirmation_sent_to = A confirmation code has been sent to the {$email}. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_description = A confirmation code will be sent to the indicated E-mail.
 label_add_email_hint = Write your email address
 label_add_number = Add phone
@@ -673,6 +678,7 @@ label_conditions_ui_ux_designer =
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices.
 label_confirm = Confirm
+label_confirm_account_deletion = Confirm account deletion
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
@@ -752,6 +758,7 @@ label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
+label_enter_password_below = Please, enter your password in the field below.
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
@@ -875,15 +882,17 @@ label_no_contacts = No contacts
 label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
-label_no_users = No users
-label_no_updates_are_available_title = No updates are available
 label_no_updates_are_available_subtitle = You have the latest version installed.
+label_no_updates_are_available_title = No updates are available
+label_no_users = No users
+label_no_welcome_message = Welcome message has not been added
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
+label_one_time_password = One-time password
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
@@ -1016,6 +1025,7 @@ label_sign_in_required = Sign in required
 label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
+label_sign_up_with_password = Sign up with password
 label_sort_by_name = Sort by name
 label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
@@ -1115,6 +1125,9 @@ label_we_welcome_backend_developer =
     - Skill in Memcached technologies;
     - Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Welcome message
+label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
+label_welcome_message_hint = Add, edit, delete
 label_welcome_message_freelance =
     Good afternoon. Please, specify:
     - login on GitHub;

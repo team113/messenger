@@ -21,6 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
 import '/api/backend/schema.dart';
@@ -41,6 +42,7 @@ import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import 'event/changed.dart';
 import 'event/my_user.dart'
     show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
 import 'model/page_info.dart';
@@ -507,6 +509,23 @@ class UserRepository extends DisposableInterface
     } else if (e.$$typename == 'EventUserBioUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageDeleted') {
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserWelcomeMessageDeleted;
+      return EventUserWelcomeMessageDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserWelcomeMessageUpdated') {
+      final node =
+          e as UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated;
+      return EventUserWelcomeMessageUpdated(
+        node.userId,
+        node.at,
+        node.text == null ? null : ChangedChatMessageText(node.text!.changed),
+        node.attachments == null
+            ? null
+            : ChangedChatMessageAttachments(
+                node.attachments!.changed.map((e) => e.toModel()).toList(),
+              ),
+      );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');
     }

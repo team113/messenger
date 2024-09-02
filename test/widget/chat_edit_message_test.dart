@@ -227,6 +227,9 @@ void main() async {
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) async => const Stream.empty());
 
+  when(graphQlProvider.sessionsEvents(any))
+      .thenAnswer((_) => const Stream.empty());
+
   when(graphQlProvider.getBlocklist(
     first: anyNamed('first'),
     after: null,
@@ -275,6 +278,7 @@ void main() async {
         const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
+      const SessionId('me'),
       const UserId('me'),
     ),
   );
@@ -294,7 +298,7 @@ void main() async {
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
-  final sessionProvider = Get.put(VersionDriftProvider(common));
+  final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -340,7 +344,7 @@ void main() async {
         graphQlProvider,
         blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         myUserProvider,
         me: const UserId('me'),
       ),
@@ -362,7 +366,7 @@ void main() async {
         callRepository,
         draftProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         monologProvider,
         me: const UserId('me'),
       ),
@@ -372,7 +376,7 @@ void main() async {
       ContactRepository(
         graphQlProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
         me: const UserId('me'),
       ),
     );

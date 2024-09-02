@@ -27,11 +27,13 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
+import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
+import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/appcast_version.dart';
@@ -179,6 +181,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillField,
         fillFieldN,
         fillFieldWithMyCredential,
+        fillFieldWithRandomLogin,
         fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
@@ -270,6 +273,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setCredential,
         setMyCredential,
         signInAs,
+        signsOutSession,
         tapAccountInAccounts,
         tapChat,
         tapContact,
@@ -351,7 +355,23 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
+  Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+
+  final Function(FlutterErrorDetails)? presentError = FlutterError.onError;
+  FlutterError.onError = (details) {
+    final String exception = details.exception.toString();
+
+    // Silence the `GlobalKey` being duplicated errors:
+    // https://github.com/google/flutter.widgets/issues/137
+    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+        exception.contains('Multiple widgets used the same GlobalKey.')) {
+      return;
+    }
+
+    presentError?.call(details);
+  };
+
   return Future.sync(app.main);
 }
 
@@ -371,7 +391,7 @@ Future<CustomUser> createUser({
   );
 
   if (user != null && world != null) {
-    world.sessions[user.name] = customUser;
+    world.sessions[user.name] = [customUser];
 
     provider.token = success.accessToken.secret;
     await provider.updateUserName(UserName(user.name));
@@ -379,8 +399,10 @@ Future<CustomUser> createUser({
       await provider.updateUserPassword(newPassword: password);
       world.sessions[user.name]?.password = password;
 
-      final result =
-          await provider.signIn(password, null, customUser.userNum, null, null);
+      final result = await provider.signIn(
+        credentials: MyUserCredentials(password: password),
+        identifier: MyUserIdentifier(num: customUser.userNum),
+      );
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }

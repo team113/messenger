@@ -24,6 +24,7 @@ import '/domain/model/user.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
+import '/store/model/session.dart';
 import 'drift.dart';
 
 /// [SessionData] to be stored in a [Table].
@@ -39,6 +40,7 @@ class Versions extends Table {
   BoolColumn get favoriteContactsSynchronized => boolean().nullable()();
   BoolColumn get contactsSynchronized => boolean().nullable()();
   BoolColumn get blocklistSynchronized => boolean().nullable()();
+  TextColumn get sessionsListVersion => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [SessionData].
@@ -143,7 +145,7 @@ class VersionDriftProvider extends DriftProviderBase {
     data.clear();
 
     await safe((db) async {
-      await db.delete(db.myUsers).go();
+      await db.delete(db.versions).go();
     });
   }
 }
@@ -163,6 +165,9 @@ extension _SessionDataDb on SessionData {
       favoriteContactsSynchronized: e.favoriteContactsSynchronized,
       contactsSynchronized: e.contactsSynchronized,
       blocklistSynchronized: e.blocklistSynchronized,
+      sessionsListVersion: e.sessionsListVersion == null
+          ? null
+          : SessionsListVersion(e.sessionsListVersion!),
     );
   }
 
@@ -176,6 +181,7 @@ extension _SessionDataDb on SessionData {
       favoriteContactsSynchronized: favoriteContactsSynchronized,
       contactsSynchronized: contactsSynchronized,
       blocklistSynchronized: blocklistSynchronized,
+      sessionsListVersion: sessionsListVersion?.val,
     );
   }
 }

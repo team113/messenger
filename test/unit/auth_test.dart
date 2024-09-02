@@ -62,11 +62,8 @@ void main() async {
 
     when(
       graphQlProvider.signIn(
-        UserPassword('123'),
-        UserLogin('user'),
-        null,
-        null,
-        null,
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
       ),
     ).thenAnswer(
       (_) => Future.value(
@@ -74,6 +71,7 @@ void main() async {
           'session': {
             '__typename': 'Session',
             'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+            'ip': '127.0.0.1',
             'userAgent':
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             'isCurrent': true,
@@ -121,7 +119,10 @@ void main() async {
 
     expect(await authService.init(), Routes.auth);
 
-    await authService.signIn(UserPassword('123'), login: UserLogin('user'));
+    await authService.signIn(
+      password: UserPassword('123'),
+      login: UserLogin('user'),
+    );
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -132,8 +133,12 @@ void main() async {
     await authService.logout();
 
     expect(authService.status.value.isEmpty, true);
-    verify(graphQlProvider.signIn(
-        UserPassword('123'), UserLogin('user'), null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
+      ),
+    );
   });
 
   test('AuthService successfully logins with saved session', () async {
@@ -148,6 +153,7 @@ void main() async {
           const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
+        const SessionId('me'),
         const UserId('me'),
       ),
     );
@@ -183,17 +189,21 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(UserPassword('123'), null, null, null, null))
-        .thenThrow(
+    when(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    ).thenThrow(
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(
+    final AuthRepository authRepository = Get.put(AuthRepository(
       graphQlProvider,
       myUserProvider,
       credsProvider,
     ));
-    AuthService authService = Get.put(AuthService(
+    final AuthService authService = Get.put(AuthService(
       authRepository,
       credsProvider,
       accountProvider,
@@ -201,13 +211,18 @@ void main() async {
 
     expect(await authService.init(), Routes.auth);
     try {
-      await authService.signIn(UserPassword('123'));
+      await authService.signIn(password: UserPassword('123'));
       fail('Exception is not thrown');
     } catch (e) {
       expect(e, isA<CreateSessionException>());
     }
 
-    verify(graphQlProvider.signIn(UserPassword('123'), null, null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    );
   });
 
   test('AuthService successfully resets password', () async {

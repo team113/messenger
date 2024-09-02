@@ -295,6 +295,10 @@ class ChatRepository extends DisposableInterface
   FutureOr<RxChatImpl?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
+    if (id.isLocalWith(me)) {
+      id = monolog;
+    }
+
     RxChatImpl? chat = chats[id];
     if (chat != null) {
       return chat;
@@ -904,7 +908,12 @@ class ChatRepository extends DisposableInterface
     await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
 
     final RxChatImpl? chat = chats[chatId];
-    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
+    chat?.chat.update(
+      (c) => c?.directLink = ChatDirectLink(
+        slug: slug,
+        createdAt: PreciseDateTime.now(),
+      ),
+    );
   }
 
   @override
@@ -1484,6 +1493,7 @@ class ChatRepository extends DisposableInterface
         ChatDirectLink(
           slug: node.directLink.slug,
           usageCount: node.directLink.usageCount,
+          createdAt: node.directLink.createdAt,
         ),
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
@@ -1925,7 +1935,10 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            await recent?.put(e, store: false);
+            final ChatVersion? stored = paginated[e.id]?.ver;
+            if (stored == null || e.ver > stored) {
+              await recent?.put(e, store: false);
+            }
           },
           onRemoved: (e) async {
             await recent?.remove(e.value.id, store: false);

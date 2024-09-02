@@ -33,7 +33,8 @@ final StepDefinitionGeneric setCredential =
     then2<TestUser, TestCredential, CustomWorld>(
   RegExp(r'{user} has (?:his|her) {credential} set up'),
   (TestUser user, TestCredential credential, context) async {
-    final CustomUser? customUser = context.world.sessions[user.name];
+    final CustomUser? customUser =
+        context.world.sessions[user.name]?.firstOrNull;
 
     if (customUser == null) {
       throw ArgumentError(
@@ -59,7 +60,8 @@ final StepDefinitionGeneric setMyCredential =
   (TestCredential credential, context) async {
     final CustomUser? me = context.world.sessions.values
         .where((user) => user.userId == context.world.me)
-        .firstOrNull;
+        .firstOrNull
+        ?.firstOrNull;
 
     if (me == null) {
       throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');

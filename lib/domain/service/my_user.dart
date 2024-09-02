@@ -21,6 +21,8 @@ import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/schema.dart' show Presence;
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -92,6 +94,22 @@ class MyUserService extends DisposableService {
     await _myUserRepository.updateUserBio(bio);
   }
 
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    Log.debug(
+      'updateWelcomeMessage(text: $text, attachments: $attachments)',
+      '$runtimeType',
+    );
+
+    await _myUserRepository.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
+  }
+
   /// Updates password for the authenticated [MyUser].
   ///
   /// If [MyUser] has no password yet (when sets his password), then `old`
@@ -115,7 +133,7 @@ class MyUserService extends DisposableService {
 
         // TODO: Replace `unsafe` with something more granular and correct.
         await _authService.signIn(
-          newPassword,
+          password: newPassword,
           num: myUser.value?.num,
           unsafe: true,
           force: true,

@@ -35,6 +35,8 @@ max_relay_port = 49200
 period = "300ms"
 [background.event_handler.invalidate_chat_counts]
 period = "500ms"
+[background.event_handler.send_chat_push_notification]
+timeout = "30s" # FCM API can be slow
 [background.event_handler.sync_call_room]
 period = "300ms"
 [background.event_handler.transcode_image_set]

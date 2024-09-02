@@ -31,12 +31,10 @@ import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
 import '/provider/drift/credentials.dart';
 import '/provider/drift/my_user.dart';
-import '/provider/gql/base.dart';
 import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
-import 'model/my_user.dart';
 
 /// Implementation of an [AbstractAuthRepository].
 ///
@@ -50,9 +48,6 @@ class AuthRepository extends DisposableInterface
   );
 
   @override
-  final RxList<Session> sessions = RxList();
-
-  @override
   final RxList<MyUser> profiles = RxList();
 
   /// GraphQL API provider.
@@ -64,19 +59,6 @@ class AuthRepository extends DisposableInterface
   /// [CredentialsDriftProvider] for removing [Credentials].
   final CredentialsDriftProvider _credentialsProvider;
 
-  // TODO: Temporary solution, wait for support from backend.
-  /// [UserEmail] used with [signUpWithEmail] to [confirmSignUpEmail].
-  UserEmail? _signUpEmail;
-
-  // TODO: Temporary solution, wait for support from backend.
-  /// [Credentials] of [Session] created with [signUpWithEmail] returned in
-  /// successful [confirmSignUpEmail].
-  Credentials? _signUpCredentials;
-
-  // TODO: Temporary solution, wait for support from backend.
-  /// [DtoMyUser] created with [signUpWithEmail].
-  DtoMyUser? _signedUpUser;
-
   /// [StreamSubscription] for the [MyUserDriftProvider.watch].
   StreamSubscription? _profilesSubscription;
 
@@ -87,6 +69,8 @@ class AuthRepository extends DisposableInterface
     _graphQlProvider.token = token;
     if (token == null) {
       _graphQlProvider.disconnect();
+    } else {
+      _graphQlProvider.reconnect();
     }
   }
 
@@ -134,10 +118,19 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signUp() async {
-    Log.debug('signUp()', '$runtimeType');
+  Future<Credentials> signUp({
+    UserPassword? password,
+    UserLogin? login,
+  }) async {
+    Log.debug(
+      'signUp(password: ${password?.obscured}, login: $login)',
+      '$runtimeType',
+    );
 
-    final response = await _graphQlProvider.signUp();
+    final response = await _graphQlProvider.signUp(
+      login: login,
+      password: password,
+    );
     final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
 
     _myUserProvider.upsert(success.user.toDto());
@@ -146,84 +139,32 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signIn(
-    UserPassword password, {
+  Future<Credentials> signIn({
     UserLogin? login,
     UserNum? num,
     UserEmail? email,
     UserPhone? phone,
+    UserPassword? password,
+    ConfirmationCode? code,
   }) async {
     Log.debug(
-      'signIn(***, $login, $num, $email, $phone)',
+      'signIn(password: ${password?.obscured}, code: $code, login: $login, num: $num, email: ${email?.obscured}, phone: ${phone?.obscured})',
       '$runtimeType',
     );
 
-    final response =
-        await _graphQlProvider.signIn(password, login, num, email, phone);
+    final response = await _graphQlProvider.signIn(
+      credentials: MyUserCredentials(code: code, password: password),
+      identifier: MyUserIdentifier(
+        login: login,
+        num: num,
+        phone: phone,
+        email: email,
+      ),
+    );
 
     _myUserProvider.upsert(response.user.toDto());
 
     return response.toModel();
-  }
-
-  @override
-  Future<void> signUpWithEmail(UserEmail email) async {
-    Log.debug('signUpWithEmail($email)', '$runtimeType');
-
-    _signUpCredentials = null;
-
-    final response = await _graphQlProvider.signUp();
-    final success = response as SignUp$Mutation$CreateUser$CreateSessionOk;
-
-    _signedUpUser = success.user.toDto();
-    _signUpCredentials = success.toModel();
-    _signUpEmail = email;
-
-    await _graphQlProvider.addUserEmail(
-      email,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
-  }
-
-  @override
-  Future<Credentials> confirmSignUpEmail(
-    ConfirmationCode code,
-  ) async {
-    Log.debug('confirmSignUpEmail($code)', '$runtimeType');
-
-    if (_signUpCredentials == null) {
-      throw ArgumentError.notNull('_signUpCredentials');
-    } else if (_signedUpUser == null) {
-      throw ArgumentError.notNull('_signedUpUser');
-    } else if (_signUpEmail == null) {
-      throw ArgumentError.notNull('_signUpEmail');
-    }
-
-    await _graphQlProvider.addUserEmail(
-      _signUpEmail!,
-      confirmation: code,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
-
-    _myUserProvider.upsert(_signedUpUser!);
-
-    return _signUpCredentials!;
-  }
-
-  @override
-  Future<void> resendSignUpEmail() async {
-    Log.debug('resendSignUpEmail()', '$runtimeType');
-
-    if (_signUpCredentials == null) {
-      throw ArgumentError.notNull('_signUpCredentials');
-    } else if (_signUpEmail == null) {
-      throw ArgumentError.notNull('_signUpEmail');
-    }
-
-    await _graphQlProvider.addUserEmail(
-      _signUpEmail!,
-      raw: RawClientOptions(_signUpCredentials!.access.secret),
-    );
   }
 
   @override
@@ -248,10 +189,6 @@ class AuthRepository extends DisposableInterface
           password == null ? null : MyUserCredentials(password: password),
       token: accessToken,
     );
-
-    if (id != null) {
-      sessions.removeWhere((e) => e.id == id);
-    }
   }
 
   @override
@@ -327,13 +264,6 @@ class AuthRepository extends DisposableInterface
 
     var response = await _graphQlProvider.useChatDirectLink(slug);
     return response.chat.id;
-  }
-
-  @override
-  Future<void> updateSessions() async {
-    Log.debug('updateSessions()', '$runtimeType');
-    sessions.value =
-        (await _graphQlProvider.sessions()).map((e) => e.toModel()).toList();
   }
 
   @override

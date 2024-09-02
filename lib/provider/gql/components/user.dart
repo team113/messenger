@@ -31,6 +31,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
 import '/store/model/my_user.dart';
+import '/store/model/session.dart';
 import '/store/model/user.dart';
 import '/util/log.dart';
 
@@ -1314,5 +1315,117 @@ mixin UserGraphQlMixin {
       ),
     );
     return Sessions$Query.fromJson(result.data!).sessions.list;
+  }
+
+  /// Subscribes to [SessionEvent]s of all [Session]s of the authenticated
+  /// [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// [Session]s list will be emitted after `SubscriptionInitialized` and before
+  /// any other [SessionEvent]s (and won't be emitted ever again until this
+  /// subscription completes). This allows to skip doing [sessions] before
+  /// establishing this subscription.
+  ///
+  /// If the specified ver is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via [sessions];
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh [ver] may be obtained in the emitted initial state of the
+  /// [Session]s list).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - an error occurs on the server (error is emitted).
+  /// - the server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event
+  /// which have already been applied to the state of some Session, so a client
+  /// side is expected to handle all the events idempotently considering the
+  /// [ver].
+  Stream<QueryResult> sessionsEvents(SessionsListVersion? ver) {
+    Log.debug('sessionsEvents($ver)', '$runtimeType');
+
+    final variables = SessionsEventsArguments(ver: ver);
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'SessionsEvents',
+        document: SessionsEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
+  }
+
+  /// Updates the [WelcomeMessage] of the authenticated [MyUser].
+  ///
+  /// For the [WelcomeMessage] to be meaningful, at least one of the
+  /// [WelcomeMessageInput.text] or [WelcomeMessageInput.attachments] arguments
+  /// must be specified and non-empty.
+  ///
+  /// To attach some [Attachment]s to the [WelcomeMessage], first, they should
+  /// be uploaded with `Mutation.uploadAttachment`, and only then, the returned
+  /// [Attachment.id]s may be used as the [WelcomeMessageInput.attachments]
+  /// argument of this mutation.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Result
+  ///
+  /// One of the following [MyUserEvent]s may be produced on success:
+  /// - [EventUserWelcomeMessageUpdated] (if [content] argument is specified);
+  /// - [EventUserWelcomeMessageDeleted] (if [content] argument is absent or
+  /// `null`).
+  ///
+  /// ### Idempotent
+  ///
+  /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
+  /// [MyUser]'s [WelcomeMessage] already has the specified
+  /// [WelcomeMessageInput.text] and [WelcomeMessageInput.attachments] in the
+  /// same order.
+  Future<MyUserEventsVersionedMixin?> updateWelcomeMessage(
+    WelcomeMessageInput? content,
+  ) async {
+    Log.debug('updateWelcomeMessage($content)', '$runtimeType');
+
+    final variables = UpdateWelcomeMessageArguments(content: content);
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'UpdateWelcomeMessage',
+        document: UpdateWelcomeMessageMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException: (data) => UpdateWelcomeMessageException(
+        (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
+                as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
+            .code,
+      ),
+    );
+    return DeleteUserDirectLink$Mutation.fromJson(result.data!)
+        .deleteChatDirectLink as MyUserEventsVersionedMixin?;
   }
 }

@@ -16,6 +16,13 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Support page:
         - Current version information. ([#1079], [#896])
+    - Profile page:
+        - Credentials confirmation of account deletion. ([#1086])
+        - Welcome message. ([#1090], [#553])
+        - Geolocation of active sessions. ([#1094], [#1005])
+    - Auth page:
+        - Signing up by login and password. ([#1087])
+        - Signing in by one-time password sent to e-mail. ([#1089], [#555])
 
 ### Changed
 
@@ -32,20 +39,31 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Typing being infinitely displayed after focus is lost. ([#995], [#988])
+        - Notes being duplicated when pressing on authorized user's name in chat. ([#1097], [#1083])
 - Web:
     - Application becoming unresponsive when navigating back with gallery being opened. ([#1078], [#900])
 - Windows:
     - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
 
+[#553]: /../../issues/553
+[#555]: /../../issues/555
 [#896]: /../../issues/896
 [#900]: /../../issues/900
 [#988]: /../../issues/988
 [#995]: /../../pull/995
+[#1005]: /../../issues/1005
 [#1066]: /../../pull/1066
 [#1069]: /../../pull/1069
 [#1070]: /../../pull/1070
 [#1078]: /../../pull/1078
 [#1079]: /../../pull/1079
+[#1083]: /../../issues/1083
+[#1086]: /../../pull/1086
+[#1087]: /../../pull/1087
+[#1089]: /../../pull/1089
+[#1090]: /../../pull/1090
+[#1094]: /../../pull/1094
+[#1097]: /../../pull/1097
 
 
 

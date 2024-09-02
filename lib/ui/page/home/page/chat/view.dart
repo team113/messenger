@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
@@ -26,14 +27,18 @@ import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/chat_item.dart';
+import '/domain/model/attachment.dart';
 import '/domain/model/chat_item_quote_input.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -66,6 +71,7 @@ import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
+import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
@@ -600,6 +606,32 @@ class ChatView extends StatelessWidget {
                           if ((c.chat!.status.value.isSuccess ||
                                   c.chat!.status.value.isEmpty) &&
                               c.chat!.messages.isEmpty) {
+                            final Widget? welcome = _welcomeMessage(context, c);
+
+                            if (welcome != null) {
+                              return Center(
+                                child: ListView(
+                                  shrinkWrap: true,
+                                  children: [
+                                    Align(
+                                      alignment: Alignment.centerLeft,
+                                      child: ConstrainedBox(
+                                        constraints: const BoxConstraints(
+                                          maxWidth: 550,
+                                        ),
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(
+                                            right: 48,
+                                          ),
+                                          child: welcome,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+
                             return Center(
                               child: SystemInfoPrompt(
                                 key: const Key('NoMessages'),
@@ -868,6 +900,14 @@ class ChatView extends StatelessWidget {
                   onSelect: () {
                     c.selecting.toggle();
                     c.selected.add(element);
+                  },
+                  onUserPressed: (user) {
+                    ChatId chatId = user.dialog;
+                    if (chatId.isLocalWith(c.me)) {
+                      chatId = c.monolog;
+                    }
+
+                    router.chat(chatId, push: true);
                   },
                 ),
               ),
@@ -1454,6 +1494,106 @@ class ChatView extends StatelessWidget {
         ),
       );
     });
+  }
+
+  /// Builds a visual representation of the [WelcomeMessage] of this [Chat].
+  Widget? _welcomeMessage(BuildContext context, ChatController c) {
+    final welcome = c.welcomeMessage;
+    if (welcome == null) {
+      return null;
+    }
+
+    final style = Theme.of(context).style;
+
+    final Iterable<Attachment> media = welcome.attachments.where(
+      (e) => e is ImageAttachment || e is FileAttachment && e.isVideo,
+    );
+
+    final Iterable<Attachment> files =
+        welcome.attachments.where((e) => e is FileAttachment && !e.isVideo);
+
+    // Construct a dummy [ChatMessage] to pass to a [SingleItemPaginated].
+    final ChatMessage item = ChatMessage(
+      const ChatItemId('dummy'),
+      const ChatId('dummy'),
+      User(const UserId('dummy'), UserNum('1234123412341234')),
+      PreciseDateTime.now(),
+      attachments: media.toList(),
+    );
+
+    // Returns a [SingleItemPaginated] to display in a [GalleryPopup].
+    Paginated<ChatItemId, Rx<ChatItem>> onGallery() {
+      return SingleItemPaginated(const ChatItemId('dummy'), Rx(item))..around();
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: style.messageColor,
+        borderRadius: style.cardRadius,
+      ),
+      margin: const EdgeInsets.all(8),
+      child: IntrinsicWidth(
+        child: ClipRRect(
+          borderRadius: style.cardRadius,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (media.isNotEmpty) ...[
+                if (media.length == 1)
+                  WithGlobalKey((_, key) {
+                    return ChatItemWidget.mediaAttachment(
+                      context,
+                      media.first,
+                      media,
+                      filled: false,
+                      item: item,
+                      onGallery: onGallery,
+                      key: key,
+                    );
+                  })
+                else
+                  SizedBox(
+                    width: 550,
+                    height: max(media.length * 60, 300),
+                    child: FitView(
+                      dividerColor: style.colors.transparent,
+                      children: media.mapIndexed(
+                        (i, e) {
+                          return WithGlobalKey((_, key) {
+                            return ChatItemWidget.mediaAttachment(
+                              context,
+                              e,
+                              media,
+                              item: item,
+                              onGallery: onGallery,
+                              key: key,
+                            );
+                          });
+                        },
+                      ).toList(),
+                    ),
+                  ),
+              ],
+              ...files.expand(
+                (e) => [
+                  const SizedBox(height: 6),
+                  ChatItemWidget.fileAttachment(e),
+                ],
+              ),
+              if (welcome.text != null)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 6, 12, 6),
+                  child: Text(
+                    '${welcome.text}',
+                    style: style.fonts.medium.regular.onBackground,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
