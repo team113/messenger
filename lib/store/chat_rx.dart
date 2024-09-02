@@ -2152,7 +2152,10 @@ class RxChatImpl extends RxChat {
         }
 
         if (shouldPutChat) {
-          await _driftChat.upsert(_setChat(chatEntity) ?? chatEntity);
+          final DtoChat? entity = _setChat(chatEntity);
+          if (entity != null) {
+            await _driftChat.upsert(entity);
+          }
         }
 
         break;
