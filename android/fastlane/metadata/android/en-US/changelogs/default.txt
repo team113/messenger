@@ -1,4 +1,10 @@
 - Added current version information to profile page.
-- Added download progress displaying on download button.
+- Added credentials confirmation when deleting account.
+- Added welcome message setting, editing and display.
+- Added geolocation information displaying to active sessions list.
+- Added signing up by login/password.
+- Added signing up and signing in by OTP code sent to email.
 - Updated colors for messages in chat.
-- Fixed infinite typing being display in chats list after losing a focus.
+- Fixed selected application language not being persisted.
+- Fixed infinite typing being displayed in chats list.
+- Fixed notes chat being duplicated when tapping on authorized user's name in chat.
