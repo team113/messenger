@@ -1,1 +1,12 @@
-- Fixed selected application language not being persisted.
+- Added current version information to profile page.
+- Added credentials confirmation when deleting account.
+- Added welcome message setting, editing and display.
+- Added geolocation information displaying to active sessions list.
+- Added signing up by login/password.
+- Added signing up and signing in by OTP code sent to email.
+- Added download progress displaying on download button.
+- Updated colors for messages in chat.
+- Fixed infinite typing being display in chats list after losing a focus.
+- Fixed notes chat being duplicated when tapping on authorized user's name in chat.
+- Fixed application becoming unresponsive when navigating back with gallery being opened on web.
+- Fixed application not launching due to `MSVCP140.dll` library being missing on Windows.

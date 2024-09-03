@@ -279,7 +279,6 @@ class Chat implements Comparable<Chat> {
   @override
   bool operator ==(Object other) {
     return other is Chat &&
-        compareTo(other) == 0 &&
         id == other.id &&
         avatar == other.avatar &&
         name == other.name &&
