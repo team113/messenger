@@ -200,6 +200,11 @@ dependency_overrides:
       url: https://github.com/SleepySquash/media-kit.git
       path: media_kit_video
       ref: migrate-to-wasm
+  sqlparser:
+    git:
+      url: https://github.com/simolus3/drift
+      path: sqlparser
+      ref: develop
   # TODO: Remove when Baseflow/flutter-permission-handler#1303 is merged:
   #       https://github.com/Baseflow/flutter-permission-handler/pull/1303
   permission_handler_html:

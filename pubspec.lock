@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: _flutterfire_internals
-      sha256: b1595874fbc8f7a50da90f5d8f327bb0bfd6a95dc906c390efe991540c3b54aa
+      sha256: "9371d13b8ee442e3bfc08a24e3a1b3742c839abbfaf5eef11b79c4b862c89bf7"
       url: "https://pub.dev"
     source: hosted
-    version: "1.3.40"
+    version: "1.3.41"
   _macros:
     dependency: transitive
     description: dart
@@ -67,10 +67,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_links
-      sha256: "50437e5916e6f56c1ca53e967cbfd6d53b3451465b41eef05ba1533bf1e1c5ea"
+      sha256: "7e058edbc78bd40b6a8227941b955f38320a4e799bc0983c8146bda41593a491"
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.0"
+    version: "6.3.1"
   app_links_linux:
     dependency: transitive
     description:
@@ -414,7 +414,7 @@ packages:
     description:
       path: drift
       ref: develop
-      resolved-ref: cd0c397202b4a4954d9e7548f8dd8e784224fef4
+      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
       url: "https://github.com/simolus3/drift"
     source: git
     version: "2.20.0"
@@ -423,10 +423,10 @@ packages:
     description:
       path: drift_dev
       ref: develop
-      resolved-ref: cd0c397202b4a4954d9e7548f8dd8e784224fef4
+      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
       url: "https://github.com/simolus3/drift"
     source: git
-    version: "2.20.1"
+    version: "2.20.2-dev"
   email_validator:
     dependency: "direct main"
     description:
@@ -511,10 +511,10 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_core
-      sha256: "3187f4f8e49968573fd7403011dca67ba95aae419bc0d8131500fae160d94f92"
+      sha256: "06537da27db981947fa535bb91ca120b4e9cb59cb87278dbdde718558cafc9ff"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.4.0"
   firebase_core_platform_interface:
     dependency: transitive
     description:
@@ -535,26 +535,26 @@ packages:
     dependency: "direct main"
     description:
       name: firebase_messaging
-      sha256: "1b0a4f9ecbaf9007771bac152afad738ddfacc4b8431a7591c00829480d99553"
+      sha256: "29941ba5a3204d80656c0e52103369aa9a53edfd9ceae05a2bb3376f24fda453"
       url: "https://pub.dev"
     source: hosted
-    version: "15.0.4"
+    version: "15.1.0"
   firebase_messaging_platform_interface:
     dependency: transitive
     description:
       name: firebase_messaging_platform_interface
-      sha256: c5a6443e66ae064fe186901d740ee7ce648ca2a6fd0484b8c5e963849ac0fc28
+      sha256: "26c5370d3a79b15c8032724a68a4741e28f63e1f1a45699c4f0a8ae740aadd72"
       url: "https://pub.dev"
     source: hosted
-    version: "4.5.42"
+    version: "4.5.43"
   firebase_messaging_web:
     dependency: transitive
     description:
       name: firebase_messaging_web
-      sha256: "232ef63b986467ae5b5577a09c2502b26e2e2aebab5b85e6c966a5ca9b038b89"
+      sha256: "58276cd5d9e22a9320ef9e5bc358628920f770f93c91221f8b638e8346ed5df4"
       url: "https://pub.dev"
     source: hosted
-    version: "3.8.12"
+    version: "3.8.13"
   fixnum:
     dependency: transitive
     description:
@@ -1100,10 +1100,10 @@ packages:
     dependency: transitive
     description:
       name: js
-      sha256: f2c445dce49627136094980615a031419f7f3eb393237e4ecd97ac15dea343f3
+      sha256: c1b2e9b5ea78c45e1a0788d29606ba27dc5f71f019f32ca5140f61ef071838cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.6.7"
+    version: "0.7.1"
   json_annotation:
     dependency: "direct main"
     description:
@@ -1618,14 +1618,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.0"
-  puppeteer:
-    dependency: transitive
-    description:
-      name: puppeteer
-      sha256: a6752d4f09b510ae41911bfd0997f957e723d38facf320dd9ee0e5661108744a
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.13.0"
   qr:
     dependency: transitive
     description:
@@ -1743,10 +1735,10 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "0f787e27ff617e4f88f7074977240406a9c5509444bac64a4dfa5b3200fb5632"
+      sha256: "1af8308298977259430d118ab25be8e1dda626cdefa1e6ce869073d530d39271"
       url: "https://pub.dev"
     source: hosted
-    version: "8.7.0"
+    version: "8.8.0"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
@@ -1759,10 +1751,10 @@ packages:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: fbbb47d72ccca48be25bf3c2ced6ab6e872991af3a0ba78e54be8d138f2e053f
+      sha256: "18fe4d125c2d529bd6127200f0d2895768266a8c60b4fb50b2086fd97e1a4ab2"
       url: "https://pub.dev"
     source: hosted
-    version: "8.7.0"
+    version: "8.8.0"
   share_plus:
     dependency: "direct main"
     description:
@@ -1847,10 +1839,10 @@ packages:
     dependency: transitive
     description:
       name: shelf_web_socket
-      sha256: "9ca081be41c60190ebcb4766b2486a7d50261db7bd0f5d9615f2d653637a84c1"
+      sha256: "073c147238594ecd0d193f3456a5fe91c4b0abbcc68bf5cd95b36c4e194ac611"
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.4"
+    version: "2.0.0"
   sky_engine:
     dependency: transitive
     description: flutter
@@ -1921,13 +1913,14 @@ packages:
     source: hosted
     version: "0.5.24"
   sqlparser:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqlparser
-      sha256: "3be52b4968fc2f098ba735863404756d2fe3ea0729cf006a5b5612618f74ca04"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.37.1"
+      path: sqlparser
+      ref: develop
+      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
+      url: "https://github.com/simolus3/drift"
+    source: git
+    version: "0.38.0-dev"
   stack_trace:
     dependency: transitive
     description:
@@ -2148,10 +2141,10 @@ packages:
     dependency: "direct main"
     description:
       name: uuid
-      sha256: "83d37c7ad7aaf9aa8e275490669535c8080377cfa7a7004c24dfac53afffaa90"
+      sha256: f33d6bb662f0e4f79dcd7ada2e6170f3b3a2530c28fc41f49a411ddedd576a77
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.2"
+    version: "4.5.0"
   vector_graphics:
     dependency: transitive
     description:
