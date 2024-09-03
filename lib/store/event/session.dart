@@ -59,6 +59,7 @@ class EventSessionCreated extends SessionEvent {
     super.at,
     this.userAgent,
     this.remembered,
+    this.ip,
   );
 
   /// [UserAgent] the [Session] was created by.
@@ -67,6 +68,9 @@ class EventSessionCreated extends SessionEvent {
   /// Indicator whether the created [Session] is remembered and is allowed to be
   /// refreshed via `Mutation.refreshSession`.
   final bool remembered;
+
+  /// IP of the device the [Session] was created from.
+  final IpAddress ip;
 
   @override
   SessionEventKind get kind => SessionEventKind.created;
@@ -84,15 +88,7 @@ class EventSessionCreated extends SessionEvent {
 
   /// Constructs a [Session] from this event.
   Session toModel() {
-    return Session(
-      id: id,
-
-      // TODO: Wait for backend to fix.
-      ip: const IpAddress(''),
-
-      userAgent: userAgent,
-      lastActivatedAt: at,
-    );
+    return Session(id: id, ip: ip, userAgent: userAgent, lastActivatedAt: at);
   }
 }
 
@@ -113,10 +109,13 @@ class EventSessionDeleted extends SessionEvent {
 
 /// Event of a [Session] being refreshed.
 class EventSessionRefreshed extends SessionEvent {
-  const EventSessionRefreshed(super.userId, super.at, this.userAgent);
+  const EventSessionRefreshed(super.userId, super.at, this.userAgent, this.ip);
 
   /// [UserAgent] the [Session] was refreshed by.
   final UserAgent userAgent;
+
+  /// IP of the device the [Session] was refreshed from.
+  final IpAddress ip;
 
   @override
   SessionEventKind get kind => SessionEventKind.refreshed;
@@ -133,14 +132,6 @@ class EventSessionRefreshed extends SessionEvent {
 
   /// Constructs a [Session] from this event.
   Session toModel() {
-    return Session(
-      id: id,
-
-      // TODO: Wait for backend to fix.
-      ip: const IpAddress(''),
-
-      userAgent: userAgent,
-      lastActivatedAt: at,
-    );
+    return Session(id: id, ip: ip, userAgent: userAgent, lastActivatedAt: at);
   }
 }

@@ -23,9 +23,11 @@ fragment SessionEventsVersioned on SessionEventsVersioned {
         ... on EventSessionCreated {
             userAgent
             remembered
+            ip
         }
         ... on EventSessionRefreshed {
             userAgent
+            ip
         }
         # ... on EventSessionDeleted { }
     }

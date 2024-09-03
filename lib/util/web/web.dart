@@ -535,7 +535,7 @@ class WebUtils {
     );
 
     try {
-      return window?.closed != true;
+      return window?.closed == false;
     } catch (_) {
       return false;
     }
