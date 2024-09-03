@@ -487,7 +487,7 @@ class OngoingCall {
         chatOrFuture.then(addDialingsFrom);
       }
 
-      _initRoom();
+      await _initRoom();
       await _setInitialMediaSettings();
       await _initLocalMedia();
     }
@@ -841,14 +841,14 @@ class OngoingCall {
 
     return _mediaSettingsGuard.protect(() async {
       _disposeLocalMedia();
-      if (!_background) {
-        _closeRoom();
-      }
       _devicesSubscription?.cancel();
       _displaysSubscription?.cancel();
       _heartbeat?.cancel();
       _outputWorker?.dispose();
       connected = false;
+      if (!_background) {
+        await _closeRoom();
+      }
     });
   }
 
@@ -1274,10 +1274,10 @@ class OngoingCall {
   }
 
   /// Initializes the [_room].
-  void _initRoom() {
+  Future<void> _initRoom() async {
     Log.debug('_initRoom()', '$runtimeType');
 
-    _room = MediaUtils.jason!.initRoom();
+    _room = (await MediaUtils.jason)?.initRoom();
 
     _room!.onFailedLocalMedia((e) async {
       Log.debug('onFailedLocalMedia($e)', '$runtimeType');
@@ -1801,8 +1801,8 @@ class OngoingCall {
           .where((e) => e.isConnected.value == true && e.id != _me)
           .toList();
 
-      _closeRoom(false);
-      _initRoom();
+      await _closeRoom(false);
+      await _initRoom();
 
       members.addEntries(
         connected
@@ -1835,12 +1835,12 @@ class OngoingCall {
   }
 
   /// Closes the [_room] and releases the associated resources.
-  void _closeRoom([bool dispose = true]) {
+  Future<void> _closeRoom([bool dispose = true]) async {
     Log.debug('_closeRoom()', '$runtimeType');
 
     if (_room != null) {
       try {
-        MediaUtils.jason?.closeRoom(_room!);
+        (await MediaUtils.jason)?.closeRoom(_room!);
         _room!.free();
       } catch (_) {
         // No-op, as the room might be in a detached state.

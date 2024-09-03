@@ -58,21 +58,32 @@ class MediaUtilsImpl {
   /// [Mutex] guarding synchronized access to the [_setOutputDevice].
   final Mutex _mutex = Mutex();
 
-  /// Returns the [Jason] instance of these [MediaUtils].
-  Jason? get jason {
-    if (_jason == null) {
-      try {
-        _jason = Jason();
-      } catch (_) {
-        // TODO: So the test would run. Jason currently only supports Web and
-        //       Android, and unit tests run on a host machine.
-        _jason = null;
-      }
+  /// [Mutex] guarding asynchronous [jason] and [_mediaManager] initialization.
+  final Mutex _guard = Mutex();
 
-      WebUtils.onPanic((e) {
-        Log.error('Panic: ${e.toString()}', 'Jason');
-        _jason = null;
-        __mediaManager = null;
+  /// Returns the [Jason] instance of these [MediaUtils].
+  FutureOr<Jason?> get jason {
+    if (_jason == null) {
+      return _guard.protect(() async {
+        if (_jason != null) {
+          return _jason;
+        }
+
+        try {
+          _jason = await Jason.init();
+        } catch (_) {
+          // TODO: So the test would run. Jason currently only supports Web and
+          //       Android, and unit tests run on a host machine.
+          _jason = null;
+        }
+
+        WebUtils.onPanic((e) {
+          Log.error('Panic: ${e.toString()}', 'Jason');
+          _jason = null;
+          __mediaManager = null;
+        });
+
+        return _jason;
       });
     }
 
@@ -80,8 +91,22 @@ class MediaUtilsImpl {
   }
 
   /// Returns the [MediaManagerHandle] instance of these [MediaUtils].
-  MediaManagerHandle? get _mediaManager {
-    __mediaManager ??= jason?.mediaManager();
+  FutureOr<MediaManagerHandle?> get _mediaManager {
+    if (__mediaManager == null) {
+      if (__mediaManager != null) {
+        return __mediaManager;
+      }
+
+      final FutureOr<Jason?> instance = jason;
+      if (instance is Future) {
+        return _guard.protect(() async {
+          return __mediaManager = (await instance)?.mediaManager();
+        });
+      }
+
+      return __mediaManager = instance?.mediaManager();
+    }
+
     return __mediaManager;
   }
 
@@ -89,12 +114,15 @@ class MediaUtilsImpl {
   Stream<List<DeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
-      _mediaManager?.onDeviceChange(() async {
-        _devicesController?.add(
-          (await enumerateDevices())
-              .where((e) => e.deviceId().isNotEmpty)
-              .toList(),
-        );
+
+      Future(() async {
+        (await _mediaManager)?.onDeviceChange(() async {
+          _devicesController?.add(
+            (await enumerateDevices())
+                .where((e) => e.deviceId().isNotEmpty)
+                .toList(),
+          );
+        });
       });
     }
 
@@ -109,7 +137,7 @@ class MediaUtilsImpl {
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
         Future(() async {
           _displaysController?.add(
-            (await _mediaManager?.enumerateDisplays() ?? [])
+            (await (await _mediaManager)?.enumerateDisplays() ?? [])
                 .where((e) => e.deviceId().isNotEmpty)
                 .toList(),
           );
@@ -133,11 +161,14 @@ class MediaUtilsImpl {
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local = await _mediaManager!.initLocalTracks(
+      final List<LocalMediaTrack>? local =
+          await (await _mediaManager)?.initLocalTracks(
         _mediaStreamSettings(audio: audio, video: video, screen: screen),
       );
 
-      tracks.addAll(local);
+      if (local != null) {
+        tracks.addAll(local);
+      }
     }
 
     return tracks;
@@ -149,7 +180,7 @@ class MediaUtilsImpl {
     MediaDeviceKind? kind,
   ]) async {
     final List<DeviceDetails> devices =
-        (await _mediaManager?.enumerateDevices() ?? [])
+        (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
@@ -221,7 +252,7 @@ class MediaUtilsImpl {
           );
         }
 
-        await _mediaManager?.setOutputAudioId(deviceId);
+        await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
     });
 
@@ -238,7 +269,7 @@ class MediaUtilsImpl {
       return [];
     }
 
-    return (await _mediaManager?.enumerateDisplays() ?? [])
+    return (await (await _mediaManager)?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
   }

@@ -83,7 +83,7 @@ PODS:
     - GoogleUtilities/Privacy
   - just_audio (0.0.1):
     - FlutterMacOS
-  - medea_flutter_webrtc (0.10.0):
+  - medea_flutter_webrtc (0.11.0):
     - FlutterMacOS
   - medea_jason (0.4.0):
     - FlutterMacOS
@@ -269,7 +269,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
-  medea_flutter_webrtc: 8e2bdaa9507d19710aa3384eba4c60c963d985de
+  medea_flutter_webrtc: d2feb7c8e2ca9a165ad8a00db8ec9867c90b174c
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
   media_kit_native_event_loop: 81fd5b45192b72f8b5b69eaf5b540f45777eb8d5

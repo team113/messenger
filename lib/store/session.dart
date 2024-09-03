@@ -363,13 +363,19 @@ class SessionRepository extends DisposableInterface
 
     if (e.$$typename == 'EventSessionCreated') {
       final node = e as SessionEventsVersionedMixin$Events$EventSessionCreated;
-      return EventSessionCreated(e.id, e.at, node.userAgent, node.remembered);
+      return EventSessionCreated(
+        e.id,
+        e.at,
+        node.userAgent,
+        node.remembered,
+        node.ip,
+      );
     } else if (e.$$typename == 'EventSessionDeleted') {
       return EventSessionDeleted(e.id, e.at);
     } else if (e.$$typename == 'EventSessionRefreshed') {
       final node =
           e as SessionEventsVersionedMixin$Events$EventSessionRefreshed;
-      return EventSessionRefreshed(e.id, e.at, node.userAgent);
+      return EventSessionRefreshed(e.id, e.at, node.userAgent, node.ip);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
     }
