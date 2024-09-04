@@ -84,6 +84,7 @@ dependencies:
   photo_view: ^0.15.0
   platform_detect: ^2.0.7
   pub_semver: ^2.1.4
+  qr_flutter: ^4.1.0
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
@@ -92,10 +93,10 @@ dependencies:
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
+  screen_brightness: any
   sound_fonts: ^0.1.1
-  qr_flutter: ^4.1.0
-  sqlite3: ^2.4.4
   sqlite3_flutter_libs: ^0.5.24
+  sqlite3: ^2.4.4
   stdlibc: ^0.1.4
   toml: ^0.16.0
   universal_io: ^2.2.2
