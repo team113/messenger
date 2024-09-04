@@ -6,4 +6,3 @@
 - Added signing up and signing in by OTP code sent to email.
 - Updated colors for messages in chat.
 - Fixed infinite typing being displayed in chats list.
-- Fixed notes chat being duplicated when tapping on authorized user's name in chat.
