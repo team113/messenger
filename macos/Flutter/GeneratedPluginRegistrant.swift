@@ -13,9 +13,9 @@ import device_info_plus
 import file_selector_macos
 import firebase_core
 import firebase_messaging
-import flutter_app_badger
 import flutter_custom_cursor
 import flutter_local_notifications
+import flutter_native_badge_foundation
 import just_audio
 import medea_flutter_webrtc
 import medea_jason
@@ -43,9 +43,9 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FileSelectorPlugin.register(with: registry.registrar(forPlugin: "FileSelectorPlugin"))
   FLTFirebaseCorePlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseCorePlugin"))
   FLTFirebaseMessagingPlugin.register(with: registry.registrar(forPlugin: "FLTFirebaseMessagingPlugin"))
-  FlutterAppBadgerPlugin.register(with: registry.registrar(forPlugin: "FlutterAppBadgerPlugin"))
   FlutterCustomCursorPlugin.register(with: registry.registrar(forPlugin: "FlutterCustomCursorPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
+  FlutterNativeBadgePlugin.register(with: registry.registrar(forPlugin: "FlutterNativeBadgePlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
   MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
   MedeaJasonPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonPlugin"))

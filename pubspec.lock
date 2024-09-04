@@ -583,15 +583,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.0"
-  flutter_app_badger:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: f2f391acb17773511b6b89fb77a55f29b60a6f9e
-      url: "https://github.com/SleepySquash/flutter_app_badger"
-    source: git
-    version: "1.5.0"
   flutter_callkit_incoming:
     dependency: "direct main"
     description:
@@ -680,6 +671,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.3+1"
+  flutter_native_badge:
+    dependency: "direct main"
+    description:
+      name: flutter_native_badge
+      sha256: "94691ec5265e40ae16a274357f336d910085c67815f8765fa7fd891625b76dc0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5+dev"
+  flutter_native_badge_foundation:
+    dependency: transitive
+    description:
+      name: flutter_native_badge_foundation
+      sha256: c4c0891c7b494ccf0783bf6cb2b0fcab75d1dca1f0df729b0b22fe529fc74f45
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4+dev"
+  flutter_native_badge_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_native_badge_platform_interface
+      sha256: "1aef80eaab5b7ba6dee3bcf0793b6aa0709c122de881c5fbee3af2aacdb649f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

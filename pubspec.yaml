@@ -35,8 +35,6 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_app_badger:
-    git: https://github.com/SleepySquash/flutter_app_badger
   flutter_callkit_incoming:
     git: https://github.com/SleepySquash/flutter_callkit_incoming_android
   flutter_custom_cursor: ^0.0.4
@@ -44,6 +42,7 @@ dependencies:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^17.1.2
   flutter_markdown: ^0.7.1
+  flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^3.1.0
   flutter_spinkit: ^5.2.1
   flutter_staggered_animations: ^1.1.1
