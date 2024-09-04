@@ -1,7 +1,7 @@
 PODS:
   - all_sensors (0.0.1):
     - Flutter
-  - app_links (0.0.1):
+  - app_links (0.0.2):
     - Flutter
   - audio_session (0.0.1):
     - Flutter
@@ -135,7 +135,7 @@ PODS:
     - nanopb/encode (= 2.30910.0)
   - nanopb/decode (2.30910.0)
   - nanopb/encode (2.30910.0)
-  - open_file (0.0.1):
+  - open_file_ios (0.0.1):
     - Flutter
   - package_info_plus (0.4.5):
     - Flutter
@@ -150,11 +150,11 @@ PODS:
   - SDWebImage (5.19.7):
     - SDWebImage/Core (= 5.19.7)
   - SDWebImage/Core (5.19.7)
-  - Sentry/HybridSDK (8.32.0)
-  - sentry_flutter (8.6.0):
+  - Sentry/HybridSDK (8.35.1)
+  - sentry_flutter (8.8.0):
     - Flutter
     - FlutterMacOS
-    - Sentry/HybridSDK (= 8.32.0)
+    - Sentry/HybridSDK (= 8.35.1)
   - share_plus (0.0.1):
     - Flutter
   - shared_preferences_foundation (0.0.1):
@@ -213,7 +213,7 @@ DEPENDENCIES:
   - media_kit_libs_ios_video (from `.symlinks/plugins/media_kit_libs_ios_video/ios`)
   - media_kit_native_event_loop (from `.symlinks/plugins/media_kit_native_event_loop/ios`)
   - media_kit_video (from `.symlinks/plugins/media_kit_video/ios`)
-  - open_file (from `.symlinks/plugins/open_file/ios`)
+  - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
   - permission_handler_apple (from `.symlinks/plugins/permission_handler_apple/ios`)
@@ -289,8 +289,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/media_kit_native_event_loop/ios"
   media_kit_video:
     :path: ".symlinks/plugins/media_kit_video/ios"
-  open_file:
-    :path: ".symlinks/plugins/open_file/ios"
+  open_file_ios:
+    :path: ".symlinks/plugins/open_file_ios/ios"
   package_info_plus:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
@@ -318,7 +318,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   all_sensors: 13f46502204bebbd1e06b65ff3d7cdaa03d88b26
-  app_links: e70ca16b4b0f88253b3b3660200d4a10b4ea9795
+  app_links: e7a6750a915a9e161c58d91bc610e8cd1d4d0ad0
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   connectivity_plus: ddd7f30999e1faaef5967c23d5b6d503d10434db
   device_info_plus: 97af1d7e84681a90d0693e63169a5d50e0839a0d
@@ -348,15 +348,15 @@ SPEC CHECKSUMS:
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
   media_kit_video: 5da63f157170e5bf303bf85453b7ef6971218a2e
   nanopb: 438bc412db1928dac798aa6fd75726007be04262
-  open_file: 02eb5cb6b21264bd3a696876f5afbfb7ca4f4b7d
+  open_file_ios: 461db5853723763573e140de3193656f91990d9e
   package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   permission_handler_apple: 9878588469a2b0d0fc1e048d9f43605f92e6cec2
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
   SDWebImage: 8a6b7b160b4d710e2a22b6900e25301075c34cb3
-  Sentry: 96ae1dcdf01a644bc3a3b1dc279cecaf48a833fb
-  sentry_flutter: 090351ce1ff5f96a4b33ef9455b7e3b28185387d
+  Sentry: 1fe34e9c2cbba1e347623610d26db121dcb569f1
+  sentry_flutter: a39c2a2d67d5e5b9cb0b94a4985c76dd5b3fc737
   share_plus: 8875f4f2500512ea181eef553c3e27dba5135aad
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
