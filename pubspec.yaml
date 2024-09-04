@@ -35,8 +35,6 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_app_badger:
-    git: https://github.com/SleepySquash/flutter_app_badger
   flutter_callkit_incoming:
     git: https://github.com/SleepySquash/flutter_callkit_incoming_android
   flutter_custom_cursor: ^0.0.4
@@ -44,6 +42,7 @@ dependencies:
     git: https://github.com/krida2000/flutter_list_view.git
   flutter_local_notifications: ^17.1.2
   flutter_markdown: ^0.7.1
+  flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^3.1.0
   flutter_spinkit: ^5.2.1
   flutter_staggered_animations: ^1.1.1
@@ -85,6 +84,7 @@ dependencies:
   photo_view: ^0.15.0
   platform_detect: ^2.0.7
   pub_semver: ^2.1.4
+  qr_flutter: ^4.1.0
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
@@ -93,10 +93,10 @@ dependencies:
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
+  screen_brightness: any
   sound_fonts: ^0.1.1
-  qr_flutter: ^4.1.0
-  sqlite3: ^2.4.4
   sqlite3_flutter_libs: ^0.5.24
+  sqlite3: ^2.4.4
   stdlibc: ^0.1.4
   toml: ^0.16.0
   universal_io: ^2.2.2
@@ -150,37 +150,37 @@ dependency_overrides:
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: media_kit
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_android_video:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: libs/android/media_kit_libs_android_video
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_ios_video:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: libs/ios/media_kit_libs_ios_video
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_linux:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: libs/linux/media_kit_libs_linux
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_native_event_loop:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: media_kit_native_event_loop
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_windows_video:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: libs/windows/media_kit_libs_windows_video
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_video:
     git:
-      url: https://github.com/media-kit/media-kit
+      url: https://github.com/SleepySquash/media-kit
       path: media_kit_video
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
