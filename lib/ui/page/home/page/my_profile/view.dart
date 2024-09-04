@@ -60,6 +60,7 @@ import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -373,7 +374,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       return const SizedBox();
 
     case ProfileTab.logout:
-      return const SafeArea(
+      return const CustomSafeArea(
         top: false,
         right: false,
         left: false,

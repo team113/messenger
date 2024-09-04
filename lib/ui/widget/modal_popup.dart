@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
+import 'safe_area/safe_area.dart';
 import 'widget_button.dart';
 
 /// Stylized modal popup.
@@ -72,7 +73,7 @@ abstract class ModalPopup {
         constraints:
             BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
         builder: (context) {
-          return SafeArea(
+          return CustomSafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -127,7 +128,7 @@ abstract class ModalPopup {
             ),
           );
 
-          return SafeArea(
+          return CustomSafeArea(
             child: Material(type: MaterialType.transparency, child: body),
           );
         },

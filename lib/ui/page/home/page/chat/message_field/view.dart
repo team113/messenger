@@ -45,6 +45,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -141,7 +142,7 @@ class MessageFieldView extends StatelessWidget {
       builder: (MessageFieldController c) {
         return Theme(
           data: theme(context),
-          child: SafeArea(
+          child: CustomSafeArea(
             child: Container(
               key: const Key('SendField'),
               decoration: BoxDecoration(

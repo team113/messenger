@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
@@ -62,7 +63,9 @@ class SafeScrollbar extends StatelessWidget {
         data: MediaQuery.of(router.context ?? context).copyWith(
           padding: EdgeInsets.only(
             top: top ? CustomAppBar.height - 5 : 0,
-            bottom: bottom ? CustomNavigationBar.height : 0,
+            bottom: bottom
+                ? CustomNavigationBar.height + (CustomSafeArea.isPwa ? 25 : 0)
+                : 0,
           ),
         ),
         child: Padding(
