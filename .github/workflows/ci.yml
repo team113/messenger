@@ -99,15 +99,15 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - run: mv *.ipa ios/app.ipa
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Prepare App Store Connect key
         run: echo "${{ secrets.APP_STORE_KEY }}"
              >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Publish iOS application against App Store
         run: fastlane validate
@@ -116,7 +116,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         working-directory: ios/
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Cleanup App Store Connect key
         run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
@@ -138,21 +138,21 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - run: mv *.aab android/app.aab
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Prepare Google Service account
         run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
              | base64 -d
              > android/service_account.json
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Validate Android application against Google Play
         run: fastlane validate
         working-directory: android/
-        if: {{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' }}
 
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json
