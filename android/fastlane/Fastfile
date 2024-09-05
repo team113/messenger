@@ -55,4 +55,13 @@ platform :android do
       track: 'beta'
     )
   end
+
+  desc "Validate the binary and its metadata against Google Play rules"
+  lane :validate do
+    upload_to_play_store(
+      aab: 'app.aab',
+      track: 'beta',
+      validate_only: true
+    )
+  end
 end

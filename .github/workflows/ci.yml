@@ -31,6 +31,8 @@ jobs:
       - dartdoc
       - dartfmt
       - docker
+      - fastlane-app-store
+      - fastlane-google-play
       - helm-lint
       - pubspec
       - test-e2e
@@ -80,6 +82,81 @@ jobs:
           cache: true
 
       - run: make flutter.fmt check=yes
+
+  fastlane-app-store:
+    needs: ["build"]
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            ios:
+              - 'ios/fastlane/**'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-ipa-${{ github.run_number }}
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - run: mv *.ipa ios/app.ipa
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Prepare App Store Connect key
+        run: echo "${{ secrets.APP_STORE_KEY }}"
+             >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Publish iOS application against App Store
+        run: fastlane validate
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        working-directory: ios/
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Cleanup App Store Connect key
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always() }}
+
+  fastlane-google-play:
+    needs: ["build"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            android:
+              - 'android/fastlane/**'
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-appbundle-${{ github.run_number }}
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - run: mv *.aab android/app.aab
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Validate Android application against Google Play
+        run: fastlane validate
+        working-directory: android/
+        if: {{ steps.filter.outputs.ios == 'true' }}
+
+      - name: Cleanup Google Service account
+        run: rm -rf android/service_account.json
+        if: ${{ always() }}
 
   helm-lint:
     name: helm lint
