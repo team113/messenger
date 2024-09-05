@@ -138,21 +138,21 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.android == 'true' }}
 
       - run: mv *.aab android/app.aab
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.android == 'true' }}
 
       - name: Prepare Google Service account
         run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
              | base64 -d
              > android/service_account.json
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.android == 'true' }}
 
       - name: Validate Android application against Google Play
         run: fastlane validate
         working-directory: android/
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.android == 'true' }}
 
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json
