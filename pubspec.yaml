@@ -21,6 +21,7 @@ dependencies:
     git:
       url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_drop
+      ref: 08c1ce40eb6abfad6049fb6aad8bd30312ec5319
   device_info_plus: ^10.1.0
   dio: ^5.1.2
   dough: ^2.0.0
@@ -64,8 +65,8 @@ dependencies:
   just_audio: ^0.9.38
   log_me: ^0.1.2
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: ^0.11.0
-  medea_jason: ^0.6.0
+  medea_flutter_webrtc: 0.11.0
+  medea_jason: 0.6.0
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
