@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.0] · 2024-??-??
+[0.3.0]: /../../tree/v0.3.0
+
+[Diff](/../../compare/v0.2.0...v0.3.0) | [Milestone](/../../milestone/29)
+
+### Fixed
+
+- Web:
+    - Inability to input chat's name during group creation. ([#1103])
+
+[#1103]: /../../pull/1103
+
+
+
+
 ## [0.2.0] · 2024-09-04
 [0.2.0]: /../../tree/v0.2.0
 
