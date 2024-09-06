@@ -105,7 +105,7 @@ jobs:
       - name: Retrieve commit messages
         id: commit
         run: |
-          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
           >> $GITHUB_OUTPUT
       - name: Determine whether commit messages contain any marks
         id: mark
@@ -143,7 +143,7 @@ jobs:
       - name: Retrieve commit messages
         id: commit
         run: |
-          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
           >> $GITHUB_OUTPUT
       - name: Determine whether commit messages contain any marks
         id: mark
@@ -202,7 +202,7 @@ jobs:
       - name: Retrieve commit messages
         id: commit
         run: |
-          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
           >> $GITHUB_OUTPUT
       - name: Determine whether commit messages contain any marks
         id: mark
