@@ -100,6 +100,8 @@ jobs:
   pubspec:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Determine whether commits contain any marks
         id: mark
         run: |
@@ -108,7 +110,6 @@ jobs:
           >> $GITHUB_OUTPUT
       - run: echo "${{ steps.mark.outputs.run }}"
 
-      - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
