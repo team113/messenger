@@ -47,6 +47,7 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -358,7 +359,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       }),
 
       // Sliding from the top title bar.
-      SafeArea(
+      CustomSafeArea(
         child: Obx(() {
           final bool active = c.state.value == OngoingCallState.active;
           final bool incoming = !isOutgoing;
@@ -386,7 +387,7 @@ Widget mobileCall(CallController c, BuildContext context) {
       ),
 
       // Sliding from the top call information.
-      SafeArea(
+      CustomSafeArea(
         child: Obx(() {
           final bool active = c.state.value == OngoingCallState.active;
           final bool showUi = c.showUi.value && active && !c.minimized.value;

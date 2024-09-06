@@ -1959,10 +1959,19 @@ class RxChatImpl extends RxChat {
 
               // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
               //       here when starting group or monolog [ChatCall].
-              if (!chatEntity.value.isDialog &&
-                  chatEntity.value.lastItem is ChatCall) {
-                write((chat) => (chat.value.lastItem as ChatCall)
-                    .conversationStartedAt ??= PreciseDateTime.now());
+              if (chatEntity.value.lastItem is ChatCall) {
+                final ChatCall call = chatEntity.value.lastItem as ChatCall;
+
+                if (!chatEntity.value.isDialog) {
+                  call.conversationStartedAt ??= PreciseDateTime.now();
+                  write((chat) => (chat.value.lastItem as ChatCall)
+                      .conversationStartedAt ??= PreciseDateTime.now());
+                }
+
+                // Call is already finished, no reason to try adding it.
+                if (call.finishReason == null) {
+                  write((chat) => chat.value.ongoingCall = call);
+                }
               }
 
               write((chat) => chat.value.updatedAt =

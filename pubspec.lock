@@ -348,10 +348,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dartdoc
-      sha256: e31548b02ae6866df01dd629317d2202da837b7e3c3d13878e24b0b2cd1d8e20
+      sha256: "818bf58bd0325cb574df31e5c08969f0e690a9cb13826eaac2efc02c7e41655a"
       url: "https://pub.dev"
     source: hosted
-    version: "8.0.14"
+    version: "8.1.0"
   dbus:
     dependency: transitive
     description:
@@ -364,7 +364,7 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/desktop_drop"
-      ref: HEAD
+      ref: "08c1ce40eb6abfad6049fb6aad8bd30312ec5319"
       resolved-ref: "08c1ce40eb6abfad6049fb6aad8bd30312ec5319"
       url: "https://github.com/MixinNetwork/flutter-plugins"
     source: git
@@ -389,10 +389,10 @@ packages:
     dependency: "direct main"
     description:
       name: dio
-      sha256: "0dfb6b6a1979dac1c1245e17cef824d7b452ea29bd33d3467269f9bef3715fb0"
+      sha256: "5598aa796bbf4699afd5c67c0f5f6e2ed542afc956884b9cd58c306966efc260"
       url: "https://pub.dev"
     source: hosted
-    version: "5.6.0"
+    version: "5.7.0"
   dio_web_adapter:
     dependency: transitive
     description:
@@ -585,15 +585,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.5.0"
-  flutter_app_badger:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: f2f391acb17773511b6b89fb77a55f29b60a6f9e
-      url: "https://github.com/SleepySquash/flutter_app_badger"
-    source: git
-    version: "1.5.0"
   flutter_callkit_incoming:
     dependency: "direct main"
     description:
@@ -682,6 +673,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.3+1"
+  flutter_native_badge:
+    dependency: "direct main"
+    description:
+      name: flutter_native_badge
+      sha256: "94691ec5265e40ae16a274357f336d910085c67815f8765fa7fd891625b76dc0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.5+dev"
+  flutter_native_badge_foundation:
+    dependency: transitive
+    description:
+      name: flutter_native_badge_foundation
+      sha256: c4c0891c7b494ccf0783bf6cb2b0fcab75d1dca1f0df729b0b22fe529fc74f45
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4+dev"
+  flutter_native_badge_platform_interface:
+    dependency: transitive
+    description:
+      name: flutter_native_badge_platform_interface
+      sha256: "1aef80eaab5b7ba6dee3bcf0793b6aa0709c122de881c5fbee3af2aacdb649f0"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -1264,14 +1279,14 @@ packages:
       resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
       url: "https://github.com/SleepySquash/media-kit.git"
     source: git
-    version: "1.1.10+1"
+    version: "1.1.11"
   media_kit_libs_android_video:
     dependency: "direct main"
     description:
       path: "libs/android/media_kit_libs_android_video"
       ref: HEAD
-      resolved-ref: e41e50c8cfb370e69612b205dcfd9f3ca80690f5
-      url: "https://github.com/media-kit/media-kit"
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.3.6"
   media_kit_libs_ios_video:
@@ -1279,8 +1294,8 @@ packages:
     description:
       path: "libs/ios/media_kit_libs_ios_video"
       ref: HEAD
-      resolved-ref: e41e50c8cfb370e69612b205dcfd9f3ca80690f5
-      url: "https://github.com/media-kit/media-kit"
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.1.4"
   media_kit_libs_linux:
@@ -1288,8 +1303,8 @@ packages:
     description:
       path: "libs/linux/media_kit_libs_linux"
       ref: HEAD
-      resolved-ref: e41e50c8cfb370e69612b205dcfd9f3ca80690f5
-      url: "https://github.com/media-kit/media-kit"
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.1.3"
   media_kit_libs_macos_video:
@@ -1305,8 +1320,8 @@ packages:
     description:
       path: "libs/windows/media_kit_libs_windows_video"
       ref: HEAD
-      resolved-ref: e41e50c8cfb370e69612b205dcfd9f3ca80690f5
-      url: "https://github.com/media-kit/media-kit"
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.0.10"
   media_kit_native_event_loop:
@@ -1314,19 +1329,19 @@ packages:
     description:
       path: media_kit_native_event_loop
       ref: HEAD
-      resolved-ref: e41e50c8cfb370e69612b205dcfd9f3ca80690f5
-      url: "https://github.com/media-kit/media-kit"
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.0.9"
   media_kit_video:
     dependency: "direct main"
     description:
       path: media_kit_video
-      ref: migrate-to-wasm
-      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
-      url: "https://github.com/SleepySquash/media-kit.git"
+      ref: HEAD
+      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
-    version: "1.2.4"
+    version: "1.2.5"
   meta:
     dependency: transitive
     description:
@@ -1386,12 +1401,67 @@ packages:
   open_filex:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
-      url: "https://github.com/raldhafiri/open_filex"
-    source: git
-    version: "4.4.0"
+      name: open_file
+      sha256: de371f549b1320a48980952473fae1903d4927975506534c8ea4643642eb5f98
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.3"
+  open_file_android:
+    dependency: transitive
+    description:
+      name: open_file_android
+      sha256: b5e1a2e9c5ea8e256b015403e94299039627c7205c2a5e6bb426c33235b6ca9a
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  open_file_ios:
+    dependency: transitive
+    description:
+      name: open_file_ios
+      sha256: "8d9c03495cf14ca70bdbf191894b822ba3b2629cc0046ee311cbbe504db66c44"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  open_file_linux:
+    dependency: transitive
+    description:
+      name: open_file_linux
+      sha256: cd2088722048b9c40f8615c6d83005fe0726e0e447e9cdfb40c2b65477291f7d
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
+  open_file_mac:
+    dependency: transitive
+    description:
+      name: open_file_mac
+      sha256: "9d809f528cccc6dc9390caf50893eae9a6944e0f3b8a2558c7ad19e91c9244a1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  open_file_platform_interface:
+    dependency: transitive
+    description:
+      name: open_file_platform_interface
+      sha256: "14c50efb1a9667cb96e4fa68d601e6ad348fe337b02789834029b37ae3631498"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.2"
+  open_file_web:
+    dependency: transitive
+    description:
+      name: open_file_web
+      sha256: ba35c6f38c21c2bb4268a80927bb828353dda0edfce92e274e0b9639e4f31360
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
+  open_file_windows:
+    dependency: transitive
+    description:
+      name: open_file_windows
+      sha256: "2f4318d2d3958ec8d63b6dd4430c15b1fcb2fe7a2113e83c734584501a5c6d81"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.2"
   package_config:
     dependency: transitive
     description:
@@ -1667,7 +1737,7 @@ packages:
     source: hosted
     version: "1.0.2"
   screen_brightness:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: screen_brightness
       sha256: "7d4ac84ae26b37c01d6f5db7123a72db7933e1f2a2a8c369a51e08f81b3178d8"
@@ -2202,7 +2272,7 @@ packages:
     source: hosted
     version: "14.2.5"
   volume_controller:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: volume_controller
       sha256: c71d4c62631305df63b72da79089e078af2659649301807fa746088f365cb48e

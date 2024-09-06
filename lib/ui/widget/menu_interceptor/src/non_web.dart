@@ -22,9 +22,10 @@ class ContextMenuInterceptor extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
   ContextMenuInterceptor({
     super.key,
+    EdgeInsets margin = EdgeInsets.zero,
     required this.child,
-    enabled = true,
-    debug = false,
+    bool enabled = true,
+    bool debug = false,
   });
 
   /// Widget being wrapped.

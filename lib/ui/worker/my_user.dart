@@ -15,7 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:flutter_native_badge/flutter_native_badge.dart';
 import 'package:get/get.dart';
 import 'package:windows_taskbar/windows_taskbar.dart';
 
@@ -84,11 +84,11 @@ class MyUserWorker extends DisposableService {
         }
       } else {
         try {
-          if (await FlutterAppBadger.isAppBadgeSupported()) {
+          if (await FlutterNativeBadge.isSupported()) {
             if (count == 0) {
-              await FlutterAppBadger.removeBadge();
+              await FlutterNativeBadge.clearBadgeCount();
             } else {
-              await FlutterAppBadger.updateBadgeCount(count);
+              await FlutterNativeBadge.setBadgeCount(count);
             }
           }
         } catch (_) {

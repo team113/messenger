@@ -855,7 +855,7 @@ jobs:
               if ('${{ steps.semver.outputs.group4 }}' !== '0') {
                 versions += ',${{ steps.semver.outputs.group4 }}';
               }
-              versions += 'latest';
+              versions += ',latest';
             }
             return versions;
         if: ${{ steps.skip.outputs.no == 'true'
