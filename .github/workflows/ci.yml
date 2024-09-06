@@ -102,7 +102,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1
+          fetch-depth: 2
 
       - name: Retrieve commit messages
         id: commit
@@ -135,7 +135,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # For commit message retrieving.
+          fetch-depth: 2 # For commit message retrieving.
 
       - name: Determine whether `ios/fastlane/` directory has any changes.
         uses: dorny/paths-filter@v3
@@ -197,7 +197,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 1 # For commit message retrieving.
+          fetch-depth: 2 # For commit message retrieving.
 
       - name: Determine whether `android/fastlane/` directory has any changes.
         uses: dorny/paths-filter@v3
