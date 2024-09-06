@@ -101,22 +101,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2
-
-      - name: Retrieve commit messages
-        id: commit
-        run: |
-          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
-          >> $GITHUB_OUTPUT
-      - name: Determine whether commit messages contain any marks
-        id: mark
-        run: |
-          echo "run=${{ (contains(steps.commit.outputs.messages, '[run ci]')) }}"
-          >> $GITHUB_OUTPUT
-      - run: echo "${{ steps.commit.outputs.messages }}"
-      - run: echo "${{ steps.mark.outputs.run }}"
-
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -157,7 +141,7 @@ jobs:
           >> $GITHUB_OUTPUT
       - run: echo "${{ steps.mark.outputs.run }}"
 
-      # Skip if there's no changes in `ios/fastlane/` directory and no
+      # Skip if there are no changes in `ios/fastlane/` directory and no
       # `[run ci]` mark is detected in commit message.
       - id: skip
         run: echo ::set-output name=no::${{
@@ -219,7 +203,7 @@ jobs:
           >> $GITHUB_OUTPUT
       - run: echo "${{ steps.mark.outputs.run }}"
 
-      # Skip if there's no changes in `android/fastlane/` directory and no
+      # Skip if there are no changes in `android/fastlane/` directory and no
       # `[run ci]` mark is detected in commit message.
       - id: skip
         run: echo ::set-output name=no::${{
