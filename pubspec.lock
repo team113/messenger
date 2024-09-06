@@ -67,10 +67,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_links
-      sha256: "7e058edbc78bd40b6a8227941b955f38320a4e799bc0983c8146bda41593a491"
+      sha256: ad1a6d598e7e39b46a34f746f9a8b011ee147e4c275d407fa457e7a62f84dd99
       url: "https://pub.dev"
     source: hosted
-    version: "6.3.1"
+    version: "6.3.2"
   app_links_linux:
     dependency: transitive
     description:
@@ -414,7 +414,7 @@ packages:
     description:
       path: drift
       ref: develop
-      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
+      resolved-ref: cd09cdc0290463cea1a827badf063d2e3533fd23
       url: "https://github.com/simolus3/drift"
     source: git
     version: "2.20.0"
@@ -423,7 +423,7 @@ packages:
     description:
       path: drift_dev
       ref: develop
-      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
+      resolved-ref: cd09cdc0290463cea1a827badf063d2e3533fd23
       url: "https://github.com/simolus3/drift"
     source: git
     version: "2.20.2-dev"
@@ -1276,8 +1276,8 @@ packages:
     description:
       path: media_kit
       ref: migrate-to-wasm
-      resolved-ref: "52d73f8da14537ca24edc8469d3ee07c5a2a7a16"
-      url: "https://github.com/SleepySquash/media-kit.git"
+      resolved-ref: "765054d5eb352b3b028a62170302bcf86b73b9ef"
+      url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.1.11"
   media_kit_libs_android_video:
@@ -1337,8 +1337,8 @@ packages:
     dependency: "direct main"
     description:
       path: media_kit_video
-      ref: HEAD
-      resolved-ref: e357b2ba80852c7e0a8df1da1281cb813b1fd42b
+      ref: migrate-to-wasm
+      resolved-ref: "765054d5eb352b3b028a62170302bcf86b73b9ef"
       url: "https://github.com/SleepySquash/media-kit"
     source: git
     version: "1.2.5"
@@ -1401,67 +1401,12 @@ packages:
   open_filex:
     dependency: "direct main"
     description:
-      name: open_file
-      sha256: de371f549b1320a48980952473fae1903d4927975506534c8ea4643642eb5f98
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.5.3"
-  open_file_android:
-    dependency: transitive
-    description:
-      name: open_file_android
-      sha256: b5e1a2e9c5ea8e256b015403e94299039627c7205c2a5e6bb426c33235b6ca9a
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  open_file_ios:
-    dependency: transitive
-    description:
-      name: open_file_ios
-      sha256: "8d9c03495cf14ca70bdbf191894b822ba3b2629cc0046ee311cbbe504db66c44"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  open_file_linux:
-    dependency: transitive
-    description:
-      name: open_file_linux
-      sha256: cd2088722048b9c40f8615c6d83005fe0726e0e447e9cdfb40c2b65477291f7d
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.4"
-  open_file_mac:
-    dependency: transitive
-    description:
-      name: open_file_mac
-      sha256: "9d809f528cccc6dc9390caf50893eae9a6944e0f3b8a2558c7ad19e91c9244a1"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.1"
-  open_file_platform_interface:
-    dependency: transitive
-    description:
-      name: open_file_platform_interface
-      sha256: "14c50efb1a9667cb96e4fa68d601e6ad348fe337b02789834029b37ae3631498"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.2"
-  open_file_web:
-    dependency: transitive
-    description:
-      name: open_file_web
-      sha256: ba35c6f38c21c2bb4268a80927bb828353dda0edfce92e274e0b9639e4f31360
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
-  open_file_windows:
-    dependency: transitive
-    description:
-      name: open_file_windows
-      sha256: "2f4318d2d3958ec8d63b6dd4430c15b1fcb2fe7a2113e83c734584501a5c6d81"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.2"
+      path: "."
+      ref: HEAD
+      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
+      url: "https://github.com/raldhafiri/open_filex"
+    source: git
+    version: "4.4.0"
   package_config:
     dependency: transitive
     description:
@@ -1987,7 +1932,7 @@ packages:
     description:
       path: sqlparser
       ref: develop
-      resolved-ref: "5854d323feabc873f6e3e22c15101697c44416e6"
+      resolved-ref: cd09cdc0290463cea1a827badf063d2e3533fd23
       url: "https://github.com/simolus3/drift"
     source: git
     version: "0.38.0-dev"
