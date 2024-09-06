@@ -100,6 +100,14 @@ jobs:
   pubspec:
     runs-on: ubuntu-latest
     steps:
+      - name: Determine whether commits contain any marks
+        id: mark
+        run: |
+          echo "run=${{ contains($(git log --grep='\[run ci\]' --format=%s),
+                                '[run ci]') }}"
+          >> $GITHUB_OUTPUT
+      - run: echo "${{ steps.mark.outputs.run }}"
+
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
         with:
@@ -126,18 +134,25 @@ jobs:
             ios:
               - 'ios/fastlane/**'
 
+      - name: Determine whether commits contain any marks
+        id: mark
+        run: |
+          echo "run=${{ contains($(git log --grep='\[run ci\]' --format=%s),
+                                '[run ci]') }}"
+          >> $GITHUB_OUTPUT
+
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
 
       - run: mv *.ipa ios/app.ipa
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
 
       - name: Prepare App Store Connect key
         run: echo "${{ secrets.APP_STORE_KEY }}"
              >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
 
       - name: Validate iOS application against App Store
         run: fastlane validate
@@ -146,7 +161,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         working-directory: ios/
-        if: ${{ steps.filter.outputs.ios == 'true' }}
+        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
 
       - name: Cleanup App Store Connect key
         run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
