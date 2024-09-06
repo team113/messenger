@@ -1046,6 +1046,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
+                    margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
                     child: SlidableAutoCloseBehavior(
                       child: SafeAnimatedSwitcher(
                         duration: const Duration(milliseconds: 250),

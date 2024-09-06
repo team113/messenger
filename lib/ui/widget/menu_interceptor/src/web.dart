@@ -25,6 +25,7 @@ import 'package:web/web.dart' as web;
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
     super.key,
+    this.margin = EdgeInsets.zero,
     required this.child,
     this.enabled = true,
     this.debug = false,
@@ -33,6 +34,9 @@ class ContextMenuInterceptor extends StatelessWidget {
       _register();
     }
   }
+
+  /// [EdgeInsets] being the margin of the interception.
+  final EdgeInsets margin;
 
   /// Widget being wrapped.
   final Widget child;
@@ -58,7 +62,12 @@ class ContextMenuInterceptor extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Positioned.fill(child: HtmlElementView(viewType: viewType)),
+        Positioned.fill(
+          child: Padding(
+            padding: margin,
+            child: HtmlElementView(viewType: viewType),
+          ),
+        ),
         child,
       ],
     );
