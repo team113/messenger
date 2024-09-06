@@ -103,8 +103,8 @@ jobs:
       - name: Determine whether commits contain any marks
         id: mark
         run: |
-          echo "run=${{ contains($(git log --grep='\[run ci\]' --format=%s),
-                                '[run ci]') }}"
+          echo "$(git log --grep='\[run ci\]' --format=%s)" >> COMMITS
+          echo "run=${{ contains(env.COMMITS, '[run ci]') }}"
           >> $GITHUB_OUTPUT
       - run: echo "${{ steps.mark.outputs.run }}"
 
@@ -131,28 +131,35 @@ jobs:
         id: filter
         with:
           filters: |
-            ios:
+            ios:$
               - 'ios/fastlane/**'
 
       - name: Determine whether commits contain any marks
         id: mark
         run: |
-          echo "run=${{ contains($(git log --grep='\[run ci\]' --format=%s),
-                                '[run ci]') }}"
+          echo "$(git log --grep='\[run ci\]' --format=%s)" >> COMMITS
+          echo "run=${{ contains(env.COMMITS, '[run ci]') }}"
           >> $GITHUB_OUTPUT
+
+      # Skip if there's no changes in `ios/fastlane/` directory and no
+      # `[run ci]` mark is detected in commit message.
+      - id: skip
+        run: echo ::set-output name=no::${{
+               steps.filter.outputs.ios == 'true' || steps.mark.outputs.run
+             }}
 
       - uses: actions/download-artifact@v4
         with:
           name: build-ipa-${{ github.run_number }}
-        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - run: mv *.ipa ios/app.ipa
-        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Prepare App Store Connect key
         run: echo "${{ secrets.APP_STORE_KEY }}"
              >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Validate iOS application against App Store
         run: fastlane validate
@@ -161,7 +168,7 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         working-directory: ios/
-        if: ${{ steps.filter.outputs.ios == 'true' || steps.mark.outputs.run }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Cleanup App Store Connect key
         run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
