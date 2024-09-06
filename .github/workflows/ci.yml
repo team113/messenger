@@ -102,11 +102,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Determine whether commits contain any marks
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          >> $GITHUB_OUTPUT
+      - name: Determine whether commit messages contain any marks
         id: mark
         run: |
-          echo "$(git log --grep='\[run ci\]' --format=%s)" >> COMMITS
-          echo "run=${{ contains(env.COMMITS, '[run ci]') }}"
+          echo "run=${{ contains(steps.commit.outputs.messages, '[run ci]') }}"
           >> $GITHUB_OUTPUT
       - run: echo "${{ steps.mark.outputs.run }}"
 
@@ -128,18 +132,23 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v3
+      - name: Determine whether `ios/fastlane/` directory has any changes.
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             ios:$
               - 'ios/fastlane/**'
 
-      - name: Determine whether commits contain any marks
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          >> $GITHUB_OUTPUT
+      - name: Determine whether commit messages contain any marks
         id: mark
         run: |
-          echo "$(git log --grep='\[run ci\]' --format=%s)" >> COMMITS
-          echo "run=${{ contains(env.COMMITS, '[run ci]') }}"
+          echo "run=${{ contains(steps.commit.outputs.messages, '[run ci]') }}"
           >> $GITHUB_OUTPUT
 
       # Skip if there's no changes in `ios/fastlane/` directory and no
@@ -182,31 +191,50 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: dorny/paths-filter@v3
+      - name: Determine whether `android/fastlane/` directory has any changes.
+        uses: dorny/paths-filter@v3
         id: filter
         with:
           filters: |
             android:
               - 'android/fastlane/**'
 
+      - name: Retrieve commit messages
+        id: commit
+        run: |
+          echo "messages=$(git log --grep='\[debug\]' --format=%s)" \
+          >> $GITHUB_OUTPUT
+      - name: Determine whether commit messages contain any marks
+        id: mark
+        run: |
+          echo "run=${{ contains(steps.commit.outputs.messages, '[run ci]') }}"
+          >> $GITHUB_OUTPUT
+
+      # Skip if there's no changes in `android/fastlane/` directory and no
+      # `[run ci]` mark is detected in commit message.
+      - id: skip
+        run: echo ::set-output name=no::${{
+               steps.filter.outputs.android == 'true' || steps.mark.outputs.run
+             }}
+
       - uses: actions/download-artifact@v4
         with:
           name: build-appbundle-${{ github.run_number }}
-        if: ${{ steps.filter.outputs.android == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - run: mv *.aab android/app.aab
-        if: ${{ steps.filter.outputs.android == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Prepare Google Service account
         run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
              | base64 -d
              > android/service_account.json
-        if: ${{ steps.filter.outputs.android == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Validate Android application against Google Play
         run: fastlane validate
         working-directory: android/
-        if: ${{ steps.filter.outputs.android == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
 
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json
