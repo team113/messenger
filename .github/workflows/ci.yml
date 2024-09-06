@@ -137,7 +137,7 @@ jobs:
         id: filter
         with:
           filters: |
-            ios:$
+            ios:
               - 'ios/fastlane/**'
 
       - name: Retrieve commit messages
