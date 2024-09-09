@@ -120,6 +120,10 @@ void main() async {
               'joinedAt': DateTime.now().toString(),
             }
           ],
+          'dialed': {
+            '__typename': 'ChatMembersDialedAll',
+            'answeredMembers': [],
+          },
           'ver': '1',
           'presence': 'AWAY',
           'online': {'__typename': 'UserOnline'},
@@ -216,7 +220,11 @@ void main() async {
                     }
                   ],
                   'ver': '1',
-                  'withVideo': false
+                  'withVideo': false,
+                  'dialed': {
+                    '__typename': 'ChatMembersDialedAll',
+                    'answeredMembers': [],
+                  },
                 },
                 'reason': 'UNANSWERED',
                 'at': DateTime.now().toString(),
@@ -253,6 +261,10 @@ void main() async {
             'ver': '2',
             'presence': 'AWAY',
             'online': {'__typename': 'UserOnline'},
+            'dialed': {
+              '__typename': 'ChatMembersDialedAll',
+              'answeredMembers': [],
+            },
           },
         },
       },
@@ -470,6 +482,10 @@ void main() async {
             'ver': '1',
             'presence': 'AWAY',
             'online': {'__typename': 'UserOnline'},
+            'dialed': {
+              '__typename': 'ChatMembersDialedAll',
+              'answeredMembers': [],
+            },
           },
         },
       },
@@ -508,6 +524,10 @@ void main() async {
             'ver': '2',
             'PRESENCE': 'AWAY',
             'online': {'__typename': 'UserOnline'},
+            'dialed': {
+              '__typename': 'ChatMembersDialedAll',
+              'answeredMembers': [],
+            },
           },
         },
       },
@@ -658,6 +678,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
             'ver': '$latestVersion',
             'presence': 'AWAY',
             'online': {'__typename': 'UserOnline'},
+            'dialed': {
+              '__typename': 'ChatMembersDialedAll',
+              'answeredMembers': [],
+            },
           },
         },
       },
@@ -692,6 +716,10 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                 'ver': '$latestVersion',
                 'presence': 'AWAY',
                 'online': {'__typename': 'UserOnline'},
+                'dialed': {
+                  '__typename': 'ChatMembersDialedAll',
+                  'answeredMembers': [],
+                },
               },
             },
           ],
