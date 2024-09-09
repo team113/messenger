@@ -1697,7 +1697,7 @@ class RxChatImpl extends RxChat {
             _eventsDebounce = debounce(_debouncedEvents, (events) {
               if (_eventsDebounce?.disposed == false) {
                 Log.debug(
-                  '_initRemoteSubscription(): debounced with ${events.expand((e) => e.events)}',
+                  '_initRemoteSubscription(): debounced with ${events.expand((e) => e.events).map((e) => e.kind)}',
                   '$runtimeType($id)',
                 );
 
