@@ -450,8 +450,8 @@ class RecentChatTile extends StatelessWidget {
         ];
       } else if (item != null) {
         if (item is ChatCall) {
-          final bool isOngoing =
-              item.finishReason == null && item.conversationStartedAt != null;
+          final bool isOngoing = item.finishReason == null &&
+              (item.conversationStartedAt != null || !chat.isDialog);
 
           final bool isMissed =
               item.finishReason == ChatCallFinishReason.dropped ||

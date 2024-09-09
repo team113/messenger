@@ -32,6 +32,7 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -1891,7 +1892,12 @@ class RxChatImpl extends RxChat {
                   event.call.chatId,
                   event.call.id,
                 );
-                _chatRepository.endCall(event.call.chatId);
+
+                final Rx<OngoingCall>? existing =
+                    _chatRepository.calls[event.call.chatId];
+                if (existing?.value.callChatItemId == event.call.id) {
+                  _chatRepository.endCall(event.call.chatId);
+                }
               }
 
               final message = await get(event.call.id);
@@ -2151,7 +2157,24 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callConversationStarted:
               event as EventChatCallConversationStarted;
-              write((chat) => chat.value.ongoingCall = event.call);
+
+              // Call is already finished, no reason to try adding it.
+              if (event.call.finishReason == null) {
+                if (!chat.value.isDialog) {
+                  event.call.conversationStartedAt ??= PreciseDateTime.now();
+                }
+
+                write((chat) => chat.value.ongoingCall = event.call);
+                _chatRepository.addCall(event.call);
+              }
+              break;
+
+            case ChatEventKind.callAnswerTimeoutPassed:
+              event as EventChatCallAnswerTimeoutPassed;
+
+              if (event.callId == chat.value.ongoingCall?.id) {
+                write((chat) => chat.value.ongoingCall?.dialed = null);
+              }
               break;
           }
         }
