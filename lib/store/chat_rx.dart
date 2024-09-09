@@ -222,6 +222,20 @@ class RxChatImpl extends RxChat {
   /// [Mutex] guarding reading of [draft] from local storage to [ensureDraft].
   final Mutex _draftGuard = Mutex();
 
+  /// Indicator whether the first [ChatEventsVersioned] were not yet received
+  /// since the [_initRemoteSubscription] was invoked.
+  ///
+  /// Used to determine whether the [ChatEventsVersioned]ed received should be
+  /// added to the [_debouncedEvents] or be processed right away.
+  bool _justSubscribed = false;
+
+  /// [ChatEventsVersioned] that were debounced during [_eventsDebounce].
+  final RxList<ChatEventsVersioned> _debouncedEvents = RxList();
+
+  /// [debounce] adding [ChatEventsVersioned] to the [_debouncedEvents],
+  /// whenever [_justSubscribed] is `true`.
+  Worker? _eventsDebounce;
+
   @override
   UserId? get me => _chatRepository.me;
 
@@ -1678,6 +1692,26 @@ class RxChatImpl extends RxChat {
 
       await WebUtils.protect(
         () async {
+          if (ver != null) {
+            _justSubscribed = true;
+            _eventsDebounce = debounce(_debouncedEvents, (events) {
+              if (_eventsDebounce?.disposed == false) {
+                Log.debug(
+                  '_initRemoteSubscription(): debounced with ${events.expand((e) => e.events)}',
+                  '$runtimeType($id)',
+                );
+
+                _eventsDebounce?.dispose();
+                _eventsDebounce = null;
+                _justSubscribed = false;
+
+                for (var e in events) {
+                  _chatEvent(ChatEventsEvent(e));
+                }
+              }
+            });
+          }
+
           _remoteSubscription = StreamQueue(
             _chatRepository.chatEvents(id, ver, () => ver),
           );
@@ -1735,6 +1769,15 @@ class RxChatImpl extends RxChat {
             '$runtimeType($id)',
           );
 
+          return;
+        }
+
+        if (_justSubscribed) {
+          Log.debug(
+            '_chatEvent(${event.kind}): added to debounced ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType($id)',
+          );
+          _debouncedEvents.add(versioned);
           return;
         }
 

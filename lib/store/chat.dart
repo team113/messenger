@@ -1804,23 +1804,6 @@ class ChatRepository extends DisposableInterface
     _paginationSubscription = _localPagination!.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
-          final ChatItem? last = event.value!.value.lastItem;
-
-          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
-          // and might not be happening remotely at all.
-          await _putEntry(
-            ChatData(
-              event.value!
-                ..value.ongoingCall = null
-                ..value.lastItem = last is ChatCall
-                    ? (last..conversationStartedAt = null)
-                    : last,
-              null,
-              null,
-            ),
-            pagination: true,
-          );
-
         case OperationKind.updated:
           await _putEntry(ChatData(event.value!, null, null), pagination: true);
           break;

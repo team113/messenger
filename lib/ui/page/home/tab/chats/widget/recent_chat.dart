@@ -81,6 +81,7 @@ class RecentChatTile extends StatelessWidget {
     this.onDismissed,
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
+    this.hasCall,
   }) : avatarBuilder = avatarBuilder ?? _defaultAvatarBuilder;
 
   /// [RxChat] this [RecentChatTile] is about.
@@ -159,6 +160,11 @@ class RecentChatTile extends StatelessWidget {
   /// Indicator whether context menu should be enabled over this
   /// [RecentChatTile].
   final bool enableContextMenu;
+
+  /// Indicator whether the [RxChat] has an [OngoingCall] happening in it.
+  ///
+  /// If none specified, then [RxChat.inCall] is used.
+  final bool? hasCall;
 
   @override
   Widget build(BuildContext context) {
@@ -450,7 +456,8 @@ class RecentChatTile extends StatelessWidget {
         ];
       } else if (item != null) {
         if (item is ChatCall) {
-          final bool isOngoing = item.finishReason == null &&
+          final bool isOngoing = hasCall != false &&
+              item.finishReason == null &&
               (item.conversationStartedAt != null || !chat.isDialog);
 
           final bool isMissed =
@@ -907,7 +914,7 @@ class RecentChatTile extends StatelessWidget {
     return Obx(() {
       final Chat chat = rxChat.chat.value;
 
-      if (chat.ongoingCall == null) {
+      if (chat.ongoingCall == null || hasCall == false) {
         return const SizedBox();
       }
 
