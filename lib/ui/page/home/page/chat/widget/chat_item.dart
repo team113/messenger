@@ -1832,6 +1832,9 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   /// Reactive [ChatItem] representing the [ChatCall].
   Rx<ChatItem>? _item;
 
+  /// [ever] reacting on the [_item] changes.
+  Worker? _worker;
+
   /// [FixedTimer] rebuilding this widget every second, if this [ChatCall]
   /// represents an ongoing [ChatCall].
   FixedTimer? _ongoingCallTimer;
@@ -1848,6 +1851,7 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
   @override
   void dispose() {
     _ongoingCallTimer?.cancel();
+    _ongoingCallTimer = null;
     super.dispose();
   }
 
@@ -1893,16 +1897,6 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
           : call.author.id == widget.me
               ? 'label_outgoing_call'.l10n
               : 'label_incoming_call'.l10n;
-    }
-
-    if (isOngoing && !Config.disableInfiniteAnimations) {
-      _ongoingCallTimer ??= FixedTimer.periodic(1.seconds, () {
-        if (mounted) {
-          setState(() {});
-        }
-      });
-    } else {
-      _ongoingCallTimer?.cancel();
     }
 
     return Row(
@@ -1960,6 +1954,8 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
 
   /// Fetches the [_item].
   Future<void> _fetchItem() async {
+    _checkForTimer(widget.call);
+
     final futureOrItem = widget.getItem!(widget.call!.id);
     if (futureOrItem is Rx<ChatItem>?) {
       _item = futureOrItem;
@@ -1969,6 +1965,30 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
 
     if (mounted) {
       setState(() {});
+    }
+
+    _worker?.dispose();
+
+    if (_item != null) {
+      _worker = ever(_item!, (e) => _checkForTimer(e as ChatCall));
+    }
+  }
+
+  /// Ensures the [_ongoingCallTimer] is being up, if [ChatCall] is considered
+  /// active.
+  void _checkForTimer(ChatCall? call) {
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+
+    if (isOngoing && !Config.disableInfiniteAnimations) {
+      _ongoingCallTimer ??= FixedTimer.periodic(1.seconds, () {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
+      _ongoingCallTimer?.cancel();
+      _ongoingCallTimer = null;
     }
   }
 }
