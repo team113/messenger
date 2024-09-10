@@ -628,6 +628,9 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
+                                      hasCall: c.status.value.isLoadingMore
+                                          ? false
+                                          : null,
                                     );
                                   }),
                                 );
@@ -845,6 +848,8 @@ class ChatsTabView extends StatelessWidget {
                                         )
                                       ]
                                     : null,
+                                hasCall:
+                                    c.status.value.isLoadingMore ? false : null,
                               );
                             }
 
@@ -1046,6 +1051,7 @@ class ChatsTabView extends StatelessWidget {
                   }
 
                   return ContextMenuInterceptor(
+                    margin: const EdgeInsets.fromLTRB(0, 64, 0, 0),
                     child: SlidableAutoCloseBehavior(
                       child: SafeAnimatedSwitcher(
                         duration: const Duration(milliseconds: 250),

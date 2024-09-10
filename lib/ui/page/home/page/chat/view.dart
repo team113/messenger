@@ -38,9 +38,9 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/call/widget/animated_delayed_scale.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
+import '/ui/page/call/widget/fit_view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
@@ -53,6 +53,7 @@ import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/system_info_prompt.dart';
@@ -901,6 +902,14 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onUserPressed: (user) {
+                    ChatId chatId = user.dialog;
+                    if (chatId.isLocalWith(c.me)) {
+                      chatId = c.monolog;
+                    }
+
+                    router.chat(chatId, push: true);
+                  },
                 ),
               ),
             );
@@ -1216,7 +1225,7 @@ class ChatView extends StatelessWidget {
                 .any((e) => e is ChatCallElement || e is ChatInfoElement);
         final bool canDelete = c.selected.isNotEmpty;
 
-        return SafeArea(
+        return CustomSafeArea(
           child: Container(
             decoration: BoxDecoration(
               borderRadius: style.cardRadius,
@@ -1410,7 +1419,7 @@ class ChatView extends StatelessWidget {
       }
 
       if (c.chat?.blocked == true) {
-        return SafeArea(child: UnblockButton(c.unblock));
+        return CustomSafeArea(child: UnblockButton(c.unblock));
       }
 
       if (c.edit.value != null) {

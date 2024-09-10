@@ -3365,6 +3365,33 @@ type EventIncomingChatCallsTopChatCallRemoved {
   call: ChatCall!
 }
 
+"""Event of a `PromoShare` being deleted."""
+type EventPromoShareDeleted {
+  """`DateTime` when the `PromoShare` was deleted."""
+  at: DateTime!
+
+  """ID of the `User` whose `PromoShare` was deleted."""
+  ownerId: UserId!
+
+  """`PromoSharePercentage` that was deleted."""
+  percentage: PromoSharePercentage!
+}
+
+"""Event of a `PromoShare` being updated."""
+type EventPromoShareUpdated {
+  """`DateTime` when the `PromoShare` was updated."""
+  at: DateTime!
+
+  """New `PromoSharePercentage` being set."""
+  newPercentage: PromoSharePercentage!
+
+  """Previous `PromoSharePercentage` that was set before, if any."""
+  oldPercentage: PromoSharePercentage
+
+  """ID of the `User` whose `PromoShare` was updated."""
+  ownerId: UserId!
+}
+
 """
 Event of a `Chat` being removed from a top of `Query.recentChats` list.
 """
@@ -3386,6 +3413,9 @@ type EventSessionCreated implements SessionEvent {
 
   """ID of the created `Session`."""
   id: SessionId!
+
+  """`IP` of the device the `Session` was created from."""
+  ip: IP!
 
   """
   Indicator whether the created `Session` is remembered and is allowed to
@@ -3413,6 +3443,9 @@ type EventSessionRefreshed implements SessionEvent {
 
   """ID of the refreshed `Session`."""
   id: SessionId!
+
+  """`IP` of the device the `Session` was refreshed from."""
+  ip: IP!
 
   """`UserAgent` the `Session` was refreshed by."""
   userAgent: UserAgent!
@@ -6417,6 +6450,35 @@ type Mutation {
   ): UpdateChatContactNameResult @deprecated(reason: "Unimplemented. Do not use it.")
 
   """
+  Updates the current `PromoShare` of the authenticated `MyUser`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  One of the following `PromoShareEvent`s may be produced on success:
+  - `EventPromoShareUpdated` (if `percentage` argument is specified);
+  - `EventPromoShareDeleted` (if `percentage` argument is absent or
+    `null`).
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `PromoShareEvent`) if the
+  authenticated `MyUser`'s current `PromoShare` already has the specified
+  `percentage` being set.
+  """
+  updatePromoShare(
+    """
+    Percentage to set the `MyUser.promo.share.current` field to.
+
+    If absent or `null` then the `MyUser.promo.share.current` field will be reset.
+    """
+    percentage: PromoSharePercentage
+  ): PromoShareEventsVersioned
+
+  """
   Updates or resets the `MyUser.avatar` field with the provided image
   file.
 
@@ -7064,6 +7126,21 @@ type MyUser {
   """`Presence` of this `MyUser`."""
   presence: Presence!
 
+  """
+  Promotion program parameters of this `MyUser`.
+
+  ## Result
+
+  Returns `null` when:
+  - No promotion program is available on this site.
+
+  ## Versioning
+
+  Returned `UserPromo.share` field is versioned by its own
+  `PromoShareVersion` and not by the `MyUserVersion` of this `MyUser`.
+  """
+  promo: UserPromo
+
   """Custom text status of this `MyUser`."""
   status: UserTextStatus
 
@@ -7375,6 +7452,172 @@ enum Presence {
   """
   PRESENT
 }
+
+"""
+Percentage for each transaction that an author `User` shares with its
+promoter `User`s.
+"""
+type PromoShare {
+  """`DateTime` when this `PromoShare` was created."""
+  createdAt: DateTime!
+
+  """
+  `DateTime` when this `PromoShare` was deleted, if any.
+
+  `null` if this `PromoShare` is not deleted and is currently active.
+  """
+  deletedAt: DateTime
+
+  """Percentage of this `PromoShare`."""
+  percentage: PromoSharePercentage!
+
+  """
+  Version of this `PromoShare`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: PromoShareVersion!
+}
+
+"""Events happening with a `PromoShare`."""
+union PromoShareEvent = EventPromoShareDeleted | EventPromoShareUpdated
+
+"""
+Events indicating changes in a `Query.promoShare` and
+`Query.promoShareHistory`.
+"""
+union PromoShareEvents = PromoShareEventsVersioned | SubscriptionInitialized | UserPromoShare
+
+"""`PromoShareEvent`s along with the corresponding `PromoShareVersion`."""
+type PromoShareEventsVersioned {
+  """`PromoShareEvent`s themselves."""
+  events: [PromoShareEvent!]!
+
+  """
+  Version of the `PromoShare`'s state updated by these `PromoShareEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: PromoShareVersion!
+}
+
+"""
+[Connection] with `PromoShare`s in a historical order.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type PromoShareHistoryConnection {
+  """
+  List of `PromoShare` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [PromoShareHistoryEdge!]!
+
+  """
+  List of `PromoShare`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [PromoShare!]!
+
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+
+  """Total count of `PromoShare`s."""
+  totalCount: Int!
+
+  """
+  Version of this `PromoShare`s list.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: PromoShareVersion!
+}
+
+"""Cursor of `PromoShare`s in a historical order."""
+scalar PromoShareHistoryCursor
+
+"""
+[Edge] with a `PromoShare`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type PromoShareHistoryEdge {
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: PromoShareHistoryCursor!
+
+  """
+  `PromoShare` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: PromoShare!
+}
+
+"""
+Pagination arguments of the `Query.promoShareHistory`.
+
+It's allowed to specify both `first` and `last` counts at the same time,
+provided that `after` and `before` cursors are equal. In such case the
+returned page will include the `PromoShare` pointed by the cursor and the
+requested count of `PromoShare`s preceding and following it.
+
+If it's desired to receive the `PromoShare`, pointed by the cursor, without
+querying in both directions, one can specify `first` or `last` count as `0`.
+
+If no arguments are provided, then `first` argument will be considered
+as `50`.
+"""
+input PromoShareHistoryPagination {
+  """
+  Cursor indicating the `PromoShareHistoryEdge` position to return next
+  `PromoShare`s after.
+  """
+  after: PromoShareHistoryCursor
+
+  """
+  Cursor indicating the `PromoShareHistoryEdge` position to return prior
+  `PromoShare`s before.
+  """
+  before: PromoShareHistoryCursor
+
+  """Number of next `PromoShare`s to return."""
+  first: Int
+
+  """Number of prior `PromoShare`s to return."""
+  last: Int
+}
+
+"""
+Percentage of a `PromoShare`.
+
+Its values are always in range between `1` and `100` inclusively.
+"""
+scalar PromoSharePercentage
+
+"""
+Version of `PromoShare`'s state.
+
+It increases monotonically, so may be used (and is intended to) for tracking
+state's actuality.
+"""
+scalar PromoShareVersion
 
 type Query {
   """
@@ -7793,6 +8036,77 @@ type Query {
   Mandatory.
   """
   myUser: MyUser
+
+  """
+  Returns the current `PromoShare` of the specified `User` for the
+  authenticated `MyUser` (or the one of the authenticated `MyUser` itself,
+  if the `ownerId` argument is absent or `null`).
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Query returns `null` when:
+  - No `User` exists with the specified `ownerId`.
+  - The specified `User` has no current `PromoShare` being set.
+  - No promotion program is available on this site.
+  """
+  promoShare(
+    """
+    ID of the `User` to return the `PromoShare` of.
+
+    If absent or `null` then the `PromoShare` of the authenticated `MyUser` will be returned.
+    """
+    ownerId: UserId
+  ): PromoShare
+
+  """
+  Returns history of all `PromoShare`s ever being set of the specified
+  `User` (or the authenticated `MyUser`, if the `ownerId` argument is
+  absent or `null`).
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `PromoShare`s are sorted by their creation `DateTime` in
+  descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `PromoShare` pointed by the cursor and
+  the requested count of `PromoShare`s preceding and following it.
+
+  If it's desired to receive the `PromoShare`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  If no arguments are provided, then `first` argument will be considered
+  as `50`.
+
+  ## Result
+
+  Query returns `null` when:
+  - No `User` exists with the specified `ownerId`.
+  - No promotion program is available on this site.
+  """
+  promoShareHistory(
+    """
+    ID of the `User` to return the `PromoShare`s history of.
+
+    If absent or `null` then the `PromoShare`s of the authenticated `MyUser` will be returned.
+    """
+    ownerId: UserId
+
+    """Pagination arguments to return the `PromoShare`s by."""
+    pagination: PromoShareHistoryPagination
+  ): PromoShareHistoryConnection
 
   """
   Returns non-hidden `Chat`s of the authenticated `MyUser` ordered
@@ -8379,9 +8693,6 @@ type Session {
 
   """`IP` of the device, that used this `Session` last time."""
   ip: IP!
-
-  """Indicator whether this `Session` is `MyUser`'s current `Session`."""
-  isCurrent: Boolean!
 
   """
   `DateTime` when this `Session` was activated last time (either created
@@ -9052,6 +9363,85 @@ type Subscription {
     """
     ver: MyUserVersion
   ): MyUserEvents!
+
+  """
+  Subscribes to `PromoShareEvent`s of the specified `User` for the
+  authenticated `MyUser` (or the ones of the authenticated `MyUser`
+  itself, if the `ownerId` argument is absent or `null`).
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Initialization
+
+  Once this subscription is initialized completely, it immediately emits
+  `SubscriptionInitialized`.
+
+  If nothing has been emitted for a long period of time after establishing
+  this subscription (while not being completed), it should be considered
+  as an unexpected server error. This fact can be used on a client side to
+  decide whether this subscription has been initialized successfully.
+
+  ## Result
+
+  If `ver` argument is not specified (or is `null`) the current
+  `UserPromoShare` of the `User` will be emitted after
+  `SubscriptionInitialized` and before any other `PromoShareEvents`s (and
+  won't be emitted ever again until this subscription completes). This
+  allows to skip doing `Query.promoShare` (or `Query.promoShareHistory`)
+  before establishing this subscription.
+
+  If the specified `ver` is not fresh (was queried quite a time ago), it
+  may become stale, so this subscription will return `STALE_VERSION` error
+  on initialization. In such case:
+  - either a fresh version should be obtained via `Query.promoShare` (or
+    `Query.promoShareHistory`);
+  - or a re-subscription should be done without specifying a `ver`
+    argument (so the fresh `ver` may be obtained in the emitted current
+    `UserPromoShare` of the `User`).
+
+  ## Completion
+
+  Finite.
+
+  Completes without re-subscription necessity when:
+  - The `User` does not exist or is deleted (emits nothing, completes
+    immediately after being established, or once the `User` is deleted).
+  - No promotion program is available on this site (emits nothing,
+    completes immediately after being established).
+
+  Completes requiring a re-subscription when:
+  - Authenticated `Session` expires (`SESSION_EXPIRED` error is emitted).
+  - An error occurs on the server (error is emitted).
+  - The server is shutting down or becoming unreachable (unexpectedly
+    completes after initialization).
+
+  ## Idempotency
+
+  It's possible that in rare scenarios this subscription could emit an
+  event which have already been applied, so a client side is expected to
+  handle all the events idempotently considering the `PromoShareVersion`.
+  """
+  promoShareEvents(
+    """
+    ID of the `User` to emit the `PromoShareEvent`s of.
+
+    If absent or `null` then the `PromoShareEvent`s of the authenticated `MyUser` will be emitted.
+    """
+    ownerId: UserId
+
+    """
+    Version of a `PromoShare` to start returning `PromoShareEvent`s from.
+
+    Get it either from `Query.promoShare.ver` or `Query.promoShareHistory.ver`.
+
+    If omitted (or is `null`) then the current `UserPromoShare` of the `User`
+    will be emitted after `SubscriptionInitialized` and before any other
+    `PromoShareEvent`s.
+    """
+    ver: PromoShareVersion
+  ): PromoShareEvents!
 
   """
   Subscribes to updates of top `count` items of `Query.recentChats` list.
@@ -9960,6 +10350,26 @@ type User {
   """
   presence: Presence
 
+  """
+  Promotion program parameters of this `User`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Returns `null` when:
+  - This `User` is deleted.
+  - No promotion program is available on this site.
+
+  ## Versioning
+
+  Returned `UserPromo.share` field is versioned by its own
+  `PromoShareVersion` and not by the `UserVersion` of this `User`.
+  """
+  promo: UserPromo
+
   """Custom text status of this `User`."""
   status: UserTextStatus
 
@@ -10027,7 +10437,7 @@ type UserAvatar {
 }
 
 """
-Type of a `User`'s bio.
+Type of `User`'s bio.
 
 Its values are always considered to be non-empty, and meet the following
 requirements:
@@ -10160,7 +10570,7 @@ requirements:
 scalar UserName
 
 """
-Type of a `User`'s unique number.
+Type of `User`'s unique number.
 
 Its values are always in range between `1_000_000_000_000_000` and
 `9_999_999_999_999_999` inclusively.
@@ -10235,6 +10645,82 @@ type UserPhones {
   the `confirmation` argument provided).
   """
   unconfirmed: UserPhone
+}
+
+"""Promotion program parameters of a `User` (or `MyUser)`."""
+type UserPromo {
+  """Current `PromoShare` of a `User`, along with its history."""
+  share: UserPromoShare!
+}
+
+"""
+Current `PromoShare` of a `User` (or `MyUser`), along with its history.
+"""
+type UserPromoShare {
+  """
+  Current `PromoShare` of the `User`, if set.
+
+  Alias of `Query.promoShare`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  Returns `null` when no `PromoShare` is set at the moment.
+
+  ## Versioning
+
+  Returned `PromoShare` is versioned by its own `PromoShareVersion` and
+  not by the `UserVersion` (or `MyUserVersion`) of the `User` (or
+  `MyUser`).
+  """
+  current: PromoShare
+
+  """
+  History of all `PromoShare`s ever being set of the `User`.
+
+  Alias of `Query.promoShareHistory`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `PromoShare`s are sorted by their creation `DateTime` in
+  descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `PromoShare` pointed by the cursor and
+  the requested count of `PromoShare`s preceding and following it.
+
+  If it's desired to receive the `PromoShare`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  If no arguments are provided, then `first` argument will be considered
+  as `50`.
+
+  ## Result
+
+  Returns `null` when:
+  - No promotion program is available on this site.
+
+  ## Versioning
+
+  Returned `PromoShare`s are versioned by its own `PromoShareVersion` and
+  not by the `UserVersion` (or `MyUserVersion`) of the `User` (or
+  `MyUser`).
+  """
+  history(
+    """Pagination arguments to return the `PromoShare`s by."""
+    pagination: PromoShareHistoryPagination
+  ): PromoShareHistoryConnection
 }
 
 """

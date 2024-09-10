@@ -535,7 +535,7 @@ class WebUtils {
     );
 
     try {
-      return window?.closed != true;
+      return window?.closed == false;
     } catch (_) {
       return false;
     }
@@ -646,7 +646,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query(web.PermissionDescriptor(name: 'camera'))
+          .query({'name': 'camera'}.jsify() as JSObject)
           .toDart;
       granted = permission.state == 'granted';
     }
@@ -674,7 +674,7 @@ class WebUtils {
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
       final permission = await web.window.navigator.permissions
-          .query(web.PermissionDescriptor(name: 'microphone'))
+          .query({'name': 'microphone'}.jsify() as JSObject)
           .toDart;
       granted = permission.state == 'granted';
     }

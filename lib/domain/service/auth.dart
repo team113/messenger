@@ -621,11 +621,22 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        Credentials? oldCreds =
-            await _credentialsProvider.read(userId!, refresh: true);
+        Credentials? oldCreds;
+
+        if (userId != null) {
+          oldCreds = await _credentialsProvider.read(userId, refresh: true);
+        }
 
         if (areCurrent) {
           oldCreds ??= credentials.value;
+        }
+
+        if (userId == null) {
+          Log.debug(
+            'refreshSession($userId): `userId` is `null`, unable to proceed',
+            '$runtimeType',
+          );
+          return;
         }
 
         if (oldCreds != null) {

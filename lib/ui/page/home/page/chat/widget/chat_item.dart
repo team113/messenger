@@ -93,6 +93,7 @@ class ChatItemWidget extends StatefulWidget {
     this.onDownloadAs,
     this.onSave,
     this.onSelect,
+    this.onUserPressed = _defaultOnUserPressed,
   });
 
   /// Reactive value of a [ChatItem] to display.
@@ -167,6 +168,9 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Callback, called when a select action is triggered.
   final void Function()? onSelect;
+
+  /// Callback, called whenever some [User]'s name is being pressed.
+  final void Function(User) onUserPressed;
 
   @override
   State<ChatItemWidget> createState() => _ChatItemWidgetState();
@@ -327,6 +331,10 @@ class ChatItemWidget extends StatefulWidget {
       },
     );
   }
+
+  /// Opens the [User.dialog] chat.
+  static _defaultOnUserPressed(User user) =>
+      router.chat(user.dialog, push: true);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and
@@ -495,8 +503,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     TextSpan(
                       text: 'label_group_created_by1'.l10nfmt(args),
                       recognizer: TapGestureRecognizer()
-                        ..onTap = () =>
-                            router.chat(user.user.value.dialog, push: true),
+                        ..onTap = () => widget.onUserPressed(user.user.value),
                     ),
                     TextSpan(
                       text: 'label_group_created_by2'.l10nfmt(args),
@@ -552,7 +559,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(author.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(author),
                   ),
                   TextSpan(
                     text: 'label_user_added_user2'.l10nfmt(args),
@@ -561,7 +568,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_added_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(user),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -581,7 +588,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_added1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(user.dialog, push: true),
+                    ..onTap = () => widget.onUserPressed(user),
                 ),
                 TextSpan(
                   text: 'label_was_added2'.l10nfmt(args),
@@ -613,7 +620,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user1'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(author.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(author),
                   ),
                   TextSpan(
                     text: 'label_user_removed_user2'.l10nfmt(args),
@@ -622,7 +629,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   TextSpan(
                     text: 'label_user_removed_user3'.l10nfmt(args),
                     recognizer: TapGestureRecognizer()
-                      ..onTap = () => router.chat(user.dialog, push: true),
+                      ..onTap = () => widget.onUserPressed(user),
                   ),
                 ],
                 style: style.systemMessagePrimary,
@@ -642,7 +649,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 TextSpan(
                   text: 'label_was_removed1'.l10nfmt(args),
                   recognizer: TapGestureRecognizer()
-                    ..onTap = () => router.chat(user.dialog, push: true),
+                    ..onTap = () => widget.onUserPressed(user),
                 ),
                 TextSpan(
                   text: 'label_was_removed2'.l10nfmt(args),
@@ -678,7 +685,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.chat(user.dialog, push: true),
+                  ..onTap = () => widget.onUserPressed(user),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -714,7 +721,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
               TextSpan(
                 text: phrase1.l10nfmt(args),
                 recognizer: TapGestureRecognizer()
-                  ..onTap = () => router.chat(user.dialog, push: true),
+                  ..onTap = () => widget.onUserPressed(user),
               ),
               TextSpan(
                 text: phrase2.l10nfmt(args),
@@ -790,8 +797,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                       TextSpan(
                         text: widget.user?.title ?? 'dot'.l10n * 3,
                         recognizer: TapGestureRecognizer()
-                          ..onTap =
-                              () => router.chat(_author.dialog, push: true),
+                          ..onTap = () => widget.onUserPressed(_author),
                       ),
                       selectable: PlatformUtils.isDesktop || menu,
                       onChanged: (a) => _selection = a,
@@ -1035,8 +1041,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                         TextSpan(
                           text: widget.user?.title ?? 'dot'.l10n * 3,
                           recognizer: TapGestureRecognizer()
-                            ..onTap =
-                                () => router.chat(_author.dialog, push: true),
+                            ..onTap = () => widget.onUserPressed(_author),
                         ),
                         selectable: PlatformUtils.isDesktop || menu,
                         onChanged: (a) => _selection = a,
@@ -1465,8 +1470,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 child: widget.avatar
                     ? InkWell(
                         customBorder: const CircleBorder(),
-                        onTap: () =>
-                            router.chat(item.author.dialog, push: true),
+                        onTap: () => widget.onUserPressed(item.author),
                         child: AvatarWidget.fromRxUser(
                           widget.user,
                           radius: avatarRadius,
@@ -1825,8 +1829,11 @@ class ChatCallWidget extends StatefulWidget {
 /// State of a [ChatCallWidget] maintaining the [FutureOr] retrieving the
 /// [ChatCall] and [Timer] for its periodic updates.
 class ChatCallWidgetState extends State<ChatCallWidget> {
-  /// [FutureOr] used in [FutureBuilder].
-  FutureOr<Rx<ChatItem>?>? _futureOrCall;
+  /// Reactive [ChatItem] representing the [ChatCall].
+  Rx<ChatItem>? _item;
+
+  /// [ever] reacting on the [_item] changes.
+  Worker? _worker;
 
   /// [FixedTimer] rebuilding this widget every second, if this [ChatCall]
   /// represents an ongoing [ChatCall].
@@ -1837,125 +1844,152 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
     super.initState();
 
     if (widget.getItem != null && widget.call != null) {
-      _futureOrCall = widget.getItem!.call(widget.call!.id);
+      _fetchItem();
     }
   }
 
   @override
   void dispose() {
     _ongoingCallTimer?.cancel();
+    _ongoingCallTimer = null;
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    if (_item == null || _item?.value is! ChatCall) {
+      return _render(context, widget.call);
+    }
+
+    return Obx(() => _render(context, _item!.value as ChatCall));
+  }
+
+  /// Builds the [ChatCall] visual representation.
+  Widget _render(BuildContext context, ChatCall? call) {
     final style = Theme.of(context).style;
 
-    return FutureBuilder<Rx<ChatItem>?>(
-      initialData: _futureOrCall is Rx<ChatItem>?
-          ? _futureOrCall as Rx<ChatItem>?
-          : null,
-      future: _futureOrCall is Rx<ChatItem>?
-          ? null
-          : _futureOrCall as Future<Rx<ChatItem>?>,
-      builder: (context, snapshot) {
-        final ChatCall? call = snapshot.data?.value as ChatCall?;
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
 
-        final bool isOngoing =
-            call?.finishReason == null && call?.conversationStartedAt != null;
+    bool isMissed = false;
+    String title = 'label_chat_call_ended'.l10n;
+    String? time;
 
-        bool isMissed = false;
-        String title = 'label_chat_call_ended'.l10n;
-        String? time;
+    if (isOngoing) {
+      title = 'label_chat_call_ongoing'.l10n;
+      time = call!.conversationStartedAt!.val
+          .difference(DateTime.now())
+          .localizedString();
+    } else if (call != null && call.finishReason != null) {
+      title = call.finishReason!.localizedString(call.author.id == widget.me) ??
+          title;
+      isMissed = call.finishReason == ChatCallFinishReason.dropped ||
+          call.finishReason == ChatCallFinishReason.unanswered;
 
-        if (isOngoing) {
-          title = 'label_chat_call_ongoing'.l10n;
-          time = call!.conversationStartedAt!.val
-              .difference(DateTime.now())
-              .localizedString();
-        } else if (call != null && call.finishReason != null) {
-          title =
-              call.finishReason!.localizedString(call.author.id == widget.me) ??
-                  title;
-          isMissed = call.finishReason == ChatCallFinishReason.dropped ||
-              call.finishReason == ChatCallFinishReason.unanswered;
+      if (call.finishedAt != null && call.conversationStartedAt != null) {
+        time = call.finishedAt!.val
+            .difference(call.conversationStartedAt!.val)
+            .localizedString();
+      }
+    } else {
+      title = call == null
+          ? title
+          : call.author.id == widget.me
+              ? 'label_outgoing_call'.l10n
+              : 'label_incoming_call'.l10n;
+    }
 
-          if (call.finishedAt != null && call.conversationStartedAt != null) {
-            time = call.finishedAt!.val
-                .difference(call.conversationStartedAt!.val)
-                .localizedString();
-          }
-        } else {
-          title = call == null
-              ? title
-              : call.author.id == widget.me
-                  ? 'label_outgoing_call'.l10n
-                  : 'label_incoming_call'.l10n;
-        }
-
-        if (isOngoing && !Config.disableInfiniteAnimations) {
-          _ongoingCallTimer ??= FixedTimer.periodic(1.seconds, () {
-            if (mounted) {
-              setState(() {});
-            }
-          });
-        } else {
-          _ongoingCallTimer?.cancel();
-        }
-
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: SvgIcon(
-                (call?.withVideo ?? false)
-                    ? isMissed
-                        ? SvgIcons.callVideoMissed
-                        : SvgIcons.callVideo
-                    : isMissed
-                        ? SvgIcons.callAudioMissed
-                        : SvgIcons.callAudio,
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: SvgIcon(
+            (call?.withVideo ?? false)
+                ? isMissed
+                    ? SvgIcons.callVideoMissed
+                    : SvgIcons.callVideo
+                : isMissed
+                    ? SvgIcons.callAudioMissed
+                    : SvgIcons.callAudio,
+          ),
+        ),
+        Flexible(
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Flexible(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.fonts.medium.regular.onBackground,
+                ),
               ),
-            ),
-            Flexible(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Flexible(
-                    child: Text(
-                      title,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: style.fonts.medium.regular.onBackground,
-                    ),
+              if (time != null) ...[
+                const SizedBox(width: 8),
+                Padding(
+                  padding: const EdgeInsets.only(top: 2.5),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Text(
+                        time,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: style.fonts.normal.regular.secondary,
+                      ).fixedDigits(),
+                    ],
                   ),
-                  if (time != null) ...[
-                    const SizedBox(width: 8),
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2.5),
-                      child: Stack(
-                        alignment: Alignment.topRight,
-                        children: [
-                          Text(
-                            time,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: style.fonts.normal.regular.secondary,
-                          ).fixedDigits(),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-            const SizedBox(width: 2),
-          ],
-        );
-      },
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(width: 2),
+      ],
     );
+  }
+
+  /// Fetches the [_item].
+  Future<void> _fetchItem() async {
+    _checkForTimer(widget.call);
+
+    final futureOrItem = widget.getItem!(widget.call!.id);
+    if (futureOrItem is Rx<ChatItem>?) {
+      _item = futureOrItem;
+    } else {
+      _item = await futureOrItem;
+    }
+
+    if (mounted) {
+      setState(() {});
+    }
+
+    _worker?.dispose();
+
+    if (_item != null) {
+      _worker = ever(_item!, (e) => _checkForTimer(e as ChatCall));
+    }
+  }
+
+  /// Ensures the [_ongoingCallTimer] is being up, if [ChatCall] is considered
+  /// active.
+  void _checkForTimer(ChatCall? call) {
+    final bool isOngoing =
+        call?.finishReason == null && call?.conversationStartedAt != null;
+
+    if (isOngoing && !Config.disableInfiniteAnimations) {
+      _ongoingCallTimer ??= FixedTimer.periodic(1.seconds, () {
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } else {
+      _ongoingCallTimer?.cancel();
+      _ongoingCallTimer = null;
+    }
   }
 }
 

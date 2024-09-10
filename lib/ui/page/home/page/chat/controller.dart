@@ -405,6 +405,10 @@ class ChatController extends GetxController {
   /// Returns the [WelcomeMessage] of this [chat], if any.
   WelcomeMessage? get welcomeMessage => user?.user.value.welcomeMessage;
 
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatService.monolog;
+
   /// Indicates whether the [listController] is scrolled to its bottom.
   bool get _atBottom =>
       listController.hasClients && listController.position.pixels < 500;
@@ -1971,6 +1975,10 @@ class ChatController extends GetxController {
           await _loadNextPage();
           await _loadPreviousPage();
           _ensureScrollable();
+        } else if (_atBottom) {
+          await _loadNextPage();
+        } else if (_atTop) {
+          await _loadPreviousPage();
         }
       });
     }

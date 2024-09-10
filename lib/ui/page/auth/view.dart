@@ -32,6 +32,7 @@ import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -364,7 +365,7 @@ class AuthView extends StatelessWidget {
                           const SizedBox(height: 8),
                           Expanded(child: Center(child: column)),
                           const SizedBox(height: 8),
-                          SafeArea(top: false, child: status),
+                          CustomSafeArea(top: false, child: status),
                         ],
                       ),
                     ),

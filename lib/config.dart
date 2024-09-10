@@ -135,6 +135,12 @@ class Config {
   /// links.
   static String scheme = 'gapopa';
 
+  /// URL address of IP geolocation API server.
+  static String geoEndpoint = 'https://ipwho.is';
+
+  /// URL address of IP address discovering API server.
+  static String ipEndpoint = 'https://api.ipify.org?format=json';
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -244,6 +250,14 @@ class Config {
         ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
         : (document['link']?['scheme'] ?? scheme);
 
+    geoEndpoint = const bool.hasEnvironment('SOCAPP_GEO_ENDPOINT')
+        ? const String.fromEnvironment('SOCAPP_GEO_ENDPOINT')
+        : (document['geo']?['endpoint'] ?? geoEndpoint);
+
+    ipEndpoint = const bool.hasEnvironment('SOCAPP_IP_ENDPOINT')
+        ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
+        : (document['ip']?['endpoint'] ?? ipEndpoint);
+
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
       if (document['server']?['http']?['url'] == null &&
@@ -314,6 +328,8 @@ class Config {
                 copyright;
             support = remote['legal']?['support'] ?? support;
             repository = remote['legal']?['repository'] ?? repository;
+            geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
+            ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;
             if (remote['log']?['level'] != null) {
               logLevel = me.LogLevel.values.firstWhere(
                 (e) => e.name == remote['log']?['level'],

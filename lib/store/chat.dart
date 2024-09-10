@@ -295,6 +295,10 @@ class ChatRepository extends DisposableInterface
   FutureOr<RxChatImpl?> get(ChatId id) {
     Log.debug('get($id)', '$runtimeType');
 
+    if (id.isLocalWith(me)) {
+      id = monolog;
+    }
+
     RxChatImpl? chat = chats[id];
     if (chat != null) {
       return chat;
@@ -904,7 +908,12 @@ class ChatRepository extends DisposableInterface
     await _graphQlProvider.createChatDirectLink(slug, groupId: chatId);
 
     final RxChatImpl? chat = chats[chatId];
-    chat?.chat.update((c) => c?.directLink = ChatDirectLink(slug: slug));
+    chat?.chat.update(
+      (c) => c?.directLink = ChatDirectLink(
+        slug: slug,
+        createdAt: PreciseDateTime.now(),
+      ),
+    );
   }
 
   @override
@@ -1484,6 +1493,7 @@ class ChatRepository extends DisposableInterface
         ChatDirectLink(
           slug: node.directLink.slug,
           usageCount: node.directLink.usageCount,
+          createdAt: node.directLink.createdAt,
         ),
       );
     } else if (e.$$typename == 'EventChatCallMoved') {
@@ -1515,6 +1525,10 @@ class ChatRepository extends DisposableInterface
         node.at,
         node.call.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1791,22 +1805,7 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          final ChatItem? last = event.value!.value.lastItem;
-
-          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
-          // and might not be happening remotely at all.
-          await _putEntry(
-            ChatData(
-              event.value!
-                ..value.ongoingCall = null
-                ..value.lastItem = last is ChatCall
-                    ? (last..conversationStartedAt = null)
-                    : last,
-              null,
-              null,
-            ),
-            pagination: true,
-          );
+          await _putEntry(ChatData(event.value!, null, null), pagination: true);
           break;
 
         case OperationKind.removed:
@@ -1925,7 +1924,10 @@ class ChatRepository extends DisposableInterface
           },
           watchUpdates: (a, b) => false,
           onAdded: (e) async {
-            await recent?.put(e, store: false);
+            final ChatVersion? stored = paginated[e.id]?.ver;
+            if (stored == null || e.ver > stored) {
+              await recent?.put(e, store: false);
+            }
           },
           onRemoved: (e) async {
             await recent?.remove(e.value.id, store: false);
@@ -2060,7 +2062,7 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    RecentChats$Query$RecentChats query = (await _graphQlProvider.recentChats(
+    final query = (await _graphQlProvider.recentChats(
       first: first,
       after: after,
       last: last,

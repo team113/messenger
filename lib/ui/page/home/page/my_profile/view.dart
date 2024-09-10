@@ -34,6 +34,7 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/model/welcome_message.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -59,6 +60,7 @@ import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/download_button.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -74,6 +76,7 @@ import 'call_buttons_switch/controller.dart';
 import 'call_window_switch/view.dart';
 import 'camera_switch/view.dart';
 import 'controller.dart';
+import 'delete_email/view.dart';
 import 'language/view.dart';
 import 'microphone_switch/view.dart';
 import 'output_switch/view.dart';
@@ -93,7 +96,13 @@ class MyProfileView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       key: const Key('MyProfileView'),
-      init: MyProfileController(Get.find(), Get.find(), Get.find(), Get.find()),
+      init: MyProfileController(
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+        Get.find(),
+      ),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
         return GestureDetector(
@@ -365,7 +374,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
       return const SizedBox();
 
     case ProfileTab.logout:
-      return const SafeArea(
+      return const CustomSafeArea(
         top: false,
         right: false,
         left: false,
@@ -406,7 +415,12 @@ Widget _emails(BuildContext context, MyProfileController c) {
           key: const Key('UnconfirmedEmail'),
           content: unconfirmed.val,
           trailing: WidgetButton(
-            onPressed: () => _deleteEmail(c, context, unconfirmed),
+            onPressed: () => _deleteEmail(
+              c,
+              context,
+              unconfirmed,
+              confirmed: false,
+            ),
             child: const SvgIcon(SvgIcons.delete),
           ),
           title: 'label_email_not_verified'.l10n,
@@ -1134,26 +1148,46 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.devices] section.
 Widget _devices(BuildContext context, MyProfileController c) {
-  Widget device(Session session) {
-    final bool isCurrent = session.id == c.credentials.value?.sessionId;
+  Widget device(RxSession rxSession) {
+    return Obx(() {
+      final Session session = rxSession.session.value;
+      final IpGeoLocation? geo = rxSession.geo.value;
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 10, right: 10),
-      child: InfoTile(
-        key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
-        title: isCurrent
-            ? 'label_this_device'.l10n
-            : session.lastActivatedAt.val.yMdHm,
-        content: session.userAgent.localized,
-        trailing: isCurrent
-            ? null
-            : WidgetButton(
-                key: const Key('DeleteSessionButton'),
-                onPressed: () => DeleteSessionView.show(context, session),
-                child: const SvgIcon(SvgIcons.delete),
-              ),
-      ),
-    );
+      final bool isCurrent = session.id == c.credentials.value?.sessionId;
+
+      final String device = isCurrent
+          ? 'label_this_device'.l10n
+          : session.lastActivatedAt.val.yMdHm;
+
+      final String title;
+      if (geo == null) {
+        title = device;
+      } else {
+        title = 'comma_separated_a_b_c'.l10nfmt({
+          'a': isCurrent
+              ? 'label_this_device'.l10n
+              : session.lastActivatedAt.val.yMdHm,
+          'b': geo.city,
+          'c': geo.country,
+        });
+      }
+
+      return Padding(
+        padding: const EdgeInsets.only(left: 10, right: 10),
+        child: InfoTile(
+          key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
+          title: title,
+          content: session.userAgent.localized,
+          trailing: isCurrent
+              ? null
+              : WidgetButton(
+                  key: const Key('DeleteSessionButton'),
+                  onPressed: () => DeleteSessionView.show(context, session),
+                  child: const SvgIcon(SvgIcons.delete),
+                ),
+        ),
+      );
+    });
   }
 
   return Column(
@@ -1164,9 +1198,9 @@ Widget _devices(BuildContext context, MyProfileController c) {
         child: Scrollbar(
           controller: c.devicesScrollController,
           child: Obx(() {
-            final List<Session> sessions = c.sessions.toList();
+            final List<RxSession> sessions = c.sessions.toList();
 
-            final Session? current = sessions.firstWhereOrNull(
+            final RxSession? current = sessions.firstWhereOrNull(
               (e) => e.id == c.credentials.value?.sessionId,
             );
 
@@ -1526,8 +1560,9 @@ Widget _bar(MyProfileController c, BuildContext context) {
 Future<void> _deleteEmail(
   MyProfileController c,
   BuildContext context,
-  UserEmail email,
-) async {
+  UserEmail email, {
+  bool confirmed = true,
+}) async {
   final style = Theme.of(context).style;
 
   final bool? result = await MessagePopup.alert(
@@ -1540,7 +1575,18 @@ Future<void> _deleteEmail(
   );
 
   if (result == true) {
-    await c.deleteEmail(email);
+    if (context.mounted) {
+      if (confirmed) {
+        if (c.myUser.value?.emails.confirmed.isNotEmpty == true ||
+            c.myUser.value?.hasPassword == true) {
+          await DeleteEmailView.show(context, email: email);
+        } else {
+          await c.deleteEmail(email);
+        }
+      } else {
+        await c.deleteEmail(email);
+      }
+    }
   }
 }
 

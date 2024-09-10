@@ -64,7 +64,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
 
   /// Creates or updates the a view for the provided [chatItemId] in [chatId].
   Future<void> upsertView(ChatId chatId, ChatItemId chatItemId) async {
-    Log.debug('upsertView($chatId, $chatItemId)');
+    Log.debug('upsertView($chatId, $chatItemId)', '$runtimeType');
 
     await safe((db) async {
       final view =
@@ -79,7 +79,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   ///
   /// If [toView] is `true`, then also adds a view to the [ChatItemViews].
   Future<DtoChatItem> upsert(DtoChatItem item, {bool toView = false}) async {
-    Log.debug('upsert($item) toView($toView)');
+    Log.debug('upsert($item) toView($toView)', '$runtimeType');
 
     _cache[item.value.id] = item;
 
@@ -116,7 +116,10 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     }
 
     final result = await safe((db) async {
-      Log.debug('upsertBulk(${items.length} items) toView($toView)');
+      Log.debug(
+        'upsertBulk(${items.length} items) toView($toView)',
+        '$runtimeType',
+      );
 
       await db.batch((batch) {
         for (var item in items) {

@@ -293,6 +293,7 @@ btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
 colon_space = :{" "}
+comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
@@ -314,6 +315,7 @@ err_call_not_found = Данный звонок не найден
 err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
+err_camera_permission_denied = Доступ к камере отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к камере.
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
@@ -347,6 +349,7 @@ err_unknown_registration_token = Неизвестный регистрацион
 err_login_occupied = Данный логин уже занят.
 err_media_devices_are_null = Невозможно получить `MediaStream` с `video`, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.
 err_message_was_read = Сообщение было прочитано
+err_microphone_permission_denied = Доступ к микрофону отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к микрофону.
 err_monolog = Невозможно выполнить данное действие в монологе
 err_network = Ошибка подключения к серверу
 err_no_access_to_gallery = Доступ к галерее запрещён. Пожалуйста, убедитесь, что у приложения есть разрешения на доступ к галерее.

@@ -279,7 +279,6 @@ class Chat implements Comparable<Chat> {
   @override
   bool operator ==(Object other) {
     return other is Chat &&
-        compareTo(other) == 0 &&
         id == other.id &&
         avatar == other.avatar &&
         name == other.name &&
@@ -436,7 +435,7 @@ class ChatName extends NewType<String> {
 
   ChatName(String val) : super(val) {
     if (!_regExp.hasMatch(val)) {
-      throw const FormatException('Does not match validation RegExp');
+      throw FormatException('Does not match validation RegExp: `$val`');
     }
   }
 
