@@ -1992,6 +1992,15 @@ class ChatRepository extends DisposableInterface
       }
     });
 
+    if (_localPagination != null) {
+      // Remove the [DtoChat]s missing in local pagination from the database.
+      for (var e in _localPagination!.items.take(_pagination!.items.length)) {
+        if (_pagination?.items.none((b) => b.id == e.id) == true) {
+          remove(e.id);
+        }
+      }
+    }
+
     // Clear the [paginated] and the [_localPagination] populating it, as
     // [CombinedPagination.around] has fetched its results.
     paginated.removeWhere(
