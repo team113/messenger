@@ -137,6 +137,17 @@ class CallRepository extends DisposableInterface
       return null;
     }
 
+    // If dialing has already ended, then notification shouldn't be displayed.
+    if (call.dialed == null) {
+      return null;
+    } else if (call.dialed is ChatMembersDialedConcrete) {
+      if ((call.dialed as ChatMembersDialedConcrete)
+          .members
+          .none((e) => e.user.id == me)) {
+        return null;
+      }
+    }
+
     if (ongoing == null) {
       ongoing = Rx<OngoingCall>(
         OngoingCall(
