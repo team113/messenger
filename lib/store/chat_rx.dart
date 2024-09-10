@@ -1705,8 +1705,15 @@ class RxChatImpl extends RxChat {
                 _eventsDebounce = null;
                 _justSubscribed = false;
 
-                for (var e in events) {
-                  _chatEvent(ChatEventsEvent(e));
+                if (events.isNotEmpty) {
+                  _chatEvent(
+                    ChatEventsEvent(
+                      ChatEventsVersioned(
+                        events.expand((e) => e.events).toList(),
+                        events.first.ver,
+                      ),
+                    ),
+                  );
                 }
               }
             });
