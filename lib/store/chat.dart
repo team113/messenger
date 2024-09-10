@@ -1525,6 +1525,10 @@ class ChatRepository extends DisposableInterface
         node.at,
         node.call.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1801,22 +1805,7 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          final ChatItem? last = event.value!.value.lastItem;
-
-          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
-          // and might not be happening remotely at all.
-          await _putEntry(
-            ChatData(
-              event.value!
-                ..value.ongoingCall = null
-                ..value.lastItem = last is ChatCall
-                    ? (last..conversationStartedAt = null)
-                    : last,
-              null,
-              null,
-            ),
-            pagination: true,
-          );
+          await _putEntry(ChatData(event.value!, null, null), pagination: true);
           break;
 
         case OperationKind.removed:
