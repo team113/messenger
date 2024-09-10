@@ -888,13 +888,13 @@ jobs:
     steps:
       # Skip if this is fork and no credentials are provided.
       - id: skip
-        run: echo ::set-output name=no::${{ !(
+        run: echo "no=${{ !(
                github.repository_owner != 'team113'
                && ((matrix.registry == 'quay.io'
                     && secrets.QUAYIO_ROBOT_USER == '')
                 || (matrix.registry == 'docker.io'
                     && secrets.DOCKERHUB_BOT_USER == ''))
-             ) }}
+             ) }}" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -996,10 +996,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: skip
-        run: echo ::set-output name=no::${{
+        run: echo "no=${{
                  startsWith(github.ref,
                             format('refs/tags/helm/{0}/', matrix.chart))
-             }}
+             }}" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -1037,8 +1037,8 @@ jobs:
 
       - name: Parse CHANGELOG link
         id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -1223,12 +1223,12 @@ jobs:
 
       - name: Parse CHANGELOG link
         id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
       - name: Parse milestone link
         id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
 
       - uses: actions/download-artifact@v4
         with:
