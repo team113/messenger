@@ -35,8 +35,7 @@ jobs:
       - pubspec
       - test-e2e
       - test-unit
-      - validate-app-store
-      - validate-google-play
+      - validate-publish
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -112,54 +111,68 @@ jobs:
       - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
         run: git diff --exit-code
 
-  validate-app-store:
+  validate-publish:
+    name: validate (${{ matrix.store }})
     if: ${{ github.event_name == 'pull_request' }}
     needs: ["build"]
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        store:
+          - App Store
+          - Google Play
+    runs-on: ${{ matrix.store == 'App Store' && 'macos'
+              ||                                'ubuntu' }}-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 2 # For commit message retrieving.
-
-      - name: Determine whether `ios/fastlane/` directory has any changes.
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            ios:
-              - 'ios/fastlane/**'
-
-      - name: Retrieve commit messages
+      - name: Retrieve last commit messages
         id: commit
         run: |
-          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
+          echo "message=$(git log --grep='\[run ci\]' --format=%s)" \
           >> $GITHUB_OUTPUT
-      - name: Determine whether commit messages contain any marks
-        id: mark
-        run: |
-          echo "run=${{ (contains(steps.commit.outputs.messages, '[run ci]')) }}"
-          >> $GITHUB_OUTPUT
-      - run: echo "${{ steps.mark.outputs.run }}"
 
-      # Skip if there are no changes in `ios/fastlane/` directory and no
-      # `[run ci]` mark is detected in commit message.
+      - name: Determine whether `fastlane/` directory has any changes
+        uses: dorny/paths-filter@v3
+        id: changed
+        with:
+          filters: |
+            fastlane:
+              - '${{ (matrix.store == 'App Store' &&   'ios')
+                  || (matrix.store == 'Google Play' && 'android')
+                  }}/fastlane/**'
+
+      # Skip if there are no changes in `fastlane/` directory and no `[run ci]`
+      # mark is detected in the last commit message.
       - id: skip
-        run: echo ::set-output name=no::${{
-               steps.filter.outputs.ios == 'true' || steps.mark.outputs.run
-             }}
+        run: echo "no=${{ steps.changed.outputs.fastlane == 'true'
+                       || contains(steps.commit.outputs.message, '[run ci]') }}"
+             >> $GITHUB_OUTPUT
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-ipa-${{ github.run_number }}
+          name: build-${{ (matrix.store == 'App Store' &&   'ipa')
+                       || (matrix.store == 'Google Play' && 'appbundle')
+                       }}-${{ github.run_number }}
         if: ${{ steps.skip.outputs.no == 'true' }}
-
       - run: mv *.ipa ios/app.ipa
-        if: ${{ steps.skip.outputs.no == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
+      - run: mv *.aab android/app.aab
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
 
       - name: Prepare App Store Connect key
         run: echo "${{ secrets.APP_STORE_KEY }}"
              >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ steps.skip.outputs.no == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
 
       - name: Validate iOS application against App Store
         run: fastlane validate
@@ -168,70 +181,22 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         working-directory: ios/
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
-      - name: Cleanup App Store Connect key
-        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ always() }}
-
-  validate-google-play:
-    if: ${{ github.event_name == 'pull_request' }}
-    needs: ["build"]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 2 # For commit message retrieving.
-
-      - name: Determine whether `android/fastlane/` directory has any changes.
-        uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            android:
-              - 'android/fastlane/**'
-
-      - name: Retrieve commit messages
-        id: commit
-        run: |
-          echo "messages=$(git log --grep='\[run ci\]' --format=%s)" \
-          >> $GITHUB_OUTPUT
-      - name: Determine whether commit messages contain any marks
-        id: mark
-        run: |
-          echo "run=${{ (contains(steps.commit.outputs.messages, '[run ci]')) }}"
-          >> $GITHUB_OUTPUT
-      - run: echo "${{ steps.mark.outputs.run }}"
-
-      # Skip if there are no changes in `android/fastlane/` directory and no
-      # `[run ci]` mark is detected in commit message.
-      - id: skip
-        run: echo ::set-output name=no::${{
-               steps.filter.outputs.android == 'true' || steps.mark.outputs.run
-             }}
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-appbundle-${{ github.run_number }}
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
-      - run: mv *.aab android/app.aab
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
-      - name: Prepare Google Service account
-        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
-             | base64 -d
-             > android/service_account.json
-        if: ${{ steps.skip.outputs.no == 'true' }}
-
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
       - name: Validate Android application against Google Play
         run: fastlane validate
         working-directory: android/
-        if: ${{ steps.skip.outputs.no == 'true' }}
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
 
+      - name: Cleanup App Store Connect key
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always()
+             && matrix.store == 'App Store' }}
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json
-        if: ${{ always() }}
+        if: ${{ always()
+             && matrix.store == 'Google Play' }}
 
 
 
@@ -1122,8 +1087,11 @@ jobs:
           git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
 
-  publish-app-store:
-    name: publish (App Store)
+  # NOTE: When pushing `v*` version Git tags, remember to cancel the CI workflow
+  #       running for the `main` branch to prevent uploading an `.aab` file with
+  #       the same `versionCode`, because Google Play expects it to be unique
+  #       and errors on duplicates uploading.
+  publish:
     if: ${{ github.ref == 'refs/heads/main'
          || startsWith(github.ref, 'refs/tags/v') }}
     needs:
@@ -1135,18 +1103,35 @@ jobs:
       - dartfmt
       - test-e2e
       - test-unit
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        store:
+          - App Store
+          - Google Play
+    runs-on: ${{ matrix.store == 'App Store' && 'macos'
+              ||                                'ubuntu' }}-latest
     steps:
       - uses: actions/checkout@v4
 
       - uses: actions/download-artifact@v4
         with:
-          name: build-ipa-${{ github.run_number }}
+          name: build-${{ (matrix.store == 'App Store' &&   'ipa')
+                       || (matrix.store == 'Google Play' && 'appbundle')
+                       }}-${{ github.run_number }}
       - run: mv *.ipa ios/app.ipa
+        if: ${{ matrix.store == 'App Store' }}
+      - run: mv *.aab android/app.aab
+        if: ${{ matrix.store == 'Google Play' }}
 
       - name: Prepare App Store Connect key
         run: echo "${{ secrets.APP_STORE_KEY }}"
              >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ matrix.store == 'App Store' }}
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+        if: ${{ matrix.store == 'Google Play' }}
 
       - name: Publish iOS application to App Store
         run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
@@ -1156,50 +1141,21 @@ jobs:
           APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
           APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
         working-directory: ios/
-
-      - name: Cleanup App Store Connect key
-        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
-        if: ${{ always() }}
-
-  # NOTE: When pushing `v*` version Git tags, remember to cancel the CI workflow
-  #       running for the `main` branch to prevent uploading an `.aab` file with
-  #       the same `versionCode`, because Google Play expects it to be unique
-  #       and errors on duplicates uploading.
-  publish-google-play:
-    name: publish (Google Play)
-    if: ${{ github.ref == 'refs/heads/main'
-         || startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build
-      - build-linux
-      - copyright
-      - dartanalyze
-      - dartdoc
-      - dartfmt
-      - test-e2e
-      - test-unit
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/download-artifact@v4
-        with:
-          name: build-appbundle-${{ github.run_number }}
-      - run: mv *.aab android/app.aab
-
-      - name: Prepare Google Service account
-        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
-             | base64 -d
-             > android/service_account.json
-
+        if: ${{ matrix.store == 'App Store' }}
       - name: Publish Android application to Google Play
         run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
                                                                 || 'internal' }}
         working-directory: android/
+        if: ${{ matrix.store == 'Google Play' }}
 
+      - name: Cleanup App Store Connect key
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always()
+             && matrix.store == 'App Store' }}
       - name: Cleanup Google Service account
         run: rm -rf android/service_account.json
-        if: ${{ always() }}
+        if: ${{ always()
+             && matrix.store == 'Google Play' }}
 
   release-appcast:
     name: release (Sparkle Appcast XML)
@@ -1247,8 +1203,7 @@ jobs:
       - dartdoc
       - dartfmt
       - docker-push
-      - publish-app-store
-      - publish-google-play
+      - publish
       - test-e2e
       - test-unit
     runs-on: ubuntu-latest
