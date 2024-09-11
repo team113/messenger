@@ -16,11 +16,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Active call's duration not being refreshed every second. ([#1105])
+    - Chats tab:
+        - Restore button clipping chats on mobile platforms. ([#1108], [#758])
 - Web:
     - Inability to input chat's name during group creation. ([#1103])
 
 [#1103]: /../../pull/1103
 [#1105]: /../../pull/1105
+[#1108]: /../../pull/1108
 
 
 

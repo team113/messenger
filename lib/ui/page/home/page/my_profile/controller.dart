@@ -404,7 +404,7 @@ class MyProfileController extends GetxController {
 
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
       allowMultiple: false,
       withData: true,
@@ -450,7 +450,7 @@ class MyProfileController extends GetxController {
   /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await PlatformUtils.pickFiles(
         type: FileType.image,
         allowMultiple: false,
         withData: true,

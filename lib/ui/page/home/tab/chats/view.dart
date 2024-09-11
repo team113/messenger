@@ -308,6 +308,8 @@ class ChatsTabView extends StatelessWidget {
                                 c.search.value?.search.clear();
                                 c.search.value?.query.value = '';
                                 c.search.value?.search.focus.requestFocus();
+                              } else {
+                                c.closeSearch();
                               }
                             } else if (c.selecting.value) {
                               c.toggleSelecting();
@@ -1064,80 +1066,6 @@ class ChatsTabView extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Obx(() {
-                      final Widget child;
-                      final action = c.dismissed.lastOrNull;
-
-                      if (action == null) {
-                        child = const SizedBox(key: Key('NoDismissed'));
-                      } else {
-                        child = Padding(
-                          key: Key('Dismissed_${action.chat.id}'),
-                          padding: EdgeInsets.fromLTRB(
-                            10 + 10,
-                            0,
-                            10 + 10,
-                            72 + router.context!.mediaQueryViewPadding.bottom,
-                          ),
-                          child: WidgetButton(
-                            key: const Key('Restore'),
-                            onPressed: action.cancel,
-                            child: Container(
-                              key: Key('${action.chat.id}'),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(12),
-                                color: style.colors.primary.withOpacity(0.9),
-                                boxShadow: [
-                                  CustomBoxShadow(
-                                    blurRadius: 8,
-                                    color: style.colors.onBackgroundOpacity13,
-                                    blurStyle: BlurStyle.outer.workaround,
-                                  ),
-                                ],
-                              ),
-                              height: CustomNavigationBar.height,
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              child: Stack(
-                                alignment: Alignment.centerLeft,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          value: action.remaining.value / 5000,
-                                          color: style.colors.onPrimary,
-                                          strokeWidth: 2,
-                                        ),
-                                      ),
-                                      Text(
-                                        '${action.remaining.value ~/ 1000 + 1}',
-                                        style:
-                                            style.fonts.small.regular.onPrimary,
-                                      )
-                                    ],
-                                  ),
-                                  Center(
-                                    child: Text(
-                                      'btn_undo_delete'.l10n,
-                                      style: style.fonts.big.regular.onPrimary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      }
-
-                      return SafeAnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: child,
-                      );
-                    }),
-                    Obx(() {
                       if (c.groupCreating.value) {
                         return BottomPaddedRow(
                           children: [
@@ -1202,6 +1130,79 @@ class ChatsTabView extends StatelessWidget {
                 ),
               );
             }),
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 72 + router.context!.mediaQueryViewPadding.bottom,
+              child: Obx(() {
+                final Widget child;
+                final action = c.dismissed.lastOrNull;
+
+                if (action == null) {
+                  child = const SizedBox(key: Key('NoDismissed'));
+                } else {
+                  child = Padding(
+                    key: Key('Dismissed_${action.chat.id}'),
+                    padding: const EdgeInsets.fromLTRB(10 + 10, 0, 10 + 10, 0),
+                    child: WidgetButton(
+                      key: const Key('Restore'),
+                      onPressed: action.cancel,
+                      child: Container(
+                        key: Key('${action.chat.id}'),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          color: style.colors.primary.withOpacity(0.9),
+                          boxShadow: [
+                            CustomBoxShadow(
+                              blurRadius: 8,
+                              color: style.colors.onBackgroundOpacity13,
+                              blurStyle: BlurStyle.outer.workaround,
+                            ),
+                          ],
+                        ),
+                        height: CustomNavigationBar.height,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        child: Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [
+                            Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    value: action.remaining.value / 5000,
+                                    color: style.colors.onPrimary,
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                                Text(
+                                  '${action.remaining.value ~/ 1000 + 1}',
+                                  style: style.fonts.small.regular.onPrimary,
+                                )
+                              ],
+                            ),
+                            Center(
+                              child: Text(
+                                'btn_undo_delete'.l10n,
+                                style: style.fonts.big.regular.onPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                }
+
+                return SafeAnimatedSwitcher(
+                  duration: 200.milliseconds,
+                  child: child,
+                );
+              }),
+            ),
             Obx(() {
               final Widget child;
 
