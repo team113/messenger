@@ -1133,7 +1133,7 @@ class ChatsTabView extends StatelessWidget {
             Positioned(
               left: 0,
               right: 0,
-              bottom: 72 + router.context!.mediaQueryViewPadding.bottom,
+              bottom: 72,
               child: Obx(() {
                 final Widget child;
                 final action = c.dismissed.lastOrNull;
@@ -1143,7 +1143,12 @@ class ChatsTabView extends StatelessWidget {
                 } else {
                   child = Padding(
                     key: Key('Dismissed_${action.chat.id}'),
-                    padding: const EdgeInsets.fromLTRB(10 + 10, 0, 10 + 10, 0),
+                    padding: EdgeInsets.fromLTRB(
+                      10 + 10,
+                      0,
+                      10 + 10,
+                      MediaQuery.of(context).viewPadding.bottom,
+                    ),
                     child: WidgetButton(
                       key: const Key('Restore'),
                       onPressed: action.cancel,
