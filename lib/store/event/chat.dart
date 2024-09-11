@@ -28,6 +28,7 @@ import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {
+  callAnswerTimeoutPassed,
   callConversationStarted,
   callDeclined,
   callFinished,
@@ -539,6 +540,20 @@ class EventChatCallConversationStarted extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.callConversationStarted;
+}
+
+/// Event of an answer timeout being reached in a [ChatCall].
+class EventChatCallAnswerTimeoutPassed extends ChatEvent {
+  const EventChatCallAnswerTimeoutPassed(
+    super.chatId,
+    this.callId,
+  );
+
+  /// ID of the [ChatCall] the conversation started in.
+  final ChatItemId callId;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.callAnswerTimeoutPassed;
 }
 
 /// Edited [ChatMessageText].

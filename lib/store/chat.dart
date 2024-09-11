@@ -1525,6 +1525,10 @@ class ChatRepository extends DisposableInterface
         node.at,
         node.call.toModel(),
       );
+    } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
+      var node =
+          e as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      return EventChatCallAnswerTimeoutPassed(e.chatId, node.callId);
     } else {
       throw UnimplementedError('Unknown ChatEvent: ${e.$$typename}');
     }
@@ -1801,22 +1805,7 @@ class ChatRepository extends DisposableInterface
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          final ChatItem? last = event.value!.value.lastItem;
-
-          // [Chat.ongoingCall] is set to `null` there, as it's locally fetched,
-          // and might not be happening remotely at all.
-          await _putEntry(
-            ChatData(
-              event.value!
-                ..value.ongoingCall = null
-                ..value.lastItem = last is ChatCall
-                    ? (last..conversationStartedAt = null)
-                    : last,
-              null,
-              null,
-            ),
-            pagination: true,
-          );
+          await _putEntry(ChatData(event.value!, null, null), pagination: true);
           break;
 
         case OperationKind.removed:
@@ -2002,6 +1991,15 @@ class ChatRepository extends DisposableInterface
           break;
       }
     });
+
+    if (_localPagination != null) {
+      // Remove the [DtoChat]s missing in local pagination from the database.
+      for (var e in _localPagination!.items.take(_pagination!.items.length)) {
+        if (_pagination?.items.none((b) => b.id == e.id) == true) {
+          remove(e.id);
+        }
+      }
+    }
 
     // Clear the [paginated] and the [_localPagination] populating it, as
     // [CombinedPagination.around] has fetched its results.

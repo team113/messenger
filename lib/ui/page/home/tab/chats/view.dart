@@ -628,6 +628,9 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
+                                      hasCall: c.status.value.isLoadingMore
+                                          ? false
+                                          : null,
                                     );
                                   }),
                                 );
@@ -845,6 +848,8 @@ class ChatsTabView extends StatelessWidget {
                                         )
                                       ]
                                     : null,
+                                hasCall:
+                                    c.status.value.isLoadingMore ? false : null,
                               );
                             }
 
