@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
@@ -29,6 +31,7 @@ import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/widget/upgrade_popup/view.dart';
 import '/util/log.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
@@ -39,9 +42,18 @@ class UpgradeWorker extends DisposableService {
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
 
+  /// [Timer] to periodically fetch updates over time.
+  Timer? _timer;
+
+  /// Latest [Release] fetched during the [fetchUpdates].
+  Release? _latest;
+
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
+
+  /// [Duration] being the period of [_timer].
+  static const Duration _refreshPeriod = Duration(minutes: 5);
 
   @override
   void onReady() {
@@ -52,7 +64,19 @@ class UpgradeWorker extends DisposableService {
       fetchUpdates();
     }
 
+    if (Config.appcast.isNotEmpty) {
+      _timer = Timer.periodic(_refreshPeriod, (_) {
+        fetchUpdates();
+      });
+    }
+
     super.onReady();
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
   }
 
   /// Skips the [release], meaning no popups will be prompted for this one.
@@ -95,6 +119,15 @@ class UpgradeWorker extends DisposableService {
           final Release release =
               Release.fromXml(items.first, language: L10n.chosen.value);
 
+          // If the latest fetched [Release] is the same as this one, then don't
+          // even try to compare it.
+          if (_latest?.name == release.name) {
+            return false;
+          }
+
+          bool silent = _latest != null;
+          _latest = release;
+
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',
             '$runtimeType',
@@ -134,7 +167,12 @@ class UpgradeWorker extends DisposableService {
             final bool skipped =
                 !force && await _skippedLocal?.read() == release.name;
             if (critical || (lower && !skipped && Config.downloadable)) {
-              _schedulePopup(release, critical: critical, delay: !force);
+              _schedulePopup(
+                release,
+                critical: critical,
+                delay: !force,
+                silent: silent,
+              );
               return true;
             }
           }
@@ -152,10 +190,25 @@ class UpgradeWorker extends DisposableService {
     Release release, {
     bool critical = false,
     bool delay = true,
+    bool silent = false,
   }) async {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future<void> displayPopup() async {
+      if (silent && !critical) {
+        return MessagePopup.success(
+          'label_update_is_available'.l10n,
+          duration: const Duration(minutes: 5),
+          onPressed: () async {
+            await UpgradePopupView.show(
+              router.context!,
+              release: release,
+              critical: critical,
+            );
+          },
+        );
+      }
+
       await UpgradePopupView.show(
         router.context!,
         release: release,
@@ -240,6 +293,18 @@ class Release {
   String toString() {
     return 'Release(name: $name, description: $description, publishedAt: $publishedAt, assets: $assets)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is Release &&
+        name == other.name &&
+        description == other.description &&
+        publishedAt == other.publishedAt &&
+        const ListEquality().equals(assets, other.assets);
+  }
+
+  @override
+  int get hashCode => Object.hash(name, description, publishedAt, assets);
 }
 
 /// Artifact of the [Release].
@@ -262,6 +327,14 @@ class ReleaseArtifact {
 
   @override
   String toString() => 'ReleaseArtifact(url: $url, os: $os)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReleaseArtifact && url == other.url && os == other.os;
+  }
+
+  @override
+  int get hashCode => Object.hash(url, os);
 }
 
 /// Extension adding parsing of RFC-822 date format to [DateTime].
