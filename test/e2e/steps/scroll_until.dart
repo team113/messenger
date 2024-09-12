@@ -101,28 +101,36 @@ Future<void> _scrollScrollableTo(
   StepContext<CustomWorld> context,
   double Function(ScrollPosition) getPosition,
 ) async {
-  await context.world.appDriver.waitForAppToSettle();
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.waitForAppToSettle();
 
-  final Finder scrollable = find.descendant(
-    of: find.byKey(Key(key.name)),
-    matching: find.byWidgetPredicate((widget) {
-      // TODO: Find a proper way to differentiate [Scrollable]s from
-      //       [TextField]s:
-      //       https://github.com/flutter/flutter/issues/76981
-      if (widget is Scrollable) {
-        return widget.restorationId == null;
-      }
+    final Finder scrollable = find.descendant(
+      of: find.byKey(Key(key.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
+        }
+        return false;
+      }),
+    );
+
+    if (!scrollable.tryEvaluate()) {
       return false;
-    }),
-  );
+    }
 
-  final ScrollableState state =
-      context.world.appDriver.nativeDriver.state(scrollable) as ScrollableState;
-  final ScrollPosition position = state.position;
+    final ScrollableState state = context.world.appDriver.nativeDriver
+        .state(scrollable) as ScrollableState;
+    final ScrollPosition position = state.position;
 
-  position.jumpTo(getPosition(position));
+    position.jumpTo(getPosition(position));
 
-  await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitForAppToSettle();
+
+    return true;
+  });
 }
 
 /// Extension fixing the [AppDriverAdapter.scrollUntilVisible] by adding its
