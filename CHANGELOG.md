@@ -6,10 +6,10 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.3.0] · 2024-??-??
-[0.3.0]: /../../tree/v0.3.0
+## [0.2.1] · 2024-09-12
+[0.2.1]: /../../tree/v0.2.1
 
-[Diff](/../../compare/v0.2.0...v0.3.0) | [Milestone](/../../milestone/29)
+[Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
 
 ### Fixed
 
