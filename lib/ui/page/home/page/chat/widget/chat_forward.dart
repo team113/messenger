@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
@@ -954,6 +955,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
                     if (_offset.dx > 30 + delta &&
                         _offset.dx - d.delta.dx < 30 + delta) {
+                      MacosHapticFeedback().generic();
                       HapticFeedback.selectionClick();
                       widget.onReply?.call();
                     }

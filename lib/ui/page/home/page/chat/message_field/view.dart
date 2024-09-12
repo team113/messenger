@@ -23,6 +23,7 @@ import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 import 'package:path/path.dart' as p;
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
@@ -213,7 +214,10 @@ class MessageFieldView extends StatelessWidget {
                   )!;
 
                   return InitCallback(
-                    callback: HapticFeedback.selectionClick,
+                    callback: () {
+                      MacosHapticFeedback().generic();
+                      HapticFeedback.selectionClick();
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
@@ -293,7 +297,10 @@ class MessageFieldView extends StatelessWidget {
                   )!;
 
                   return InitCallback(
-                    callback: HapticFeedback.selectionClick,
+                    callback: () {
+                      MacosHapticFeedback().generic();
+                      HapticFeedback.selectionClick();
+                    },
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [

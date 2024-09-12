@@ -83,6 +83,8 @@ PODS:
     - GoogleUtilities/Privacy
   - just_audio (0.0.1):
     - FlutterMacOS
+  - macos_haptic_feedback (1.0.0):
+    - FlutterMacOS
   - medea_flutter_webrtc (0.11.0):
     - FlutterMacOS
   - medea_jason (0.4.0):
@@ -159,6 +161,7 @@ DEPENDENCIES:
   - flutter_native_badge_foundation (from `Flutter/ephemeral/.symlinks/plugins/flutter_native_badge_foundation/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
+  - macos_haptic_feedback (from `Flutter/ephemeral/.symlinks/plugins/macos_haptic_feedback/macos`)
   - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
   - medea_jason (from `Flutter/ephemeral/.symlinks/plugins/medea_jason/macos`)
   - media_kit_libs_macos_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_libs_macos_video/macos`)
@@ -218,6 +221,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral
   just_audio:
     :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
+  macos_haptic_feedback:
+    :path: Flutter/ephemeral/.symlinks/plugins/macos_haptic_feedback/macos
   medea_flutter_webrtc:
     :path: Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos
   medea_jason:
@@ -274,6 +279,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
+  macos_haptic_feedback: 6b19c192ff0e8137774eccb8a42227af688da8ee
   medea_flutter_webrtc: d2feb7c8e2ca9a165ad8a00db8ec9867c90b174c
   medea_jason: b3355be56a78da19da91aee19a3ac56356d18997
   media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82

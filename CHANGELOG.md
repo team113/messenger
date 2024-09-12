@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.2.0...v0.3.0) | [Milestone](/../../milestone/29)
 
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply trackpad gesture. ([#1112], [#296])
+
 ### Fixed
 
 - UI:
@@ -21,9 +27,11 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Inability to input chat's name during group creation. ([#1103])
 
+[#296]: /../../issues/296
 [#1103]: /../../pull/1103
 [#1105]: /../../pull/1105
 [#1108]: /../../pull/1108
+[#1112]: /../../pull/1112
 
 
 

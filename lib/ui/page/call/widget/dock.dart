@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
 import 'animated_delayed_width.dart';
@@ -624,6 +625,7 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
         final Drag? result = onStart(position);
         if (result != null) {
           HapticFeedback.selectionClick();
+          MacosHapticFeedback().generic();
         }
         return result;
       };

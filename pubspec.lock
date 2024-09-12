@@ -1213,6 +1213,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  macos_haptic_feedback:
+    dependency: "direct main"
+    description:
+      name: macos_haptic_feedback
+      sha256: "46c0d4a0103907e5fa669154acb2d8c6f659e79ab013f0e6079f6762dbe1c0d7"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   macros:
     dependency: transitive
     description:

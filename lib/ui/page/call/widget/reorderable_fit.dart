@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
@@ -633,6 +634,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     onDoughBreak: () {
                       _doughDragged = item;
                       widget.onDoughBreak?.call(item.item);
+                      HapticFeedback.selectionClick();
+                      MacosHapticFeedback().generic();
                       AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
                     },
                   ),
