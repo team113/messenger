@@ -1,8 +1,2 @@
-- Added current version information to profile page.
-- Added credentials confirmation when deleting account.
-- Added welcome message setting, editing and display.
-- Added geolocation information displaying to active sessions list.
-- Added signing up by login/password.
-- Added signing up and signing in by OTP code sent to email.
-- Updated colors for messages in chat.
-- Fixed infinite typing being displayed in chats list.
+- Fixed active call's duration not being refreshed on chat's page.
+- Fixed "restore chat" button clipping chats.
