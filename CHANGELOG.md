@@ -6,16 +6,27 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.2.1] · 2024-09-12
-[0.2.1]: /../../tree/v0.2.1
+## [0.3.0] · 2024-??-??
+[0.3.0]: /../../tree/v0.3.0
 
-[Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
+[Diff](/../../compare/v0.2.1...v0.3.0) | [Milestone](/../../milestone/30)
 
 ### Added
 
 - UI:
     - Chat page:
         - Swipe to reply trackpad gesture. ([#1112], [#296])
+
+[#296]: /../../issues/296
+[#1112]: /../../pull/1112
+
+
+
+
+## [0.2.1] · 2024-09-12
+[0.2.1]: /../../tree/v0.2.1
+
+[Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
 
 ### Fixed
 
@@ -27,11 +38,9 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Inability to input chat's name during group creation. ([#1103])
 
-[#296]: /../../issues/296
 [#1103]: /../../pull/1103
 [#1105]: /../../pull/1105
 [#1108]: /../../pull/1108
-[#1112]: /../../pull/1112
 
 
 
