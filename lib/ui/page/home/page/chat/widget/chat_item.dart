@@ -22,9 +22,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../controller.dart' show ChatCallFinishReasonL10n, ChatController;
@@ -1811,8 +1809,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         if (isBigger &&
             ((_offset.dx - offset.dx < 30 + delta) ||
                 (!_offsetWasBigger && isBigger))) {
-          MacosHapticFeedback().generic();
-          HapticFeedback.selectionClick();
+          PlatformUtils.haptic(kind: HapticKind.light);
           widget.onReply?.call();
         }
 
