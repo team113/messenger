@@ -1053,6 +1053,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onDragging: (e) => c.isDraggingItem.value = e,
                 ),
               ),
             );
