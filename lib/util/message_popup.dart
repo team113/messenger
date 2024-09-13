@@ -105,8 +105,18 @@ class MessagePopup {
   }
 
   /// Shows a [FloatingSnackBar] with the [title] message.
-  static void success(String title, {double bottom = 16}) =>
-      FloatingSnackBar.show(title, bottom: bottom);
+  static void success(
+    String title, {
+    double bottom = 16,
+    Duration duration = const Duration(seconds: 2),
+    void Function()? onPressed,
+  }) =>
+      FloatingSnackBar.show(
+        title,
+        bottom: bottom,
+        duration: duration,
+        onPressed: onPressed,
+      );
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

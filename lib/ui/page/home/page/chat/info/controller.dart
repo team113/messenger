@@ -243,7 +243,7 @@ class ChatInfoController extends GetxController {
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected
   /// image, if any.
   Future<void> pickAvatar() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
       withReadStream: !PlatformUtils.isWeb,
       withData: PlatformUtils.isWeb,

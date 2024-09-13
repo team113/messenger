@@ -30,6 +30,7 @@ class FloatingSnackBar extends StatefulWidget {
     required this.child,
     this.duration = const Duration(seconds: 2),
     this.onEnd,
+    this.onPressed,
     this.bottom = 16,
   });
 
@@ -40,19 +41,29 @@ class FloatingSnackBar extends StatefulWidget {
   final Duration duration;
 
   /// Callback, called when this [FloatingSnackBar] disappears.
-  final VoidCallback? onEnd;
+  final void Function()? onEnd;
+
+  /// Callback, called when this [FloatingSnackBar] is pressed.
+  final void Function()? onPressed;
 
   /// Bottom margin to apply to this [FloatingSnackBar].
   final double bottom;
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
-  static void show(String title, {double bottom = 16}) {
+  static void show(
+    String title, {
+    double bottom = 16,
+    Duration duration = const Duration(seconds: 2),
+    void Function()? onPressed,
+  }) {
     final style = Theme.of(router.context!).style;
 
     OverlayEntry? entry;
 
     entry = OverlayEntry(
       builder: (_) => FloatingSnackBar(
+        duration: duration,
+        onPressed: onPressed,
         onEnd: () {
           if (entry?.mounted == true) {
             entry?.remove();
@@ -60,7 +71,12 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
-        child: Text(title, style: style.fonts.normal.regular.onBackground),
+        child: Text(
+          title,
+          style: onPressed == null
+              ? style.fonts.normal.regular.onBackground
+              : style.fonts.medium.regular.primary,
+        ),
       ),
     );
 
@@ -104,7 +120,10 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
           width: MediaQuery.of(context).size.width,
           child: Center(
             child: GestureDetector(
-              onTap: () => setState(() => _opacity = _initialOpacity),
+              onTap: () {
+                widget.onPressed?.call();
+                setState(() => _opacity = _initialOpacity);
+              },
               child: AnimatedOpacity(
                 opacity: _opacity,
                 duration: const Duration(milliseconds: 120),

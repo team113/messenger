@@ -6,21 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.3.0] · 2024-??-??
-[0.3.0]: /../../tree/v0.3.0
+## [0.2.1] · 2024-09-12
+[0.2.1]: /../../tree/v0.2.1
 
-[Diff](/../../compare/v0.2.0...v0.3.0) | [Milestone](/../../milestone/29)
+[Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
 
 ### Fixed
 
 - UI:
     - Chat page:
         - Active call's duration not being refreshed every second. ([#1105])
+    - Chats tab:
+        - Restore button clipping chats on mobile platforms. ([#1108], [#758])
 - Web:
     - Inability to input chat's name during group creation. ([#1103])
 
 [#1103]: /../../pull/1103
 [#1105]: /../../pull/1105
+[#1108]: /../../pull/1108
 
 
 

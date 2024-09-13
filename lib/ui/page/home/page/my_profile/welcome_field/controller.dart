@@ -239,7 +239,7 @@ class WelcomeFieldController extends GetxController {
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await PlatformUtils.pickFiles(
       type: type,
       allowMultiple: true,
       withReadStream: true,

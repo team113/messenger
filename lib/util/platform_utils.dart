@@ -613,6 +613,35 @@ class PlatformUtilsImpl {
       });
     }
   }
+
+  /// Returns the [FilePickerResult] of the file picking of the provided [type].
+  Future<FilePickerResult?> pickFiles({
+    FileType type = FileType.any,
+    bool allowCompression = true,
+    int compressionQuality = 30,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+  }) async {
+    try {
+      return await FilePicker.platform.pickFiles(
+        type: type,
+        allowCompression: allowCompression,
+        compressionQuality: compressionQuality,
+        allowMultiple: allowMultiple,
+        withData: withData,
+        withReadStream: withReadStream,
+        lockParentWindow: lockParentWindow,
+      );
+    } on PlatformException catch (e) {
+      if (e.code == 'already_active') {
+        return null;
+      } else {
+        rethrow;
+      }
+    }
+  }
 }
 
 /// Determining whether a [BuildContext] is mobile or not.
