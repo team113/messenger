@@ -172,7 +172,7 @@ class ChatItemWidget extends StatefulWidget {
   /// Callback, called whenever some [User]'s name is being pressed.
   final void Function(User) onUserPressed;
 
-  /// Callback, called whenever this [ChatItemWidget] is being dragged
+  /// Callback, called whenever this [ChatItemWidget] is being dragged.
   final void Function(bool)? onDragging;
 
   @override
@@ -1411,7 +1411,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       offset: _offset,
       curve: Curves.ease,
       child: Listener(
-        behavior: HitTestBehavior.deferToChild,
+        behavior: HitTestBehavior.translucent,
         onPointerPanZoomStart:
             PlatformUtils.isDesktop ? (d) => _handleDraggingStart() : null,
         onPointerPanZoomUpdate: PlatformUtils.isDesktop
@@ -1780,11 +1780,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Sets the [_draggingStarted] to be `true`.
   void _handleDraggingStart() {
     _draggingStarted = true;
     setState(() => _offsetDuration = Duration.zero);
   }
 
+  /// Updates the [_offset] and dragging related fields by the provided
+  /// [offset].
   void _handleDraggingUpdate(Offset offset) {
     if (_draggingStarted && !_dragging) {
       if (_offset.dx == 0 && offset.dx > 0) {
@@ -1825,6 +1828,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
   }
 
+  /// Resets the dragging related fields to its original states.
   void _handleDraggingEnd() {
     if (_dragging) {
       _dragging = false;
