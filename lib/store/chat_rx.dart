@@ -868,18 +868,7 @@ class RxChatImpl extends RxChat {
     Log.debug('updateReads()', '$runtimeType($id)');
 
     for (LastChatRead e in chat.value.lastReads) {
-      final PreciseDateTime? at = _lastReadAt(e.at);
-
-      if (at != null) {
-        final LastChatRead? read =
-            reads.firstWhereOrNull((m) => m.memberId == e.memberId);
-
-        if (read != null) {
-          read.at = at;
-        } else {
-          reads.add(LastChatRead(e.memberId, at));
-        }
-      }
+      _updateReadFor(e.memberId, e.at);
     }
   }
 
@@ -1639,6 +1628,29 @@ class RxChatImpl extends RxChat {
     }
   }
 
+  /// Recalculates the [LastChatRead] for the provided [readId] member.
+  void _updateReadFor(UserId readId, PreciseDateTime readAt) {
+    final PreciseDateTime? at = _lastReadAt(readAt);
+    if (at != null) {
+      final LastChatRead? read =
+          reads.firstWhereOrNull((e) => e.memberId == readId);
+
+      final RxChatMember? member =
+          members.values.firstWhereOrNull((e) => e.user.id == readId);
+
+      // Only proceed, if the [ChatMember] this event represents
+      // joined earlier that latest acquired message.
+      if (member?.joinedAt.isAfter(at) != true) {
+        if (read == null) {
+          reads.add(LastChatRead(readId, at));
+        } else {
+          read.at = at;
+          reads.refresh();
+        }
+      }
+    }
+  }
+
   /// Initializes the [_localSubscription].
   void _initLocalSubscription() {
     _localSubscription?.cancel();
@@ -2045,18 +2057,7 @@ class RxChatImpl extends RxChat {
             case ChatEventKind.read:
               event as EventChatRead;
 
-              final PreciseDateTime? at = _lastReadAt(event.at);
-              if (at != null) {
-                final LastChatRead? read = reads
-                    .firstWhereOrNull((e) => e.memberId == event.byUser.id);
-
-                if (read == null) {
-                  reads.add(LastChatRead(event.byUser.id, at));
-                } else {
-                  read.at = at;
-                  reads.refresh();
-                }
-              }
+              _updateReadFor(event.byUser.id, event.at);
 
               final LastChatRead? lastRead = chatEntity.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
