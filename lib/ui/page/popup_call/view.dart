@@ -18,9 +18,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../call/view.dart';
 import '/domain/model/chat.dart';
+import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/call/view.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/util/scoped_dependencies.dart';
 import 'controller.dart';
@@ -69,7 +70,24 @@ class _PopupCallViewState extends State<PopupCallView> {
     return GetBuilder<PopupCallController>(
       init: PopupCallController(widget.chatId, Get.find()),
       builder: (PopupCallController c) {
-        return CallView(c.call, key: ValueKey(widget.chatId));
+        // If call is `null`, this only means that `WebUtils.closeWindow()`
+        // didn't succeed, which can be happen only due to browser not allowing
+        // it, thus display a message.
+        if (c.call == null) {
+          return Scaffold(
+            body: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 400),
+                  child: Text('err_popup_call_cant_be_closed'.l10n),
+                ),
+              ),
+            ),
+          );
+        }
+
+        return CallView(c.call!, key: ValueKey(widget.chatId));
       },
     );
   }
