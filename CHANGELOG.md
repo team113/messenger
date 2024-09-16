@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.0] · 2024-??-??
+[0.3.0]: /../../tree/v0.3.0
+
+[Diff](/../../compare/v0.2.1...v0.3.0) | [Milestone](/../../milestone/30)
+
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply trackpad gesture. ([#1112], [#296])
+
+[#296]: /../../issues/296
+[#1112]: /../../pull/1112
+
+
+
+
 ## [0.2.1] · 2024-09-12
 [0.2.1]: /../../tree/v0.2.1
 

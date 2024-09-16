@@ -21,7 +21,6 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -198,7 +197,7 @@ class MessageFieldView extends StatelessWidget {
 
               c.quotes.insert(to, c.quotes.removeAt(old));
 
-              HapticFeedback.lightImpact();
+              PlatformUtils.haptic(kind: HapticKind.light);
             },
             proxyDecorator: (child, _, animation) {
               return AnimatedBuilder(
@@ -213,7 +212,7 @@ class MessageFieldView extends StatelessWidget {
                   )!;
 
                   return InitCallback(
-                    callback: HapticFeedback.selectionClick,
+                    callback: PlatformUtils.haptic,
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [
@@ -278,7 +277,7 @@ class MessageFieldView extends StatelessWidget {
 
               c.replied.insert(to, c.replied.removeAt(old));
 
-              HapticFeedback.lightImpact();
+              PlatformUtils.haptic(kind: HapticKind.light);
             },
             proxyDecorator: (child, _, animation) {
               return AnimatedBuilder(
@@ -293,7 +292,7 @@ class MessageFieldView extends StatelessWidget {
                   )!;
 
                   return InitCallback(
-                    callback: HapticFeedback.selectionClick,
+                    callback: PlatformUtils.haptic,
                     child: Container(
                       decoration: BoxDecoration(
                         boxShadow: [

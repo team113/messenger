@@ -19,10 +19,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/ui/page/home/widget/gallery_popup.dart';
+import '/util/platform_utils.dart';
 import 'animated_delayed_width.dart';
 import 'animated_transition.dart';
 
@@ -623,7 +623,7 @@ class DelayedDraggable<T extends Object> extends Draggable<T> {
     )..onStart = (Offset position) {
         final Drag? result = onStart(position);
         if (result != null) {
-          HapticFeedback.selectionClick();
+          PlatformUtils.haptic();
         }
         return result;
       };
