@@ -85,8 +85,8 @@ class L10n {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
       _bundle = FluentBundle(lang.toString())
-        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
         ..addMessages(
+            await rootBundle.loadString('assets/l10n/$lang.ftl'))..addMessages(
           _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
         );
       if (refresh) {
@@ -129,30 +129,37 @@ class Language {
 }
 
 String formattedFileSize(int? bytes) {
+  String valueToString(double value) {
+    final string = value.toStringAsFixed(1);
+
+    return string.endsWith('.0')
+        ? string.substring(0, string.length - 2)
+        : string;
+  }
+
   if (bytes == null) return 'dot'.l10n * 3;
 
-  const precision = 1;
   if (bytes < 1024) {
-    return 'label_b'.l10nfmt({'amount': bytes});
+    return 'label_b'.l10nfmt({'amount': bytes.toString()});
   } else if (bytes < pow(1024, 2)) {
     return 'label_kb'.l10nfmt({
-      'amount': (bytes / 1024).toPrecision(precision),
+      'amount': valueToString(bytes / 1024),
     });
   } else if (bytes < pow(1024, 3)) {
     return 'label_mb'.l10nfmt({
-      'amount': (bytes / pow(1024, 2)).toPrecision(precision),
+      'amount': valueToString(bytes / pow(1024, 2)),
     });
   } else if (bytes < pow(1024, 4)) {
     return 'label_gb'.l10nfmt({
-      'amount': (bytes / pow(1024, 3)).toPrecision(precision),
+      'amount': valueToString(bytes / pow(1024, 3)),
     });
   } else if (bytes < pow(1024, 5)) {
     return 'label_tb'.l10nfmt({
-      'amount': (bytes / pow(1024, 4)).toPrecision(precision),
+      'amount': valueToString(bytes / pow(1024, 4)),
     });
   } else {
     return 'label_pb'.l10nfmt({
-      'amount': (bytes / pow(1024, 5)).toPrecision(precision),
+      'amount': valueToString(bytes / pow(1024, 5)),
     });
   }
 }
@@ -178,8 +185,12 @@ extension L10nDateExtension on DateTime {
 
   // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
-  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
-        DateTime.now().year.toString(),
+  String get yyMd =>
+      DateFormat.yMd().format(this).replaceFirst(
+        DateTime
+            .now()
+            .year
+            .toString(),
         DateFormat('yy').format(this),
       );
 
@@ -200,7 +211,9 @@ extension L10nDateExtension on DateTime {
     final DateTime from = DateTime(now.year, now.month, now.day);
     final DateTime to = DateTime(year, month, day);
 
-    final int differenceInDays = from.difference(to).inDays;
+    final int differenceInDays = from
+        .difference(to)
+        .inDays;
 
     if (differenceInDays > 6) {
       return yMd;
