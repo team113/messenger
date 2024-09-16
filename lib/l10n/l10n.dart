@@ -85,8 +85,8 @@ class L10n {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
       _bundle = FluentBundle(lang.toString())
+        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
         ..addMessages(
-            await rootBundle.loadString('assets/l10n/$lang.ftl'))..addMessages(
           _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
         );
       if (refresh) {
@@ -128,6 +128,16 @@ class Language {
   String toString() => locale.toLanguageTag();
 }
 
+/// Returns bytes formatted into a human-readable, localized string.
+///
+/// ```dart
+/// print(formattedFileSize(null)); // ...
+/// print(formattedFileSize(0)); // 0 B
+/// print(formattedFileSize(10)); // 10 B
+/// print(formattedFileSize(1024)); // 1 KB
+/// print(formattedFileSize(1024 + 50)); // 1 KB
+/// print(formattedFileSize(1024 + 100)); // 1.1 KB
+/// ```
 String formattedFileSize(int? bytes) {
   String valueToString(double value) {
     final string = value.toStringAsFixed(1);
@@ -185,12 +195,8 @@ extension L10nDateExtension on DateTime {
 
   // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
-  String get yyMd =>
-      DateFormat.yMd().format(this).replaceFirst(
-        DateTime
-            .now()
-            .year
-            .toString(),
+  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
+        DateTime.now().year.toString(),
         DateFormat('yy').format(this),
       );
 
@@ -211,9 +217,7 @@ extension L10nDateExtension on DateTime {
     final DateTime from = DateTime(now.year, now.month, now.day);
     final DateTime to = DateTime(year, month, day);
 
-    final int differenceInDays = from
-        .difference(to)
-        .inDays;
+    final int differenceInDays = from.difference(to).inDays;
 
     if (differenceInDays > 6) {
       return yMd;
