@@ -163,70 +163,142 @@ class ChatView extends StatelessWidget {
                   Scaffold(
                     resizeToAvoidBottomInset: true,
                     appBar: CustomAppBar(
-                      title: Row(
-                        children: [
-                          WidgetButton(
-                            onPressed: onDetailsTap,
-                            child: Center(
-                              child: AvatarWidget.fromRxChat(
-                                c.chat,
-                                radius: AvatarRadius.medium,
+                      title: Obx(() {
+                        if (c.searching.value) {
+                          return Theme(
+                            data: MessageFieldView.theme(context),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
                               ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          Flexible(
-                            child: InkWell(
-                              splashFactory: NoSplash.splashFactory,
-                              hoverColor: style.colors.transparent,
-                              highlightColor: style.colors.transparent,
-                              onTap: onDetailsTap,
-                              child: DefaultTextStyle.merge(
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Obx(() {
-                                            return Text(
-                                              c.chat!.title,
-                                              style: style.fonts.big.regular
-                                                  .onBackground,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 1,
-                                            );
-                                          }),
-                                        ),
-                                        Obx(() {
-                                          if (c.chat?.chat.value.muted ==
-                                              null) {
-                                            return const SizedBox();
-                                          }
-
-                                          return const Padding(
-                                            padding: EdgeInsets.only(left: 5),
-                                            child: SvgIcon(SvgIcons.muted),
-                                          );
-                                        }),
-                                      ],
-                                    ),
-                                    if (!isMonolog) ChatSubtitle(c.chat!, c.me),
-                                  ],
+                              child: Transform.translate(
+                                offset: const Offset(0, 1),
+                                child: ReactiveTextField(
+                                  key: const Key('SearchField'),
+                                  state: c.search,
+                                  hint: 'label_search'.l10n,
+                                  maxLines: 1,
+                                  filled: false,
+                                  dense: true,
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                  ),
+                                  style:
+                                      style.fonts.medium.regular.onBackground,
+                                  onChanged: () =>
+                                      c.query.value = c.search.text,
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 10),
-                        ],
-                      ),
+                          );
+                        }
+
+                        return Row(
+                          children: [
+                            WidgetButton(
+                              onPressed: onDetailsTap,
+                              child: Center(
+                                child: AvatarWidget.fromRxChat(
+                                  c.chat,
+                                  radius: AvatarRadius.medium,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                            Flexible(
+                              child: InkWell(
+                                splashFactory: NoSplash.splashFactory,
+                                hoverColor: style.colors.transparent,
+                                highlightColor: style.colors.transparent,
+                                onTap: onDetailsTap,
+                                child: DefaultTextStyle.merge(
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Flexible(
+                                            child: Obx(() {
+                                              return Text(
+                                                c.chat!.title,
+                                                style: style.fonts.big.regular
+                                                    .onBackground,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              );
+                                            }),
+                                          ),
+                                          Obx(() {
+                                            if (c.chat?.chat.value.muted ==
+                                                null) {
+                                              return const SizedBox();
+                                            }
+
+                                            return const Padding(
+                                              padding: EdgeInsets.only(left: 5),
+                                              child: SvgIcon(SvgIcons.muted),
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                      if (!isMonolog)
+                                        ChatSubtitle(c.chat!, c.me),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 10),
+                          ],
+                        );
+                      }),
                       padding: const EdgeInsets.only(left: 4),
-                      leading: const [StyledBackButton()],
+                      leading: [
+                        Obx(() {
+                          if (c.searching.value) {
+                            return const Padding(
+                              padding: EdgeInsets.only(left: 16),
+                              child: SvgIcon(SvgIcons.search),
+                            );
+                          }
+
+                          return const StyledBackButton();
+                        }),
+                      ],
+                      border: (c.searching.value ||
+                              c.search.isFocused.value == true ||
+                              c.query.value?.isNotEmpty == true)
+                          ? Border.all(color: style.colors.primary, width: 2)
+                          : null,
                       actions: [
                         Obx(() {
+                          if (c.searching.value) {
+                            return WidgetButton(
+                              onPressed: () {
+                                if (c.searching.value) {
+                                  if (c.search.text.isNotEmpty) {
+                                    c.search.clear();
+                                    c.search.focus.requestFocus();
+                                  } else {
+                                    c.toggleSearch();
+                                  }
+                                } else {
+                                  c.toggleSearch();
+                                }
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 21, 8),
+                                child: c.search.isEmpty.value
+                                    ? const SvgIcon(SvgIcons.closePrimary)
+                                    : const SvgIcon(SvgIcons.clearSearch),
+                              ),
+                            );
+                          }
+
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
 
@@ -382,6 +454,14 @@ class ChatView extends StatelessWidget {
                                           ),
                                         ),
                                       ],
+                                      ContextMenuButton(
+                                        label: 'label_search'.l10n,
+                                        onPressed: c.toggleSearch,
+                                        trailing:
+                                            const SvgIcon(SvgIcons.search),
+                                        inverted:
+                                            const SvgIcon(SvgIcons.search),
+                                      ),
                                       // TODO: Uncomment, when contacts are implemented.
                                       // if (dialog)
                                       //   ContextMenuButton(

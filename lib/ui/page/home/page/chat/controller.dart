@@ -235,6 +235,10 @@ class ChatController extends GetxController {
   /// Indicator whether any [ChatItemWidget] is being dragged right now.
   final RxBool isDraggingItem = RxBool(false);
 
+  final TextFieldState search = TextFieldState();
+  final RxnString query = RxnString();
+  final RxBool searching = RxBool(false);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 
@@ -522,6 +526,8 @@ class ChatController extends GetxController {
     // Stop the [_typingSubscription] when the send field loses its focus.
     send.field.focus.addListener(_stopTypingOnUnfocus);
 
+    search.focus.addListener(_disableSearchFocusListener);
+
     super.onInit();
   }
 
@@ -557,6 +563,7 @@ class ChatController extends GetxController {
 
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
     send.field.focus.removeListener(_stopTypingOnUnfocus);
+    search.focus.removeListener(_disableSearchFocusListener);
 
     send.onClose();
     edit.value?.onClose();
@@ -1559,6 +1566,19 @@ class ChatController extends GetxController {
     }
   }
 
+  void toggleSearch([bool? value]) {
+    if (value ?? searching.value) {
+      searching.value = false;
+      search.clear();
+      query.value = null;
+      search.focus.removeListener(_disableSearchFocusListener);
+    } else {
+      searching.value = true;
+      search.focus.requestFocus();
+      search.focus.addListener(_disableSearchFocusListener);
+    }
+  }
+
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
   void _keepTyping() {
@@ -2197,6 +2217,13 @@ class ChatController extends GetxController {
       case null:
         // No-op.
         break;
+    }
+  }
+
+  /// Disables the [search], if its focus is lost or its query is empty.
+  void _disableSearchFocusListener() {
+    if (search.focus.hasFocus == false && search.text.isEmpty == true) {
+      toggleSearch(true);
     }
   }
 }
