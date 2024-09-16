@@ -232,6 +232,9 @@ class ChatController extends GetxController {
   /// onto.
   final BuildContext Function()? onContext;
 
+  /// Indicator whether any [ChatItemWidget] is being dragged right now.
+  final RxBool isDraggingItem = RxBool(false);
+
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
 

@@ -1,5 +1,5 @@
 name: messenger
-version: 0.2.1
+version: 0.2.2
 publish_to: none
 
 environment:
@@ -64,6 +64,7 @@ dependencies:
   json_annotation: ^4.9.0
   just_audio: ^0.9.38
   log_me: ^0.1.2
+  macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
   medea_flutter_webrtc: 0.11.1
   medea_jason: 0.6.1
@@ -90,11 +91,11 @@ dependencies:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
+  screen_brightness: any
   sentry_flutter: ^8.2.0
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
-  screen_brightness: any
   sound_fonts: ^0.1.1
   sqlite3_flutter_libs: ^0.5.24
   sqlite3: ^2.4.4
