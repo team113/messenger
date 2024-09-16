@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
@@ -125,6 +126,35 @@ class Language {
 
   @override
   String toString() => locale.toLanguageTag();
+}
+
+String formattedFileSize(int? bytes) {
+  if (bytes == null) return 'dot'.l10n * 3;
+
+  const precision = 1;
+  if (bytes < 1024) {
+    return 'label_b'.l10nfmt({'amount': bytes});
+  } else if (bytes < pow(1024, 2)) {
+    return 'label_kb'.l10nfmt({
+      'amount': (bytes / 1024).toPrecision(precision),
+    });
+  } else if (bytes < pow(1024, 3)) {
+    return 'label_mb'.l10nfmt({
+      'amount': (bytes / pow(1024, 2)).toPrecision(precision),
+    });
+  } else if (bytes < pow(1024, 4)) {
+    return 'label_gb'.l10nfmt({
+      'amount': (bytes / pow(1024, 3)).toPrecision(precision),
+    });
+  } else if (bytes < pow(1024, 5)) {
+    return 'label_tb'.l10nfmt({
+      'amount': (bytes / pow(1024, 4)).toPrecision(precision),
+    });
+  } else {
+    return 'label_pb'.l10nfmt({
+      'amount': (bytes / pow(1024, 5)).toPrecision(precision),
+    });
+  }
 }
 
 /// Extension adding an ability to get a translated [String] in the current
