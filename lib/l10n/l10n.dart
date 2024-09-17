@@ -128,52 +128,6 @@ class Language {
   String toString() => locale.toLanguageTag();
 }
 
-/// Returns bytes formatted into a human-readable, localized string.
-///
-/// ```dart
-/// print(formattedFileSize(null)); // ...
-/// print(formattedFileSize(0)); // 0 B
-/// print(formattedFileSize(10)); // 10 B
-/// print(formattedFileSize(1024)); // 1 KB
-/// print(formattedFileSize(1024 + 50)); // 1 KB
-/// print(formattedFileSize(1024 + 100)); // 1.1 KB
-/// ```
-String formattedFileSize(int? bytes) {
-  String valueToString(double value) {
-    final string = value.toStringAsFixed(1);
-
-    return string.endsWith('.0')
-        ? string.substring(0, string.length - 2)
-        : string;
-  }
-
-  if (bytes == null) return 'dot'.l10n * 3;
-
-  if (bytes < 1024) {
-    return 'label_b'.l10nfmt({'amount': bytes.toString()});
-  } else if (bytes < pow(1024, 2)) {
-    return 'label_kb'.l10nfmt({
-      'amount': valueToString(bytes / 1024),
-    });
-  } else if (bytes < pow(1024, 3)) {
-    return 'label_mb'.l10nfmt({
-      'amount': valueToString(bytes / pow(1024, 2)),
-    });
-  } else if (bytes < pow(1024, 4)) {
-    return 'label_gb'.l10nfmt({
-      'amount': valueToString(bytes / pow(1024, 3)),
-    });
-  } else if (bytes < pow(1024, 5)) {
-    return 'label_tb'.l10nfmt({
-      'amount': valueToString(bytes / pow(1024, 4)),
-    });
-  } else {
-    return 'label_pb'.l10nfmt({
-      'amount': valueToString(bytes / pow(1024, 5)),
-    });
-  }
-}
-
 /// Extension adding an ability to get a translated [String] in the current
 /// [L10n].
 extension L10nExtension on String {
@@ -358,5 +312,54 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.support => 'btn_help'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };
+  }
+}
+
+extension L10nNullableIntExtension on int? {
+  /// Returns bytes formatted into a human-readable, localized string.
+  ///
+  /// ```dart
+  /// print(formattedFileSize(null)); // ...
+  /// print(formattedFileSize(0)); // 0 B
+  /// print(formattedFileSize(10)); // 10 B
+  /// print(formattedFileSize(1024)); // 1 KB
+  /// print(formattedFileSize(1024 + 50)); // 1 KB
+  /// print(formattedFileSize(1024 + 100)); // 1.1 KB
+  /// ```
+  String asFormattedFileSize() {
+    String valueToString(double value) {
+      final string = value.toStringAsFixed(1);
+
+      return string.endsWith('.0')
+          ? string.substring(0, string.length - 2)
+          : string;
+    }
+
+    final bytes = this;
+    if (bytes == null) return 'dot'.l10n * 3;
+
+    if (bytes < 1024) {
+      return 'label_b'.l10nfmt({'amount': bytes.toString()});
+    } else if (bytes < pow(1024, 2)) {
+      return 'label_kb'.l10nfmt({
+        'amount': valueToString(bytes / 1024),
+      });
+    } else if (bytes < pow(1024, 3)) {
+      return 'label_mb'.l10nfmt({
+        'amount': valueToString(bytes / pow(1024, 2)),
+      });
+    } else if (bytes < pow(1024, 4)) {
+      return 'label_gb'.l10nfmt({
+        'amount': valueToString(bytes / pow(1024, 3)),
+      });
+    } else if (bytes < pow(1024, 5)) {
+      return 'label_tb'.l10nfmt({
+        'amount': valueToString(bytes / pow(1024, 4)),
+      });
+    } else {
+      return 'label_pb'.l10nfmt({
+        'amount': valueToString(bytes / pow(1024, 5)),
+      });
+    }
   }
 }
