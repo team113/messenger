@@ -7,7 +7,7 @@ import 'package:messenger/l10n/l10n.dart';
 void main() {
   test('.asFormattedFileSize()', () async {
     WidgetsFlutterBinding.ensureInitialized(); // needed to load translations
-    await L10n.set(Language.fromTag('en-US'), refresh: false);
+    await L10n.init(L10n.languages.first);
 
     expect(null.asFormattedFileSize(), 'dot'.l10n * 3);
     expect(0.asFormattedFileSize(), 'label_b'.l10nfmt({'amount': '0'}));
