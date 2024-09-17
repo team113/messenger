@@ -185,8 +185,12 @@ class ChatView extends StatelessWidget {
                                   ),
                                   style:
                                       style.fonts.medium.regular.onBackground,
-                                  onChanged: () =>
-                                      c.query.value = c.search.text,
+                                  onChanged: () {
+                                    c.query.value = c.search.text;
+                                    if (c.search.text.isEmpty) {
+                                      c.switchToMessages();
+                                    }
+                                  },
                                 ),
                               ),
                             ),
@@ -283,6 +287,7 @@ class ChatView extends StatelessWidget {
                                   if (c.search.text.isNotEmpty) {
                                     c.search.clear();
                                     c.search.focus.requestFocus();
+                                    c.switchToMessages();
                                   } else {
                                     c.toggleSearch();
                                   }
@@ -460,7 +465,7 @@ class ChatView extends StatelessWidget {
                                         trailing:
                                             const SvgIcon(SvgIcons.search),
                                         inverted:
-                                            const SvgIcon(SvgIcons.search),
+                                            const SvgIcon(SvgIcons.searchWhite),
                                       ),
                                       // TODO: Uncomment, when contacts are implemented.
                                       // if (dialog)
@@ -686,6 +691,24 @@ class ChatView extends StatelessWidget {
                           );
                         }),
                         Obx(() {
+                          if (c.searching.value) {
+                            if (c.status.value.isLoadingMore) {
+                              return const Center(
+                                child: CustomProgressIndicator(),
+                              );
+                            }
+
+                            // ignore: invalid_use_of_protected_member
+                            else if (c.elements.value.isEmpty) {
+                              return Center(
+                                child: SystemInfoPrompt(
+                                  key: const Key('NoMessages'),
+                                  'label_no_messages'.l10n,
+                                ),
+                              );
+                            }
+                          }
+
                           if ((c.chat!.status.value.isSuccess ||
                                   c.chat!.status.value.isEmpty) &&
                               c.chat!.messages.isEmpty) {
@@ -1542,11 +1565,26 @@ class ChatView extends StatelessWidget {
       final bool selected = c.selected.contains(item);
 
       return WidgetButton(
-        onPressed: c.selecting.value
-            ? selected
-                ? () => c.selected.remove(item)
-                : () => c.selected.add(item)
-            : null,
+        onPressed: c.searching.value
+            ? () async {
+                c.toggleSearch(true);
+
+                // So that `onDone` is invoked for the fragment.
+                await Future.delayed(Duration.zero);
+
+                c.status.value = RxStatus.loading();
+                await c.animateTo(
+                  item.id.id,
+                  ignoreElements: true,
+                  addToHistory: false,
+                );
+                c.status.value = RxStatus.success();
+              }
+            : c.selecting.value
+                ? selected
+                    ? () => c.selected.remove(item)
+                    : () => c.selected.add(item)
+                : null,
         child: Stack(
           children: [
             Row(

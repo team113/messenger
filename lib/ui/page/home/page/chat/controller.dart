@@ -235,9 +235,20 @@ class ChatController extends GetxController {
   /// Indicator whether any [ChatItemWidget] is being dragged right now.
   final RxBool isDraggingItem = RxBool(false);
 
+  /// [TextFieldState] of the [ChatMessage]s searching.
   final TextFieldState search = TextFieldState();
+
+  /// Reactive current query of the [search] field used for debouching.
   final RxnString query = RxnString();
+
+  /// Indicator whether [search]ing is being active right now.
   final RxBool searching = RxBool(false);
+
+  /// Subscription for [Paginated.updates] of the [search].
+  StreamSubscription? _searchSubscription;
+
+  /// [debounce] debouncing [query] to invoke searching.
+  Worker? _searchDebounce;
 
   /// Top visible [FlutterListViewItemPosition] in the [FlutterListView].
   FlutterListViewItemPosition? _topVisibleItem;
@@ -528,6 +539,48 @@ class ChatController extends GetxController {
 
     search.focus.addListener(_disableSearchFocusListener);
 
+    _searchDebounce = debounce(query, (String? query) async {
+      status.value = RxStatus.loadingMore();
+
+      if (query == null || query.isEmpty) {
+        if (searching.value) {
+          switchToMessages();
+          status.value = RxStatus.success();
+        }
+      } else {
+        _fragment = null;
+        elements.clear();
+
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
+            await chat!.around(withText: ChatMessageText(query));
+
+        _searchSubscription?.cancel();
+        _searchSubscription = fragment!.updates.listen(
+          null,
+          onDone: () {
+            _fragments.remove(fragment);
+            _fragmentSubscriptions.remove(_searchSubscription?..cancel());
+
+            // If currently used fragment is the one disposed, then switch to
+            // the [RxChat.messages] for the [elements].
+            if (_fragment == fragment) {
+              switchToMessages();
+            }
+          },
+        );
+
+        _fragment = fragment;
+
+        await _fragment!.around();
+
+        elements.clear();
+        _fragment!.items.values.forEach(_add);
+        _subscribeFor(fragment: _fragment);
+
+        status.value = RxStatus.success();
+      }
+    });
+
     super.onInit();
   }
 
@@ -560,6 +613,7 @@ class ChatController extends GetxController {
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+    _searchDebounce?.dispose();
 
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
     send.field.focus.removeListener(_stopTypingOnUnfocus);
@@ -1038,6 +1092,7 @@ class ChatController extends GetxController {
     ChatItem? item,
     ChatItemQuote? reply,
     ChatItemQuote? forward,
+    bool ignoreElements = false,
     bool offsetBasedOnBottom = true,
     bool addToHistory = true,
     double offset = 50,
@@ -1053,7 +1108,7 @@ class ChatController extends GetxController {
     });
 
     // If [original] is within the [elements], then just [animateToIndex].
-    if (index != -1) {
+    if (index != -1 && !ignoreElements) {
       _highlight(elements.values.elementAt(index).id);
 
       if (listController.hasClients) {
@@ -1572,6 +1627,7 @@ class ChatController extends GetxController {
       search.clear();
       query.value = null;
       search.focus.removeListener(_disableSearchFocusListener);
+      switchToMessages();
     } else {
       searching.value = true;
       search.focus.requestFocus();
@@ -1612,6 +1668,17 @@ class ChatController extends GetxController {
     }
   }
 
+  // Uses the [chat] as [elements] source.
+  void switchToMessages() {
+    if (_fragment != null) {
+      _fragment = null;
+      elements.clear();
+      _searchSubscription?.cancel();
+      chat!.messages.forEach(_add);
+      _subscribeFor(chat: chat);
+    }
+  }
+
   /// Fetches the [ChatItem]s around the provided [item] or its [reply] or
   /// [forward] and replaces the [elements] with them.
   Future<void> _fetchItemsAround(
@@ -1619,15 +1686,6 @@ class ChatController extends GetxController {
     ChatItemId? reply,
     ChatItemId? forward,
   }) async {
-    // Uses the [chat] as [elements] source.
-    void switchToMessages() {
-      _fragment = null;
-
-      elements.clear();
-      chat!.messages.forEach(_add);
-      _subscribeFor(chat: chat);
-    }
-
     final ChatItemId itemId = reply ?? forward ?? item;
 
     // If the [itemId] is within [RxChat.messages], then [switchToMessages].

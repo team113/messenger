@@ -524,11 +524,17 @@ class RxChatImpl extends RxChat {
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
+    ChatMessageText? withText,
   }) async {
     Log.debug(
-      'around(item: $item, reply: $reply, forward: $forward)',
+      'around(item: $item, reply: $reply, forward: $forward, withText: $withText)',
       '$runtimeType($id)',
     );
+
+    // If [withText] is not `null`, then search the items with it.
+    if (withText != null) {
+      return _searchItems(withText);
+    }
 
     // Even if the [item] is within [_local], still create a [MessageFragment],
     // at it handles such cases as well.
@@ -1402,6 +1408,79 @@ class RxChatImpl extends RxChat {
                 first: first,
                 before: before ?? after,
                 last: last,
+              );
+
+              return reversed;
+            },
+          ),
+          perPage: perPage,
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+        ),
+        onDispose: () {
+          _fragments.remove(fragment);
+          _fragmentSubscriptions.remove(subscription);
+          subscription?.cancel();
+          debounce?.cancel();
+        },
+      ),
+    );
+
+    _fragmentSubscriptions.add(
+      subscription = fragment.items.changes.listen((event) {
+        switch (event.op) {
+          case OperationKind.added:
+          case OperationKind.updated:
+            debounce?.cancel();
+
+            // Debounce the [updateReads], when [event]s are adding items
+            // rapidly.
+            debounce = Timer(1.milliseconds, updateReads);
+            break;
+
+          case OperationKind.removed:
+            _recalculateReadsFor(event.value!.value);
+            break;
+        }
+      }),
+    );
+
+    return fragment;
+  }
+
+  /// Constructs a [MessagesPaginated] searching the [ChatItem]s containing the
+  /// provided [text].
+  Future<MessagesPaginated> _searchItems(
+    ChatMessageText text, {
+    int perPage = 50,
+  }) async {
+    Log.debug('_searchItems($text)', '$runtimeType($id)');
+
+    MessagesPaginated? fragment;
+    StreamSubscription? subscription;
+    Timer? debounce;
+
+    _fragments.add(
+      fragment = MessagesPaginated(
+        transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
+          if (previous != null) {
+            return previous..value = data.value;
+          }
+
+          return Rx(data.value);
+        },
+        pagination: Pagination(
+          onKey: (e) => e.value.id,
+          provider: GraphQlPageProvider(
+            reversed: true,
+            fetch: ({after, before, first, last}) async {
+              final Page<DtoChatItem, ChatItemsCursor> reversed =
+                  await _chatRepository.messages(
+                chat.value.id,
+                after: after ?? before,
+                first: first,
+                before: before ?? after,
+                last: last,
+                withText: text,
               );
 
               return reversed;

@@ -1065,6 +1065,7 @@ class ChatRepository extends DisposableInterface
     int? last,
     ChatItemsCursor? before,
     bool onlyAttachments = false,
+    ChatMessageText? withText,
   }) async {
     Log.debug(
       'messages($id, $first, $after, $last, $before, onlyAttachments: $onlyAttachments)',
@@ -1077,8 +1078,11 @@ class ChatRepository extends DisposableInterface
       after: after,
       last: last,
       before: before,
-      filter: onlyAttachments
-          ? ChatItemsFilter(onlyAttachments: onlyAttachments)
+      filter: onlyAttachments || withText != null
+          ? ChatItemsFilter(
+              onlyAttachments: onlyAttachments,
+              withText: withText,
+            )
           : null,
     );
 
