@@ -327,38 +327,31 @@ extension L10nNullableIntExtension on int? {
   /// print(formattedFileSize(1024 + 100)); // 1.1 KB
   /// ```
   String asFormattedFileSize() {
-    String valueToString(double value) {
-      final string = value.toStringAsFixed(1);
-
-      return string.endsWith('.0')
-          ? string.substring(0, string.length - 2)
-          : string;
-    }
-
     final bytes = this;
     if (bytes == null) return 'dot'.l10n * 3;
 
+    const precision = 1;
     if (bytes < 1024) {
       return 'label_b'.l10nfmt({'amount': bytes.toString()});
     } else if (bytes < pow(1024, 2)) {
       return 'label_kb'.l10nfmt({
-        'amount': valueToString(bytes / 1024),
+        'amount': (bytes / 1024).toStringAsFixed(precision),
       });
     } else if (bytes < pow(1024, 3)) {
       return 'label_mb'.l10nfmt({
-        'amount': valueToString(bytes / pow(1024, 2)),
+        'amount': (bytes / pow(1024, 2)).toStringAsFixed(precision),
       });
     } else if (bytes < pow(1024, 4)) {
       return 'label_gb'.l10nfmt({
-        'amount': valueToString(bytes / pow(1024, 3)),
+        'amount': (bytes / pow(1024, 3)).toStringAsFixed(precision),
       });
     } else if (bytes < pow(1024, 5)) {
       return 'label_tb'.l10nfmt({
-        'amount': valueToString(bytes / pow(1024, 4)),
+        'amount': (bytes / pow(1024, 4)).toStringAsFixed(precision),
       });
     } else {
       return 'label_pb'.l10nfmt({
-        'amount': valueToString(bytes / pow(1024, 5)),
+        'amount': (bytes / pow(1024, 5)).toStringAsFixed(precision),
       });
     }
   }
