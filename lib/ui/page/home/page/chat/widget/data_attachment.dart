@@ -235,7 +235,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            e.original.size.asFormattedFileSize(),
+                            e.original.size.asBytes(),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: style.fonts.small.regular.secondary,

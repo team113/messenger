@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:math';
 
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
@@ -315,44 +314,58 @@ extension L10nProfileTabExtension on ProfileTab {
   }
 }
 
-extension L10nNullableIntExtension on int? {
+/// Extension adding [int] formatting as a human-readable localized bytes.
+extension L10nSizeInBytesExtension on int? {
   /// Returns bytes formatted into a human-readable, localized string.
   ///
   /// ```dart
-  /// print(formattedFileSize(null)); // ...
-  /// print(formattedFileSize(0)); // 0 B
-  /// print(formattedFileSize(10)); // 10 B
-  /// print(formattedFileSize(1024)); // 1 KB
-  /// print(formattedFileSize(1024 + 50)); // 1 KB
-  /// print(formattedFileSize(1024 + 100)); // 1.1 KB
+  /// print(null.asBytes()); // ...
+  /// print(0.asBytes()); // 0 B
+  /// print(10.asBytes()); // 10 B
+  /// print(1024.asBytes()); // 1 KB
+  /// print((1024 + 50).asBytes()); // 1 KB
+  /// print((1024 + 100).asBytes()); // 1.1 KB
   /// ```
-  String asFormattedFileSize() {
+  String asBytes() {
     final bytes = this;
-    if (bytes == null) return 'dot'.l10n * 3;
 
+    if (bytes == null) {
+      return 'dot'.l10n * 3;
+    }
+
+    /// Precision to use in [toStringAsFixed] method.
     const precision = 1;
-    if (bytes < 1024) {
+
+    // Define as `const`s instead of `pow()`s to decrease possible runtime CPU
+    // computations.
+    const kilobyte = 1024;
+    const megabyte = kilobyte * 1024;
+    const gigabyte = megabyte * 1024;
+    const terabyte = gigabyte * 1024;
+    const petabyte = terabyte * 1024;
+
+    if (bytes < kilobyte) {
       return 'label_b'.l10nfmt({'amount': bytes.toString()});
-    } else if (bytes < pow(1024, 2)) {
+    } else if (bytes < megabyte) {
       return 'label_kb'.l10nfmt({
-        'amount': (bytes / 1024).toStringAsFixed(precision),
+        'amount': (bytes / kilobyte).toStringAsFixed(precision),
       });
-    } else if (bytes < pow(1024, 3)) {
+    } else if (bytes < gigabyte) {
       return 'label_mb'.l10nfmt({
-        'amount': (bytes / pow(1024, 2)).toStringAsFixed(precision),
+        'amount': (bytes / megabyte).toStringAsFixed(precision),
       });
-    } else if (bytes < pow(1024, 4)) {
+    } else if (bytes < terabyte) {
       return 'label_gb'.l10nfmt({
-        'amount': (bytes / pow(1024, 3)).toStringAsFixed(precision),
+        'amount': (bytes / gigabyte).toStringAsFixed(precision),
       });
-    } else if (bytes < pow(1024, 5)) {
+    } else if (bytes < petabyte) {
       return 'label_tb'.l10nfmt({
-        'amount': (bytes / pow(1024, 4)).toStringAsFixed(precision),
-      });
-    } else {
-      return 'label_pb'.l10nfmt({
-        'amount': (bytes / pow(1024, 5)).toStringAsFixed(precision),
+        'amount': (bytes / terabyte).toStringAsFixed(precision),
       });
     }
+
+    return 'label_pb'.l10nfmt({
+      'amount': (bytes / petabyte).toStringAsFixed(precision),
+    });
   }
 }

@@ -671,7 +671,7 @@ class MessageFieldView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
-                e.original.size.asFormattedFileSize(),
+                e.original.size.asBytes(),
                 style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,

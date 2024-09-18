@@ -16,10 +16,17 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Swipe to reply trackpad gesture. ([#1112], [#296])
-        - Proper file size formatting. ([#1115], [#603])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File sizes displayed in B, KB, MB, GB or PB. ([#1115], [#603])
 
 [#296]: /../../issues/296
+[#603]: /../../issues/603
 [#1112]: /../../pull/1112
+[#1115]: /../../pull/1115
 
 
 
