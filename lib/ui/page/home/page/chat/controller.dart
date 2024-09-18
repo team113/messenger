@@ -1621,6 +1621,7 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Enables or disabled [search]ing of the [ChatItem]s of this [Chat].
   void toggleSearch([bool? value]) {
     if (value ?? searching.value) {
       searching.value = false;
