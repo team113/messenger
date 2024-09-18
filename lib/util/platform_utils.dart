@@ -27,6 +27,7 @@ import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
@@ -642,7 +643,35 @@ class PlatformUtilsImpl {
       }
     }
   }
+
+  /// Provides a haptic feedback of the provided [kind].
+  Future<void> haptic({HapticKind kind = HapticKind.click}) async {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      switch (kind) {
+        case HapticKind.click:
+          await MacosHapticFeedback().generic();
+          break;
+
+        case HapticKind.light:
+          await MacosHapticFeedback().alignment();
+          break;
+      }
+    } else {
+      switch (kind) {
+        case HapticKind.click:
+          await HapticFeedback.selectionClick();
+          break;
+
+        case HapticKind.light:
+          await HapticFeedback.lightImpact();
+          break;
+      }
+    }
+  }
 }
+
+/// Kind of a [PlatformUtilsImpl.haptic] feedback.
+enum HapticKind { click, light }
 
 /// Determining whether a [BuildContext] is mobile or not.
 extension MobileExtensionOnContext on BuildContext {

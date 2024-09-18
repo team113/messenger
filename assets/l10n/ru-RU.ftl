@@ -372,6 +372,7 @@ err_password_incorrect =
     Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают.
 err_phone_occupied = Телефон уже привязан к другому аккаунту
+err_popup_call_cant_be_closed = Произошла неожиданная ошибка, однако данное окно не может быть закрыто автоматически из-за ограничений браузера. Пожалуйста, закройте данное окно.
 err_quoted_message = Сообщение было процитировано
 err_size_too_big = Размер файла превышает 15 МБ.
 err_stale_version = Указанная версия слишком старая
@@ -836,7 +837,12 @@ label_introduction_description1 =
     Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description2 = настройках
 label_introduction_description3 = {" "}задайте пароль или e-mail.
+label_b = {$amount} Б
 label_kb = {$amount} КБ
+label_mb = {$amount} МБ
+label_gb = {$amount} ГБ
+label_tb = {$amount} ТБ
+label_pb = {$amount} ПБ
 label_keep_credentials = Запомнить данные
 label_language = Язык
 label_language_entry = {$code}, {$name}

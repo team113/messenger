@@ -39,7 +39,7 @@ class PopupCallController extends GetxController {
   final ChatId chatId;
 
   /// Reactive [OngoingCall] this [PopupCallController] represents.
-  late final Rx<OngoingCall> call;
+  Rx<OngoingCall>? call;
 
   /// [CallService] maintaining the [call].
   final CallService _calls;
@@ -70,9 +70,9 @@ class PopupCallController extends GetxController {
     );
 
     _stateWorker = ever(
-      call.value.state,
+      call!.value.state,
       (OngoingCallState state) {
-        WebUtils.setCall(call.value.toStored());
+        WebUtils.setCall(call!.value.toStored());
         if (state == OngoingCallState.ended) {
           WebUtils.closeWindow();
         }
@@ -89,15 +89,15 @@ class PopupCallController extends GetxController {
         WebUtils.closeWindow();
       } else if (e.newValue == null) {
         if (e.key == 'credentials_$me' ||
-            e.key == 'call_${call.value.chatId}') {
+            e.key == 'call_${call?.value.chatId}') {
           WebUtils.closeWindow();
         }
-      } else if (e.key == 'call_${call.value.chatId}') {
+      } else if (e.key == 'call_${call?.value.chatId}') {
         var stored = WebStoredCall.fromJson(json.decode(e.newValue!));
-        call.value.call.value = stored.call;
-        call.value.creds = call.value.creds ?? stored.creds;
-        call.value.deviceId = call.value.deviceId ?? stored.deviceId;
-        call.value.chatId.value = stored.chatId;
+        call?.value.call.value = stored.call;
+        call?.value.creds = call?.value.creds ?? stored.creds;
+        call?.value.deviceId = call?.value.deviceId ?? stored.deviceId;
+        call?.value.chatId.value = stored.chatId;
         _tryToConnect();
       }
     });
@@ -110,10 +110,12 @@ class PopupCallController extends GetxController {
   @override
   void onClose() {
     WakelockPlus.disable().onError((_, __) => false);
-    WebUtils.removeCall(call.value.chatId.value);
     _storageSubscription?.cancel();
     _stateWorker.dispose();
-    _calls.leave(call.value.chatId.value);
+    if (call != null) {
+      WebUtils.removeCall(call!.value.chatId.value);
+      _calls.leave(call!.value.chatId.value);
+    }
     WebUtils.closeWindow();
     super.dispose();
   }
@@ -124,8 +126,12 @@ class PopupCallController extends GetxController {
   /// Otherwise the [OngoingCall.connect] should be invoked via the
   /// [CallService.join] method.
   void _tryToConnect() {
-    if (call.value.caller?.id == me || call.value.isActive) {
-      call.value.connect(_calls);
+    if (call == null) {
+      return;
+    }
+
+    if (call!.value.caller?.id == me || call!.value.isActive) {
+      call!.value.connect(_calls);
     }
   }
 }

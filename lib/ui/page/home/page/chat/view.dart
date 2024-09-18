@@ -563,7 +563,9 @@ class ChatView extends StatelessWidget {
                           final Widget child = FlutterListView(
                             key: const Key('MessagesList'),
                             controller: c.listController,
-                            physics: const BouncingScrollPhysics(),
+                            physics: c.isDraggingItem.value
+                                ? const NeverScrollableScrollPhysics()
+                                : const BouncingScrollPhysics(),
                             reverse: true,
                             delegate: FlutterListViewDelegate(
                               (context, i) => _listElement(context, c, i),
@@ -910,6 +912,7 @@ class ChatView extends StatelessWidget {
 
                     router.chat(chatId, push: true);
                   },
+                  onDragging: (e) => c.isDraggingItem.value = e,
                 ),
               ),
             );
@@ -1050,6 +1053,7 @@ class ChatView extends StatelessWidget {
                     c.selecting.toggle();
                     c.selected.add(element);
                   },
+                  onDragging: (e) => c.isDraggingItem.value = e,
                 ),
               ),
             );

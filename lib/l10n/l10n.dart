@@ -313,3 +313,59 @@ extension L10nProfileTabExtension on ProfileTab {
     };
   }
 }
+
+/// Extension adding [int] formatting as a human-readable localized bytes.
+extension L10nSizeInBytesExtension on int? {
+  /// Returns bytes formatted into a human-readable, localized string.
+  ///
+  /// ```dart
+  /// print(null.asBytes()); // ...
+  /// print(0.asBytes()); // 0 B
+  /// print(10.asBytes()); // 10 B
+  /// print(1024.asBytes()); // 1 KB
+  /// print((1024 + 50).asBytes()); // 1 KB
+  /// print((1024 + 100).asBytes()); // 1.1 KB
+  /// ```
+  String asBytes() {
+    final bytes = this;
+
+    if (bytes == null) {
+      return 'dot'.l10n * 3;
+    }
+
+    /// Precision to use in [toStringAsFixed] method.
+    const precision = 1;
+
+    // Define as `const`s instead of `pow()`s to decrease possible runtime CPU
+    // computations.
+    const kilobyte = 1024;
+    const megabyte = kilobyte * 1024;
+    const gigabyte = megabyte * 1024;
+    const terabyte = gigabyte * 1024;
+    const petabyte = terabyte * 1024;
+
+    if (bytes < kilobyte) {
+      return 'label_b'.l10nfmt({'amount': bytes.toString()});
+    } else if (bytes < megabyte) {
+      return 'label_kb'.l10nfmt({
+        'amount': (bytes / kilobyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < gigabyte) {
+      return 'label_mb'.l10nfmt({
+        'amount': (bytes / megabyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < terabyte) {
+      return 'label_gb'.l10nfmt({
+        'amount': (bytes / gigabyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < petabyte) {
+      return 'label_tb'.l10nfmt({
+        'amount': (bytes / terabyte).toStringAsFixed(precision),
+      });
+    }
+
+    return 'label_pb'.l10nfmt({
+      'amount': (bytes / petabyte).toStringAsFixed(precision),
+    });
+  }
+}

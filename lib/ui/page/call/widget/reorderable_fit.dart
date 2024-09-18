@@ -21,12 +21,12 @@ import 'package:collection/collection.dart';
 import 'package:dough/dough.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '/themes.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/audio_utils.dart';
+import '/util/platform_utils.dart';
 import 'animated_transition.dart';
 
 /// Placing [children] evenly on a screen with an ability to reorder them.
@@ -1085,7 +1085,7 @@ class _ReorderableDraggableState<T extends Object>
             onDragStarted: () {
               _constraints.value = constraints;
               widget.onDragStarted?.call();
-              HapticFeedback.lightImpact();
+              PlatformUtils.haptic(kind: HapticKind.light);
               _isDragged = true;
             },
             dragAnchorStrategy: (
@@ -1131,7 +1131,7 @@ class _ReorderableDraggableState<T extends Object>
                   _constraints.value = constraints;
                 }
 
-                HapticFeedback.lightImpact();
+                PlatformUtils.haptic(kind: HapticKind.light);
               }
             },
             feedback: _Resizable(

@@ -17,6 +17,7 @@ import flutter_custom_cursor
 import flutter_local_notifications
 import flutter_native_badge_foundation
 import just_audio
+import macos_haptic_feedback
 import medea_flutter_webrtc
 import medea_jason
 import media_kit_libs_macos_video
@@ -46,6 +47,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterNativeBadgePlugin.register(with: registry.registrar(forPlugin: "FlutterNativeBadgePlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
+  MacosHapticFeedbackPlugin.register(with: registry.registrar(forPlugin: "MacosHapticFeedbackPlugin"))
   MedeaFlutterWebrtcPlugin.register(with: registry.registrar(forPlugin: "MedeaFlutterWebrtcPlugin"))
   MedeaJasonPlugin.register(with: registry.registrar(forPlugin: "MedeaJasonPlugin"))
   MediaKitLibsMacosVideoPlugin.register(with: registry.registrar(forPlugin: "MediaKitLibsMacosVideoPlugin"))
