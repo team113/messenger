@@ -460,6 +460,7 @@ class ChatView extends StatelessWidget {
                                         ),
                                       ],
                                       ContextMenuButton(
+                                        key: const Key('SearchItemsButton'),
                                         label: 'label_search'.l10n,
                                         onPressed: c.toggleSearch,
                                         trailing:

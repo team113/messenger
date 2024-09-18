@@ -158,6 +158,7 @@ enum WidgetKey {
   Search,
   SearchButton,
   SearchField,
+  SearchItemsButton,
   SearchLoading,
   SearchScrollable,
   SearchSubmitButton,

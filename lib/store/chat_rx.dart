@@ -122,6 +122,9 @@ class RxChatImpl extends RxChat {
   late final RxBool inCall =
       RxBool(_chatRepository.calls[id] != null || WebUtils.containsCall(id));
 
+  /// [MessagesPaginated]s created by this [RxChatImpl].
+  final List<MessagesPaginated> fragments = [];
+
   /// [ChatRepository] used to cooperate with the other [RxChatImpl]s.
   final ChatRepository _chatRepository;
 
@@ -139,9 +142,6 @@ class RxChatImpl extends RxChat {
 
   /// [Pagination] loading [messages] with pagination.
   Pagination<DtoChatItem, ChatItemsCursor, ChatItemId>? _pagination;
-
-  /// [MessagesPaginated]s created by this [RxChatImpl].
-  final List<MessagesPaginated> _fragments = [];
 
   /// [AttachmentsPaginated]s created by this [RxChatImpl].
   final List<MessagesPaginated> _attachments = [];
@@ -457,7 +457,7 @@ class RxChatImpl extends RxChat {
     for (StreamSubscription s in _userSubscriptions.values) {
       s.cancel();
     }
-    for (var e in _fragments.toList()) {
+    for (var e in fragments.toList()) {
       e.dispose();
     }
     for (final s in _fragmentSubscriptions) {
@@ -801,7 +801,7 @@ class RxChatImpl extends RxChat {
     Log.debug('put($item)', '$runtimeType($id)');
 
     await _pagination?.put(item, ignoreBounds: ignoreBounds);
-    for (var e in _fragments) {
+    for (var e in fragments) {
       await e.pagination?.put(item, ignoreBounds: ignoreBounds);
     }
 
@@ -815,7 +815,7 @@ class RxChatImpl extends RxChat {
     Log.debug('remove($itemId)', '$runtimeType($id)');
 
     _pagination?.remove(itemId);
-    for (var e in _fragments) {
+    for (var e in fragments) {
       e.pagination?.remove(itemId);
     }
 
@@ -844,7 +844,7 @@ class RxChatImpl extends RxChat {
     Log.debug('get($itemId)', '$runtimeType($id)');
 
     DtoChatItem? item = _pagination?.items[itemId];
-    item ??= _fragments
+    item ??= fragments
         .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
         ?.pagination
         ?.items[itemId];
@@ -916,14 +916,14 @@ class RxChatImpl extends RxChat {
     }
   }
 
-  /// Clears the [_pagination] and [_fragments].
+  /// Clears the [_pagination] and [fragments].
   Future<void> clear() async {
     Log.debug('clear()', '$runtimeType($id)');
 
-    for (var e in _fragments) {
+    for (var e in fragments) {
       e.dispose();
     }
-    _fragments.clear();
+    fragments.clear();
 
     await _pagination?.clear();
 
@@ -1367,7 +1367,7 @@ class RxChatImpl extends RxChat {
     }
 
     // Try to find any [MessagesPaginated] already containing the item requested.
-    MessagesPaginated? fragment = _fragments.firstWhereOrNull(
+    MessagesPaginated? fragment = fragments.firstWhereOrNull(
       // Single-item fragments shouldn't be used to display messages in
       // pagination, as such fragments used only for [single]s.
       (e) => e.items[key] != null && e.items.length > 1,
@@ -1385,7 +1385,7 @@ class RxChatImpl extends RxChat {
     StreamSubscription? subscription;
     Timer? debounce;
 
-    _fragments.add(
+    fragments.add(
       fragment = MessagesPaginated(
         initialKey: key,
         initialCursor: cursor,
@@ -1417,7 +1417,7 @@ class RxChatImpl extends RxChat {
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {
-          _fragments.remove(fragment);
+          fragments.remove(fragment);
           _fragmentSubscriptions.remove(subscription);
           subscription?.cancel();
           debounce?.cancel();
@@ -1459,7 +1459,7 @@ class RxChatImpl extends RxChat {
     StreamSubscription? subscription;
     Timer? debounce;
 
-    _fragments.add(
+    fragments.add(
       fragment = MessagesPaginated(
         transform: ({required DtoChatItem data, Rx<ChatItem>? previous}) {
           if (previous != null) {
@@ -1490,7 +1490,7 @@ class RxChatImpl extends RxChat {
           compare: (a, b) => a.value.key.compareTo(b.value.key),
         ),
         onDispose: () {
-          _fragments.remove(fragment);
+          fragments.remove(fragment);
           _fragmentSubscriptions.remove(subscription);
           subscription?.cancel();
           debounce?.cancel();
@@ -1617,7 +1617,7 @@ class RxChatImpl extends RxChat {
     PreciseDateTime? lastReadAt =
         _lastReadAmong(at, messages: messages, hasNext: hasNext.isTrue);
 
-    for (var fragment in _fragments) {
+    for (var fragment in fragments) {
       lastReadAt ??= _lastReadAmong(
         at,
         messages: fragment.items.values,
