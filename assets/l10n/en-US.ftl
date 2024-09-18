@@ -812,7 +812,12 @@ label_introduction_description1 =
     To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
+label_b = {$amount} B
 label_kb = {$amount} KB
+label_mb = {$amount} MB
+label_gb = {$amount} GB
+label_tb = {$amount} TB
+label_pb = {$amount} PB
 label_keep_credentials = Keep credentials
 label_language = Language
 label_language_entry = {$code}, {$name}

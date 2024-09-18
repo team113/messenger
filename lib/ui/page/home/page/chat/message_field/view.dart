@@ -671,11 +671,7 @@ class MessageFieldView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
+                e.original.size.asBytes(),
                 style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,

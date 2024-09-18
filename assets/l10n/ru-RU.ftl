@@ -837,7 +837,12 @@ label_introduction_description1 =
     Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description2 = настройках
 label_introduction_description3 = {" "}задайте пароль или e-mail.
+label_b = {$amount} Б
 label_kb = {$amount} КБ
+label_mb = {$amount} МБ
+label_gb = {$amount} ГБ
+label_tb = {$amount} ТБ
+label_pb = {$amount} ПБ
 label_keep_credentials = Запомнить данные
 label_language = Язык
 label_language_entry = {$code}, {$name}
