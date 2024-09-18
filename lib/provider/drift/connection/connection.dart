@@ -16,5 +16,5 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 export 'interface.dart'
-    if (dart.library.js) 'js.dart'
+    if (dart.library.js_interop) 'js.dart'
     if (dart.library.ffi) 'ffi.dart';
