@@ -1470,21 +1470,62 @@ class RxChatImpl extends RxChat {
         },
         pagination: Pagination(
           onKey: (e) => e.value.id,
-          provider: GraphQlPageProvider(
-            reversed: true,
-            fetch: ({after, before, first, last}) async {
-              final Page<DtoChatItem, ChatItemsCursor> reversed =
-                  await _chatRepository.messages(
-                chat.value.id,
-                after: after ?? before,
-                first: first,
-                before: before ?? after,
-                last: last,
-                withText: text,
-              );
+          provider: DriftGraphQlPageProvider(
+            graphQlProvider: GraphQlPageProvider(
+              reversed: true,
+              fetch: ({after, before, first, last}) async {
+                final Page<DtoChatItem, ChatItemsCursor> reversed =
+                    await _chatRepository.messages(
+                  chat.value.id,
+                  after: after,
+                  first: first,
+                  before: before,
+                  last: last,
+                  withText: text,
+                );
 
-              return reversed;
-            },
+                return reversed;
+              },
+            ),
+            driftProvider: DriftPageProvider(
+              fetch: ({
+                required after,
+                required before,
+                ChatItemId? around,
+              }) async {
+                PreciseDateTime? at;
+
+                if (around != null) {
+                  final DtoChatItem? item = await get(around);
+                  at = item?.value.at;
+                }
+
+                return await _driftItems.view(
+                  id,
+                  before: before,
+                  after: after,
+                  around: at,
+                  withText: text,
+                );
+              },
+              onKey: (e) => e.value.id,
+              onCursor: (e) => e?.cursor,
+              isFirst: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.firstItem?.id == e.value.id;
+              },
+              isLast: (e) {
+                if (e.value.id.isLocal) {
+                  return null;
+                }
+
+                return chat.value.lastItem?.id == e.value.id;
+              },
+              compare: (a, b) => a.value.key.compareTo(b.value.key),
+            ),
           ),
           perPage: perPage,
           compare: (a, b) => a.value.key.compareTo(b.value.key),

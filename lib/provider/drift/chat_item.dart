@@ -194,6 +194,7 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     int? before,
     int? after,
     PreciseDateTime? around,
+    ChatMessageText? withText,
   }) async {
     final result = await safe((db) async {
       if (around != null) {
@@ -229,6 +230,10 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       ]);
 
       stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+      if (withText != null) {
+        stmt.where(db.chatItems.data.like('%"text":"%$withText%"%'));
+      }
+
       stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
 
       if (after != null || before != null) {
