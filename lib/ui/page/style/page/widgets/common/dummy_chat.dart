@@ -127,6 +127,7 @@ class DummyRxChat extends RxChat {
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
+    ChatMessageText? withText,
   }) async =>
       null;
 

@@ -16,6 +16,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Swipe to reply trackpad gesture. ([#1112], [#296])
+        - Messages searching. ([#1116], [#692])
 
 ### Changed
 
@@ -25,8 +26,10 @@ All user visible changes to this project will be documented in this file. This p
 
 [#296]: /../../issues/296
 [#603]: /../../issues/603
+[#692]: /../../issues/692
 [#1112]: /../../pull/1112
 [#1115]: /../../pull/1115
+[#1116]: /../../pull/1116
 
 
 
