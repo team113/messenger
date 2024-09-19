@@ -56,6 +56,9 @@ class MicrophoneSwitchController extends GetxController {
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [WebUtils.microphonePermission] subscription.
+  StreamSubscription? _permissionSubscription;
+
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
@@ -73,7 +76,7 @@ class MicrophoneSwitchController extends GetxController {
     });
 
     try {
-      await WebUtils.microphonePermission();
+      _permissionSubscription = await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
       selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
@@ -94,6 +97,7 @@ class MicrophoneSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _permissionSubscription?.cancel();
     _worker?.dispose();
     super.onClose();
   }
