@@ -328,9 +328,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                   c.focused.isEmpty &&
                   c.paneled.isEmpty));
 
-          final bool answer = (c.state.value != OngoingCallState.joining &&
+          final bool answer = c.state.value != OngoingCallState.joining &&
               c.state.value != OngoingCallState.active &&
-              !isOutgoing);
+              !isOutgoing;
 
           final Widget child;
 
@@ -893,9 +893,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Scaler(
                 key: key,
                 onDragUpdate: onDrag,
-                onDragEnd: (_) {
-                  c.updateSecondaryAttach();
-                },
+                onDragEnd: (_) => c.updateSecondaryAttach(),
                 width: width ?? Scaler.size,
                 height: height ?? Scaler.size,
               ),
@@ -990,10 +988,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
                 child: scaler(
-                  // TODO: https://github.com/flutter/flutter/issues/89351
-                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                      ? SystemMouseCursors.resizeRow
-                      : SystemMouseCursors.resizeUpLeftDownRight,
+                  cursor: CustomMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1013,9 +1008,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value - Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: scaler(
-                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                      ? SystemMouseCursors.resizeRow
-                      : SystemMouseCursors.resizeUpRightDownLeft,
+                  cursor: CustomMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1035,9 +1028,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value - Scaler.size / 2,
                 child: scaler(
-                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                      ? SystemMouseCursors.resizeRow
-                      : SystemMouseCursors.resizeUpRightDownLeft,
+                  cursor: CustomMouseCursors.resizeUpRightDownLeft,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1057,10 +1048,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 top: c.top.value + c.height.value - 3 * Scaler.size / 2,
                 left: c.left.value + c.width.value - 3 * Scaler.size / 2,
                 child: scaler(
-                  // TODO: https://github.com/flutter/flutter/issues/89351
-                  cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                      ? SystemMouseCursors.resizeRow
-                      : SystemMouseCursors.resizeUpLeftDownRight,
+                  cursor: CustomMouseCursors.resizeUpLeftDownRight,
                   width: Scaler.size * 2,
                   height: Scaler.size * 2,
                   onDrag: (dx, dy) => c.resize(
@@ -1477,10 +1465,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           case Alignment.topLeft:
             widget = scaler(
-              // TODO: https://github.com/flutter/flutter/issues/89351
-              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                  ? SystemMouseCursors.resizeRow
-                  : SystemMouseCursors.resizeUpLeftDownRight,
+              cursor: CustomMouseCursors.resizeUpLeftDownRight,
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1494,9 +1479,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           case Alignment.topRight:
             widget = scaler(
-              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                  ? SystemMouseCursors.resizeRow
-                  : SystemMouseCursors.resizeUpRightDownLeft,
+              cursor: CustomMouseCursors.resizeUpRightDownLeft,
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1510,9 +1493,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           case Alignment.bottomLeft:
             widget = scaler(
-              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                  ? SystemMouseCursors.resizeRow
-                  : SystemMouseCursors.resizeUpRightDownLeft,
+              cursor: CustomMouseCursors.resizeUpRightDownLeft,
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
@@ -1526,10 +1507,7 @@ Widget _secondaryView(CallController c, BuildContext context) {
 
           case Alignment.bottomRight:
             widget = scaler(
-              // TODO: https://github.com/flutter/flutter/issues/89351
-              cursor: PlatformUtils.isMacOS && !PlatformUtils.isWeb
-                  ? SystemMouseCursors.resizeRow
-                  : SystemMouseCursors.resizeUpLeftDownRight,
+              cursor: CustomMouseCursors.resizeUpLeftDownRight,
               width: Scaler.size * 2,
               height: Scaler.size * 2,
               onDrag: (dx, dy) => c.resizeSecondary(
