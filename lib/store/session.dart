@@ -19,6 +19,7 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -109,14 +110,18 @@ class SessionRepository extends DisposableInterface
     _initLocalSubscription();
     _initRemoteSubscription();
 
-    _connectivitySubscription =
-        Connectivity().onConnectivityChanged.listen((result) {
-      connected.value = result.contains(ConnectivityResult.wifi) ||
-          result.contains(ConnectivityResult.ethernet) ||
-          result.contains(ConnectivityResult.mobile) ||
-          result.contains(ConnectivityResult.vpn) ||
-          result.contains(ConnectivityResult.other);
-    });
+    try {
+      _connectivitySubscription =
+          Connectivity().onConnectivityChanged.listen((result) {
+        connected.value = result.contains(ConnectivityResult.wifi) ||
+            result.contains(ConnectivityResult.ethernet) ||
+            result.contains(ConnectivityResult.mobile) ||
+            result.contains(ConnectivityResult.vpn) ||
+            result.contains(ConnectivityResult.other);
+      });
+    } on MissingPluginException {
+      // No-op.
+    }
 
     super.onInit();
   }
