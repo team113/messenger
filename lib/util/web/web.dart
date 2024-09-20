@@ -136,16 +136,6 @@ class WebUtils {
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
 
-  /// Indicator whether [cameraPermission] has finished successfully.
-  ///
-  /// Only populated and used, if [isFirefox] is `true`.
-  static bool _hasCameraPermission = false;
-
-  /// Indicator whether [microphonePermission] has finished successfully.
-  ///
-  /// Only populated and used, if [isFirefox] is `true`.
-  static bool _hasMicrophonePermission = false;
-
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
       _navigator.appVersion.contains('Mac') && !PlatformUtils.isIOS;
@@ -638,9 +628,9 @@ class WebUtils {
   static void consoleError(Object? object) =>
       web.console.error(object?.toString().toJS);
 
-  /// Requests the permission to use a camera.
-  static Future<void> cameraPermission() async {
-    bool granted = _hasCameraPermission;
+  /// Requests the permission to use a camera and holds it until unsubscribed.
+  static Future<StreamSubscription<void>> cameraPermission() async {
+    bool granted = false;
 
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
@@ -657,18 +647,27 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        _hasCameraPermission = true;
-      }
+        final StreamController controller = StreamController(onCancel: () {
+          for (var e in stream.getTracks().toDart) {
+            e.stop();
+          }
+        });
 
-      for (var e in stream.getTracks().toDart) {
-        e.stop();
+        return controller.stream.listen((_) {});
+      } else {
+        for (var e in stream.getTracks().toDart) {
+          e.stop();
+        }
       }
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
-  /// Requests the permission to use a microphone.
-  static Future<void> microphonePermission() async {
-    bool granted = _hasMicrophonePermission;
+  /// Requests the permission to use a microphone and holds it until
+  /// unsubscribed.
+  static Future<StreamSubscription<void>> microphonePermission() async {
+    bool granted = false;
 
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
@@ -685,13 +684,21 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        _hasMicrophonePermission = true;
-      }
+        final StreamController controller = StreamController(onCancel: () {
+          for (var e in stream.getTracks().toDart) {
+            e.stop();
+          }
+        });
 
-      for (var e in stream.getTracks().toDart) {
-        e.stop();
+        return controller.stream.listen((_) {});
+      } else {
+        for (var e in stream.getTracks().toDart) {
+          e.stop();
+        }
       }
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
