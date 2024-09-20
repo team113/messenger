@@ -57,6 +57,9 @@ class OutputSwitchController extends GetxController {
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [WebUtils.microphonePermission] subscription.
+  StreamSubscription? _permissionSubscription;
+
   @override
   void onInit() async {
     _devicesSubscription = MediaUtils.onDeviceChange.listen(
@@ -69,6 +72,7 @@ class OutputSwitchController extends GetxController {
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _output = e.outputDevice;
+
         selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
       }
     });
@@ -76,7 +80,7 @@ class OutputSwitchController extends GetxController {
     try {
       // Output devices are permitted to be use when requesting a microphone
       // permission.
-      await WebUtils.microphonePermission();
+      _permissionSubscription = await WebUtils.microphonePermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
@@ -97,6 +101,7 @@ class OutputSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _permissionSubscription?.cancel();
     _worker?.dispose();
     super.onClose();
   }

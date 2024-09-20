@@ -66,6 +66,9 @@ class CameraSwitchController extends GetxController {
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [WebUtils.cameraPermission] subscription.
+  StreamSubscription? _permissionSubscription;
+
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
@@ -73,7 +76,7 @@ class CameraSwitchController extends GetxController {
         .listen((e) => devices.value = e.video().toList());
 
     try {
-      await WebUtils.cameraPermission();
+      _permissionSubscription = await WebUtils.cameraPermission();
       devices.value =
           await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
 
@@ -100,6 +103,7 @@ class CameraSwitchController extends GetxController {
     _localTrack = null;
     _cameraWorker?.dispose();
     _devicesSubscription?.cancel();
+    _permissionSubscription?.cancel();
     super.onClose();
   }
 

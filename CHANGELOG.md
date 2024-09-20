@@ -24,12 +24,18 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - File sizes displayed in B, KB, MB, GB or PB. ([#1115], [#603])
 
+### Fixed
+
+- Web:
+    - Invalid camera, microphone and output device names in Firefox. ([#1117])
+
 [#296]: /../../issues/296
 [#603]: /../../issues/603
 [#692]: /../../issues/692
 [#1112]: /../../pull/1112
 [#1115]: /../../pull/1115
 [#1116]: /../../pull/1116
+[#1117]: /../../pull/1117
 
 
 
