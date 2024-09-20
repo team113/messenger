@@ -26,16 +26,21 @@ All user visible changes to this project will be documented in this file. This p
 
 ### Fixed
 
+- UI:
+    - Media panel:
+        - Invalid diagonal window resize cursors on macOS. ([#1120], [#568])
 - Web:
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
 [#296]: /../../issues/296
+[#568]: /../../issues/568
 [#603]: /../../issues/603
 [#692]: /../../issues/692
 [#1112]: /../../pull/1112
 [#1115]: /../../pull/1115
 [#1116]: /../../pull/1116
 [#1117]: /../../pull/1117
+[#1120]: /../../pull/1120
 
 
 
