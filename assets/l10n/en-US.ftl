@@ -1118,6 +1118,7 @@ label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s
+label_waiting_for_connection = Waiting for connection...
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link

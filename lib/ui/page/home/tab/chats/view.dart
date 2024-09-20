@@ -74,6 +74,7 @@ class ChatsTabView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       builder: (ChatsTabController c) {
         return Stack(
@@ -148,7 +149,17 @@ class ChatsTabView extends StatelessWidget {
                     } else {
                       final Widget synchronization;
 
-                      if (c.fetching.value == null &&
+                      if (!c.connected.value) {
+                        synchronization = Padding(
+                          padding: const EdgeInsets.only(top: 2),
+                          child: Center(
+                            child: Text(
+                              'label_waiting_for_connection'.l10n,
+                              style: style.fonts.small.regular.secondary,
+                            ),
+                          ),
+                        );
+                      } else if (c.fetching.value == null &&
                           c.status.value.isLoadingMore) {
                         synchronization = Padding(
                           padding: const EdgeInsets.only(top: 2),
