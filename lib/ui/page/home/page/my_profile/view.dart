@@ -172,7 +172,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                     return BigAvatarWidget.myUser(
                       c.myUser.value,
                       loading: c.avatarUpload.value.isLoading,
-                      onUpload: c.uploadAvatar,
+                      onUpload: () => c.uploadAvatar(context),
                       onDelete: c.myUser.value?.avatar != null
                           ? c.deleteAvatar
                           : null,

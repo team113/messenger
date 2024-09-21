@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:messenger/ui/page/home/page/my_profile/avatar_cropper.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -448,7 +449,7 @@ class MyProfileController extends GetxController {
   }
 
   /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
-  Future<void> uploadAvatar() async {
+  Future<void> uploadAvatar(BuildContext context) async {
     print('todo: avatar cropping');
 
     try {
@@ -459,9 +460,24 @@ class MyProfileController extends GetxController {
         lockParentWindow: true,
       );
 
-      if (result?.files.isNotEmpty == true) {
-        avatarUpload.value = RxStatus.loading();
-        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
+      if (result?.files.isNotEmpty == true && context.mounted) {
+        final navigator = Navigator.of(
+          context,
+          rootNavigator: true,
+        );
+
+        final file = NativeFile.fromPlatformFile(result!.files.first);
+
+        navigator.push(PageRouteBuilder(
+          transitionDuration: Duration.zero,
+          reverseTransitionDuration: Duration.zero,
+          pageBuilder: (_, __, ___) {
+            return AvatarCropper(file: file);
+          },
+        ));
+
+        // avatarUpload.value = RxStatus.loading();
+        // await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
