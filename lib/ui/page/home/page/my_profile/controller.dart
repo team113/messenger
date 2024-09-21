@@ -450,8 +450,6 @@ class MyProfileController extends GetxController {
 
   /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
   Future<void> uploadAvatar(BuildContext context) async {
-    print('todo: avatar cropping');
-
     try {
       FilePickerResult? result = await PlatformUtils.pickFiles(
         type: FileType.image,
