@@ -109,19 +109,7 @@ class SessionRepository extends DisposableInterface
 
     _initLocalSubscription();
     _initRemoteSubscription();
-
-    try {
-      _connectivitySubscription =
-          Connectivity().onConnectivityChanged.listen((result) {
-        connected.value = result.contains(ConnectivityResult.wifi) ||
-            result.contains(ConnectivityResult.ethernet) ||
-            result.contains(ConnectivityResult.mobile) ||
-            result.contains(ConnectivityResult.vpn) ||
-            result.contains(ConnectivityResult.other);
-      });
-    } on MissingPluginException {
-      // No-op.
-    }
+    _initConnectivity();
 
     super.onInit();
   }
@@ -401,6 +389,24 @@ class SessionRepository extends DisposableInterface
       return EventSessionRefreshed(e.id, e.at, node.userAgent, node.ip);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
+    }
+  }
+
+  Future<void> _initConnectivity() async {
+    void apply(List<ConnectivityResult> result) {
+      connected.value = result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.ethernet) ||
+          result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.vpn) ||
+          result.contains(ConnectivityResult.other);
+    }
+
+    try {
+      apply(await Connectivity().checkConnectivity());
+      _connectivitySubscription =
+          Connectivity().onConnectivityChanged.listen(apply);
+    } on MissingPluginException {
+      // No-op.
     }
   }
 }
