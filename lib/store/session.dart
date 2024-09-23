@@ -392,6 +392,7 @@ class SessionRepository extends DisposableInterface
     }
   }
 
+  /// Initializes the [Connectivity] changing the [connected] status.
   Future<void> _initConnectivity() async {
     void apply(List<ConnectivityResult> result) {
       connected.value = result.contains(ConnectivityResult.wifi) ||
