@@ -58,6 +58,14 @@ class MockGraphQlProvider extends GraphQlProvider {
   void clearCache() => _client.clearCache();
 
   @override
+  void addListener(void Function(Exception?) handler) =>
+      _client.addListener(handler);
+
+  @override
+  void removeListener(void Function(Exception?) handler) =>
+      _client.removeListener(handler);
+
+  @override
   Future<MyUserEventsVersionedMixin?> addUserEmail(
     UserEmail email, {
     ConfirmationCode? confirmation,
@@ -120,13 +128,27 @@ class MockGraphQlProvider extends GraphQlProvider {
 
 /// Mocked [GraphQlClient] with an ability to add [delay] to its requests.
 class MockGraphQlClient extends GraphQlClient {
-  /// [Duration] to add to all requests simulating a delay.
-  Duration? delay;
-
   /// Indicator whether requests should throw [ConnectionException]s or not.
   ///
   /// Intended to be used to simulate a connection loss.
   bool throwException = false;
+
+  /// [Duration] to add to all requests simulating a delay.
+  Duration? _delay;
+
+  final List<void Function(Exception?)> _handlers = [];
+
+  /// Returns the [Duration] to add to all requests simulating a delay.
+  Duration? get delay => _delay;
+
+  /// Sets the [Duration] to add to all requests simulating a delay.
+  set delay(Duration? value) {
+    for (var e in _handlers) {
+      e(null);
+    }
+
+    _delay = value;
+  }
 
   @override
   Future<QueryResult> query(
@@ -138,6 +160,10 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      for (var handler in _handlers) {
+        handler(const ConnectionException('Mocked'));
+      }
+
       throw const ConnectionException('Mocked');
     }
 
@@ -155,6 +181,10 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      for (var handler in _handlers) {
+        handler(const ConnectionException('Mocked'));
+      }
+
       throw const ConnectionException('Mocked');
     }
 
@@ -174,6 +204,10 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      for (var handler in _handlers) {
+        handler(const ConnectionException('Mocked'));
+      }
+
       throw const ConnectionException('Mocked');
     }
 
@@ -183,5 +217,15 @@ class MockGraphQlClient extends GraphQlClient {
       onException: onException,
       onSendProgress: onSendProgress,
     );
+  }
+
+  @override
+  void addListener(void Function(Exception?) handler) {
+    _handlers.add(handler);
+  }
+
+  @override
+  void removeListener(void Function(Exception?) handler) {
+    _handlers.remove(handler);
   }
 }

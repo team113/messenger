@@ -156,6 +156,7 @@ class ChatsTabView extends StatelessWidget {
                             child: Text(
                               'label_waiting_for_connection'.l10n,
                               style: style.fonts.small.regular.secondary,
+                              key: const Key('NotConnected'),
                             ),
                           ),
                         );
@@ -167,11 +168,14 @@ class ChatsTabView extends StatelessWidget {
                             child: Text(
                               'label_synchronization'.l10n,
                               style: style.fonts.small.regular.secondary,
+                              key: const Key('Synchronization'),
                             ),
                           ),
                         );
                       } else {
-                        synchronization = const SizedBox.shrink();
+                        synchronization = const SizedBox.shrink(
+                          key: Key('Connected'),
+                        );
                       }
 
                       child = Align(

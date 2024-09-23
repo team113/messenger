@@ -66,6 +66,20 @@ class GraphQlProviderBase {
 
   /// Clears the cache attached to the client.
   void clearCache() => _client.clearCache();
+
+  /// Registers the provided [handler] to listen to [Exception]s happening with
+  /// the queries.
+  ///
+  /// Exception is `null`, when successful query is made.
+  void addListener(void Function(Exception?) handler) =>
+      _client.addListener(handler);
+
+  /// Unregisters the provided [handler] from listening to [Exception]s
+  /// happening with the queries.
+  ///
+  /// Does nothing, if the provided [handler] wasn't added.
+  void removeListener(void Function(Exception?) handler) =>
+      _client.removeListener(handler);
 }
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
@@ -136,6 +150,13 @@ class GraphQlClient {
   final RateLimiter _queryLimiter = RateLimiter(
     per: const Duration(milliseconds: 1000),
   );
+
+  /// Indicator whether the latest [_middleware] has finished with an
+  /// [Exception].
+  bool _errored = false;
+
+  /// Handlers listening for [Exception]s happening with this client.
+  final List<void Function(Exception?)> _handlers = [];
 
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
@@ -268,6 +289,22 @@ class GraphQlClient {
   /// Clears the cache attached to the [client].
   void clearCache() => _client?.cache.store.reset();
 
+  /// Registers the provided [handler] to listen to [Exception]s happening with
+  /// the queries.
+  ///
+  /// Exception is `null`, when successful query is made.
+  void addListener(void Function(Exception?) handler) {
+    _handlers.add(handler);
+  }
+
+  /// Unregisters the provided [handler] from listening to [Exception]s
+  /// happening with the queries.
+  ///
+  /// Does nothing, if the provided [handler] wasn't added.
+  void removeListener(void Function(Exception?) handler) {
+    _handlers.remove(handler);
+  }
+
   /// Subscribes to a GraphQL subscription according to the [options] specified
   /// and returns a [Stream] which either emits received data or an error.
   ///
@@ -302,10 +339,26 @@ class GraphQlClient {
   /// [AuthorizationException] if any.
   Future<T> _middleware<T>(Future<T> Function() fn) async {
     try {
-      return await fn();
+      final T result = await fn();
+
+      if (_errored) {
+        for (var handler in _handlers) {
+          handler(null);
+        }
+        _errored = false;
+      }
+
+      return result;
     } on AuthorizationException catch (e) {
       await authExceptionHandler?.call(e);
       return await fn();
+    } on Exception catch (e) {
+      _errored = true;
+      for (var handler in _handlers) {
+        handler(e);
+      }
+
+      rethrow;
     }
   }
 
@@ -315,6 +368,13 @@ class GraphQlClient {
     if (_wsConnected) {
       _reconnectPeriodMillis = 0;
       _wsConnected = false;
+
+      if (!_errored) {
+        for (var handler in _handlers) {
+          handler(ConnectionException(Exception('_reconnect()')));
+        }
+        _errored = true;
+      }
     }
 
     _reconnectPeriodMillis *= 2;
@@ -382,6 +442,13 @@ class GraphQlClient {
                 _checkConnectionTimer?.cancel();
                 _backoffTimer?.cancel();
                 _wsConnected = true;
+
+                if (_errored) {
+                  for (var handler in _handlers) {
+                    handler(null);
+                  }
+                  _errored = false;
+                }
               }
             },
             onDone: _reconnect,
