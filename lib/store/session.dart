@@ -435,7 +435,8 @@ class SessionRepository extends DisposableInterface
     } else if (_hasGraphQl) {
       if (exception is ClientException ||
           exception is ConnectionException ||
-          exception is TimeoutException) {
+          exception is TimeoutException ||
+          exception is FormatException) {
         _hasGraphQl = false;
       } else if (exception is DioException) {
         switch (exception.type) {
