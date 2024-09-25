@@ -28,6 +28,7 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
+import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -372,6 +373,12 @@ Future<void> appInitializationFn(World world) {
     // Silence the `ConnectionClosedException`, which may happen due to `drift`
     // database being recreated between E2E tests.
     if (exception.contains('Channel was closed before receiving a response')) {
+      return;
+    }
+
+    // Silence the mocked `ConnectionException`, as this is an expected error.
+    if (details.exception is ConnectionException &&
+        exception.contains('ConnectionException(Mocked)')) {
       return;
     }
 
