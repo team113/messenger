@@ -369,6 +369,12 @@ Future<void> appInitializationFn(World world) {
       return;
     }
 
+    // Silence the `ConnectionClosedException`, which may happen due to `drift`
+    // database being recreated between E2E tests.
+    if (exception.contains('Channel was closed before receiving a response')) {
+      return;
+    }
+
     presentError?.call(details);
   };
 
