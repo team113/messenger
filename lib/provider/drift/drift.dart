@@ -111,11 +111,15 @@ class CommonDatabase extends _$CommonDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON;');
+        try {
+          await customStatement('PRAGMA foreign_keys = ON;');
 
-        // Note, that WAL doesn't work in Web:
-        // https://github.com/simolus3/sqlite3.dart/issues/200
-        await customStatement('PRAGMA journal_mode = WAL;');
+          // Note, that WAL doesn't work in Web:
+          // https://github.com/simolus3/sqlite3.dart/issues/200
+          await customStatement('PRAGMA journal_mode = WAL;');
+        } catch (e) {
+          Log.error('Custom SQL statement has failed: $e', '$runtimeType');
+        }
       },
     );
   }
@@ -239,11 +243,15 @@ class ScopedDatabase extends _$ScopedDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON;');
+        try {
+          await customStatement('PRAGMA foreign_keys = ON;');
 
-        // Note, that WAL doesn't work in Web:
-        // https://github.com/simolus3/sqlite3.dart/issues/200
-        await customStatement('PRAGMA journal_mode = WAL;');
+          // Note, that WAL doesn't work in Web:
+          // https://github.com/simolus3/sqlite3.dart/issues/200
+          await customStatement('PRAGMA journal_mode = WAL;');
+        } catch (e) {
+          Log.error('Custom SQL statement has failed: $e', '$runtimeType');
+        }
       },
     );
   }
