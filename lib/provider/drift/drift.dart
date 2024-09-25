@@ -400,6 +400,14 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     try {
       return await action(db!);
+    } catch (e) {
+      if (e
+          .toString()
+          .contains('Channel was closed before receiving a response')) {
+        return null;
+      }
+
+      rethrow;
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -480,7 +488,17 @@ abstract class DriftProviderBase extends DisposableInterface {
       return null;
     }
 
-    return await callback(db!);
+    try {
+      return await callback(db!);
+    } catch (e) {
+      if (e
+          .toString()
+          .contains('Channel was closed before receiving a response')) {
+        return null;
+      }
+
+      rethrow;
+    }
   }
 }
 
