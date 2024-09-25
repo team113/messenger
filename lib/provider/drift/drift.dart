@@ -570,6 +570,16 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
-    return _scoped.stream(executor);
+    return _scoped.stream(executor).handleError(
+      (e) {
+        if (e
+            .toString()
+            .contains('Channel was closed before receiving a response')) {
+          // No-op.
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }
