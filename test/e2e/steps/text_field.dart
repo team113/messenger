@@ -131,9 +131,18 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
 StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
   'I fill {key} field with random login',
   (key, context) async {
-    context.world.randomLogin ??= UserLogin(
-      ChatDirectLinkSlug.generate(18).val.toLowerCase(),
-    );
+    if (context.world.randomLogin == null) {
+      UserLogin? random;
+
+      do {
+        random = UserLogin.tryParse(
+          ChatDirectLinkSlug.generate(18).val.toLowerCase(),
+        );
+      } while (random == null);
+
+      context.world.randomLogin = random;
+    }
+
     await _fillField(key, '${context.world.randomLogin}', context);
   },
   configuration: StepDefinitionConfiguration()
