@@ -20,7 +20,7 @@ Feature: Connection status
   Scenario: Connection status is properly displayed
     Given I am Alice
 
-    When And I do not have Internet
+    When I do not have Internet
     Then I wait until `NotConnected` is present
 
     When I have Internet without delay
