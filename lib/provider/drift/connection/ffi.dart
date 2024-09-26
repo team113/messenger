@@ -24,12 +24,17 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
 
 /// Obtains a database connection for running `drift` in a Dart VM.
 QueryExecutor connect([UserId? userId]) {
+  if (Config.memoryOnlyDatabase) {
+    return inMemory();
+  }
+
   return LazyDatabase(() async {
     final Directory dbFolder;
 

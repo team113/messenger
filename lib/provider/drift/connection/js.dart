@@ -21,11 +21,16 @@ import 'package:drift/wasm.dart';
 import 'package:log_me/log_me.dart';
 import 'package:sqlite3/wasm.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
 import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect([UserId? userId]) {
+  if (Config.memoryOnlyDatabase) {
+    return inMemory();
+  }
+
   return DatabaseConnection.delayed(Future(() async {
     final String dbName = userId?.val ?? 'common';
 
