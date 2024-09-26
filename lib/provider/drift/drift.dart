@@ -296,6 +296,15 @@ final class CommonDriftProvider extends DisposableInterface {
   /// `null` here means the database is closed.
   CommonDatabase? db;
 
+  /// [Completer]s of [wrapped] operations to await in [onClose].
+  final List<Completer> _completers = [];
+
+  /// [StreamController]s of [stream]s to cancel in [onClose].
+  final List<StreamController> _controllers = [];
+
+  /// [StreamSubscription]s to executors of [stream]s to cancel in [onClose].
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void onInit() async {
     super.onInit();
@@ -308,23 +317,105 @@ final class CommonDriftProvider extends DisposableInterface {
   void onClose() {
     super.onClose();
 
-    Log.debug('onClose()', '$runtimeType');
-    db = null;
+    Log.info('onClose()', '$runtimeType');
+
+    // Wait for all operations to complete, disallowing new ones.
+    _completeAllOperations().then((db) async => await db?.close());
   }
 
   /// Closes this [CommonDriftProvider].
   @visibleForTesting
   Future<void> close() async {
-    final Future<void>? future = db?.close();
-    db = null;
-    await future;
+    await (await _completeAllOperations())?.close();
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
-    final Future<void>? future = db?.reset();
+    await (await _completeAllOperations())?.reset();
+  }
+
+  /// Completes the provided [action] in a wrapped safe environment.
+  Future<T?> wrapped<T>(Future<T?> Function(CommonDatabase) action) async {
+    if (isClosed || db == null) {
+      return null;
+    }
+
+    final Completer completer = Completer();
+    _completers.add(completer);
+
+    try {
+      return await action(db!);
+    } catch (e) {
+      if (e
+          .toString()
+          .contains('Channel was closed before receiving a response')) {
+        return null;
+      }
+
+      rethrow;
+    } finally {
+      completer.complete();
+      _completers.remove(completer);
+    }
+  }
+
+  /// Returns the [Stream] executed in a wrapped safe environment.
+  Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
+    if (isClosed || db == null) {
+      return const Stream.empty();
+    }
+
+    StreamSubscription? subscription;
+    StreamController<T>? controller;
+
+    controller = StreamController(
+      onListen: () {
+        if (isClosed || db == null) {
+          return;
+        }
+
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+
+        subscription = executor(db!).listen(
+          controller?.add,
+          onError: controller?.addError,
+          onDone: () => controller?.close(),
+        );
+
+        _subscriptions.add(subscription!);
+      },
+      onCancel: () {
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+      },
+    );
+    _controllers.add(controller);
+
+    return controller.stream;
+  }
+
+  /// Closes all the [_subscriptions] and awaits all [_completers].
+  Future<CommonDatabase?> _completeAllOperations() async {
+    final CommonDatabase? connection = db;
     db = null;
-    await future;
+
+    // Close all the active streams.
+    for (var e in _subscriptions) {
+      e.cancel();
+    }
+    for (var e in _controllers) {
+      e.close();
+    }
+
+    // Wait for all operations to complete, disallowing new ones.
+    await Future.wait(_completers.map((e) => e.future));
+
+    return connection;
   }
 }
 
@@ -365,36 +456,19 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     Log.debug('onClose()', '$runtimeType');
 
-    final ScopedDatabase? connection = db;
-    db = null;
-
-    // Close all the active streams.
-    for (var e in _subscriptions) {
-      e.cancel();
-    }
-    for (var e in _controllers) {
-      e.close();
-    }
-
     // Wait for all operations to complete, disallowing new ones.
-    Future.wait(_completers.map((e) => e.future)).then((_) async {
-      await connection?.close();
-    });
+    _completeAllOperations().then((db) async => await db?.close());
   }
 
   /// Closes this [ScopedDriftProvider].
   @visibleForTesting
   Future<void> close() async {
-    final Future<void>? future = db?.close();
-    db = null;
-    await future;
+    await (await _completeAllOperations())?.close();
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
-    final Future<void>? future = db?.reset();
-    db = null;
-    await future;
+    await (await _completeAllOperations())?.reset();
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
@@ -461,6 +535,25 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     return controller.stream;
   }
+
+  /// Closes all the [_subscriptions] and awaits all [_completers].
+  Future<ScopedDatabase?> _completeAllOperations() async {
+    final ScopedDatabase? connection = db;
+    db = null;
+
+    // Close all the active streams.
+    for (var e in _subscriptions) {
+      e.cancel();
+    }
+    for (var e in _controllers) {
+      e.close();
+    }
+
+    // Wait for all operations to complete, disallowing new ones.
+    await Future.wait(_completers.map((e) => e.future));
+
+    return connection;
+  }
 }
 
 /// [CommonDriftProvider] with common helper and utility methods over it.
@@ -497,7 +590,7 @@ abstract class DriftProviderBase extends DisposableInterface {
     }
 
     try {
-      return await callback(db!);
+      return await _provider.wrapped(callback);
     } catch (e) {
       if (e
           .toString()
@@ -507,6 +600,23 @@ abstract class DriftProviderBase extends DisposableInterface {
 
       rethrow;
     }
+  }
+
+  /// Listens to the [executor] through a non-closed [CommonDatabase].
+  ///
+  /// [CommonDatabase] may be closed, for example, between E2E tests.
+  Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
+    return _provider.stream(executor).handleError(
+      (e) {
+        if (e
+            .toString()
+            .contains('Channel was closed before receiving a response')) {
+          // No-op.
+        } else {
+          throw e;
+        }
+      },
+    );
   }
 }
 

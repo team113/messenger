@@ -45,13 +45,12 @@ class ResetAppHook extends Hook {
     await drift?.reset();
 
     if (drift == null) {
-      final database = Get.put(
+      Get.put(
         CommonDriftProvider.from(
           Get.putOrGet(() => CommonDatabase(), permanent: true),
         ),
+        permanent: true,
       );
-
-      await database.reset();
     }
 
     await Get.deleteAll();
