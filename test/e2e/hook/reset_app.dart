@@ -47,14 +47,6 @@ class ResetAppHook extends Hook {
     final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
 
-    if (drift == null) {
-      Get.put(
-        CommonDriftProvider.from(
-          Get.putOrGet(() => CommonDatabase(), permanent: true),
-        ),
-      );
-    }
-
     await Get.deleteAll();
 
     PlatformUtils.client?.interceptors
