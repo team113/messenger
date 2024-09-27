@@ -52,7 +52,6 @@ class ResetAppHook extends Hook {
         CommonDriftProvider.from(
           Get.putOrGet(() => CommonDatabase(), permanent: true),
         ),
-        permanent: true,
       );
     }
 
