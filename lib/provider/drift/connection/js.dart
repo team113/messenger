@@ -27,9 +27,9 @@ import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect([UserId? userId]) {
-  if (Config.memoryOnlyDatabase) {
-    return inMemory();
-  }
+  // if (Config.memoryOnlyDatabase) {
+  //   return inMemory();
+  // }
 
   return DatabaseConnection.delayed(Future(() async {
     final String dbName = userId?.val ?? 'common';
