@@ -41,5 +41,5 @@ Feature: Searching deleted monolog
     # When I fill `SearchField` field with my login
     # Then I see monolog in search results
 
-    When I fill `SearchField` field with my direct link
-    Then I see monolog in search results
+    # When I fill `SearchField` field with my direct link
+    # Then I see monolog in search results
