@@ -103,7 +103,7 @@ Future<void> main() async {
 
     Get.put(
       CommonDriftProvider.from(
-        Get.putOrGet(() => CommonDatabase(), permanent: true),
+        Get.putOrGet(() => CommonDatabase()),
       ),
     );
 

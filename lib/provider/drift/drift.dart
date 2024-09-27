@@ -76,6 +76,8 @@ part 'drift.g.dart';
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
+  bool _closed = false;
+
   @override
   int get schemaVersion => Config.commonVersion;
 
@@ -84,6 +86,10 @@ class CommonDatabase extends _$CommonDatabase {
     return MigrationStrategy(
       onUpgrade: (m, a, b) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -110,6 +116,10 @@ class CommonDatabase extends _$CommonDatabase {
       },
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         try {
           await customStatement('PRAGMA foreign_keys = ON;');
@@ -222,6 +232,8 @@ class ScopedDatabase extends _$ScopedDatabase {
   /// [UserId] this [ScopedDatabase] is linked to.
   final UserId userId;
 
+  bool _closed = false;
+
   @override
   int get schemaVersion => Config.scopedVersion;
 
@@ -230,6 +242,10 @@ class ScopedDatabase extends _$ScopedDatabase {
     return MigrationStrategy(
       onUpgrade: (m, b, a) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -242,6 +258,10 @@ class ScopedDatabase extends _$ScopedDatabase {
       },
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         try {
           await customStatement('PRAGMA foreign_keys = ON;');
@@ -315,17 +335,17 @@ final class CommonDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
-    super.onClose();
-
     Log.info('onClose()', '$runtimeType');
 
-    // Wait for all operations to complete, disallowing new ones.
-    _completeAllOperations().then((db) async => await db?.close());
+    close();
+
+    super.onClose();
   }
 
   /// Closes this [CommonDriftProvider].
   @visibleForTesting
   Future<void> close() async {
+    db?._closed = true;
     await (await _completeAllOperations())?.close();
   }
 
@@ -336,6 +356,8 @@ final class CommonDriftProvider extends DisposableInterface {
 
   /// Completes the provided [action] in a wrapped safe environment.
   Future<T?> wrapped<T>(Future<T?> Function(CommonDatabase) action) async {
+    // return null;
+
     if (isClosed || db == null) {
       return null;
     }
@@ -361,6 +383,8 @@ final class CommonDriftProvider extends DisposableInterface {
 
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
+    // return const Stream.empty();
+
     if (isClosed || db == null) {
       return const Stream.empty();
     }
@@ -452,17 +476,17 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
+    Log.info('onClose()', '$runtimeType');
+
+    close();
+
     super.onClose();
-
-    Log.debug('onClose()', '$runtimeType');
-
-    // Wait for all operations to complete, disallowing new ones.
-    _completeAllOperations().then((db) async => await db?.close());
   }
 
   /// Closes this [ScopedDriftProvider].
   @visibleForTesting
   Future<void> close() async {
+    db?._closed = true;
     await (await _completeAllOperations())?.close();
   }
 
@@ -473,6 +497,8 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Completes the provided [action] in a wrapped safe environment.
   Future<T?> wrapped<T>(Future<T?> Function(ScopedDatabase) action) async {
+    // return null;
+
     if (isClosed || db == null) {
       return null;
     }
@@ -498,6 +524,8 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
+    // return const Stream.empty();
+
     if (isClosed || db == null) {
       return const Stream.empty();
     }
