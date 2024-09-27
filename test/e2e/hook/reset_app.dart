@@ -39,6 +39,9 @@ class ResetAppHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 1));
+
     FocusManager.instance.primaryFocus?.unfocus();
 
     final drift = Get.findOrNull<CommonDriftProvider>();
@@ -63,7 +66,7 @@ class ResetAppHook extends Hook {
     FIFOCache.clear();
 
     // Ensure any ongoing `drift` connections are indeed closed and cleared.
-    await Future.delayed(const Duration(seconds: 1, milliseconds: 200));
+    await Future.delayed(const Duration(seconds: 1));
   }
 
   @override
