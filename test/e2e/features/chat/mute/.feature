@@ -23,14 +23,10 @@ Feature: Chat muting and unmuting
     And I have "Alice and Bob" group with Bob
     And I wait until text "Alice and Bob" is present
 
-  Scenario: User mutes chat
+  Scenario: User mutes and unmutes chat
     When I long press "Alice and Bob" chat
     And I tap `MuteChatButton` button
     Then I see "Alice and Bob" chat as muted
-
-  Scenario: User unmutes chat
-    Given "Alice and Bob" chat is muted
-    And I see "Alice and Bob" chat as muted
 
     When I long press "Alice and Bob" chat
     And I tap `UnmuteChatButton` button
