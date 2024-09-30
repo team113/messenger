@@ -19,6 +19,7 @@ Feature: Connection status
 
   Scenario: Connection status is properly displayed
     Given I am Alice
+    And I wait for app to settle
 
     When I do not have Internet
     Then I wait until `NotConnected` is present

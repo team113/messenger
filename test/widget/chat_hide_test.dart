@@ -103,6 +103,7 @@ void main() async {
   final geoProvider = Get.put(GeoLocationDriftProvider(common));
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(

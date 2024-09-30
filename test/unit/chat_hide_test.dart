@@ -68,6 +68,7 @@ void main() async {
 
   final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));

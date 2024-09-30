@@ -17,6 +17,7 @@
 
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
@@ -47,6 +48,9 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   set token(AccessTokenSecret? value) => _client.token = value;
+
+  @override
+  RxBool get connected => _client.connected;
 
   @override
   Future<void> reconnect() => _client.reconnect();
@@ -131,22 +135,27 @@ class MockGraphQlClient extends GraphQlClient {
   /// Indicator whether requests should throw [ConnectionException]s or not.
   ///
   /// Intended to be used to simulate a connection loss.
-  bool throwException = false;
+  bool _throwException = false;
 
   /// [Duration] to add to all requests simulating a delay.
   Duration? _delay;
 
-  final List<void Function(Exception?)> _handlers = [];
+  /// Indicates whether requests should throw [ConnectionException]s or not.
+  bool get throwException => _throwException;
+
+  /// Sets the indicator whether requests should throw [ConnectionException]s or
+  /// not.
+  set throwException(bool value) {
+    connected.value = !value;
+    _throwException = value;
+  }
 
   /// Returns the [Duration] to add to all requests simulating a delay.
   Duration? get delay => _delay;
 
   /// Sets the [Duration] to add to all requests simulating a delay.
   set delay(Duration? value) {
-    for (var e in _handlers) {
-      e(null);
-    }
-
+    connected.value = true;
     _delay = value;
   }
 
@@ -160,10 +169,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
-      for (var handler in _handlers) {
-        handler(const ConnectionException('Mocked'));
-      }
-
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -181,10 +187,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
-      for (var handler in _handlers) {
-        handler(const ConnectionException('Mocked'));
-      }
-
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -204,10 +207,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
-      for (var handler in _handlers) {
-        handler(const ConnectionException('Mocked'));
-      }
-
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -217,15 +217,5 @@ class MockGraphQlClient extends GraphQlClient {
       onException: onException,
       onSendProgress: onSendProgress,
     );
-  }
-
-  @override
-  void addListener(void Function(Exception?) handler) {
-    _handlers.add(handler);
-  }
-
-  @override
-  void removeListener(void Function(Exception?) handler) {
-    _handlers.remove(handler);
   }
 }
