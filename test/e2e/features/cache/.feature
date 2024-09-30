@@ -24,3 +24,4 @@ Feature: Cache clearing
     When application version is updated
     And I restart app
     Then I wait until `AuthView` is present
+    And I pause for 2 seconds
