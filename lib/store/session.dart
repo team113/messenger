@@ -19,10 +19,8 @@ import 'dart:async';
 
 import 'package:async/async.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 
 import '/api/backend/extension/my_user.dart';
@@ -92,6 +90,9 @@ class SessionRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<SessionEventsVersioned>? _remoteSubscription;
 
+  /// [GraphQlProvider.connected] subscription determining the [_hasGraphQl].
+  StreamSubscription? _graphQlSubscription;
+
   /// [Connectivity.onConnectivityChanged] subscription for listening to
   /// [connected] changes.
   StreamSubscription? _connectivitySubscription;
@@ -131,8 +132,7 @@ class SessionRepository extends DisposableInterface
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
     _connectivitySubscription?.cancel();
-
-    _graphQlProvider.removeListener(_handleGraphQlConnectivity);
+    _graphQlSubscription?.cancel();
 
     super.onClose();
   }
@@ -406,6 +406,12 @@ class SessionRepository extends DisposableInterface
 
   /// Initializes the [Connectivity] changing the [connected] status.
   Future<void> _initConnectivity() async {
+    _hasGraphQl = _graphQlProvider.connected.value;
+    _graphQlSubscription = _graphQlProvider.connected.listen((hasGraphQl) {
+      _hasGraphQl = hasGraphQl;
+      connected.value = _hasNetwork && _hasGraphQl;
+    });
+
     void apply(List<ConnectivityResult> result) {
       _hasNetwork = result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||
@@ -423,40 +429,6 @@ class SessionRepository extends DisposableInterface
     } on MissingPluginException {
       // No-op.
     }
-
-    _graphQlProvider.addListener(_handleGraphQlConnectivity);
-  }
-
-  /// Determines the current [_hasGraphQl] status by handling the provided
-  /// [exception].
-  void _handleGraphQlConnectivity(Exception? exception) {
-    if (exception == null) {
-      _hasGraphQl = true;
-    } else if (_hasGraphQl) {
-      if (exception is ClientException ||
-          exception is ConnectionException ||
-          exception is TimeoutException ||
-          exception is FormatException) {
-        _hasGraphQl = false;
-      } else if (exception is DioException) {
-        switch (exception.type) {
-          case DioExceptionType.connectionTimeout:
-          case DioExceptionType.sendTimeout:
-          case DioExceptionType.receiveTimeout:
-          case DioExceptionType.connectionError:
-            _hasGraphQl = false;
-            break;
-
-          default:
-            // No-op.
-            break;
-        }
-      } else if (exception is GraphQlException) {
-        // No-op.
-      }
-    }
-
-    connected.value = _hasNetwork && _hasGraphQl;
   }
 }
 

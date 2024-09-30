@@ -30,7 +30,6 @@ part 'suite.g.dart';
 )
 void main() async {
   Config.disableInfiniteAnimations = true;
-  Config.memoryOnlyDatabase = true;
   executeTestSuite(
     gherkinTestConfiguration,
     appInitializationFn,

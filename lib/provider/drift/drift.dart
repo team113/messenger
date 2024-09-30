@@ -346,7 +346,7 @@ final class CommonDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await (await _completeAllOperations())?.close();
+    (await _completeAllOperations())?.close();
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
@@ -367,14 +367,6 @@ final class CommonDriftProvider extends DisposableInterface {
 
     try {
       return await action(db!);
-    } catch (e) {
-      if (e
-          .toString()
-          .contains('Channel was closed before receiving a response')) {
-        return null;
-      }
-
-      rethrow;
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -430,10 +422,10 @@ final class CommonDriftProvider extends DisposableInterface {
 
     // Close all the active streams.
     for (var e in _subscriptions) {
-      e.cancel();
+      unawaited(e.cancel());
     }
     for (var e in _controllers) {
-      e.close();
+      unawaited(e.close());
     }
 
     // Wait for all operations to complete, disallowing new ones.
@@ -508,14 +500,6 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     try {
       return await action(db!);
-    } catch (e) {
-      if (e
-          .toString()
-          .contains('Channel was closed before receiving a response')) {
-        return null;
-      }
-
-      rethrow;
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -547,7 +531,10 @@ final class ScopedDriftProvider extends DisposableInterface {
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
-          onDone: () => controller?.close(),
+          onDone: () {
+            controller?.close();
+            subscription?.cancel();
+          },
         );
 
         _subscriptions.add(subscription!);
@@ -571,10 +558,10 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     // Close all the active streams.
     for (var e in _subscriptions) {
-      e.cancel();
+      await (e.cancel());
     }
     for (var e in _controllers) {
-      e.close();
+      await (e.close());
     }
 
     // Wait for all operations to complete, disallowing new ones.
@@ -617,34 +604,14 @@ abstract class DriftProviderBase extends DisposableInterface {
       return null;
     }
 
-    try {
-      return await _provider.wrapped(callback);
-    } catch (e) {
-      if (e
-          .toString()
-          .contains('Channel was closed before receiving a response')) {
-        return null;
-      }
-
-      rethrow;
-    }
+    return await _provider.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [CommonDatabase].
   ///
   /// [CommonDatabase] may be closed, for example, between E2E tests.
   Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
-    return _provider.stream(executor).handleError(
-      (e) {
-        if (e
-            .toString()
-            .contains('Channel was closed before receiving a response')) {
-          // No-op.
-        } else {
-          throw e;
-        }
-      },
-    );
+    return _provider.stream(executor);
   }
 }
 
@@ -708,16 +675,6 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   ///
   /// [ScopedDatabase] may be closed, for example, between E2E tests.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
-    return _scoped.stream(executor).handleError(
-      (e) {
-        if (e
-            .toString()
-            .contains('Channel was closed before receiving a response')) {
-          // No-op.
-        } else {
-          throw e;
-        }
-      },
-    );
+    return _scoped.stream(executor);
   }
 }

@@ -19,8 +19,11 @@ import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -57,6 +60,10 @@ class GraphQlProviderBase {
 
   /// Sets authorization bearer token and reconnects the [client].
   set token(AccessTokenSecret? value) => _client.token = value;
+
+  /// Indicates whether this [GraphQlClient] is successfully connected to the
+  /// endpoint.
+  RxBool get connected => _client.connected;
 
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() => _client.reconnect();
@@ -98,6 +105,10 @@ class GraphQlClient {
 
   /// Callback, called when middleware catches [AuthorizationException].
   Future<void> Function(AuthorizationException)? authExceptionHandler;
+
+  /// Indicator whether this [GraphQlClient] is successfully connected to the
+  /// endpoint.
+  final RxBool connected = RxBool(true);
 
   /// [Duration] considered as a network timeout.
   static const Duration timeout = Duration(seconds: 60);
@@ -342,9 +353,7 @@ class GraphQlClient {
       final T result = await fn();
 
       if (_errored) {
-        for (var handler in _handlers) {
-          handler(null);
-        }
+        _reportException(null);
         _errored = false;
       }
 
@@ -354,10 +363,7 @@ class GraphQlClient {
       return await fn();
     } on Exception catch (e) {
       _errored = true;
-      for (var handler in _handlers) {
-        handler(e);
-      }
-
+      _reportException(e);
       rethrow;
     }
   }
@@ -370,9 +376,7 @@ class GraphQlClient {
       _wsConnected = false;
 
       if (!_errored) {
-        for (var handler in _handlers) {
-          handler(ConnectionException(Exception('_reconnect()')));
-        }
+        _reportException(ConnectionException(Exception('_reconnect()')));
         _errored = true;
       }
     }
@@ -444,9 +448,7 @@ class GraphQlClient {
                 _wsConnected = true;
 
                 if (_errored) {
-                  for (var handler in _handlers) {
-                    handler(null);
-                  }
+                  _reportException(null);
                   _errored = false;
                 }
               }
@@ -558,6 +560,40 @@ class GraphQlClient {
       rethrow;
     } finally {
       transaction.finish();
+    }
+  }
+
+  /// Handles the [exception] to determine the [connected] status of this
+  /// client.
+  void _reportException(Exception? exception) {
+    if (exception == null) {
+      connected.value = true;
+    } else if (connected.value) {
+      if (exception is ClientException ||
+          exception is ConnectionException ||
+          exception is TimeoutException ||
+          exception is FormatException) {
+        connected.value = false;
+      } else if (exception is DioException) {
+        switch (exception.type) {
+          case DioExceptionType.connectionTimeout:
+          case DioExceptionType.sendTimeout:
+          case DioExceptionType.receiveTimeout:
+          case DioExceptionType.connectionError:
+            connected.value = false;
+            break;
+
+          default:
+            // No-op.
+            break;
+        }
+      } else if (exception is GraphQlException) {
+        // No-op.
+      }
+    }
+
+    for (var handler in _handlers) {
+      handler(exception);
     }
   }
 }
