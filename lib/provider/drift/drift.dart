@@ -346,12 +346,12 @@ final class CommonDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    (await _completeAllOperations())?.close();
+    await _completeAllOperations((db) async => await db?.close());
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
-    await (await _completeAllOperations())?.reset();
+    await _completeAllOperations((db) async => await db?.reset());
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
@@ -416,8 +416,10 @@ final class CommonDriftProvider extends DisposableInterface {
   }
 
   /// Closes all the [_subscriptions] and awaits all [_completers].
-  Future<CommonDatabase?> _completeAllOperations() async {
-    final CommonDatabase? connection = db;
+  Future<void> _completeAllOperations(
+    Future<void> Function(CommonDatabase?) process,
+  ) async {
+    final Future<void> future = process(db);
     db = null;
 
     // Close all the active streams.
@@ -431,7 +433,7 @@ final class CommonDriftProvider extends DisposableInterface {
     // Wait for all operations to complete, disallowing new ones.
     await Future.wait(_completers.map((e) => e.future));
 
-    return connection;
+    await future;
   }
 }
 
@@ -479,12 +481,12 @@ final class ScopedDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await (await _completeAllOperations())?.close();
+    await _completeAllOperations((db) async => await db?.close());
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
-    await (await _completeAllOperations())?.reset();
+    await _completeAllOperations((db) async => await db?.reset());
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
@@ -552,22 +554,24 @@ final class ScopedDriftProvider extends DisposableInterface {
   }
 
   /// Closes all the [_subscriptions] and awaits all [_completers].
-  Future<ScopedDatabase?> _completeAllOperations() async {
-    final ScopedDatabase? connection = db;
+  Future<void> _completeAllOperations(
+    Future<void> Function(ScopedDatabase?) process,
+  ) async {
+    final Future<void> future = process(db);
     db = null;
 
     // Close all the active streams.
     for (var e in _subscriptions) {
-      await (e.cancel());
+      unawaited(e.cancel());
     }
     for (var e in _controllers) {
-      await (e.close());
+      unawaited(e.close());
     }
 
     // Wait for all operations to complete, disallowing new ones.
     await Future.wait(_completers.map((e) => e.future));
 
-    return connection;
+    await future;
   }
 }
 
