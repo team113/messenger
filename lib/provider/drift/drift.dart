@@ -424,10 +424,10 @@ final class CommonDriftProvider extends DisposableInterface {
 
     // Close all the active streams.
     for (var e in _subscriptions) {
-      unawaited(e.cancel());
+      await e.cancel();
     }
     for (var e in _controllers) {
-      unawaited(e.close());
+      await e.close();
     }
 
     // Wait for all operations to complete, disallowing new ones.
@@ -562,10 +562,10 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     // Close all the active streams.
     for (var e in _subscriptions) {
-      unawaited(e.cancel());
+      await e.cancel();
     }
     for (var e in _controllers) {
-      unawaited(e.close());
+      await e.close();
     }
 
     // Wait for all operations to complete, disallowing new ones.
