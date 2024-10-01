@@ -407,6 +407,7 @@ final class CommonDriftProvider extends DisposableInterface {
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
+          _controllers.remove(controller);
         }
       },
     );
@@ -423,11 +424,12 @@ final class CommonDriftProvider extends DisposableInterface {
     db = null;
 
     // Close all the active streams.
-    for (var e in _subscriptions) {
-      await e.cancel();
-    }
-    for (var e in _controllers) {
+    for (var e in _controllers.toList()) {
       await e.close();
+    }
+
+    for (var e in _subscriptions.toList()) {
+      await e.cancel();
     }
 
     // Wait for all operations to complete, disallowing new ones.
@@ -510,8 +512,6 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
-    // return const Stream.empty();
-
     if (isClosed || db == null) {
       return const Stream.empty();
     }
@@ -545,9 +545,11 @@ final class ScopedDriftProvider extends DisposableInterface {
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
+          _controllers.remove(controller);
         }
       },
     );
+
     _controllers.add(controller);
 
     return controller.stream;
@@ -561,11 +563,12 @@ final class ScopedDriftProvider extends DisposableInterface {
     db = null;
 
     // Close all the active streams.
-    for (var e in _subscriptions) {
-      await e.cancel();
-    }
-    for (var e in _controllers) {
+    for (var e in _controllers.toList()) {
       await e.close();
+    }
+
+    for (var e in _subscriptions.toList()) {
+      await e.cancel();
     }
 
     // Wait for all operations to complete, disallowing new ones.
