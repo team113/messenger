@@ -27,6 +27,7 @@ import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
+import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -358,6 +359,7 @@ Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+  Get.put<CommonDriftProvider>(CommonDriftProvider.memory(), permanent: true);
 
   FlutterError.onError = (details) {
     final String exception = details.exception.toString();
