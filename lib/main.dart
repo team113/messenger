@@ -102,6 +102,12 @@ Future<void> main() async {
     WebUtils.setPathUrlStrategy();
 
     Get.put(CommonDriftProvider.from(Get.putOrGet(() => CommonDatabase())));
+    Get.putOrGet<CommonDriftProvider>(
+      () => CommonDriftProvider.from(
+        Get.putOrGet(() => CommonDatabase(), permanent: true),
+      ),
+      permanent: true,
+    );
 
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
     Get.put(SettingsDriftProvider(Get.find()));
