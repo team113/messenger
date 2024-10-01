@@ -360,6 +360,19 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
+  FlutterError.onError = (details) {
+    final String exception = details.exception.toString();
+
+    // Silence the `GlobalKey` being duplicated errors:
+    // https://github.com/google/flutter.widgets/issues/137
+    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+        exception.contains('Multiple widgets used the same GlobalKey.')) {
+      return;
+    }
+
+    FlutterError.presentError(details);
+  };
+
   final zone = runZonedGuarded(
     () => Future.sync(app.main),
     (Object error, StackTrace stack) {
@@ -367,13 +380,6 @@ Future<void> appInitializationFn(World world) {
 
       // Silence the possible `drift` database being used between E2E tests.
       if (exception.contains('Bad state: Tried to send Request')) {
-        return;
-      }
-
-      // Silence the `GlobalKey` being duplicated errors:
-      // https://github.com/google/flutter.widgets/issues/137
-      if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-          exception.contains('Multiple widgets used the same GlobalKey.')) {
         return;
       }
 
