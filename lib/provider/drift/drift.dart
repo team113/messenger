@@ -351,7 +351,10 @@ final class CommonDriftProvider extends DisposableInterface {
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
-    await _completeAllOperations((db) async => await db?.reset());
+    await _completeAllOperations((db) async {
+      await db?.reset();
+      this.db = db;
+    });
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
@@ -488,7 +491,10 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
-    await _completeAllOperations((db) async => await db?.reset());
+    await _completeAllOperations((db) async {
+      await db?.reset();
+      this.db = db;
+    });
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
