@@ -101,7 +101,6 @@ Future<void> main() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
-    Get.put(CommonDriftProvider.from(Get.putOrGet(() => CommonDatabase())));
     Get.putOrGet<CommonDriftProvider>(
       () => CommonDriftProvider.from(
         Get.putOrGet(() => CommonDatabase(), permanent: true),
