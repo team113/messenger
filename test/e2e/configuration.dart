@@ -17,6 +17,8 @@
 
 // ignore_for_file: avoid_print
 
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_gherkin/flutter_gherkin_with_driver.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -28,7 +30,6 @@ import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
 import 'package:messenger/provider/geo/geo.dart';
-import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -359,32 +360,28 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
-  FlutterError.onError = (details) {
-    final String exception = details.exception.toString();
+  final zone = runZonedGuarded(
+    () => Future.sync(app.main),
+    (Object error, StackTrace stack) {
+      final String exception = error.toString();
 
-    // Silence the `GlobalKey` being duplicated errors:
-    // https://github.com/google/flutter.widgets/issues/137
-    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
-        exception.contains('Multiple widgets used the same GlobalKey.')) {
-      return;
-    }
+      // Silence the possible `drift` database being used between E2E tests.
+      if (exception.contains('Bad state: Tried to send Request')) {
+        return;
+      }
 
-    // Silence the `ConnectionClosedException`, which may happen due to `drift`
-    // database being recreated between E2E tests.
-    if (exception.contains('Channel was closed before receiving a response')) {
-      return;
-    }
+      // Silence the `GlobalKey` being duplicated errors:
+      // https://github.com/google/flutter.widgets/issues/137
+      if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+          exception.contains('Multiple widgets used the same GlobalKey.')) {
+        return;
+      }
 
-    // Silence the mocked `ConnectionException`, as this is an expected error.
-    if (details.exception is ConnectionException &&
-        exception.contains('ConnectionException(Mocked)')) {
-      return;
-    }
+      Zone.current.parent?.handleUncaughtError(error, stack);
+    },
+  );
 
-    FlutterError.presentError(details);
-  };
-
-  return Future.sync(app.main);
+  return zone ?? Future.sync(app.main);
 }
 
 /// Creates a new [Session] for the provided [user].
