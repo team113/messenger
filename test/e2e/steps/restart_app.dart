@@ -17,11 +17,11 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:messenger/main.dart';
 import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
 
+import '../configuration.dart';
 import '../mock/geo.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
@@ -53,7 +53,7 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>(
 
     Get.put<GeoLocationProvider>(MockGeoLocationProvider());
 
-    await main();
+    await appFn();
     await context.world.appDriver.waitForAppToSettle();
   },
 );
