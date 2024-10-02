@@ -370,7 +370,7 @@ Future<void> appFn() {
         return;
       }
 
-      Zone.current.parent?.handleUncaughtError(error, stack);
+      // Zone.current.parent?.handleUncaughtError(error, stack);
     },
   );
 
