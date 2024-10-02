@@ -398,6 +398,7 @@ final class CommonDriftProvider extends DisposableInterface {
           _subscriptions.remove(subscription);
         }
 
+        Log.warning('stream', '$runtimeType');
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
@@ -407,6 +408,8 @@ final class CommonDriftProvider extends DisposableInterface {
         _subscriptions.add(subscription!);
       },
       onCancel: () {
+        Log.warning('stream done', '$runtimeType');
+
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
@@ -536,6 +539,7 @@ final class ScopedDriftProvider extends DisposableInterface {
           _subscriptions.remove(subscription);
         }
 
+        Log.warning('stream', '$runtimeType');
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
@@ -548,6 +552,8 @@ final class ScopedDriftProvider extends DisposableInterface {
         _subscriptions.add(subscription!);
       },
       onCancel: () {
+        Log.warning('stream done', '$runtimeType');
+
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
@@ -617,7 +623,11 @@ abstract class DriftProviderBase extends DisposableInterface {
       return null;
     }
 
-    return await _provider.wrapped(callback);
+    Log.warning('[$tag]', '$runtimeType');
+    final result = await _provider.wrapped(callback);
+    Log.warning('[$tag] done', '$runtimeType');
+
+    return result;
   }
 
   /// Listens to the [executor] through a non-closed [CommonDatabase].
@@ -649,7 +659,13 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       await _scoped.wrapped((db) async {
         return await WebUtils.protect(
           tag: '${_scoped.db?.userId}',
-          () async => await db.transaction(action),
+          () async {
+            Log.warning('txn', '$runtimeType');
+            final result = await db.transaction(action);
+            Log.warning('txn done', '$runtimeType');
+
+            return result;
+          },
         );
       });
     } on CouldNotRollBackException catch (e) {
@@ -677,11 +693,21 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
-        () async => await _scoped.wrapped(callback),
+        () async {
+          Log.warning('[$tag]', '$runtimeType');
+          final result = await _scoped.wrapped(callback);
+          Log.warning('[$tag] done', '$runtimeType');
+
+          return result;
+        },
       );
     }
 
-    return await _scoped.wrapped(callback);
+    Log.warning('[$tag]', '$runtimeType');
+    final result = await _scoped.wrapped(callback);
+    Log.warning('[$tag] done', '$runtimeType');
+
+    return result;
   }
 
   /// Listens to the [executor] through a non-closed [ScopedDatabase].
