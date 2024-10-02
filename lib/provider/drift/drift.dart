@@ -76,6 +76,7 @@ part 'drift.g.dart';
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
+  /// Indicator whether this database has been already closed.
   bool _closed = false;
 
   @override
@@ -232,6 +233,7 @@ class ScopedDatabase extends _$ScopedDatabase {
   /// [UserId] this [ScopedDatabase] is linked to.
   final UserId userId;
 
+  /// Indicator whether this database has been already closed.
   bool _closed = false;
 
   @override
@@ -335,7 +337,7 @@ final class CommonDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
-    Log.info('onClose()', '$runtimeType');
+    Log.debug('onClose()', '$runtimeType');
 
     close();
 
@@ -359,8 +361,6 @@ final class CommonDriftProvider extends DisposableInterface {
 
   /// Completes the provided [action] in a wrapped safe environment.
   Future<T?> wrapped<T>(Future<T?> Function(CommonDatabase) action) async {
-    // return null;
-
     if (isClosed || db == null) {
       return null;
     }
@@ -378,8 +378,6 @@ final class CommonDriftProvider extends DisposableInterface {
 
   /// Returns the [Stream] executed in a wrapped safe environment.
   Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
-    // return const Stream.empty();
-
     if (isClosed || db == null) {
       return const Stream.empty();
     }
@@ -398,7 +396,6 @@ final class CommonDriftProvider extends DisposableInterface {
           _subscriptions.remove(subscription);
         }
 
-        Log.warning('stream', '$runtimeType');
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
@@ -408,8 +405,6 @@ final class CommonDriftProvider extends DisposableInterface {
         _subscriptions.add(subscription!);
       },
       onCancel: () {
-        Log.warning('stream done', '$runtimeType');
-
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
@@ -478,7 +473,7 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
-    Log.info('onClose()', '$runtimeType');
+    Log.debug('onClose()', '$runtimeType');
 
     close();
 
@@ -502,8 +497,6 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   /// Completes the provided [action] in a wrapped safe environment.
   Future<T?> wrapped<T>(Future<T?> Function(ScopedDatabase) action) async {
-    // return null;
-
     if (isClosed || db == null) {
       return null;
     }
@@ -539,7 +532,6 @@ final class ScopedDriftProvider extends DisposableInterface {
           _subscriptions.remove(subscription);
         }
 
-        Log.warning('stream', '$runtimeType');
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
@@ -552,8 +544,6 @@ final class ScopedDriftProvider extends DisposableInterface {
         _subscriptions.add(subscription!);
       },
       onCancel: () {
-        Log.warning('stream done', '$runtimeType');
-
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
@@ -608,7 +598,11 @@ abstract class DriftProviderBase extends DisposableInterface {
       return;
     }
 
-    await db?.transaction(action);
+    try {
+      await db?.transaction(action);
+    } on CouldNotRollBackException {
+      // No-op.
+    }
   }
 
   /// Runs the [callback] through a non-closed [CommonDatabase], or returns
@@ -623,11 +617,7 @@ abstract class DriftProviderBase extends DisposableInterface {
       return null;
     }
 
-    Log.warning('[$tag]', '$runtimeType');
-    final result = await _provider.wrapped(callback);
-    Log.warning('[$tag] done', '$runtimeType');
-
-    return result;
+    return await _provider.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [CommonDatabase].
@@ -664,22 +654,16 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
               return null;
             }
 
-            Log.warning('txn', '$runtimeType');
-            final result = await db.transaction(action);
-            Log.warning('txn done', '$runtimeType');
-
-            return result;
+            try {
+              return await db.transaction(action);
+            } on CouldNotRollBackException {
+              // No-op.
+            }
           },
         );
       });
-    } on CouldNotRollBackException catch (e) {
-      if (e.exception
-          .toString()
-          .contains('This database has already been closed')) {
-        // No-op.
-      } else {
-        rethrow;
-      }
+    } on CouldNotRollBackException {
+      // No-op.
     }
   }
 
@@ -697,21 +681,11 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
-        () async {
-          Log.warning('[$tag]', '$runtimeType');
-          final result = await _scoped.wrapped(callback);
-          Log.warning('[$tag] done', '$runtimeType');
-
-          return result;
-        },
+        () async => await _scoped.wrapped(callback),
       );
     }
 
-    Log.warning('[$tag]', '$runtimeType');
-    final result = await _scoped.wrapped(callback);
-    Log.warning('[$tag] done', '$runtimeType');
-
-    return result;
+    return await _scoped.wrapped(callback);
   }
 
   /// Listens to the [executor] through a non-closed [ScopedDatabase].
