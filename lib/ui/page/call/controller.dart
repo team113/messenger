@@ -1056,6 +1056,8 @@ class CallController extends GetxController {
 
     updateSecondaryAttach();
     applySecondaryConstraints();
+
+    refresh();
   }
 
   /// Invokes [focusAll], moving every [Participant] to their `default`, or
