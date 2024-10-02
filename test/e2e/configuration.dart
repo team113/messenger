@@ -366,10 +366,6 @@ Future<void> appFn() {
         return;
       }
 
-      if (exception.contains('Expected')) {
-        return;
-      }
-
       // Zone.current.parent?.handleUncaughtError(error, stack);
     },
   );

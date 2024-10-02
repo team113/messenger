@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -35,49 +36,61 @@ Future<void> main() {
     }
   };
 
-  return integration_test_driver.integrationDriver(
-    timeout: const Duration(minutes: 60),
-    responseDataCallback: (data) async {
-      // Retrieve the [LogLevel] from the [data], as accessing [Config] here
-      // isn't possible due to Flutter imports happening in [Config].
-      final int? level = data?['level'] is int ? data!['level'] as int : null;
+  return runZonedGuarded(
+    () => integration_test_driver.integrationDriver(
+      timeout: const Duration(minutes: 60),
+      responseDataCallback: (data) async {
+        // Retrieve the [LogLevel] from the [data], as accessing [Config] here
+        // isn't possible due to Flutter imports happening in [Config].
+        final int? level = data?['level'] is int ? data!['level'] as int : null;
 
-      final Map<String, dynamic> traces = data?['traces'] ?? {};
-      for (var e in traces.entries) {
-        if (e.value is! Map<String, dynamic>) {
-          continue;
-        }
+        final Map<String, dynamic> traces = data?['traces'] ?? {};
+        for (var e in traces.entries) {
+          if (e.value is! Map<String, dynamic>) {
+            continue;
+          }
 
-        final Timeline timeline = Timeline.fromJson(
-          e.value as Map<String, dynamic>,
-        );
-
-        // Convert the [Timeline] into a [TimelineSummary] that's easier to read
-        // and understand.
-        final summary = TimelineSummary.summarize(timeline);
-
-        const String directory = 'test/e2e/reports';
-
-        // Write the whole [Timeline] to the disk, if [Config.logLevel] is or
-        // bigger than [LogLevel.trace].
-        //
-        // Or write only the summary otherwise.
-        if ((level ?? 0) >= LogLevel.trace.index) {
-          await summary.writeTimelineToFile(
-            e.key,
-            destinationDirectory: directory,
-            pretty: true,
-            includeSummary: true,
+          final Timeline timeline = Timeline.fromJson(
+            e.value as Map<String, dynamic>,
           );
-        } else {
-          await fs.directory(directory).create(recursive: true);
-          final File file =
-              fs.file('$directory/${e.key}.timeline_summary.json');
-          await file.writeAsString(
-            const JsonEncoder.withIndent('  ').convert(summary.summaryJson),
-          );
+
+          // Convert the [Timeline] into a [TimelineSummary] that's easier to read
+          // and understand.
+          final summary = TimelineSummary.summarize(timeline);
+
+          const String directory = 'test/e2e/reports';
+
+          // Write the whole [Timeline] to the disk, if [Config.logLevel] is or
+          // bigger than [LogLevel.trace].
+          //
+          // Or write only the summary otherwise.
+          if ((level ?? 0) >= LogLevel.trace.index) {
+            await summary.writeTimelineToFile(
+              e.key,
+              destinationDirectory: directory,
+              pretty: true,
+              includeSummary: true,
+            );
+          } else {
+            await fs.directory(directory).create(recursive: true);
+            final File file =
+                fs.file('$directory/${e.key}.timeline_summary.json');
+            await file.writeAsString(
+              const JsonEncoder.withIndent('  ').convert(summary.summaryJson),
+            );
+          }
         }
+      },
+    ),
+    (error, stack) {
+      final String exception = error.toString();
+
+      // Silence the possible `drift` database being used between E2E tests.
+      if (exception.contains('Bad state: Tried to send Request')) {
+        return;
       }
+
+      Zone.current.parent?.handleUncaughtError(error, stack);
     },
-  );
+  )!;
 }
