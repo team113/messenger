@@ -64,8 +64,8 @@ class NotificationService: UNNotificationServiceExtension {
       let accounts = Table("accounts")
       let tokens = Table("tokens")
 
-      let userId = Expression<String>("user_id")
-      let credentials = Expression<String>("credentials")
+      let userId = SQLite.Expression<String>("user_id")
+      let credentials = SQLite.Expression<String>("credentials")
 
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]

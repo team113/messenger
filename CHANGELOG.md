@@ -25,6 +25,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - File sizes displayed in B, KB, MB, GB or PB. ([#1115], [#603])
+    - Media panel:
+        - Fullscreen mode separated from application's fullscreen. ([#1123], [#853])
 
 ### Fixed
 
@@ -39,12 +41,14 @@ All user visible changes to this project will be documented in this file. This p
 [#568]: /../../issues/568
 [#603]: /../../issues/603
 [#692]: /../../issues/692
+[#853]: /../../issues/853
 [#1112]: /../../pull/1112
 [#1115]: /../../pull/1115
 [#1116]: /../../pull/1116
 [#1117]: /../../pull/1117
 [#1120]: /../../pull/1120
 [#1121]: /../../pull/1121
+[#1123]: /../../pull/1123
 
 
 
