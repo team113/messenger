@@ -660,6 +660,10 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
         return await WebUtils.protect(
           tag: '${_scoped.db?.userId}',
           () async {
+            if (isClosed || _scoped.isClosed) {
+              return null;
+            }
+
             Log.warning('txn', '$runtimeType');
             final result = await db.transaction(action);
             Log.warning('txn done', '$runtimeType');
