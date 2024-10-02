@@ -38,6 +38,7 @@ Feature: Chats pagination
     And I see 16 chats
     And chats fetched are indeed remote
     And I do not have Internet
+    And I pause for 2 seconds
 
     When I restart app
     Then I see 15 chats
