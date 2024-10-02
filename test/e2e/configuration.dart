@@ -354,27 +354,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
       ]
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
-/// Returns the function initializing the [app].
-Future<void> appFn() {
-  final zone = runZonedGuarded(
-    () async => await app.main(),
-    (Object error, StackTrace stack) {
-      final String exception = error.toString();
-
-      // Silence the possible `drift` database being used between E2E tests.
-      if (exception.contains('Bad state: Tried to send Request')) {
-        return;
-      }
-
-      // Zone.current.parent?.handleUncaughtError(error, stack);
-    },
-  );
-
-  return zone ?? app.main();
-}
-
 /// Application's initialization function.
-Future<void> appInitializationFn(World world) async {
+Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
@@ -392,7 +373,7 @@ Future<void> appInitializationFn(World world) async {
     FlutterError.presentError(details);
   };
 
-  return await appFn();
+  return Future.sync(app.main);
 }
 
 /// Creates a new [Session] for the provided [user].
