@@ -537,23 +537,37 @@ class WebUtils {
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
   static WebStoredCall? getCall(ChatId chatId) {
-    var data = web.window.localStorage['call_$chatId'];
+    final data = web.window.localStorage['call_$chatId'];
     if (data != null) {
-      return WebStoredCall.fromJson(json.decode(data));
+      final at = web.window.localStorage['at_call_$chatId'];
+      final updatedAt = at == null ? DateTime.now() : DateTime.parse(at);
+      if (DateTime.now().difference(updatedAt).inSeconds <= 1) {
+        return WebStoredCall.fromJson(json.decode(data));
+      }
     }
 
     return null;
   }
 
   /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) =>
-      web.window.localStorage['call_${call.chatId}'] =
-          json.encode(call.toJson());
+  static void setCall(WebStoredCall call) {
+    web.window.localStorage['call_${call.chatId}'] = json.encode(call.toJson());
+    web.window.localStorage['at_call_${call.chatId}'] =
+        DateTime.now().add(const Duration(seconds: 5)).toString();
+  }
+
+  /// Ensures a call in the provided [chatId] is considered active the browser's
+  /// storage.
+  static void pingCall(ChatId chatId) {
+    web.window.localStorage['at_call_$chatId'] = DateTime.now().toString();
+  }
 
   /// Removes a call identified by the provided [chatId] from the browser's
   /// storage.
-  static void removeCall(ChatId chatId) =>
-      web.window.localStorage.removeItem('call_$chatId');
+  static void removeCall(ChatId chatId) {
+    web.window.localStorage.removeItem('call_$chatId');
+    web.window.localStorage.removeItem('at_call_$chatId');
+  }
 
   /// Moves a call identified by its [chatId] to the [newChatId] replacing its
   /// stored state with an optional [newState].
@@ -580,8 +594,7 @@ class WebUtils {
 
   /// Indicates whether the browser's storage contains a call identified by the
   /// provided [chatId].
-  static bool containsCall(ChatId chatId) =>
-      web.window.localStorage.getItem('call_$chatId') != null;
+  static bool containsCall(ChatId chatId) => getCall(chatId) != null;
 
   /// Indicates whether the browser's storage contains any calls.
   static bool containsCalls() {

@@ -178,6 +178,12 @@ class WebUtils {
     // No-op.
   }
 
+  /// Ensures a call in the provided [chatId] is considered active the browser's
+  /// storage.
+  static void pingCall(ChatId chatId) {
+    // No-op.
+  }
+
   /// Removes a call identified by the provided [chatId] from the browser's
   /// storage.
   static void removeCall(ChatId chatId) {
