@@ -52,6 +52,9 @@ class PopupCallController extends GetxController {
   /// the browser's storage.
   late final Worker _stateWorker;
 
+  /// [Timer] invoking [WebUtils.pingCall] so it stays active to other tabs.
+  Timer? _pingTimer;
+
   /// Returns ID of the authenticated [MyUser].
   UserId get me => _calls.me;
 
@@ -104,6 +107,12 @@ class PopupCallController extends GetxController {
 
     _tryToConnect();
     WakelockPlus.enable().onError((_, __) => false);
+
+    _pingTimer = Timer.periodic(
+      const Duration(milliseconds: 500),
+      (_) => WebUtils.pingCall(chatId),
+    );
+
     super.onInit();
   }
 
@@ -111,6 +120,7 @@ class PopupCallController extends GetxController {
   void onClose() {
     WakelockPlus.disable().onError((_, __) => false);
     _storageSubscription?.cancel();
+    _pingTimer?.cancel();
     _stateWorker.dispose();
     if (call != null) {
       WebUtils.removeCall(call!.value.chatId.value);
