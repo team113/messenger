@@ -687,12 +687,10 @@ class CallController extends GetxController {
       refresh();
     });
 
-    if (WebUtils.isPopup) {
-      _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
-        fullscreen.value = v;
-        refresh();
-      });
-    }
+    _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+      fullscreen.value = v;
+      refresh();
+    });
 
     _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
       if (!e) {
@@ -876,7 +874,7 @@ class CallController extends GetxController {
       Rect.fromLTWH(left.value, top.value, width.value, height.value),
     );
 
-    if (WebUtils.isPopup && fullscreen.value) {
+    if (fullscreen.value) {
       PlatformUtils.exitFullscreen();
     }
 
@@ -1042,16 +1040,10 @@ class CallController extends GetxController {
   Future<void> toggleFullscreen() async {
     if (fullscreen.isTrue) {
       fullscreen.value = false;
-
-      if (WebUtils.isPopup) {
-        await PlatformUtils.exitFullscreen();
-      }
+      await PlatformUtils.exitFullscreen();
     } else {
       fullscreen.value = true;
-
-      if (WebUtils.isPopup) {
-        await PlatformUtils.enterFullscreen();
-      }
+      await PlatformUtils.enterFullscreen();
     }
 
     updateSecondaryAttach();
