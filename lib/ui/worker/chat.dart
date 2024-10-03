@@ -61,7 +61,7 @@ class ChatWorker extends DisposableService {
   static const Duration newMessageThreshold = Duration(seconds: 30);
 
   /// Subscription to the [ChatService.chats] map.
-  late final StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
@@ -124,7 +124,7 @@ class ChatWorker extends DisposableService {
 
   @override
   void onClose() {
-    _subscription.cancel();
+    _subscription?.cancel();
     _onFocusChanged?.cancel();
     _chats.forEach((_, value) => value.dispose());
     super.onClose();

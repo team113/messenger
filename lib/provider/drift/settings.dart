@@ -125,25 +125,25 @@ class SettingsDriftProvider extends DriftProviderBase {
   /// Returns the [Stream] of real-time changes happening with the [DtoSettings]
   /// identified by the provided [id].
   Stream<DtoSettings?> watch(UserId id) {
-    if (db == null) {
-      return const Stream.empty();
-    }
+    return stream((db) {
+      final stmt = db.select(db.settings)
+        ..where((u) => u.userId.equals(id.val));
 
-    final stmt = db!.select(db!.settings)
-      ..where((u) => u.userId.equals(id.val));
+      StreamController<DtoSettings?>? controller = _controllers[id];
+      if (controller == null) {
+        controller = StreamController<DtoSettings?>.broadcast(sync: true);
+        _controllers[id] = controller;
+      }
 
-    StreamController<DtoSettings?>? controller = _controllers[id];
-    if (controller == null) {
-      controller = StreamController<DtoSettings?>.broadcast(sync: true);
-      _controllers[id] = controller;
-    }
-
-    return StreamGroup.merge(
-      [
-        controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : _SettingsDb.fromDb(e.first)),
-      ],
-    );
+      return StreamGroup.merge(
+        [
+          controller.stream,
+          stmt
+              .watch()
+              .map((e) => e.isEmpty ? null : _SettingsDb.fromDb(e.first)),
+        ],
+      );
+    });
   }
 }
 

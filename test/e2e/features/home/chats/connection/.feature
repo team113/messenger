@@ -15,19 +15,14 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat muting and unmuting
+Feature: Connection status
 
-  Background: User is in group chat with Bob
+  Scenario: Connection status is properly displayed
     Given I am Alice
-    And user Bob
-    And I have "Alice and Bob" group with Bob
-    And I wait until text "Alice and Bob" is present
+    And I wait for app to settle
 
-  Scenario: User mutes and unmutes chat
-    When I long press "Alice and Bob" chat
-    And I tap `MuteChatButton` button
-    Then I see "Alice and Bob" chat as muted
+    When I do not have Internet
+    Then I wait until `NotConnected` is present
 
-    When I long press "Alice and Bob" chat
-    And I tap `UnmuteChatButton` button
-    Then I see "Alice and Bob" chat as unmuted
+    When I have Internet without delay
+    Then I wait until `Connected` is present

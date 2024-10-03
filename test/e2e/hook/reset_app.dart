@@ -39,20 +39,13 @@ class ResetAppHook extends Hook {
     String scenario,
     Iterable<Tag> tags,
   ) async {
+    // Ensure any ongoing `drift` connections are indeed closed and cleared.
+    await Future.delayed(const Duration(seconds: 1));
+
     FocusManager.instance.primaryFocus?.unfocus();
 
     final drift = Get.findOrNull<CommonDriftProvider>();
     await drift?.reset();
-
-    if (drift == null) {
-      final database = Get.put(
-        CommonDriftProvider.from(
-          Get.putOrGet(() => CommonDatabase(), permanent: true),
-        ),
-      );
-
-      await database.reset();
-    }
 
     await Get.deleteAll();
 

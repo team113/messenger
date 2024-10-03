@@ -76,6 +76,9 @@ part 'drift.g.dart';
 class CommonDatabase extends _$CommonDatabase {
   CommonDatabase([QueryExecutor? e]) : super(e ?? connect());
 
+  /// Indicator whether this database has been already closed.
+  bool _closed = false;
+
   @override
   int get schemaVersion => Config.commonVersion;
 
@@ -84,6 +87,10 @@ class CommonDatabase extends _$CommonDatabase {
     return MigrationStrategy(
       onUpgrade: (m, a, b) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -111,11 +118,19 @@ class CommonDatabase extends _$CommonDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON;');
+        if (_closed) {
+          return;
+        }
 
-        // Note, that WAL doesn't work in Web:
-        // https://github.com/simolus3/sqlite3.dart/issues/200
-        await customStatement('PRAGMA journal_mode = WAL;');
+        try {
+          await customStatement('PRAGMA foreign_keys = ON;');
+
+          // Note, that WAL doesn't work in Web:
+          // https://github.com/simolus3/sqlite3.dart/issues/200
+          await customStatement('PRAGMA journal_mode = WAL;');
+        } catch (e) {
+          Log.error('Custom SQL statement has failed: $e', '$runtimeType');
+        }
       },
     );
   }
@@ -218,6 +233,9 @@ class ScopedDatabase extends _$ScopedDatabase {
   /// [UserId] this [ScopedDatabase] is linked to.
   final UserId userId;
 
+  /// Indicator whether this database has been already closed.
+  bool _closed = false;
+
   @override
   int get schemaVersion => Config.scopedVersion;
 
@@ -226,6 +244,10 @@ class ScopedDatabase extends _$ScopedDatabase {
     return MigrationStrategy(
       onUpgrade: (m, b, a) async {
         Log.info('MigrationStrategy.onUpgrade($a, $b)', '$runtimeType');
+
+        if (_closed) {
+          return;
+        }
 
         // TODO: Implement proper migrations.
         if (a != b) {
@@ -239,11 +261,19 @@ class ScopedDatabase extends _$ScopedDatabase {
       beforeOpen: (_) async {
         Log.debug('MigrationStrategy.beforeOpen()', '$runtimeType');
 
-        await customStatement('PRAGMA foreign_keys = ON;');
+        if (_closed) {
+          return;
+        }
 
-        // Note, that WAL doesn't work in Web:
-        // https://github.com/simolus3/sqlite3.dart/issues/200
-        await customStatement('PRAGMA journal_mode = WAL;');
+        try {
+          await customStatement('PRAGMA foreign_keys = ON;');
+
+          // Note, that WAL doesn't work in Web:
+          // https://github.com/simolus3/sqlite3.dart/issues/200
+          await customStatement('PRAGMA journal_mode = WAL;');
+        } catch (e) {
+          Log.error('Custom SQL statement has failed: $e', '$runtimeType');
+        }
       },
     );
   }
@@ -288,6 +318,15 @@ final class CommonDriftProvider extends DisposableInterface {
   /// `null` here means the database is closed.
   CommonDatabase? db;
 
+  /// [Completer]s of [wrapped] operations to await in [onClose].
+  final List<Completer> _completers = [];
+
+  /// [StreamController]s of [stream]s to cancel in [onClose].
+  final List<StreamController> _controllers = [];
+
+  /// [StreamSubscription]s to executors of [stream]s to cancel in [onClose].
+  final List<StreamSubscription> _subscriptions = [];
+
   @override
   void onInit() async {
     super.onInit();
@@ -298,24 +337,105 @@ final class CommonDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
-    super.onClose();
-
     Log.debug('onClose()', '$runtimeType');
-    db = null;
+
+    close();
+
+    super.onClose();
   }
 
   /// Closes this [CommonDriftProvider].
   @visibleForTesting
   Future<void> close() async {
-    final Future<void>? future = db?.close();
-    db = null;
-    await future;
+    db?._closed = true;
+    await _completeAllOperations((db) async => await db?.close());
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
-    final Future<void>? future = db?.reset();
+    await _completeAllOperations((db) async {
+      await db?.reset();
+      this.db = db;
+    });
+  }
+
+  /// Completes the provided [action] in a wrapped safe environment.
+  Future<T?> wrapped<T>(Future<T?> Function(CommonDatabase) action) async {
+    if (isClosed || db == null) {
+      return null;
+    }
+
+    final Completer completer = Completer();
+    _completers.add(completer);
+
+    try {
+      return await action(db!);
+    } finally {
+      completer.complete();
+      _completers.remove(completer);
+    }
+  }
+
+  /// Returns the [Stream] executed in a wrapped safe environment.
+  Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
+    if (isClosed || db == null) {
+      return const Stream.empty();
+    }
+
+    StreamSubscription? subscription;
+    StreamController<T>? controller;
+
+    controller = StreamController(
+      onListen: () {
+        if (isClosed || db == null) {
+          return;
+        }
+
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+        }
+
+        subscription = executor(db!).listen(
+          controller?.add,
+          onError: controller?.addError,
+          onDone: () => controller?.close(),
+        );
+
+        _subscriptions.add(subscription!);
+      },
+      onCancel: () {
+        if (subscription != null) {
+          subscription?.cancel();
+          _subscriptions.remove(subscription);
+          _controllers.remove(controller);
+        }
+      },
+    );
+    _controllers.add(controller);
+
+    return controller.stream;
+  }
+
+  /// Closes all the [_subscriptions] and awaits all [_completers].
+  Future<void> _completeAllOperations(
+    Future<void> Function(CommonDatabase?) process,
+  ) async {
+    final Future<void> future = process(db);
     db = null;
+
+    // Close all the active streams.
+    for (var e in _controllers.toList()) {
+      await e.close();
+    }
+
+    for (var e in _subscriptions.toList()) {
+      await e.cancel();
+    }
+
+    // Wait for all operations to complete, disallowing new ones.
+    await Future.wait(_completers.map((e) => e.future));
+
     await future;
   }
 }
@@ -353,40 +473,26 @@ final class ScopedDriftProvider extends DisposableInterface {
 
   @override
   void onClose() {
-    super.onClose();
-
     Log.debug('onClose()', '$runtimeType');
 
-    final ScopedDatabase? connection = db;
-    db = null;
+    close();
 
-    // Close all the active streams.
-    for (var e in _subscriptions) {
-      e.cancel();
-    }
-    for (var e in _controllers) {
-      e.close();
-    }
-
-    // Wait for all operations to complete, disallowing new ones.
-    Future.wait(_completers.map((e) => e.future)).then((_) async {
-      await connection?.close();
-    });
+    super.onClose();
   }
 
   /// Closes this [ScopedDriftProvider].
   @visibleForTesting
   Future<void> close() async {
-    final Future<void>? future = db?.close();
-    db = null;
-    await future;
+    db?._closed = true;
+    await _completeAllOperations((db) async => await db?.close());
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
-    final Future<void>? future = db?.reset();
-    db = null;
-    await future;
+    await _completeAllOperations((db) async {
+      await db?.reset();
+      this.db = db;
+    });
   }
 
   /// Completes the provided [action] in a wrapped safe environment.
@@ -429,7 +535,10 @@ final class ScopedDriftProvider extends DisposableInterface {
         subscription = executor(db!).listen(
           controller?.add,
           onError: controller?.addError,
-          onDone: () => controller?.close(),
+          onDone: () {
+            controller?.close();
+            subscription?.cancel();
+          },
         );
 
         _subscriptions.add(subscription!);
@@ -438,12 +547,36 @@ final class ScopedDriftProvider extends DisposableInterface {
         if (subscription != null) {
           subscription?.cancel();
           _subscriptions.remove(subscription);
+          _controllers.remove(controller);
         }
       },
     );
+
     _controllers.add(controller);
 
     return controller.stream;
+  }
+
+  /// Closes all the [_subscriptions] and awaits all [_completers].
+  Future<void> _completeAllOperations(
+    Future<void> Function(ScopedDatabase?) process,
+  ) async {
+    final Future<void> future = process(db);
+    db = null;
+
+    // Close all the active streams.
+    for (var e in _controllers.toList()) {
+      await e.close();
+    }
+
+    for (var e in _subscriptions.toList()) {
+      await e.cancel();
+    }
+
+    // Wait for all operations to complete, disallowing new ones.
+    await Future.wait(_completers.map((e) => e.future));
+
+    await future;
   }
 }
 
@@ -465,7 +598,11 @@ abstract class DriftProviderBase extends DisposableInterface {
       return;
     }
 
-    await db?.transaction(action);
+    try {
+      await db?.transaction(action);
+    } on CouldNotRollBackException {
+      // No-op.
+    }
   }
 
   /// Runs the [callback] through a non-closed [CommonDatabase], or returns
@@ -480,7 +617,14 @@ abstract class DriftProviderBase extends DisposableInterface {
       return null;
     }
 
-    return await callback(db!);
+    return await _provider.wrapped(callback);
+  }
+
+  /// Listens to the [executor] through a non-closed [CommonDatabase].
+  ///
+  /// [CommonDatabase] may be closed, for example, between E2E tests.
+  Stream<T> stream<T>(Stream<T> Function(CommonDatabase db) executor) {
+    return _provider.stream(executor);
   }
 }
 
@@ -505,17 +649,21 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       await _scoped.wrapped((db) async {
         return await WebUtils.protect(
           tag: '${_scoped.db?.userId}',
-          () async => await db.transaction(action),
+          () async {
+            if (isClosed || _scoped.isClosed) {
+              return null;
+            }
+
+            try {
+              return await db.transaction(action);
+            } on CouldNotRollBackException {
+              // No-op.
+            }
+          },
         );
       });
-    } on CouldNotRollBackException catch (e) {
-      if (e.exception
-          .toString()
-          .contains('This database has already been closed')) {
-        // No-op.
-      } else {
-        rethrow;
-      }
+    } on CouldNotRollBackException {
+      // No-op.
     }
   }
 

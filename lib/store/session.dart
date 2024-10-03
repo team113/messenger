@@ -18,6 +18,8 @@
 import 'dart:async';
 
 import 'package:async/async.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
@@ -58,6 +60,9 @@ class SessionRepository extends DisposableInterface
   @override
   final RxList<RxSessionImpl> sessions = RxList();
 
+  @override
+  final RxBool connected = RxBool(true);
+
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
@@ -85,6 +90,13 @@ class SessionRepository extends DisposableInterface
   /// May be uninitialized since connection establishment may fail.
   StreamQueue<SessionEventsVersioned>? _remoteSubscription;
 
+  /// [GraphQlProvider.connected] subscription determining the [_hasGraphQl].
+  StreamSubscription? _graphQlSubscription;
+
+  /// [Connectivity.onConnectivityChanged] subscription for listening to
+  /// [connected] changes.
+  StreamSubscription? _connectivitySubscription;
+
   /// [IpAddress] of this device.
   IpAddress? _ip;
 
@@ -94,12 +106,21 @@ class SessionRepository extends DisposableInterface
   /// Language to receive [IpGeoLocation]s on.
   String? _language;
 
+  /// Indicator whether the [Connectivity] package reported that this device has
+  /// an active network connection.
+  bool _hasNetwork = true;
+
+  /// Indicator whether the [GraphQlProvider] reported that the GraphQL server
+  /// isn't down.
+  bool _hasGraphQl = true;
+
   @override
   void onInit() {
     Log.debug('onInit()', '$runtimeType');
 
     _initLocalSubscription();
     _initRemoteSubscription();
+    _initConnectivity();
 
     super.onInit();
   }
@@ -110,6 +131,8 @@ class SessionRepository extends DisposableInterface
 
     _localSubscription?.cancel();
     _remoteSubscription?.close(immediate: true);
+    _connectivitySubscription?.cancel();
+    _graphQlSubscription?.cancel();
 
     super.onClose();
   }
@@ -378,6 +401,33 @@ class SessionRepository extends DisposableInterface
       return EventSessionRefreshed(e.id, e.at, node.userAgent, node.ip);
     } else {
       throw UnimplementedError('Unknown SessionEvent: ${e.$$typename}');
+    }
+  }
+
+  /// Initializes the [Connectivity] changing the [connected] status.
+  Future<void> _initConnectivity() async {
+    _hasGraphQl = _graphQlProvider.connected.value;
+    _graphQlSubscription = _graphQlProvider.connected.listen((hasGraphQl) {
+      _hasGraphQl = hasGraphQl;
+      connected.value = _hasNetwork && _hasGraphQl;
+    });
+
+    void apply(List<ConnectivityResult> result) {
+      _hasNetwork = result.contains(ConnectivityResult.wifi) ||
+          result.contains(ConnectivityResult.ethernet) ||
+          result.contains(ConnectivityResult.mobile) ||
+          result.contains(ConnectivityResult.vpn) ||
+          result.contains(ConnectivityResult.other);
+
+      connected.value = _hasNetwork && _hasGraphQl;
+    }
+
+    try {
+      apply(await Connectivity().checkConnectivity());
+      _connectivitySubscription =
+          Connectivity().onConnectivityChanged.listen(apply);
+    } on MissingPluginException {
+      // No-op.
     }
   }
 }

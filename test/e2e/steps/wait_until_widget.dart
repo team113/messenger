@@ -33,8 +33,6 @@ final StepDefinitionGeneric waitUntilKeyExists =
   (key, existence, context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
-
         return existence == Existence.absent
             ? context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage(key.name),

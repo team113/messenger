@@ -41,17 +41,21 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   @override
   Stream<QueryResult> incomingCallsTopEvents(int count) {
     Future.delayed(
-        Duration.zero,
-        () => ongoingCallStream.add(QueryResult.internal(
-              source: QueryResultSource.network,
-              data: {
-                'incomingChatCallsTopEvents': {
-                  '__typename': 'SubscriptionInitialized',
-                  'ok': true,
-                }
-              },
-              parserFn: (_) => null,
-            )));
+      Duration.zero,
+      () => ongoingCallStream.add(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'incomingChatCallsTopEvents': {
+              '__typename': 'SubscriptionInitialized',
+              'ok': true,
+            }
+          },
+          parserFn: (_) => null,
+        ),
+      ),
+    );
+
     return ongoingCallStream.stream;
   }
 

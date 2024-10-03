@@ -19,6 +19,7 @@ import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/wasm.dart';
 import 'package:log_me/log_me.dart';
+import 'package:sqlite3/wasm.dart';
 
 import '/domain/model/user.dart';
 import '/util/web/web.dart';
@@ -103,7 +104,9 @@ QueryExecutor connect([UserId? userId]) {
 
 /// Obtains an in-memory database connection for running `drift`.
 QueryExecutor inMemory() {
-  throw UnsupportedError(
-    'In-memory database isn\'t supported on this platform.',
-  );
+  return LazyDatabase(() async {
+    final sqlite3 = await WasmSqlite3.loadFromUrl(Uri.parse('/sqlite3.wasm'));
+    sqlite3.registerVirtualFileSystem(InMemoryFileSystem(), makeDefault: true);
+    return WasmDatabase.inMemory(sqlite3);
+  });
 }

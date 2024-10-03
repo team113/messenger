@@ -78,6 +78,8 @@ class AuthController extends GetxController {
     _accountsSubscription = profiles.listen((accounts) {
       if (accounts.isEmpty) {
         screen.value = AuthScreen.signIn;
+      } else {
+        screen.value = AuthScreen.accounts;
       }
     });
 

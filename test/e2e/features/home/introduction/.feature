@@ -20,4 +20,5 @@ Feature: Introduction
   Scenario: Introduction is displayed
     When I tap `StartButton` button
     Then I wait until `IntroductionView` is present
+    And I pause for 2 seconds
 

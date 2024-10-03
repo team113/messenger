@@ -17,6 +17,8 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Swipe to reply trackpad gesture. ([#1112], [#296])
         - Messages searching. ([#1116], [#692])
+    - Chats tab:
+        - Device being offline label. ([#1121], [#547])
 
 ### Changed
 
@@ -35,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
 [#296]: /../../issues/296
+[#547]: /../../issues/547
 [#568]: /../../issues/568
 [#603]: /../../issues/603
 [#692]: /../../issues/692
@@ -44,6 +47,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1116]: /../../pull/1116
 [#1117]: /../../pull/1117
 [#1120]: /../../pull/1120
+[#1121]: /../../pull/1121
 [#1123]: /../../pull/1123
 
 

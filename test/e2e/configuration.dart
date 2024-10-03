@@ -358,7 +358,6 @@ Future<void> appInitializationFn(World world) {
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 
-  final Function(FlutterErrorDetails)? presentError = FlutterError.onError;
   FlutterError.onError = (details) {
     final String exception = details.exception.toString();
 
@@ -369,7 +368,7 @@ Future<void> appInitializationFn(World world) {
       return;
     }
 
-    presentError?.call(details);
+    FlutterError.presentError(details);
   };
 
   return Future.sync(app.main);

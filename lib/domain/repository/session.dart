@@ -24,6 +24,9 @@ abstract class AbstractSessionRepository {
   /// Returns the reactive list of active [Session]s.
   RxList<RxSession> get sessions;
 
+  /// Indicates whether the current device is connected to any network.
+  RxBool get connected;
+
   /// Fetches the [IpGeoLocation] of the provided [ip].
   ///
   /// Uses the current [IpAddress], if [ip] is not provided.

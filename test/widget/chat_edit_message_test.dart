@@ -105,9 +105,11 @@ void main() async {
     any,
   )).thenAnswer((_) => chatEvents.stream);
 
-  when(graphQlProvider
-          .keepTyping(const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.keepTyping(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
   when(
     graphQlProvider.getChat(
@@ -115,10 +117,12 @@ void main() async {
     ),
   ).thenAnswer((_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.readChat(
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2')))
-      .thenAnswer((_) => Future.value(null));
+  when(
+    graphQlProvider.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
+    ),
+  ).thenAnswer((_) => Future.value(null));
 
   when(graphQlProvider.chatItems(
     const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -302,13 +306,14 @@ void main() async {
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
-        theme: Themes.light(),
-        home: Builder(
-          builder: (BuildContext context) {
-            router.context = context;
-            return Scaffold(body: child);
-          },
-        ));
+      theme: Themes.light(),
+      home: Builder(
+        builder: (BuildContext context) {
+          router.context = context;
+          return Scaffold(body: child);
+        },
+      ),
+    );
   }
 
   testWidgets('ChatView successfully edits a ChatMessage',

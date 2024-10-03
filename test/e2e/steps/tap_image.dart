@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart' hide Attachment;
 import 'package:messenger/domain/model/attachment.dart';
@@ -40,12 +41,23 @@ final StepDefinitionGeneric tapLastImageInChat = then<CustomWorld>(
 
         final RxChat? chat =
             Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        final ChatMessage message = chat!.messages
+        final ChatMessage? message = chat?.messages
             .map((e) => e.value)
             .whereType<ChatMessage>()
-            .lastWhere((e) => e.attachments.any((a) => a is ImageAttachment));
-        final Attachment attachment =
-            message.attachments.lastWhere((e) => e is ImageAttachment);
+            .lastWhereOrNull(
+              (e) => e.attachments.any((a) => a is ImageAttachment),
+            );
+
+        if (message == null) {
+          return false;
+        }
+
+        final Attachment? attachment =
+            message.attachments.lastWhereOrNull((e) => e is ImageAttachment);
+
+        if (attachment == null) {
+          return false;
+        }
 
         final finder = context.world.appDriver.findByDescendant(
           context.world.appDriver

@@ -49,3 +49,4 @@ Feature: Logout confirmation
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present
+    And I pause for 2 seconds
