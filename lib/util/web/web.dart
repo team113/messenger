@@ -541,7 +541,7 @@ class WebUtils {
     if (data != null) {
       final at = web.window.localStorage['at_call_$chatId'];
       final updatedAt = at == null ? DateTime.now() : DateTime.parse(at);
-      if (DateTime.now().difference(updatedAt).inSeconds <= 2) {
+      if (DateTime.now().difference(updatedAt).inSeconds <= 1) {
         return WebStoredCall.fromJson(json.decode(data));
       }
     }
