@@ -128,21 +128,26 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                 opacity: _opacity,
                 duration: const Duration(milliseconds: 120),
                 onEnd: _onEnd,
-                child: Container(
-                  padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    color: style.cardColor.darken(0.03),
-                    border: style.cardHoveredBorder,
-                    boxShadow: [
-                      BoxShadow(
-                        color: style.colors.onBackgroundOpacity20,
-                        blurRadius: 8,
-                        blurStyle: BlurStyle.outer.workaround,
-                      ),
-                    ],
+                child: MouseRegion(
+                  cursor: widget.onPressed == null
+                      ? MouseCursor.defer
+                      : SystemMouseCursors.click,
+                  child: Container(
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      color: style.cardColor.darken(0.03),
+                      border: style.cardHoveredBorder,
+                      boxShadow: [
+                        BoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer.workaround,
+                        ),
+                      ],
+                    ),
+                    child: widget.child,
                   ),
-                  child: widget.child,
                 ),
               ),
             ),
