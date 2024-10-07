@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the MenuButton.tab constructor from Class MenuButton from the menu_button library, for the Dart programming language.">
+  <title>MenuButton.tab constructor - MenuButton - menu_button library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_menu_button/ui_widget_menu_button-library.html">ui&#47;widget&#47;menu_button.dart</a></li>
+    <li><a href="../../ui_widget_menu_button/MenuButton-class.html">MenuButton</a></li>
+    <li class="self-crumb">MenuButton.tab constructor</li>
+  </ol>
+  <div class="self-name">MenuButton.tab</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="ui_widget_menu_button&#47;MenuButton-class-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-constructor">MenuButton.tab</span> constructor 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+      <span class="name ">MenuButton.tab</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="tab-param-tab"><span class="type-annotation"><a href="../../routes/ProfileTab.html">ProfileTab</a></span> <span class="parameter-name">tab</span>, {</span></li>
+<li><span class="parameter" id="tab-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/foundation/Key-class.html">Key</a>?</span> <span class="parameter-name">key</span>, </span></li>
+<li><span class="parameter" id="tab-param-inverted"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">inverted</span> = <span class="default-value">false</span>, </span></li>
+<li><span class="parameter" id="tab-param-onPressed"><span class="type-annotation">void</span> <span class="parameter-name">onPressed</span>()?, </span></li>
+</ol>})
+    </section>
+    
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">MenuButton.tab(
+  ProfileTab tab, {
+  Key? key,
+  this.inverted = false,
+  this.onPressed,
+})  : icon = null,
+      title = tab.l10n,
+      subtitle = switch (tab) {
+        ProfileTab.public =&gt; &#39;label_public_section_hint&#39;.l10n,
+        ProfileTab.signing =&gt; &#39;label_login_section_hint&#39;.l10n,
+        ProfileTab.link =&gt; &#39;label_your_direct_link&#39;.l10n,
+        ProfileTab.background =&gt; &#39;label_app_background&#39;.l10n,
+        ProfileTab.chats =&gt; &#39;label_chats_section_hint&#39;.l10n,
+        ProfileTab.calls =&gt; &#39;label_calls_displaying&#39;.l10n,
+        ProfileTab.media =&gt; &#39;label_media_section_hint&#39;.l10n,
+        ProfileTab.welcome =&gt; &#39;label_welcome_message_hint&#39;.l10n,
+        ProfileTab.notifications =&gt; &#39;label_sound_and_vibrations&#39;.l10n,
+        ProfileTab.storage =&gt; &#39;label_cache_and_downloads&#39;.l10n,
+        ProfileTab.language =&gt;
+          L10n.chosen.value?.name ?? &#39;label_current_language&#39;.l10n,
+        ProfileTab.blocklist =&gt; &#39;label_your_blocklist&#39;.l10n,
+        ProfileTab.devices =&gt; &#39;label_devices&#39;.l10n,
+        ProfileTab.download =&gt; &#39;label_application&#39;.l10n,
+        ProfileTab.danger =&gt; &#39;label_delete_account&#39;.l10n,
+        ProfileTab.legal =&gt; &#39;btn_terms_and_conditions&#39;.l10n,
+        ProfileTab.support =&gt; null,
+        ProfileTab.logout =&gt; null,
+      },
+      leading = switch (tab) {
+        ProfileTab.public =&gt; const SvgIcon(SvgIcons.menuProfile),
+        ProfileTab.signing =&gt; const SvgIcon(SvgIcons.menuSigning),
+        ProfileTab.link =&gt; const SvgIcon(SvgIcons.menuLink),
+        ProfileTab.background =&gt; const SvgIcon(SvgIcons.menuBackground),
+        ProfileTab.chats =&gt; const SvgIcon(SvgIcons.menuChats),
+        ProfileTab.calls =&gt; const SvgIcon(SvgIcons.menuCalls),
+        ProfileTab.media =&gt; const SvgIcon(SvgIcons.menuMedia),
+        ProfileTab.welcome =&gt; const SvgIcon(SvgIcons.menuWelcome),
+        ProfileTab.notifications =&gt; const SvgIcon(SvgIcons.menuNotifications),
+        ProfileTab.storage =&gt; const SvgIcon(SvgIcons.menuStorage),
+        ProfileTab.language =&gt; const SvgIcon(SvgIcons.menuLanguage),
+        ProfileTab.blocklist =&gt; const SvgIcon(SvgIcons.menuBlocklist),
+        ProfileTab.devices =&gt; const SvgIcon(SvgIcons.menuDevices),
+        ProfileTab.download =&gt; const SvgIcon(SvgIcons.menuDownload),
+        ProfileTab.danger =&gt; const SvgIcon(SvgIcons.menuDanger),
+        ProfileTab.legal =&gt; const SvgIcon(SvgIcons.menuLegal),
+        ProfileTab.support =&gt; const SvgIcon(SvgIcons.menuSupport),
+        ProfileTab.logout =&gt; const SvgIcon(SvgIcons.menuLogout),
+      },
+      super(
+        key: key ??
+            switch (tab) {
+              ProfileTab.public =&gt; const Key(&#39;PublicInformation&#39;),
+              ProfileTab.signing =&gt; const Key(&#39;Signing&#39;),
+              ProfileTab.link =&gt; const Key(&#39;Link&#39;),
+              ProfileTab.background =&gt; const Key(&#39;Background&#39;),
+              ProfileTab.chats =&gt; const Key(&#39;Chats&#39;),
+              ProfileTab.calls =&gt; const Key(&#39;Calls&#39;),
+              ProfileTab.media =&gt; const Key(&#39;Media&#39;),
+              ProfileTab.welcome =&gt; const Key(&#39;WelcomeMessage&#39;),
+              ProfileTab.notifications =&gt; const Key(&#39;Notifications&#39;),
+              ProfileTab.storage =&gt; const Key(&#39;Storage&#39;),
+              ProfileTab.language =&gt; const Key(&#39;Language&#39;),
+              ProfileTab.blocklist =&gt; const Key(&#39;Blocklist&#39;),
+              ProfileTab.devices =&gt; const Key(&#39;Devices&#39;),
+              ProfileTab.download =&gt; const Key(&#39;Download&#39;),
+              ProfileTab.danger =&gt; const Key(&#39;DangerZone&#39;),
+              ProfileTab.legal =&gt; const Key(&#39;Legal&#39;),
+              ProfileTab.support =&gt; const Key(&#39;Support&#39;),
+              ProfileTab.logout =&gt; const Key(&#39;LogoutButton&#39;),
+            },
+      );</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_menu_button/ui_widget_menu_button-library.html">menu_button</a></li>
+    <li><a href="../../ui_widget_menu_button/MenuButton-class.html">MenuButton</a></li>
+    <li class="self-crumb">MenuButton.tab constructor</li>
+</ol>
+
+    <h5>MenuButton class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

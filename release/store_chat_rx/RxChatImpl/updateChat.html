@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the updateChat method from the RxChatImpl class, for the Dart programming language.">
+  <title>updateChat method - RxChatImpl class - chat_rx library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat_rx/store_chat_rx-library.html">store&#47;chat_rx.dart</a></li>
+    <li><a href="../../store_chat_rx/RxChatImpl-class.html">RxChatImpl</a></li>
+    <li class="self-crumb">updateChat method</li>
+  </ol>
+  <div class="self-name">updateChat</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="store_chat_rx&#47;RxChatImpl-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">updateChat</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">updateChat</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="updateChat-param-newChat"><span class="type-annotation"><a href="../../store_model_chat/DtoChat-class.html">DtoChat</a></span> <span class="parameter-name">newChat</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Updates the <a href="../../store_chat_rx/RxChatImpl/chat.html">chat</a> and <a href="../../store_chat_rx/RxChatImpl/chat.html">chat</a>-related resources with the provided
+<code>newChat</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;void&gt; updateChat(DtoChat newChat) async {
+  Log.debug(&#39;updateChat($newChat)&#39;, &#39;$runtimeType($id)&#39;);
+
+  if (chat.value.id != newChat.value.id) {
+    chat.value = newChat.value;
+    ver = newChat.ver;
+
+    _initLocalSubscription();
+
+    if (!_controller.isPaused &amp;&amp; !_controller.isClosed) {
+      _initRemoteSubscription();
+    }
+
+    &#47;&#47; Retrieve all the [DtoChatItem]s to put them in the [newChat].
+    final Iterable&lt;DtoChatItem&gt; saved =
+        _pagination!.items.values.toList(growable: false);
+
+    await clear();
+
+    for (var e in saved.whereType&lt;DtoChatMessage&gt;()) {
+      &#47;&#47; Copy the [DtoChatMessage] to the new [Pagination].
+      final DtoChatMessage copy = e.copyWith()
+        ..value.chatId = newChat.value.id;
+
+      if (copy.value.status.value == SendingStatus.error) {
+        copy.value.status.value = SendingStatus.sending;
+      }
+
+      await put(copy, ignoreBounds: true);
+    }
+
+    await _initMessagesPagination();
+    await _pagination?.around();
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../store_chat_rx/store_chat_rx-library.html">chat_rx</a></li>
+    <li><a href="../../store_chat_rx/RxChatImpl-class.html">RxChatImpl</a></li>
+    <li class="self-crumb">updateChat method</li>
+</ol>
+
+    <h5>RxChatImpl class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

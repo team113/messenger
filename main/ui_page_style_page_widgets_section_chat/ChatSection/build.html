@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the ChatSection class, for the Dart programming language.">
+  <title>build method - ChatSection class - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_chat/ui_page_style_page_widgets_section_chat-library.html">ui&#47;page&#47;style&#47;page&#47;widgets&#47;section&#47;chat.dart</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_chat/ChatSection-class.html">ChatSection</a></li>
+    <li class="self-crumb">build static method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_style_page_widgets_section_chat&#47;ChatSection-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>&gt;</span></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a>s of this <a href="../../ui_page_style_page_widgets_section_chat/ChatSection-class.html">ChatSection</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static List&lt;Widget&gt; build(BuildContext context) {
+  final style = Theme.of(context).style;
+
+  &#47;&#47; Returns a [ChatMessage] built locally with the provided parameters.
+  ChatItem message({
+    bool fromMe = true,
+    SendingStatus status = SendingStatus.sent,
+    String? text = &#39;Lorem ipsum&#39;,
+    List&lt;String&gt; attachments = const [],
+    List&lt;ChatItemQuote&gt; repliesTo = const [],
+  }) {
+    final NativeFile image = NativeFile(
+      name: &#39;Image&#39;,
+      size: 2,
+      bytes: CatImage.bytes,
+      dimensions: CatImage.size,
+    );
+
+    return ChatMessage(
+      ChatItemId.local(),
+      ChatId.local(const UserId(&#39;me&#39;)),
+      User(UserId(fromMe ? &#39;me&#39; : &#39;0&#39;), UserNum(&#39;1234123412341234&#39;)),
+      PreciseDateTime.now(),
+      text: text == null ? null : ChatMessageText(text),
+      attachments: attachments.map((e) {
+        if (e == &#39;file&#39;) {
+          return FileAttachment(
+            id: AttachmentId.local(),
+            original: PlainFile(relativeRef: &#39;&#39;, size: 12300000),
+            filename: &#39;Document.pdf&#39;,
+          );
+        } else {
+          return LocalAttachment(image, status: SendingStatus.sent);
+        }
+      }).toList(),
+      status: status,
+      repliesTo: repliesTo,
+    );
+  }
+
+  &#47;&#47; Returns a [ChatInfo] built locally with the provided parameters.
+  ChatItem info(
+    ChatInfoAction action, {
+    bool fromMe = true,
+  }) {
+    return ChatInfo(
+      ChatItemId.local(),
+      ChatId.local(const UserId(&#39;me&#39;)),
+      User(UserId(fromMe ? &#39;me&#39; : &#39;0&#39;), UserNum(&#39;1234123412341234&#39;)),
+      PreciseDateTime.now(),
+      action: action,
+    );
+  }
+
+  &#47;&#47; Returns a [ChatCall] built locally with the provided parameters.
+  ChatItem call({
+    bool fromMe = true,
+    bool withVideo = false,
+    bool started = false,
+    int? finishReasonIndex,
+  }) {
+    return ChatCall(
+      const ChatItemId(&#39;dwd&#39;),
+      ChatId.local(const UserId(&#39;me&#39;)),
+      User(UserId(fromMe ? &#39;me&#39; : &#39;0&#39;), UserNum(&#39;1234123412341234&#39;)),
+      PreciseDateTime.now(),
+      withVideo: withVideo,
+      members: [],
+      conversationStartedAt: started
+          ? PreciseDateTime.now().subtract(const Duration(hours: 1))
+          : null,
+      finishReasonIndex: finishReasonIndex,
+      finishedAt: finishReasonIndex == null ? null : PreciseDateTime.now(),
+    );
+  }
+
+  &#47;&#47; Returns a [ChatItemWidget] with the provided [ChatItem].
+  Widget chatItem(
+    ChatItem v, {
+    bool delivered = false,
+    bool read = false,
+    ChatKind kind = ChatKind.dialog,
+  }) {
+    return ChatItemWidget(
+      item: Rx(v),
+      chat: Rx(
+        Chat(
+          ChatId.local(const UserId(&#39;me&#39;)),
+          kindIndex: kind.index,
+          lastDelivery: delivered
+              ? null
+              : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+          lastReads: [
+            if (read)
+              LastChatRead(
+                const UserId(&#39;fqw&#39;),
+                PreciseDateTime(DateTime(15000)),
+              ),
+          ],
+        ),
+      ),
+      me: const UserId(&#39;me&#39;),
+      reads: [
+        if (read)
+          LastChatRead(
+            const UserId(&#39;fqw&#39;),
+            PreciseDateTime(DateTime(15000)),
+          ),
+      ],
+    );
+  }
+
+  &#47;&#47;&#47; Returns a [ChatForwardWidget] with the provided [ChatItem]s as forwards.
+  Widget chatForward(
+    List&lt;ChatItem&gt; v, {
+    ChatItem? note,
+    bool delivered = false,
+    bool read = false,
+    bool fromMe = true,
+    ChatKind kind = ChatKind.dialog,
+  }) {
+    return ChatForwardWidget(
+      forwards: RxList(
+        v
+            .map(
+              (e) =&gt; Rx(
+                ChatForward(
+                  e.id,
+                  e.chatId,
+                  e.author,
+                  e.at,
+                  quote: ChatItemQuote.from(e),
+                ),
+              ),
+            )
+            .toList(),
+      ),
+      authorId: fromMe ? const UserId(&#39;me&#39;) : const UserId(&#39;0&#39;),
+      note: Rx(note == null ? null : Rx(note)),
+      chat: Rx(
+        Chat(
+          ChatId.local(const UserId(&#39;me&#39;)),
+          kindIndex: kind.index,
+          lastDelivery: delivered
+              ? null
+              : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+          lastReads: [
+            if (read)
+              LastChatRead(
+                const UserId(&#39;fqw&#39;),
+                PreciseDateTime(DateTime(15000)),
+              ),
+          ],
+        ),
+      ),
+      me: const UserId(&#39;me&#39;),
+      reads: [
+        if (read)
+          LastChatRead(
+            const UserId(&#39;fqw&#39;),
+            PreciseDateTime(DateTime(15000)),
+          ),
+      ],
+    );
+  }
+
+  return [
+    Headline(
+      headline: &#39;TimeLabelWidget&#39;,
+      background: style.colors.onBackgroundOpacity7,
+      child: Column(
+        children: [
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(minutes: 10)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 1)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 7)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 64)),
+          ),
+          TimeLabelWidget(
+            DateTime.now().subtract(const Duration(days: 365 * 4)),
+          )
+        ],
+      ),
+    ),
+    Headline(
+      headline: &#39;UnreadLabel&#39;,
+      background: style.colors.onBackgroundOpacity7,
+      child: const Column(
+        children: [UnreadLabel(123)],
+      ),
+    ),
+    Headline(
+      headline: &#39;ChatItemWidget&#39;,
+      padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+      background: style.colors.onBackgroundOpacity7,
+      child: Column(
+        children: [
+          chatItem(
+            message(
+              status: SendingStatus.sending,
+              text: &#39;Sending message...&#39;,
+            ),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.error, text: &#39;Error&#39;),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: &#39;Sent message&#39;),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: &#39;Delivered message&#39;),
+            kind: ChatKind.dialog,
+            delivered: true,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(status: SendingStatus.sent, text: &#39;Read message&#39;),
+            kind: ChatKind.dialog,
+            read: true,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: &#39;Received message&#39;,
+              fromMe: false,
+            ),
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; Replies.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: &#39;Sent reply&#39;,
+              fromMe: true,
+              repliesTo: [
+                ChatMessageQuote(
+                  author: const UserId(&#39;me&#39;),
+                  at: PreciseDateTime.now(),
+                  text: const ChatMessageText(&#39;Replied message&#39;),
+                )
+              ],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: &#39;Received reply&#39;,
+              fromMe: false,
+              repliesTo: [
+                ChatMessageQuote(
+                  author: const UserId(&#39;me&#39;),
+                  at: PreciseDateTime.now(),
+                  text: const ChatMessageText(&#39;Replied message&#39;),
+                )
+              ],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; Image attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: true,
+              attachments: [&#39;image&#39;],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: [&#39;image&#39;],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; File attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: &#39;Message with file attachment&#39;,
+              fromMe: true,
+              attachments: [&#39;file&#39;],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: [&#39;file&#39;],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; Images attachments.
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              fromMe: true,
+              attachments: [
+                &#39;file&#39;,
+                &#39;file&#39;,
+                &#39;image&#39;,
+                &#39;image&#39;,
+                &#39;image&#39;,
+                &#39;image&#39;,
+                &#39;image&#39;
+              ],
+              text: &#39;Message with file and image attachments&#39;,
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            message(
+              status: SendingStatus.sent,
+              text: null,
+              fromMe: false,
+              attachments: [&#39;file&#39;, &#39;file&#39;, &#39;image&#39;, &#39;image&#39;, &#39;image&#39;],
+            ),
+            read: true,
+            kind: ChatKind.dialog,
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; Info.
+          const SizedBox(height: 8),
+          chatItem(info(const ChatInfoActionCreated(null))),
+          const SizedBox(height: 8),
+          chatItem(
+            info(
+              ChatInfoActionMemberAdded(
+                User(
+                  const UserId(&#39;me&#39;),
+                  UserNum(&#39;1234123412341234&#39;),
+                  name: UserName(&#39;added&#39;),
+                ),
+                null,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          chatItem(
+            info(
+              ChatInfoActionMemberAdded(
+                User(
+                  const UserId(&#39;me&#39;),
+                  UserNum(&#39;1234123412341234&#39;),
+                  name: UserName(&#39;User&#39;),
+                ),
+                null,
+              ),
+              fromMe: false,
+            ),
+          ),
+          const SizedBox(height: 8),
+
+          &#47;&#47; Call.
+          chatItem(call(withVideo: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(withVideo: true, fromMe: false), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(started: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(started: true, fromMe: false), read: true),
+          const SizedBox(height: 8),
+          chatItem(call(finishReasonIndex: 2, started: true), read: true),
+          const SizedBox(height: 8),
+          chatItem(
+            call(finishReasonIndex: 2, started: true, fromMe: false),
+            read: true,
+          ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    ),
+    Headline(
+      headline: &#39;ChatForwardWidget&#39;,
+      padding: const EdgeInsets.fromLTRB(32, 8, 32, 0),
+      background: style.colors.onBackgroundOpacity7,
+      child: Column(
+        children: [
+          const SizedBox(height: 32),
+          chatForward(
+            [message(text: &#39;Forwarded message&#39;)],
+            read: true,
+            note: message(text: &#39;Comment&#39;),
+          ),
+          const SizedBox(height: 8),
+          chatForward(
+            [message(text: &#39;Forwarded message&#39;)],
+            read: true,
+            fromMe: false,
+            note: message(text: &#39;Comment&#39;),
+          ),
+          const SizedBox(height: 32),
+        ],
+      ),
+    ),
+  ];
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_chat/ui_page_style_page_widgets_section_chat-library.html">chat</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_chat/ChatSection-class.html">ChatSection</a></li>
+    <li class="self-crumb">build static method</li>
+</ol>
+
+    <h5>ChatSection class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

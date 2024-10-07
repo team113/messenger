@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the paint method from the RenderInnerShadow class, for the Dart programming language.">
+  <title>paint method - RenderInnerShadow class - inner_shadow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_inner_shadow/ui_widget_inner_shadow-library.html">ui&#47;widget&#47;inner_shadow.dart</a></li>
+    <li><a href="../../ui_widget_inner_shadow/RenderInnerShadow-class.html">RenderInnerShadow</a></li>
+    <li class="self-crumb">paint method</li>
+  </ol>
+  <div class="self-name">paint</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_widget_inner_shadow&#47;RenderInnerShadow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">paint</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">paint</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="paint-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/rendering/PaintingContext-class.html">PaintingContext</a></span> <span class="parameter-name">context</span>, </span></li>
+<li><span class="parameter" id="paint-param-offset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a></span> <span class="parameter-name">offset</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Paint this render object into the given context at the given offset.</p>
+<p>Subclasses should override this method to provide a visual appearance
+for themselves. The render object's local coordinate system is
+axis-aligned with the coordinate system of the context's canvas and the
+render object's local origin (i.e, x=0 and y=0) is placed at the given
+offset in the context's canvas.</p>
+<p>Do not call this function directly. If you wish to paint yourself, call
+<a href="https://api.flutter.dev/flutter/rendering/RenderObject/markNeedsPaint.html">markNeedsPaint</a> instead to schedule a call to this function. If you wish
+to paint one of your children, call <a href="https://api.flutter.dev/flutter/rendering/PaintingContext/paintChild.html">PaintingContext.paintChild</a> on the
+given <code>context</code>.</p>
+<p>When painting one of your children (via a paint child function on the
+given context), the current canvas held by the context might change
+because draw operations before and after painting children might need to
+be recorded on separate compositing layers.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void paint(PaintingContext context, Offset offset) {
+  if (child == null) {
+    return;
+  }
+
+  final Rect rectOuter = offset &amp; size;
+
+  final Canvas canvas = context.canvas..saveLayer(rectOuter, Paint());
+  context.paintChild(child!, offset);
+
+  canvas.saveLayer(rectOuter, Paint()..blendMode = BlendMode.srcATop);
+
+  final Paint shadowPaint = Paint()
+    ..colorFilter = ColorFilter.mode(_color, BlendMode.srcOut)
+    ..imageFilter = ImageFilter.blur(sigmaX: _blur, sigmaY: _blur);
+
+  canvas
+    ..saveLayer(rectOuter, shadowPaint)
+    ..translate(_dx, _dy);
+  context.paintChild(child!, offset);
+  context.canvas
+    ..restore()
+    ..restore()
+    ..restore();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_inner_shadow/ui_widget_inner_shadow-library.html">inner_shadow</a></li>
+    <li><a href="../../ui_widget_inner_shadow/RenderInnerShadow-class.html">RenderInnerShadow</a></li>
+    <li class="self-crumb">paint method</li>
+</ol>
+
+    <h5>RenderInnerShadow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

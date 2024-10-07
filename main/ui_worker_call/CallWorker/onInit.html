@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the onInit method from the CallWorker class, for the Dart programming language.">
+  <title>onInit method - CallWorker class - call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_worker_call/ui_worker_call-library.html">ui&#47;worker&#47;call.dart</a></li>
+    <li><a href="../../ui_worker_call/CallWorker-class.html">CallWorker</a></li>
+    <li class="self-crumb">onInit method</li>
+  </ol>
+  <div class="self-name">onInit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_worker_call&#47;CallWorker-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">onInit</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">onInit</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void onInit() {
+  AudioUtils.ensureInitialized();
+  _initWebUtils();
+
+  bool wakelock = _callService.calls.isNotEmpty;
+  if (wakelock &amp;&amp; !PlatformUtils.isLinux) {
+    WakelockPlus.enable().onError((_, __) =&gt; false);
+  }
+
+  if (PlatformUtils.isAndroid &amp;&amp; !PlatformUtils.isWeb) {
+    _lifecycleWorker = ever(router.lifecycle, (e) async {
+      if (e.inForeground) {
+        try {
+          await FlutterCallkitIncoming.endAllCalls();
+        } catch (_) {
+          &#47;&#47; No-op.
+        }
+
+        _callService.calls.forEach((id, call) {
+          if (_answeredCalls.contains(id) &amp;&amp; !call.value.isActive) {
+            _callService.join(id, withVideo: false);
+            _answeredCalls.remove(id);
+          }
+        });
+      }
+    });
+  }
+
+  _subscription = _callService.calls.changes.listen((event) async {
+    if (!wakelock &amp;&amp; _callService.calls.isNotEmpty) {
+      wakelock = true;
+      WakelockPlus.enable().onError((_, __) =&gt; false);
+    } else if (wakelock &amp;&amp; _callService.calls.isEmpty) {
+      wakelock = false;
+      WakelockPlus.disable().onError((_, __) =&gt; false);
+    }
+
+    switch (event.op) {
+      case OperationKind.added:
+        final OngoingCall c = event.value!.value;
+
+        if (c.state.value == OngoingCallState.pending ||
+            c.state.value == OngoingCallState.local) {
+          &#47;&#47; Indicator whether it is us who are calling.
+          final bool outgoing = (_callService.me == c.caller?.id ||
+                  c.state.value == OngoingCallState.local) &amp;&amp;
+              c.conversationStartedAt == null;
+
+          final SharedPreferences prefs =
+              await SharedPreferences.getInstance();
+
+          if (prefs.containsKey(&#39;answeredCall&#39;)) {
+            _answeredCalls.add(ChatId(prefs.getString(&#39;answeredCall&#39;)!));
+            prefs.remove(&#39;answeredCall&#39;);
+          }
+
+          final bool isInForeground = router.lifecycle.value.inForeground;
+          if (isInForeground &amp;&amp; _answeredCalls.contains(c.chatId.value)) {
+            _callService.join(c.chatId.value, withVideo: false);
+            _answeredCalls.remove(c.chatId.value);
+          } else if (outgoing) {
+            play(_outgoing);
+          } else if (!PlatformUtils.isMobile || isInForeground) {
+            play(_incoming, fade: true);
+            Vibration.hasVibrator().then((bool? v) {
+              _vibrationTimer?.cancel();
+
+              if (v == true) {
+                Vibration.vibrate(pattern: [500, 1000])
+                    .onError((_, __) =&gt; false);
+                _vibrationTimer = Timer.periodic(
+                  const Duration(milliseconds: 1500),
+                  (timer) {
+                    Vibration.vibrate(pattern: [500, 1000], repeat: 0)
+                        .onError((_, __) =&gt; false);
+                  },
+                );
+              }
+            }).catchError((_, __) {
+              &#47;&#47; No-op.
+            });
+
+            &#47;&#47; Show a notification of an incoming call.
+            if (!outgoing &amp;&amp; !PlatformUtils.isMobile &amp;&amp; !_focused) {
+              final FutureOr&lt;RxChat?&gt; chat = _chatService.get(c.chatId.value);
+
+              void showIncomingCallNotification(RxChat? chat) {
+                &#47;&#47; Displays a local notification via [NotificationService].
+                void notify() {
+                  if (_myUser.value?.muted == null &amp;&amp;
+                      chat?.chat.value.muted == null) {
+                    final String? title = chat?.title ?? c.caller?.title;
+
+                    _notificationService.show(
+                      title ?? &#39;label_incoming_call&#39;.l10n,
+                      body: title == null ? null : &#39;label_incoming_call&#39;.l10n,
+                      payload: &#39;${Routes.chats}&#47;${c.chatId}&#39;,
+                      icon: chat?.avatar.value?.original,
+                      tag: &#39;${c.chatId}_${c.call.value?.id}&#39;,
+                    );
+                  }
+                }
+
+                &#47;&#47; If FCM wasn&#39;t initialized, show a local notification
+                &#47;&#47; immediately.
+                if (!_notificationService.pushNotifications) {
+                  notify();
+                } else if (PlatformUtils.isWeb &amp;&amp; PlatformUtils.isDesktop) {
+                  &#47;&#47; [NotificationService] will not show the scheduled local
+                  &#47;&#47; notification, if a push with the same tag was already
+                  &#47;&#47; received.
+                  Future.delayed(_pushTimeout, notify);
+                }
+              }
+
+              if (chat is RxChat?) {
+                showIncomingCallNotification(chat);
+              } else {
+                chat.then(showIncomingCallNotification);
+              }
+            }
+          }
+
+          _workers[event.key!] = ever(c.state, (OngoingCallState state) {
+            if (state != OngoingCallState.pending &amp;&amp;
+                state != OngoingCallState.local) {
+              _workers.remove(event.key!)?.dispose();
+              if (_workers.isEmpty) {
+                stop();
+              }
+            }
+          });
+        }
+        break;
+
+      case OperationKind.removed:
+        _answeredCalls.remove(event.key);
+        _workers.remove(event.key)?.dispose();
+        if (_workers.isEmpty) {
+          stop();
+        }
+
+        &#47;&#47; Play an [_endCall] sound, when an [OngoingCall] with [myUser] ends.
+        final OngoingCall? call = event.value?.value;
+        if (call != null) {
+          final bool isActiveOrEnded =
+              call.state.value == OngoingCallState.active ||
+                  call.state.value == OngoingCallState.ended;
+          final bool withMe = call.members.containsKey(call.me.id);
+
+          if (withMe &amp;&amp; isActiveOrEnded &amp;&amp; call.participated) {
+            play(_endCall);
+          }
+        }
+
+        &#47;&#47; Set the default speaker, when all the [OngoingCall]s are ended.
+        if (_callService.calls.isEmpty) {
+          await AudioUtils.setDefaultSpeaker();
+        }
+        break;
+
+      default:
+        break;
+    }
+  });
+
+  super.onInit();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_worker_call/ui_worker_call-library.html">call</a></li>
+    <li><a href="../../ui_worker_call/CallWorker-class.html">CallWorker</a></li>
+    <li class="self-crumb">onInit method</li>
+</ol>
+
+    <h5>CallWorker class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

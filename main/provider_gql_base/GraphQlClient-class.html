@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the GraphQlClient class from the base library, for the Dart programming language.">
+  <title>GraphQlClient class - base library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_gql_base/provider_gql_base-library.html">provider&#47;gql&#47;base.dart</a></li>
+    <li class="self-crumb">GraphQlClient class</li>
+  </ol>
+  <div class="self-name">GraphQlClient</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="provider_gql_base&#47;provider_gql_base-library-sidebar.html"
+    data-below-sidebar="provider_gql_base&#47;GraphQlClient-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">GraphQlClient</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Wrapper around <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/GraphQLClient-class.html">GraphQLClient</a> used to implement middleware capabilities.</p>
+</section>
+
+
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="GraphQlClient" class="callable">
+          <span class="name"><a href="../provider_gql_base/GraphQlClient/GraphQlClient.html">GraphQlClient</a></span><span class="signature">()</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="authExceptionHandler" class="property">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/authExceptionHandler.html">authExceptionHandler</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span> Function<span class="signature">(<span class="parameter" id="param-"><span class="type-annotation"><a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a></span></span>)</span>?</span>
+  
+
+</dt>
+<dd>
+  Callback, called when middleware catches <a href="../provider_gql_exceptions/AuthorizationException-class.html">AuthorizationException</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="client" class="property">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/client.html">client</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/GraphQLClient-class.html">GraphQLClient</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/GraphQLClient-class.html">GraphQLClient</a> with or without <a href="../provider_gql_base/GraphQlClient/token.html">token</a> header authorization.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="connected" class="property">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/connected.html">connected</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether this <a href="../provider_gql_base/GraphQlClient-class.html">GraphQlClient</a> is successfully connected to the
+endpoint.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="guard" class="property">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/guard.html">guard</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/mutex/3.1.0/mutex/Mutex-class.html">Mutex</a></span>
+  
+
+</dt>
+<dd>
+  Mutex guarding the <a href="../provider_gql_base/GraphQlClient/client.html">client</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="token" class="property">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/token.html">token</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_session/AccessTokenSecret-class.html">AccessTokenSecret</a>?</span>
+  
+
+</dt>
+<dd>
+  Authorization bearer token.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addListener" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-handler"><span class="type-annotation">void</span> <span class="parameter-name">handler</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>?</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Registers the provided <code>handler</code> to listen to <a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>s happening with
+the queries.
+  
+
+</dd>
+
+        <dt id="clearCache" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/clearCache.html">clearCache</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Clears the cache attached to the <a href="../provider_gql_base/GraphQlClient/client.html">client</a>.
+  
+
+</dd>
+
+        <dt id="disconnect" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/disconnect.html">disconnect</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Disconnects the <a href="../provider_gql_base/GraphQlClient/client.html">client</a> and disposes the connection.
+  
+
+</dd>
+
+        <dt id="mutate" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/mutate.html">mutate</a></span><span class="signature">(<wbr><span class="parameter" id="mutate-param-options"><span class="type-annotation"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/MutationOptions-class.html">MutationOptions</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">options</span>, {</span><span class="parameter" id="mutate-param-raw"><span class="type-annotation"><a href="../provider_gql_base/RawClientOptions-class.html">RawClientOptions</a>?</span> <span class="parameter-name">raw</span>, </span><span class="parameter" id="mutate-param-onException"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a></span> <span class="parameter-name">onException</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves a single mutation according to the <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/MutationOptions-class.html">MutationOptions</a> specified
+and returns a <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> which resolves with the <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a> or throws an
+<a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="post" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/post.html">post</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="post-param-data"><span class="type-annotation">dynamic</span> <span class="parameter-name">data</span>, {</span><span class="parameter" id="post-param-options"><span class="type-annotation"><a href="https://pub.dev/documentation/dio/5.7.0/dio/Options-class.html">Options</a>?</span> <span class="parameter-name">options</span>, </span><span class="parameter" id="post-param-operationName"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span> <span class="parameter-name">operationName</span>, </span><span class="parameter" id="post-param-onException"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a></span> <span class="parameter-name">onException</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span></span>)?, </span><span class="parameter" id="post-param-onSendProgress"><span class="type-annotation">void</span> <span class="parameter-name">onSendProgress</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>, </span><span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/dio/5.7.0/dio/Response-class.html">Response</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Makes an HTTP POST request with an exposed <code>onSendProgress</code>.
+  
+
+</dd>
+
+        <dt id="query" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/query.html">query</a></span><span class="signature">(<wbr><span class="parameter" id="query-param-options"><span class="type-annotation"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryOptions-class.html">QueryOptions</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">options</span>, [</span><span class="parameter" id="query-param-handleException"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a></span> <span class="parameter-name">handleException</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span></span>)?</span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resolves a single query according to the <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryOptions-class.html">QueryOptions</a> specified and
+returns a <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a> which resolves with the <a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a> or throws an
+<a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>.
+  
+
+</dd>
+
+        <dt id="reconnect" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/reconnect.html">reconnect</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reconnects the <a href="../provider_gql_base/GraphQlClient/client.html">client</a> right away if the <a href="../provider_gql_base/GraphQlClient/token.html">token</a> mismatch is detected.
+  
+
+</dd>
+
+        <dt id="removeListener" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-handler"><span class="type-annotation">void</span> <span class="parameter-name">handler</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>?</span></span>)</span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Unregisters the provided <code>handler</code> from listening to <a href="https://api.flutter.dev/flutter/dart-core/Exception-class.html">Exception</a>s
+happening with the queries.
+  
+
+</dd>
+
+        <dt id="subscribe" class="callable">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/subscribe.html">subscribe</a></span><span class="signature">(<wbr><span class="parameter" id="subscribe-param-options"><span class="type-annotation"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/SubscriptionOptions-class.html">SubscriptionOptions</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span> <span class="parameter-name">options</span>, {</span><span class="parameter" id="subscribe-param-ver"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../store_model_version/Version-class.html">Version</a>?</span>&gt;</span></span> <span class="parameter-name">ver</span>()?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Subscribes to a GraphQL subscription according to the <code>options</code> specified.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../provider_gql_base/GraphQlClient/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="maxReconnectPeriodMillis" class="constant">
+    <span class="name "><a href="../provider_gql_base/GraphQlClient/maxReconnectPeriodMillis-constant.html">maxReconnectPeriodMillis</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Maximum possible period of exponential backoff reconnection.
+  
+
+</dd>
+
+        <dt id="minReconnectPeriodMillis" class="constant">
+    <span class="name "><a href="../provider_gql_base/GraphQlClient/minReconnectPeriodMillis-constant.html">minReconnectPeriodMillis</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Starting period of exponential backoff reconnection.
+  
+
+</dd>
+
+        <dt id="timeout" class="constant">
+    <span class="name "><a href="../provider_gql_base/GraphQlClient/timeout-constant.html">timeout</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a> considered as a network timeout.
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_gql_base/provider_gql_base-library.html">base</a></li>
+    <li class="self-crumb">GraphQlClient class</li>
+</ol>
+
+    <h5>base library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

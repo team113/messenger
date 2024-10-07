@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the desktopCall function from the desktop library, for the Dart programming language.">
+  <title>desktopCall function - desktop library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_desktop/ui_page_call_component_desktop-library.html">ui&#47;page&#47;call&#47;component&#47;desktop.dart</a></li>
+    <li class="self-crumb">desktopCall function</li>
+  </ol>
+  <div class="self-name">desktopCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="ui_page_call_component_desktop&#47;ui_page_call_component_desktop-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">desktopCall</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">desktopCall</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="desktopCall-param-c"><span class="type-annotation"><a href="../ui_page_call_controller/CallController-class.html">CallController</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="desktopCall-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a desktop design of a <a href="../ui_page_call_view/CallView-class.html">CallView</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget desktopCall(CallController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return LayoutBuilder(
+    builder: (context, constraints) {
+      &#47;&#47; Call stackable content.
+      List&lt;Widget&gt; content = [
+        const SvgImage.asset(
+          &#39;assets&#47;images&#47;background_dark.svg&#39;,
+          width: double.infinity,
+          height: double.infinity,
+          fit: BoxFit.cover,
+        ),
+      ];
+
+      &#47;&#47; Secondary view possible alignment.
+      Widget possibleContainer() {
+        return Obx(() {
+          Alignment? alignment = c.possibleSecondaryAlignment.value;
+          if (alignment == null) {
+            return Container();
+          }
+
+          double width = 10;
+          double height = 10;
+
+          if (alignment == Alignment.topCenter ||
+              alignment == Alignment.bottomCenter) {
+            width = double.infinity;
+          } else {
+            height = double.infinity;
+          }
+
+          return Align(
+            alignment: alignment,
+            child: ConditionalBackdropFilter(
+              child: Container(
+                height: height,
+                width: width,
+                color: style.colors.primaryAuxiliaryOpacity25,
+              ),
+            ),
+          );
+        });
+      }
+
+      content.addAll([
+        &#47;&#47; Call&#39;s primary view.
+        Column(
+          children: [
+            Obx(() =&gt; SizedBox(
+                  width: double.infinity,
+                  height: c.secondary.isNotEmpty &amp;&amp;
+                          c.secondaryAlignment.value == Alignment.topCenter
+                      ? c.secondaryHeight.value
+                      : 0,
+                )),
+            Expanded(
+              child: Row(
+                children: [
+                  Obx(() =&gt; SizedBox(
+                        height: double.infinity,
+                        width: c.secondary.isNotEmpty &amp;&amp;
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerLeft
+                            ? c.secondaryWidth.value
+                            : 0,
+                      )),
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Obx(() {
+                          final bool isOutgoing = (c.outgoing ||
+                                  c.state.value == OngoingCallState.local) &amp;&amp;
+                              !c.started;
+
+                          final bool isIncoming =
+                              c.state.value != OngoingCallState.active &amp;&amp;
+                                  c.state.value != OngoingCallState.joining &amp;&amp;
+                                  !isOutgoing;
+
+                          final Widget child;
+
+                          if (!isIncoming) {
+                            child = _primaryView(c);
+                          } else {
+                            if (c.isDialog) {
+                              final RxUser? user = c.chat.value?.members.values
+                                  .firstWhereOrNull(
+                                    (e) =&gt; e.user.id != c.me.id.userId,
+                                  )
+                                  ?.user;
+
+                              child = CallCoverWidget(
+                                c.chat.value?.callCover,
+                                user: user,
+                              );
+                            } else {
+                              if (c.chat.value?.avatar.value != null) {
+                                final Avatar avatar =
+                                    c.chat.value!.avatar.value!;
+                                child = CallCoverWidget(
+                                  UserCallCover(
+                                    full: avatar.full,
+                                    original: avatar.original,
+                                    square: avatar.full,
+                                    vertical: avatar.full,
+                                  ),
+                                );
+                              } else {
+                                child = CallCoverWidget(
+                                  null,
+                                  chat: c.chat.value,
+                                );
+                              }
+                            }
+                          }
+
+                          return SafeAnimatedSwitcher(
+                            duration: 400.milliseconds,
+                            child: child,
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  Obx(() =&gt; SizedBox(
+                        height: double.infinity,
+                        width: c.secondary.isNotEmpty &amp;&amp;
+                                c.secondaryAlignment.value ==
+                                    Alignment.centerRight
+                            ? c.secondaryWidth.value
+                            : 0,
+                      )),
+                ],
+              ),
+            ),
+            Obx(() =&gt; SizedBox(
+                  width: double.infinity,
+                  height: c.secondary.isNotEmpty &amp;&amp;
+                          c.secondaryAlignment.value == Alignment.bottomCenter
+                      ? c.secondaryHeight.value
+                      : 0,
+                )),
+          ],
+        ),
+
+        &#47;&#47; Reconnection indicator.
+        Obx(() {
+          final Widget child = IgnorePointer(
+            child: Container(
+              width: double.infinity,
+              height: double.infinity,
+              color: style.colors.onBackgroundOpacity70,
+              padding: const EdgeInsets.all(21.0),
+              child: Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    if (!Config.disableInfiniteAnimations)
+                      const DoubleBounceLoadingIndicator(),
+                    const SizedBox(height: 16),
+                    Text(
+                      &#39;label_reconnecting_ellipsis&#39;.l10n,
+                      style: style.fonts.normal.regular.onPrimary,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+
+          return AnimatedOpacity(
+            opacity: c.connectionLost.isTrue ? 1 : 0,
+            duration: 200.milliseconds,
+            child: child,
+          );
+        }),
+
+        possibleContainer(),
+
+        &#47;&#47; Makes UI appear on click.
+        Listener(
+          behavior: HitTestBehavior.translucent,
+          onPointerDown: (d) {
+            c.downPosition = d.localPosition;
+            c.downButtons = d.buttons;
+          },
+          onPointerUp: (d) {
+            if (c.downButtons &amp; kPrimaryButton != 0 &amp;&amp;
+                (d.localPosition.distanceSquared -
+                            c.downPosition.distanceSquared)
+                        .abs() &lt;=
+                    1500) {
+              if (c.primaryDrags.value == 0 &amp;&amp; c.secondaryDrags.value == 0) {
+                if (c.state.value == OngoingCallState.active) {
+                  if (!c.showUi.value) {
+                    c.keepUi();
+                  } else {
+                    c.keepUi(false);
+                  }
+                }
+              }
+            }
+          },
+        ),
+
+        &#47;&#47; Empty drop zone if [secondary] is empty.
+        Obx(() {
+          final Axis secondaryAxis =
+              c.size.width &gt;= c.size.height ? Axis.horizontal : Axis.vertical;
+
+          &#47;&#47;&#47; Pre-calculate the [ReorderableFit]&#39;s size.
+          final double panelSize = max(
+            ReorderableFit.calculateSize(
+              maxSize: c.size.shortestSide &#47; 4,
+              constraints: Size(c.size.width, c.size.height - 45),
+              axis: c.size.width &gt;= c.size.height
+                  ? Axis.horizontal
+                  : Axis.vertical,
+              length: c.secondary.length,
+            ),
+            130,
+          );
+
+          return SafeAnimatedSwitcher(
+            key: const Key(&#39;SecondaryTargetAnimatedSwitcher&#39;),
+            duration: 200.milliseconds,
+            child: c.secondary.isEmpty &amp;&amp; c.doughDraggedRenderer.value != null
+                ? DropBoxArea&lt;_DragData&gt;(
+                    size: panelSize,
+                    axis: secondaryAxis,
+                    visible: c.primaryDrags.value &gt;= 1,
+                    onWillAccept: (d) =&gt; d?.chatId == c.chatId.value,
+                    onAccept: (_DragData d) {
+                      if (secondaryAxis == Axis.horizontal) {
+                        c.secondaryAlignment.value = Alignment.centerRight;
+                      } else {
+                        c.secondaryAlignment.value = Alignment.topCenter;
+                      }
+
+                      c.unfocus(d.participant);
+                    },
+                  )
+                : const SizedBox(),
+          );
+        })
+      ]);
+
+      &#47;&#47; Builds the [Dock] containing the [CallController.buttons].
+      Widget dock() {
+        return Obx(() {
+          final bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp;
+                  !c.started;
+
+          final bool showBottomUi = (c.showUi.isTrue ||
+              c.draggedButton.value != null ||
+              c.state.value != OngoingCallState.active ||
+              (c.state.value == OngoingCallState.active &amp;&amp;
+                  c.locals.isEmpty &amp;&amp;
+                  c.remotes.isEmpty &amp;&amp;
+                  c.focused.isEmpty &amp;&amp;
+                  c.paneled.isEmpty));
+
+          final bool answer = c.state.value != OngoingCallState.joining &amp;&amp;
+              c.state.value != OngoingCallState.active &amp;&amp;
+              !isOutgoing;
+
+          final Widget child;
+
+          if (answer) {
+            child = Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(width: 11),
+                AcceptAudioButton(c, highlight: !c.withVideo)
+                    .build(hinted: false),
+                const SizedBox(width: 24),
+                AcceptVideoButton(c, highlight: c.withVideo)
+                    .build(hinted: false),
+                const SizedBox(width: 24),
+                DeclineButton(c).build(hinted: false),
+                const SizedBox(width: 11),
+              ],
+            );
+          } else {
+            child = Dock&lt;CallButton&gt;(
+              items: c.buttons,
+              itemWidth: CallController.buttonSize,
+              itemBuilder: (e) =&gt; e.build(
+                hinted: c.draggedButton.value == null,
+              ),
+              onReorder: (buttons) {
+                c.buttons.value = buttons;
+                c.relocateSecondary();
+              },
+              onDragStarted: (b) {
+                c.showDragAndDropButtonsHint = false;
+                c.draggedButton.value = b;
+              },
+              onDragEnded: (_) =&gt; c.draggedButton.value = null,
+              onLeave: (_) =&gt; c.displayMore.value = true,
+              onWillAccept: (d) =&gt; d?.c == c,
+            );
+          }
+
+          return DockDecorator(
+            show: showBottomUi,
+            dockKey: c.dockKey,
+            onAnimation: () =&gt;
+                Future.delayed(Duration.zero, c.relocateSecondary),
+            onEnter: (d) =&gt; c.keepUi(true),
+            onHover: (d) =&gt; c.keepUi(true),
+            onExit: c.showUi.value &amp;&amp; !c.displayMore.value
+                ? (d) =&gt; c.keepUi(false)
+                : (d) =&gt; c.keepUi(),
+            child: child,
+          );
+        });
+      }
+
+      &#47;&#47; Builds the [Launchpad] panel containing the [CallController.panel].
+      Widget launchpad() {
+        return Obx(() {
+          bool enabled = c.displayMore.isTrue &amp;&amp;
+              c.primaryDrags.value == 0 &amp;&amp;
+              c.secondaryDrags.value == 0;
+
+          return Flexible(
+            child: AnimatedOpacity(
+              duration: const Duration(milliseconds: 150),
+              opacity: c.displayMore.value ? 1 : 0,
+              child: IgnorePointer(
+                ignoring: !c.displayMore.value,
+                child: Launchpad(
+                  onEnter: enabled ? (d) =&gt; c.keepUi(true) : null,
+                  onHover: enabled ? (d) =&gt; c.keepUi(true) : null,
+                  onExit: enabled ? (d) =&gt; c.keepUi() : null,
+                  onAccept: (CallButton data) {
+                    c.buttons.remove(data);
+                    c.draggedButton.value = null;
+                  },
+                  onWillAccept: (CallButton? a) =&gt;
+                      a?.c == c &amp;&amp; a?.isRemovable == true,
+                  children: c.panel.map((e) {
+                    return DelayedDraggable(
+                      feedback: Transform.translate(
+                        offset: const Offset(
+                          CallController.buttonSize &#47; 2 * -1,
+                          CallController.buttonSize &#47; 2 * -1,
+                        ),
+                        child: e.build(),
+                      ),
+                      data: e,
+                      onDragStarted: () {
+                        c.showDragAndDropButtonsHint = false;
+                        c.draggedButton.value = e;
+                      },
+                      onDragCompleted: () =&gt; c.draggedButton.value = null,
+                      onDragEnd: (_) =&gt; c.draggedButton.value = null,
+                      onDraggableCanceled: (_, __) =&gt;
+                          c.draggedButton.value = null,
+                      maxSimultaneousDrags: e.isRemovable ? null : 0,
+                      dragAnchorStrategy: pointerDragAnchorStrategy,
+                      child: e.build(
+                        hinted: false,
+                        big: true,
+                        expanded: true,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ),
+          );
+        });
+      }
+
+      &#47;&#47; Footer part of the call with buttons.
+      List&lt;Widget&gt; footer = [
+        &#47;&#47; Animated bottom buttons.
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Flexible(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  verticalDirection: VerticalDirection.up,
+                  children: [
+                    dock(),
+                    launchpad(),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        &#47;&#47; Display the more hint, if not dismissed.
+        Obx(() {
+          return SafeAnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: c.showDragAndDropButtonsHint &amp;&amp; c.displayMore.value
+                ? Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedDelayedSwitcher(
+                          delay: const Duration(milliseconds: 500),
+                          duration: const Duration(milliseconds: 200),
+                          child: Align(
+                            alignment: Alignment.topCenter,
+                            child: Container(
+                              width: 290,
+                              padding: EdgeInsets.only(
+                                  top: 10 +
+                                      (WebUtils.isPopup
+                                          ? 0
+                                          : CallController.titleHeight)),
+                              child: HintWidget(
+                                text: &#39;label_hint_drag_n_drop_buttons&#39;.l10n,
+                                onTap: () =&gt;
+                                    c.showDragAndDropButtonsHint = false,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const Flexible(child: SizedBox(height: 420)),
+                      ],
+                    ),
+                  )
+                : Container(),
+          );
+        }),
+      ];
+
+      List&lt;Widget&gt; ui = [
+        Obx(() {
+          bool preferTitle = c.state.value != OngoingCallState.active;
+          return GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onDoubleTap: c.toggleFullscreen,
+            onPanUpdate: preferTitle
+                ? (d) {
+                    c.left.value = c.left.value + d.delta.dx;
+                    c.top.value = c.top.value + d.delta.dy;
+                    c.applyConstraints(context);
+                  }
+                : null,
+          );
+        }),
+
+        &#47;&#47; Sliding from the top title bar.
+        Obx(() {
+          final bool isOutgoing =
+              (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp;
+                  !c.started;
+
+          final bool preferTitle =
+              c.state.value != OngoingCallState.active &amp;&amp; !isOutgoing;
+
+          return SafeAnimatedSwitcher(
+            key: const Key(&#39;AnimatedSwitcherCallTitle&#39;),
+            duration: const Duration(milliseconds: 200),
+            child: preferTitle
+                ? Align(
+                    key: const Key(&#39;CallTitlePadding&#39;),
+                    alignment: Alignment.topCenter,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                        left: 10,
+                        right: 10,
+                        top: c.size.height * 0.05,
+                      ),
+                      child: callTitle(c),
+                    ),
+                  )
+                : Container(key: UniqueKey()),
+          );
+        }),
+
+        &#47;&#47; Bottom [MouseRegion] that toggles UI on hover.
+        Obx(() {
+          final bool enabled =
+              c.primaryDrags.value == 0 &amp;&amp; c.secondaryDrags.value == 0;
+          return Align(
+            alignment: Alignment.bottomCenter,
+            child: SizedBox(
+              height: 100,
+              width: double.infinity,
+              child: MouseRegion(
+                opaque: false,
+                onEnter: enabled ? (d) =&gt; c.keepUi(true) : null,
+                onHover: enabled ? (d) =&gt; c.keepUi(true) : null,
+                onExit: c.showUi.value &amp;&amp; enabled
+                    ? (d) {
+                        if (c.displayMore.isTrue) {
+                          c.keepUi();
+                        } else {
+                          c.keepUi(false);
+                        }
+                      }
+                    : null,
+              ),
+            ),
+          );
+        }),
+
+        &#47;&#47; Secondary panel itself.
+        Obx(() {
+          final bool isIncoming = c.state.value != OngoingCallState.active &amp;&amp;
+              c.state.value != OngoingCallState.joining &amp;&amp;
+              !(c.outgoing || c.state.value == OngoingCallState.local);
+
+          if (isIncoming) {
+            return const SizedBox();
+          }
+
+          return LayoutBuilder(builder: (_, constraints) {
+            &#47;&#47; Scale the secondary panel after this frame is displayed, as
+            &#47;&#47; otherwise it invokes re-drawing twice in a frame, resulting in an
+            &#47;&#47; error.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              c.scaleSecondary(constraints);
+              WidgetsBinding.instance
+                  .addPostFrameCallback((_) =&gt; c.relocateSecondary());
+            });
+
+            return _secondaryView(c, context);
+          });
+        }),
+
+        &#47;&#47; [MouseRegion] changing the cursor.
+        Obx(() {
+          return MouseRegion(
+            opaque: false,
+            cursor: c.draggedRenderer.value != null ||
+                    c.doughDraggedRenderer.value != null
+                ? CustomMouseCursors.grabbing
+                : c.isCursorHidden.value
+                    ? SystemMouseCursors.none
+                    : c.hoveredRenderer.value != null
+                        ? CustomMouseCursors.grab
+                        : c.hoveredParticipant.value != null
+                            ? SystemMouseCursors.basic
+                            : MouseCursor.defer,
+          );
+        }),
+
+        &#47;&#47; Top [MouseRegion] that toggles info header on hover.
+        Align(
+          alignment: Alignment.topCenter,
+          child: SizedBox(
+            height: 100,
+            width: double.infinity,
+            child: MouseRegion(
+              opaque: false,
+              onEnter: (_) {
+                c.showHeader.value = true;
+                c.isCursorHidden.value = false;
+              },
+              onHover: (_) {
+                c.showHeader.value = true;
+                c.isCursorHidden.value = false;
+              },
+              onExit: (_) {
+                c.showHeader.value = false;
+              },
+            ),
+          ),
+        ),
+
+        &#47;&#47; Show a hint if any renderer is draggable.
+        Obx(() {
+          final bool hideSecondary = c.size.width &lt; 500 &amp;&amp; c.size.height &lt; 500;
+          final bool mayDragVideo = !hideSecondary &amp;&amp;
+              (c.focused.length &gt; 1 ||
+                  (c.focused.isEmpty &amp;&amp;
+                      c.primary.length + c.secondary.length &gt; 1));
+
+          return SafeAnimatedSwitcher(
+            duration: 150.milliseconds,
+            child: c.showDragAndDropVideosHint &amp;&amp; mayDragVideo
+                ? Padding(
+                    padding: EdgeInsets.only(
+                      top: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value == Alignment.topCenter
+                          ? 10 + c.secondaryHeight.value
+                          : 10,
+                      right: c.secondary.isNotEmpty &amp;&amp;
+                              c.secondaryAlignment.value ==
+                                  Alignment.centerRight
+                          ? 10 + c.secondaryWidth.value
+                          : 10,
+                    ),
+                    child: Align(
+                      alignment: Alignment.topRight,
+                      child: SizedBox(
+                        width: 320,
+                        child: HintWidget(
+                          text: &#39;label_hint_drag_n_drop_video&#39;.l10n,
+                          onTap: () =&gt; c.showDragAndDropVideosHint = false,
+                        ),
+                      ),
+                    ),
+                  )
+                : const SizedBox(),
+          );
+        }),
+
+        &#47;&#47; Sliding from the top info header.
+        if (WebUtils.isPopup)
+          Obx(() {
+            return Align(
+              alignment: Alignment.topCenter,
+              child: AnimatedSlider(
+                duration: 400.milliseconds,
+                translate: false,
+                beginOffset: const Offset(0, -1),
+                endOffset: const Offset(0, 0),
+                isOpen: c.state.value == OngoingCallState.active &amp;&amp;
+                    c.showHeader.value,
+                child: MouseRegion(
+                  onEnter: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onHover: (_) {
+                    c.showHeader.value = true;
+                    c.headerHovered = true;
+                  },
+                  onExit: (_) {
+                    c.showHeader.value = false;
+                    c.headerHovered = false;
+                  },
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(11),
+                      boxShadow: [
+                        CustomBoxShadow(
+                          color: style.colors.onBackgroundOpacity20,
+                          blurRadius: 8,
+                          blurStyle: BlurStyle.outer,
+                        )
+                      ],
+                    ),
+                    margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                    child: ConditionalBackdropFilter(
+                      borderRadius: BorderRadius.circular(11),
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: style.colors.primaryAuxiliaryOpacity25,
+                          borderRadius: BorderRadius.circular(11),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 8,
+                          horizontal: 10,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (c.fullscreen.value) ...[
+                              Text(
+                                &#39;label_call_title&#39;.l10nfmt(c.titleArguments),
+                                style: style.fonts.small.regular.onPrimary,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              Container(
+                                margin: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+                                color: style.colors.onPrimary,
+                                width: 1,
+                                height: 12,
+                              ),
+                            ],
+                            AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
+                              onPressed: c.layoutAsPrimary,
+                              child: const SvgIcon(SvgIcons.callGallery),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
+                              onPressed: () =&gt;
+                                  c.layoutAsSecondary(floating: true),
+                              child: const SvgIcon(SvgIcons.callFloating),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
+                              onPressed: () =&gt;
+                                  c.layoutAsSecondary(floating: false),
+                              child: const SvgIcon(SvgIcons.callSide),
+                            ),
+                            const SizedBox(width: 16),
+                            AnimatedButton(
+                              enabled: c.draggedRenderer.value == null,
+                              onPressed: c.toggleFullscreen,
+                              child: SvgIcon(
+                                c.fullscreen.value
+                                    ? SvgIcons.fullscreenExitSmall
+                                    : SvgIcons.fullscreenEnterSmall,
+                              ),
+                            ),
+                            if (c.fullscreen.value) const SizedBox(width: 4),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }),
+
+        &#47;&#47; If there&#39;s any notifications to show, display them.
+        Align(
+          alignment: Alignment.topCenter,
+          child: Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Obx(() {
+              if (c.notifications.isEmpty) {
+                return const SizedBox();
+              }
+
+              return Column(
+                mainAxisSize: MainAxisSize.min,
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () =&gt; c.notifications.remove(e),
+                  );
+                }).toList(),
+              );
+            }),
+          ),
+        ),
+
+        Obx(() {
+          if (c.minimized.value &amp;&amp; !c.fullscreen.value) {
+            return Container();
+          }
+
+          return Stack(children: footer);
+        }),
+      ];
+
+      &#47;&#47; Combines all the stackable content into [Scaffold].
+      Widget scaffold = Scaffold(
+        backgroundColor: style.colors.onBackground,
+        body: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!WebUtils.isPopup)
+              GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanUpdate: (d) {
+                  c.left.value = c.left.value + d.delta.dx;
+                  c.top.value = c.top.value + d.delta.dy;
+                  c.applyConstraints(context);
+                },
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.transparent,
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      CustomBoxShadow(
+                        color: style.colors.onBackgroundOpacity20,
+                        blurRadius: 8,
+                        blurStyle: BlurStyle.outer,
+                      )
+                    ],
+                  ),
+                  child: Obx(() {
+                    return TitleBar(
+                      title: &#39;label_call_title&#39;.l10nfmt(c.titleArguments),
+                      chat: c.chat.value,
+                      fullscreen: c.fullscreen.value,
+                      height: CallController.titleHeight,
+                      toggleFullscreen: c.draggedRenderer.value == null
+                          ? c.toggleFullscreen
+                          : null,
+                      onPrimary: c.draggedRenderer.value == null
+                          ? c.layoutAsPrimary
+                          : null,
+                      onFloating: c.draggedRenderer.value == null
+                          ? () =&gt; c.layoutAsSecondary(floating: true)
+                          : null,
+                      onSecondary: c.draggedRenderer.value == null
+                          ? () =&gt; c.layoutAsSecondary(floating: false)
+                          : null,
+                    );
+                  }),
+                ),
+              ),
+            Expanded(child: Stack(children: [...content, ...ui])),
+          ],
+        ),
+      );
+
+      if (c.minimized.value &amp;&amp; !c.fullscreen.value) {
+        &#47;&#47; Applies constraints on every rebuild.
+        &#47;&#47; This includes the screen size changes.
+        c.applyConstraints(context);
+
+        if (c.hidden.value) {
+          return const SizedBox();
+        }
+
+        &#47;&#47; Returns a [Scaler] scaling the minimized view.
+        Widget scaler({
+          Key? key,
+          MouseCursor cursor = MouseCursor.defer,
+          required Function(double, double) onDrag,
+          double? width,
+          double? height,
+        }) {
+          return Obx(() {
+            return MouseRegion(
+              cursor:
+                  c.draggedRenderer.value != null ? MouseCursor.defer : cursor,
+              child: Scaler(
+                key: key,
+                onDragUpdate: onDrag,
+                onDragEnd: (_) =&gt; c.updateSecondaryAttach(),
+                width: width ?? Scaler.size,
+                height: height ?? Scaler.size,
+              ),
+            );
+          });
+        }
+
+        &#47;&#47; Returns a stack of draggable [Scaler]s on each of the sides:
+        &#47;&#47;
+        &#47;&#47; +-------+
+        &#47;&#47; |       |
+        &#47;&#47; |       |
+        &#47;&#47; |       |
+        &#47;&#47; +-------+
+        &#47;&#47;
+        &#47;&#47; 1) + is a cornered scale point;
+        &#47;&#47; 2) | is a horizontal scale point;
+        &#47;&#47; 3) - is a vertical scale point.
+        return Stack(
+          children: [
+            &#47;&#47; Top middle.
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value + Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: SystemMouseCursors.resizeUpDown,
+                  width: c.width.value - Scaler.size,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    dy: dy,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Center left.
+            Obx(() {
+              return Positioned(
+                top: c.top.value + Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: SystemMouseCursors.resizeLeftRight,
+                  height: c.height.value - Scaler.size,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    x: ScaleModeX.left,
+                    dx: dx,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Center right.
+            Obx(() {
+              return Positioned(
+                top: c.top.value + Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: SystemMouseCursors.resizeLeftRight,
+                  height: c.height.value - Scaler.size,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    x: ScaleModeX.right,
+                    dx: -dx,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Bottom center.
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - Scaler.size &#47; 2,
+                left: c.left.value + Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: SystemMouseCursors.resizeUpDown,
+                  width: c.width.value - Scaler.size,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    dy: -dy,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Top left.
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: CustomMouseCursors.resizeUpLeftDownRight,
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    x: ScaleModeX.left,
+                    dx: dx,
+                    dy: dy,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Top right.
+            Obx(() {
+              return Positioned(
+                top: c.top.value - Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - 3 * Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: CustomMouseCursors.resizeUpRightDownLeft,
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.top,
+                    x: ScaleModeX.right,
+                    dx: -dx,
+                    dy: dy,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Bottom left.
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - 3 * Scaler.size &#47; 2,
+                left: c.left.value - Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: CustomMouseCursors.resizeUpRightDownLeft,
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    x: ScaleModeX.left,
+                    dx: dx,
+                    dy: -dy,
+                  ),
+                ),
+              );
+            }),
+
+            &#47;&#47; Bottom right.
+            Obx(() {
+              return Positioned(
+                top: c.top.value + c.height.value - 3 * Scaler.size &#47; 2,
+                left: c.left.value + c.width.value - 3 * Scaler.size &#47; 2,
+                child: scaler(
+                  cursor: CustomMouseCursors.resizeUpLeftDownRight,
+                  width: Scaler.size * 2,
+                  height: Scaler.size * 2,
+                  onDrag: (dx, dy) =&gt; c.resize(
+                    context,
+                    y: ScaleModeY.bottom,
+                    x: ScaleModeX.right,
+                    dx: -dx,
+                    dy: -dy,
+                  ),
+                ),
+              );
+            }),
+
+            Obx(() {
+              return Positioned(
+                left: c.left.value,
+                top: c.top.value,
+                width: c.width.value,
+                height: c.height.value,
+                child: Material(
+                  type: MaterialType.card,
+                  borderRadius: BorderRadius.circular(10),
+                  elevation: 10,
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: scaffold,
+                      ),
+                      ClipRect(child: Stack(children: footer)),
+                    ],
+                  ),
+                ),
+              );
+            }),
+          ],
+        );
+      }
+
+      &#47;&#47; If the call popup is not [minimized], then return the [scaffold].
+      return scaffold;
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_desktop/ui_page_call_component_desktop-library.html">desktop</a></li>
+    <li class="self-crumb">desktopCall function</li>
+</ol>
+
+    <h5>desktop library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

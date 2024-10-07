@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the light method from the Themes class, for the Dart programming language.">
+  <title>light method - Themes class - themes library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../themes/themes-library.html">themes.dart</a></li>
+    <li><a href="../../themes/Themes-class.html">Themes</a></li>
+    <li class="self-crumb">light static method</li>
+  </ol>
+  <div class="self-name">light</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="themes&#47;Themes-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">light</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/material/ThemeData-class.html">ThemeData</a></span>
+<span class="name ">light</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a light theme.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static ThemeData light() {
+  final Palette colors = Palette(
+    primary: const Color(0xFF63B4FF),
+    primaryHighlight: const Color(0xFF2196F3),
+    primaryHighlightShiny: const Color(0xFF58A6EF),
+    primaryHighlightShiniest: const Color(0xFFD2E3F9),
+    primaryHighlightLightest: const Color(0xFFB9D9FA),
+    primaryLight: const Color(0xFFD2E9FE),
+    primaryLightest: const Color(0xFFD5EDFE),
+    primaryDark: const Color(0xFF1F3C5D),
+    primaryAuxiliary: const Color(0xFF165084),
+    onPrimary: const Color(0xFFFFFFFF),
+    secondary: const Color(0xFF888888),
+    secondaryHighlight: const Color(0xFFEFEFEF),
+    secondaryHighlightDark: const Color(0xFFDEDEDE),
+    secondaryHighlightDarkest: const Color(0xFFC4C4C4),
+    secondaryBackground: const Color(0xFF222222),
+    secondaryBackgroundLight: const Color(0xFF444444),
+    secondaryBackgroundLightest: const Color(0xFF666666),
+    onSecondary: const Color(0xFF4E5A78),
+    background: const Color(0xFFF2F5F8),
+    backgroundAuxiliary: const Color(0xFF0A1724),
+    backgroundAuxiliaryLight: const Color(0xFF132131),
+    backgroundAuxiliaryLighter: const Color(0xFFE6F1FE),
+    backgroundAuxiliaryLightest: const Color(0xFFF4F9FF),
+    onBackground: const Color(0xFF000000),
+    transparent: const Color(0x00000000),
+    almostTransparent: const Color(0x01000000),
+    accept: const Color(0x7F34B139),
+    acceptAuxiliary: const Color(0xFF4CAF50),
+    acceptLight: const Color(0xFFBFE3B9),
+    acceptLighter: const Color(0xFFD9FDD3),
+    acceptLightest: const Color(0xFFF2FDED),
+    decline: const Color(0xFFFF0000),
+    danger: const Color(0xFFF44336),
+    warning: const Color(0xFFFF9800),
+    userColors: const [
+      Color(0xFFD2B334),
+      Color(0xFF2192FF),
+      Color(0xFF9C27B0),
+      Color(0xFFFF9800),
+      Color(0xFF0094A7),
+      Color(0xFF7F81FF),
+      Color(0xFFFF5722),
+      Color(0xFFC70100),
+      Color(0xFF8BC34A),
+      Color(0xFF16712D),
+      Color(0xFFFF5B89),
+      Color(0xFF332FD0),
+      Color(0xFFB96215),
+      Color(0xFF00BF79),
+      Color(0xFF00ACCF),
+      Color(0xFFED36FF),
+      Color(0xFF00CC25),
+      Color(0xFFFF1008),
+      Color(0xFFCB9F7A),
+    ],
+  );
+
+  final TextStyle textStyle = TextStyle(
+    fontFamily: &#39;Roboto&#39;,
+    color: colors.onBackground,
+    fontSize: 17,
+    fontWeight: FontWeight.w400,
+    height: 1.3,
+    letterSpacing: 0,
+    wordSpacing: 0,
+  );
+
+  final Fonts fonts = Fonts(
+    style: textStyle,
+    primary: colors.primary,
+    primaryHighlightLightest: colors.primaryHighlightLightest,
+    onBackground: colors.onBackground,
+    secondary: colors.secondary,
+    secondaryHighlight: colors.secondaryHighlight,
+    secondaryHighlightDarkest: colors.secondaryHighlightDarkest,
+    onPrimary: colors.onPrimary,
+    danger: colors.danger,
+    bold: FontWeight.w700,
+    regular: FontWeight.w400,
+    largest: 27,
+    larger: 24,
+    large: 21,
+    big: 18,
+    medium: 17,
+    normal: 15,
+    small: 13,
+    smaller: 11,
+    smallest: 9,
+  );
+
+  SystemChrome.setSystemUIOverlayStyle(
+    SystemUiOverlayStyle(
+      systemNavigationBarColor: colors.transparent,
+      statusBarColor: colors.transparent,
+      statusBarBrightness: Brightness.light,
+      statusBarIconBrightness: Brightness.dark,
+    ),
+  );
+
+  final ThemeData theme = ThemeData.light();
+
+  return theme.copyWith(
+    extensions: [
+      Style(
+        colors: colors,
+        fonts: fonts,
+        barrierColor: colors.onBackgroundOpacity50,
+        cardBlur: 5,
+        cardBorder:
+            Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+        cardColor: colors.onPrimaryOpacity95,
+        cardHoveredColor: colors.backgroundAuxiliaryLightest,
+        cardHoveredBorder: Border.all(
+          color: colors.primaryHighlightShiniest,
+          width: 0.5,
+        ),
+        cardRadius: BorderRadius.circular(14),
+        cardSelectedBorder:
+            Border.all(color: colors.primaryHighlightShiny, width: 0.5),
+        contextMenuBackgroundColor: colors.onPrimary,
+        contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
+        contextMenuRadius: BorderRadius.circular(11),
+        linkStyle: textStyle.copyWith(color: colors.primary),
+        messageColor: colors.onPrimary,
+        primaryBorder: Border.all(
+          color: colors.secondaryHighlightDark,
+          width: 0.5,
+        ),
+        readMessageColor: colors.primaryLight,
+        secondaryBorder: Border.all(color: colors.acceptLight, width: 0.5),
+        sidebarColor: colors.onPrimaryOpacity50,
+        systemMessageBorder: Border.all(
+          color: colors.secondaryHighlightDark,
+          width: 0.5,
+        ),
+        systemMessageColor: colors.secondaryHighlight,
+        systemMessageStyle: fonts.small.regular.secondary,
+        systemMessagePrimary: fonts.small.regular.primary,
+        unreadMessageColor: colors.primaryLightest,
+      ),
+    ],
+    scaffoldBackgroundColor: colors.transparent,
+    appBarTheme: theme.appBarTheme.copyWith(
+      backgroundColor: colors.onPrimaryOpacity25,
+      foregroundColor: colors.secondary,
+      iconTheme: theme.appBarTheme.iconTheme?.copyWith(
+        color: colors.secondary,
+      ),
+      actionsIconTheme: theme.appBarTheme.iconTheme?.copyWith(
+        color: colors.secondary,
+      ),
+      elevation: 0,
+      centerTitle: true,
+      titleTextStyle: fonts.big.regular.onBackground,
+    ),
+    tabBarTheme: theme.tabBarTheme.copyWith(
+      labelColor: colors.primary,
+      unselectedLabelColor: colors.secondary,
+    ),
+    primaryIconTheme: const IconThemeData.fallback().copyWith(
+      color: colors.secondary,
+    ),
+    splashColor: colors.transparent,
+    iconTheme: theme.iconTheme.copyWith(color: colors.onBackground),
+    textTheme: Typography.blackCupertino.copyWith(
+      displayLarge: fonts.largest.regular.onBackground,
+      displayMedium: fonts.larger.regular.onBackground,
+      displaySmall: fonts.large.regular.onBackground,
+      headlineLarge: fonts.big.regular.onBackground,
+      headlineMedium: fonts.big.regular.onBackground,
+      headlineSmall: fonts.small.regular.onBackground,
+      titleLarge: fonts.medium.regular.onBackground,
+      titleMedium: fonts.normal.regular.onBackground,
+      titleSmall: fonts.normal.bold.onBackground,
+      labelLarge: fonts.normal.regular.onBackground,
+      labelMedium: fonts.small.regular.onBackground,
+      labelSmall: fonts.smaller.regular.onBackground,
+      bodyLarge: fonts.medium.regular.onBackground,
+      bodyMedium: fonts.normal.regular.onBackground,
+      bodySmall: fonts.small.regular.onBackground,
+    ),
+    inputDecorationTheme: theme.inputDecorationTheme.copyWith(
+      focusColor: colors.primary,
+      hoverColor: colors.transparent,
+      fillColor: colors.primary,
+      hintStyle: fonts.normal.regular.secondaryHighlightDarkest,
+      labelStyle: fonts.normal.regular.secondaryHighlightDarkest,
+      errorStyle: fonts.small.regular.danger,
+      helperStyle: fonts.normal.regular.secondaryHighlightDarkest,
+      prefixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+      suffixStyle: fonts.normal.regular.secondaryHighlightDarkest,
+      counterStyle: fonts.small.regular.secondaryHighlightDarkest,
+      floatingLabelStyle: fonts.big.regular.secondary,
+      errorMaxLines: 5,
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.primary),
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+      ),
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.danger),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(25),
+        borderSide: BorderSide(color: colors.danger),
+      ),
+    ),
+    textSelectionTheme: theme.textSelectionTheme.copyWith(
+      cursorColor: colors.primary,
+      selectionHandleColor: colors.primary,
+    ),
+    floatingActionButtonTheme: theme.floatingActionButtonTheme.copyWith(
+      backgroundColor: colors.primary,
+      foregroundColor: colors.onPrimary,
+    ),
+    bottomNavigationBarTheme: theme.bottomNavigationBarTheme.copyWith(
+      backgroundColor: colors.primaryHighlightShiniest,
+      selectedItemColor: colors.primary,
+      unselectedItemColor: colors.secondary,
+    ),
+    progressIndicatorTheme: theme.progressIndicatorTheme.copyWith(
+      color: colors.primary,
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
+        foregroundColor: colors.secondary,
+        textStyle: fonts.medium.regular.secondary,
+      ),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
+        backgroundColor: colors.transparent,
+        foregroundColor: colors.secondary,
+        minimumSize: const Size(100, 60),
+        maximumSize: const Size(250, 60),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        side: BorderSide(width: 1, color: colors.secondary),
+        textStyle: fonts.medium.regular.secondary,
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
+        backgroundColor: colors.primary,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+        padding: const EdgeInsets.all(12),
+        textStyle: fonts.normal.regular.secondary,
+      ),
+    ),
+    scrollbarTheme: theme.scrollbarTheme.copyWith(
+      interactive: true,
+      thickness: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.dragged) ||
+            states.contains(WidgetState.hovered)) {
+          return 6;
+        }
+
+        return 4;
+      }),
+    ),
+    radioTheme: theme.radioTheme.copyWith(
+      fillColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.white;
+        }
+
+        return colors.primary;
+      }),
+    ),
+    pageTransitionsTheme: const PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: FadeUpwardsPageTransitionsBuilder(),
+        TargetPlatform.iOS: CustomCupertinoPageTransitionsBuilder(),
+        TargetPlatform.macOS: CustomCupertinoPageTransitionsBuilder(),
+        TargetPlatform.windows: CustomCupertinoPageTransitionsBuilder(),
+        TargetPlatform.linux: CustomCupertinoPageTransitionsBuilder(),
+        TargetPlatform.fuchsia: FadeUpwardsPageTransitionsBuilder(),
+      },
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../themes/themes-library.html">themes</a></li>
+    <li><a href="../../themes/Themes-class.html">Themes</a></li>
+    <li class="self-crumb">light static method</li>
+</ol>
+
+    <h5>Themes class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

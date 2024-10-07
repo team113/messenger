@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the init method from the Config class, for the Dart programming language.">
+  <title>init method - Config class - config library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../config/config-library.html">config.dart</a></li>
+    <li><a href="../../config/Config-class.html">Config</a></li>
+    <li class="self-crumb">init static method</li>
+  </ol>
+  <div class="self-name">init</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="config&#47;Config-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">init</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">init</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Initializes this <a href="../../config/Config-class.html">Config</a> by applying values from the following sources
+(in the following order):</p>
+<ul>
+<li>compile-time environment variables;</li>
+<li>bundled configuration file (<code>conf.toml</code>);</li>
+<li>default values.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Future&lt;void&gt; init() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final Map&lt;String, dynamic&gt; document =
+      TomlDocument.parse(await rootBundle.loadString(&#39;assets&#47;conf.toml&#39;))
+          .toMap();
+
+  graphql = const bool.hasEnvironment(&#39;SOCAPP_HTTP_GRAPHQL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_HTTP_GRAPHQL&#39;)
+      : (document[&#39;server&#39;]?[&#39;http&#39;]?[&#39;graphql&#39;] ?? graphql);
+
+  port = const bool.hasEnvironment(&#39;SOCAPP_HTTP_PORT&#39;)
+      ? const int.fromEnvironment(&#39;SOCAPP_HTTP_PORT&#39;)
+      : (document[&#39;server&#39;]?[&#39;http&#39;]?[&#39;port&#39;] ?? port);
+
+  url = const bool.hasEnvironment(&#39;SOCAPP_HTTP_URL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_HTTP_URL&#39;)
+      : (document[&#39;server&#39;]?[&#39;http&#39;]?[&#39;url&#39;] ?? url);
+
+  String wsUrl = const bool.hasEnvironment(&#39;SOCAPP_WS_URL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_WS_URL&#39;)
+      : (document[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;url&#39;] ?? &#39;ws:&#47;&#47;localhost&#39;);
+
+  int wsPort = const bool.hasEnvironment(&#39;SOCAPP_WS_PORT&#39;)
+      ? const int.fromEnvironment(&#39;SOCAPP_WS_PORT&#39;)
+      : (document[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;port&#39;] ?? 80);
+
+  files = const bool.hasEnvironment(&#39;SOCAPP_FILES_URL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_FILES_URL&#39;)
+      : (document[&#39;files&#39;]?[&#39;url&#39;] ?? files);
+
+  sentryDsn = const bool.hasEnvironment(&#39;SOCAPP_SENTRY_DSN&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_SENTRY_DSN&#39;)
+      : (document[&#39;sentry&#39;]?[&#39;dsn&#39;] ?? sentryDsn);
+
+  downloads = const bool.hasEnvironment(&#39;SOCAPP_DOWNLOADS_DIRECTORY&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_DOWNLOADS_DIRECTORY&#39;)
+      : (document[&#39;downloads&#39;]?[&#39;directory&#39;] ?? downloads);
+
+  downloadable = const bool.hasEnvironment(&#39;SOCAPP_DOWNLOADS_DOWNLOADABLE&#39;)
+      ? const bool.fromEnvironment(&#39;SOCAPP_DOWNLOADS_DOWNLOADABLE&#39;)
+      : (document[&#39;downloads&#39;]?[&#39;downloadable&#39;] ?? downloadable);
+
+  appStoreUrl = const bool.hasEnvironment(&#39;SOCAPP_DOWNLOADS_APP_STORE_URL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_DOWNLOADS_APP_STORE_URL&#39;)
+      : (document[&#39;downloads&#39;]?[&#39;app_store_url&#39;] ?? appStoreUrl);
+
+  googlePlayUrl =
+      const bool.hasEnvironment(&#39;SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL&#39;)
+          ? const String.fromEnvironment(&#39;SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL&#39;)
+          : (document[&#39;downloads&#39;]?[&#39;google_play_url&#39;] ?? googlePlayUrl);
+
+  userAgentProduct = const bool.hasEnvironment(&#39;SOCAPP_USER_AGENT_PRODUCT&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_USER_AGENT_PRODUCT&#39;)
+      : (document[&#39;user&#39;]?[&#39;agent&#39;]?[&#39;product&#39;] ?? userAgentProduct);
+
+  String version = const bool.hasEnvironment(&#39;SOCAPP_USER_AGENT_VERSION&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_USER_AGENT_VERSION&#39;)
+      : (document[&#39;user&#39;]?[&#39;agent&#39;]?[&#39;version&#39;] ?? &#39;&#39;);
+
+  userAgentVersion = version.isNotEmpty ? version : Pubspec.ref;
+
+  clsid = const bool.hasEnvironment(&#39;SOCAPP_WINDOWS_CLSID&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_WINDOWS_CLSID&#39;)
+      : (document[&#39;windows&#39;]?[&#39;clsid&#39;] ?? clsid);
+
+  vapidKey = const bool.hasEnvironment(&#39;SOCAPP_FCM_VAPID_KEY&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_FCM_VAPID_KEY&#39;)
+      : (document[&#39;fcm&#39;]?[&#39;vapidKey&#39;] ?? vapidKey);
+
+  origin = url;
+
+  link = const bool.hasEnvironment(&#39;SOCAPP_LINK_PREFIX&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_LINK_PREFIX&#39;)
+      : (document[&#39;link&#39;]?[&#39;prefix&#39;] ?? link);
+
+  logLevel = me.LogLevel.values.firstWhere(
+    (e) =&gt; const bool.hasEnvironment(&#39;SOCAPP_LOG_LEVEL&#39;)
+        ? e.name == const String.fromEnvironment(&#39;SOCAPP_LOG_LEVEL&#39;)
+        : e.name == document[&#39;log&#39;]?[&#39;level&#39;],
+    orElse: () =&gt;
+        kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
+  );
+
+  appcast = const bool.hasEnvironment(&#39;SOCAPP_APPCAST_URL&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_APPCAST_URL&#39;)
+      : (document[&#39;appcast&#39;]?[&#39;url&#39;] ?? appcast);
+
+  copyright = const bool.hasEnvironment(&#39;SOCAPP_LEGAL_COPYRIGHT&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_LEGAL_COPYRIGHT&#39;)
+      : (document[&#39;legal&#39;]?[&#39;copyright&#39;] ?? copyright);
+
+  support = const bool.hasEnvironment(&#39;SOCAPP_LEGAL_SUPPORT&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_LEGAL_SUPPORT&#39;)
+      : (document[&#39;legal&#39;]?[&#39;support&#39;] ?? support);
+
+  repository = const bool.hasEnvironment(&#39;SOCAPP_LEGAL_REPOSITORY&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_LEGAL_REPOSITORY&#39;)
+      : (document[&#39;legal&#39;]?[&#39;repository&#39;] ?? repository);
+
+  scheme = const bool.hasEnvironment(&#39;SOCAPP_LINK_SCHEME&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_LINK_SCHEME&#39;)
+      : (document[&#39;link&#39;]?[&#39;scheme&#39;] ?? scheme);
+
+  geoEndpoint = const bool.hasEnvironment(&#39;SOCAPP_GEO_ENDPOINT&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_GEO_ENDPOINT&#39;)
+      : (document[&#39;geo&#39;]?[&#39;endpoint&#39;] ?? geoEndpoint);
+
+  ipEndpoint = const bool.hasEnvironment(&#39;SOCAPP_IP_ENDPOINT&#39;)
+      ? const String.fromEnvironment(&#39;SOCAPP_IP_ENDPOINT&#39;)
+      : (document[&#39;ip&#39;]?[&#39;endpoint&#39;] ?? ipEndpoint);
+
+  &#47;&#47; Change default values to browser&#39;s location on web platform.
+  if (PlatformUtils.isWeb) {
+    if (document[&#39;server&#39;]?[&#39;http&#39;]?[&#39;url&#39;] == null &amp;&amp;
+        !const bool.hasEnvironment(&#39;SOCAPP_HTTP_URL&#39;)) {
+      url = &#39;${Uri.base.scheme}:&#47;&#47;${Uri.base.host}&#39;;
+    }
+
+    if (document[&#39;server&#39;]?[&#39;http&#39;]?[&#39;port&#39;] == null &amp;&amp;
+        !const bool.hasEnvironment(&#39;SOCAPP_HTTP_PORT&#39;)) {
+      port = Uri.base.scheme == &#39;https&#39; ? 443 : 80;
+    }
+
+    if (document[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;url&#39;] == null &amp;&amp;
+        !const bool.hasEnvironment(&#39;SOCAPP_WS_URL&#39;)) {
+      wsUrl =
+          (Uri.base.scheme == &#39;https&#39; ? &#39;wss:&#47;&#47;&#39; : &#39;ws:&#47;&#47;&#39;) + Uri.base.host;
+    }
+
+    if (document[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;port&#39;] == null &amp;&amp;
+        !const bool.hasEnvironment(&#39;SOCAPP_WS_PORT&#39;)) {
+      wsPort = Uri.base.scheme == &#39;https&#39; ? 443 : 80;
+    }
+  }
+
+  if (document[&#39;files&#39;]?[&#39;url&#39;] == null &amp;&amp;
+      !const bool.hasEnvironment(&#39;SOCAPP_FILES_URL&#39;)) {
+    files = &#39;$url&#47;files&#39;;
+  }
+
+  bool confRemote = const bool.hasEnvironment(&#39;SOCAPP_CONF_REMOTE&#39;)
+      ? const bool.fromEnvironment(&#39;SOCAPP_CONF_REMOTE&#39;)
+      : (document[&#39;conf&#39;]?[&#39;remote&#39;] ?? true);
+
+  &#47;&#47; If [confRemote], then try to fetch and merge the remotely available
+  &#47;&#47; configuration.
+  if (confRemote) {
+    try {
+      final response = await (await PlatformUtils.dio)
+          .fetch(RequestOptions(path: &#39;$url:$port&#47;conf&#39;));
+      if (response.statusCode == 200) {
+        dynamic remote;
+
+        try {
+          remote = TomlDocument.parse(response.data.toString()).toMap();
+        } catch (e) {
+          remote = loadYaml(response.data.toString());
+        }
+
+        confRemote = remote[&#39;conf&#39;]?[&#39;remote&#39;] ?? confRemote;
+        if (confRemote) {
+          graphql = remote[&#39;server&#39;]?[&#39;http&#39;]?[&#39;graphql&#39;] ?? graphql;
+          port = _asInt(remote[&#39;server&#39;]?[&#39;http&#39;]?[&#39;port&#39;]) ?? port;
+          url = remote[&#39;server&#39;]?[&#39;http&#39;]?[&#39;url&#39;] ?? url;
+          wsUrl = remote[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;url&#39;] ?? wsUrl;
+          wsPort = _asInt(remote[&#39;server&#39;]?[&#39;ws&#39;]?[&#39;port&#39;]) ?? wsPort;
+          files = remote[&#39;files&#39;]?[&#39;url&#39;] ?? files;
+          sentryDsn = remote[&#39;sentry&#39;]?[&#39;dsn&#39;] ?? sentryDsn;
+          downloads = remote[&#39;downloads&#39;]?[&#39;directory&#39;] ?? downloads;
+          userAgentProduct =
+              remote[&#39;user&#39;]?[&#39;agent&#39;]?[&#39;product&#39;] ?? userAgentProduct;
+          userAgentVersion =
+              remote[&#39;user&#39;]?[&#39;agent&#39;]?[&#39;version&#39;] ?? userAgentVersion;
+          vapidKey = remote[&#39;fcm&#39;]?[&#39;vapidKey&#39;] ?? vapidKey;
+          link = remote[&#39;link&#39;]?[&#39;prefix&#39;] ?? link;
+          appcast = remote[&#39;appcast&#39;]?[&#39;url&#39;] ?? appcast;
+          copyright = remote[&#39;legal&#39;]?[Uri.base.host]?[&#39;copyright&#39;] ??
+              remote[&#39;legal&#39;]?[&#39;copyright&#39;] ??
+              copyright;
+          support = remote[&#39;legal&#39;]?[&#39;support&#39;] ?? support;
+          repository = remote[&#39;legal&#39;]?[&#39;repository&#39;] ?? repository;
+          geoEndpoint = remote[&#39;geo&#39;]?[&#39;endpoint&#39;] ?? geoEndpoint;
+          ipEndpoint = remote[&#39;ip&#39;]?[&#39;endpoint&#39;] ?? ipEndpoint;
+          if (remote[&#39;log&#39;]?[&#39;level&#39;] != null) {
+            logLevel = me.LogLevel.values.firstWhere(
+              (e) =&gt; e.name == remote[&#39;log&#39;]?[&#39;level&#39;],
+              orElse: () =&gt; logLevel,
+            );
+          }
+          origin = url;
+        }
+      }
+    } catch (e) {
+      Log.info(&#39;Remote configuration fetch failed.&#39;, &#39;Config&#39;);
+    }
+  }
+
+  if (PlatformUtils.isWeb) {
+    if ((Uri.base.scheme == &#39;https&#39; &amp;&amp; Uri.base.port != 443) ||
+        Uri.base.scheme == &#39;http&#39; &amp;&amp; Uri.base.port != 80) {
+      origin = &#39;${Uri.base.scheme}:&#47;&#47;${Uri.base.host}:${Uri.base.port}&#39;;
+    } else {
+      origin = &#39;${Uri.base.scheme}:&#47;&#47;${Uri.base.host}&#39;;
+    }
+  }
+
+  if (link.isEmpty) {
+    link = &#39;$origin${Routes.chatDirectLink}&#39;;
+  }
+
+  ws = &#39;$wsUrl:$wsPort$graphql&#39;;
+
+  &#47;&#47; Notification Service Extension needs those to send message received
+  &#47;&#47; notification to backend.
+  if (PlatformUtils.isIOS) {
+    IosUtils.writeDefaults(&#39;url&#39;, url);
+    IosUtils.writeDefaults(&#39;endpoint&#39;, graphql);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../config/config-library.html">config</a></li>
+    <li><a href="../../config/Config-class.html">Config</a></li>
+    <li class="self-crumb">init static method</li>
+</ol>
+
+    <h5>Config class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

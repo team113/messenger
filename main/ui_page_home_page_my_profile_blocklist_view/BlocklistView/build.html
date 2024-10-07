@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the BlocklistView class, for the Dart programming language.">
+  <title>build method - BlocklistView class - view library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_blocklist_view/ui_page_home_page_my_profile_blocklist_view-library.html">ui&#47;page&#47;home&#47;page&#47;my_profile&#47;blocklist&#47;view.dart</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_blocklist_view/BlocklistView-class.html">BlocklistView</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_home_page_my_profile_blocklist_view&#47;BlocklistView-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Describes the part of the user interface represented by this widget.</p>
+<p>The framework calls this method when this widget is inserted into the tree
+in a given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and when the dependencies of this widget change
+(e.g., an <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> referenced by this widget changes). This
+method can potentially be called in every frame and should not have any side
+effects beyond building a widget.</p>
+<p>The framework replaces the subtree below this widget with the widget
+returned by this method, either by updating the existing subtree or by
+removing the subtree and inflating a new subtree, depending on whether the
+widget returned by this method can update the root of the existing
+subtree, as determined by calling <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html">Widget.canUpdate</a>.</p>
+<p>Typically implementations return a newly created constellation of widgets
+that are configured with information from this widget's constructor and
+from the given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</p>
+<p>The given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> contains information about the location in the
+tree at which this widget is being built. For example, the context
+provides the set of inherited widgets for this location in the tree. A
+given widget might be built with multiple different <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>
+arguments over time if the widget is moved around the tree or if the
+widget is inserted into the tree in multiple places at once.</p>
+<p>The implementation of this method must only depend on:</p>
+<ul>
+<li>the fields of the widget, which themselves must not change over time,
+and</li>
+<li>any ambient state obtained from the <code>context</code> using
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html">BuildContext.dependOnInheritedWidgetOfExactType</a>.</li>
+</ul>
+<p>If a widget's <a href="../../ui_page_home_page_my_profile_blocklist_view/BlocklistView/build.html">build</a> method is to depend on anything else, use a
+<a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> instead.</p>
+<p>See also:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, which contains the discussion on performance considerations.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return GetBuilder(
+    key: const Key(&#39;BlocklistView&#39;),
+    init: BlocklistController(
+      Get.find(),
+      Get.find(),
+      Get.find(),
+      pop: context.popModal,
+    ),
+    builder: (BlocklistController c) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 4),
+          Obx(() {
+            return ModalPopupHeader(
+              text: &#39;label_users_count&#39;
+                  .l10nfmt({&#39;count&#39;: c.myUser.value?.blocklistCount ?? 0}),
+            );
+          }),
+          const SizedBox(height: 4),
+          Flexible(
+            child: SafeAnimatedSwitcher(
+              duration: const Duration(milliseconds: 200),
+              child: Obx(() {
+                &#47;&#47; Show only users with [User.isBlocked] for optimistic
+                &#47;&#47; deletion from blocklist.
+                final Iterable&lt;RxUser&gt; blocklist =
+                    c.blocklist.where((e) =&gt; e.user.value.isBlocked != null);
+
+                if (c.status.value.isLoading) {
+                  return SizedBox(
+                    height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                    child: const Center(
+                      child: CustomProgressIndicator.primary(),
+                    ),
+                  );
+                } else if (blocklist.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(&#39;label_no_users&#39;.l10n),
+                  );
+                } else {
+                  return Scrollbar(
+                    controller: c.scrollController,
+                    child: ListView.builder(
+                      controller: c.scrollController,
+                      shrinkWrap: true,
+                      padding: ModalPopup.padding(context),
+                      itemBuilder: (context, i) {
+                        final RxUser user = blocklist.elementAt(i);
+
+                        Widget child = ContactTile(
+                          user: user,
+                          onTap: () {
+                            Navigator.of(context).pop();
+                            router.user(user.id, push: true);
+                          },
+                          darken: 0.03,
+                          subtitle: [
+                            const SizedBox(height: 5),
+                            Text(
+                              user.user.value.isBlocked?.at.val.yMd ?? &#39;&#39;,
+                              style: style.fonts.small.regular.secondary,
+                            ),
+                          ],
+                          trailing: [
+                            WidgetButton(
+                              onPressed: () =&gt; c.unblock(user),
+                              child: Text(
+                                &#39;btn_unblock_short&#39;.l10n,
+                                style: style.fonts.small.regular.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                          ],
+                        );
+
+                        if (i == c.blocklist.length - 1) {
+                          if (c.hasNext.isTrue) {
+                            child = Column(
+                              children: [
+                                child,
+                                CustomProgressIndicator(
+                                  key: const Key(&#39;BlocklistLoading&#39;),
+                                  value: Config.disableInfiniteAnimations
+                                      ? 0
+                                      : null,
+                                ),
+                              ],
+                            );
+                          }
+                        }
+
+                        return child;
+                      },
+                      itemCount: blocklist.length,
+                    ),
+                  );
+                }
+              }),
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+      );
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_blocklist_view/ui_page_home_page_my_profile_blocklist_view-library.html">view</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_blocklist_view/BlocklistView-class.html">BlocklistView</a></li>
+    <li class="self-crumb">build method</li>
+</ol>
+
+    <h5>BlocklistView class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the computeMinIntrinsicWidth method from the RenderAllowOverflow class, for the Dart programming language.">
+  <title>computeMinIntrinsicWidth method - RenderAllowOverflow class - allow_overflow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_allow_overflow/ui_widget_allow_overflow-library.html">ui&#47;widget&#47;allow_overflow.dart</a></li>
+    <li><a href="../../ui_widget_allow_overflow/RenderAllowOverflow-class.html">RenderAllowOverflow</a></li>
+    <li class="self-crumb">computeMinIntrinsicWidth method</li>
+  </ol>
+  <div class="self-name">computeMinIntrinsicWidth</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_widget_allow_overflow&#47;RenderAllowOverflow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">computeMinIntrinsicWidth</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>
+<span class="name ">computeMinIntrinsicWidth</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="computeMinIntrinsicWidth-param-height"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">height</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Computes the value returned by <a href="https://api.flutter.dev/flutter/rendering/RenderBox/getMinIntrinsicWidth.html">getMinIntrinsicWidth</a>. Do not call this
+function directly, instead, call <a href="https://api.flutter.dev/flutter/rendering/RenderBox/getMinIntrinsicWidth.html">getMinIntrinsicWidth</a>.</p>
+<p>Override in subclasses that implement <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/performLayout.html">performLayout</a>. This method should
+return the minimum width that this box could be without failing to
+correctly paint its contents within itself, without clipping.</p>
+<p>If the layout algorithm is independent of the context (e.g. it always
+tries to be a particular size), or if the layout algorithm is
+width-in-height-out, or if the layout algorithm uses both the incoming
+width and height constraints (e.g. it always sizes itself to
+<a href="https://api.flutter.dev/flutter/rendering/BoxConstraints/biggest.html">BoxConstraints.biggest</a>), then the <code>height</code> argument should be ignored.</p>
+<p>If the layout algorithm is strictly height-in-width-out, or is
+height-in-width-out when the width is unconstrained, then the height
+argument is the height to use.</p>
+<p>The <code>height</code> argument will never be negative or null. It may be infinite.</p>
+<p>If this algorithm depends on the intrinsic dimensions of a child, the
+intrinsic dimensions of that child should be obtained using the functions
+whose names start with <code>get</code>, not <code>compute</code>.</p>
+<p>This function should never return a negative or infinite value.</p>
+<p>Be sure to set <a href="https://api.flutter.dev/flutter/rendering/debugCheckIntrinsicSizes.html">debugCheckIntrinsicSizes</a> to true in your unit tests if
+you do override this method, which will add additional checks to help
+validate your implementation.</p>
+<h2 id="examples">Examples</h2>
+<h3 id="text">Text</h3>
+<p>English text is the canonical example of a width-in-height-out algorithm.
+The <code>height</code> argument is therefore ignored.</p>
+<p>Consider the string "Hello World". The <em>maximum</em> intrinsic width (as
+returned from <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/computeMaxIntrinsicWidth.html">computeMaxIntrinsicWidth</a>) would be the width of the string
+with no line breaks.</p>
+<p>The minimum intrinsic width would be the width of the widest word, "Hello"
+or "World". If the text is rendered in an even narrower width, however, it
+might still not overflow. For example, maybe the rendering would put a
+line-break half-way through the words, as in "Hel⁞lo⁞Wor⁞ld". However,
+this wouldn't be a <em>correct</em> rendering, and <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/computeMinIntrinsicWidth.html">computeMinIntrinsicWidth</a> is
+defined as returning the minimum width that the box could be without
+failing to <em>correctly</em> paint the contents within itself.</p>
+<p>The minimum intrinsic <em>height</em> for a given width <em>smaller</em> than the
+minimum intrinsic width could therefore be greater than the minimum
+intrinsic height for the minimum intrinsic width.</p>
+<h3 id="viewports-eg-scrolling-lists">Viewports (e.g. scrolling lists)</h3>
+<p>Some render boxes are intended to clip their children. For example, the
+render box for a scrolling list might always size itself to its parents'
+size (or rather, to the maximum incoming constraints), regardless of the
+children's sizes, and then clip the children and position them based on
+the current scroll offset.</p>
+<p>The intrinsic dimensions in these cases still depend on the children, even
+though the layout algorithm sizes the box in a way independent of the
+children. It is the size that is needed to paint the box's contents (in
+this case, the children) <em>without clipping</em> that matters.</p>
+<h3 id="when-the-intrinsic-dimensions-cannot-be-known">When the intrinsic dimensions cannot be known</h3>
+<p>There are cases where render objects do not have an efficient way to
+compute their intrinsic dimensions. For example, it may be prohibitively
+expensive to reify and measure every child of a lazy viewport (viewports
+generally only instantiate the actually visible children), or the
+dimensions may be computed by a callback about which the render object
+cannot reason.</p>
+<p>In such cases, it may be impossible (or at least impractical) to actually
+return a valid answer. In such cases, the intrinsic functions should throw
+when <a href="https://api.flutter.dev/flutter/rendering/RenderObject/debugCheckingIntrinsics.html">RenderObject.debugCheckingIntrinsics</a> is false and asserts are
+enabled, and return 0.0 otherwise.</p>
+<p>See the implementations of <a href="https://api.flutter.dev/flutter/widgets/LayoutBuilder-class.html">LayoutBuilder</a> or <a href="https://api.flutter.dev/flutter/rendering/RenderViewportBase-class.html">RenderViewportBase</a> for
+examples (in particular,
+<a href="https://api.flutter.dev/flutter/rendering/RenderViewportBase/debugThrowIfNotCheckingIntrinsics.html">RenderViewportBase.debugThrowIfNotCheckingIntrinsics</a>).</p>
+<h3 id="aspect-ratio-driven-boxes">Aspect-ratio-driven boxes</h3>
+<p>Some boxes always return a fixed size based on the constraints. For these
+boxes, the intrinsic functions should return the appropriate size when the
+incoming <code>height</code> or <code>width</code> argument is finite, treating that as a tight
+constraint in the respective direction and treating the other direction's
+constraints as unbounded. This is because the definitions of
+<a href="../../ui_widget_allow_overflow/RenderAllowOverflow/computeMinIntrinsicWidth.html">computeMinIntrinsicWidth</a> and <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/computeMinIntrinsicHeight.html">computeMinIntrinsicHeight</a> are in terms of
+what the dimensions <em>could be</em>, and such boxes can only be one size in
+such cases.</p>
+<p>When the incoming argument is not finite, then they should return the
+actual intrinsic dimensions based on the contents, as any other box would.</p>
+<p>See also:</p>
+<ul>
+<li><a href="../../ui_widget_allow_overflow/RenderAllowOverflow/computeMaxIntrinsicWidth.html">computeMaxIntrinsicWidth</a>, which computes the smallest width beyond
+which increasing the width never decreases the preferred height.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+double computeMinIntrinsicWidth(double height) {
+  return super.computeMinIntrinsicWidth(
+    _constraintsTransform(BoxConstraints(maxHeight: height)).maxHeight,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_allow_overflow/ui_widget_allow_overflow-library.html">allow_overflow</a></li>
+    <li><a href="../../ui_widget_allow_overflow/RenderAllowOverflow-class.html">RenderAllowOverflow</a></li>
+    <li class="self-crumb">computeMinIntrinsicWidth method</li>
+</ol>
+
+    <h5>RenderAllowOverflow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

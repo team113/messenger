@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the incomingCallsTopEvents method from the CallGraphQlMixin mixin, for the Dart programming language.">
+  <title>incomingCallsTopEvents method - CallGraphQlMixin mixin - call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_call/provider_gql_components_call-library.html">provider&#47;gql&#47;components&#47;call.dart</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin-mixin.html">CallGraphQlMixin</a></li>
+    <li class="self-crumb">incomingCallsTopEvents method</li>
+  </ol>
+  <div class="self-name">incomingCallsTopEvents</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="provider_gql_components_call&#47;CallGraphQlMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">incomingCallsTopEvents</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/graphql/5.2.0-beta.8/graphql/QueryResult-class.html">QueryResult</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+<span class="name ">incomingCallsTopEvents</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="incomingCallsTopEvents-param-count"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">count</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Subscribes to updates of top <code>count</code> items of <a href="../../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a> list.</p>
+<p>Note, that <a href="../../store_event_incoming_chat_call/EventIncomingChatCallsTopChatCallAdded-class.html">EventIncomingChatCallsTopChatCallAdded</a> informs about a
+<a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> becoming the topmost in <a href="../../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a> list, but never about a
+<a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> being updated itself.</p>
+<p>Note, that <a href="../../store_event_incoming_chat_call/EventIncomingChatCallsTopChatCallRemoved-class.html">EventIncomingChatCallsTopChatCallRemoved</a> informs about a
+<a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> being removed from top count items of <a href="../../provider_gql_components_call/CallGraphQlMixin/incomingCalls.html">incomingCalls</a> list, but
+never about a <a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a> being finished or removed itself.</p>
+<p>Instead, use <a href="../../provider_gql_components_call/CallGraphQlMixin/callEvents.html">callEvents</a> for being informed correctly about <a href="../../domain_model_chat_call/ChatCall-class.html">ChatCall</a>
+changes.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="initialization">Initialization</h3>
+<p>Once this subscription is initialized completely, it immediately emits
+<code>SubscriptionInitialized</code> followed by the initial state of the
+<a href="../../store_event_incoming_chat_call/IncomingChatCallsTop-class.html">IncomingChatCallsTop</a> list (and they won't be emitted ever again until
+this subscription completes). Note, that emitting an empty list is
+possible valid.</p>
+<p>If nothing has been emitted for a long period of time after establishing
+this subscription (while not being completed), it should be considered as
+an unexpected server error. This fact can be used on a client side to
+decide whether this subscription has been initialized successfully.</p>
+<h3 id="completion">Completion</h3>
+<p>Infinite.</p>
+<p>Completes requiring a re-subscription when:</p>
+<ul>
+<li>Authenticated <a href="../../domain_model_session/Session-class.html">Session</a> expires (<code>SESSION_EXPIRED</code> error is emitted).</li>
+<li>An error occurs on the server (error is emitted).</li>
+<li>The server is shutting down or becoming unreachable (unexpectedly
+completes after initialization).</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Stream&lt;QueryResult&gt; incomingCallsTopEvents(int count) {
+  Log.debug(&#39;incomingCallsTopEvents($count)&#39;, &#39;$runtimeType&#39;);
+
+  final variables = IncomingCallsTopEventsArguments(count: count);
+  return client.subscribe(
+    SubscriptionOptions(
+      operationName: &#39;IncomingCallsTopEvents&#39;,
+      document:
+          IncomingCallsTopEventsSubscription(variables: variables).document,
+      variables: variables.toJson(),
+    ),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_call/provider_gql_components_call-library.html">call</a></li>
+    <li><a href="../../provider_gql_components_call/CallGraphQlMixin-mixin.html">CallGraphQlMixin</a></li>
+    <li class="self-crumb">incomingCallsTopEvents method</li>
+</ol>
+
+    <h5>CallGraphQlMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

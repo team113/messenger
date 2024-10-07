@@ -1,0 +1,2091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the CallController class from the controller library, for the Dart programming language.">
+  <title>CallController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_controller/ui_page_call_controller-library.html">ui&#47;page&#47;call&#47;controller.dart</a></li>
+    <li class="self-crumb">CallController class</li>
+  </ol>
+  <div class="self-name">CallController</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_call_controller&#47;ui_page_call_controller-library-sidebar.html"
+    data-below-sidebar="ui_page_call_controller&#47;CallController-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">CallController</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Controller of an <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> overlay.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycle-class.html">GetLifeCycle</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/DisposableInterface-class.html">DisposableInterface</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/GetxController-class.html">GetxController</a></li>
+      <li>CallController</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="CallController" class="callable">
+          <span class="name"><a href="../ui_page_call_controller/CallController/CallController.html">CallController</a></span><span class="signature">(<span class="parameter" id="-param-_currentCall"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></span>&gt;</span></span> <span class="parameter-name">_currentCall</span>, </span><span class="parameter" id="-param-_calls"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">_calls</span>, </span><span class="parameter" id="-param-_chatService"><span class="type-annotation"><a href="../domain_service_chat/ChatService-class.html">ChatService</a></span> <span class="parameter-name">_chatService</span>, </span><span class="parameter" id="-param-_userService"><span class="type-annotation"><a href="../domain_service_user/UserService-class.html">UserService</a></span> <span class="parameter-name">_userService</span>, </span><span class="parameter" id="-param-_settingsRepository"><span class="type-annotation"><a href="../domain_repository_settings/AbstractSettingsRepository-class.html">AbstractSettingsRepository</a></span> <span class="parameter-name">_settingsRepository</span></span>)</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="audioState" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/audioState.html">audioState</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns local audio stream enabled flag.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="buttons" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/buttons.html">buttons</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a>s placed in the <a href="../ui_page_call_widget_dock/Dock-class.html">Dock</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="callCover" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/callCover.html">callCover</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user_call_cover/UserCallCover-class.html">UserCallCover</a>?</span>
+  
+
+</dt>
+<dd>
+  Returns an <a href="../domain_model_user_call_cover/UserCallCover-class.html">UserCallCover</a> of the current call's caller.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="callerName" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/callerName.html">callerName</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a>?</span>
+  
+
+</dt>
+<dd>
+  Returns a name of the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>'s caller.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="cameraSwitched" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/cameraSwitched.html">cameraSwitched</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the camera was switched or not.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="chat" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/chat.html">chat</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Reactive <a href="../domain_model_chat/Chat-class.html">Chat</a> that this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is happening in.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="chatId" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/chatId.html">chatId</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the <a href="../domain_model_chat/ChatId-class.html">ChatId</a> of the <a href="../domain_model_chat/Chat-class.html">Chat</a> this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is taking place in.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="connectionLost" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/connectionLost.html">connectionLost</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the connection to the <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> updates was lost and
+an ongoing reconnection is happening.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="displayMore" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/displayMore.html">displayMore</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether more panel is displayed.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="dockKey" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/dockKey.html">dockKey</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a> of the <a href="../ui_page_call_widget_dock/Dock-class.html">Dock</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="dockRect" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/dockRect.html">dockRect</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-ui/Rect-class.html">Rect</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Reactive <a href="https://api.flutter.dev/flutter/dart-ui/Rect-class.html">Rect</a> of the <a href="../ui_page_call_widget_dock/Dock-class.html">Dock</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="doughDraggedRenderer" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/doughDraggedRenderer.html">doughDraggedRenderer</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a> being dragged currently with its dough broken.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="downAt" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/downAt.html">downAt</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/dart-core/DateTime-class.html">DateTime</a> of when the last <a href="https://api.flutter.dev/flutter/widgets/Listener/onPointerDown.html">Listener.onPointerDown</a> callback happened.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="downButtons" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/downButtons.html">downButtons</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Buttons that were pressed in a <a href="https://api.flutter.dev/flutter/widgets/Listener/onPointerDown.html">Listener.onPointerDown</a> callback used in
+<a href="https://api.flutter.dev/flutter/widgets/Listener/onPointerUp.html">Listener.onPointerUp</a> since the latter does not provide this info.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="downPosition" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/downPosition.html">downPosition</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a></span>
+  
+
+</dt>
+<dd>
+  Position of a <a href="https://api.flutter.dev/flutter/widgets/Listener/onPointerDown.html">Listener.onPointerDown</a> callback used in
+<a href="https://api.flutter.dev/flutter/widgets/Listener/onPointerUp.html">Listener.onPointerUp</a> since the latter does not provide this info.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="draggedButton" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/draggedButton.html">draggedButton</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Currently dragged <a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="draggedRenderer" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/draggedRenderer.html">draggedRenderer</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a> being dragged currently.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="duration" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/duration.html">duration</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Duration-class.html">Duration</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Duration of the current ongoing call.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="focused" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/focused.html">focused</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s in <code>focus</code> mode.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="fullscreen" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/fullscreen.html">fullscreen</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the view is in fullscreen.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="headerHovered" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/headerHovered.html">headerHovered</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the info header of desktop design is currently hovered.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="height" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/height.html">height</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Minimized view current height.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hidden" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/hidden.html">hidden</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the view shouldn't be visible.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hoveredParticipant" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/hoveredParticipant.html">hoveredParticipant</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a> that is hovered right now.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hoveredParticipantTimeout" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/hoveredParticipantTimeout.html">hoveredParticipantTimeout</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Timeout of a <a href="../ui_page_call_controller/CallController/hoveredParticipant.html">hoveredParticipant</a> used to hide it.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="hoveredRenderer" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/hoveredRenderer.html">hoveredRenderer</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a>, whose visible part is being hovered right now.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="initialized" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/initialized.html">initialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been initialized.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isClosed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been closed.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isCursorHidden" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isCursorHidden.html">isCursorHidden</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the cursor should be hidden or not.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="isDialog" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isDialog.html">isDialog</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the <a href="../ui_page_call_controller/CallController/chat.html">chat</a> is a dialog.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isGroup" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isGroup.html">isGroup</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the <a href="../ui_page_call_controller/CallController/chat.html">chat</a> is a group.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isMobile" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isMobile.html">isMobile</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the view is mobile or desktop.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="isMonolog" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isMonolog.html">isMonolog</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the <a href="../ui_page_call_controller/CallController/chat.html">chat</a> is a monolog.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isPanelOpen" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isPanelOpen.html">isPanelOpen</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the buttons panel is open or not.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="isRemoteAudioEnabled" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isRemoteAudioEnabled.html">isRemoteAudioEnabled</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the inbound audio in the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is
+enabled.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isRemoteVideoEnabled" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/isRemoteVideoEnabled.html">isRemoteVideoEnabled</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the inbound video in the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is
+enabled or not.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="left" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/left.html">left</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Minimized view current left position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="listeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/listeners.html">listeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="locals" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/locals.html">locals</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Local <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s in <code>default</code> mode.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="me" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/me.html">me</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a></span>
+  
+
+</dt>
+<dd>
+  Returns a <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a> of the currently authorized <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="members" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/members.html">members</a></span>
+  <span class="signature">&#8594; <a href="../util_obs_rxmap/RxObsMap-class.html">RxObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/CallMemberId-class.html">CallMemberId</a></span>, <span class="type-parameter"><a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Reactive map of the current call <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a>s.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="minimized" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/minimized.html">minimized</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the view is minimized or maximized.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="minimizedAnimation" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/minimizedAnimation.html">minimizedAnimation</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/animation/AnimationController-class.html">AnimationController</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/animation/AnimationController-class.html">AnimationController</a> of a <a href="../ui_page_call_widget_minimizable_view/MinimizableView-class.html">MinimizableView</a> used to change the
+<a href="../ui_page_call_controller/CallController/minimized.html">minimized</a> value.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="minimizing" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/minimizing.html">minimizing</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the <a href="../ui_page_call_widget_minimizable_view/MinimizableView-class.html">MinimizableView</a> is being minimized.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="notifications" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/notifications.html">notifications</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/CallNotification-class.html">CallNotification</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a> of the currently active <a href="../domain_model_ongoing_call/CallNotification-class.html">CallNotification</a>s.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="onDelete" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onDelete.html">onDelete</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal callback that starts the cycle of this controller.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onStart" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onStart.html">onStart</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Called at the exact moment the widget is allocated in memory.
+It uses an internal "callable" type, to avoid any @overrides in subclases.
+This method should be internal and is required to define the
+lifetime cycle of the subclass.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="outgoing" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/outgoing.html">outgoing</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the current authorized <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> is the caller.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="panel" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/panel.html">panel</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a>s available in the more panel.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="panelController" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/panelController.html">panelController</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/sliding_up_panel/2.0.0+1/sliding_up_panel/PanelController-class.html">PanelController</a></span>
+  
+
+</dt>
+<dd>
+  <a href="https://pub.dev/documentation/sliding_up_panel/2.0.0+1/sliding_up_panel/PanelController-class.html">PanelController</a> used to close the <a href="https://pub.dev/documentation/sliding_up_panel/2.0.0+1/sliding_up_panel/SlidingUpPanel-class.html">SlidingUpPanel</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="paneled" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/paneled.html">paneled</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s in <code>panel</code> mode.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="possibleSecondaryAlignment" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/possibleSecondaryAlignment.html">possibleSecondaryAlignment</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/painting/Alignment-class.html">Alignment</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/painting/Alignment-class.html">Alignment</a> that might become the <a href="../ui_page_call_controller/CallController/secondaryAlignment.html">secondaryAlignment</a> serving as a hint
+while dragging the secondary view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="primary" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/primary.html">primary</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s to display in the fit view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="primaryDrags" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/primaryDrags.html">primaryDrags</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxInt-class.html">RxInt</a></span>
+  
+
+</dt>
+<dd>
+  Count of a currently happening drags of the primary videos used to
+determine if any drag happened at all and to display secondary view hint.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="primaryTargets" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/primaryTargets.html">primaryTargets</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxInt-class.html">RxInt</a></span>
+  
+
+</dt>
+<dd>
+  Count of <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s to be accepted into the fit view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="remotes" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/remotes.html">remotes</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Remote <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s in <code>default</code> mode.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="rendererBoxFit" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/rendererBoxFit.html">rendererBoxFit</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxMap-class.html">RxMap</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/painting/BoxFit.html">BoxFit</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> of <a href="https://api.flutter.dev/flutter/painting/BoxFit.html">BoxFit</a>s that <a href="../domain_model_ongoing_call/RtcVideoRenderer-class.html">RtcVideoRenderer</a> should explicitly have.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="screenShareState" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/screenShareState.html">screenShareState</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns local screen-sharing stream enabled flag.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="secondary" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondary.html">secondary</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s to display in the secondary view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryAlignment" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryAlignment.html">secondaryAlignment</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/painting/Alignment-class.html">Alignment</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/painting/Alignment-class.html">Alignment</a> of the secondary view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryBottom" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryBottom.html">secondaryBottom</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxnDouble-class.html">RxnDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current bottom position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryBottomShifted" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryBottomShifted.html">secondaryBottomShifted</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/CallController/secondaryBottom.html">secondaryBottom</a> value before the secondary view got relocated with the
+<a href="../ui_page_call_controller/CallController/relocateSecondary.html">relocateSecondary</a> method.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="secondaryDragged" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryDragged.html">secondaryDragged</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the secondary view is being dragged.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryDrags" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryDrags.html">secondaryDrags</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxInt-class.html">RxInt</a></span>
+  
+
+</dt>
+<dd>
+  Count of a currently happening drags of the secondary videos used to
+determine if any drag happened at all.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryEntry" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryEntry.html">secondaryEntry</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html">OverlayEntry</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/OverlayEntry-class.html">OverlayEntry</a> of an empty secondary view.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="secondaryHeight" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryHeight.html">secondaryHeight</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current height.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryHovered" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryHovered.html">secondaryHovered</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the secondary view is being hovered.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryKey" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryKey.html">secondaryKey</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a> of the secondary view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryLeft" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryLeft.html">secondaryLeft</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxnDouble-class.html">RxnDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current left position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryManipulated" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryManipulated.html">secondaryManipulated</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the secondary view is being manipulated in any way, be
+that scaling or panning.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryPanningOffset" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryPanningOffset.html">secondaryPanningOffset</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a> the secondary view has relative to the pan gesture position.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="secondaryRatio" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryRatio.html">secondaryRatio</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>
+  
+
+</dt>
+<dd>
+  Returns a size ratio of the secondary view relative to the <a href="../ui_page_call_controller/CallController/size.html">size</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="secondaryRight" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryRight.html">secondaryRight</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxnDouble-class.html">RxnDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current right position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryTargets" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryTargets.html">secondaryTargets</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxInt-class.html">RxInt</a></span>
+  
+
+</dt>
+<dd>
+  Count of <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s to be accepted into the secondary view.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryTop" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryTop.html">secondaryTop</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxnDouble-class.html">RxnDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current top position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="secondaryUnscaledSize" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryUnscaledSize.html">secondaryUnscaledSize</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/CallController/secondaryWidth.html">secondaryWidth</a> or <a href="../ui_page_call_controller/CallController/secondaryHeight.html">secondaryHeight</a> of the secondary view before its
+scaling.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="secondaryWidth" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/secondaryWidth.html">secondaryWidth</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Secondary view current width.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="showDragAndDropButtonsHint" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/showDragAndDropButtonsHint.html">showDragAndDropButtonsHint</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether a drag and drop buttons hint should be displayed.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="showDragAndDropVideosHint" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/showDragAndDropVideosHint.html">showDragAndDropVideosHint</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether a drag and drop videos hint should be displayed.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="showHeader" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/showHeader.html">showHeader</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the info header of desktop design is currently shown.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="showUi" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/showUi.html">showUi</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the UI is shown.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="size" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/size.html">size</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-ui/Size-class.html">Size</a></span>
+  
+
+</dt>
+<dd>
+  Returns actual size of the call view.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="speaker" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/speaker.html">speaker</a></span>
+  <span class="signature">&#8594; <a href="../util_media_utils/AudioSpeakerKind.html">AudioSpeakerKind</a></span>
+  
+
+</dt>
+<dd>
+  Returns the <a href="../util_media_utils/AudioSpeakerKind.html">AudioSpeakerKind</a> of the used output device.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="speakerSwitched" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/speakerSwitched.html">speakerSwitched</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the speaker was switched or not.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="started" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/started.html">started</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> has started or not.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="state" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/state.html">state</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/OngoingCallState.html">OngoingCallState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  State of the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> progression.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="titleArguments" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/titleArguments.html">titleArguments</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Constructs the arguments to pass to <a href="../l10n_l10n/L10nExtension/l10nfmt.html">L10nExtension.l10nfmt</a> to get the
+title of this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="top" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/top.html">top</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Minimized view current top position.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="videoState" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/videoState.html">videoState</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns local video stream enabled flag.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="width" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/width.html">width</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxDouble-class.html">RxDouble</a></span>
+  
+
+</dt>
+<dd>
+  Minimized view current width.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="withVideo" class="property">
+  <span class="name"><a href="../ui_page_call_controller/CallController/withVideo.html">withVideo</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is with video or not.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="$configureLifeCycle" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object notifies its listeners.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListenerId.html">addListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="addListenerId-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="addListenerId-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="applyConstraints" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/applyConstraints.html">applyConstraints</a></span><span class="signature">(<wbr><span class="parameter" id="applyConstraints-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies constraints to the <a href="../ui_page_call_controller/CallController/width.html">width</a>, <a href="../ui_page_call_controller/CallController/height.html">height</a>, <a href="../ui_page_call_controller/CallController/left.html">left</a> and <a href="../ui_page_call_controller/CallController/top.html">top</a>.
+  
+
+</dd>
+
+        <dt id="applySecondaryConstraints" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/applySecondaryConstraints.html">applySecondaryConstraints</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Applies constraints to the <a href="../ui_page_call_controller/CallController/secondaryWidth.html">secondaryWidth</a>, <a href="../ui_page_call_controller/CallController/secondaryHeight.html">secondaryHeight</a>,
+<a href="../ui_page_call_controller/CallController/secondaryLeft.html">secondaryLeft</a> and <a href="../ui_page_call_controller/CallController/secondaryTop.html">secondaryTop</a>.
+  
+
+</dd>
+
+        <dt id="calculateSecondaryPanning" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/calculateSecondaryPanning.html">calculateSecondaryPanning</a></span><span class="signature">(<wbr><span class="parameter" id="calculateSecondaryPanning-param-offset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a></span> <span class="parameter-name">offset</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Calculates the <a href="../ui_page_call_controller/CallController/secondaryPanningOffset.html">secondaryPanningOffset</a> based on the provided <code>offset</code>.
+  
+
+</dd>
+
+        <dt id="center" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/center.html">center</a></span><span class="signature">(<wbr><span class="parameter" id="center-param-participant"><span class="type-annotation"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span> <span class="parameter-name">participant</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Centers the <code>participant</code>, which means <a href="../ui_page_call_controller/CallController/focus.html">focus</a>ing the <code>participant</code> and
+<a href="../ui_page_call_controller/CallController/unfocus.html">unfocus</a>ing every participant in <a href="../ui_page_call_controller/CallController/focused.html">focused</a>.
+  
+
+</dd>
+
+        <dt id="decline" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/decline.html">decline</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Declines the call.
+  
+
+</dd>
+
+        <dt id="dispose" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="disposeId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/disposeId.html">disposeId</a></span><span class="signature">(<wbr><span class="parameter" id="disposeId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  To dispose an <code>id</code> from future updates(), this ids are registered
+by <code>GetBuilder()</code> or similar, so is a way to unlink the state change with
+the Widget from the Controller.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="drop" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/drop.html">drop</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Drops the call.
+  
+
+</dd>
+
+        <dt id="focus" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/focus.html">focus</a></span><span class="signature">(<wbr><span class="parameter" id="focus-param-participant"><span class="type-annotation"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span> <span class="parameter-name">participant</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Focuses <code>participant</code>, which means putting in to the <a href="../ui_page_call_controller/CallController/focused.html">focused</a>.
+  
+
+</dd>
+
+        <dt id="focusAll" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/focusAll.html">focusAll</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/CallController/focus.html">focus</a>es all <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s, which means putting them in theirs <code>default</code>
+groups.
+  
+
+</dd>
+
+        <dt id="getUser" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/getUser.html">getUser</a></span><span class="signature">(<wbr><span class="parameter" id="getUser-param-id"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_user/RxUser-class.html">RxUser</a>?</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns an <a href="../domain_model_user/User-class.html">User</a> from the <a href="../domain_service_user/UserService-class.html">UserService</a> by the provided <code>id</code>.
+  
+
+</dd>
+
+        <dt id="join" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/join.html">join</a></span><span class="signature">(<wbr>{<span class="parameter" id="join-param-withAudio"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withAudio</span> = <span class="default-value">true</span>, </span><span class="parameter" id="join-param-withVideo"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withVideo</span> = <span class="default-value">true</span>, </span><span class="parameter" id="join-param-withScreen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withScreen</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Joins the call.
+  
+
+</dd>
+
+        <dt id="keepUi" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/keepUi.html">keepUi</a></span><span class="signature">(<wbr>[<span class="parameter" id="keepUi-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">enabled</span></span>])
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Keeps UI open for some amount of time and then hides it if <code>enabled</code> is
+<code>null</code>, otherwise toggles its state immediately to <code>enabled</code>.
+  
+
+</dd>
+
+        <dt id="layoutAsPrimary" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/layoutAsPrimary.html">layoutAsPrimary</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Invokes <a href="../ui_page_call_controller/CallController/focusAll.html">focusAll</a>, moving every <a href="../ui_page_call_controller/Participant-class.html">Participant</a> to their <code>default</code>, or
+<a href="../ui_page_call_controller/CallController/primary.html">primary</a>, groups.
+  
+
+</dd>
+
+        <dt id="layoutAsSecondary" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/layoutAsSecondary.html">layoutAsSecondary</a></span><span class="signature">(<wbr>{<span class="parameter" id="layoutAsSecondary-param-floating"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">floating</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Invokes <a href="../ui_page_call_controller/CallController/unfocus.html">unfocus</a> for the <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s of <a href="../ui_page_call_controller/CallController/me.html">me</a>, moving it to the
+<a href="../ui_page_call_controller/CallController/paneled.html">paneled</a> group.
+  
+
+</dd>
+
+        <dt id="maximize" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/maximize.html">maximize</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Maximizes the view.
+  
+
+</dd>
+
+        <dt id="minimize" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/minimize.html">minimize</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Minimizes the view.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notifyChildrens" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/notifyChildrens.html">notifyChildrens</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onClose" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/onClose.html">onClose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called before <a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onDelete.html">onDelete</a> method. <a href="../ui_page_call_controller/CallController/onClose.html">onClose</a> might be used to
+dispose resources used by the controller. Like closing events,
+or streams before the controller is destroyed.
+Or dispose objects that can potentially create some memory leaks,
+like TextEditingControllers, AnimationControllers.
+Might be useful as well to persist some data on disk.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="onInit" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/onInit.html">onInit</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="onReady" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/onReady.html">onReady</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called 1 frame after onInit(). It is the perfect place to enter
+navigation events, like snackbar, dialogs, or a new route, or
+async request.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="openAddMember" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/openAddMember.html">openAddMember</a></span><span class="signature">(<wbr><span class="parameter" id="openAddMember-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a result of the <a href="https://api.flutter.dev/flutter/material/showDialog.html">showDialog</a> building a <a href="../ui_page_call_participant_view/ParticipantView-class.html">ParticipantView</a>.
+  
+
+</dd>
+
+        <dt id="openSettings" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/openSettings.html">openSettings</a></span><span class="signature">(<wbr><span class="parameter" id="openSettings-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a result of <a href="https://api.flutter.dev/flutter/material/showDialog.html">showDialog</a> that builds <a href="../ui_page_call_settings_view/CallSettingsView-class.html">CallSettingsView</a>.
+  
+
+</dd>
+
+        <dt id="refresh" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refresh.html">refresh</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="refreshGroup" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refreshGroup.html">refreshGroup</a></span><span class="signature">(<wbr><span class="parameter" id="refreshGroup-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="relocateSecondary" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/relocateSecondary.html">relocateSecondary</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Relocates the secondary view accounting the possible intersections.
+  
+
+</dd>
+
+        <dt id="removeChatCallMember" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/removeChatCallMember.html">removeChatCallMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatCallMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes <a href="../domain_model_user/User-class.html">User</a> identified by the provided <code>userId</code> from the
+<code>_currentCall</code>.
+  
+
+</dd>
+
+        <dt id="removeChatMember" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/removeChatMember.html">removeChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes <a href="../domain_model_user/User-class.html">User</a> identified by the provided <code>userId</code> from the <a href="../ui_page_call_controller/CallController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that the
+object notifies.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="removeListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListenerId.html">removeListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="removeListenerId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="removeListenerId-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="resize" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/resize.html">resize</a></span><span class="signature">(<wbr><span class="parameter" id="resize-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, {</span><span class="parameter" id="resize-param-y"><span class="type-annotation"><a href="../ui_page_call_controller/ScaleModeY.html">ScaleModeY</a>?</span> <span class="parameter-name">y</span>, </span><span class="parameter" id="resize-param-x"><span class="type-annotation"><a href="../ui_page_call_controller/ScaleModeX.html">ScaleModeX</a>?</span> <span class="parameter-name">x</span>, </span><span class="parameter" id="resize-param-dx"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dx</span>, </span><span class="parameter" id="resize-param-dy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dy</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resizes the minimized view along <code>x</code> by <code>dx</code> and/or <code>y</code> by <code>dy</code> axis.
+  
+
+</dd>
+
+        <dt id="resizeSecondary" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/resizeSecondary.html">resizeSecondary</a></span><span class="signature">(<wbr><span class="parameter" id="resizeSecondary-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, {</span><span class="parameter" id="resizeSecondary-param-y"><span class="type-annotation"><a href="../ui_page_call_controller/ScaleModeY.html">ScaleModeY</a>?</span> <span class="parameter-name">y</span>, </span><span class="parameter" id="resizeSecondary-param-x"><span class="type-annotation"><a href="../ui_page_call_controller/ScaleModeX.html">ScaleModeX</a>?</span> <span class="parameter-name">x</span>, </span><span class="parameter" id="resizeSecondary-param-dx"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dx</span>, </span><span class="parameter" id="resizeSecondary-param-dy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dy</span></span>})
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resizes the secondary view along <code>x</code> by <code>dx</code> and/or <code>y</code> by <code>dy</code> axis.
+  
+
+</dd>
+
+        <dt id="scaleSecondary" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/scaleSecondary.html">scaleSecondary</a></span><span class="signature">(<wbr><span class="parameter" id="scaleSecondary-param-constraints"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/rendering/BoxConstraints-class.html">BoxConstraints</a></span> <span class="parameter-name">constraints</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Scales secondary according to the <code>constraints</code> and <code>_lastConstraints</code>
+difference.
+  
+
+</dd>
+
+        <dt id="switchCamera" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/switchCamera.html">switchCamera</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Changes the local video device to the next one from the
+<a href="../domain_model_ongoing_call/OngoingCall/devices.html">OngoingCall.devices</a> list.
+  
+
+</dd>
+
+        <dt id="toggleAudio" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleAudio.html">toggleAudio</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles local audio stream on and off.
+  
+
+</dd>
+
+        <dt id="toggleAudioEnabled" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleAudioEnabled.html">toggleAudioEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="toggleAudioEnabled-param-participant"><span class="type-annotation"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span> <span class="parameter-name">participant</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles the provided <code>participant</code>'s incoming audio on and off.
+  
+
+</dd>
+
+        <dt id="toggleFullscreen" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleFullscreen.html">toggleFullscreen</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles fullscreen on and off.
+  
+
+</dd>
+
+        <dt id="toggleHand" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleHand.html">toggleHand</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Raises/lowers a hand.
+  
+
+</dd>
+
+        <dt id="toggleMore" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleMore.html">toggleMore</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles the <a href="../ui_page_call_controller/CallController/displayMore.html">displayMore</a>.
+  
+
+</dd>
+
+        <dt id="toggleRemoteAudios" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleRemoteAudios.html">toggleRemoteAudios</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles inbound audio in the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> on and off.
+  
+
+</dd>
+
+        <dt id="toggleRemoteVideos" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleRemoteVideos.html">toggleRemoteVideos</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles inbound video in the current <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> on and off.
+  
+
+</dd>
+
+        <dt id="toggleScreenShare" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleScreenShare.html">toggleScreenShare</a></span><span class="signature">(<wbr><span class="parameter" id="toggleScreenShare-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles local screen-sharing stream on and off.
+  
+
+</dd>
+
+        <dt id="toggleSpeaker" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleSpeaker.html">toggleSpeaker</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles between the speakerphone, earpiece and headphones output.
+  
+
+</dd>
+
+        <dt id="toggleVideo" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleVideo.html">toggleVideo</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles local video stream on and off.
+  
+
+</dd>
+
+        <dt id="toggleVideoEnabled" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/toggleVideoEnabled.html">toggleVideoEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="toggleVideoEnabled-param-participant"><span class="type-annotation"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span> <span class="parameter-name">participant</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles the provided <code>participant</code>'s incoming video on and off.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="unfocus" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/unfocus.html">unfocus</a></span><span class="signature">(<wbr><span class="parameter" id="unfocus-param-participant"><span class="type-annotation"><a href="../ui_page_call_controller/Participant-class.html">Participant</a></span> <span class="parameter-name">participant</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Unfocuses <code>participant</code>, which means putting it in its <code>default</code> group.
+  
+
+</dd>
+
+        <dt id="unfocusAll" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/unfocusAll.html">unfocusAll</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_page_call_controller/CallController/unfocus.html">unfocus</a>es all <a href="../ui_page_call_controller/Participant-class.html">Participant</a>s, which means putting them in the <a href="../ui_page_call_controller/CallController/paneled.html">paneled</a>
+group.
+  
+
+</dd>
+
+        <dt id="update" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetxController/update.html">update</a></span><span class="signature">(<wbr>[<span class="parameter" id="update-param-ids"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span>?</span> <span class="parameter-name">ids</span>, </span><span class="parameter" id="update-param-condition"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">condition</span> = <span class="default-value">true</span></span>])
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Rebuilds <code>GetBuilder</code> each time you call <code>update()</code>;
+Can take a List of <code>ids</code>, that will only update the matching
+<code>GetBuilder( id: )</code>,
+<code>ids</code> can be reused among <code>GetBuilders</code> like group tags.
+The update will only notify the Widgets, if <code>condition</code> is true.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="updateSecondaryAttach" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/updateSecondaryAttach.html">updateSecondaryAttach</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Calculates the appropriate <a href="../ui_page_call_controller/CallController/secondaryLeft.html">secondaryLeft</a>, <a href="../ui_page_call_controller/CallController/secondaryRight.html">secondaryRight</a>,
+<a href="../ui_page_call_controller/CallController/secondaryTop.html">secondaryTop</a> and <a href="../ui_page_call_controller/CallController/secondaryBottom.html">secondaryBottom</a> values according to the nearest edge.
+  
+
+</dd>
+
+        <dt id="updateSecondaryOffset" class="callable">
+  <span class="name"><a href="../ui_page_call_controller/CallController/updateSecondaryOffset.html">updateSecondaryOffset</a></span><span class="signature">(<wbr><span class="parameter" id="updateSecondaryOffset-param-offset"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Offset-class.html">Offset</a></span> <span class="parameter-name">offset</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the <a href="../ui_page_call_controller/CallController/secondaryLeft.html">secondaryLeft</a> and <a href="../ui_page_call_controller/CallController/secondaryTop.html">secondaryTop</a> correctly to the provided
+<code>offset</code>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  <section class="summary offset-anchor" id="constants">
+    <h2>Constants</h2>
+    <dl class="properties">
+        <dt id="buttonSize" class="constant">
+    <span class="name "><a href="../ui_page_call_controller/CallController/buttonSize-constant.html">buttonSize</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>
+  
+
+</dt>
+<dd>
+  Maximum size a single <a href="../ui_page_call_component_common/CallButton-class.html">CallButton</a> is allowed to occupy in the <a href="../ui_page_call_widget_dock/Dock-class.html">Dock</a>.
+  
+
+</dd>
+
+        <dt id="titleHeight" class="constant">
+    <span class="name "><a href="../ui_page_call_controller/CallController/titleHeight-constant.html">titleHeight</a></span>
+  <span class="signature">&#8594; const <a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span>
+  
+
+</dt>
+<dd>
+  Height of the title bar.
+  
+
+</dd>
+
+    </dl>
+  </section>
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li class="self-crumb">CallController class</li>
+</ol>
+
+    <h5>controller library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
