@@ -30,7 +30,7 @@ class NotificationService: UNNotificationServiceExtension {
     let userInfo = request.content.userInfo
 
     Task {
-      if let chatId = userInfo["chatId"] as? String {
+      if let chatId = userInfo["thread"] as? String {
         await acknowledgeDelivery(chatId: chatId)
       }
     }
@@ -43,6 +43,16 @@ class NotificationService: UNNotificationServiceExtension {
         bestAttemptContent,
         withContentHandler: contentHandler
       )
+    }
+
+    Task {
+      if (request.content.title == "Canceled") {
+        if let thread = userInfo["thread"] as? String {
+           cancelNotificationsContaining(thread: thread)
+        } else if let tag = userInfo["tag"] as? String {
+           cancelNotification(tag: tag)
+        }
+      }
     }
   }
 
@@ -254,5 +264,27 @@ class NotificationService: UNNotificationServiceExtension {
 
   struct RefreshSessionResponseDataCredentialsUser: Decodable {
     let id: String
+  }
+
+  /// Remove the delivered notification with the provided tag.
+  private func cancelNotification(tag: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+    }
+  }
+
+  /// Remove the delivered notifications containing the provided thread.
+  private func cancelNotificationsContaining(thread: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.getDeliveredNotifications { (notifications) in
+        for notification in notifications {
+          if (notification.request.content.threadIdentifier.contains(thread) == true) {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+          }
+        }
+      }
+    }
   }
 }

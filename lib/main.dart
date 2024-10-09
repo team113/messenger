@@ -459,7 +459,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     // Service Extension, as this code isn't guaranteed to be invoked at all,
     // especially for visual notifications.
     if (PlatformUtils.isAndroid) {
-      final String? chatId = message.data['chatId'];
+      final String? chatId = message.data['thread'] ?? message.data['chatId'];
 
       if (chatId != null) {
         await Config.init();
