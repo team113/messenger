@@ -18,6 +18,7 @@
  */
 
 import Flutter
+import Firebase
 import FirebaseMessaging
 import MachO
 import UIKit
