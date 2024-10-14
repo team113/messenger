@@ -18,7 +18,6 @@
  */
 
 import Flutter
-import Firebase
 import FirebaseMessaging
 import MachO
 import UIKit
@@ -67,18 +66,6 @@ import UIKit
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  override func application(
-    _ application: UIApplication,
-    didReceiveRemoteNotification userInfo: [AnyHashable : Any],
-    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-  ) {
-    if let thread = userInfo["thread"] as? String {
-      cancelNotificationsContaining(result: nil, thread: thread)
-    } else if let tag = userInfo["tag"] as? String {
-        cancelNotification(tag: tag)
-    }
-  }
-
   /// Return the architecture of this device.
   private func getArchitecture(result: FlutterResult) {
     let info = NXGetLocalArchInfo()
@@ -101,7 +88,7 @@ import UIKit
   }
 
   /// Remove the delivered notifications containing the provided thread.
-  private func cancelNotificationsContaining(result: FlutterResult?, thread: String) {
+  private func cancelNotificationsContaining(result: @escaping FlutterResult, thread: String) {
     if #available(iOS 10.0, *) {
       let center = UNUserNotificationCenter.current();
       center.getDeliveredNotifications { (notifications) in
@@ -114,9 +101,7 @@ import UIKit
           }
         }
 
-        if (result != nil) {
-          result!(found);
-        }
+        result(found);
       }
     }
   }
