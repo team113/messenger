@@ -18,7 +18,6 @@
  */
 
 import Flutter
-import Firebase
 import FirebaseMessaging
 import MachO
 import UIKit
@@ -67,56 +66,6 @@ import UIKit
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
-  override func application(
-    _ application: UIApplication,
-    didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
-  ) {
-    Messaging.messaging().apnsToken = deviceToken;
-  }
-
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    willPresent notification: UNNotification,
-    withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void
-  ) {
-    let userInfo = notification.request.content.userInfo
-
-    Messaging.messaging().appDidReceiveMessage(userInfo)
-
-    // Change this to your preferred presentation option
-    completionHandler([[.alert, .sound]])
-  }
-
-  override func userNotificationCenter(
-    _ center: UNUserNotificationCenter,
-    didReceive response: UNNotificationResponse,
-    withCompletionHandler completionHandler: @escaping () -> Void
-  ) {
-    let userInfo = response.notification.request.content.userInfo
-
-    Messaging.messaging().appDidReceiveMessage(userInfo)
-
-    completionHandler()
-  }
-
-  override func application(
-    _ application: UIApplication,
-    didReceiveRemoteNotification userInfo: [AnyHashable : Any],
-    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
-  ) {
-    Messaging.messaging().appDidReceiveMessage(userInfo)
-
-    if let thread = userInfo["thread"] as? String {
-      cancelNotificationsContaining(result: nil, thread: thread)
-    } else if let tag = userInfo["tag"] as? String {
-      cancelNotification(tag: tag)
-    }
-
-    completionHandler(.noData)
-
-    super.application(application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler)
-  }
-
   /// Return the architecture of this device.
   private func getArchitecture(result: FlutterResult) {
     let info = NXGetLocalArchInfo()
@@ -139,7 +88,7 @@ import UIKit
   }
 
   /// Remove the delivered notifications containing the provided thread.
-  private func cancelNotificationsContaining(result: FlutterResult?, thread: String) {
+  private func cancelNotificationsContaining(result: @escaping FlutterResult, thread: String) {
     if #available(iOS 10.0, *) {
       let center = UNUserNotificationCenter.current();
       center.getDeliveredNotifications { (notifications) in
@@ -152,9 +101,7 @@ import UIKit
           }
         }
 
-        if (result != nil) {
-          result!(found);
-        }
+        result(found);
       }
     }
   }
