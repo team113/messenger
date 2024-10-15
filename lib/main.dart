@@ -298,11 +298,9 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  Log.debug('handlePushNotification($message)', 'main');
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  Log.debug('handlePushNotification($message)', 'main');
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
@@ -459,7 +457,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     // Service Extension, as this code isn't guaranteed to be invoked at all,
     // especially for visual notifications.
     if (PlatformUtils.isAndroid) {
-      final String? chatId = message.data['chatId'];
+      final String? chatId = message.data['thread'] ?? message.data['chatId'];
 
       if (chatId != null) {
         await Config.init();

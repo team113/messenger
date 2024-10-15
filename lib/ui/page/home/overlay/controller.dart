@@ -129,7 +129,7 @@ class CallOverlayController extends GetxController {
           break;
 
         case OperationKind.removed:
-          calls.removeWhere((e) => e.call == event.value!);
+          calls.removeWhere((e) => e.call.value.chatId.value == event.key);
 
           final OngoingCall call = event.value!.value;
           final WebStoredCall? web = WebUtils.getCall(event.key!);

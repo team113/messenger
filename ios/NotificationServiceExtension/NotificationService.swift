@@ -30,7 +30,7 @@ class NotificationService: UNNotificationServiceExtension {
     let userInfo = request.content.userInfo
 
     Task {
-      if let chatId = userInfo["chatId"] as? String {
+      if let chatId = userInfo["thread"] as? String {
         await acknowledgeDelivery(chatId: chatId)
       }
     }
