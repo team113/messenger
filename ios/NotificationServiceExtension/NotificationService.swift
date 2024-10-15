@@ -37,33 +37,37 @@ class NotificationService: UNNotificationServiceExtension {
       }
 
       if (request.content.title == "Canceled" && request.content.body.isEmpty) {
+        var content = UNMutableNotificationContent();
+        content.sound = nil;
+        contentHandler(content)
+        
         if let thread = userInfo["thread"] as? String {
           let center = UNUserNotificationCenter.current();
           let notifications = await center.deliveredNotifications();
+          
           if (!notifications.filter{$0.request.content.threadIdentifier.contains(thread)}.isEmpty) {
             try? await Task.sleep(nanoseconds: UInt64(0.05 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
-            contentHandler(UNNotificationContent())
+            
             cancelNotificationsContaining(thread: thread)
             try? await Task.sleep(nanoseconds: UInt64(0.05 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
             return;
           }
-
         } else if let tag = userInfo["tag"] as? String {
           cancelNotification(tag: tag)
         }
-      }
-
-      self.contentHandler = contentHandler
-      bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
-
-      if let bestAttemptContent = bestAttemptContent {
-        Messaging.serviceExtension().populateNotificationContent(
-          bestAttemptContent,
-          withContentHandler: contentHandler
-        )
+      } else {
+        self.contentHandler = contentHandler
+        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+        
+        if let bestAttemptContent = bestAttemptContent {
+          Messaging.serviceExtension().populateNotificationContent(
+            bestAttemptContent,
+            withContentHandler: contentHandler
+          )
+        }
       }
     }
   }
