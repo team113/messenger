@@ -26,7 +26,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
-    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
+    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence, CropAreaInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
@@ -441,7 +441,7 @@ class MyProfileController extends GetxController {
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
     try {
-      await _updateAvatar(null);
+      await _updateAvatar(null, null);
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
@@ -459,7 +459,10 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
+        await _updateAvatar(
+          NativeFile.fromPlatformFile(result!.files.first),
+          null,
+        );
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
@@ -559,10 +562,10 @@ class MyProfileController extends GetxController {
   ///
   /// If [file] is `null`, then deletes the [MyUser.avatar] and
   /// [MyUser.callCover].
-  Future<void> _updateAvatar(NativeFile? file) async {
+  Future<void> _updateAvatar(NativeFile? file, CropAreaInput? crop) async {
     try {
       await Future.wait([
-        _myUserService.updateAvatar(file),
+        _myUserService.updateAvatar(file, crop: crop),
         _myUserService.updateCallCover(file)
       ]);
     } on UpdateUserAvatarException catch (e) {
