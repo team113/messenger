@@ -424,7 +424,29 @@ class NotificationService extends DisposableService {
         FirebaseMessaging.onMessage.listen((message) async {
       Log.debug('_foregroundSubscription($message)', '$runtimeType');
 
-      if (message.notification?.title != null) {
+      // If message contains no notification (it's a background notification),
+      // then try canceling the notifications with the provided thread, if any,
+      // or otherwise a single one, if data contains a tag.
+      if (message.notification == null ||
+          (message.notification?.title == 'Canceled' &&
+              message.notification?.body == null)) {
+        final String? tag = message.data['tag'];
+        final String? thread = message.data['thread'];
+
+        if (PlatformUtils.isAndroid) {
+          if (thread != null) {
+            await AndroidUtils.cancelNotificationsContaining(thread);
+          } else if (tag != null) {
+            await AndroidUtils.cancelNotification(tag);
+          }
+        } else if (PlatformUtils.isIOS) {
+          if (thread != null) {
+            await IosUtils.cancelNotificationsContaining(thread);
+          } else if (tag != null) {
+            await IosUtils.cancelNotification(tag);
+          }
+        }
+      } else if (message.notification?.title != null) {
         await show(
           message.notification!.title!,
           body: message.notification?.body,
@@ -439,28 +461,6 @@ class NotificationService extends DisposableService {
               ? '${message.data['chatId']}_${message.data['chatItemId']}'
               : null,
         );
-      } else {
-        // If message contains no notification (it's a background notification),
-        // then try canceling the notifications with the provided thread, if
-        // any, or otherwise a single one, if data contains a tag.
-        if (message.notification == null) {
-          final String? tag = message.data['tag'];
-          final String? thread = message.data['thread'];
-
-          if (PlatformUtils.isAndroid) {
-            if (thread != null) {
-              await AndroidUtils.cancelNotificationsContaining(thread);
-            } else if (tag != null) {
-              await AndroidUtils.cancelNotification(tag);
-            }
-          } else if (PlatformUtils.isIOS) {
-            if (thread != null) {
-              await IosUtils.cancelNotificationsContaining(thread);
-            } else if (tag != null) {
-              await IosUtils.cancelNotification(tag);
-            }
-          }
-        }
       }
     });
 

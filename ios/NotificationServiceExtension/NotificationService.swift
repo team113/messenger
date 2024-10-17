@@ -46,12 +46,12 @@ class NotificationService: UNNotificationServiceExtension {
           let notifications = await center.deliveredNotifications();
 
           if (!notifications.filter{$0.request.content.threadIdentifier.contains(thread)}.isEmpty) {
-            try? await Task.sleep(nanoseconds: UInt64(0.05 * Double(NSEC_PER_SEC)))
+            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
 
             cancelNotificationsContaining(thread: thread)
-            try? await Task.sleep(nanoseconds: UInt64(0.05 * Double(NSEC_PER_SEC)))
+            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
             return;
           }

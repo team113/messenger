@@ -40,7 +40,7 @@ messaging.onBackgroundMessage(async (payload) => {
   //
   // This code is invoked from a service worker, thus the `getNotifications()`
   // method is available here.
-  if (payload.notification?.title == null) {
+  if (payload.notification?.title == null || (payload.notification?.title == 'Canceled' && payload.notification?.body == null)) {
     var tag = payload.data.tag;
     var thread = payload.data.thread;
 
