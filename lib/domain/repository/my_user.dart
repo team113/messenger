@@ -19,7 +19,7 @@ import 'package:get/get.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show Presence, CropAreaInput;
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -141,6 +141,7 @@ abstract class AbstractMyUserRepository {
   /// [file].
   Future<void> updateAvatar(
     NativeFile? file, {
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   });
 

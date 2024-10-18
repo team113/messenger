@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 import 'package:mutex/mutex.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/api/backend/schema.dart' show Presence, CropAreaInput;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/mute_duration.dart';
@@ -268,10 +268,15 @@ class MyUserService extends DisposableService {
   /// [file].
   Future<void> updateAvatar(
     NativeFile? file, {
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
-    await _myUserRepository.updateAvatar(file, onSendProgress: onSendProgress);
+    await _myUserRepository.updateAvatar(
+      file,
+      crop: crop,
+      onSendProgress: onSendProgress,
+    );
   }
 
   /// Updates or resets the [MyUser.callCover] field with the provided image
