@@ -54,6 +54,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/controller.dart';
+import 'crop_avatar/view.dart';
 import 'welcome_field/controller.dart';
 
 export 'view.dart';
@@ -447,7 +448,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
+  /// Crops and Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await PlatformUtils.pickFiles(
@@ -459,9 +460,11 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
+        CropAreaInput? crop =
+            await CropAvatarView.show(router.context!, result!.files.first);
         await _updateAvatar(
-          NativeFile.fromPlatformFile(result!.files.first),
-          null,
+          NativeFile.fromPlatformFile(result.files.first),
+          crop,
         );
       }
     } finally {
