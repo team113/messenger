@@ -106,7 +106,12 @@ class CropController extends ValueNotifier<CropControllerValue> {
   /// See also:
   ///
   ///  * [crop], which represents the same rectangle in percentage.
-  Rect get cropSize => value.crop.multiply(_bitmapSize);
+  Rect get cropSize {
+    final isSideways = rotation.isSideways;
+    final width = isSideways ? _bitmapSize.height : _bitmapSize.width;
+    final height = isSideways ? _bitmapSize.width : _bitmapSize.height;
+    return value.crop.multiply(Size(width, height));
+  }
 
   set cropSize(Rect newCropSize) {
     value = value.copyWith(
