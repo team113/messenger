@@ -15,126 +15,46 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'widget/image_cropper/enums.dart';
 
 /// Controller for [ImageCropper] widget. It allows to control the crop rectangle and rotation.
 /// It also provides the ability to rotate the image.
-class CropController extends ValueNotifier<CropControllerValue> {
-  /// Aspect ratio of the image (width / height).
-  ///
-  /// The [crop] rectangle will be adjusted to fit this ratio.
-  /// Pass null for free selection clipping (aspect ratio not enforced).
-  double? get aspectRatio => value.aspectRatio;
+class CropController extends GetxController {
+  final Image image;
+  final Rx<double?> _aspectRatio;
+  Rx<Rect> crop;
+  Rx<CropRotation> rotation;
 
-  set aspectRatio(double? newAspectRatio) {
-    if (newAspectRatio != null) {
-      value = value.copyWith(
-        aspectRatio: newAspectRatio,
-        crop: _adjustRatio(value.crop, newAspectRatio),
-      );
-    } else {
-      value = CropControllerValue(
-        null,
-        value.crop,
-        value.rotation,
-        value.minimumImageSize,
-      );
-    }
-    notifyListeners();
+  @override
+  bool get initialized {
+    return super.initialized && bitmap != null;
   }
 
-  /// Current crop rectangle of the image (percentage).
-  ///
-  /// [left] and [right] are normalized between 0 and 1 (full width).
-  /// [top] and [bottom] are normalized between 0 and 1 (full height).
-  ///
-  /// If the [aspectRatio] was specified, the rectangle will be adjusted to fit that ratio.
-  ///
-  /// See also:
-  ///
-  ///  * [cropSize], which represents the same rectangle in pixels.
-  Rect get crop => value.crop;
+  ui.Image? bitmap;
 
-  set crop(Rect newCrop) {
-    value = value.copyWith(crop: _adjustRatio(newCrop, value.aspectRatio));
-    notifyListeners();
-  }
+  Size get bitmapSize =>
+      Size(bitmap!.width.toDouble(), bitmap!.height.toDouble());
 
-  CropRotation get rotation => value.rotation;
-
-  set rotation(CropRotation rotation) {
-    value = value.copyWith(rotation: rotation);
-    notifyListeners();
-  }
-
-  void rotateRight() => _rotate(left: false);
-
-  void rotateLeft() => _rotate(left: true);
-
-  /// Rotates the image 90 degrees to the left or right.
-  void _rotate({required final bool left}) {
-    final CropRotation newRotation =
-        left ? value.rotation.rotateLeft : value.rotation.rotateRight;
-    final Offset newCenter = left
-        ? Offset(crop.center.dy, 1 - crop.center.dx)
-        : Offset(1 - crop.center.dy, crop.center.dx);
-    value = CropControllerValue(
-      aspectRatio,
-      _adjustRatio(
-        Rect.fromCenter(
-          center: newCenter,
-          width: crop.height,
-          height: crop.width,
-        ),
-        aspectRatio,
-        rotation: newRotation,
+  @override
+  onInit() async {
+    super.onInit();
+    Completer<ImageInfo> completer = Completer<ImageInfo>();
+    image.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (ImageInfo info, bool synchronousCall) {
+          completer.complete(info);
+        },
       ),
-      newRotation,
-      value.minimumImageSize,
     );
-    notifyListeners();
+    ImageInfo imageInfo = await completer.future;
+    bitmap = imageInfo.image;
+    aspectRatio = aspectRatio;
+    update();
   }
-
-  /// Current crop rectangle of the image (pixels).
-  ///
-  /// [left], [right], [top] and [bottom] are in pixels.
-  ///
-  /// If the [aspectRatio] was specified, the rectangle will be adjusted to fit that ratio.
-  ///
-  /// See also:
-  ///
-  ///  * [crop], which represents the same rectangle in percentage.
-  Rect get cropSize {
-    final isSideways = rotation.isSideways;
-    final width = isSideways ? _bitmapSize.height : _bitmapSize.width;
-    final height = isSideways ? _bitmapSize.width : _bitmapSize.height;
-    return value.crop.multiply(Size(width, height));
-  }
-
-  set cropSize(Rect newCropSize) {
-    value = value.copyWith(
-      crop: _adjustRatio(newCropSize.divide(_bitmapSize), value.aspectRatio),
-    );
-    notifyListeners();
-  }
-
-  /// Image to be cropped.
-  /// It is set by the [ImageCropper] widget.
-  ui.Image? _bitmap;
-
-  /// The minimum size of the image in pixels.
-  late Size _bitmapSize;
-
-  set image(ui.Image newImage) {
-    _bitmap = newImage;
-    _bitmapSize = Size(newImage.width.toDouble(), newImage.height.toDouble());
-    aspectRatio = aspectRatio; // force adjustment
-    notifyListeners();
-  }
-
-  ui.Image? getImage() => _bitmap;
 
   /// A controller for a [CropImage] widget.
   ///
@@ -143,11 +63,13 @@ class CropController extends ValueNotifier<CropControllerValue> {
   ///
   /// Remember to [dispose] of the [CropController] when it's no longer needed.
   /// This will ensure we discard any resources used by the object.
+
+  /// Creates a controller for a [CropImage] widget from an initial [CropControllerValue].
   CropController({
-    double? aspectRatio,
+    required this.image,
+    double aspectRatio = 1,
     Rect defaultCrop = const Rect.fromLTWH(0, 0, 1, 1),
     CropRotation rotation = CropRotation.up,
-    double minimumImageSize = 100,
   })  : assert(aspectRatio != 0, 'aspectRatio cannot be zero'),
         assert(defaultCrop.left >= 0 && defaultCrop.left <= 1,
             'left should be 0..1'),
@@ -161,15 +83,92 @@ class CropController extends ValueNotifier<CropControllerValue> {
             'left must be less than right'),
         assert(defaultCrop.top < defaultCrop.bottom,
             'top must be less than bottom'),
-        super(CropControllerValue(
-          aspectRatio,
-          defaultCrop,
-          rotation,
-          minimumImageSize,
-        ));
+        _aspectRatio = RxDouble(aspectRatio),
+        rotation = rotation.obs,
+        crop = defaultCrop.obs;
 
-  /// Creates a controller for a [CropImage] widget from an initial [CropControllerValue].
-  CropController.fromValue(super.value);
+  CropController.fromValue(CropController value)
+      : image = value.image,
+        crop = value.crop,
+        rotation = value.rotation,
+        bitmap = value.bitmap,
+        _aspectRatio = value.aspectRatio.obs;
+
+  /// Aspect ratio of the image (width / height).
+  ///
+  /// The [crop] rectangle will be adjusted to fit this ratio.
+  /// Pass null for free selection clipping (aspect ratio not enforced).
+  double? get aspectRatio => _aspectRatio.value;
+
+  set aspectRatio(double? newAspectRatio) {
+    if (newAspectRatio != null) {
+      _aspectRatio.value = newAspectRatio;
+      crop.value = _adjustRatio(crop.value, newAspectRatio);
+    } else {
+      _aspectRatio.value = null;
+    }
+  }
+
+  /// Current crop rectangle of the image (percentage).
+  ///
+  /// [left] and [right] are normalized between 0 and 1 (full width).
+  /// [top] and [bottom] are normalized between 0 and 1 (full height).
+  ///
+  /// If the [aspectRatio] was specified, the rectangle will be adjusted to fit that ratio.
+  ///
+  /// See also:
+  ///
+  ///  * [cropSize], which represents the same rectangle in pixels.
+  // Rx<Rect> get crop => _crop;
+  //
+  // set crop(Rect newCrop) {
+  //   _crop.value = _adjustRatio(crop, aspectRatio);
+  // }
+
+  void rotateRight() => _rotate(left: false);
+
+  void rotateLeft() => _rotate(left: true);
+
+  /// Rotates the image 90 degrees to the left or right.
+  void _rotate({required final bool left}) {
+    final CropRotation newRotation =
+        left ? rotation.value.rotateLeft : rotation.value.rotateRight;
+    final Offset newCenter = left
+        ? Offset(crop.value.center.dy, 1 - crop.value.center.dx)
+        : Offset(1 - crop.value.center.dy, crop.value.center.dx);
+    _aspectRatio.value = aspectRatio;
+    crop.value = _adjustRatio(
+      Rect.fromCenter(
+        center: newCenter,
+        width: crop.value.height,
+        height: crop.value.width,
+      ),
+      aspectRatio,
+      rotation: newRotation,
+    );
+    rotation.value = newRotation;
+    update();
+  }
+
+  /// Current crop rectangle of the image (pixels).
+  ///
+  /// [left], [right], [top] and [bottom] are in pixels.
+  ///
+  /// If the [aspectRatio] was specified, the rectangle will be adjusted to fit that ratio.
+  ///
+  /// See also:
+  ///
+  ///  * [crop], which represents the same rectangle in percentage.
+  Rect get cropSize {
+    final isSideways = rotation.value.isSideways;
+    final width = isSideways ? bitmapSize.height : bitmapSize.width;
+    final height = isSideways ? bitmapSize.width : bitmapSize.height;
+    return crop.value.multiply(Size(width, height));
+  }
+
+  set cropSize(Rect newCropSize) {
+    crop.value = _adjustRatio(newCropSize.divide(bitmapSize), aspectRatio);
+  }
 
   /// Adjusts the crop rectangle to fit the specified aspect ratio.
   Rect _adjustRatio(
@@ -181,11 +180,11 @@ class CropController extends ValueNotifier<CropControllerValue> {
       return crop;
     }
     final bool justRotated = rotation != null;
-    rotation ??= value.rotation;
+    rotation ??= this.rotation.value;
     final bitmapWidth =
-        rotation.isSideways ? _bitmapSize.height : _bitmapSize.width;
+        rotation.isSideways ? bitmapSize.height : bitmapSize.width;
     final bitmapHeight =
-        rotation.isSideways ? _bitmapSize.width : _bitmapSize.height;
+        rotation.isSideways ? bitmapSize.width : bitmapSize.height;
     if (justRotated) {
       // we've just rotated: in that case, biggest centered crop.
       const center = Offset(.5, .5);
@@ -208,52 +207,4 @@ class CropController extends ValueNotifier<CropControllerValue> {
       return Rect.fromLTWH(crop.left, crop.center.dy - h / 2, crop.width, h);
     }
   }
-}
-
-@immutable
-class CropControllerValue {
-  final double? aspectRatio;
-  final Rect crop;
-  final CropRotation rotation;
-  final double minimumImageSize;
-
-  const CropControllerValue(
-    this.aspectRatio,
-    this.crop,
-    this.rotation,
-    this.minimumImageSize,
-  );
-
-  CropControllerValue copyWith({
-    double? aspectRatio,
-    Rect? crop,
-    CropRotation? rotation,
-    double? minimumImageSize,
-  }) =>
-      CropControllerValue(
-        aspectRatio ?? this.aspectRatio,
-        crop ?? this.crop,
-        rotation ?? this.rotation,
-        minimumImageSize ?? this.minimumImageSize,
-      );
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) {
-      return true;
-    }
-    return other is CropControllerValue &&
-        other.aspectRatio == aspectRatio &&
-        other.crop == crop &&
-        other.rotation == rotation &&
-        other.minimumImageSize == minimumImageSize;
-  }
-
-  @override
-  int get hashCode => Object.hash(
-        aspectRatio.hashCode,
-        crop.hashCode,
-        rotation.hashCode,
-        minimumImageSize.hashCode,
-      );
 }

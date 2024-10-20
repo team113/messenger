@@ -15,8 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:io';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+// Fixme: check the contribution guide for the correct importing manner
+import '../../../../../../themes.dart';
+import '../../../../../widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import '/api/backend/schema.dart' show CropAreaInput, PointInput;
 import '/ui/widget/modal_popup.dart';
@@ -38,6 +45,10 @@ class CropAvatarView extends StatefulWidget {
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
+      desktopPadding: const EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: 20,
+      ),
       child: CropAvatarView(image),
     );
   }
@@ -47,53 +58,104 @@ class CropAvatarView extends StatefulWidget {
 }
 
 class _CropAvatarViewState extends State<CropAvatarView> {
-  /// Controller for the [ImageCropper].
-  late final CropController controller;
+  late final Image image;
 
   @override
   void initState() {
-    controller = CropController(aspectRatio: 1);
     super.initState();
+    if (widget.image.path != null) {
+      image = Image.file(File(widget.image.path!));
+    } else if (widget.image.bytes != null) {
+      image = Image.memory(widget.image.bytes!);
+    } else {
+      throw ArgumentError(
+        'At least bytes or path should be specified.',
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ImageCropper(
-          controller: controller,
-          image: Image.memory(widget.image.bytes!),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
+    final style = Theme.of(context).style;
+    return GetBuilder(
+      init: CropController(image: image, aspectRatio: 1),
+      builder: (controller) {
+        return Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            IconButton(
-              icon: const Icon(Icons.rotate_90_degrees_ccw_outlined),
-              onPressed: _rotateLeft,
+            ImageCropper(
+              controller: controller,
             ),
-            IconButton(
-              icon: const Icon(Icons.rotate_90_degrees_cw_outlined),
-              onPressed: _rotateRight,
-            ),
-            TextButton(
-              onPressed: _onDone,
-              child: const Text('Done'),
+            const SizedBox(height: 10),
+            SizedBox(
+              height: 30,
+              child: Stack(
+                alignment: Alignment.center,
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    left: 0,
+                    child: TextButton(
+                      onPressed: () {
+                        context.popModal();
+                      },
+                      child: Text(
+                        /// TODO: Add translation
+                        'Cancel',
+                        style: style.fonts.medium.regular.primary,
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      WidgetButton(
+                        onPressed: () {
+                          _rotateLeft(controller);
+                        },
+                        child: const Icon(Icons.rotate_90_degrees_ccw_outlined),
+                      ),
+                      const SizedBox(width: 20),
+                      WidgetButton(
+                        onPressed: () {
+                          _rotateRight(controller);
+                        },
+                        child: const Icon(Icons.rotate_90_degrees_cw_outlined),
+                      ),
+                    ],
+                  ),
+                  Positioned(
+                    right: 0,
+                    child: TextButton(
+                      onPressed: () {
+                        _onDone(controller);
+                      },
+                      child: Text(
+                        /// TODO: Add translation
+                        'Done',
+                        style: style.fonts.medium.regular.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
-        ),
-      ],
+        );
+      },
     );
   }
 
   /// Rotates the image 90 degrees to the left.
-  Future<void> _rotateLeft() async => controller.rotateLeft();
+  Future<void> _rotateLeft(CropController controller) async =>
+      controller.rotateLeft();
 
   /// Rotates the image 90 degrees to the right.
-  Future<void> _rotateRight() async => controller.rotateRight();
+  Future<void> _rotateRight(CropController controller) async =>
+      controller.rotateRight();
 
   /// Callback for when the user is done cropping the image
-  Future<void> _onDone() async {
+  Future<void> _onDone(CropController controller) async {
     final Rect cropSize = controller.cropSize;
     final CropAreaInput cropArea = CropAreaInput(
       bottomRight: PointInput(
@@ -104,7 +166,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
         x: cropSize.left.toInt(),
         y: cropSize.top.toInt(),
       ),
-      angle: controller.rotation.angle,
+      angle: controller.rotation.value.angle,
     );
     context.popModal(cropArea);
   }

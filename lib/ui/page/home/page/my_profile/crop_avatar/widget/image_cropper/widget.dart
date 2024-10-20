@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import '../../controller.dart';
 import 'enums.dart';
 import 'utils.dart';
@@ -26,10 +27,7 @@ class ImageCropper extends StatefulWidget {
   /// If null, this widget will create its own [CropController]. If you want to specify initial values of
   /// [aspectRatio] or [defaultCrop], you need to use your own [CropController].
   /// Otherwise, [aspectRatio] will not be enforced and the [defaultCrop] will be the full image.
-  final CropController? controller;
-
-  /// The image to be cropped.
-  final Image image;
+  final CropController controller;
 
   /// The crop grid color of the outer lines.
   ///
@@ -83,8 +81,7 @@ class ImageCropper extends StatefulWidget {
 
   const ImageCropper({
     super.key,
-    this.controller,
-    required this.image,
+    required this.controller,
     this.gridColor = Colors.white70,
     Color? gridInnerColor,
     Color? gridCornerColor,
@@ -111,16 +108,6 @@ class _ImageCropperState extends State<ImageCropper> {
   /// [CropController] for managing the crop area and notifying listeners of changes.
   late CropController controller;
 
-  /// [ImageStream] to load the image, because [CropController] needs to know the dimensions of the image.
-  late ImageStream _stream;
-
-  /// [ImageStreamListener] to listen for when the image is loaded and update [CropController].
-  late ImageStreamListener _streamListener;
-
-  /// Current crop area being displayed.
-  /// [onChange] updates this value when [controller] notifies of changes.
-  Rect currentCrop = Rect.zero;
-
   /// Size of the image being displayed, which is updated dynamically with [onSize] function.
   Size size = Size.zero;
 
@@ -131,58 +118,35 @@ class _ImageCropperState extends State<ImageCropper> {
   /// It is accessed by [hitTest] to determine which handle is being interacted with.
   Map<CropHandle, Offset> get cropHandlePositions => <CropHandle, Offset>{
         CropHandle.upperLeft:
-            controller.crop.topLeft.scale(size.width, size.height),
+            controller.crop.value.topLeft.scale(size.width, size.height),
         CropHandle.upperRight:
-            controller.crop.topRight.scale(size.width, size.height),
+            controller.crop.value.topRight.scale(size.width, size.height),
         CropHandle.lowerRight:
-            controller.crop.bottomRight.scale(size.width, size.height),
+            controller.crop.value.bottomRight.scale(size.width, size.height),
         CropHandle.lowerLeft:
-            controller.crop.bottomLeft.scale(size.width, size.height),
+            controller.crop.value.bottomLeft.scale(size.width, size.height),
       };
 
   @override
   void initState() {
     super.initState();
-    controller = widget.controller ?? CropController();
-    controller.addListener(onChange);
-    currentCrop = controller.crop;
-
-    _stream = widget.image.image.resolve(const ImageConfiguration());
-    _streamListener = ImageStreamListener(
-      (info, _) => controller.image = info.image,
-    );
-    _stream.addListener(_streamListener);
+    controller = widget.controller;
   }
 
   @override
   void dispose() {
-    controller.removeListener(onChange);
-    if (widget.controller == null) {
-      controller.dispose();
-    }
-    _stream.removeListener(_streamListener);
     super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(ImageCropper oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (widget.controller == null && oldWidget.controller != null) {
-      controller = CropController.fromValue(oldWidget.controller!.value);
-    } else if (widget.controller != null && oldWidget.controller == null) {
-      controller.dispose();
-    }
   }
 
   /// Returns the ratio of the image's width to height.
   double _getImageRatio(final double maxWidth, final double maxHeight) =>
-      controller.getImage()!.width / controller.getImage()!.height;
+      controller.bitmapSize.width / controller.bitmapSize.height;
 
   /// Returns the width of the image based on the rotation, maximum width and maximum height constraints.
   double _getWidth(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio(maxWidth, maxHeight);
     final screenRatio = maxWidth / maxHeight;
-    if (controller.value.rotation.isSideways) {
+    if (controller.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
     }
     if (imageRatio > screenRatio) {
@@ -195,7 +159,7 @@ class _ImageCropperState extends State<ImageCropper> {
   double _getHeight(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio(maxWidth, maxHeight);
     final screenRatio = maxWidth / maxHeight;
-    if (controller.value.rotation.isSideways) {
+    if (controller.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
     }
     if (imageRatio < screenRatio) {
@@ -209,7 +173,7 @@ class _ImageCropperState extends State<ImageCropper> {
     return Center(
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          if (controller.getImage() == null) {
+          if (!controller.initialized) {
             return const CircularProgressIndicator.adaptive();
           }
           final double maxWidth = constraints.maxWidth;
@@ -219,40 +183,45 @@ class _ImageCropperState extends State<ImageCropper> {
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
-              SizedBox(
-                width: width,
-                height: height,
-                child: CustomPaint(
-                  painter: RotatedImagePainter(
-                    controller.getImage()!,
-                    controller.rotation,
+              Obx(() {
+                return SizedBox(
+                  width: width,
+                  height: height,
+                  child: CustomPaint(
+                    painter: RotatedImagePainter(
+                      controller.bitmap!,
+                      controller.rotation.value,
+                    ),
                   ),
-                ),
-              ),
-              SizedBox(
-                width: width,
-                height: height,
-                child: GestureDetector(
-                  onPanStart: onPanStart,
-                  onPanUpdate: onPanUpdate,
-                  onPanEnd: onPanEnd,
-                  child: CropGrid(
-                    crop: currentCrop,
-                    gridColor: widget.gridColor,
-                    gridInnerColor: widget.gridInnerColor,
-                    gridCornerColor: widget.gridCornerColor,
-                    cornerSize: widget.showCorners ? widget.gridCornerSize : 0,
-                    thinWidth: widget.gridThinWidth,
-                    thickWidth: widget.gridThickWidth,
-                    scrimColor: widget.scrimColor,
-                    showCorners: widget.showCorners,
-                    isMoving: cropHandlePoint != null,
-                    onSize: (size) {
-                      this.size = size;
-                    },
+                );
+              }),
+              Obx(() {
+                return SizedBox(
+                  width: width,
+                  height: height,
+                  child: GestureDetector(
+                    onPanStart: onPanStart,
+                    onPanUpdate: onPanUpdate,
+                    onPanEnd: onPanEnd,
+                    child: CropGrid(
+                      crop: controller.crop.value,
+                      gridColor: widget.gridColor,
+                      gridInnerColor: widget.gridInnerColor,
+                      gridCornerColor: widget.gridCornerColor,
+                      cornerSize:
+                          widget.showCorners ? widget.gridCornerSize : 0,
+                      thinWidth: widget.gridThinWidth,
+                      thickWidth: widget.gridThickWidth,
+                      scrimColor: widget.scrimColor,
+                      showCorners: widget.showCorners,
+                      isMoving: cropHandlePoint != null,
+                      onSize: (size) {
+                        this.size = size;
+                      },
+                    ),
                   ),
-                ),
-              ),
+                );
+              }),
             ],
           );
         },
@@ -303,13 +272,6 @@ class _ImageCropperState extends State<ImageCropper> {
     });
   }
 
-  /// Updates the [currentCrop] when the [controller] notifies of changes.
-  void onChange() {
-    setState(() {
-      currentCrop = controller.crop;
-    });
-  }
-
   /// Determines which part of the crop rectangle is being interacted with based on the user's touch point.
   ///
   /// Returns a [CropHandle] value indicating the corner or action being interacted with.
@@ -335,8 +297,8 @@ class _ImageCropperState extends State<ImageCropper> {
 
   /// Moves the crop rectangle based on the [cropHandlePoint].
   void moveArea(Offset point) {
-    final crop = controller.crop.multiply(size);
-    controller.crop = Rect.fromLTWH(
+    final crop = controller.crop.value.multiply(size);
+    controller.crop.value = Rect.fromLTWH(
       point.dx.clamp(0, size.width - crop.width),
       point.dy.clamp(0, size.height - crop.height),
       crop.width,
@@ -346,7 +308,7 @@ class _ImageCropperState extends State<ImageCropper> {
 
   /// Moves the corner of the crop rectangle based on the [cropHandlePoint].
   void moveCorner(CropHandle type, Offset point) {
-    final Rect crop = controller.crop.multiply(size);
+    final Rect crop = controller.crop.value.multiply(size);
     double left = crop.left;
     double top = crop.top;
     double right = crop.right;
@@ -439,7 +401,8 @@ class _ImageCropperState extends State<ImageCropper> {
       }
     }
 
-    controller.crop = Rect.fromLTRB(left, top, right, bottom).divide(size);
+    controller.crop.value =
+        Rect.fromLTRB(left, top, right, bottom).divide(size);
   }
 }
 
