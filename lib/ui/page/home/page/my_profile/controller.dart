@@ -462,6 +462,7 @@ class MyProfileController extends GetxController {
         avatarUpload.value = RxStatus.loading();
         CropAreaInput? crop =
             await CropAvatarView.show(router.context!, result!.files.first);
+        if (crop == null) return;
         await _updateAvatar(
           NativeFile.fromPlatformFile(result.files.first),
           crop,
