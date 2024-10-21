@@ -21,12 +21,12 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show CropAreaInput, PointInput;
+import '/ui/widget/modal_popup.dart';
+import '/util/platform_utils.dart';
 // Fixme: check the contribution guide for the correct importing manner
 import '../../../../../../themes.dart';
 import '../../../../../widget/widget_button.dart';
-import '/util/platform_utils.dart';
-import '/api/backend/schema.dart' show CropAreaInput, PointInput;
-import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 import 'widget/image_cropper/enums.dart';
 import 'widget/image_cropper/widget.dart';

@@ -139,12 +139,12 @@ class _ImageCropperState extends State<ImageCropper> {
   }
 
   /// Returns the ratio of the image's width to height.
-  double _getImageRatio(final double maxWidth, final double maxHeight) =>
+  double _getImageRatio() =>
       controller.bitmapSize.width / controller.bitmapSize.height;
 
   /// Returns the width of the image based on the rotation, maximum width and maximum height constraints.
   double _getWidth(final double maxWidth, final double maxHeight) {
-    double imageRatio = _getImageRatio(maxWidth, maxHeight);
+    double imageRatio = _getImageRatio();
     final screenRatio = maxWidth / maxHeight;
     if (controller.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
@@ -157,7 +157,7 @@ class _ImageCropperState extends State<ImageCropper> {
 
   /// Returns the height of the image based on the rotation, maximum width and maximum height constraints.
   double _getHeight(final double maxWidth, final double maxHeight) {
-    double imageRatio = _getImageRatio(maxWidth, maxHeight);
+    double imageRatio = _getImageRatio();
     final screenRatio = maxWidth / maxHeight;
     if (controller.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
