@@ -63,14 +63,10 @@ class _CropAvatarViewState extends State<CropAvatarView> {
   @override
   void initState() {
     super.initState();
-    if (widget.image.path != null) {
-      image = Image.file(File(widget.image.path!));
-    } else if (widget.image.bytes != null) {
+    if (PlatformUtils.isWeb) {
       image = Image.memory(widget.image.bytes!);
     } else {
-      throw ArgumentError(
-        'At least bytes or path should be specified.',
-      );
+      image = Image.file(File(widget.image.path!));
     }
   }
 
@@ -78,7 +74,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
     return GetBuilder(
-      init: CropController(image: image, aspectRatio: null),
+      init: CropController(image: image, aspectRatio: 1),
       builder: (controller) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -166,6 +162,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
       ),
       angle: controller.rotation.value.angle,
     );
+    print('CropArea: $cropArea');
     context.popModal(cropArea);
   }
 }
