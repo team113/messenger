@@ -22,11 +22,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show CropAreaInput, PointInput;
+import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
-// Fixme: check the contribution guide for the correct importing manner
-import '../../../../../../themes.dart';
-import '../../../../../widget/widget_button.dart';
 import 'controller.dart';
 import 'widget/image_cropper/enums.dart';
 import 'widget/image_cropper/widget.dart';
@@ -78,7 +78,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
     return GetBuilder(
-      init: CropController(image: image, aspectRatio: 1),
+      init: CropController(image: image, aspectRatio: null),
       builder: (controller) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -100,8 +100,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
                         context.popModal();
                       },
                       child: Text(
-                        /// TODO: Add translation
-                        'Cancel',
+                        'btn_cancel'.l10n,
                         style: style.fonts.medium.regular.primary,
                       ),
                     ),
@@ -131,8 +130,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
                         _onDone(controller);
                       },
                       child: Text(
-                        /// TODO: Add translation
-                        'Done',
+                        'btn_done'.l10n,
                         style: style.fonts.medium.regular.primary,
                       ),
                     ),
