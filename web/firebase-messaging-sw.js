@@ -32,6 +32,52 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
 
+broadcastChannel.addEventListener("message", async (event) => {
+  if (typeof event.data === 'object') {
+    let type = event.data.type;
+
+    if (type === 'cancelNotificationsContaining') {
+      let thread = event.data.thread;
+
+      const notifications = await self.registration.getNotifications();
+      for (var notification of notifications) {
+        if (notification.tag.includes(thread)) {
+          notification.close();
+        }
+      }
+    }
+  }
+});
+
+messaging.onMessage(async (payload) => {
+  // If payload contains no title (it's a background notification), then check
+  // whether its data contains any tag or thread, and cancel it, if any.
+  //
+  // This code is invoked from a service worker, thus the `getNotifications()`
+  // method is available here.
+  if (payload.notification?.title == null || (payload.notification?.title == 'Canceled' && payload.notification?.body == null)) {
+    var tag = payload.data.tag;
+    var thread = payload.data.thread;
+
+    if (thread != null) {
+      const notifications = await self.registration.getNotifications();
+      for (var notification of notifications) {
+        if (notification.tag.includes(thread)) {
+          notification.close();
+        }
+      }
+    } else if (tag != null) {
+      const notifications = await self.registration.getNotifications({
+        tag: payload.data.tag
+      });
+
+      for (var notification of notifications) {
+        notification.close();
+      }
+    }
+  }
+});
+
 messaging.onBackgroundMessage(async (payload) => {
   broadcastChannel.postMessage(payload);
 
@@ -45,6 +91,7 @@ messaging.onBackgroundMessage(async (payload) => {
     var thread = payload.data.thread;
 
     if (thread != null) {
+      await new Promise(resolve => setTimeout(resolve, 16));
       const notifications = await self.registration.getNotifications();
       for (var notification of notifications) {
         if (notification.tag.includes(thread)) {

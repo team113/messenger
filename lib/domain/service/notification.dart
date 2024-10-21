@@ -422,7 +422,7 @@ class NotificationService extends DisposableService {
     // while application is in foreground.
     _foregroundSubscription =
         FirebaseMessaging.onMessage.listen((message) async {
-      Log.debug('_foregroundSubscription($message)', '$runtimeType');
+      Log.debug('_foregroundSubscription(${message.toMap()})', '$runtimeType');
 
       // If message contains no notification (it's a background notification),
       // then try canceling the notifications with the provided thread, if any,
@@ -433,7 +433,11 @@ class NotificationService extends DisposableService {
         final String? tag = message.data['tag'];
         final String? thread = message.data['thread'];
 
-        if (PlatformUtils.isAndroid) {
+        if (PlatformUtils.isWeb) {
+          if (thread != null) {
+            WebUtils.cancelNotificationsContaining(thread);
+          }
+        } else if (PlatformUtils.isAndroid) {
           if (thread != null) {
             await AndroidUtils.cancelNotificationsContaining(thread);
           } else if (tag != null) {
