@@ -35,9 +35,13 @@ class CropHandlePoint {
 class RotatedImagePainter extends CustomPainter {
   RotatedImagePainter(this.image, this.rotation);
 
+  /// [ui.Image] to be painted.
   final ui.Image image;
+
+  /// [CropRotation] value to rotate the image.
   final CropRotation rotation;
 
+  /// [Paint] object used to paint the image.
   final Paint _paint = Paint();
 
   @override
@@ -78,10 +82,10 @@ class RotatedImagePainter extends CustomPainter {
 
 /// [CropGridPainter] is a [CustomPainter] that paints the crop grid based on the [CropGrid] configuration.
 class CropGridPainter extends CustomPainter {
+  CropGridPainter(this.grid);
+
   /// The [CropGrid] configuration.
   final CropGrid grid;
-
-  CropGridPainter(this.grid);
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -93,14 +97,14 @@ class CropGridPainter extends CustomPainter {
     canvas.clipRect(bounds, clipOp: ui.ClipOp.difference);
     canvas.drawRect(
         full,
-        Paint() //
+        Paint()
           ..color = grid.scrimColor
           ..style = PaintingStyle.fill
           ..isAntiAlias = true);
     canvas.restore();
 
     if (grid.showCorners) {
-      final Path path = Path() //
+      final Path path = Path()
         ..addPolygon([
           bounds.topLeft.translate(0, grid.cornerSize),
           bounds.topLeft,
@@ -131,7 +135,7 @@ class CropGridPainter extends CustomPainter {
       canvas.drawPath(path, paint);
     }
 
-    final Path path = Path() //
+    final Path path = Path()
       ..addPolygon([
         bounds.topLeft.translate(grid.cornerSize, 0),
         bounds.topRight.translate(-grid.cornerSize, 0)
@@ -159,7 +163,7 @@ class CropGridPainter extends CustomPainter {
     if (grid.isMoving || grid.alwaysShowThirdLines) {
       final thirdHeight = bounds.height / 3.0;
       final thirdWidth = bounds.width / 3.0;
-      final Path path = Path() //
+      final Path path = Path()
         ..addPolygon([
           bounds.topLeft.translate(0, thirdHeight),
           bounds.topRight.translate(0, thirdHeight)

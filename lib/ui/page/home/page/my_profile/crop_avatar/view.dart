@@ -34,6 +34,7 @@ import 'widget/image_cropper/widget.dart';
 class CropAvatarView extends StatelessWidget {
   const CropAvatarView(this.image, {super.key});
 
+  /// [Image] to be cropped.
   final Image image;
 
   /// Displays a [CropAvatarView] wrapped in a [ModalPopup].

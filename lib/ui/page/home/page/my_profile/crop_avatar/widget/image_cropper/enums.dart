@@ -49,6 +49,7 @@ enum CropRotation {
   left,
 }
 
+/// Extension methods for [CropRotation].
 extension CropRotationExtension on CropRotation {
   /// Returns the rotation in radians clockwise.
   double get radians {
@@ -78,6 +79,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
+  /// Returns [CropRotation] from degrees.
   static CropRotation? fromDegrees(final int degrees) {
     for (final CropRotation rotation in CropRotation.values) {
       if (rotation.degrees == degrees) {
@@ -174,6 +176,7 @@ extension CropRotationExtension on CropRotation {
 
 /// Extension methods for [Rect].
 extension RectExtensions on Rect {
+  /// Returns [Rect] with coordinates multiplied by [size].
   Rect multiply(Size size) {
     return Rect.fromLTRB(
       left * size.width,
@@ -183,6 +186,7 @@ extension RectExtensions on Rect {
     );
   }
 
+  /// Returns [Rect] with coordinates divided by [size].
   Rect divide(Size size) {
     return Rect.fromLTRB(
       left / size.width,

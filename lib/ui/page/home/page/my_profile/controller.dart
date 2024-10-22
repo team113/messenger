@@ -450,10 +450,12 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Reads the [image] and opens a [CropAvatarView] to edit it.
+  /// If the user confirms the crop, the image is updated.
   Future<void> editAvatar(Image image) async {
     avatarUpload.value = RxStatus.loading();
     try {
-      NativeFile nativeFile = await _fileFromImage(image);
+      NativeFile nativeFile = await _readImage(image);
       CropAreaInput? crop = await CropAvatarView.show(router.context!, image);
       if (crop != null) {
         await _updateAvatar(nativeFile, crop);
@@ -606,17 +608,25 @@ class MyProfileController extends GetxController {
     displayName.value = scrollController.position.pixels >= 250;
   }
 
-  Future<NativeFile> _fileFromImage(Image image) async {
+  /// Reads the [image] and returns a [NativeFile] representation of it.
+  Future<NativeFile> _readImage(Image image) async {
     final completer = Completer<ImageInfo>();
     image.image.resolve(const ImageConfiguration()).addListener(
-        ImageStreamListener((info, _) => completer.complete(info)));
+      ImageStreamListener(
+        (info, _) {
+          return completer.complete(info);
+        },
+      ),
+    );
     final imageInfo = await completer.future;
-    final bytes =
-        await imageInfo.image.toByteData(format: ui.ImageByteFormat.png);
+    final bytes = await imageInfo.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
     return NativeFile(
-        name: '',
-        size: imageInfo.sizeBytes,
-        bytes: bytes!.buffer.asUint8List());
+      name: '',
+      size: imageInfo.sizeBytes,
+      bytes: bytes!.buffer.asUint8List(),
+    );
   }
 }
 

@@ -102,8 +102,10 @@ class CropController extends GetxController {
   /// Pass null for free selection clipping (aspect ratio not enforced).
   final Rx<double?> _aspectRatio;
 
+  /// Get current aspect ratio.
   double? get aspectRatio => _aspectRatio.value;
 
+  /// Sets [_aspectRatio] and adjusts [crop] to fit new aspect ratio.
   set aspectRatio(double? newAspectRatio) {
     _aspectRatio.value = newAspectRatio;
     if (newAspectRatio != null) {
@@ -154,10 +156,10 @@ class CropController extends GetxController {
   onInit() async {
     super.onInit();
 
-    /// Adjusts the crop rectangle whenever the crop value changes.
+    // Adjusts the crop rectangle whenever the crop value changes.
     ever(crop, (crop) => _adjustRatio(crop, aspectRatio));
 
-    /// Initializes the bitmap representation of the image.
+    // Initializes the bitmap representation of the image.
     _initializeBitmap();
   }
 
