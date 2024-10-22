@@ -1,0 +1,34 @@
+# Retain generic signatures of TypeToken and its subclasses with R8 version 3.0 and higher.
+-keep,allowobfuscation,allowshrinking class com.google.gson.reflect.TypeToken
+-keep,allowobfuscation,allowshrinking class * extends com.google.gson.reflect.TypeToken
+-keep class com.google.gson.reflect.TypeToken
+-keep class * extends com.google.gson.reflect.TypeToken
+-keep public class * implements java.lang.reflect.Type
+
+-keep class androidx.window.extensions.WindowExtensions
+-keep class androidx.window.extensions.WindowExtensionsProvider
+-keep class androidx.window.extensions.area.ExtensionWindowAreaPresentation
+-keep class androidx.window.extensions.layout.DisplayFeature
+-keep class androidx.window.extensions.layout.FoldingFeature
+-keep class androidx.window.extensions.layout.WindowLayoutComponent
+-keep class androidx.window.extensions.layout.WindowLayoutInfo
+-keep class androidx.window.sidecar.SidecarDeviceState
+-keep class androidx.window.sidecar.SidecarDisplayFeature
+-keep class androidx.window.sidecar.SidecarInterface$SidecarCallback
+-keep class androidx.window.sidecar.SidecarInterface
+-keep class androidx.window.sidecar.SidecarProvider
+-keep class androidx.window.sidecar.SidecarWindowLayoutInfodan
+
+-dontwarn androidx.window.extensions.WindowExtensions
+-dontwarn androidx.window.extensions.WindowExtensionsProvider
+-dontwarn androidx.window.extensions.area.ExtensionWindowAreaPresentation
+-dontwarn androidx.window.extensions.layout.DisplayFeature
+-dontwarn androidx.window.extensions.layout.FoldingFeature
+-dontwarn androidx.window.extensions.layout.WindowLayoutComponent
+-dontwarn androidx.window.extensions.layout.WindowLayoutInfo
+-dontwarn androidx.window.sidecar.SidecarDeviceState
+-dontwarn androidx.window.sidecar.SidecarDisplayFeature
+-dontwarn androidx.window.sidecar.SidecarInterface$SidecarCallback
+-dontwarn androidx.window.sidecar.SidecarInterface
+-dontwarn androidx.window.sidecar.SidecarProvider
+-dontwarn androidx.window.sidecar.SidecarWindowLayoutInfo
