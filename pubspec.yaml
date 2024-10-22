@@ -38,11 +38,13 @@ dependencies:
     sdk: flutter
   flutter_animate: ^4.5.0
   flutter_callkit_incoming:
-    git: https://github.com/SleepySquash/flutter_callkit_incoming_android
+    git:
+      url: https://github.com/SleepySquash/flutter_callkit_incoming_android
+      ref: 150d74be19c808c08941cc92afdd13c99abaf0e5
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^17.1.2
+  flutter_local_notifications: ^17.2.3
   flutter_markdown: ^0.7.1
   flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^3.1.0
@@ -59,7 +61,9 @@ dependencies:
   http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
   image_gallery_saver:
-    git: https://github.com/SleepySquash/image_gallery_saver
+    git:
+      url: https://github.com/SleepySquash/image_gallery_saver
+      ref: 71b76be903b657ca08d524f003af7ba2a6741e38
   image_picker: ^1.1.1
   intl: ^0.17.0
   json_annotation: ^4.9.0

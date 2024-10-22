@@ -587,8 +587,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: c8310b00a27eb5e49329ee6e37fa79f0b306113d
+      ref: "150d74be19c808c08941cc92afdd13c99abaf0e5"
+      resolved-ref: "150d74be19c808c08941cc92afdd13c99abaf0e5"
       url: "https://github.com/SleepySquash/flutter_callkit_incoming_android"
     source: git
     version: "2.0.4"
@@ -643,10 +643,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_local_notifications
-      sha256: c500d5d9e7e553f06b61877ca6b9c8b92c570a4c8db371038702e8ce57f8a50f
+      sha256: "49eeef364fddb71515bc78d5a8c51435a68bccd6e4d68e25a942c5e47761ae71"
       url: "https://pub.dev"
     source: hosted
-    version: "17.2.2"
+    version: "17.2.3"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -1010,8 +1010,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: "328950a954652c58e4357c34e3167ea0bc1a95b7"
+      ref: "71b76be903b657ca08d524f003af7ba2a6741e38"
+      resolved-ref: "71b76be903b657ca08d524f003af7ba2a6741e38"
       url: "https://github.com/SleepySquash/image_gallery_saver"
     source: git
     version: "2.0.3"
