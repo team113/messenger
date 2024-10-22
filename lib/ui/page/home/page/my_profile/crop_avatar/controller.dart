@@ -245,7 +245,13 @@ class CropController extends GetxController {
   void _initializeBitmap() async {
     final completer = Completer<ImageInfo>();
     image.image.resolve(const ImageConfiguration()).addListener(
-        ImageStreamListener((info, _) => completer.complete(info)));
+      ImageStreamListener(
+        (info, _) {
+          return completer.complete(info);
+        },
+      ),
+    );
+
     final imageInfo = await completer.future;
     bitmap = imageInfo.image;
     aspectRatio = aspectRatio;

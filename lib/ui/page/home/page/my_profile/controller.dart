@@ -618,6 +618,7 @@ class MyProfileController extends GetxController {
         },
       ),
     );
+
     final imageInfo = await completer.future;
     final bytes = await imageInfo.image.toByteData(
       format: ui.ImageByteFormat.png,

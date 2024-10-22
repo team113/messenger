@@ -85,16 +85,12 @@ class CropAvatarView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       WidgetButton(
-                        onPressed: () {
-                          _rotateLeft(controller);
-                        },
+                        onPressed: controller.rotateLeft,
                         child: const Icon(Icons.rotate_90_degrees_ccw_outlined),
                       ),
                       const SizedBox(width: 20),
                       WidgetButton(
-                        onPressed: () {
-                          _rotateRight(controller);
-                        },
+                        onPressed: controller.rotateRight,
                         child: const Icon(Icons.rotate_90_degrees_cw_outlined),
                       ),
                     ],
@@ -103,7 +99,7 @@ class CropAvatarView extends StatelessWidget {
                     right: 0,
                     child: TextButton(
                       onPressed: () {
-                        _onDone(context, controller);
+                        _close(context, controller);
                       },
                       child: Text(
                         'btn_done'.l10n,
@@ -120,16 +116,8 @@ class CropAvatarView extends StatelessWidget {
     );
   }
 
-  /// Rotates the image 90 degrees to the left.
-  Future<void> _rotateLeft(CropController controller) async =>
-      controller.rotateLeft();
-
-  /// Rotates the image 90 degrees to the right.
-  Future<void> _rotateRight(CropController controller) async =>
-      controller.rotateRight();
-
-  /// Callback for when the user is done cropping the image
-  Future<void> _onDone(BuildContext context, CropController controller) async {
+  /// Closes the modal and returns the crop area.
+  Future<void> _close(BuildContext context, CropController controller) async {
     final Rect cropSize = controller.cropSize;
     final CropAreaInput cropArea = CropAreaInput(
       bottomRight: PointInput(
