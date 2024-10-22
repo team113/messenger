@@ -39,6 +39,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
   })  : _mode = _BigAvatarMode.myUser,
@@ -51,6 +52,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
   })  : _mode = _BigAvatarMode.chat,
@@ -63,6 +65,7 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
   })  : _mode = _BigAvatarMode.user,
@@ -92,6 +95,9 @@ class BigAvatarWidget extends StatefulWidget {
 
   /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
+
+  /// Callback, called when edit of [Avatar] is required.
+  final void Function()? onEdit;
 
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
@@ -159,10 +165,10 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                         style: style.fonts.small.regular.primary,
                       ),
                     ),
-                  if (widget.onUpload != null)
+                  if (widget.onEdit != null)
                     WidgetButton(
                       key: const Key('EditAvatar'),
-                      onPressed: widget.onUpload,
+                      onPressed: widget.onEdit,
                       child: Text(
                         'btn_edit'.l10n,
                         style: style.fonts.small.regular.primary,

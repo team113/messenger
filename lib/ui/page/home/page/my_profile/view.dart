@@ -169,13 +169,17 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
               block(
                 children: [
                   Obx(() {
+                    final avatar = c.myUser.value?.avatar;
                     return BigAvatarWidget.myUser(
                       c.myUser.value,
                       loading: c.avatarUpload.value.isLoading,
                       onUpload: c.uploadAvatar,
-                      onDelete: c.myUser.value?.avatar != null
-                          ? c.deleteAvatar
+                      onEdit: avatar != null
+                          ? () {
+                              c.editAvatar(Image.network(avatar.original.url));
+                            }
                           : null,
+                      onDelete: avatar != null ? c.deleteAvatar : null,
                     );
                   }),
                 ],

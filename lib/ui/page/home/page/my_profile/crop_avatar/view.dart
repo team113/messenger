@@ -34,14 +34,13 @@ import 'widget/image_cropper/widget.dart';
 /// View for cropping avatar image.
 ///
 /// Intended to be displayed with the [show] method.
-class CropAvatarView extends StatefulWidget {
+class CropAvatarView extends StatelessWidget {
   const CropAvatarView(this.image, {super.key});
 
-  final PlatformFile image;
+  final Image image;
 
   /// Displays a [CropAvatarView] wrapped in a [ModalPopup].
-  static Future<CropAreaInput?> show<T>(
-      BuildContext context, PlatformFile image) {
+  static Future<CropAreaInput?> show<T>(BuildContext context, Image image) {
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
@@ -51,23 +50,6 @@ class CropAvatarView extends StatefulWidget {
       ),
       child: CropAvatarView(image),
     );
-  }
-
-  @override
-  State<CropAvatarView> createState() => _CropAvatarViewState();
-}
-
-class _CropAvatarViewState extends State<CropAvatarView> {
-  late final Image image;
-
-  @override
-  void initState() {
-    super.initState();
-    if (PlatformUtils.isWeb) {
-      image = Image.memory(widget.image.bytes!);
-    } else {
-      image = Image.file(File(widget.image.path!));
-    }
   }
 
   @override
@@ -123,7 +105,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
                     right: 0,
                     child: TextButton(
                       onPressed: () {
-                        _onDone(controller);
+                        _onDone(context, controller);
                       },
                       child: Text(
                         'btn_done'.l10n,
@@ -149,7 +131,7 @@ class _CropAvatarViewState extends State<CropAvatarView> {
       controller.rotateRight();
 
   /// Callback for when the user is done cropping the image
-  Future<void> _onDone(CropController controller) async {
+  Future<void> _onDone(BuildContext context, CropController controller) async {
     final Rect cropSize = controller.cropSize;
     final CropAreaInput cropArea = CropAreaInput(
       bottomRight: PointInput(
@@ -162,7 +144,6 @@ class _CropAvatarViewState extends State<CropAvatarView> {
       ),
       angle: controller.rotation.value.angle,
     );
-    print('CropArea: $cropArea');
     context.popModal(cropArea);
   }
 }
