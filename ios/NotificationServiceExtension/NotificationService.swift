@@ -37,10 +37,6 @@ class NotificationService: UNNotificationServiceExtension {
       }
 
       if (request.content.title == "Canceled" && request.content.body.isEmpty) {
-        var content = UNMutableNotificationContent();
-        content.sound = nil;
-        contentHandler(content)
-
         if let thread = userInfo["thread"] as? String {
           let center = UNUserNotificationCenter.current();
           let notifications = await center.deliveredNotifications();

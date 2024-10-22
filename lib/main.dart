@@ -441,15 +441,18 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         final FlutterLocalNotificationsPlugin plugin =
             FlutterLocalNotificationsPlugin();
 
-        Future.delayed(const Duration(milliseconds: 16), () async {
-          final notifications = await plugin.getActiveNotifications();
+        Future.delayed(
+          const Duration(milliseconds: 16),
+          () async {
+            final notifications = await plugin.getActiveNotifications();
 
-          for (var e in notifications) {
-            if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
-              plugin.cancel(e.id ?? 0, tag: e.tag);
+            for (var e in notifications) {
+              if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
+                plugin.cancel(e.id ?? 0, tag: e.tag);
+              }
             }
-          }
-        });
+          },
+        );
       } else if (PlatformUtils.isIOS) {
         if (thread != null) {
           await IosUtils.cancelNotificationsContaining(thread);

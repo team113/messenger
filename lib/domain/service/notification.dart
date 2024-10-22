@@ -434,9 +434,7 @@ class NotificationService extends DisposableService {
         final String? thread = message.data['thread'];
 
         if (PlatformUtils.isWeb) {
-          if (thread != null) {
-            WebUtils.cancelNotificationsContaining(thread);
-          }
+          // TODO: Implement notifications canceling for Web.
         } else if (PlatformUtils.isAndroid) {
           if (thread != null) {
             await AndroidUtils.cancelNotificationsContaining(thread);

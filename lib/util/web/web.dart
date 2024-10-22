@@ -792,17 +792,6 @@ class WebUtils {
     source.start();
   }
 
-  static void cancelNotificationsContaining(String thread) {
-    final channel = web.BroadcastChannel('fcm');
-    print('=== cancelNotificationsContaining -> channel.postMessage');
-    channel.postMessage(
-      {
-        'type': 'cancelNotificationsContaining',
-        'thread': thread,
-      }.toJSBox,
-    );
-  }
-
   /// Returns the `User-Agent` header to put in the network queries.
   static Future<String> get userAgent async {
     final info = await DeviceInfoPlugin().webBrowserInfo;

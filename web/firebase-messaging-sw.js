@@ -32,23 +32,6 @@ firebase.initializeApp({
 const messaging = firebase.messaging();
 const broadcastChannel = new BroadcastChannel("fcm");
 
-broadcastChannel.addEventListener("message", async (event) => {
-  if (typeof event.data === 'object') {
-    let type = event.data.type;
-
-    if (type === 'cancelNotificationsContaining') {
-      let thread = event.data.thread;
-
-      const notifications = await self.registration.getNotifications();
-      for (var notification of notifications) {
-        if (notification.tag.includes(thread)) {
-          notification.close();
-        }
-      }
-    }
-  }
-});
-
 messaging.onMessage(async (payload) => {
   // If payload contains no title (it's a background notification), then check
   // whether its data contains any tag or thread, and cancel it, if any.
@@ -92,6 +75,7 @@ messaging.onBackgroundMessage(async (payload) => {
 
     if (thread != null) {
       await new Promise(resolve => setTimeout(resolve, 16));
+
       const notifications = await self.registration.getNotifications();
       for (var notification of notifications) {
         if (notification.tag.includes(thread)) {
