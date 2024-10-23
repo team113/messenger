@@ -88,7 +88,6 @@ class CropController extends GetxController {
 
   /// Current crop rectangle of image (in pixels).
   /// For sideways rotation, width and height are interchanged.
-  /// See also: [crop], which represents same rectangle in percentage.
   Rect get cropSize {
     final isSideways = rotation.value.isSideways;
     final width = isSideways ? bitmapSize.height : bitmapSize.width;
@@ -115,10 +114,10 @@ class CropController extends GetxController {
   void onInit() {
     super.onInit();
 
-    // Adjusts the crop rectangle whenever the crop value changes.
+    // Adjusts crop rectangle whenever crop value changes.
     _worker = ever(crop, (crop) => _adjustRatio(crop, aspectRatio));
 
-    // Initializes the bitmap representation of the image.
+    // Initializes bitmap representation of image.
     _initializeBitmap();
   }
 
@@ -128,13 +127,13 @@ class CropController extends GetxController {
     _worker.dispose();
   }
 
-  /// Rotates the image 90 degrees to the right.
+  /// Rotates image 90 degrees right.
   void rotateRight() => _rotate(left: false);
 
-  /// Rotates the image 90 degrees to the left.
+  /// Rotates image 90 degrees left.
   void rotateLeft() => _rotate(left: true);
 
-  /// Rotates the image 90 degrees to the left or right.
+  /// Rotates image 90 degrees based on [left].
   void _rotate({required final bool left}) {
     final CropRotation newRotation =
         left ? rotation.value.rotateLeft : rotation.value.rotateRight;
@@ -155,13 +154,8 @@ class CropController extends GetxController {
     update();
   }
 
-  /// Adjusts the crop rectangle to fit the specified aspect ratio.
-  ///
-  /// If the aspect ratio is null, the crop rectangle is returned as is.
-  /// If the image has just been rotated, the crop rectangle is adjusted to fit the largest centered crop.
-  /// Otherwise, the crop rectangle is adjusted to fit the specified aspect ratio.
-  ///
-  /// Returns the adjusted crop rectangle.
+  /// Adjusts [crop] rectangle to fit specified aspect ratio.
+  /// and returns adjusted value.
   Rect _adjustRatio(
     Rect crop,
     double? aspectRatio, {
@@ -177,7 +171,7 @@ class CropController extends GetxController {
     final bitmapHeight =
         rotation.isSideways ? bitmapSize.width : bitmapSize.height;
     if (justRotated) {
-      // we've just rotated: in that case, biggest centered crop.
+      // Just rotated: in that case, biggest centered crop.
       const center = Offset(.5, .5);
       final width = bitmapWidth;
       final height = bitmapHeight;
@@ -199,10 +193,7 @@ class CropController extends GetxController {
     }
   }
 
-  /// Initializes the bitmap representation of the image.
-  ///
-  /// This method resolves the image and retrieves its dimensions.
-  /// Once the image is resolved, the bitmap is set and the aspect ratio is updated.
+  /// Resolves image and initializes [bitmap].
   void _initializeBitmap() async {
     final completer = Completer<ImageInfo>();
     image.image.resolve(const ImageConfiguration()).addListener(

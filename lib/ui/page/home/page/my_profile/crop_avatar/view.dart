@@ -30,14 +30,14 @@ import 'widget/image_cropper/widget.dart';
 
 /// View for cropping avatar image.
 ///
-/// Intended to be displayed with the [show] method.
+/// Intended to be displayed with [show] method.
 class CropAvatarView extends StatelessWidget {
   const CropAvatarView(this.image, {super.key});
 
   /// [Image] to be cropped.
   final Image image;
 
-  /// Displays a [CropAvatarView] wrapped in a [ModalPopup].
+  /// Displays [CropAvatarView] wrapped in [ModalPopup].
   static Future<CropAreaInput?> show<T>(BuildContext context, Image image) {
     return ModalPopup.show<CropAreaInput?>(
       context: context,
@@ -116,7 +116,7 @@ class CropAvatarView extends StatelessWidget {
     );
   }
 
-  /// Closes the modal and returns the crop area.
+  /// Closes modal with [CropAreaInput] data.
   Future<void> _close(BuildContext context, CropController controller) async {
     final Rect cropSize = controller.cropSize;
     final CropAreaInput cropArea = CropAreaInput(
