@@ -16,11 +16,12 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 
 import '/api/backend/schema.dart' show Angle;
 
-/// Enum for representing different handles for cropping.
+/// Enum representing different handles for cropping.
 enum CropHandle {
   /// Represents upper-left corner of crop [Rect].
   upperLeft,

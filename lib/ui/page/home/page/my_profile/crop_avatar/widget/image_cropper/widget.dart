@@ -17,105 +17,50 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../../controller.dart';
 import 'enums.dart';
 import 'utils.dart';
 
-/// Displays [image] with a [CropGrid] on top to select crop area as [Rect].
-/// [CropController] controls the crop values being applied and notifies when the crop changes.
+/// Widget for cropping image.
+/// It displays image with crop rectangle that can be moved and resized.
 class ImageCropper extends StatefulWidget {
-  /// If null, this widget will create its own [CropController]. If you want to specify initial values of
-  /// [aspectRatio] or [defaultCrop], you need to use your own [CropController].
-  /// Otherwise, [aspectRatio] will not be enforced and the [defaultCrop] will be the full image.
+  /// Controller for managing crop area and notifying listeners of changes.
   final CropController controller;
 
-  /// The crop grid color of the outer lines.
-  ///
-  /// Defaults to 70% white.
-  final Color gridColor;
-
-  /// The crop grid color of the inner lines.
-  ///
-  /// Defaults to `gridColor`.
-  final Color gridInnerColor;
-
-  /// The crop grid color of the corner lines.
-  ///
-  /// Defaults to `gridColor`.
-  final Color gridCornerColor;
-
-  /// The size of the touch area.
-  ///
-  /// Defaults to 50.
-  final double touchSize;
-
-  /// The size of the corner of the crop grid.
-  ///
-  /// Defaults to 25.
-  final double gridCornerSize;
-
-  /// Whether to display the corners.
-  ///
-  /// Defaults to true.
-  final bool showCorners;
-
-  /// The width of the crop grid thin lines.
-  ///
-  /// Defaults to 2.
-  final double gridThinWidth;
-
-  /// The width of the crop grid thick lines.
-  ///
-  /// Defaults to 5.
-  final double gridThickWidth;
-
-  /// The crop grid scrim (outside area overlay) color.
-  ///
+  /// [CropGrid] scrim (outside area overlay) color.
   /// Defaults to 54% black.
   final Color scrimColor;
 
-  /// The minimum pixel size the crop rectangle can be shrunk to.
-  ///
-  /// Defaults to 100.
+  /// Minimum pixel size crop [Rect] can be shrunk to.
+  /// Defaults to `100`.
   final double minimumImageSize;
+
+  @override
+  State<ImageCropper> createState() => _ImageCropperState();
 
   const ImageCropper({
     super.key,
     required this.controller,
-    this.gridColor = Colors.white70,
-    Color? gridInnerColor,
-    Color? gridCornerColor,
-    this.touchSize = 50,
-    this.gridCornerSize = 30,
-    this.showCorners = true,
-    this.gridThinWidth = 2,
-    this.gridThickWidth = 5,
     this.scrimColor = Colors.black54,
     this.minimumImageSize = 100,
-  })  : gridInnerColor = gridInnerColor ?? gridColor,
-        gridCornerColor = gridCornerColor ?? gridColor,
-        assert(gridCornerSize > 0, 'gridCornerSize cannot be zero'),
-        assert(touchSize > 0, 'touchSize cannot be zero'),
-        assert(gridThinWidth > 0, 'gridThinWidth cannot be zero'),
-        assert(gridThickWidth > 0, 'gridThickWidth cannot be zero'),
-        assert(minimumImageSize > 0, 'minimumImageSize cannot be zero');
-
-  @override
-  State<ImageCropper> createState() => _ImageCropperState();
+  }) : assert(minimumImageSize > 0,
+            'minimumImageSize should be greater than zero.');
 }
 
 class _ImageCropperState extends State<ImageCropper> {
-  /// [CropController] for managing the crop area and notifying listeners of changes.
+  /// Manages crop area and notifying listeners of changes.
   late CropController controller;
 
-  /// Size of the image being displayed, which is updated dynamically with [onSize] function.
+  /// [Size] of displayed image.
+  /// Updated by [CropGrid] on layout's [onSize] callback.
   Size size = Size.zero;
 
-  /// The current crop handle point being interacted with, if any.
+  /// Current crop handle point being interacted with, if any.
   CropHandlePoint? cropHandlePoint;
 
-  /// Returns the positions of the crop handles in the current crop area.
-  /// It is accessed by [hitTest] to determine which handle is being interacted with.
+  /// [Map] of crop handle positions.
+  /// Used to determine which part of crop rectangle is being interacted with.
   Map<CropHandle, Offset> get cropHandlePositions => <CropHandle, Offset>{
         CropHandle.upperLeft:
             controller.crop.value.topLeft.scale(size.width, size.height),
@@ -131,41 +76,6 @@ class _ImageCropperState extends State<ImageCropper> {
   void initState() {
     super.initState();
     controller = widget.controller;
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-  }
-
-  /// Returns the ratio of the image's width to height.
-  double _getImageRatio() =>
-      controller.bitmapSize.width / controller.bitmapSize.height;
-
-  /// Returns the width of the image based on the rotation, maximum width and maximum height constraints.
-  double _getWidth(final double maxWidth, final double maxHeight) {
-    double imageRatio = _getImageRatio();
-    final screenRatio = maxWidth / maxHeight;
-    if (controller.rotation.value.isSideways) {
-      imageRatio = 1 / imageRatio;
-    }
-    if (imageRatio > screenRatio) {
-      return maxWidth;
-    }
-    return maxHeight * imageRatio;
-  }
-
-  /// Returns the height of the image based on the rotation, maximum width and maximum height constraints.
-  double _getHeight(final double maxWidth, final double maxHeight) {
-    double imageRatio = _getImageRatio();
-    final screenRatio = maxWidth / maxHeight;
-    if (controller.rotation.value.isSideways) {
-      imageRatio = 1 / imageRatio;
-    }
-    if (imageRatio < screenRatio) {
-      return maxHeight;
-    }
-    return maxWidth / imageRatio;
   }
 
   @override
@@ -205,15 +115,7 @@ class _ImageCropperState extends State<ImageCropper> {
                     onPanEnd: onPanEnd,
                     child: CropGrid(
                       crop: controller.crop.value,
-                      gridColor: widget.gridColor,
-                      gridInnerColor: widget.gridInnerColor,
-                      gridCornerColor: widget.gridCornerColor,
-                      cornerSize:
-                          widget.showCorners ? widget.gridCornerSize : 0,
-                      thinWidth: widget.gridThinWidth,
-                      thickWidth: widget.gridThickWidth,
                       scrimColor: widget.scrimColor,
-                      showCorners: widget.showCorners,
                       isMoving: cropHandlePoint != null,
                       onSize: (size) {
                         this.size = size;
@@ -229,10 +131,7 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
-  /// Handles the start of a pan gesture.
-  ///
-  /// Determines which part of the crop rectangle is being interacted with based on the user's touch point.
-  /// and sets the [cropHandlePoint] to the type of handle being interacted with.
+  /// Updates [cropHandlePoint] based on user's touch point.
   void onPanStart(DragStartDetails details) {
     if (cropHandlePoint == null) {
       final type = hitTest(details.localPosition);
@@ -247,11 +146,7 @@ class _ImageCropperState extends State<ImageCropper> {
     }
   }
 
-  /// Handles the update of a pan gesture.
-  ///
-  /// If a [cropHandlePoint] is set, moves the crop rectangle based on the user's touch point.
-  /// If the type of handle is [CropHandle.move], moves the entire crop rectangle.
-  /// Otherwise, moves the corner of the crop rectangle based on the [cropHandlePoint].
+  /// Resizes or moves crop rectangle bases on [DragUpdateDetails] provided.
   void onPanUpdate(DragUpdateDetails details) {
     if (cropHandlePoint != null) {
       final offset = details.localPosition - cropHandlePoint!.offset;
@@ -263,27 +158,21 @@ class _ImageCropperState extends State<ImageCropper> {
     }
   }
 
-  /// Handles the end of a pan gesture.
-  ///
-  /// Resets the [cropHandlePoint] to null.
+  /// Resets [cropHandlePoint] when pan gesture ends.
   void onPanEnd(DragEndDetails details) {
     setState(() {
       cropHandlePoint = null;
     });
   }
 
-  /// Determines which part of the crop rectangle is being interacted with based on the user's touch point.
-  ///
-  /// Returns a [CropHandle] value indicating the corner or action being interacted with.
-  ///
-  /// - If the touch point is within the touch area of a corner, returns the corresponding corner type.
-  /// - Otherwise, returns [CropHandle.move] if the touch point is within the crop rectangle, or [CropHandle.none] if it is outside.
+  /// Returns [CropHandle] that is being interacted with based on [point].
   CropHandle hitTest(Offset point) {
     for (final gridCorner in cropHandlePositions.entries) {
       final area = Rect.fromCenter(
-          center: gridCorner.value,
-          width: widget.touchSize,
-          height: widget.touchSize);
+        center: gridCorner.value,
+        width: 50,
+        height: 50,
+      );
       if (area.contains(point)) {
         return gridCorner.key;
       }
@@ -295,7 +184,7 @@ class _ImageCropperState extends State<ImageCropper> {
     return area.contains(point) ? CropHandle.move : CropHandle.none;
   }
 
-  /// Moves the crop rectangle based on the [cropHandlePoint].
+  /// Moves crop rectangle based on [cropHandlePoint].
   void moveArea(Offset point) {
     final crop = controller.crop.value.multiply(size);
     controller.crop.value = Rect.fromLTWH(
@@ -306,7 +195,7 @@ class _ImageCropperState extends State<ImageCropper> {
     ).divide(size);
   }
 
-  /// Moves the corner of the crop rectangle based on the [cropHandlePoint].
+  /// Resizes crop rectangle by moving corner based on [type] and [point].
   void moveCorner(CropHandle type, Offset point) {
     final Rect crop = controller.crop.value.multiply(size);
     double left = crop.left;
@@ -404,37 +293,58 @@ class _ImageCropperState extends State<ImageCropper> {
     controller.crop.value =
         Rect.fromLTRB(left, top, right, bottom).divide(size);
   }
+
+  /// Returns the ratio of the image's width to height.
+  double _getImageRatio() =>
+      controller.bitmapSize.width / controller.bitmapSize.height;
+
+  /// Returns the width of the image based on the rotation, maximum width and maximum height constraints.
+  double _getWidth(final double maxWidth, final double maxHeight) {
+    double imageRatio = _getImageRatio();
+    final screenRatio = maxWidth / maxHeight;
+    if (controller.rotation.value.isSideways) {
+      imageRatio = 1 / imageRatio;
+    }
+    if (imageRatio > screenRatio) {
+      return maxWidth;
+    }
+    return maxHeight * imageRatio;
+  }
+
+  /// Returns the height of the image based on the rotation, maximum width and maximum height constraints.
+  double _getHeight(final double maxWidth, final double maxHeight) {
+    double imageRatio = _getImageRatio();
+    final screenRatio = maxWidth / maxHeight;
+    if (controller.rotation.value.isSideways) {
+      imageRatio = 1 / imageRatio;
+    }
+    if (imageRatio < screenRatio) {
+      return maxHeight;
+    }
+    return maxWidth / imageRatio;
+  }
 }
 
 /// Crop Grid with invisible border, for better touch detection.
 class CropGrid extends StatelessWidget {
+  /// Crop [Rect] to be displayed
   final Rect crop;
-  final Color gridColor;
-  final Color gridInnerColor;
-  final Color gridCornerColor;
-  final double cornerSize;
-  final bool showCorners;
-  final double thinWidth;
-  final double thickWidth;
+
+  /// [Color] of scrim (outside area overlay).
   final Color scrimColor;
+
+  /// Whether crop area is being moved.
   final bool isMoving;
+
+  /// Callback to updated [Size] of displayed image.
   final ValueChanged<Size> onSize;
-  final bool alwaysShowThirdLines;
 
   const CropGrid({
     super.key,
     required this.crop,
-    required this.gridColor,
-    required this.gridInnerColor,
-    required this.gridCornerColor,
-    required this.cornerSize,
-    required this.thinWidth,
-    required this.thickWidth,
     required this.scrimColor,
-    required this.showCorners,
     required this.isMoving,
     required this.onSize,
-    this.alwaysShowThirdLines = false,
   });
 
   @override

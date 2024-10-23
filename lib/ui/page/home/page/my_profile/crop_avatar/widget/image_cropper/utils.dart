@@ -18,30 +18,32 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
-import 'widget.dart';
-import 'enums.dart';
 
-/// [CropHandlePoint] is a point with a [CropHandle] type and an [Offset] position.
-/// It is used to represent the position of a handle on the crop [Rect].
-/// The [CropHandle] type is used to determine the type of interaction that should be performed when the handle is dragged.
+import 'enums.dart';
+import 'widget.dart';
+
+/// Represents handle's position on crop [Rect].
 class CropHandlePoint {
+  /// Type of crop handle.
   final CropHandle type;
+
+  /// Offset of crop handle
   final Offset offset;
 
   CropHandlePoint(this.type, this.offset);
 }
 
-/// [RotatedImagePainter] is a [CustomPainter] that paints a rotated image based on the [CropRotation] value.
+/// [CustomPainter] that paints rotated image based on [CropRotation] value.
 class RotatedImagePainter extends CustomPainter {
   RotatedImagePainter(this.image, this.rotation);
 
   /// [ui.Image] to be painted.
   final ui.Image image;
 
-  /// [CropRotation] value to rotate the image.
+  /// [CropRotation] value to determine rotation.
   final CropRotation rotation;
 
-  /// [Paint] object used to paint the image.
+  /// [Paint] object used for painting image.
   final Paint _paint = Paint();
 
   @override
@@ -80,15 +82,19 @@ class RotatedImagePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-/// [CropGridPainter] is a [CustomPainter] that paints the crop grid based on the [CropGrid] configuration.
+/// [CustomPainter] to paint [CropGrid].
 class CropGridPainter extends CustomPainter {
   CropGridPainter(this.grid);
 
-  /// The [CropGrid] configuration.
+  /// [CropGrid] configuration.
   final CropGrid grid;
 
   @override
   void paint(Canvas canvas, Size size) {
+    // Constant parameters.
+    const Color gridColor = Colors.white70;
+    const double cornerSize = 50;
+
     final Rect full = Offset.zero & size;
     final Rect bounds = grid.crop.multiply(size);
     grid.onSize(size);
@@ -103,102 +109,115 @@ class CropGridPainter extends CustomPainter {
           ..isAntiAlias = true);
     canvas.restore();
 
-    if (grid.showCorners) {
-      final Path path = Path()
-        ..addPolygon([
-          bounds.topLeft.translate(0, grid.cornerSize),
-          bounds.topLeft,
-          bounds.topLeft.translate(grid.cornerSize, 0)
-        ], false)
-        ..addPolygon([
-          bounds.topRight.translate(0, grid.cornerSize),
-          bounds.topRight,
-          bounds.topRight.translate(-grid.cornerSize, 0)
-        ], false)
-        ..addPolygon([
-          bounds.bottomLeft.translate(0, -grid.cornerSize),
-          bounds.bottomLeft,
-          bounds.bottomLeft.translate(grid.cornerSize, 0)
-        ], false)
-        ..addPolygon([
-          bounds.bottomRight.translate(0, -grid.cornerSize),
-          bounds.bottomRight,
-          bounds.bottomRight.translate(-grid.cornerSize, 0)
-        ], false);
-      final Paint paint = Paint()
-        ..color = grid.gridCornerColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = grid.thickWidth
-        ..strokeCap = StrokeCap.round
-        ..strokeJoin = StrokeJoin.miter
-        ..isAntiAlias = true;
-      canvas.drawPath(path, paint);
-    }
+    _drawCorners(canvas, bounds, gridColor, cornerSize);
+    _drawBoundaries(canvas, bounds, gridColor, cornerSize);
 
-    final Path path = Path()
-      ..addPolygon([
-        bounds.topLeft.translate(grid.cornerSize, 0),
-        bounds.topRight.translate(-grid.cornerSize, 0)
-      ], false)
-      ..addPolygon([
-        bounds.bottomLeft.translate(grid.cornerSize, 0),
-        bounds.bottomRight.translate(-grid.cornerSize, 0)
-      ], false)
-      ..addPolygon([
-        bounds.topLeft.translate(0, grid.cornerSize),
-        bounds.bottomLeft.translate(0, -grid.cornerSize)
-      ], false)
-      ..addPolygon([
-        bounds.topRight.translate(0, grid.cornerSize),
-        bounds.bottomRight.translate(0, -grid.cornerSize)
-      ], false);
-    final Paint paint = Paint()
-      ..color = grid.gridColor
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = grid.thinWidth
-      ..strokeCap = StrokeCap.butt
-      ..isAntiAlias = true;
-    canvas.drawPath(path, paint);
-
-    if (grid.isMoving || grid.alwaysShowThirdLines) {
-      final thirdHeight = bounds.height / 3.0;
-      final thirdWidth = bounds.width / 3.0;
-      final Path path = Path()
-        ..addPolygon([
-          bounds.topLeft.translate(0, thirdHeight),
-          bounds.topRight.translate(0, thirdHeight)
-        ], false)
-        ..addPolygon([
-          bounds.bottomLeft.translate(0, -thirdHeight),
-          bounds.bottomRight.translate(0, -thirdHeight)
-        ], false)
-        ..addPolygon([
-          bounds.topLeft.translate(thirdWidth, 0),
-          bounds.bottomLeft.translate(thirdWidth, 0)
-        ], false)
-        ..addPolygon([
-          bounds.topRight.translate(-thirdWidth, 0),
-          bounds.bottomRight.translate(-thirdWidth, 0)
-        ], false);
-      final Paint paint = Paint()
-        ..color = grid.gridInnerColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = grid.thinWidth
-        ..strokeCap = StrokeCap.butt
-        ..isAntiAlias = true;
-      canvas.drawPath(path, paint);
+    if (grid.isMoving) {
+      _drawGrid(canvas, bounds, gridColor);
     }
   }
 
   @override
   bool shouldRepaint(CropGridPainter oldDelegate) =>
-      oldDelegate.grid.crop != grid.crop || //
-      oldDelegate.grid.isMoving != grid.isMoving ||
-      oldDelegate.grid.cornerSize != grid.cornerSize ||
-      oldDelegate.grid.gridColor != grid.gridColor ||
-      oldDelegate.grid.gridCornerColor != grid.gridCornerColor ||
-      oldDelegate.grid.gridInnerColor != grid.gridInnerColor;
-
+      oldDelegate.grid.crop != grid.crop ||
+      oldDelegate.grid.isMoving != grid.isMoving;
   @override
   bool hitTest(Offset position) => true;
+
+  /// Draws corners of crop [Rect]
+  void _drawCorners(
+      Canvas canvas, Rect bounds, Color gridColor, double cornerSize) {
+    final Path path = Path()
+      ..addPolygon([
+        bounds.topLeft.translate(0, cornerSize),
+        bounds.topLeft,
+        bounds.topLeft.translate(cornerSize, 0)
+      ], false)
+      ..addPolygon([
+        bounds.topRight.translate(0, cornerSize),
+        bounds.topRight,
+        bounds.topRight.translate(-cornerSize, 0)
+      ], false)
+      ..addPolygon([
+        bounds.bottomLeft.translate(0, -cornerSize),
+        bounds.bottomLeft,
+        bounds.bottomLeft.translate(cornerSize, 0)
+      ], false)
+      ..addPolygon([
+        bounds.bottomRight.translate(0, -cornerSize),
+        bounds.bottomRight,
+        bounds.bottomRight.translate(-cornerSize, 0)
+      ], false);
+
+    final Paint paint = Paint()
+      ..color = gridColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.miter
+      ..isAntiAlias = true;
+
+    canvas.drawPath(path, paint);
+  }
+
+  /// Draws boundaries of crop [Rect]
+  void _drawBoundaries(
+      Canvas canvas, Rect bounds, Color gridColor, double cornerSize) {
+    final Path path = Path()
+      ..addPolygon([
+        bounds.topLeft.translate(cornerSize, 0),
+        bounds.topRight.translate(-cornerSize, 0)
+      ], false)
+      ..addPolygon([
+        bounds.bottomLeft.translate(cornerSize, 0),
+        bounds.bottomRight.translate(-cornerSize, 0)
+      ], false)
+      ..addPolygon([
+        bounds.topLeft.translate(0, cornerSize),
+        bounds.bottomLeft.translate(0, -cornerSize)
+      ], false)
+      ..addPolygon([
+        bounds.topRight.translate(0, cornerSize),
+        bounds.bottomRight.translate(0, -cornerSize)
+      ], false);
+    canvas.drawPath(
+      path,
+      Paint()
+        ..color = gridColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = 2
+        ..strokeCap = StrokeCap.butt
+        ..isAntiAlias = true,
+    );
+  }
+
+  /// Draws grid lines on crop [Rect]
+  void _drawGrid(Canvas canvas, Rect bounds, Color gridColor) {
+    final thirdHeight = bounds.height / 3.0;
+    final thirdWidth = bounds.width / 3.0;
+    final Path path = Path()
+      ..addPolygon([
+        bounds.topLeft.translate(0, thirdHeight),
+        bounds.topRight.translate(0, thirdHeight)
+      ], false)
+      ..addPolygon([
+        bounds.bottomLeft.translate(0, -thirdHeight),
+        bounds.bottomRight.translate(0, -thirdHeight)
+      ], false)
+      ..addPolygon([
+        bounds.topLeft.translate(thirdWidth, 0),
+        bounds.bottomLeft.translate(thirdWidth, 0)
+      ], false)
+      ..addPolygon([
+        bounds.topRight.translate(-thirdWidth, 0),
+        bounds.bottomRight.translate(-thirdWidth, 0)
+      ], false);
+    final Paint paint = Paint()
+      ..color = gridColor
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.butt
+      ..isAntiAlias = true;
+    canvas.drawPath(path, paint);
+  }
 }

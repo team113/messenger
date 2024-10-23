@@ -17,37 +17,14 @@
 
 import 'dart:async';
 import 'dart:ui' as ui;
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'widget/image_cropper/enums.dart';
-import 'widget/image_cropper/widget.dart';
 
-/// Controller for [ImageCropper] widget.
-///
-/// This controller allows you to control the crop rectangle and rotation of an image.
-/// It also provides the ability to rotate the image.
-///
-/// The controller manages the state of the crop rectangle and rotation, and provides methods
-/// to adjust the crop rectangle to fit a specified aspect ratio, and to rotate the image.
-///
-/// Example usage:
-///
-/// ```dart
-/// final cropController = CropController(
-///   image: myImage,
-///   aspectRatio: 1.0,
-///   defaultCrop: Rect.fromLTWH(0, 0, 1, 1),
-///   rotation: CropRotation.up,
-/// );
-///
-/// // Rotate the image to the right
-/// cropController.rotateRight();
-///
-/// // Get the current crop rectangle in pixels
-/// final cropRect = cropController.cropSize;
-/// ```
-///
-/// Remember to dispose of the [CropController] when it's no longer needed to free up resources.
+import 'widget/image_cropper/enums.dart';
+
+/// Controller for cropping image.
+/// It provides methods for rotating image and adjusting crop rectangle.
 class CropController extends GetxController {
   CropController({
     required this.image,
@@ -78,28 +55,24 @@ class CropController extends GetxController {
         bitmap = value.bitmap,
         _aspectRatio = value.aspectRatio.obs;
 
-  /// The image to be cropped.
+  /// Image to be cropped.
   final Image image;
 
-  /// The crop rectangle of the image in percentage.
-  ///
-  /// The [left], [right], [top], and [bottom] values are normalized between 0 and 1.
-  Rx<Rect> crop;
+  /// Crop rectangle coordinates for [image].
+  /// Values are normalized between 0 and 1.
+  final Rx<Rect> crop;
 
-  /// The current rotation of the image.
-  Rx<CropRotation> rotation;
+  /// Current image rotation.
+  final Rx<CropRotation> rotation;
 
-  /// The bitmap representation of the image.
-  ///
-  /// This is initialized in the [onInit] method after the image dimensions are calculated.
-  /// For fetching the image dimensions, a custom getter [bitmapSize] is implemented.
+  /// Bitmap representation of image.
+  /// Initialized in [onInit] method.
   ui.Image? bitmap;
 
-  /// The aspect ratio of the crop rectangle (width / height).
-  ///
-  /// This is an observable value that can be updated to adjust the crop rectangle.
-  /// The [crop] rectangle will be adjusted to fit this ratio.
-  /// Pass null for free selection clipping (aspect ratio not enforced).
+  /// Listens to [crop] value changes and adjusts [_aspectRatio].
+  late final Worker _worker;
+
+  /// Current aspect ratio of image.
   final Rx<double?> _aspectRatio;
 
   /// Get current aspect ratio.
@@ -113,17 +86,9 @@ class CropController extends GetxController {
     }
   }
 
-  /// Current crop rectangle of the image (pixels).
-  ///
-  /// [left], [right], [top] and [bottom] are in pixels.
-  ///
-  /// If the [aspectRatio] was specified, the rectangle will be adjusted to fit that ratio.
-  ///
+  /// Current crop rectangle of image (in pixels).
   /// For sideways rotation, width and height are interchanged.
-  ///
-  /// See also:
-  ///
-  ///  * [crop], which represents the same rectangle in percentage.
+  /// See also: [crop], which represents same rectangle in percentage.
   Rect get cropSize {
     final isSideways = rotation.value.isSideways;
     final width = isSideways ? bitmapSize.height : bitmapSize.width;
@@ -131,36 +96,36 @@ class CropController extends GetxController {
     return crop.value.multiply(Size(width, height));
   }
 
-  /// Sets the crop rectangle of the image in pixels.
-  ///
-  /// The [newCropSize] parameter represents the new crop rectangle in pixels.
-  /// The crop rectangle will be adjusted to fit the specified aspect ratio if provided.
+  /// Accepts [newCropSize] in pixels and adjust [crop] to fit new size.
   set cropSize(Rect newCropSize) {
     crop.value = _adjustRatio(newCropSize.divide(bitmapSize), aspectRatio);
   }
 
-  /// Returns the size of the bitmap as a [Size] object.
+  /// Returns image dimensions
   Size get bitmapSize =>
       Size(bitmap!.width.toDouble(), bitmap!.height.toDouble());
 
-  /// Checks if the controller is initialized.
-  ///
-  /// The controller is considered initialized if the superclass is initialized
-  /// and the bitmap is not null.
+  /// Returns true if [bitmap] is initialized.
   @override
   bool get initialized {
     return super.initialized && bitmap != null;
   }
 
   @override
-  onInit() async {
+  void onInit() {
     super.onInit();
 
     // Adjusts the crop rectangle whenever the crop value changes.
-    ever(crop, (crop) => _adjustRatio(crop, aspectRatio));
+    _worker = ever(crop, (crop) => _adjustRatio(crop, aspectRatio));
 
     // Initializes the bitmap representation of the image.
     _initializeBitmap();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _worker.dispose();
   }
 
   /// Rotates the image 90 degrees to the right.
@@ -195,10 +160,6 @@ class CropController extends GetxController {
   /// If the aspect ratio is null, the crop rectangle is returned as is.
   /// If the image has just been rotated, the crop rectangle is adjusted to fit the largest centered crop.
   /// Otherwise, the crop rectangle is adjusted to fit the specified aspect ratio.
-  ///
-  /// `crop` - The current crop rectangle.
-  /// `aspectRatio` - The desired aspect ratio (width / height).
-  /// `rotation` - The current rotation of the image (optional).
   ///
   /// Returns the adjusted crop rectangle.
   Rect _adjustRatio(
