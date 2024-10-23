@@ -450,7 +450,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Reads the [image] and opens a [CropAvatarView] to edit it.
+  /// Reads [image] and opens [CropAvatarView] to edit it.
   /// If the user confirms the crop, the image is updated.
   Future<void> editAvatar(Image image) async {
     avatarUpload.value = RxStatus.loading();
@@ -465,7 +465,8 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Crops and Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
+  /// Crops and Uploads image and sets it as [MyUser.avatar]
+  /// and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await PlatformUtils.pickFiles(
@@ -584,7 +585,7 @@ class MyProfileController extends GetxController {
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
-  /// If [file] is `null`, then deletes the [MyUser.avatar] and
+  /// If [file] is `null`, then deletes [MyUser.avatar] and
   /// [MyUser.callCover].
   Future<void> _updateAvatar(NativeFile? file, CropAreaInput? crop) async {
     try {
@@ -608,7 +609,7 @@ class MyProfileController extends GetxController {
     displayName.value = scrollController.position.pixels >= 250;
   }
 
-  /// Reads the [image] and returns a [NativeFile] representation of it.
+  /// Reads [image] and returns [NativeFile] representation of it.
   Future<NativeFile> _readImage(Image image) async {
     final completer = Completer<ImageInfo>();
     image.image.resolve(const ImageConfiguration()).addListener(
