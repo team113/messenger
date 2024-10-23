@@ -20,28 +20,28 @@ import 'package:flutter/material.dart';
 
 import '/api/backend/schema.dart' show Angle;
 
-/// Enum representing the different handles of the crop rectangle.
+/// Enum for representing different handles for cropping.
 enum CropHandle {
-  /// Represents the upper-left corner of the crop rectangle.
+  /// Represents upper-left corner of crop [Rect].
   upperLeft,
 
-  /// Represents the upper-right corner of the crop rectangle.
+  /// Represents upper-right corner of crop [Rect].
   upperRight,
 
-  /// Represents the lower-right corner of the crop rectangle.
+  /// Represents lower-right corner of crop [Rect].
   lowerRight,
 
-  /// Represents the lower-left corner of the crop rectangle.
+  /// Represents lower-left corner of crop [Rect].
   lowerLeft,
 
   /// Represents no interaction.
   none,
 
-  /// Represents the action of moving the entire crop rectangle.
+  /// Represents action of moving entire crop [Rect].
   move
 }
 
-/// 90 degree rotations.
+/// Enum for all possible 90 degree rotations.
 enum CropRotation {
   up,
   right,
@@ -51,7 +51,7 @@ enum CropRotation {
 
 /// Extension methods for [CropRotation].
 extension CropRotationExtension on CropRotation {
-  /// Returns the rotation in radians clockwise.
+  /// Returns rotation in radians clockwise.
   double get radians {
     switch (this) {
       case CropRotation.up:
@@ -65,7 +65,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
-  /// Returns the rotation in degrees clockwise.
+  /// Returns rotation in degrees clockwise.
   int get degrees {
     switch (this) {
       case CropRotation.up:
@@ -89,7 +89,7 @@ extension CropRotationExtension on CropRotation {
     return null;
   }
 
-  /// Returns the rotation rotated 90 degrees to the right.
+  /// Returns 90 degrees right rotation.
   CropRotation get rotateRight {
     switch (this) {
       case CropRotation.up:
@@ -103,7 +103,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
-  /// Returns the rotation rotated 90 degrees to the left.
+  /// Returns 90 degrees left rotation.
   CropRotation get rotateLeft {
     switch (this) {
       case CropRotation.up:
@@ -117,7 +117,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
-  /// Returns true if the rotated width is the initial height.
+  /// Returns `true` if rotation is `right` or `left`.
   bool get isSideways {
     switch (this) {
       case CropRotation.up:
@@ -129,7 +129,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
-  /// Returns the offset as rotated.
+  /// Returns rotated offset.
   Offset getRotatedOffset(
     final Offset offset01,
     final double straightWidth,
@@ -159,7 +159,7 @@ extension CropRotationExtension on CropRotation {
     }
   }
 
-  /// Returns the angle of the rotation.
+  /// Returns rotation angle.
   Angle get angle {
     switch (this) {
       case CropRotation.up:
