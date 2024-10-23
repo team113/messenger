@@ -117,7 +117,7 @@ class CropAvatarView extends StatelessWidget {
   }
 
   /// Closes modal with [CropAreaInput] data.
-  Future<void> _close(BuildContext context, CropController controller) async {
+  void _close(BuildContext context, CropController controller) {
     final Rect cropSize = controller.cropSize;
     final CropAreaInput cropArea = CropAreaInput(
       bottomRight: PointInput(
