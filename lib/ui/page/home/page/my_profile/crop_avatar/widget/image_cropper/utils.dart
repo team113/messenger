@@ -24,13 +24,13 @@ import 'widget.dart';
 
 /// Represents handle's position on crop [Rect].
 class CropHandlePoint {
+  CropHandlePoint(this.type, this.offset);
+
   /// Type of crop handle.
   final CropHandle type;
 
   /// Offset of crop handle
   final Offset offset;
-
-  CropHandlePoint(this.type, this.offset);
 }
 
 /// [CustomPainter] that paints rotated image based on [CropRotation] value.

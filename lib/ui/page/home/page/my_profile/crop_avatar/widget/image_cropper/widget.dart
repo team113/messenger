@@ -25,6 +25,14 @@ import 'utils.dart';
 /// Widget for cropping image.
 /// It displays image with crop rectangle that can be moved and resized.
 class ImageCropper extends StatefulWidget {
+  const ImageCropper({
+    super.key,
+    required this.controller,
+    this.scrimColor = Colors.black54,
+    this.minimumImageSize = 100,
+  }) : assert(minimumImageSize > 0,
+            'minimumImageSize should be greater than zero.');
+
   /// Controller for managing crop area and notifying listeners of changes.
   final CropController controller;
 
@@ -38,14 +46,6 @@ class ImageCropper extends StatefulWidget {
 
   @override
   State<ImageCropper> createState() => _ImageCropperState();
-
-  const ImageCropper({
-    super.key,
-    required this.controller,
-    this.scrimColor = Colors.black54,
-    this.minimumImageSize = 100,
-  }) : assert(minimumImageSize > 0,
-            'minimumImageSize should be greater than zero.');
 }
 
 class _ImageCropperState extends State<ImageCropper> {
