@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the MyUser class from the my_user library, for the Dart programming language.">
+  <title>MyUser class - my_user library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../domain_model_my_user/domain_model_my_user-library.html">domain&#47;model&#47;my_user.dart</a></li>
+    <li class="self-crumb">MyUser class</li>
+  </ol>
+  <div class="self-name">MyUser</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="domain_model_my_user&#47;domain_model_my_user-library-sidebar.html"
+    data-below-sidebar="domain_model_my_user&#47;MyUser-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">MyUser</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p><code>User</code> of an application being currently signed-in.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+        
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://pub.dev/documentation/json_annotation/4.9.0/json_annotation/JsonSerializable-class.html">JsonSerializable</a>()</li>
+    </ul>
+  </dd>
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="MyUser" class="callable">
+          <span class="name"><a href="../domain_model_my_user/MyUser/MyUser.html">MyUser</a></span><span class="signature">({<span class="parameter" id="-param-id"><span>required</span> <span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="-param-num"><span>required</span> <span class="type-annotation"><a href="../domain_model_user/UserNum-class.html">UserNum</a></span> <span class="parameter-name">num</span>, </span><span class="parameter" id="-param-login"><span class="type-annotation"><a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span> <span class="parameter-name">login</span>, </span><span class="parameter" id="-param-name"><span class="type-annotation"><a href="../domain_model_user/UserName-class.html">UserName</a>?</span> <span class="parameter-name">name</span>, </span><span class="parameter" id="-param-bio"><span class="type-annotation"><a href="../domain_model_user/UserBio-class.html">UserBio</a>?</span> <span class="parameter-name">bio</span>, </span><span class="parameter" id="-param-hasPassword"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">hasPassword</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-emails"><span>required</span> <span class="type-annotation"><a href="../domain_model_my_user/MyUserEmails-class.html">MyUserEmails</a></span> <span class="parameter-name">emails</span>, </span><span class="parameter" id="-param-phones"><span>required</span> <span class="type-annotation"><a href="../domain_model_my_user/MyUserPhones-class.html">MyUserPhones</a></span> <span class="parameter-name">phones</span>, </span><span class="parameter" id="-param-chatDirectLink"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a>?</span> <span class="parameter-name">chatDirectLink</span>, </span><span class="parameter" id="-param-unreadChatsCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">unreadChatsCount</span> = <span class="default-value">0</span>, </span><span class="parameter" id="-param-status"><span class="type-annotation"><a href="../domain_model_user/UserTextStatus-class.html">UserTextStatus</a>?</span> <span class="parameter-name">status</span>, </span><span class="parameter" id="-param-avatar"><span class="type-annotation"><a href="../domain_model_avatar/UserAvatar-class.html">UserAvatar</a>?</span> <span class="parameter-name">avatar</span>, </span><span class="parameter" id="-param-callCover"><span class="type-annotation"><a href="../domain_model_user_call_cover/UserCallCover-class.html">UserCallCover</a>?</span> <span class="parameter-name">callCover</span>, </span><span class="parameter" id="-param-presenceIndex"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">presenceIndex</span>, </span><span class="parameter" id="-param-online"><span>required</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">online</span>, </span><span class="parameter" id="-param-muted"><span class="type-annotation"><a href="../domain_model_mute_duration/MuteDuration-class.html">MuteDuration</a>?</span> <span class="parameter-name">muted</span>, </span><span class="parameter" id="-param-blocklistCount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">blocklistCount</span>, </span><span class="parameter" id="-param-lastSeenAt"><span class="type-annotation"><a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a>?</span> <span class="parameter-name">lastSeenAt</span>, </span><span class="parameter" id="-param-welcomeMessage"><span class="type-annotation"><a href="../domain_model_welcome_message/WelcomeMessage-class.html">WelcomeMessage</a>?</span> <span class="parameter-name">welcomeMessage</span></span>})</span>
+        </dt>
+        <dd>
+          
+        </dd>
+        <dt id="MyUser.fromJson" class="callable">
+          <span class="name"><a href="../domain_model_my_user/MyUser/MyUser.fromJson.html">MyUser.fromJson</a></span><span class="signature">(<span class="parameter" id="fromJson-param-json"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">json</span></span>)</span>
+        </dt>
+        <dd>
+          Constructs a <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> from the provided <code>json</code>.
+            <div class="constructor-modifier features">factory</div>
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="avatar" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/avatar.html">avatar</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_avatar/UserAvatar-class.html">UserAvatar</a>?</span>
+  
+
+</dt>
+<dd>
+  Avatar of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="bio" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/bio.html">bio</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user/UserBio-class.html">UserBio</a>?</span>
+  
+
+</dt>
+<dd>
+  Arbitrary descriptive information about this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="blocklistCount" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/blocklistCount.html">blocklistCount</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span>
+  
+
+</dt>
+<dd>
+  Total count of blocked users.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="callCover" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/callCover.html">callCover</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user_call_cover/UserCallCover-class.html">UserCallCover</a>?</span>
+  
+
+</dt>
+<dd>
+  Call cover of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="chatDirectLink" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/chatDirectLink.html">chatDirectLink</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> to the <code>Chat</code> with this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="emails" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/emails.html">emails</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_my_user/MyUserEmails-class.html">MyUserEmails</a></span>
+  
+
+</dt>
+<dd>
+  List of already confirmed email addresses.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../domain_model_my_user/MyUser/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasPassword" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/hasPassword.html">hasPassword</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> has a password.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="id" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/id.html">id</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/UserId-class.html">UserId</a></span>
+  
+
+</dt>
+<dd>
+  Unique ID of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="lastSeenAt" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/lastSeenAt.html">lastSeenAt</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a> this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> was last seen online at.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="login" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/login.html">login</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user/UserLogin-class.html">UserLogin</a>?</span>
+  
+
+</dt>
+<dd>
+  Unique login of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="muted" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/muted.html">muted</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_mute_duration/MuteDuration-class.html">MuteDuration</a>?</span>
+  
+
+</dt>
+<dd>
+  Mute duration of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/name.html">name</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user/UserName-class.html">UserName</a>?</span>
+  
+
+</dt>
+<dd>
+  Name of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="num" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/num.html">num</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/UserNum-class.html">UserNum</a></span>
+  
+
+</dt>
+<dd>
+  Unique number of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="online" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/online.html">online</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Online state of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="phones" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/phones.html">phones</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_my_user/MyUserPhones-class.html">MyUserPhones</a></span>
+  
+
+</dt>
+<dd>
+  List of already confirmed phone numbers.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="presence" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/presence.html">presence</a></span>
+  <span class="signature">&#8596; <a href="../api_backend_schema.graphql/Presence.html">Presence</a></span>
+  
+
+</dt>
+<dd>
+  
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="presenceIndex" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/presenceIndex.html">presenceIndex</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Presence of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="../domain_model_my_user/MyUser/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="status" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/status.html">status</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_user/UserTextStatus-class.html">UserTextStatus</a>?</span>
+  
+
+</dt>
+<dd>
+  Custom text status of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="unreadChatsCount" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/unreadChatsCount.html">unreadChatsCount</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Count of the unread Chats of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="welcomeMessage" class="property">
+  <span class="name"><a href="../domain_model_my_user/MyUser/welcomeMessage.html">welcomeMessage</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_welcome_message/WelcomeMessage-class.html">WelcomeMessage</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_welcome_message/WelcomeMessage-class.html">WelcomeMessage</a> of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="copyWith" class="callable">
+  <span class="name"><a href="../domain_model_my_user/MyUser/copyWith.html">copyWith</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="../domain_model_my_user/MyUser-class.html">MyUser</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a copy of this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="../domain_model_my_user/MyUser/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toJson" class="callable">
+  <span class="name"><a href="../domain_model_my_user/MyUser/toJson.html">toJson</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Returns a <a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a> representing this <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  
+
+</dd>
+
+        <dt id="toString" class="callable">
+  <span class="name"><a href="../domain_model_my_user/MyUser/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd>
+  A string representation of this object.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../domain_model_my_user/MyUser/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../domain_model_my_user/domain_model_my_user-library.html">my_user</a></li>
+    <li class="self-crumb">MyUser class</li>
+</ol>
+
+    <h5>my_user library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

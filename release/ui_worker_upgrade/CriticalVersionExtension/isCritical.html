@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the isCritical method from the CriticalVersionExtension extension, for the Dart programming language.">
+  <title>isCritical method - CriticalVersionExtension extension - upgrade library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_worker_upgrade/ui_worker_upgrade-library.html">ui&#47;worker&#47;upgrade.dart</a></li>
+    <li><a href="../../ui_worker_upgrade/CriticalVersionExtension.html">CriticalVersionExtension</a></li>
+    <li class="self-crumb">isCritical method</li>
+  </ol>
+  <div class="self-name">isCritical</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_worker_upgrade&#47;CriticalVersionExtension-extension-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">isCritical</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+<span class="name ">isCritical</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="isCritical-param-other"><span class="type-annotation"><a href="https://pub.dev/documentation/pub_semver/2.1.4/pub_semver/Version-class.html">Version</a>?</span> <span class="parameter-name">other</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Indicates whether this <a href="https://pub.dev/documentation/pub_semver/2.1.4/pub_semver/Version-class.html">Version</a> is considered critical compared to the
+<code>other</code>, meaning the one user can't skip.</p>
+<p>Algorithm determining whether the <code>other</code> is consider critical follows the
+rules, which is easier to demonstrate with the following examples:</p>
+<ul>
+<li><code>0.1.0</code> -&gt; <code>0.1.1</code> =&gt; <code>false</code>;</li>
+<li><code>0.1.0</code> -&gt; <code>0.2.0</code> =&gt; <code>true</code>;</li>
+<li><code>0.1.0</code> -&gt; <code>1.0.0</code> =&gt; <code>true</code>;</li>
+<li><code>1.0.0</code> -&gt; <code>1.0.1</code> =&gt; <code>false</code>;</li>
+<li><code>1.0.0</code> -&gt; <code>1.1.0</code> =&gt; <code>false</code>.</li>
+</ul>
+<p>And the suffixes:</p>
+<ul>
+<li><code>0.1.0-alpha</code> -&gt; <code>0.1.0</code> =&gt; <code>true</code>;</li>
+<li><code>0.1.0-alpha</code> -&gt; <code>0.1.0.alpha.1</code> =&gt; <code>true</code>;</li>
+<li><code>0.1.0-alpha.1</code> -&gt; <code>0.1.0.alpha.2</code> =&gt; <code>true</code>;</li>
+<li><code>0.1.0-alpha.2</code> -&gt; <code>0.1.0.alpha.2.1</code> =&gt; <code>false</code>;</li>
+<li><code>0.1.0-alpha.2.1</code> -&gt; <code>0.1.0.alpha.2.16</code> =&gt; <code>false</code>;</li>
+<li><code>0.1.0-alpha.3</code> -&gt; <code>0.1.0.beta.3</code> =&gt; <code>true</code>;</li>
+<li><code>0.1.0</code> -&gt; <code>0.2.0-rc</code> =&gt; <code>false</code>;</li>
+<li><code>0.1.0</code> -&gt; <code>1.0.0-beta</code> =&gt; <code>false</code>;</li>
+<li><code>1.0.0-beta</code> -&gt; <code>1.0.0-rc</code> =&gt; <code>true</code>.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">bool isCritical(Version? other) {
+  if (other == null) {
+    return false;
+  }
+
+  &#47;&#47; If ours version is higher than the [other], then this isn&#39;t a critical
+  &#47;&#47; release.
+  if (this &gt; other) {
+    return false;
+  }
+
+  &#47;&#47; First of all, compare pre-releases.
+  if (preRelease.isEmpty &amp;&amp; other.preRelease.isNotEmpty) {
+    &#47;&#47; If the compared version is a pre-release and ours isn&#39;t, then the
+    &#47;&#47; compared is never critical, as we shouldn&#39;t update to pre-releases from
+    &#47;&#47; stable versions.
+    &#47;&#47;
+    &#47;&#47; Example: `1.0.0` -&gt; `2.0.0-alpha.1` =&gt; `false`.
+    return false;
+  } else if (preRelease.isNotEmpty &amp;&amp; other.preRelease.isEmpty) {
+    &#47;&#47; If our version is a pre-release and the compared one isn&#39;t, then the
+    &#47;&#47; compared is considered critical.
+    &#47;&#47;
+    &#47;&#47; Example: `1.0.0-alpha.1` -&gt; `1.0.0` =&gt; `true`.
+    return true;
+  } else if (preRelease.isNotEmpty &amp;&amp; other.preRelease.isNotEmpty) {
+    &#47;&#47; Both versions contain pre-release labels, thus compare their respective
+    &#47;&#47; major&#47;minor numbers first.
+    &#47;&#47;
+    &#47;&#47; Differences in major number are always considered critical.
+    &#47;&#47;
+    &#47;&#47; Example: `1.0.0-alpha` -&gt; `2.0.0-alpha` =&gt; `true`.
+    if (major &lt; other.major) {
+      return true;
+    }
+
+    if (major == 0) {
+      &#47;&#47; If major is `0`, then differences in minor number are considered
+      &#47;&#47; critical.
+      &#47;&#47;
+      &#47;&#47; Example: `0.1.0-alpha` -&gt; `0.2.0-alpha` =&gt; `true`.
+      if (minor &lt; other.minor) {
+        return true;
+      }
+    }
+
+    &#47;&#47; If both versions are different patches and have pre-releases, then this
+    &#47;&#47; is a critical release.
+    &#47;&#47;
+    &#47;&#47; Example: `0.1.0-alpha.1` -&gt; `0.1.1-alpha.1` =&gt; `true`.
+    if (patch != other.patch) {
+      return true;
+    }
+
+    &#47;&#47; If pre-releases are equal to each other, then this isn&#39;t a critical
+    &#47;&#47; release.
+    if (const ListEquality().equals(preRelease, other.preRelease)) {
+      return false;
+    }
+
+    final ourFirst = preRelease.first;
+    final theirFirst = other.preRelease.first;
+
+    if (ourFirst is Comparable &amp;&amp; theirFirst is Comparable) {
+      &#47;&#47; First pre-release parts are equal (`alpha` and `alpha`, for example).
+      if (ourFirst == theirFirst) {
+        final ourSecond = preRelease.elementAtOrNull(1);
+        final theirSecond = other.preRelease.elementAtOrNull(1);
+
+        if (ourSecond is Comparable &amp;&amp; theirSecond is Comparable) {
+          &#47;&#47; Second pre-release parts are equal (`1` and `1`, for example).
+          if (ourSecond == theirSecond) {
+            &#47;&#47; If the second parts are equal, then the deeper parts are
+            &#47;&#47; different, which isn&#39;t considered a critical release.
+            &#47;&#47;
+            &#47;&#47; Example: `0.1.0-alpha.1` -&gt; `0.1.0-alpha.1.1` =&gt; `false`.
+            &#47;&#47; Example: `0.1.0-alpha.1.1.2` -&gt; `0.1.0-alpha.1.1.3` =&gt; `false`.
+            &#47;&#47; Example: `0.1.0-alpha.1.5` -&gt; `0.1.0-alpha.1.6` =&gt; `false`.
+            return false;
+          } else {
+            &#47;&#47; If our second pre-release part is lower than the second
+            &#47;&#47; pre-release part of the other version, then this is critical.
+            &#47;&#47;
+            &#47;&#47; Example: `0.1.0-alpha.1` -&gt; `0.1.0-alpha.2` =&gt; `true`.
+            return ourSecond.compareTo(theirSecond) &lt; 0;
+          }
+        }
+      } else {
+        &#47;&#47; If our first pre-release part is lower than the first pre-release
+        &#47;&#47; part of the other version, then this is critical.
+        &#47;&#47;
+        &#47;&#47; Example: `0.1.0-alpha` -&gt; `0.1.0-beta` =&gt; `true`.
+        return ourFirst.compareTo(theirFirst) &lt; 0;
+      }
+    }
+  }
+
+  &#47;&#47; If the compared versions contain no pre-releases, then proceed comparing
+  &#47;&#47; major&#47;minor numbers.
+  &#47;&#47;
+  &#47;&#47; Differences in major number are always considered critical.
+  &#47;&#47;
+  &#47;&#47; Example: `1.0.0` -&gt; `2.0.0` =&gt; `true`.
+  if (major &lt; other.major) {
+    return true;
+  }
+
+  if (major == 0) {
+    &#47;&#47; If major is `0`, then differences in minor number are considered
+    &#47;&#47; critical.
+    &#47;&#47;
+    &#47;&#47; Example: `0.1.0` -&gt; `0.2.0` =&gt; `true`.
+    if (minor &lt; other.minor) {
+      return true;
+    }
+  }
+
+  &#47;&#47; Otherwise this isn&#39;t a critical release.
+  &#47;&#47;
+  &#47;&#47; Example: `0.1.0` -&gt; `0.1.1` =&gt; `false`.
+  &#47;&#47; Example: `1.0.0` -&gt; `1.0.1` =&gt; `false`.
+  &#47;&#47; Example: `1.0.0` -&gt; `1.2.3` =&gt; `false`.
+  return false;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_worker_upgrade/ui_worker_upgrade-library.html">upgrade</a></li>
+    <li><a href="../../ui_worker_upgrade/CriticalVersionExtension.html">CriticalVersionExtension</a></li>
+    <li class="self-crumb">isCritical method</li>
+</ol>
+
+    <h5>CriticalVersionExtension extension on <a href="https://pub.dev/documentation/pub_semver/2.1.4/pub_semver/Version-class.html">Version</a></h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

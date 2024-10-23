@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the relocateSecondary method from the CallController class, for the Dart programming language.">
+  <title>relocateSecondary method - CallController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">ui&#47;page&#47;call&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">relocateSecondary method</li>
+  </ol>
+  <div class="self-name">relocateSecondary</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_call_controller&#47;CallController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">relocateSecondary</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">void</span>
+<span class="name ">relocateSecondary</span>(<wbr>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Relocates the secondary view accounting the possible intersections.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void relocateSecondary() {
+  if (secondaryAlignment.value == null &amp;&amp;
+      secondaryDragged.isFalse &amp;&amp;
+      !_secondaryRelocated) {
+    _secondaryRelocated = true;
+
+    Rect? secondaryBounds, dockBounds;
+
+    try {
+      secondaryBounds = secondaryKey.globalPaintBounds;
+      dockBounds = dockKey.globalPaintBounds;
+    } catch (_) {
+      &#47;&#47; No-op.
+    }
+
+    Rect intersect =
+        secondaryBounds?.intersect(dockBounds ?? Rect.zero) ?? Rect.zero;
+
+    intersect = Rect.fromLTWH(
+      intersect.left,
+      intersect.top,
+      intersect.width,
+      intersect.height + 10,
+    );
+
+    if (intersect.width &gt; 0 &amp;&amp; intersect.height &gt; 0) {
+      secondaryBottomShifted ??= secondaryBottom.value ??
+          size.height - secondaryTop.value! - secondaryHeight.value;
+
+      &#47;&#47; Intersection is non-zero, so move the secondary panel up.
+      if (secondaryBottom.value != null) {
+        secondaryBottom.value = secondaryBottom.value! + intersect.height;
+      } else {
+        secondaryTop.value = secondaryTop.value! - intersect.height;
+      }
+
+      applySecondaryConstraints();
+    } else if ((intersect.height &lt; 0 || intersect.width &lt; 0) &amp;&amp;
+        secondaryBottomShifted != null) {
+      &#47;&#47; Intersection is less than zero and the secondary panel is higher than
+      &#47;&#47; it was before, so move it to its original position.
+      double bottom = secondaryBottom.value ??
+          size.height - secondaryTop.value! - secondaryHeight.value;
+
+      if (bottom &gt; secondaryBottomShifted!) {
+        double difference = bottom - secondaryBottomShifted!;
+        if (secondaryBottom.value != null) {
+          if (difference.abs() &lt; intersect.height.abs() ||
+              intersect.width &lt; 0) {
+            secondaryBottom.value = secondaryBottomShifted;
+            secondaryBottomShifted = null;
+          } else {
+            secondaryBottom.value =
+                secondaryBottom.value! - intersect.height.abs();
+          }
+        } else {
+          if (difference.abs() &lt; intersect.height.abs() ||
+              intersect.width &lt; 0) {
+            secondaryTop.value =
+                size.height - secondaryHeight.value - secondaryBottomShifted!;
+            secondaryBottomShifted = null;
+          } else {
+            secondaryTop.value = secondaryTop.value! + intersect.height.abs();
+          }
+        }
+
+        applySecondaryConstraints();
+      }
+    }
+
+    SchedulerBinding.instance
+        .addPostFrameCallback((_) =&gt; _secondaryRelocated = false);
+  }
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">relocateSecondary method</li>
+</ol>
+
+    <h5>CallController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

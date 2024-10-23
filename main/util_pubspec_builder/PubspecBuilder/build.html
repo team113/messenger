@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the PubspecBuilder class, for the Dart programming language.">
+  <title>build method - PubspecBuilder class - pubspec_builder library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../util_pubspec_builder/util_pubspec_builder-library.html">util&#47;pubspec_builder.dart</a></li>
+    <li><a href="../../util_pubspec_builder/PubspecBuilder-class.html">PubspecBuilder</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="util_pubspec_builder&#47;PubspecBuilder-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-buildStep"><span class="type-annotation"><a href="https://pub.dev/documentation/build/2.4.1/build/BuildStep-class.html">BuildStep</a></span> <span class="parameter-name">buildStep</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Generates the outputs for a given <a href="https://pub.dev/documentation/build/2.4.1/build/BuildStep-class.html">BuildStep</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+FutureOr&lt;void&gt; build(BuildStep buildStep) async {
+  final YamlMap pubspec = loadYaml(File(&#39;pubspec.yaml&#39;).readAsStringSync());
+  final outputId = AssetId(buildStep.inputId.package, &#39;lib&#47;pubspec.g.dart&#39;);
+
+  final StringBuffer buffer = StringBuffer(
+    &#39;class Pubspec {\n&#39;
+    &#39;  static const String name = \&#39;${pubspec[&#39;name&#39;]}\&#39;;\n&#39;
+    &#39;  static const String version = \&#39;${pubspec[&#39;version&#39;]}\&#39;;\n&#39;,
+  );
+
+  final ProcessResult git = await Process.run(
+    &#39;git&#39;,
+    [&#39;describe&#39;, &#39;--tags&#39;, &#39;--abbrev=0&#39;, &#39;--dirty&#39;, &#39;--match&#39;, &#39;v*&#39;],
+  );
+  final ProcessResult rev =
+      await Process.run(&#39;git&#39;, [&#39;rev-list&#39;, &#39;HEAD&#39;, &#39;--count&#39;]);
+
+  if (git.exitCode == 0 &amp;&amp; rev.exitCode == 0) {
+    String ref = git.stdout.toString();
+    String count = rev.stdout.toString();
+
+    &#47;&#47; Strip the first `v` of the tag.
+    if (ref.startsWith(&#39;v&#39;)) {
+      ref = ref.substring(1);
+    }
+
+    &#47;&#47; Strip the trailing `\n`.
+    if (ref.endsWith(&#39;\n&#39;)) {
+      ref = ref.substring(0, ref.length - 1);
+    }
+    if (count.endsWith(&#39;\n&#39;)) {
+      count = count.substring(0, count.length - 1);
+    }
+
+    buffer.write(&#39;  static const String ref = \&#39;$ref+$count\&#39;;\n&#39;);
+
+    &#47;&#47; ignore: avoid_print
+    print(&#39;[PubspecBuilder] `Pubspec.ref` field is set to be `$ref+$count`.&#39;);
+  } else {
+    throw Exception(
+      &#39;[PubspecBuilder] Unable to properly generate `pubspec.g.dart` summary: `git` executable exited with code ${git.exitCode}, \nstdout: ${git.stdout}\nstderr: ${git.stderr}&#39;,
+    );
+  }
+
+  buffer.write(&#39;}\n&#39;);
+
+  await buildStep.writeAsString(outputId, buffer.toString());
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../util_pubspec_builder/util_pubspec_builder-library.html">pubspec_builder</a></li>
+    <li><a href="../../util_pubspec_builder/PubspecBuilder-class.html">PubspecBuilder</a></li>
+    <li class="self-crumb">build method</li>
+</ol>
+
+    <h5>PubspecBuilder class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

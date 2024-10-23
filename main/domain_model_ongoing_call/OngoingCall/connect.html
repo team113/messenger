@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the connect method from the OngoingCall class, for the Dart programming language.">
+  <title>connect method - OngoingCall class - ongoing_call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../domain_model_ongoing_call/domain_model_ongoing_call-library.html">domain&#47;model&#47;ongoing_call.dart</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+    <li class="self-crumb">connect method</li>
+  </ol>
+  <div class="self-name">connect</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="domain_model_ongoing_call&#47;OngoingCall-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">connect</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">void</span>
+<span class="name ">connect</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="connect-param-calls"><span class="type-annotation"><a href="../../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">calls</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Starts the <a href="../../domain_service_call/CallService/heartbeat.html">CallService.heartbeat</a> subscription indicating that this
+<a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is ready to connect to a media server.</p>
+<p>No-op if already <a href="../../domain_model_ongoing_call/OngoingCall/connected.html">connected</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void connect(CallService calls) {
+  Log.debug(&#39;connect($calls)&#39;, &#39;$runtimeType&#39;);
+
+  _participated = true;
+
+  if (connected || callChatItemId == null || deviceId == null) {
+    return;
+  }
+
+  CallMemberId id = CallMemberId(_me.userId, deviceId);
+  members[_me]?.id = id;
+  members.move(_me, id);
+  _me = id;
+
+  connected = true;
+  _heartbeat?.cancel();
+  _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
+    (e) async {
+      switch (e.kind) {
+        case ChatCallEventsKind.initialized:
+          Log.debug(&#39;heartbeat(): ${e.kind}&#39;, &#39;$runtimeType&#39;);
+          break;
+
+        case ChatCallEventsKind.chatCall:
+          Log.debug(&#39;heartbeat(): ${e.kind}&#39;, &#39;$runtimeType&#39;);
+
+          final node = e as ChatCallEventsChatCall;
+
+          _handToggles.clear();
+
+          if (node.call.finishReason != null) {
+            &#47;&#47; Call is already ended, so remove it.
+            calls.remove(chatId.value);
+            calls.removeCredentials(node.call.chatId, node.call.id);
+          } else {
+            call.value = node.call;
+            call.refresh();
+
+            if (state.value == OngoingCallState.local) {
+              state.value = node.call.conversationStartedAt == null
+                  ? OngoingCallState.pending
+                  : OngoingCallState.joining;
+            }
+
+            final ChatMembersDialed? dialed = node.call.dialed;
+            if (dialed is ChatMembersDialedConcrete) {
+              &#47;&#47; Remove the members, who are not connected and still
+              &#47;&#47; redialing, that are missing from the [dialed].
+              members.removeWhere(
+                (_, v) =&gt;
+                    v.isConnected.isFalse &amp;&amp;
+                    v.isDialing.isTrue &amp;&amp;
+                    dialed.members.none((e) =&gt; e.user.id == v.id.userId) &amp;&amp;
+                    node.call.members.none((e) =&gt; e.user.id == v.id.userId),
+              );
+
+              for (final ChatMember m in dialed.members) {
+                _addDialing(m.user.id);
+              }
+            } else if (dialed == null) {
+              &#47;&#47; Remove the members, who are not connected and still
+              &#47;&#47; redialing, since no one is [dialed].
+              members.removeWhere(
+                (_, v) =&gt;
+                    v.isConnected.isFalse &amp;&amp;
+                    v.isDialing.isTrue &amp;&amp;
+                    node.call.members.none((e) =&gt; e.user.id == v.id.userId),
+              );
+            }
+
+            &#47;&#47; Subscribes to the [RxChat.members] changes, adding the dialed
+            &#47;&#47; users.
+            &#47;&#47;
+            &#47;&#47; Additionally handles the case, when [dialed] are
+            &#47;&#47; [ChatMembersDialedAll], since we need to have a [RxChat] to
+            &#47;&#47; retrieve the whole list of users this way.
+            Future&lt;void&gt; redialAndResubscribe(RxChat? v) async {
+              if (!connected || v == null) {
+                &#47;&#47; [OngoingCall] might have been disposed or disconnected
+                &#47;&#47; while this [Future] was executing.
+                return;
+              }
+
+              &#47;&#47; Add the redialed members of the call to the [members].
+              if (dialed is ChatMembersDialedAll &amp;&amp;
+                  v.chat.value.membersCount &lt;= v.members.perPage) {
+                if (v.members.length &lt; v.chat.value.membersCount) {
+                  await v.members.around();
+                }
+
+                &#47;&#47; Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
+                if (call.value?.dialed is ChatMembersDialedAll) {
+                  final Iterable&lt;RxUser&gt; dialings =
+                      v.members.values.map((e) =&gt; e.user).where(
+                            (e) =&gt;
+                                e.id != me.id.userId &amp;&amp;
+                                dialed.answeredMembers
+                                    .none((a) =&gt; a.user.id == e.id),
+                          );
+
+                  &#47;&#47; Remove the members, who are not connected and still
+                  &#47;&#47; redialing, that are missing from the [dialings].
+                  members.removeWhere(
+                    (_, v) =&gt;
+                        v.isConnected.isFalse &amp;&amp;
+                        v.isDialing.isTrue &amp;&amp;
+                        dialings.none((e) =&gt; e.id == v.id.userId) &amp;&amp;
+                        node.call.members
+                            .none((e) =&gt; e.user.id == v.id.userId),
+                  );
+
+                  for (final RxUser e in dialings) {
+                    _addDialing(e.id);
+                  }
+                }
+              }
+            }
+
+            &#47;&#47; Retrieve the [RxChat] to subscribe to its [RxChat.members]
+            &#47;&#47; changes, so that added users are displayed as dialed right
+            &#47;&#47; away.
+            final FutureOr&lt;RxChat?&gt; chatOrFuture =
+                calls.getChat(chatId.value);
+            if (chatOrFuture is RxChat?) {
+              redialAndResubscribe(chatOrFuture);
+            } else {
+              chatOrFuture.then(redialAndResubscribe);
+            }
+
+            members[_me]?.isHandRaised.value = node.call.members
+                    .firstWhereOrNull((e) =&gt; e.user.id == _me.userId)
+                    ?.handRaised ??
+                false;
+          }
+          break;
+
+        case ChatCallEventsKind.event:
+          final versioned = (e as ChatCallEventsEvent).event;
+          Log.debug(
+            &#39;heartbeat(ChatCallEventsEvent): ${versioned.events.map((e) =&gt; e.kind)}&#39;,
+            &#39;$runtimeType($id)&#39;,
+          );
+
+          for (final ChatCallEvent event in versioned.events) {
+            switch (event.kind) {
+              case ChatCallEventKind.roomReady:
+                final node = event as EventChatCallRoomReady;
+
+                if (!_background) {
+                  await _joinRoom(node.joinLink);
+                }
+
+                state.value = OngoingCallState.active;
+                break;
+
+              case ChatCallEventKind.finished:
+                final node = event as EventChatCallFinished;
+                if (node.chatId == chatId.value) {
+                  calls.removeCredentials(node.call.chatId, node.call.id);
+                  calls.remove(chatId.value);
+                }
+                break;
+
+              case ChatCallEventKind.memberLeft:
+                final node = event as EventChatCallMemberLeft;
+                if (me.id.userId == node.user.id &amp;&amp;
+                    me.id.deviceId == node.deviceId) {
+                  calls.remove(chatId.value);
+                }
+
+                final CallMemberId id =
+                    CallMemberId(node.user.id, node.deviceId);
+
+                if (members[id]?.isConnected.value == false) {
+                  members.remove(id)?.dispose();
+                }
+
+                if (members.keys.none((e) =&gt; e.userId == node.user.id)) {
+                  call.value?.members
+                      .removeWhere((e) =&gt; e.user.id == node.user.id);
+                }
+                break;
+
+              case ChatCallEventKind.memberJoined:
+                final node = event as EventChatCallMemberJoined;
+
+                final CallMemberId redialedId =
+                    CallMemberId(node.user.id, null);
+                final CallMemberId id =
+                    CallMemberId(node.user.id, node.deviceId);
+
+                final CallMember? redialed = members[redialedId];
+                if (redialed != null) {
+                  redialed.id = id;
+                  redialed.isDialing.value = false;
+                  redialed.joinedAt.value = node.at;
+                  members.move(redialedId, id);
+                }
+
+                final CallMember? member = members[id];
+
+                if (member == null) {
+                  members[id] = CallMember(
+                    id,
+                    null,
+                    joinedAt: node.at,
+                    isHandRaised: call.value?.members
+                            .firstWhereOrNull((e) =&gt; e.user.id == id.userId)
+                            ?.handRaised ??
+                        false,
+                    isConnected: false,
+                  );
+                } else {
+                  member.joinedAt.value = node.at;
+                }
+                break;
+
+              case ChatCallEventKind.handLowered:
+                final node = event as EventChatCallHandLowered;
+
+                &#47;&#47; Ignore the event, if it&#39;s our hand and is already lowered.
+                if (node.user.id == _me.userId &amp;&amp;
+                    _handToggles.firstOrNull == false) {
+                  _handToggles.removeAt(0);
+                } else {
+                  for (MapEntry&lt;CallMemberId, CallMember&gt; m in members.entries
+                      .where((e) =&gt; e.key.userId == node.user.id)) {
+                    m.value.isHandRaised.value = false;
+                  }
+                }
+
+                for (ChatCallMember m in (call.value?.members ?? [])
+                    .where((e) =&gt; e.user.id == node.user.id)) {
+                  m.handRaised = false;
+                }
+                break;
+
+              case ChatCallEventKind.handRaised:
+                final node = event as EventChatCallHandRaised;
+
+                &#47;&#47; Ignore the event, if it&#39;s our hand and is already raised.
+                if (node.user.id == _me.userId &amp;&amp;
+                    _handToggles.firstOrNull == true) {
+                  _handToggles.removeAt(0);
+                } else {
+                  for (MapEntry&lt;CallMemberId, CallMember&gt; m in members.entries
+                      .where((e) =&gt; e.key.userId == node.user.id)) {
+                    m.value.isHandRaised.value = true;
+                  }
+                }
+
+                for (ChatCallMember m in (call.value?.members ?? [])
+                    .where((e) =&gt; e.user.id == node.user.id)) {
+                  m.handRaised = true;
+                }
+                break;
+
+              case ChatCallEventKind.declined:
+                final node = event as EventChatCallDeclined;
+                final CallMemberId id = CallMemberId(node.user.id, null);
+                if (members[id]?.isConnected.value == false) {
+                  members.remove(id)?.dispose();
+                }
+                break;
+
+              case ChatCallEventKind.callMoved:
+                final node = event as EventChatCallMoved;
+                chatId.value = node.newChatId;
+                call.value = node.newCall;
+
+                connected = false;
+                connect(calls);
+
+                calls.moveCall(
+                  chatId: node.chatId,
+                  newChatId: node.newChatId,
+                  callId: node.callId,
+                  newCallId: node.newCallId,
+                );
+                break;
+
+              case ChatCallEventKind.redialed:
+                final node = event as EventChatCallMemberRedialed;
+                _addDialing(node.user.id);
+                break;
+
+              case ChatCallEventKind.answerTimeoutPassed:
+                final node = event as EventChatCallAnswerTimeoutPassed;
+
+                if (node.user?.id != null) {
+                  final CallMemberId id = CallMemberId(node.user!.id, null);
+                  if (members[id]?.isConnected.value == false) {
+                    members.remove(id)?.dispose();
+                  }
+                } else {
+                  call.value?.dialed = null;
+
+                  members.removeWhere((k, v) {
+                    if (k.deviceId == null &amp;&amp; v.isConnected.isFalse) {
+                      v.dispose();
+                      return true;
+                    }
+
+                    return false;
+                  });
+                }
+                break;
+
+              case ChatCallEventKind.conversationStarted:
+                &#47;&#47; TODO: Implement [EventChatCallConversationStarted].
+                break;
+
+              case ChatCallEventKind.undialed:
+                final node = event as EventChatCallMemberUndialed;
+
+                final CallMemberId id = CallMemberId(node.user.id, null);
+                if (members[id]?.isConnected.value == false) {
+                  members.remove(id)?.dispose();
+                }
+                break;
+            }
+          }
+          break;
+      }
+    },
+    onError: (e) {
+      if (e is! ResubscriptionRequiredException) {
+        throw e;
+      }
+    },
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../domain_model_ongoing_call/domain_model_ongoing_call-library.html">ongoing_call</a></li>
+    <li><a href="../../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a></li>
+    <li class="self-crumb">connect method</li>
+</ol>
+
+    <h5>OngoingCall class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

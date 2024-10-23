@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the mobileCall function from the mobile library, for the Dart programming language.">
+  <title>mobileCall function - mobile library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">ui&#47;page&#47;call&#47;component&#47;mobile.dart</a></li>
+    <li class="self-crumb">mobileCall function</li>
+  </ol>
+  <div class="self-name">mobileCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+  <div
+      id="dartdoc-main-content"
+      class="main-content"
+      data-above-sidebar="ui_page_call_component_mobile&#47;ui_page_call_component_mobile-library-sidebar.html"
+      data-below-sidebar="">
+      <div>
+<h1><span class="kind-function">mobileCall</span> function 
+ 
+</h1></div>
+
+    <section class="multi-line-signature">
+        
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">mobileCall</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="mobileCall-param-c"><span class="type-annotation"><a href="../ui_page_call_controller/CallController-class.html">CallController</a></span> <span class="parameter-name">c</span>, </span></li>
+<li><span class="parameter" id="mobileCall-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+        
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns a mobile design of a <a href="../ui_page_call_view/CallView-class.html">CallView</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Widget mobileCall(CallController c, BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return LayoutBuilder(builder: (context, constraints) {
+    final bool isOutgoing =
+        (c.outgoing || c.state.value == OngoingCallState.local) &amp;&amp; !c.started;
+
+    &#47;&#47; Call stackable content.
+    List&lt;Widget&gt; content = [
+      const SvgImage.asset(
+        &#39;assets&#47;images&#47;background_dark.svg&#39;,
+        width: double.infinity,
+        height: double.infinity,
+        fit: BoxFit.cover,
+      ),
+    ];
+
+    &#47;&#47; Layer of [Widget]s to display above the UI.
+    List&lt;Widget&gt; overlay = [];
+
+    &#47;&#47; Active call.
+    if ((c.isGroup &amp;&amp; isOutgoing) || c.state.value == OngoingCallState.active) {
+      content.addAll([
+        Obx(() {
+          if (c.isDialog &amp;&amp; c.primary.length == 1 &amp;&amp; c.secondary.length == 1) {
+            return FloatingFit&lt;Participant&gt;(
+              primary: c.primary.first,
+              panel: c.secondary.first,
+              onSwapped: (p, _) =&gt; c.center(p),
+              fit: !c.minimized.isFalse,
+              intersection: c.dockRect,
+              onManipulated: (bool m) =&gt; c.secondaryManipulated.value = m,
+              itemBuilder: (e) {
+                return Stack(
+                  children: [
+                    const ParticipantDecoratorWidget(),
+                    IgnorePointer(
+                      child: ParticipantWidget(
+                        e,
+                        offstageUntilDetermined: true,
+                      ),
+                    ),
+                  ],
+                );
+              },
+              overlayBuilder: (e) {
+                return Obx(() {
+                  final bool? muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : null;
+
+                  &#47;&#47; TODO: Implement opened context menu detection for
+                  &#47;&#47;       `hovered` indicator.
+                  return ParticipantOverlayWidget(
+                    e,
+                    muted: muted,
+                    hovered: false,
+                    preferBackdrop: !c.minimized.value,
+                  );
+                });
+              },
+            );
+          }
+
+          final Participant? center =
+              c.secondary.isNotEmpty ? c.primary.firstOrNull : null;
+
+          return SwappableFit&lt;Participant&gt;(
+            items: [...c.primary, ...c.secondary],
+            center: center,
+            fit: c.minimized.value,
+            itemBuilder: (e) {
+              return Obx(() {
+                final bool? muted = e.member.owner == MediaOwnerKind.local
+                    ? !c.audioState.value.isEnabled
+                    : null;
+
+                return ContextMenuRegion(
+                  actions: [
+                    if (c.primary.length + c.secondary.length &gt; 1) ...[
+                      if (center == e)
+                        ContextMenuButton(
+                          label: &#39;btn_call_uncenter&#39;.l10n,
+                          onPressed: c.focusAll,
+                          trailing: const SvgIcon(SvgIcons.uncenterVideo),
+                        )
+                      else
+                        ContextMenuButton(
+                          label: &#39;btn_call_center&#39;.l10n,
+                          onPressed: () =&gt; c.center(e),
+                          trailing: const SvgIcon(SvgIcons.centerVideo),
+                        ),
+                    ],
+                    if (e.member.id != c.me.id) ...[
+                      if (e.video.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label: e.video.value?.renderer.value != null
+                              ? &#39;btn_call_disable_video&#39;.l10n
+                              : &#39;btn_call_enable_video&#39;.l10n,
+                          onPressed: () =&gt; c.toggleVideoEnabled(e),
+                          trailing: SvgIcon(
+                            e.video.value?.renderer.value != null
+                                ? SvgIcons.incomingVideoOn
+                                : SvgIcons.incomingVideoOff,
+                          ),
+                        ),
+                      if (e.audio.value?.direction.value.isEmitting ?? false)
+                        ContextMenuButton(
+                          label:
+                              (e.audio.value?.direction.value.isEnabled == true)
+                                  ? &#39;btn_call_disable_audio&#39;.l10n
+                                  : &#39;btn_call_enable_audio&#39;.l10n,
+                          onPressed: () =&gt; c.toggleAudioEnabled(e),
+                          trailing: SvgIcon(
+                            e.audio.value?.renderer.value != null
+                                ? SvgIcons.incomingAudioOn
+                                : SvgIcons.incomingAudioOff,
+                          ),
+                        ),
+                      if (e.member.isDialing.isFalse)
+                        ContextMenuButton(
+                          label: &#39;btn_call_remove_participant&#39;.l10n,
+                          trailing: const SvgIcon(SvgIcons.removeFromCall),
+                          onPressed: () =&gt;
+                              c.removeChatCallMember(e.member.id.userId),
+                        ),
+                    ] else ...[
+                      ContextMenuButton(
+                        label: c.videoState.value.isEnabled
+                            ? &#39;btn_call_video_off&#39;.l10n
+                            : &#39;btn_call_video_on&#39;.l10n,
+                        onPressed: c.toggleVideo,
+                        trailing: SvgIcon(
+                          c.videoState.value.isEnabled
+                              ? SvgIcons.cameraOn
+                              : SvgIcons.cameraOff,
+                        ),
+                      ),
+                      ContextMenuButton(
+                        label: c.audioState.value.isEnabled
+                            ? &#39;btn_call_audio_off&#39;.l10n
+                            : &#39;btn_call_audio_on&#39;.l10n,
+                        onPressed: c.toggleAudio,
+                        trailing: SvgIcon(
+                          c.audioState.value.isEnabled
+                              ? SvgIcons.micOn
+                              : SvgIcons.micOff,
+                        ),
+                      ),
+                    ],
+                  ],
+                  unconstrained: true,
+                  builder: (animated) {
+                    return AnimatedParticipant(
+                      e,
+                      muted: muted,
+                      rounded: animated,
+                      withBlur: !c.minimized.value,
+                    );
+                  },
+                );
+              });
+            },
+          );
+        }),
+      ]);
+    } else {
+      &#47;&#47; Call is not active.
+      content.add(Obx(() {
+        RtcVideoRenderer? local =
+            (c.locals.firstOrNull?.video.value?.renderer.value ??
+                    c.paneled.firstOrNull?.video.value?.renderer.value)
+                as RtcVideoRenderer?;
+
+        if (c.videoState.value != LocalTrackState.disabled &amp;&amp; local != null) {
+          return RtcVideoView(local, fit: BoxFit.cover);
+        }
+
+        return Stack(
+          children: [
+            &#47;&#47; Display a [CallCover] of the call.
+            Obx(() {
+              final bool isDialog = c.chat.value?.chat.value.isDialog == true;
+
+              if (isDialog) {
+                final RxUser? user = c.chat.value?.members.values
+                    .firstWhereOrNull((e) =&gt; e.user.id != c.me.id.userId)
+                    ?.user;
+
+                return CallCoverWidget(c.chat.value?.callCover, user: user);
+              } else {
+                if (c.chat.value?.avatar.value != null) {
+                  final Avatar avatar = c.chat.value!.avatar.value!;
+                  return CallCoverWidget(
+                    UserCallCover(
+                      full: avatar.full,
+                      original: avatar.original,
+                      square: avatar.full,
+                      vertical: avatar.full,
+                    ),
+                  );
+                } else {
+                  return CallCoverWidget(null, chat: c.chat.value);
+                }
+              }
+            }),
+          ],
+        );
+      }));
+    }
+
+    &#47;&#47; If there&#39;s any notifications to show, display them.
+    overlay.add(
+      Align(
+        alignment: Alignment.topCenter,
+        child: Padding(
+          padding: EdgeInsets.only(top: 8 + context.mediaQueryPadding.top),
+          child: Obx(() {
+            if (c.notifications.isEmpty) {
+              return const SizedBox();
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: c.notifications.reversed.take(3).map((e) {
+                return CallNotificationWidget(
+                  e,
+                  onClose: () =&gt; c.notifications.remove(e),
+                );
+              }).toList(),
+            );
+          }),
+        ),
+      ),
+    );
+
+    Widget padding(Widget child) =&gt; Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2),
+          child: Center(child: child),
+        );
+
+    Widget buttons(List&lt;Widget&gt; children) =&gt; ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: children.map((e) =&gt; Expanded(child: e)).toList(),
+          ),
+        );
+
+    final List&lt;Widget&gt; ui = [
+      &#47;&#47; Dimmed container if any video is displayed while calling.
+      Obx(() {
+        return IgnorePointer(
+          child: SafeAnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            child: (c.state.value != OngoingCallState.active &amp;&amp;
+                    c.state.value != OngoingCallState.joining &amp;&amp;
+                    ([...c.primary, ...c.secondary].firstWhereOrNull(
+                            (e) =&gt; e.video.value?.renderer.value != null) !=
+                        null) &amp;&amp;
+                    !c.minimized.value)
+                ? Container(color: style.colors.onBackgroundOpacity27)
+                : null,
+          ),
+        );
+      }),
+
+      &#47;&#47; Listen to the taps only if the call is not minimized.
+      Obx(() {
+        return c.minimized.isTrue
+            ? Container()
+            : Listener(
+                behavior: HitTestBehavior.translucent,
+                onPointerDown: (d) {
+                  c.downAt = DateTime.now();
+                  c.downPosition = d.localPosition;
+                  c.downButtons = d.buttons;
+                },
+                onPointerUp: (d) {
+                  if (c.secondaryManipulated.isTrue) return;
+                  if (c.downButtons &amp; kPrimaryButton != 0) {
+                    if (c.state.value == OngoingCallState.active) {
+                      final distance = (d.localPosition.distanceSquared -
+                                  c.downPosition.distanceSquared)
+                              .abs() &lt;=
+                          80000;
+
+                      final time =
+                          DateTime.now().difference(c.downAt!).inMilliseconds &lt;
+                              340;
+
+                      if (distance &amp;&amp; time) {
+                        if (c.showUi.isFalse) {
+                          c.keepUi();
+                        } else {
+                          c.keepUi(c.isPanelOpen.value);
+                        }
+                      }
+                    }
+                  }
+                },
+              );
+      }),
+
+      &#47;&#47; Sliding from the top title bar.
+      CustomSafeArea(
+        child: Obx(() {
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool incoming = !isOutgoing;
+
+          final bool showUi =
+              (!c.isGroup || incoming) &amp;&amp; !active &amp;&amp; !c.minimized.value;
+
+          return AnimatedSlider(
+            duration: const Duration(milliseconds: 400),
+            isOpen: showUi,
+            beginOffset: Offset(0, -190 - MediaQuery.of(context).padding.top),
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: Padding(
+                padding: EdgeInsets.only(
+                  left: 10,
+                  right: 10,
+                  top: c.size.height * 0.05,
+                ),
+                child: callTitle(c),
+              ),
+            ),
+          );
+        }),
+      ),
+
+      &#47;&#47; Sliding from the top call information.
+      CustomSafeArea(
+        child: Obx(() {
+          final bool active = c.state.value == OngoingCallState.active;
+          final bool showUi = c.showUi.value &amp;&amp; active &amp;&amp; !c.minimized.value;
+
+          return Align(
+            alignment: Alignment.topCenter,
+            child: AnimatedSlider(
+              duration: const Duration(milliseconds: 250),
+              isOpen: showUi,
+              beginOffset: Offset(0, -50 - MediaQuery.of(context).padding.top),
+              endOffset: const Offset(0, 0),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  boxShadow: [
+                    CustomBoxShadow(
+                      color: style.colors.onBackgroundOpacity20,
+                      blurRadius: 8,
+                      blurStyle: BlurStyle.outer,
+                    )
+                  ],
+                ),
+                margin: const EdgeInsets.fromLTRB(10, 5, 10, 2),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.colors.primaryAuxiliaryOpacity25,
+                    borderRadius: BorderRadius.circular(11),
+                  ),
+                  padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          c.chat.value?.title ?? (&#39;dot&#39;.l10n * 3),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Container(
+                        margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                        width: 1,
+                        height: 14,
+                        color: style.colors.onPrimary,
+                      ),
+                      if (c.isGroup) ...[
+                        Text(
+                          &#39;label_a_of_b&#39;.l10nfmt({
+                            &#39;a&#39;: c.members.keys
+                                .where((e) =&gt; e.deviceId != null)
+                                .map((k) =&gt; k.userId)
+                                .toSet()
+                                .length,
+                            &#39;b&#39;: c.chat.value?.chat.value.membersCount ?? 1,
+                          }),
+                          style: style.fonts.small.regular.onPrimary,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Container(
+                          margin: const EdgeInsets.fromLTRB(7, 0, 5, 0),
+                          width: 1,
+                          height: 14,
+                          color: style.colors.onPrimary,
+                        ),
+                      ],
+                      Text(
+                        Config.disableInfiniteAnimations
+                            ? &#39;00:00&#39;
+                            : c.duration.value.hhMmSs(),
+                        style: style.fonts.small.regular.onPrimary,
+                        overflow: TextOverflow.ellipsis,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }),
+      ),
+
+      &#47;&#47; Sliding from the bottom buttons panel.
+      Obx(() {
+        final bool showUi =
+            (c.showUi.isTrue || c.state.value != OngoingCallState.active) &amp;&amp;
+                !c.minimized.value;
+
+        double panelHeight = 0;
+        double minHeight = 0;
+        List&lt;Widget&gt; panelChildren = [];
+
+        final bool panel = (c.isGroup &amp;&amp; isOutgoing) ||
+            c.state.value == OngoingCallState.active ||
+            c.state.value == OngoingCallState.joining;
+
+        &#47;&#47; Populate the sliding panel height and its content.
+        if (panel) {
+          panelHeight = 260 + max(37, MediaQuery.of(context).padding.bottom);
+          panelHeight = min(c.size.height - 45, panelHeight);
+
+          minHeight = 95 + max(35, MediaQuery.of(context).padding.bottom);
+          minHeight = min(c.size.height - 45, minHeight);
+
+          panelChildren = [
+            const SizedBox(height: 12),
+            buttons(
+              [
+                if (PlatformUtils.isMobile)
+                  padding(
+                    c.videoState.value.isEnabled
+                        ? SwitchButton(c).build(expanded: c.isPanelOpen.value)
+                        : SpeakerButton(c).build(expanded: c.isPanelOpen.value),
+                  ),
+                if (PlatformUtils.isDesktop)
+                  padding(ScreenButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(AudioButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(VideoButton(c).build(expanded: c.isPanelOpen.value)),
+                padding(EndCallButton(c).build(expanded: c.isPanelOpen.value)),
+              ],
+            ),
+            const SizedBox(height: 32),
+            buttons(
+              [
+                padding(ParticipantsButton(c).build(expanded: true)),
+                padding(HandButton(c).build(expanded: true)),
+                padding(RemoteAudioButton(c).build(expanded: true)),
+                padding(RemoteVideoButton(c).build(expanded: true)),
+              ],
+            ),
+          ];
+        }
+
+        final Widget child;
+
+        if (panel) {
+          child = AnimatedSlider(
+            beginOffset: Offset(0, minHeight),
+            isOpen: showUi,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutQuad,
+            reverseCurve: Curves.easeOutQuad,
+            listener: () =&gt; Future.delayed(
+              Duration.zero,
+              () =&gt; c.dockRect.value = c.dockKey.globalPaintBounds,
+            ),
+            child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(size: c.size),
+              child: SlidingUpPanel(
+                controller: c.panelController,
+                boxShadow: null,
+                color: PlatformUtils.isIOS &amp;&amp; WebUtils.isSafari
+                    ? style.colors.primaryDarkOpacity90
+                    : style.colors.primaryDarkOpacity70,
+                backdropEnabled: true,
+                backdropOpacity: 0,
+                minHeight: minHeight,
+                maxHeight: panelHeight,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(10),
+                  topRight: Radius.circular(10),
+                ),
+                panel: ConditionalBackdropFilter(
+                  key: c.dockKey,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(10),
+                    topRight: Radius.circular(10),
+                  ),
+                  condition: !PlatformUtils.isIOS || !WebUtils.isSafari,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 12),
+                      Center(
+                        child: Container(
+                          width: 60,
+                          height: 3,
+                          decoration: BoxDecoration(
+                            color: style.colors.onPrimaryOpacity50,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Expanded(child: Column(children: panelChildren)),
+                    ],
+                  ),
+                ),
+                onPanelSlide: (d) {
+                  c.keepUi(true);
+                  c.isPanelOpen.value = d &gt; 0;
+                  c.dockRect.value = c.dockKey.globalPaintBounds;
+                },
+                onPanelOpened: () {
+                  c.keepUi(true);
+                  c.isPanelOpen.value = true;
+                },
+                onPanelClosed: () {
+                  c.keepUi();
+                  c.isPanelOpen.value = false;
+                },
+              ),
+            ),
+          );
+        } else {
+          final List&lt;Widget&gt; widgets;
+
+          if (isOutgoing) {
+            widgets = [
+              if (PlatformUtils.isMobile)
+                padding(
+                  c.videoState.value.isEnabled
+                      ? SwitchButton(c).build(hinted: false, opaque: true)
+                      : SpeakerButton(c).build(hinted: false, opaque: true),
+                ),
+              padding(AudioButton(c).build(hinted: false, opaque: true)),
+              padding(VideoButton(c).build(hinted: false, opaque: true)),
+              padding(CancelButton(c).build(hinted: false, opaque: true)),
+            ];
+          } else {
+            widgets = [
+              padding(
+                AcceptAudioButton(
+                  c,
+                  highlight: !c.withVideo,
+                ).build(expanded: true),
+              ),
+              padding(
+                AcceptVideoButton(
+                  c,
+                  highlight: c.withVideo,
+                ).build(expanded: true),
+              ),
+              padding(DeclineButton(c).build(expanded: true)),
+            ];
+          }
+
+          child = Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.only(
+                    bottom: isOutgoing
+                        ? max(0, MediaQuery.of(context).padding.bottom - 30)
+                        : max(30, MediaQuery.of(context).padding.bottom),
+                  ),
+                  child: AnimatedOpacity(
+                    duration: const Duration(milliseconds: 250),
+                    opacity: c.minimized.value ? 0 : 1,
+                    child: buttons(widgets),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        return SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: child,
+        );
+      }),
+    ];
+
+    &#47;&#47; Combines all the stackable content into [Scaffold].
+    Widget scaffold = Scaffold(
+      backgroundColor: style.colors.secondaryBackgroundLight,
+      body: Stack(
+        children: [
+          ...content,
+          const MouseRegion(
+            opaque: false,
+            cursor: SystemMouseCursors.basic,
+          ),
+          ...ui.map((e) =&gt; ClipRect(child: e)),
+          ...overlay,
+        ],
+      ),
+    );
+
+    if (c.minimized.value) {
+      c.applyConstraints(context);
+    } else {
+      c.applySecondaryConstraints();
+    }
+
+    return Obx(() {
+      return MinimizableView(
+        minimizationEnabled: !c.secondaryManipulated.value,
+        onInit: (animation) {
+          c.minimizedAnimation = animation;
+          animation.addListener(() {
+            if (c.state.value != OngoingCallState.joining &amp;&amp;
+                c.state.value != OngoingCallState.active) {
+              c.minimized.value = animation.value != 0;
+            } else {
+              if (animation.value != 0) {
+                c.keepUi(false);
+              }
+              c.minimized.value = animation.value == 1;
+              if (animation.value == 1 || animation.value == 0) {
+                c.minimizing.value = false;
+              } else {
+                c.minimizing.value = true;
+              }
+            }
+          });
+        },
+        onDispose: () =&gt; c.minimizedAnimation = null,
+        onSizeChanged: (s) {
+          c.width.value = s.width;
+          c.height.value = s.height;
+        },
+        child: Obx(() {
+          return IgnorePointer(
+            ignoring: c.minimized.value,
+            child: scaffold,
+          );
+        }),
+      );
+    });
+  });
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_call_component_mobile/ui_page_call_component_mobile-library.html">mobile</a></li>
+    <li class="self-crumb">mobileCall function</li>
+</ol>
+
+    <h5>mobile library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-left-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

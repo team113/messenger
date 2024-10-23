@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the resizeSecondary method from the CallController class, for the Dart programming language.">
+  <title>resizeSecondary method - CallController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">ui&#47;page&#47;call&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">resizeSecondary method</li>
+  </ol>
+  <div class="self-name">resizeSecondary</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_call_controller&#47;CallController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">resizeSecondary</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype">void</span>
+<span class="name ">resizeSecondary</span>(<wbr><ol class="parameter-list"> <li><span class="parameter" id="resizeSecondary-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span>, {</span></li>
+<li><span class="parameter" id="resizeSecondary-param-y"><span class="type-annotation"><a href="../../ui_page_call_controller/ScaleModeY.html">ScaleModeY</a>?</span> <span class="parameter-name">y</span>, </span></li>
+<li><span class="parameter" id="resizeSecondary-param-x"><span class="type-annotation"><a href="../../ui_page_call_controller/ScaleModeX.html">ScaleModeX</a>?</span> <span class="parameter-name">x</span>, </span></li>
+<li><span class="parameter" id="resizeSecondary-param-dx"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dx</span>, </span></li>
+<li><span class="parameter" id="resizeSecondary-param-dy"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a>?</span> <span class="parameter-name">dy</span>, </span></li>
+</ol>})
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Resizes the secondary view along <code>x</code> by <code>dx</code> and/or <code>y</code> by <code>dy</code> axis.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">void resizeSecondary(
+  BuildContext context, {
+  ScaleModeY? y,
+  ScaleModeX? x,
+  double? dx,
+  double? dy,
+}) {
+  if (x != null &amp;&amp; dx != null) {
+    final RxnDouble xPrimaryOffset =
+        x == ScaleModeX.left ? secondaryLeft : secondaryRight;
+    final RxnDouble xSecondaryOffset =
+        x == ScaleModeX.left ? secondaryRight : secondaryLeft;
+
+    _updateSecondaryAxisOffset(
+      primary: xPrimaryOffset,
+      secondary: xSecondaryOffset,
+      axis: Axis.horizontal,
+    );
+
+    _updateSecondarySize(
+      sideOffset: xPrimaryOffset,
+      applyOffset: x == ScaleModeX.left ? _applySLeft : _applySRight,
+      delta: dx,
+      axis: Axis.horizontal,
+    );
+  }
+
+  if (y != null &amp;&amp; dy != null) {
+    final RxnDouble yPrimaryOffset =
+        y == ScaleModeY.top ? secondaryTop : secondaryBottom;
+    final RxnDouble ySecondaryOffset =
+        y == ScaleModeY.top ? secondaryBottom : secondaryTop;
+
+    _updateSecondaryAxisOffset(
+      primary: yPrimaryOffset,
+      secondary: ySecondaryOffset,
+      axis: Axis.vertical,
+    );
+
+    _updateSecondarySize(
+      sideOffset: yPrimaryOffset,
+      applyOffset: y == ScaleModeY.top ? _applySTop : _applySBottom,
+      delta: dy,
+      axis: Axis.vertical,
+    );
+  }
+
+  applySecondaryConstraints();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">resizeSecondary method</li>
+</ol>
+
+    <h5>CallController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

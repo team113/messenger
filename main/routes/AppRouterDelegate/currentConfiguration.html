@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the currentConfiguration property from the AppRouterDelegate class, for the Dart programming language.">
+  <title>currentConfiguration property - AppRouterDelegate class - routes library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../routes/routes-library.html">routes.dart</a></li>
+    <li><a href="../../routes/AppRouterDelegate-class.html">AppRouterDelegate</a></li>
+    <li class="self-crumb">currentConfiguration property</li>
+  </ol>
+  <div class="self-name">currentConfiguration</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="routes&#47;AppRouterDelegate-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-property">currentConfiguration</span> property 
+</h1></div>
+
+    
+
+    
+        
+  <section id="getter">
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+      <span class="returntype"><a href="../../routes/RouteConfiguration-class.html">RouteConfiguration</a></span>
+      get
+      <span class="name ">currentConfiguration</span>
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called by the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> when it detects a route information may have
+changed as a result of rebuild.</p>
+<p>If this getter returns non-null, the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> will start to report new
+route information back to the engine. In web applications, the new
+route information is used for populating browser history in order to
+support the forward and the backward buttons.</p>
+<p>When overriding this method, the configuration returned by this getter
+must be able to construct the current app state and build the widget
+with the same configuration in the <a href="../../routes/AppRouterDelegate/build.html">build</a> method if it is passed back
+to the <a href="../../routes/AppRouterDelegate/setNewRoutePath.html">setNewRoutePath</a>. Otherwise, the browser backward and forward
+buttons will not work properly.</p>
+<p>By default, this getter returns null, which prevents the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> from
+reporting the route information. To opt in, a subclass can override this
+getter to return the current configuration.</p>
+<p>At most one <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> can opt in to route information reporting. Typically,
+only the top-most <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> created by <a href="https://api.flutter.dev/flutter/widgets/WidgetsApp/WidgetsApp.router.html">WidgetsApp.router</a> should opt for
+route information reporting.</p>
+<h2 id="state-restoration">State Restoration</h2>
+<p>This getter is also used by the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> to implement state restoration.
+During state serialization, the <a href="https://api.flutter.dev/flutter/widgets/Router-class.html">Router</a> will persist the current
+configuration and during state restoration pass it back to the delegate
+by calling <a href="https://api.flutter.dev/flutter/widgets/RouterDelegate/setRestoredRoutePath.html">setRestoredRoutePath</a>.</p>
+</section>
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+RouteConfiguration get currentConfiguration =&gt; RouteConfiguration(
+      _state.route,
+      tab: _state.tab,
+      authorized: _state._auth.status.value.isSuccess,
+      arguments: _state.arguments ?? const {},
+    );</code></pre>
+</section>
+
+  </section>
+
+
+</div> <!-- /.main-content -->
+<div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+  <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../routes/routes-library.html">routes</a></li>
+    <li><a href="../../routes/AppRouterDelegate-class.html">AppRouterDelegate</a></li>
+    <li class="self-crumb">currentConfiguration property</li>
+</ol>
+
+  <h5>AppRouterDelegate class</h5>
+  <div id="dartdoc-sidebar-left-content"></div>
+</div><!--/.sidebar-offcanvas-->
+<div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

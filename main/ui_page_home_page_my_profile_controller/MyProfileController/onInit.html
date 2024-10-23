@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the onInit method from the MyProfileController class, for the Dart programming language.">
+  <title>onInit method - MyProfileController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html">ui&#47;page&#47;home&#47;page&#47;my_profile&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_controller/MyProfileController-class.html">MyProfileController</a></li>
+    <li class="self-crumb">onInit method</li>
+  </ol>
+  <div class="self-name">onInit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_home_page_my_profile_controller&#47;MyProfileController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">onInit</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">onInit</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void onInit() {
+  if (!PlatformUtils.isMobile) {
+    try {
+      _devicesSubscription =
+          MediaUtils.onDeviceChange.listen((e) =&gt; devices.value = e);
+      MediaUtils.enumerateDevices().then((e) =&gt; devices.value = e);
+    } catch (_) {
+      &#47;&#47; No-op, shouldn&#39;t break the view.
+    }
+  }
+
+  listInitIndex = router.profileSection.value?.index ?? 0;
+
+  bool ignoreWorker = false;
+  bool ignorePositions = false;
+
+  _profileWorker = ever(
+    router.profileSection,
+    (ProfileTab? tab) async {
+      if (ignoreWorker) {
+        ignoreWorker = false;
+      } else {
+        ignorePositions = true;
+        await itemScrollController.scrollTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+        Future.delayed(Duration.zero, () =&gt; ignorePositions = false);
+
+        highlight(tab);
+      }
+    },
+  );
+
+  positionsListener.itemPositions.addListener(() {
+    if (!ignorePositions) {
+      final ProfileTab tab = ProfileTab
+          .values[positionsListener.itemPositions.value.first.index];
+      if (router.profileSection.value != tab) {
+        ignoreWorker = true;
+        router.profileSection.value = tab;
+        Future.delayed(Duration.zero, () =&gt; ignoreWorker = false);
+      }
+    }
+  });
+
+  phone = TextFieldState(
+    approvable: true,
+    onFocus: (s) {
+      if (s.text.isNotEmpty) {
+        try {
+          final phone = UserPhone(s.text.replaceAll(&#39; &#39;, &#39;&#39;));
+
+          if (myUser.value!.phones.confirmed.contains(phone) ||
+              myUser.value?.phones.unconfirmed == phone) {
+            s.error.value = &#39;err_you_already_add_this_phone&#39;.l10n;
+          }
+        } on FormatException {
+          s.error.value = &#39;err_incorrect_phone&#39;.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty ||
+          (s.error.value != null &amp;&amp; s.resubmitOnError.isFalse)) {
+        return;
+      }
+
+      final phone = UserPhone(s.text.replaceAll(&#39; &#39;, &#39;&#39;));
+
+      s.clear();
+
+      bool modalVisible = true;
+
+      _myUserService
+          .addUserPhone(
+        phone,
+        locale: L10n.chosen.value?.toString(),
+      )
+          .onError(
+        (e, __) {
+          s.unchecked = phone.val;
+
+          if (e is AddUserPhoneException) {
+            s.error.value = e.toMessage();
+            s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
+          } else {
+            s.error.value = &#39;err_data_transfer&#39;.l10n;
+            s.resubmitOnError.value = true;
+          }
+
+          s.unsubmit();
+
+          if (modalVisible) {
+            Navigator.of(router.context!).pop();
+          }
+        },
+      );
+
+      await AddPhoneView.show(
+        router.context!,
+        timeout: true,
+        phone: phone,
+      ).then((_) =&gt; modalVisible = false);
+    },
+  );
+
+  email = TextFieldState(
+    approvable: true,
+    onFocus: (s) {
+      if (s.text.isNotEmpty) {
+        try {
+          final email = UserEmail(s.text);
+
+          if (myUser.value!.emails.confirmed.contains(email) ||
+              myUser.value?.emails.unconfirmed == email) {
+            s.error.value = &#39;err_you_already_add_this_email&#39;.l10n;
+          }
+        } catch (e) {
+          s.error.value = &#39;err_incorrect_email&#39;.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty ||
+          (s.error.value != null &amp;&amp; s.resubmitOnError.isFalse)) {
+        return;
+      }
+
+      final email = UserEmail(s.text.toLowerCase());
+
+      s.clear();
+
+      bool modalVisible = true;
+
+      _myUserService
+          .addUserEmail(
+        email,
+        locale: L10n.chosen.value?.toString(),
+      )
+          .onError((e, __) {
+        s.unchecked = email.val;
+
+        if (e is AddUserEmailException) {
+          s.error.value = e.toMessage();
+          s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
+        } else {
+          s.error.value = &#39;err_data_transfer&#39;.l10n;
+          s.resubmitOnError.value = true;
+        }
+
+        s.unsubmit();
+
+        if (modalVisible) {
+          Navigator.of(router.context!).pop();
+        }
+      });
+
+      await AddEmailView.show(
+        router.context!,
+        email: email,
+        timeout: true,
+      ).then((_) =&gt; modalVisible = false);
+    },
+  );
+
+  scrollController.addListener(_ensureNameDisplayed);
+
+  welcome = WelcomeFieldController(
+    _chatService,
+    onSubmit: () async {
+      final text = welcome.field.text.trim();
+
+      if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
+        final String previousText = text.toString();
+        final List&lt;Attachment&gt; previousAttachments =
+            welcome.attachments.map((e) =&gt; e.value).toList();
+
+        updateWelcomeMessage(
+          text: text.isEmpty ? null : ChatMessageText(text),
+          attachments: welcome.attachments.map((e) =&gt; e.value).toList(),
+        ).onError((e, _) {
+          welcome.field.unchecked = previousText;
+          welcome.attachments.addAll(
+            previousAttachments.map((e) =&gt; MapEntry(GlobalKey(), e)),
+          );
+
+          if (e is LocalizedExceptionMixin) {
+            MessagePopup.error(e.toMessage());
+          } else {
+            MessagePopup.error(&#39;err_data_transfer&#39;.l10n);
+          }
+        });
+
+        welcome.edited.value = null;
+        welcome.clear();
+      }
+    },
+  );
+
+  super.onInit();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_controller/ui_page_home_page_my_profile_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_home_page_my_profile_controller/MyProfileController-class.html">MyProfileController</a></li>
+    <li class="self-crumb">onInit method</li>
+</ol>
+
+    <h5>MyProfileController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

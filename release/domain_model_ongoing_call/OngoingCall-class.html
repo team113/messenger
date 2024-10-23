@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the OngoingCall class from the ongoing_call library, for the Dart programming language.">
+  <title>OngoingCall class - ongoing_call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../domain_model_ongoing_call/domain_model_ongoing_call-library.html">domain&#47;model&#47;ongoing_call.dart</a></li>
+    <li class="self-crumb">OngoingCall class</li>
+  </ol>
+  <div class="self-name">OngoingCall</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="domain_model_ongoing_call&#47;domain_model_ongoing_call-library-sidebar.html"
+    data-below-sidebar="domain_model_ongoing_call&#47;OngoingCall-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">OngoingCall</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Ongoing <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in a <a href="../domain_model_chat/Chat-class.html">Chat</a>.</p>
+<p>Proper initialization requires <a href="../domain_model_ongoing_call/OngoingCall/connect.html">connect</a> once the inner <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> is set.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+
+        
+        
+
+
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="../util_web_web_utils/WebStoredOngoingCallConversion.html">WebStoredOngoingCallConversion</a></li>
+  </ul></dd>
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="OngoingCall" class="callable">
+          <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/OngoingCall.html">OngoingCall</a></span><span class="signature">(<span class="parameter" id="-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="-param-me"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">me</span>, {</span><span class="parameter" id="-param-call"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a>?</span> <span class="parameter-name">call</span>, </span><span class="parameter" id="-param-withAudio"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withAudio</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-withVideo"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withVideo</span> = <span class="default-value">true</span>, </span><span class="parameter" id="-param-withScreen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withScreen</span> = <span class="default-value">false</span>, </span><span class="parameter" id="-param-mediaSettings"><span class="type-annotation"><a href="../domain_model_media_settings/MediaSettings-class.html">MediaSettings</a>?</span> <span class="parameter-name">mediaSettings</span>, </span><span class="parameter" id="-param-state"><span class="type-annotation"><a href="../domain_model_ongoing_call/OngoingCallState.html">OngoingCallState</a></span> <span class="parameter-name">state</span> = <span class="default-value">OngoingCallState.pending</span>, </span><span class="parameter" id="-param-creds"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallCredentials-class.html">ChatCallCredentials</a>?</span> <span class="parameter-name">creds</span>, </span><span class="parameter" id="-param-deviceId"><span class="type-annotation"><a href="../domain_model_chat_call/ChatCallDeviceId-class.html">ChatCallDeviceId</a>?</span> <span class="parameter-name">deviceId</span></span>})</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="audioDevice" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/audioDevice.html">audioDevice</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a> currently used as a microphone device.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="audioState" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/audioState.html">audioState</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a> of a local audio stream.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="call" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/call.html">call</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> associated with this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="callChatItemId" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/callChatItemId.html">callChatItemId</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a> of this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="caller" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/caller.html">caller</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/User-class.html">User</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_user/User-class.html">User</a> that started this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="chatId" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/chatId.html">chatId</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  ID of the <a href="../domain_model_chat/Chat-class.html">Chat</a> this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> takes place in.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="connected" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/connected.html">connected</a></span>
+  <span class="signature">&#8596; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is <a href="../domain_model_ongoing_call/OngoingCall/connect.html">connect</a>ed to the remote updates
+or not.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="connectionLost" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/connectionLost.html">connectionLost</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the connection to the remote updates was lost and an
+ongoing reconnection is happening.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="conversationStartedAt" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/conversationStartedAt.html">conversationStartedAt</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a>?</span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a> when the actual conversation in this <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> was
+started (after ringing had been finished).
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="creds" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/creds.html">creds</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_chat_call/ChatCallCredentials-class.html">ChatCallCredentials</a>?</span>
+  
+
+</dt>
+<dd>
+  One-time secret credentials to authenticate with on a media server.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="deviceId" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/deviceId.html">deviceId</a></span>
+  <span class="signature">&#8596; <a href="../domain_model_chat_call/ChatCallDeviceId-class.html">ChatCallDeviceId</a>?</span>
+  
+
+</dt>
+<dd>
+  ID of the device this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is taking place on.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="devices" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/devices.html">devices</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  List of <a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a> of all the available devices.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="displays" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/displays.html">displays</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxList-class.html">RxList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/MediaDisplayDetails-class.html">MediaDisplayDetails</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  List of <a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/MediaDisplayDetails-class.html">MediaDisplayDetails</a> of all the available displays.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hasAudio" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/hasAudio.html">hasAudio</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> has an active microphone track.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasRemote" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/hasRemote.html">hasRemote</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> has any remote connection active.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isActive" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/isActive.html">isActive</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is active.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="isRemoteAudioEnabled" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/isRemoteAudioEnabled.html">isRemoteAudioEnabled</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the inbound audio in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is enabled or
+not.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="isRemoteVideoEnabled" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/isRemoteVideoEnabled.html">isRemoteVideoEnabled</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the inbound video in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is enabled or
+not.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="localTracks" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/localTracks.html">localTracks</a></span>
+  <span class="signature">&#8594; <a href="../util_obs_list/ObsList-class.html">ObsList</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/Track-class.html">Track</a></span>&gt;</span>?</span>
+  
+
+</dt>
+<dd>
+  Returns the local <a href="../domain_model_ongoing_call/Track-class.html">Track</a>s.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="me" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/me.html">me</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a></span>
+  
+
+</dt>
+<dd>
+  Returns the <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a> of the currently authorized <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="members" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/members.html">members</a></span>
+  <span class="signature">&#8594; <a href="../util_obs_rxmap/RxObsMap-class.html">RxObsMap</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/CallMemberId-class.html">CallMemberId</a></span>, <span class="type-parameter"><a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Reactive map of <a href="../domain_model_ongoing_call/CallMember-class.html">CallMember</a>s of this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="notifications" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/notifications.html">notifications</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/CallNotification-class.html">CallNotification</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns a <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a> of the <a href="../domain_model_ongoing_call/CallNotification-class.html">CallNotification</a>s.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="outgoing" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/outgoing.html">outgoing</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the current authorized <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> is the caller.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="outputDevice" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/outputDevice.html">outputDevice</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a> currently used as a audio output device.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="participated" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/participated.html">participated</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether <a href="../domain_model_ongoing_call/OngoingCall/isActive.html">isActive</a> was <code>true</code> at least once during the lifecycle
+of this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="screenDevice" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/screenDevice.html">screenDevice</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/MediaDisplayDetails-class.html">MediaDisplayDetails</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/MediaDisplayDetails-class.html">MediaDisplayDetails</a> currently used as a screen share device.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="screenShareState" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/screenShareState.html">screenShareState</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a> of a local screen-share stream.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="state" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/state.html">state</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/OngoingCallState.html">OngoingCallState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  State of this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="videoDevice" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/videoDevice.html">videoDevice</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a> currently used as a video device.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="videoState" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/videoState.html">videoState</a></span>
+  <span class="signature">&#8596; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_ongoing_call/LocalTrackState.html">LocalTrackState</a> of a local video stream.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="withVideo" class="property">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/withVideo.html">withVideo</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span>
+  
+
+</dt>
+<dd>
+  Indicator whether this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is intended to start with video.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="addError" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/addError.html">addError</a></span><span class="signature">(<wbr><span class="parameter" id="addError-param-message"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">message</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Adds the provided <code>message</code> to the <a href="../domain_model_ongoing_call/OngoingCall/notifications.html">notifications</a> stream as
+<a href="../domain_model_ongoing_call/ErrorNotification-class.html">ErrorNotification</a>.
+  
+
+</dd>
+
+        <dt id="connect" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/connect.html">connect</a></span><span class="signature">(<wbr><span class="parameter" id="connect-param-calls"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">calls</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Starts the <a href="../domain_service_call/CallService/heartbeat.html">CallService.heartbeat</a> subscription indicating that this
+<a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> is ready to connect to a media server.
+  
+
+</dd>
+
+        <dt id="decline" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/decline.html">decline</a></span><span class="signature">(<wbr><span class="parameter" id="decline-param-calls"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">calls</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Declines this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  
+
+</dd>
+
+        <dt id="dispose" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Disposes the call and <a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/Jason-class.html">Jason</a> client if it was previously initialized.
+  
+
+</dd>
+
+        <dt id="enumerateDevices" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/enumerateDevices.html">enumerateDevices</a></span><span class="signature">(<wbr>{<span class="parameter" id="enumerateDevices-param-media"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">media</span> = <span class="default-value">true</span>, </span><span class="parameter" id="enumerateDevices-param-screen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">screen</span> = <span class="default-value">true</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Populates <a href="../domain_model_ongoing_call/OngoingCall/devices.html">devices</a> with a list of <a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a> objects representing
+available media input devices, such as microphones, cameras, and so forth.
+  
+
+</dd>
+
+        <dt id="init" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/init.html">init</a></span><span class="signature">(<wbr>{<span class="parameter" id="init-param-getChat"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_repository_chat/RxChat-class.html">RxChat</a>?</span>&gt;</span></span> <span class="parameter-name">getChat</span>(<span class="parameter" id="param-"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span></span>)?</span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Initializes the media client resources.
+  
+
+</dd>
+
+        <dt id="join" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/join.html">join</a></span><span class="signature">(<wbr><span class="parameter" id="join-param-calls"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">calls</span>, {</span><span class="parameter" id="join-param-withAudio"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withAudio</span> = <span class="default-value">true</span>, </span><span class="parameter" id="join-param-withVideo"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withVideo</span> = <span class="default-value">true</span>, </span><span class="parameter" id="join-param-withScreen"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withScreen</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Joins this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  
+
+</dd>
+
+        <dt id="leave" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/leave.html">leave</a></span><span class="signature">(<wbr><span class="parameter" id="leave-param-calls"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">calls</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Leaves this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a>.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="setAudioDevice" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setAudioDevice.html">setAudioDevice</a></span><span class="signature">(<wbr><span class="parameter" id="setAudioDevice-param-device"><span class="type-annotation"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a></span> <span class="parameter-name">device</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the provided <code>device</code> as a currently used <a href="../domain_model_ongoing_call/OngoingCall/audioDevice.html">audioDevice</a>.
+  
+
+</dd>
+
+        <dt id="setAudioEnabled" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setAudioEnabled.html">setAudioEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="setAudioEnabled-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enabled</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Enables/disables local audio stream based on <code>enabled</code>.
+  
+
+</dd>
+
+        <dt id="setOutputDevice" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setOutputDevice.html">setOutputDevice</a></span><span class="signature">(<wbr><span class="parameter" id="setOutputDevice-param-device"><span class="type-annotation"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a></span> <span class="parameter-name">device</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the provided <code>device</code> as a currently used <a href="../domain_model_ongoing_call/OngoingCall/outputDevice.html">outputDevice</a>.
+  
+
+</dd>
+
+        <dt id="setRemoteAudioEnabled" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setRemoteAudioEnabled.html">setRemoteAudioEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="setRemoteAudioEnabled-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enabled</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets inbound audio in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> as <code>enabled</code> or not.
+  
+
+</dd>
+
+        <dt id="setRemoteVideoEnabled" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setRemoteVideoEnabled.html">setRemoteVideoEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="setRemoteVideoEnabled-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enabled</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets inbound video in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> as <code>enabled</code> or not.
+  
+
+</dd>
+
+        <dt id="setScreenShareEnabled" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setScreenShareEnabled.html">setScreenShareEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="setScreenShareEnabled-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enabled</span>, {</span><span class="parameter" id="setScreenShareEnabled-param-device"><span class="type-annotation"><a href="https://pub.dev/documentation/medea_jason/0.6.1/medea_jason/MediaDisplayDetails-class.html">MediaDisplayDetails</a>?</span> <span class="parameter-name">device</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Enables/disables local screen-sharing stream based on <code>enabled</code>.
+  
+
+</dd>
+
+        <dt id="setVideoDevice" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setVideoDevice.html">setVideoDevice</a></span><span class="signature">(<wbr><span class="parameter" id="setVideoDevice-param-device"><span class="type-annotation"><a href="../util_media_utils/DeviceDetails-class.html">DeviceDetails</a></span> <span class="parameter-name">device</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Sets the provided <code>device</code> as a currently used <a href="../domain_model_ongoing_call/OngoingCall/videoDevice.html">videoDevice</a>.
+  
+
+</dd>
+
+        <dt id="setVideoEnabled" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/setVideoEnabled.html">setVideoEnabled</a></span><span class="signature">(<wbr><span class="parameter" id="setVideoEnabled-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">enabled</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Enables/disables local video stream based on <code>enabled</code>.
+  
+
+</dd>
+
+        <dt id="toggleAudio" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toggleAudio.html">toggleAudio</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles local audio stream on and off.
+  
+
+</dd>
+
+        <dt id="toggleHand" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toggleHand.html">toggleHand</a></span><span class="signature">(<wbr><span class="parameter" id="toggleHand-param-service"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">service</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Raises/lowers a hand of the authorized <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  
+
+</dd>
+
+        <dt id="toggleRemoteAudio" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toggleRemoteAudio.html">toggleRemoteAudio</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles inbound audio in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> on and off.
+  
+
+</dd>
+
+        <dt id="toggleRemoteVideo" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toggleRemoteVideo.html">toggleRemoteVideo</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles inbound video in this <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> on and off.
+  
+
+</dd>
+
+        <dt id="toggleVideo" class="callable">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toggleVideo.html">toggleVideo</a></span><span class="signature">(<wbr>[<span class="parameter" id="toggleVideo-param-enabled"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">enabled</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Toggles local video stream on and off.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="../domain_model_ongoing_call/OngoingCall/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../domain_model_ongoing_call/domain_model_ongoing_call-library.html">ongoing_call</a></li>
+    <li class="self-crumb">OngoingCall class</li>
+</ol>
+
+    <h5>ongoing_call library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

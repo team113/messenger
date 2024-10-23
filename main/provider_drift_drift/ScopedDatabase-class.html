@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ScopedDatabase class from the drift library, for the Dart programming language.">
+  <title>ScopedDatabase class - drift library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_drift_drift/provider_drift_drift-library.html">provider&#47;drift&#47;drift.dart</a></li>
+    <li class="self-crumb">ScopedDatabase class</li>
+  </ol>
+  <div class="self-name">ScopedDatabase</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="provider_drift_drift&#47;provider_drift_drift-library-sidebar.html"
+    data-below-sidebar="provider_drift_drift&#47;ScopedDatabase-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">ScopedDatabase</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DriftDatabase-class.html">DriftDatabase</a> storing <a href="../domain_model_my_user/MyUser-class.html">MyUser</a> scoped data.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser-class.html">DatabaseConnectionUser</a></li>
+        <li><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase-class.html">GeneratedDatabase</a></li>
+      <li>ScopedDatabase</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+  <dt>Available extensions</dt>
+  <dd><ul class="comma-separated clazz-relationships">
+      <li><a href="https://pub.dev/documentation/drift/2.19.1+1/isolate/ComputeWithDriftIsolate.html">ComputeWithDriftIsolate</a></li>
+      <li><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DestructiveMigrationExtension.html">DestructiveMigrationExtension</a></li>
+      <li><a href="https://pub.dev/documentation/drift/2.19.1+1/drift.internal.modules/ReadDatabaseContainer.html">ReadDatabaseContainer</a></li>
+  </ul></dd>
+        
+  <dt>Annotations</dt>
+  <dd>
+    <ul class="annotation-list clazz-relationships">
+        <li>@<a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DriftDatabase-class.html">DriftDatabase</a>(tables: [Blocklist, CallCredentials, CallRectangles, ChatCredentials, ChatItems, ChatItemViews, ChatMembers, Chats, Drafts, Sessions, Users], queries: {&#39;chatItemsAround&#39; : &#39;&#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &lt;= :at &#39; &#39;ORDER BY at DESC LIMIT :before + 1) as a &#39; &#39;UNION &#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &gt; :at &#39; &#39;ORDER BY at ASC LIMIT :after) as b &#39; &#39;ORDER BY at ASC;&#39;, &#39;chatItemsAroundBottomless&#39; : &#39;&#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &lt;= :at &#39; &#39;ORDER BY at DESC LIMIT :before + 1) as a &#39; &#39;UNION &#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &gt; :at &#39; &#39;ORDER BY at ASC) as b &#39; &#39;ORDER BY at ASC;&#39;, &#39;chatItemsAroundTopless&#39; : &#39;&#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &lt;= :at &#39; &#39;ORDER BY at DESC) as a &#39; &#39;UNION &#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &gt; :at &#39; &#39;ORDER BY at ASC LIMIT :after) as b &#39; &#39;ORDER BY at ASC;&#39;, &#39;attachmentsAround&#39; : &#39;&#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &lt;= :at AND chat_items.data LIKE \&#39;%&quot;attachments&quot;:[{%\&#39; &#39; &#39;ORDER BY at DESC LIMIT :before + 1) as a &#39; &#39;UNION &#39; &#39;SELECT * FROM &#39; &#39;(SELECT * FROM chat_item_views &#39; &#39;INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id &#39; &#39;WHERE chat_item_views.chat_id = :chat_id AND at &gt; :at AND chat_items.data LIKE \&#39;%&quot;attachments&quot;:[{%\&#39; &#39; &#39;ORDER BY at ASC LIMIT :after) as b &#39; &#39;ORDER BY at ASC;&#39;})</li>
+    </ul>
+  </dd>
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="ScopedDatabase" class="callable">
+          <span class="name"><a href="../provider_drift_drift/ScopedDatabase/ScopedDatabase.html">ScopedDatabase</a></span><span class="signature">(<span class="parameter" id="-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span>, [</span><span class="parameter" id="-param-e"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryExecutor-class.html">QueryExecutor</a>?</span> <span class="parameter-name">e</span></span>])</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="allSchemaEntities" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/allSchemaEntities.html">allSchemaEntities</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseSchemaEntity-class.html">DatabaseSchemaEntity</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A list of all <code>DatabaseSchemaEntity</code> that are specified in this database.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="allTables" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/allTables.html">allTables</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  A list of tables specified in this database.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="attachedDatabase" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/attachedDatabase.html">attachedDatabase</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase-class.html">GeneratedDatabase</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The database class that this user is attached to.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="blocklist" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/blocklist.html">blocklist</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$BlocklistTable-class.html">$BlocklistTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="callCredentials" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/callCredentials.html">callCredentials</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$CallCredentialsTable-class.html">$CallCredentialsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="callRectangles" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/callRectangles.html">callRectangles</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$CallRectanglesTable-class.html">$CallRectanglesTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatCredentials" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatCredentials.html">chatCredentials</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ChatCredentialsTable-class.html">$ChatCredentialsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatItems" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatItems.html">chatItems</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ChatItemsTable-class.html">$ChatItemsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatItemViews" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatItemViews.html">chatItemViews</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ChatItemViewsTable-class.html">$ChatItemViewsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatMembers" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatMembers.html">chatMembers</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ChatMembersTable-class.html">$ChatMembersTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chats" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chats.html">chats</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ChatsTable-class.html">$ChatsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="connection" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/connection.html">connection</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnection-class.html">DatabaseConnection</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The database connection used by this <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser-class.html">DatabaseConnectionUser</a>.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="drafts" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/drafts.html">drafts</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$DraftsTable-class.html">$DraftsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="executor" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/executor.html">executor</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryExecutor-class.html">QueryExecutor</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The executor to use when queries are executed.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="managers" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/managers.html">managers</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$ScopedDatabaseManager-class.html">$ScopedDatabaseManager</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="migration" class="property">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/migration.html">migration</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/MigrationStrategy-class.html">MigrationStrategy</a></span>
+  
+
+</dt>
+<dd>
+  Defines the migration strategy that will determine how to deal with an
+increasing <a href="../provider_drift_drift/ScopedDatabase/schemaVersion.html">schemaVersion</a>. The default value only supports creating the
+database by creating all tables known in this database. When you have
+changes in your schema, you'll need a custom migration strategy to create
+the new tables or change the columns.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="options" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/options.html">options</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DriftDatabaseOptions-class.html">DriftDatabaseOptions</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DriftDatabaseOptions-class.html">DriftDatabaseOptions</a> to use for this database instance.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="resolvedEngine" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/resolvedEngine.html">resolvedEngine</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser-class.html">DatabaseConnectionUser</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A, potentially more specific, database engine based on the <a href="https://api.flutter.dev/flutter/dart-async/Zone-class.html">Zone</a> context.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="schemaVersion" class="property">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/schemaVersion.html">schemaVersion</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd>
+  Specify the schema version of your database. Whenever you change or add
+tables, you should bump this field and provide a <a href="../provider_drift_drift/ScopedDatabase/migration.html">migration</a> strategy.
+  <div class="features"><span class="feature">no setter</span><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="sessions" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/sessions.html">sessions</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$SessionsTable-class.html">$SessionsTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="streamQueries" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/streamQueries.html">streamQueries</a></span>
+  <span class="signature">&#8594; StreamQueryStore</span>
+  
+
+</dt>
+<dd class="inherited">
+  Manages active streams from select statements.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="streamUpdateRules" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/streamUpdateRules.html">streamUpdateRules</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/StreamQueryUpdateRules-class.html">StreamQueryUpdateRules</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The collection of update rules contains information on how updates on
+tables result in other updates, for instance due to a trigger.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="typeMapping" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/typeMapping.html">typeMapping</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/SqlTypes-class.html">SqlTypes</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/SqlTypes-class.html">SqlTypes</a> mapping configuration to use when mapping values between Dart
+and SQL.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="userId" class="property">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/userId.html">userId</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/UserId-class.html">UserId</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_user/UserId-class.html">UserId</a> this <a href="../provider_drift_drift/ScopedDatabase-class.html">ScopedDatabase</a> is linked to.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="users" class="property inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/users.html">users</a></span>
+  <span class="signature">&#8594; <a href="../provider_drift_drift/$UsersTable-class.html">$UsersTable</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">late</span><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="$expandVar" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/$expandVar.html">$expandVar</a></span><span class="signature">(<wbr><span class="parameter" id="$expandVar-param-start"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">start</span>, </span><span class="parameter" id="$expandVar-param-amount"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">amount</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Used by generated code to expand array variables.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="$write" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/$write.html">$write</a></span><span class="signature">(<wbr><span class="parameter" id="$write-param-component"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Component-class.html">Component</a></span> <span class="parameter-name">component</span>, {</span><span class="parameter" id="$write-param-hasMultipleTables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a>?</span> <span class="parameter-name">hasMultipleTables</span>, </span><span class="parameter" id="$write-param-startIndex"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">startIndex</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GenerationContext-class.html">GenerationContext</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Will be used by generated code to resolve inline Dart components in sql by
+writing the <code>component</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="$writeInsertable" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/$writeInsertable.html">$writeInsertable</a></span><span class="signature">(<wbr><span class="parameter" id="$writeInsertable-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span> <span class="parameter-name">table</span>, </span><span class="parameter" id="$writeInsertable-param-insertable"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Insertable-class.html">Insertable</a></span> <span class="parameter-name">insertable</span>, {</span><span class="parameter" id="$writeInsertable-param-startIndex"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a>?</span> <span class="parameter-name">startIndex</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GenerationContext-class.html">GenerationContext</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Writes column names and <code>VALUES</code> for an insert statement.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="alias" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/alias.html">alias</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="alias-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/ResultSetImplementation-class.html">ResultSetImplementation</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span></span> <span class="parameter-name">table</span>, </span><span class="parameter" id="alias-param-alias"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">alias</span></span>)
+    <span class="returntype parameter">&#8594; T</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a copy of the table with an alias so that it can be used in the
+same query more than once.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="attachmentsAround" class="callable inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/attachmentsAround.html">attachmentsAround</a></span><span class="signature">(<wbr><span class="parameter" id="attachmentsAround-param-chatId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="attachmentsAround-param-at"><span class="type-annotation"><a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a></span> <span class="parameter-name">at</span>, </span><span class="parameter" id="attachmentsAround-param-before"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">before</span>, </span><span class="parameter" id="attachmentsAround-param-after"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">after</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../provider_drift_drift/AttachmentsAroundResult-class.html">AttachmentsAroundResult</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="batch" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/batch.html">batch</a></span><span class="signature">(<wbr><span class="parameter" id="batch-param-runInBatch"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span> <span class="parameter-name">runInBatch</span>(<span class="parameter" id="param-batch"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Batch-class.html">Batch</a></span> <span class="parameter-name">batch</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Runs statements inside a batch.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="beforeOpen" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/beforeOpen.html">beforeOpen</a></span><span class="signature">(<wbr><span class="parameter" id="beforeOpen-param-executor"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryExecutor-class.html">QueryExecutor</a></span> <span class="parameter-name">executor</span>, </span><span class="parameter" id="beforeOpen-param-details"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/OpeningDetails-class.html">OpeningDetails</a></span> <span class="parameter-name">details</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A callbacks that runs after the database connection has been established,
+but before any other query is sent.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatItemsAround" class="callable inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatItemsAround.html">chatItemsAround</a></span><span class="signature">(<wbr><span class="parameter" id="chatItemsAround-param-chatId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="chatItemsAround-param-at"><span class="type-annotation"><a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a></span> <span class="parameter-name">at</span>, </span><span class="parameter" id="chatItemsAround-param-before"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">before</span>, </span><span class="parameter" id="chatItemsAround-param-after"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">after</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../provider_drift_drift/ChatItemsAroundResult-class.html">ChatItemsAroundResult</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatItemsAroundBottomless" class="callable inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatItemsAroundBottomless.html">chatItemsAroundBottomless</a></span><span class="signature">(<wbr><span class="parameter" id="chatItemsAroundBottomless-param-chatId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="chatItemsAroundBottomless-param-at"><span class="type-annotation"><a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a></span> <span class="parameter-name">at</span>, </span><span class="parameter" id="chatItemsAroundBottomless-param-before"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">before</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../provider_drift_drift/ChatItemsAroundBottomlessResult-class.html">ChatItemsAroundBottomlessResult</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="chatItemsAroundTopless" class="callable inherited">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/chatItemsAroundTopless.html">chatItemsAroundTopless</a></span><span class="signature">(<wbr><span class="parameter" id="chatItemsAroundTopless-param-chatId"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="chatItemsAroundTopless-param-at"><span class="type-annotation"><a href="../domain_model_precise_date_time_src_non_web/PreciseDateTime-class.html">PreciseDateTime</a></span> <span class="parameter-name">at</span>, </span><span class="parameter" id="chatItemsAroundTopless-param-after"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">after</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../provider_drift_drift/ChatItemsAroundToplessResult-class.html">ChatItemsAroundToplessResult</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="close" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/close.html">close</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Closes this database and releases associated resources.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="create" class="callable">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/create.html">create</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates all tables, triggers, views, indexes and everything else defined
+in the database, if they don't exist.
+  
+
+</dd>
+
+        <dt id="createMigrator" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/GeneratedDatabase/createMigrator.html">createMigrator</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Migrator-class.html">Migrator</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Migrator-class.html">Migrator</a> with the provided query executor. Migrators generate
+sql statements to create or drop tables.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="createStream" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/createStream.html">createStream</a></span><span class="signature">(<wbr><span class="parameter" id="createStream-param-stmt"><span class="type-annotation">QueryStreamFetcher</span> <span class="parameter-name">stmt</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Map-class.html">Map</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>, <span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span>&gt;</span></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates and auto-updating stream from the given select statement. This
+method should not be used directly.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customInsert" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customInsert.html">customInsert</a></span><span class="signature">(<wbr><span class="parameter" id="customInsert-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span>, {</span><span class="parameter" id="customInsert-param-variables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Variable-class.html">Variable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">variables</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="customInsert-param-updates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">updates</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes a custom insert statement and returns the last inserted rowid.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customSelect" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customSelect.html">customSelect</a></span><span class="signature">(<wbr><span class="parameter" id="customSelect-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span>, {</span><span class="parameter" id="customSelect-param-variables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Variable-class.html">Variable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">variables</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="customSelect-param-readsFrom"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/ResultSetImplementation-class.html">ResultSetImplementation</a></span>&gt;</span></span> <span class="parameter-name">readsFrom</span> = <span class="default-value">const {}</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryRow-class.html">QueryRow</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a custom select statement from the given sql <code>query</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customSelectQuery" class="callable inherited">
+  <span class="name deprecated"><a class="deprecated" href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customSelectQuery.html">customSelectQuery</a></span><span class="signature">(<wbr><span class="parameter" id="customSelectQuery-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span>, {</span><span class="parameter" id="customSelectQuery-param-variables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Variable-class.html">Variable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">variables</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="customSelectQuery-param-readsFrom"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/ResultSetImplementation-class.html">ResultSetImplementation</a></span>&gt;</span></span> <span class="parameter-name">readsFrom</span> = <span class="default-value">const {}</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryRow-class.html">QueryRow</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a custom select statement from the given sql <code>query</code>. To run the
+query once, use <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable/get.html">Selectable.get</a>. For an auto-updating streams, set the
+set of tables the ready <code>readsFrom</code> and use <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable/watch.html">Selectable.watch</a>. If you
+know the query will never emit more than one row, you can also use
+<code>getSingle</code> and <code>watchSingle</code> which return the item directly without
+wrapping it into a list.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customStatement" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customStatement.html">customStatement</a></span><span class="signature">(<wbr><span class="parameter" id="customStatement-param-statement"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">statement</span>, [</span><span class="parameter" id="customStatement-param-args"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a>?</span> <span class="parameter-name">args</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes the custom sql <code>statement</code> on the database.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customUpdate" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customUpdate.html">customUpdate</a></span><span class="signature">(<wbr><span class="parameter" id="customUpdate-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span>, {</span><span class="parameter" id="customUpdate-param-variables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Variable-class.html">Variable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">variables</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="customUpdate-param-updates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">updates</span>, </span><span class="parameter" id="customUpdate-param-updateKind"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/UpdateKind.html">UpdateKind</a>?</span> <span class="parameter-name">updateKind</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes a custom delete or update statement and returns the amount of
+rows that have been changed.
+You can use the <code>updates</code> parameter so that drift knows which tables are
+affected by your query. All select streams that depend on a table
+specified there will then update their data. For more accurate results,
+you can also set the <code>updateKind</code> parameter to <a href="https://pub.dev/documentation/drift/2.19.1+1/src_runtime_api_runtime_api/UpdateKind.html">UpdateKind.delete</a> or
+<a href="https://pub.dev/documentation/drift/2.19.1+1/src_runtime_api_runtime_api/UpdateKind.html">UpdateKind.update</a>. This is optional, but can improve the accuracy of
+query updates, especially when using triggers.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="customWriteReturning" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/customWriteReturning.html">customWriteReturning</a></span><span class="signature">(<wbr><span class="parameter" id="customWriteReturning-param-query"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span> <span class="parameter-name">query</span>, {</span><span class="parameter" id="customWriteReturning-param-variables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Variable-class.html">Variable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">variables</span> = <span class="default-value">const []</span>, </span><span class="parameter" id="customWriteReturning-param-updates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span>?</span> <span class="parameter-name">updates</span>, </span><span class="parameter" id="customWriteReturning-param-updateKind"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/UpdateKind.html">UpdateKind</a>?</span> <span class="parameter-name">updateKind</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryRow-class.html">QueryRow</a></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Runs a <code>INSERT</code>, <code>UPDATE</code> or <code>DELETE</code> statement returning rows.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="delete" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/delete.html">delete</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">D</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="delete-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span></span> <span class="parameter-name">table</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DeleteStatement-class.html">DeleteStatement</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts a <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DeleteStatement-class.html">DeleteStatement</a> that can be used to delete rows from a table.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="doWhenOpened" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/doWhenOpened.html">doWhenOpened</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="doWhenOpened-param-fn"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-async/FutureOr-class.html">FutureOr</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">fn</span>(<span class="parameter" id="param-e"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/QueryExecutor-class.html">QueryExecutor</a></span> <span class="parameter-name">e</span></span>)</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Performs the async <code>fn</code> after this executor is ready, or directly if it's
+already ready.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="exclusively" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/exclusively.html">exclusively</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="exclusively-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">action</span>()</span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Obtains an exclusive lock on the current database context, runs <code>action</code>
+in it and then releases the lock.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="into" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/into.html">into</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">D</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="into-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span></span> <span class="parameter-name">table</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/InsertStatement-class.html">InsertStatement</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">D</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts an <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/InsertStatement-class.html">InsertStatement</a> for a given table. You can use that statement
+to write data into the <code>table</code> by using <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/InsertStatement/insert.html">InsertStatement.insert</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="markTablesUpdated" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/markTablesUpdated.html">markTablesUpdated</a></span><span class="signature">(<wbr><span class="parameter" id="markTablesUpdated-param-tables"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">dynamic</span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">tables</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Marks the <code>tables</code> as updated.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notifyUpdates" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/notifyUpdates.html">notifyUpdates</a></span><span class="signature">(<wbr><span class="parameter" id="notifyUpdates-param-updates"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableUpdate-class.html">TableUpdate</a></span>&gt;</span></span> <span class="parameter-name">updates</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Dispatches the set of <code>updates</code> to the stream query manager.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reset" class="callable">
+  <span class="name"><a href="../provider_drift_drift/ScopedDatabase/reset.html">reset</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resets everything, meaning dropping and re-creating every table.
+  
+
+</dd>
+
+        <dt id="select" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/select.html">select</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/HasResultSet-class.html">HasResultSet</a></span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="select-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/ResultSetImplementation-class.html">ResultSetImplementation</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">table</span>, {</span><span class="parameter" id="select-param-distinct"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">distinct</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/SimpleSelectStatement-class.html">SimpleSelectStatement</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts a query on the given table.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="selectExpressions" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/selectExpressions.html">selectExpressions</a></span><span class="signature">(<wbr><span class="parameter" id="selectExpressions-param-columns"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Iterable-class.html">Iterable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Expression-class.html">Expression</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span></span>&gt;</span></span> <span class="parameter-name">columns</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Selectable-class.html">Selectable</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TypedResult-class.html">TypedResult</a></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Creates a select statement without a <code>FROM</code> clause selecting <code>columns</code>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="selectOnly" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/selectOnly.html">selectOnly</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T extends <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/HasResultSet-class.html">HasResultSet</a></span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="selectOnly-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/ResultSetImplementation-class.html">ResultSetImplementation</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">table</span>, {</span><span class="parameter" id="selectOnly-param-distinct"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">distinct</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/JoinedSelectStatement-class.html">JoinedSelectStatement</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>, <span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts a complex statement on <code>table</code> that doesn't necessarily use all of
+<code>table</code>'s columns.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="tableUpdates" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/tableUpdates.html">tableUpdates</a></span><span class="signature">(<wbr>[<span class="parameter" id="tableUpdates-param-query"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableUpdateQuery-class.html">TableUpdateQuery</a></span> <span class="parameter-name">query</span> = <span class="default-value">const TableUpdateQuery.any()</span></span>])
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Stream-class.html">Stream</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Set-class.html">Set</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableUpdate-class.html">TableUpdate</a></span>&gt;</span></span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Listen for table updates reported through <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/notifyUpdates.html">notifyUpdates</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="transaction" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/transaction.html">transaction</a></span><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="transaction-param-action"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span> <span class="parameter-name">action</span>(), {</span><span class="parameter" id="transaction-param-requireNew"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">requireNew</span> = <span class="default-value">false</span></span>})
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">T</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Executes <code>action</code> in a transaction, which means that all its queries and
+updates will be called atomically.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="update" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/update.html">update</a></span><span class="signature">&lt;<wbr><span class="type-parameter">Tbl extends <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/Table-class.html">Table</a></span>, <span class="type-parameter">R</span>&gt;</span><span class="signature">(<wbr><span class="parameter" id="update-param-table"><span class="type-annotation"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/TableInfo-mixin.html">TableInfo</a><span class="signature">&lt;<wbr><span class="type-parameter">Tbl</span>, <span class="type-parameter">R</span>&gt;</span></span> <span class="parameter-name">table</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/UpdateStatement-class.html">UpdateStatement</a><span class="signature">&lt;<wbr><span class="type-parameter">Tbl</span>, <span class="type-parameter">R</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Starts an <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/UpdateStatement-class.html">UpdateStatement</a> for the given table. You can use that
+statement to update individual rows in that table by setting a where
+clause on that table and then use <a href="https://pub.dev/documentation/drift/2.19.1+1/drift/UpdateStatement/write.html">UpdateStatement.write</a>.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/drift/2.19.1+1/drift/DatabaseConnectionUser/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../provider_drift_drift/provider_drift_drift-library.html">drift</a></li>
+    <li class="self-crumb">ScopedDatabase class</li>
+</ol>
+
+    <h5>drift library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

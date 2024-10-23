@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the computeDryLayout method from the RenderAllowOverflow class, for the Dart programming language.">
+  <title>computeDryLayout method - RenderAllowOverflow class - allow_overflow library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_allow_overflow/ui_widget_allow_overflow-library.html">ui&#47;widget&#47;allow_overflow.dart</a></li>
+    <li><a href="../../ui_widget_allow_overflow/RenderAllowOverflow-class.html">RenderAllowOverflow</a></li>
+    <li class="self-crumb">computeDryLayout method</li>
+  </ol>
+  <div class="self-name">computeDryLayout</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_widget_allow_overflow&#47;RenderAllowOverflow-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">computeDryLayout</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-ui/Size-class.html">Size</a></span>
+<span class="name ">computeDryLayout</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="computeDryLayout-param-constraints"><span>covariant</span> <span class="type-annotation"><a href="https://api.flutter.dev/flutter/rendering/BoxConstraints-class.html">BoxConstraints</a></span> <span class="parameter-name">constraints</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Computes the value returned by <a href="https://api.flutter.dev/flutter/rendering/RenderBox/getDryLayout.html">getDryLayout</a>. Do not call this
+function directly, instead, call <a href="https://api.flutter.dev/flutter/rendering/RenderBox/getDryLayout.html">getDryLayout</a>.</p>
+<p>Override in subclasses that implement <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/performLayout.html">performLayout</a> or <a href="https://api.flutter.dev/flutter/rendering/RenderBox/performResize.html">performResize</a>
+or when setting <a href="https://api.flutter.dev/flutter/rendering/RenderObject/sizedByParent.html">sizedByParent</a> to true without overriding
+<a href="https://api.flutter.dev/flutter/rendering/RenderBox/performResize.html">performResize</a>. This method should return the <a href="https://api.flutter.dev/flutter/dart-ui/Size-class.html">Size</a> that this
+<a href="https://api.flutter.dev/flutter/rendering/RenderBox-class.html">RenderBox</a> would like to be given the provided <a href="https://api.flutter.dev/flutter/rendering/BoxConstraints-class.html">BoxConstraints</a>.</p>
+<p>The size returned by this method must match the <a href="https://api.flutter.dev/flutter/rendering/RenderBox/size.html">size</a> that the
+<a href="https://api.flutter.dev/flutter/rendering/RenderBox-class.html">RenderBox</a> will compute for itself in <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/performLayout.html">performLayout</a> (or
+<a href="https://api.flutter.dev/flutter/rendering/RenderBox/performResize.html">performResize</a>, if <a href="https://api.flutter.dev/flutter/rendering/RenderObject/sizedByParent.html">sizedByParent</a> is true).</p>
+<p>If this algorithm depends on the size of a child, the size of that child
+should be obtained using its <a href="https://api.flutter.dev/flutter/rendering/RenderBox/getDryLayout.html">getDryLayout</a> method.</p>
+<p>This layout is called "dry" layout as opposed to the regular "wet" layout
+run performed by <a href="../../ui_widget_allow_overflow/RenderAllowOverflow/performLayout.html">performLayout</a> because it computes the desired size for
+the given constraints without changing any internal state.</p>
+<h3 id="when-the-size-cannot-be-known">When the size cannot be known</h3>
+<p>There are cases where render objects do not have an efficient way to
+compute their size. For example, the size may computed by a callback about
+which the render object cannot reason.</p>
+<p>In such cases, it may be impossible (or at least impractical) to actually
+return a valid answer. In such cases, the function should call
+<a href="https://api.flutter.dev/flutter/rendering/RenderBox/debugCannotComputeDryLayout.html">debugCannotComputeDryLayout</a> from within an assert and return a dummy
+value of <code>const Size(0, 0)</code>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Size computeDryLayout(BoxConstraints constraints) {
+  final Size? childSize =
+      child?.getDryLayout(_constraintsTransform(constraints));
+  return childSize == null
+      ? constraints.smallest
+      : constraints.constrain(childSize);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_widget_allow_overflow/ui_widget_allow_overflow-library.html">allow_overflow</a></li>
+    <li><a href="../../ui_widget_allow_overflow/RenderAllowOverflow-class.html">RenderAllowOverflow</a></li>
+    <li class="self-crumb">computeDryLayout method</li>
+</ol>
+
+    <h5>RenderAllowOverflow class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

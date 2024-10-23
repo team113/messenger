@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the CallSection class, for the Dart programming language.">
+  <title>build method - CallSection class - call library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_call/ui_page_style_page_widgets_section_call-library.html">ui&#47;page&#47;style&#47;page&#47;widgets&#47;section&#47;call.dart</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_call/CallSection-class.html">CallSection</a></li>
+    <li class="self-crumb">build static method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_style_page_widgets_section_call&#47;CallSection-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>&gt;</span></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a>s of this <a href="../../ui_page_style_page_widgets_section_call/CallSection-class.html">CallSection</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static List&lt;Widget&gt; build(BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return [
+    Headline(
+      headline: &#39;DockDecorator(Dock)&#39;,
+      child: SizedBox(
+        height: 85,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DockDecorator(
+              child: Dock(
+                items: List.generate(5, (i) =&gt; i),
+                itemWidth: CallController.buttonSize,
+                delayed: false,
+                onReorder: (buttons) {},
+                onDragStarted: (b) {},
+                onDragEnded: (_) {},
+                onLeave: (_) {},
+                onWillAccept: (d) =&gt; true,
+                itemBuilder: (i) =&gt; CallButtonWidget(
+                  asset: SvgIcons.callMore,
+                  onPressed: () {},
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+    Headline(
+      child: Launchpad(
+        onWillAccept: (_) =&gt; true,
+        children: List.generate(
+          8,
+          (i) =&gt; SizedBox(
+            width: 100,
+            height: 100,
+            child: Center(
+              child: CallButtonWidget(
+                asset: SvgIcons.callMore,
+                hint: &#39;Hint&#39;,
+                expanded: true,
+                big: true,
+                onPressed: () {},
+              ),
+            ),
+          ),
+        ).toList(),
+      ),
+    ),
+    const Headline(child: RaisedHand(true)),
+    Headlines(
+      children: [
+        (
+          headline: &#39;AnimatedParticipant(loading)&#39;,
+          widget: SizedBox(
+            width: 300,
+            height: 300,
+            child: AnimatedParticipant(
+              Participant(
+                CallMember.me(const CallMemberId(UserId(&#39;me&#39;), null)),
+                user: DummyRxUser(),
+              ),
+            ),
+          ),
+        ),
+        (
+          headline: &#39;AnimatedParticipant&#39;,
+          widget: SizedBox(
+            width: 300,
+            height: 300,
+            child: AnimatedParticipant(
+              Participant(
+                CallMember.me(
+                  const CallMemberId(UserId(&#39;me&#39;), null),
+                  isConnected: true,
+                ),
+                user: DummyRxUser(),
+              ),
+            ),
+          ),
+        ),
+        (
+          headline: &#39;AnimatedParticipant(muted)&#39;,
+          widget: SizedBox(
+            width: 300,
+            height: 300,
+            child: AnimatedParticipant(
+              Participant(
+                CallMember.me(
+                  const CallMemberId(UserId(&#39;me&#39;), null),
+                  isConnected: true,
+                ),
+                user: DummyRxUser(),
+              ),
+              rounded: true,
+              muted: true,
+            ),
+          ),
+        ),
+      ],
+    ),
+    Headline(
+      background: style.colors.backgroundAuxiliaryLight,
+      child: const CallTitle(
+        title: &#39;Title&#39;,
+        state: &#39;State&#39;,
+      ),
+    ),
+    Headline(
+      child: ChatInfoCard(
+        chat: DummyRxChat(),
+        onTap: () {},
+        duration: const Duration(seconds: 10),
+        subtitle: &#39;Subtitle&#39;,
+        trailing: &#39;Trailing&#39;,
+      ),
+    ),
+    const Headline(
+      headline: &#39;DropBox&#39;,
+      child: SizedBox(
+        width: 200,
+        height: 200,
+        child: DropBox(),
+      ),
+    ),
+    Builder(builder: (context) {
+      final GlobalKey key = GlobalKey();
+
+      return Headline(
+        headline: &#39;ReorderableFit&#39;,
+        child: SizedBox(
+          key: key,
+          width: 400,
+          height: 400,
+          child: ReorderableFit(
+            children: List.generate(5, (i) =&gt; i),
+            itemBuilder: (i) =&gt; Container(
+              color: Colors.primaries[i],
+              child: Center(child: Text(&#39;$i&#39;)),
+            ),
+            onOffset: () {
+              if (key.globalPaintBounds != null) {
+                return Offset(
+                  -key.globalPaintBounds!.left,
+                  -key.globalPaintBounds!.top,
+                );
+              }
+
+              return Offset.zero;
+            },
+          ),
+        ),
+      );
+    }),
+  ];
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_call/ui_page_style_page_widgets_section_call-library.html">call</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_call/CallSection-class.html">CallSection</a></li>
+    <li class="self-crumb">build static method</li>
+</ol>
+
+    <h5>CallSection class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

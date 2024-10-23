@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the onInit method from the CallController class, for the Dart programming language.">
+  <title>onInit method - CallController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">ui&#47;page&#47;call&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">onInit method</li>
+  </ol>
+  <div class="self-name">onInit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_call_controller&#47;CallController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">onInit</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">onInit</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void onInit() {
+  ISentrySpan span = _ready.startChild(&#39;init&#39;);
+
+  super.onInit();
+
+  _currentCall.value.init(getChat: _chatService.get);
+
+  HardwareKeyboard.instance.addHandler(_onKey);
+  if (PlatformUtils.isMobile &amp;&amp; !PlatformUtils.isWeb) {
+    BackButtonInterceptor.add(_onBack, ifNotYetIntercepted: true);
+  }
+
+  speakerSwitched = RxBool(!PlatformUtils.isIOS);
+
+  fullscreen = RxBool(false);
+  minimized = RxBool(!PlatformUtils.isMobile &amp;&amp; !WebUtils.isPopup);
+  isMobile = PlatformUtils.isMobile;
+
+  _hiddenTimer = Timer(const Duration(seconds: 1), () {
+    if (hidden.value) {
+      hidden.value = false;
+      refresh();
+    }
+  });
+
+  _applyRect(null);
+  _settingsRepository.getCallRect(_currentCall.value.chatId.value).then((v) {
+    if (hidden.value) {
+      hidden.value = false;
+      refresh();
+    }
+    _applyRect(v);
+  });
+
+  final double secondarySize =
+      (size.shortestSide * secondaryRatio).clamp(_minSHeight, 250);
+  secondaryWidth = RxDouble(secondarySize);
+  secondaryHeight = RxDouble(secondarySize);
+
+  _chatWorker = ever(
+    _currentCall.value.chatId,
+    (ChatId id) {
+      final FutureOr&lt;RxChat?&gt; chatOrFuture = _chatService.get(id);
+
+      if (chatOrFuture is RxChat?) {
+        _updateChat(chatOrFuture);
+      } else {
+        chatOrFuture.then(_updateChat);
+      }
+    },
+  );
+
+  _stateWorker = ever(state, (OngoingCallState state) {
+    switch (state) {
+      case OngoingCallState.active:
+        if (_durationTimer == null) {
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) {
+              dockRect.value = dockKey.globalPaintBounds;
+              relocateSecondary();
+            },
+          );
+          DateTime begunAt = DateTime.now();
+          _durationTimer = FixedTimer.periodic(
+            const Duration(seconds: 1),
+            () {
+              duration.value = DateTime.now().difference(begunAt);
+              if (hoveredParticipantTimeout &gt; 0 &amp;&amp;
+                  draggedRenderer.value == null) {
+                --hoveredParticipantTimeout;
+                if (hoveredParticipantTimeout == 0) {
+                  hoveredParticipant.value = null;
+                  isCursorHidden.value = true;
+                }
+              }
+            },
+          );
+
+          keepUi();
+          _ensureNotEarpiece();
+        }
+        break;
+
+      case OngoingCallState.joining:
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) =&gt; SchedulerBinding.instance.addPostFrameCallback(
+            (_) =&gt; relocateSecondary(),
+          ),
+        );
+        break;
+
+      case OngoingCallState.pending:
+      case OngoingCallState.local:
+      case OngoingCallState.ended:
+        &#47;&#47; No-op.
+        break;
+    }
+
+    refresh();
+  });
+
+  _onFullscreenChange = PlatformUtils.onFullscreenChange.listen((bool v) {
+    fullscreen.value = v;
+    refresh();
+  });
+
+  _onWindowFocus = WebUtils.onWindowFocus.listen((e) {
+    if (!e) {
+      hoveredParticipant.value = null;
+      if (_uiTimer?.isActive != true) {
+        if (displayMore.isTrue) {
+          keepUi();
+        } else {
+          keepUi(false);
+        }
+      }
+    }
+  });
+
+  &#47;&#47; Constructs a list of [CallButton]s from the provided [list] of [String]s.
+  List&lt;CallButton&gt; toButtons(List&lt;String&gt;? list) {
+    List&lt;CallButton&gt;? persisted = list
+        ?.map((e) {
+          switch (e) {
+            case &#39;ScreenButton&#39;:
+              return ScreenButton(this);
+
+            case &#39;VideoButton&#39;:
+              return VideoButton(this);
+
+            case &#39;EndCallButton&#39;:
+              return EndCallButton(this);
+
+            case &#39;AudioButton&#39;:
+              return AudioButton(this);
+
+            case &#39;MoreButton&#39;:
+              return MoreButton(this);
+
+            case &#39;SettingsButton&#39;:
+              return SettingsButton(this);
+
+            case &#39;ParticipantsButton&#39;:
+              return ParticipantsButton(this);
+
+            case &#39;HandButton&#39;:
+              return HandButton(this);
+
+            case &#39;RemoteVideoButton&#39;:
+              return RemoteVideoButton(this);
+
+            case &#39;RemoteAudioButton&#39;:
+              return RemoteAudioButton(this);
+          }
+        })
+        .whereNotNull()
+        .toList();
+
+    &#47;&#47; Add default [CallButton]s, if none are persisted.
+    if (persisted?.isNotEmpty != true) {
+      persisted = [
+        ScreenButton(this),
+        VideoButton(this),
+        EndCallButton(this),
+        AudioButton(this),
+        MoreButton(this),
+      ];
+    }
+
+    &#47;&#47; Ensure [EndCallButton] is always in the list.
+    if (persisted!.whereType&lt;EndCallButton&gt;().isEmpty) {
+      persisted.add(EndCallButton(this));
+    }
+
+    &#47;&#47; Ensure [MoreButton] is always in the list.
+    if (persisted.whereType&lt;MoreButton&gt;().isEmpty) {
+      persisted.add(MoreButton(this));
+    }
+
+    return persisted;
+  }
+
+  buttons = RxList(
+    toButtons(_settingsRepository.applicationSettings.value?.callButtons),
+  );
+
+  panel = RxList([
+    SettingsButton(this),
+    ParticipantsButton(this),
+    HandButton(this),
+    ScreenButton(this),
+    RemoteVideoButton(this),
+    RemoteAudioButton(this),
+    VideoButton(this),
+    AudioButton(this),
+  ]);
+
+  _buttonsWorker = ever(buttons, (List&lt;CallButton&gt; list) {
+    _settingsRepository
+        .setCallButtons(list.map((e) =&gt; e.runtimeType.toString()).toList());
+  });
+
+  List&lt;String&gt;? previous =
+      _settingsRepository.applicationSettings.value?.callButtons;
+  _settingsWorker = ever(
+    _settingsRepository.applicationSettings,
+    (ApplicationSettings? settings) {
+      if (!const ListEquality().equals(settings?.callButtons, previous)) {
+        if (settings != null) {
+          buttons.value = toButtons(settings.callButtons);
+        }
+        previous = settings?.callButtons;
+      }
+    },
+  );
+
+  _showUiWorker = ever(showUi, (bool showUi) {
+    if (displayMore.value &amp;&amp; !showUi) {
+      displayMore.value = false;
+    }
+  });
+
+  _notificationsSubscription = _currentCall.value.notifications.listen((e) {
+    notifications.add(e);
+    _notificationTimers
+        .add(Timer(_notificationDuration, () =&gt; notifications.remove(e)));
+  });
+
+  _reconnectWorker = ever(_currentCall.value.connectionLost, (b) {
+    if (b) {
+      _reconnectAudio =
+          AudioUtils.play(AudioSource.asset(&#39;audio&#47;$_reconnect&#39;));
+    } else {
+      _reconnectAudio?.cancel();
+    }
+  });
+
+  if (PlatformUtils.isMobile &amp;&amp; !PlatformUtils.isWeb) {
+    try {
+      _proximitySubscription = proximityEvents?.listen((e) {
+        Log.debug(&#39;[debug] proximityEvents: ${e.getValue()}&#39;);
+      });
+    } catch (e) {
+      Log.warning(
+        &#39;Failed to initialize proximity sensor: $e&#39;,
+        &#39;$runtimeType&#39;,
+      );
+    }
+  }
+
+  span.finish();
+  span = _ready.startChild(&#39;chat&#39;);
+  _initChat();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_controller/ui_page_call_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_call_controller/CallController-class.html">CallController</a></li>
+    <li class="self-crumb">onInit method</li>
+</ol>
+
+    <h5>CallController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

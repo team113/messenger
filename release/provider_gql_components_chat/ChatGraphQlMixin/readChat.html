@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the readChat method from the ChatGraphQlMixin mixin, for the Dart programming language.">
+  <title>readChat method - ChatGraphQlMixin mixin - chat library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_chat/provider_gql_components_chat-library.html">provider&#47;gql&#47;components&#47;chat.dart</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin-mixin.html">ChatGraphQlMixin</a></li>
+    <li class="self-crumb">readChat method</li>
+  </ol>
+  <div class="self-name">readChat</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="provider_gql_components_chat&#47;ChatGraphQlMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">readChat</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../api_backend_schema.graphql/ChatEventsVersionedMixin-mixin.html">ChatEventsVersionedMixin</a>?</span>&gt;</span></span>
+<span class="name ">readChat</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="readChat-param-chatId"><span class="type-annotation"><a href="../../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span></li>
+<li><span class="parameter" id="readChat-param-untilId"><span class="type-annotation"><a href="../../domain_model_chat_item/ChatItemId-class.html">ChatItemId</a></span> <span class="parameter-name">untilId</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Marks the specified <a href="../../domain_model_chat/Chat-class.html">Chat</a> as read for the authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> until
+the specified <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a> inclusively.</p>
+<p>There is no notion of a single <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a> being read or not separately in
+a <a href="../../domain_model_chat/Chat-class.html">Chat</a>. Only a whole <a href="../../domain_model_chat/Chat-class.html">Chat</a> as a sequence of <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a>s can be read
+until some its position (concrete <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a>). So, any <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a> may be
+considered as read or not by comparing its <a href="../../domain_model_chat_item/ChatItem/at.html">ChatItem.at</a> with the
+<a href="../../domain_model_chat/LastChatRead/at.html">LastChatRead.at</a> of the authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a>: if it's below (less or
+equal) then the <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a> is read, otherwise it's unread.</p>
+<p>This mutation should be called whenever the authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> reads
+new <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a>s appeared in the Chat's UI and directly influences the
+<a href="../../domain_model_chat/Chat/unreadCount.html">Chat.unreadCount</a> value.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="result">Result</h3>
+<p>Only the following <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a> may be produced on success:</p>
+<ul>
+<li><a href="../../store_event_chat/EventChatRead-class.html">EventChatRead</a>.</li>
+</ul>
+<h3 id="idempotent">Idempotent</h3>
+<p>Succeeds as no-op (and returns no <a href="../../store_event_chat/ChatEvent-class.html">ChatEvent</a>) if the specified <a href="../../domain_model_chat/Chat-class.html">Chat</a> is
+already read by the authenticated <a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> until the specified <a href="../../domain_model_chat_item/ChatItem-class.html">ChatItem</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;ChatEventsVersionedMixin?&gt; readChat(
+  ChatId chatId,
+  ChatItemId untilId,
+) async {
+  Log.debug(&#39;readChat($chatId, $untilId)&#39;, &#39;$runtimeType&#39;);
+
+  final variables = ReadChatArguments(id: chatId, untilId: untilId);
+  final QueryResult result = await client.mutate(
+    MutationOptions(
+      operationName: &#39;ReadChat&#39;,
+      document: ReadChatMutation(variables: variables).document,
+      variables: variables.toJson(),
+    ),
+    onException: (data) =&gt; ReadChatException((ReadChat$Mutation.fromJson(data)
+            .readChat as ReadChat$Mutation$ReadChat$ReadChatError)
+        .code),
+  );
+  return (ReadChat$Mutation.fromJson(result.data!).readChat
+      as ChatEventsVersionedMixin?);
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_chat/provider_gql_components_chat-library.html">chat</a></li>
+    <li><a href="../../provider_gql_components_chat/ChatGraphQlMixin-mixin.html">ChatGraphQlMixin</a></li>
+    <li class="self-crumb">readChat method</li>
+</ol>
+
+    <h5>ChatGraphQlMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the ReorderableFit class, for the Dart programming language.">
+  <title>build method - ReorderableFit class - reorderable_fit library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_widget_reorderable_fit/ui_page_call_widget_reorderable_fit-library.html">ui&#47;page&#47;call&#47;widget&#47;reorderable_fit.dart</a></li>
+    <li><a href="../../ui_page_call_widget_reorderable_fit/ReorderableFit-class.html">ReorderableFit<span class="signature">&lt;<wbr><span class="type-parameter">T extends Object</span>&gt;</span></a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_call_widget_reorderable_fit&#47;ReorderableFit-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Describes the part of the user interface represented by this widget.</p>
+<p>The framework calls this method when this widget is inserted into the tree
+in a given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and when the dependencies of this widget change
+(e.g., an <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> referenced by this widget changes). This
+method can potentially be called in every frame and should not have any side
+effects beyond building a widget.</p>
+<p>The framework replaces the subtree below this widget with the widget
+returned by this method, either by updating the existing subtree or by
+removing the subtree and inflating a new subtree, depending on whether the
+widget returned by this method can update the root of the existing
+subtree, as determined by calling <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html">Widget.canUpdate</a>.</p>
+<p>Typically implementations return a newly created constellation of widgets
+that are configured with information from this widget's constructor and
+from the given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</p>
+<p>The given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> contains information about the location in the
+tree at which this widget is being built. For example, the context
+provides the set of inherited widgets for this location in the tree. A
+given widget might be built with multiple different <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>
+arguments over time if the widget is moved around the tree or if the
+widget is inserted into the tree in multiple places at once.</p>
+<p>The implementation of this method must only depend on:</p>
+<ul>
+<li>the fields of the widget, which themselves must not change over time,
+and</li>
+<li>any ambient state obtained from the <code>context</code> using
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html">BuildContext.dependOnInheritedWidgetOfExactType</a>.</li>
+</ul>
+<p>If a widget's <a href="../../ui_page_call_widget_reorderable_fit/ReorderableFit/build.html">build</a> method is to depend on anything else, use a
+<a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> instead.</p>
+<p>See also:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, which contains the discussion on performance considerations.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  if (children.isEmpty) {
+    if (allowEmptyTarget) {
+      return DragTarget&lt;T&gt;(
+        onAcceptWithDetails: (o) =&gt; onAdded?.call(o.data, 0),
+        onWillAcceptWithDetails: (b) =&gt; onWillAccept?.call(b.data) ?? true,
+        onLeave: onLeave,
+        builder: ((_, __, ___) {
+          return SizedBox(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+          );
+        }),
+      );
+    } else {
+      return Container();
+    }
+  }
+
+  return ConstrainedBox(
+    constraints: BoxConstraints(
+      maxWidth: MediaQuery.of(context).size.width,
+      maxHeight: MediaQuery.of(context).size.height,
+    ),
+    child: LayoutBuilder(builder: (context, constraints) {
+      double rWidth = width ?? constraints.maxWidth;
+      double rHeight = height ?? constraints.maxHeight;
+
+      double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
+      bool fitView = useFitView(
+        maxSize: wrapMaxSize,
+        constraints: Size(rWidth, rHeight),
+        length: children.length,
+        axis: axis,
+      );
+
+      &#47;&#47; Number of columns.
+      int mColumns = 0;
+
+      double? wrapSize;
+
+      if (fitView) {
+        &#47;&#47; Minimal diagonal of a square.
+        double min = double.infinity;
+
+        &#47;&#47; To find the [mColumns], iterate through every possible number of
+        &#47;&#47; columns and pick the arrangement with [min]imal diagonal.
+        for (int columns = 1; columns &lt;= children.length; ++columns) {
+          int rows = (children.length &#47; columns).ceil();
+
+          &#47;&#47; Current diagonal of a single square.
+          double diagonal =
+              (pow(rWidth &#47; columns, 2) + pow(rHeight &#47; rows, 2)).toDouble();
+
+          &#47;&#47; If there&#39;s any [children] left outside, then their diagonal will
+          &#47;&#47; always be bigger, so we need to recalculate.
+          int outside = children.length % columns;
+          if (outside != 0) {
+            &#47;&#47; Diagonal of an outside [children] is calculated with some
+            &#47;&#47; coefficient to force the algorithm to pick non-standard
+            &#47;&#47; arrangement.
+            double coef = 1;
+
+            &#47;&#47; Coefficient is hard-coded for some cases in order to [FitView] to
+            &#47;&#47; look better.
+            if (children.length == 3) {
+              coef = rWidth &gt; rHeight ? 0.5 : 0.87;
+            } else if (children.length == 5) {
+              if (rWidth &gt; rHeight) {
+                coef = 0.8;
+              } else {
+                coef = outside == 1 ? 0.8 : 1.5;
+              }
+            } else if (children.length == 10) {
+              if (rWidth &gt; rHeight) {
+                coef = outside == 2 ? 0.65 : 0.8;
+              } else {
+                coef = 0.8;
+              }
+            } else if (children.length == 9) {
+              if (rWidth &gt; rHeight) {
+                coef = 0.9;
+              } else {
+                coef = 0.5;
+              }
+            } else if (children.length == 8) {
+              if (rWidth &gt; rHeight) {
+                coef = outside == 2 ? 0.59 : 0.8;
+              } else {
+                coef = 0.8;
+              }
+            } else if (children.length == 7) {
+              if (rWidth &gt; rHeight) {
+                coef = rWidth &#47; rHeight &gt;= 3 ? 0.7 : 0.4;
+              } else {
+                coef = 0.4;
+              }
+            } else if (children.length == 6) {
+              if (rWidth &gt; rHeight) {
+                coef = (rWidth &#47; rHeight &gt; 3) ? 0.57 : 0.7;
+              } else {
+                coef = 0.7;
+              }
+            } else {
+              if (rWidth &gt; rHeight) {
+                coef = outside == 2 ? 0.59 : 0.77;
+              } else {
+                coef = 0.6;
+              }
+            }
+
+            diagonal =
+                (pow(rWidth &#47; outside * coef, 2) + pow(rHeight &#47; rows, 2))
+                    .toDouble();
+          }
+          &#47;&#47; Tweak of a standard arrangement.
+          else if (children.length == 4) {
+            mColumns = rWidth &#47; rHeight &lt; 0.56 ? 1 : mColumns;
+          }
+
+          if (diagonal &lt; min &amp;&amp; min - diagonal &gt; 1) {
+            mColumns = columns;
+            min = diagonal;
+          }
+        }
+      }
+
+      if (axis != null) {
+        wrapSize = calculateSize(
+          maxSize: wrapMaxSize,
+          constraints: Size(rWidth, rHeight),
+          length: children.length,
+          axis: axis!,
+        );
+      }
+
+      return _ReorderableFit&lt;T&gt;(
+        key: key,
+        children: children,
+        itemBuilder: itemBuilder,
+        decoratorBuilder: decoratorBuilder,
+        overlayBuilder: overlayBuilder,
+        mColumns: mColumns,
+        wrapSize: wrapSize,
+        dividerColor: dividerColor,
+        dividerSize: dividerSize,
+        onReorder: onReorder,
+        onAdded: onAdded,
+        onDoughBreak: onDoughBreak,
+        onDragCompleted: onDragCompleted,
+        onDragEnd: onDragEnd,
+        onDragStarted: onDragStarted,
+        onDraggableCanceled: onDraggableCanceled,
+        hoverColor: hoverColor,
+        useWrap: !fitView,
+        axis: axis,
+        left: left,
+        right: right,
+        top: top,
+        bottom: bottom,
+        width: width,
+        height: height,
+        onLeave: onLeave,
+        onWillAccept: onWillAccept,
+        onOffset: onOffset,
+        useLongPress: useLongPress,
+        allowDraggingLast: allowDraggingLast,
+        itemConstraints: itemConstraints,
+        borderRadius: borderRadius,
+      );
+    }),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_call_widget_reorderable_fit/ui_page_call_widget_reorderable_fit-library.html">reorderable_fit</a></li>
+    <li><a href="../../ui_page_call_widget_reorderable_fit/ReorderableFit-class.html">ReorderableFit<span class="signature">&lt;<wbr><span class="type-parameter">T extends Object</span>&gt;</span></a></li>
+    <li class="self-crumb">build method</li>
+</ol>
+
+    <h5>ReorderableFit class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the ButtonsSection class, for the Dart programming language.">
+  <title>build method - ButtonsSection class - buttons library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_buttons/ui_page_style_page_widgets_section_buttons-library.html">ui&#47;page&#47;style&#47;page&#47;widgets&#47;section&#47;buttons.dart</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_buttons/ButtonsSection-class.html">ButtonsSection</a></li>
+    <li class="self-crumb">build static method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_style_page_widgets_section_buttons&#47;ButtonsSection-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>&gt;</span></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Returns the <a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a>s of this <a href="../../ui_page_style_page_widgets_section_buttons/ButtonsSection-class.html">ButtonsSection</a>.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static List&lt;Widget&gt; build(BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return [
+    Headlines(
+      color: Color.alphaBlend(
+        style.sidebarColor,
+        style.colors.onBackgroundOpacity7,
+      ),
+      children: [
+        (
+          headline: &#39;MenuButton&#39;,
+          widget: MenuButton(
+            title: &#39;Title&#39;,
+            subtitle: &#39;Subtitle&#39;,
+            leading: const SvgIcon(SvgIcons.workFlutter),
+            inverted: false,
+            onPressed: () {},
+          ),
+        ),
+        (
+          headline: &#39;MenuButton(inverted: true)&#39;,
+          widget: MenuButton(
+            title: &#39;Title&#39;,
+            subtitle: &#39;Subtitle&#39;,
+            leading: const SvgIcon(SvgIcons.workFlutter),
+            inverted: true,
+            onPressed: () {},
+          ),
+        ),
+      ],
+    ),
+    Headlines(
+      color: Color.alphaBlend(
+        style.sidebarColor,
+        style.colors.onBackgroundOpacity7,
+      ),
+      children: [
+        (
+          headline: &#39;OutlinedRoundedButton(title)&#39;,
+          widget: OutlinedRoundedButton(
+            onPressed: () {},
+            child: const Text(&#39;Title&#39;),
+          ),
+        ),
+        (
+          headline: &#39;OutlinedRoundedButton(subtitle)&#39;,
+          widget: OutlinedRoundedButton(
+            subtitle: const Text(&#39;Subtitle&#39;),
+            onPressed: () {},
+          ),
+        ),
+      ],
+    ),
+    Headline(
+      background: Color.alphaBlend(
+        style.sidebarColor,
+        style.colors.onBackgroundOpacity7,
+      ),
+      child: ShadowedRoundedButton(
+        onPressed: () {},
+        child: const Text(&#39;Label&#39;),
+      ),
+    ),
+    Headline(
+      headline: &#39;PrimaryButton&#39;,
+      child: PrimaryButton(onPressed: () {}, title: &#39;PrimaryButton&#39;),
+    ),
+    Headline(
+      child: WidgetButton(
+        onPressed: () {},
+        child: Container(
+          width: 250,
+          height: 150,
+          decoration: BoxDecoration(
+            color: style.colors.onBackgroundOpacity13,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: const Center(child: Text(&#39;Clickable area&#39;)),
+        ),
+      ),
+    ),
+    Headlines(
+      children: [
+        (
+          headline: &#39;SignButton&#39;,
+          widget: SignButton(
+            onPressed: () {},
+            title: &#39;Label&#39;,
+          ),
+        ),
+        (
+          headline: &#39;SignButton(asset)&#39;,
+          widget: SignButton(
+            title: &#39;Password&#39;,
+            icon: const SvgIcon(SvgIcons.password),
+            onPressed: () {},
+          ),
+        ),
+      ],
+    ),
+    Headlines(
+      children: [
+        (
+          headline: &#39;StyledCupertinoButton&#39;,
+          widget:
+              StyledCupertinoButton(onPressed: () {}, label: &#39;Clickable text&#39;)
+        ),
+        (
+          headline: &#39;StyledCupertinoButton.primary&#39;,
+          widget: StyledCupertinoButton(
+            onPressed: () {},
+            label: &#39;Clickable text&#39;,
+            style: style.fonts.medium.regular.onBackground,
+          ),
+        ),
+      ],
+    ),
+    Headlines(
+      children: [
+        (
+          headline: &#39;RectangleButton&#39;,
+          widget: RectangleButton(onPressed: () {}, label: &#39;Label&#39;),
+        ),
+        (
+          headline: &#39;RectangleButton(selected: true)&#39;,
+          widget: RectangleButton(
+            onPressed: () {},
+            label: &#39;Label&#39;,
+            selected: true,
+          ),
+        ),
+        (
+          headline: &#39;RectangleButton.radio&#39;,
+          widget: RectangleButton(
+            onPressed: () {},
+            label: &#39;Label&#39;,
+            radio: true,
+          ),
+        ),
+        (
+          headline: &#39;RectangleButton.radio(selected: true)&#39;,
+          widget: RectangleButton(
+            onPressed: () {},
+            label: &#39;Label&#39;,
+            selected: true,
+            radio: true,
+          ),
+        ),
+      ],
+    ),
+    Headline(
+      headline: &#39;AnimatedButton&#39;,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedButton(
+            onPressed: () {},
+            child: const SvgIcon(SvgIcons.chats),
+          ),
+          const SizedBox(width: 32),
+          AnimatedButton(
+            onPressed: () {},
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 32),
+          AnimatedButton(
+            onPressed: () {},
+            child: const SvgIcon(SvgIcons.send),
+          ),
+        ],
+      ),
+    ),
+    Headline(
+      headline: &#39;CallButtonWidget&#39;,
+      background: style.colors.primaryAuxiliaryOpacity25,
+      bottom: false,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CallButtonWidget(
+            color: style.colors.onSecondaryOpacity50,
+            onPressed: () {},
+            withBlur: true,
+            big: true,
+            asset: SvgIcons.fullscreenEnter,
+          ),
+          const SizedBox(width: 32),
+          CallButtonWidget(
+            onPressed: () {},
+            hint: &#39;Hint&#39;,
+            asset: SvgIcons.callScreenShareOn,
+            hinted: true,
+            expanded: true,
+            big: true,
+          ),
+          const SizedBox(width: 32),
+          CallButtonWidget(
+            hint: &#39;Hint&#39;,
+            asset: SvgIcons.callScreenShareOn,
+            hinted: true,
+            onPressed: () {},
+          ),
+        ],
+      ),
+    ),
+    Headline(
+      headline: &#39;GalleryButton&#39;,
+      background: style.colors.primaryAuxiliaryOpacity25,
+      bottom: false,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          GalleryButton(
+            onPressed: () {},
+            child: Icon(
+              Icons.close_rounded,
+              color: style.colors.onPrimary,
+              size: 28,
+            ),
+          ),
+          const SizedBox(width: 32),
+          GalleryButton(onPressed: () {}, icon: SvgIcons.fullscreenEnter),
+          const SizedBox(width: 32),
+          GalleryButton(
+            onPressed: () {},
+            child: Padding(
+              padding: const EdgeInsets.only(left: 1),
+              child: Icon(
+                Icons.keyboard_arrow_right_rounded,
+                color: style.colors.onPrimary,
+                size: 36,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ),
+    Headlines(
+      children: [
+        (
+          headline: &#39;DownloadButton.windows&#39;,
+          widget: const DownloadButton.windows(),
+        ),
+        (
+          headline: &#39;DownloadButton.macos&#39;,
+          widget: const DownloadButton.macos(),
+        ),
+        (
+          headline: &#39;DownloadButton.linux&#39;,
+          widget: const DownloadButton.linux(),
+        ),
+        (
+          headline: &#39;DownloadButton.ios&#39;,
+          widget: const DownloadButton.ios(),
+        ),
+        (
+          headline: &#39;DownloadButton.appStore&#39;,
+          widget: DownloadButton.appStore(),
+        ),
+        (
+          headline: &#39;DownloadButton.googlePlay&#39;,
+          widget: DownloadButton.googlePlay(),
+        ),
+        (
+          headline: &#39;DownloadButton.android&#39;,
+          widget: const DownloadButton.android(),
+        ),
+      ],
+    ),
+    Headline(child: StyledBackButton(onPressed: () {})),
+    Headlines(
+      children: [
+        (
+          headline: &#39;FloatingActionButton(arrow_upward)&#39;,
+          widget: FloatingActionButton.small(
+            heroTag: &#39;1&#39;,
+            onPressed: () {},
+            child: const Icon(Icons.arrow_upward),
+          ),
+        ),
+        (
+          headline: &#39;FloatingActionButton(arrow_downward)&#39;,
+          widget: FloatingActionButton.small(
+            heroTag: &#39;2&#39;,
+            onPressed: () {},
+            child: const Icon(Icons.arrow_downward),
+          ),
+        ),
+      ],
+    ),
+    Headline(child: UnblockButton(() {})),
+    Headlines(
+      color: Color.alphaBlend(
+        style.sidebarColor,
+        style.colors.onBackgroundOpacity7,
+      ),
+      children: WorkTab.values
+          .map(
+            (e) =&gt; (
+              headline: &#39;VacancyWorkButton(${e.name})&#39;,
+              widget: VacancyWorkButton(e, onPressed: (_) {}),
+            ),
+          )
+          .toList(),
+    ),
+  ];
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_buttons/ui_page_style_page_widgets_section_buttons-library.html">buttons</a></li>
+    <li><a href="../../ui_page_style_page_widgets_section_buttons/ButtonsSection-class.html">ButtonsSection</a></li>
+    <li class="self-crumb">build static method</li>
+</ol>
+
+    <h5>ButtonsSection class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.1
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
