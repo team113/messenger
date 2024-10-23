@@ -16,6 +16,8 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -26,7 +28,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
-    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
+    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence, CropAreaInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
@@ -54,6 +56,7 @@ import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/controller.dart';
+import 'crop_avatar/view.dart';
 import 'welcome_field/controller.dart';
 
 export 'view.dart';
@@ -441,13 +444,29 @@ class MyProfileController extends GetxController {
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
     try {
-      await _updateAvatar(null);
+      await _updateAvatar(null, null);
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
   }
 
-  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
+  /// Reads [image] and opens [CropAvatarView] to edit it.
+  /// If the user confirms the crop, the image is updated.
+  Future<void> editAvatar(Image image) async {
+    avatarUpload.value = RxStatus.loading();
+    try {
+      NativeFile nativeFile = await _readImage(image);
+      CropAreaInput? crop = await CropAvatarView.show(router.context!, image);
+      if (crop != null) {
+        await _updateAvatar(nativeFile, crop);
+      }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
+  }
+
+  /// Crops and Uploads image and sets it as [MyUser.avatar]
+  /// and [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await PlatformUtils.pickFiles(
@@ -459,7 +478,16 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
+        PlatformFile file = result!.files.first;
+        Image image = PlatformUtils.isWeb
+            ? Image.memory(file.bytes!)
+            : Image.file(File(file.path!));
+        CropAreaInput? crop = await CropAvatarView.show(router.context!, image);
+        if (crop == null) return;
+        await _updateAvatar(
+          NativeFile.fromPlatformFile(result.files.first),
+          crop,
+        );
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
@@ -557,12 +585,12 @@ class MyProfileController extends GetxController {
 
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
   ///
-  /// If [file] is `null`, then deletes the [MyUser.avatar] and
+  /// If [file] is `null`, then deletes [MyUser.avatar] and
   /// [MyUser.callCover].
-  Future<void> _updateAvatar(NativeFile? file) async {
+  Future<void> _updateAvatar(NativeFile? file, CropAreaInput? crop) async {
     try {
       await Future.wait([
-        _myUserService.updateAvatar(file),
+        _myUserService.updateAvatar(file, crop: crop),
         _myUserService.updateCallCover(file)
       ]);
     } on UpdateUserAvatarException catch (e) {
@@ -579,6 +607,28 @@ class MyProfileController extends GetxController {
   /// [scrollController].
   void _ensureNameDisplayed() {
     displayName.value = scrollController.position.pixels >= 250;
+  }
+
+  /// Reads [image] and returns [NativeFile] representation of it.
+  Future<NativeFile> _readImage(Image image) async {
+    final completer = Completer<ImageInfo>();
+    image.image.resolve(const ImageConfiguration()).addListener(
+      ImageStreamListener(
+        (info, _) {
+          return completer.complete(info);
+        },
+      ),
+    );
+
+    final imageInfo = await completer.future;
+    final bytes = await imageInfo.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    return NativeFile(
+      name: '',
+      size: imageInfo.sizeBytes,
+      bytes: bytes!.buffer.asUint8List(),
+    );
   }
 }
 

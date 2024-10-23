@@ -399,13 +399,11 @@ class AvatarWidget extends StatelessWidget {
       double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
       double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final ImageFile? image = maxWidth > 250
-          ? avatar?.full
-          : maxWidth > 100
-              ? avatar?.big
-              : maxWidth > 46
-                  ? avatar?.medium
-                  : avatar?.small;
+      final ImageFile? image = maxWidth > 100
+          ? avatar?.big
+          : maxWidth > 46
+              ? avatar?.medium
+              : avatar?.small;
 
       final Widget defaultAvatar = Container(
         decoration: BoxDecoration(
