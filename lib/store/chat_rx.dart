@@ -1096,6 +1096,10 @@ class RxChatImpl extends RxChat {
     return fragment;
   }
 
+  Future<void> handle(ChatEventsEvent event) async {
+    await _chatEvent(event, overwrite: false);
+  }
+
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
@@ -1873,7 +1877,7 @@ class RxChatImpl extends RxChat {
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
-  Future<void> _chatEvent(ChatEvents event) async {
+  Future<void> _chatEvent(ChatEvents event, {bool overwrite = true}) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
@@ -1901,6 +1905,8 @@ class RxChatImpl extends RxChat {
         final List<DtoChatItem> itemsToPut = [];
 
         final DtoChat? chatEntity = await _driftChat.read(id);
+        print('======= read($id) -> isHidden: ${chatEntity?.value.isHidden}');
+
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (chatEntity == null || !subscribed) {
           Log.debug(
@@ -1928,7 +1934,7 @@ class RxChatImpl extends RxChat {
         bool shouldPutChat = subscribed && versioned.ver >= chatEntity.ver;
 
         ver = versioned.ver;
-        if (chatEntity.ver < versioned.ver) {
+        if (chatEntity.ver < versioned.ver && overwrite) {
           chatEntity.ver = versioned.ver;
         }
 
@@ -1957,7 +1963,7 @@ class RxChatImpl extends RxChat {
                 chat.lastReadItemCursor = null;
               });
               _lastReadItemCursor = null;
-              clear();
+              await clear();
               break;
 
             case ChatEventKind.itemHidden:
@@ -2357,6 +2363,9 @@ class RxChatImpl extends RxChat {
         if (shouldPutChat) {
           final DtoChat? entity = _setChat(chatEntity);
           if (entity != null) {
+            print(
+              '======= write($id) -> isHidden: ${chatEntity.value.isHidden}',
+            );
             await _driftChat.upsert(entity);
           }
         }

@@ -619,7 +619,13 @@ class ChatRepository extends DisposableInterface
 
       // [Chat.isHidden] will be changed by [RxChatImpl]'s own remote event
       // handler. Chat will be removed from [paginated] via [RxChatImpl].
-      await _graphQlProvider.hideChat(id);
+      final event = await _graphQlProvider.hideChat(id);
+
+      await chat?.handle(
+        ChatEventsEvent(
+          ChatEventsVersioned(event!.events.map(chatEvent).toList(), event.ver),
+        ),
+      );
     } catch (_) {
       chat?.chat.update((c) => c?.isHidden = false);
 
@@ -1193,10 +1199,7 @@ class ChatRepository extends DisposableInterface
         var mixin =
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
         yield ChatEventsEvent(
-          ChatEventsVersioned(
-            mixin.events.map((e) => chatEvent(e)).toList(),
-            mixin.ver,
-          ),
+          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
         );
       }
     });
