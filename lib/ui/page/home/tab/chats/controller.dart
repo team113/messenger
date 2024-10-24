@@ -385,12 +385,11 @@ class ChatsTabController extends GetxController {
   /// well if [clear] is `true`.
   Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      final Iterable<Future> futures = [
-        if (clear) _chatService.clearChat(id),
-        _chatService.hideChat(id)
-      ];
+      await _chatService.hideChat(id);
 
-      await Future.wait(futures);
+      if (clear) {
+        await _chatService.clearChat(id);
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
@@ -410,12 +409,11 @@ class ChatsTabController extends GetxController {
     router.navigation.value = !selecting.value;
 
     try {
-      final Iterable<Future> futures = [
-        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
-        ...selectedChats.map((e) => _chatService.hideChat(e)),
-      ];
+      await Future.wait(selectedChats.map(_chatService.hideChat));
 
-      await Future.wait(futures);
+      if (clear) {
+        await Future.wait(selectedChats.map(_chatService.clearChat));
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
