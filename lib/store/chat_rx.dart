@@ -82,7 +82,7 @@ class RxChatImpl extends RxChat {
     this._draftLocal,
     this._driftItems,
     this._driftMembers,
-    DtoChat dto,
+    this.dto,
   )   : chat = Rx<Chat>(dto.value),
         _lastReadItemCursor = dto.lastReadItemCursor,
         unreadCount = RxInt(dto.value.unreadCount),
@@ -117,6 +117,9 @@ class RxChatImpl extends RxChat {
 
   /// [ChatVersion] of this [RxChatImpl].
   ChatVersion? ver;
+
+  /// [DtoChat] persisted and applied.
+  DtoChat dto;
 
   @override
   late final RxBool inCall =
@@ -1785,6 +1788,7 @@ class RxChatImpl extends RxChat {
   DtoChat? _setChat(DtoChat? e) {
     Log.trace('_setChat($e)', '$runtimeType');
 
+    dto = e ?? dto;
     if (chat.value == e?.value) {
       return null;
     }
@@ -1904,13 +1908,13 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.event:
         final List<DtoChatItem> itemsToPut = [];
 
-        final DtoChat? chatEntity = await _driftChat.read(id);
-        print('======= read($id) -> isHidden: ${chatEntity?.value.isHidden}');
+        final DtoChat chatEntity = dto;
+        print('======= read($id) -> isHidden: ${chatEntity.value.isHidden}');
 
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
-        if (chatEntity == null || !subscribed) {
+        if (!subscribed) {
           Log.debug(
-            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}, because: ${chatEntity == null} || ${!subscribed}',
+            '_chatEvent(${event.kind}): ignored ${versioned.events.map((e) => e.kind)}, because: ${!subscribed}',
             '$runtimeType($id)',
           );
 
