@@ -176,7 +176,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                       onUpload: c.uploadAvatar,
                       onEdit: avatar != null
                           ? () {
-                              c.editAvatar(Image.network(avatar.original.url));
+                              c.editAvatar(avatar.original.url);
                             }
                           : null,
                       onDelete: avatar != null ? c.deleteAvatar : null,

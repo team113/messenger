@@ -17,13 +17,13 @@
 
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -452,11 +452,14 @@ class MyProfileController extends GetxController {
 
   /// Reads [image] and opens [CropAvatarView] to edit it.
   /// If the user confirms the crop, the image is updated.
-  Future<void> editAvatar(Image image) async {
+  Future<void> editAvatar(String url) async {
     avatarUpload.value = RxStatus.loading();
     try {
-      NativeFile nativeFile = await _readImage(image);
-      CropAreaInput? crop = await CropAvatarView.show(router.context!, image);
+      NativeFile nativeFile = await _readImage(url);
+      CropAreaInput? crop = await CropAvatarView.show(
+        router.context!,
+        Image.network(url),
+      );
       if (crop != null) {
         await _updateAvatar(nativeFile, crop);
       }
@@ -610,24 +613,13 @@ class MyProfileController extends GetxController {
   }
 
   /// Reads [image] and returns [NativeFile] representation of it.
-  Future<NativeFile> _readImage(Image image) async {
-    final completer = Completer<ImageInfo>();
-    image.image.resolve(const ImageConfiguration()).addListener(
-      ImageStreamListener(
-        (info, _) {
-          return completer.complete(info);
-        },
-      ),
-    );
-
-    final imageInfo = await completer.future;
-    final bytes = await imageInfo.image.toByteData(
-      format: ui.ImageByteFormat.png,
-    );
+  Future<NativeFile> _readImage(String url) async {
+    final http.Response response = await http.get(Uri.parse(url));
+    final Uint8List bytes = response.bodyBytes;
     return NativeFile(
       name: '',
-      size: imageInfo.sizeBytes,
-      bytes: bytes!.buffer.asUint8List(),
+      size: bytes.length,
+      bytes: bytes.buffer.asUint8List(),
     );
   }
 }
