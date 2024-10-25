@@ -149,44 +149,44 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
         if (widget.onUpload != null || widget.onDelete != null) ...[
           const SizedBox(height: 5),
           Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Row(
-                mainAxisSize: widget.onDelete != null
-                    ? MainAxisSize.max
-                    : MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  if (widget.onUpload != null)
-                    WidgetButton(
-                      key: const Key('UploadAvatar'),
-                      onPressed: () {
-                        widget.onUpload!();
-                      },
-                      child: Text(
-                        'btn_upload'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisSize:
+                  widget.onDelete != null ? MainAxisSize.max : MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (widget.onUpload != null)
+                  WidgetButton(
+                    key: const Key('UploadAvatar'),
+                    onPressed: () {
+                      widget.onUpload!();
+                    },
+                    child: Text(
+                      'btn_upload'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
-                  if (widget.onEdit != null)
-                    WidgetButton(
-                      key: const Key('EditAvatar'),
-                      onPressed: widget.onEdit,
-                      child: Text(
-                        'btn_edit'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
+                  ),
+                if (widget.onEdit != null)
+                  WidgetButton(
+                    key: const Key('EditAvatar'),
+                    onPressed: widget.onEdit,
+                    child: Text(
+                      'btn_edit'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
-                  if (widget.onDelete != null)
-                    WidgetButton(
-                      key: const Key('DeleteAvatar'),
-                      onPressed: widget.onDelete,
-                      child: Text(
-                        'btn_delete'.l10n,
-                        style: style.fonts.small.regular.primary,
-                      ),
+                  ),
+                if (widget.onDelete != null)
+                  WidgetButton(
+                    key: const Key('DeleteAvatar'),
+                    onPressed: widget.onDelete,
+                    child: Text(
+                      'btn_delete'.l10n,
+                      style: style.fonts.small.regular.primary,
                     ),
-                ],
-              )),
+                  ),
+              ],
+            ),
+          ),
         ],
         if (widget.error != null) ...[
           const SizedBox(height: 4),
