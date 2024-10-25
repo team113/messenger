@@ -834,7 +834,7 @@ class RxChatImpl extends RxChat {
         dto.lastItemCursor = null;
       }
 
-      await _driftChat.upsert(dto, force: true);
+      await _driftChat.upsert(dto);
     }
   }
 
@@ -972,7 +972,7 @@ class RxChatImpl extends RxChat {
     // TODO: Avatar should be updated by local subscription.
     this.avatar.value = avatar;
 
-    await _driftChat.upsert(dto, force: true);
+    await _driftChat.upsert(dto);
   }
 
   @override
@@ -1125,7 +1125,7 @@ class RxChatImpl extends RxChat {
 
                 if (firstItem != null && dto.value.firstItem != firstItem) {
                   dto.value.firstItem = firstItem;
-                  await _driftChat.upsert(dto, force: true);
+                  await _driftChat.upsert(dto);
                 }
               }
             }
@@ -1579,15 +1579,7 @@ class RxChatImpl extends RxChat {
     if (chat.value.muted?.until != null) {
       _muteTimer = Timer(
         chat.value.muted!.until!.val.difference(DateTime.now()),
-        () async {
-          await _driftChat.txn(() async {
-            final DtoChat? chat = await _driftChat.read(id, force: true);
-            if (chat != null) {
-              chat.value.muted = null;
-              await _driftChat.upsert(chat, force: true);
-            }
-          });
-        },
+        () async => await _driftChat.upsert(dto..value.muted = null),
       );
     }
 
@@ -1885,12 +1877,10 @@ class RxChatImpl extends RxChat {
       case ChatEventsKind.chat:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         final node = event as ChatEventsChat;
-        await _driftChat.txn(() async {
-          dto.value = node.chat.value;
-          dto.ver = node.chat.ver;
-          ver = node.chat.ver;
-          await _driftChat.upsert(dto, force: true);
-        });
+        dto.value = node.chat.value;
+        dto.ver = node.chat.ver;
+        ver = node.chat.ver;
+        await _driftChat.upsert(dto);
 
         _lastReadItemCursor = node.chat.lastReadItemCursor;
         break;
