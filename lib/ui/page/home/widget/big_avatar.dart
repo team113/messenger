@@ -158,9 +158,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
                 if (widget.onUpload != null)
                   WidgetButton(
                     key: const Key('UploadAvatar'),
-                    onPressed: () {
-                      widget.onUpload!();
-                    },
+                    onPressed: widget.onUpload,
                     child: Text(
                       'btn_upload'.l10n,
                       style: style.fonts.small.regular.primary,
