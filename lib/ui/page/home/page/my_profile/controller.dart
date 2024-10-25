@@ -450,8 +450,10 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Reads [image] and opens [CropAvatarView] to edit it.
-  /// If the user confirms the crop, the image is updated.
+  /// Updates the [MyUser.avatar] with the image at [url].
+  ///
+  /// Reads the image [url] and opens [CropAvatarView] to edit it.
+  /// If the user confirms the coordinates, the image is updated.
   Future<void> editAvatar(String url) async {
     avatarUpload.value = RxStatus.loading();
     try {
