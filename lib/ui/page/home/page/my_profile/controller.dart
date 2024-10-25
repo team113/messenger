@@ -450,7 +450,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Updates the [MyUser.avatar] with the image at [url].
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the image at [url].
   ///
   /// Reads the image [url] and opens [CropAvatarView] to edit it.
   /// If the user confirms the coordinates, the image is updated.
@@ -470,8 +470,8 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Crops and Uploads image and sets it as [MyUser.avatar]
-  /// and [MyUser.callCover].
+  /// Crops and Uploads image and sets it as [MyUser.avatar] and
+  /// [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
       FilePickerResult? result = await PlatformUtils.pickFiles(
