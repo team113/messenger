@@ -151,7 +151,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Row(
-                mainAxisSize: MainAxisSize.max,
+                mainAxisSize: widget.onDelete != null
+                    ? MainAxisSize.max
+                    : MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   if (widget.onUpload != null)
