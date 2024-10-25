@@ -46,9 +46,7 @@ class CropAvatarView extends StatelessWidget {
         horizontal: 20,
         vertical: 20,
       ),
-      modalConstraints: const BoxConstraints(
-        maxWidth: 540,
-      ),
+      modalConstraints: const BoxConstraints(),
       child: CropAvatarView(image),
     );
   }
@@ -60,10 +58,12 @@ class CropAvatarView extends StatelessWidget {
       init: CropController(image: image, aspectRatio: 1),
       builder: (controller) {
         return Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
-            ImageCropper(
-              controller: controller,
+            Expanded(
+              child: ImageCropper(
+                controller: controller,
+              ),
             ),
             const SizedBox(height: 10),
             SizedBox(
