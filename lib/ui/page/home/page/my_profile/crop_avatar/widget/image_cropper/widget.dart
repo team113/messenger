@@ -48,6 +48,8 @@ class ImageCropper extends StatefulWidget {
   State<ImageCropper> createState() => _ImageCropperState();
 }
 
+/// State class for the `ImageCropper` widget.
+/// Manages the state and behavior of the image cropping functionality.
 class _ImageCropperState extends State<ImageCropper> {
   /// Manages crop area and notifying listeners of changes.
   late CropController controller;
