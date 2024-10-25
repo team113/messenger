@@ -271,7 +271,7 @@ class MyUserService extends DisposableService {
     CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateAvatar($file,$crop, onSendProgress)', '$runtimeType');
+    Log.debug('updateAvatar($file, $crop, onSendProgress)', '$runtimeType');
     await _myUserRepository.updateAvatar(
       file,
       crop: crop,

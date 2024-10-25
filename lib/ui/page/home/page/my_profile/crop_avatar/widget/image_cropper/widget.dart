@@ -184,7 +184,7 @@ class _ImageCropperState extends State<ImageCropper> {
     return area.contains(point) ? CropHandle.move : CropHandle.none;
   }
 
-  /// Moves crop rectangle based on [cropHandlePoint].
+  /// Moves the crop rectangle based on the [cropHandlePoint].
   void moveArea(Offset point) {
     final crop = controller.crop.value.multiply(size);
     controller.crop.value = Rect.fromLTWH(
@@ -195,7 +195,7 @@ class _ImageCropperState extends State<ImageCropper> {
     ).divide(size);
   }
 
-  /// Resizes crop rectangle by moving corner based on [type] and [point].
+  /// Resizes the crop rectangle by moving corner based on [type] and [point].
   void moveCorner(CropHandle type, Offset point) {
     final Rect crop = controller.crop.value.multiply(size);
     double left = crop.left;

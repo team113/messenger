@@ -86,7 +86,7 @@ class CropController extends GetxController {
     }
   }
 
-  /// Current crop rectangle of image (in pixels).
+  /// Current crop rectangle of the [image] (in pixels).
   /// For sideways rotation, width and height are interchanged.
   /// See also: [crop], which represents same rectangle in percentage.
   Rect get cropSize {

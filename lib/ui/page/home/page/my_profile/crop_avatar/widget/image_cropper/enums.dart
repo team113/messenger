@@ -21,7 +21,7 @@ import 'package:flutter/material.dart';
 
 import '/api/backend/schema.dart' show Angle;
 
-/// Enum representing different handles for cropping.
+/// Enum for representing different handles for cropping.
 enum CropHandle {
   /// Represents upper-left corner of crop [Rect].
   upperLeft,
