@@ -133,7 +133,6 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
-
   /// Returns [CropHandle] that is being interacted with based on [point].
   CropHandle hitTest(Offset point) {
     for (final gridCorner in cropHandlePositions.entries) {
@@ -269,7 +268,7 @@ class _ImageCropperState extends State<ImageCropper> {
       final type = hitTest(details.localPosition);
       if (type != CropHandle.none) {
         final Offset basePoint = cropHandlePositions[
-        (type == CropHandle.move) ? CropHandle.upperLeft : type]!;
+            (type == CropHandle.move) ? CropHandle.upperLeft : type]!;
         setState(() {
           cropHandlePoint =
               CropHandlePoint(type, details.localPosition - basePoint);
@@ -296,7 +295,6 @@ class _ImageCropperState extends State<ImageCropper> {
       cropHandlePoint = null;
     });
   }
-
 
   /// Returns ratio of image's width to height.
   double _getImageRatio() =>
@@ -333,6 +331,15 @@ class _ImageCropperState extends State<ImageCropper> {
 
 /// Crop Grid with invisible border, for better touch detection.
 class CropGrid extends StatelessWidget {
+  /// Creates a [CropGrid] widget.
+  const CropGrid({
+    super.key,
+    required this.crop,
+    required this.scrimColor,
+    required this.isMoving,
+    required this.onSize,
+  });
+
   /// Crop [Rect] to be displayed
   final Rect crop;
 
@@ -344,14 +351,6 @@ class CropGrid extends StatelessWidget {
 
   /// Callback to updated [Size] of displayed image.
   final ValueChanged<Size> onSize;
-
-  const CropGrid({
-    super.key,
-    required this.crop,
-    required this.scrimColor,
-    required this.isMoving,
-    required this.onSize,
-  });
 
   @override
   Widget build(BuildContext context) {
