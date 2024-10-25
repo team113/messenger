@@ -46,6 +46,9 @@ class CropAvatarView extends StatelessWidget {
         horizontal: 20,
         vertical: 20,
       ),
+      modalConstraints: const BoxConstraints(
+        maxWidth: 540,
+      ),
       child: CropAvatarView(image),
     );
   }
