@@ -25,6 +25,14 @@ import 'utils.dart';
 /// Widget for cropping image.
 /// It displays image with crop rectangle that can be moved and resized.
 class ImageCropper extends StatefulWidget {
+  const ImageCropper({
+    super.key,
+    required this.controller,
+    this.scrimColor = Colors.black54,
+    this.minimumImageSize = 100,
+  }) : assert(minimumImageSize > 0,
+            'minimumImageSize should be greater than zero.');
+
   /// Controller for managing crop area and notifying listeners of changes.
   final CropController controller;
 
@@ -38,14 +46,6 @@ class ImageCropper extends StatefulWidget {
 
   @override
   State<ImageCropper> createState() => _ImageCropperState();
-
-  const ImageCropper({
-    super.key,
-    required this.controller,
-    this.scrimColor = Colors.black54,
-    this.minimumImageSize = 100,
-  }) : assert(minimumImageSize > 0,
-            'minimumImageSize should be greater than zero.');
 }
 
 class _ImageCropperState extends State<ImageCropper> {
@@ -294,11 +294,12 @@ class _ImageCropperState extends State<ImageCropper> {
         Rect.fromLTRB(left, top, right, bottom).divide(size);
   }
 
-  /// Returns the ratio of the image's width to height.
+  /// Returns ratio of image's width to height.
   double _getImageRatio() =>
       controller.bitmapSize.width / controller.bitmapSize.height;
 
-  /// Returns the width of the image based on the rotation, maximum width and maximum height constraints.
+  /// Returns image width based on rotation,
+  /// maximum width and height constraints.
   double _getWidth(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio();
     final screenRatio = maxWidth / maxHeight;
@@ -311,7 +312,8 @@ class _ImageCropperState extends State<ImageCropper> {
     return maxHeight * imageRatio;
   }
 
-  /// Returns the height of the image based on the rotation, maximum width and maximum height constraints.
+  /// Returns image height based on rotation,
+  /// maximum width and maximum height constraints.
   double _getHeight(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio();
     final screenRatio = maxWidth / maxHeight;
