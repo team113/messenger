@@ -46,7 +46,8 @@ class CropController extends GetxController {
             'top must be less than bottom'),
         _aspectRatio = Rx<double?>(aspectRatio),
         rotation = rotation.obs,
-        crop = defaultCrop.obs;
+        crop = defaultCrop.obs,
+        bitmap = Rx<ui.Image?>(null);
 
   CropController.fromValue(CropController value)
       : image = value.image,
@@ -67,7 +68,7 @@ class CropController extends GetxController {
 
   /// Bitmap representation of image.
   /// Initialized in [onInit] method.
-  ui.Image? bitmap;
+  final Rx<ui.Image?> bitmap;
 
   /// Listens to [crop] value changes and adjusts [_aspectRatio].
   late final Worker _worker;
@@ -102,13 +103,7 @@ class CropController extends GetxController {
 
   /// Returns image dimensions
   Size get bitmapSize =>
-      Size(bitmap!.width.toDouble(), bitmap!.height.toDouble());
-
-  /// Returns true if [bitmap] is initialized.
-  @override
-  bool get initialized {
-    return super.initialized && bitmap != null;
-  }
+      Size(bitmap.value!.width.toDouble(), bitmap.value!.height.toDouble());
 
   @override
   void onInit() {
@@ -151,7 +146,6 @@ class CropController extends GetxController {
       rotation: newRotation,
     );
     rotation.value = newRotation;
-    update();
   }
 
   /// Adjusts [crop] rectangle to fit specified aspect ratio.
@@ -205,8 +199,7 @@ class CropController extends GetxController {
     );
 
     final imageInfo = await completer.future;
-    bitmap = imageInfo.image;
+    bitmap.value = imageInfo.image;
     aspectRatio = aspectRatio;
-    update();
   }
 }

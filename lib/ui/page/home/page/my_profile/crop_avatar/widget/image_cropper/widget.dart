@@ -85,87 +85,54 @@ class _ImageCropperState extends State<ImageCropper> {
     return Center(
       child: LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
-          if (!controller.initialized) {
-            return const CircularProgressIndicator.adaptive();
-          }
-          final double maxWidth = constraints.maxWidth;
-          final double maxHeight = constraints.maxHeight;
-          final double width = _getWidth(maxWidth, maxHeight);
-          final double height = _getHeight(maxWidth, maxHeight);
-          return Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              Obx(() {
-                return SizedBox(
-                  width: width,
-                  height: height,
-                  child: CustomPaint(
-                    painter: RotatedImagePainter(
-                      controller.bitmap!,
-                      controller.rotation.value,
+          return Obx(
+            () {
+              if (controller.bitmap.value == null) {
+                return const CircularProgressIndicator.adaptive();
+              }
+              final double maxWidth = constraints.maxWidth;
+              final double maxHeight = constraints.maxHeight;
+              final double width = _getWidth(maxWidth, maxHeight);
+              final double height = _getHeight(maxWidth, maxHeight);
+              return Stack(
+                alignment: Alignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: width,
+                    height: height,
+                    child: CustomPaint(
+                      painter: RotatedImagePainter(
+                        controller.bitmap.value!,
+                        controller.rotation.value,
+                      ),
                     ),
                   ),
-                );
-              }),
-              Obx(() {
-                return SizedBox(
-                  width: width,
-                  height: height,
-                  child: GestureDetector(
-                    onPanStart: onPanStart,
-                    onPanUpdate: onPanUpdate,
-                    onPanEnd: onPanEnd,
-                    child: CropGrid(
-                      crop: controller.crop.value,
-                      scrimColor: widget.scrimColor,
-                      isMoving: cropHandlePoint != null,
-                      onSize: (size) {
-                        this.size = size;
-                      },
+                  SizedBox(
+                    width: width,
+                    height: height,
+                    child: GestureDetector(
+                      onPanStart: _onPanStart,
+                      onPanUpdate: _onPanUpdate,
+                      onPanEnd: _onPanEnd,
+                      child: CropGrid(
+                        crop: controller.crop.value,
+                        scrimColor: widget.scrimColor,
+                        isMoving: cropHandlePoint != null,
+                        onSize: (size) {
+                          this.size = size;
+                        },
+                      ),
                     ),
                   ),
-                );
-              }),
-            ],
+                ],
+              );
+            },
           );
         },
       ),
     );
   }
 
-  /// Updates [cropHandlePoint] based on user's touch point.
-  void onPanStart(DragStartDetails details) {
-    if (cropHandlePoint == null) {
-      final type = hitTest(details.localPosition);
-      if (type != CropHandle.none) {
-        final Offset basePoint = cropHandlePositions[
-            (type == CropHandle.move) ? CropHandle.upperLeft : type]!;
-        setState(() {
-          cropHandlePoint =
-              CropHandlePoint(type, details.localPosition - basePoint);
-        });
-      }
-    }
-  }
-
-  /// Resizes or moves crop rectangle bases on [DragUpdateDetails] provided.
-  void onPanUpdate(DragUpdateDetails details) {
-    if (cropHandlePoint != null) {
-      final offset = details.localPosition - cropHandlePoint!.offset;
-      if (cropHandlePoint!.type == CropHandle.move) {
-        moveArea(offset);
-      } else {
-        moveCorner(cropHandlePoint!.type, offset);
-      }
-    }
-  }
-
-  /// Resets [cropHandlePoint] when pan gesture ends.
-  void onPanEnd(DragEndDetails details) {
-    setState(() {
-      cropHandlePoint = null;
-    });
-  }
 
   /// Returns [CropHandle] that is being interacted with based on [point].
   CropHandle hitTest(Offset point) {
@@ -295,6 +262,41 @@ class _ImageCropperState extends State<ImageCropper> {
     controller.crop.value =
         Rect.fromLTRB(left, top, right, bottom).divide(size);
   }
+
+  /// Updates [cropHandlePoint] based on user's touch point.
+  void _onPanStart(DragStartDetails details) {
+    if (cropHandlePoint == null) {
+      final type = hitTest(details.localPosition);
+      if (type != CropHandle.none) {
+        final Offset basePoint = cropHandlePositions[
+        (type == CropHandle.move) ? CropHandle.upperLeft : type]!;
+        setState(() {
+          cropHandlePoint =
+              CropHandlePoint(type, details.localPosition - basePoint);
+        });
+      }
+    }
+  }
+
+  /// Resizes or moves crop rectangle bases on [DragUpdateDetails] provided.
+  void _onPanUpdate(DragUpdateDetails details) {
+    if (cropHandlePoint != null) {
+      final offset = details.localPosition - cropHandlePoint!.offset;
+      if (cropHandlePoint!.type == CropHandle.move) {
+        moveArea(offset);
+      } else {
+        moveCorner(cropHandlePoint!.type, offset);
+      }
+    }
+  }
+
+  /// Resets [cropHandlePoint] when pan gesture ends.
+  void _onPanEnd(DragEndDetails details) {
+    setState(() {
+      cropHandlePoint = null;
+    });
+  }
+
 
   /// Returns ratio of image's width to height.
   double _getImageRatio() =>
