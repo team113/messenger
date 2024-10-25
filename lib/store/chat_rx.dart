@@ -822,23 +822,20 @@ class RxChatImpl extends RxChat {
       e.pagination?.remove(itemId);
     }
 
-    await _driftChat.txn(() async {
-      final DtoChat? chatEntity = await _driftChat.read(id, force: true);
-      if (chatEntity?.value.lastItem?.id == itemId) {
-        var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
+    if (dto.value.lastItem?.id == itemId) {
+      var lastItem = messages.lastWhereOrNull((e) => e.value.id != itemId);
 
-        if (lastItem != null) {
-          chatEntity?.value.lastItem = lastItem.value;
-          chatEntity?.lastItemCursor =
-              (await _driftItems.read(lastItem.value.id))?.cursor;
-        } else {
-          chatEntity?.value.lastItem = null;
-          chatEntity?.lastItemCursor = null;
-        }
-
-        await _driftChat.upsert(chatEntity!, force: true);
+      if (lastItem != null) {
+        dto.value.lastItem = lastItem.value;
+        dto.lastItemCursor =
+            (await _driftItems.read(lastItem.value.id))?.cursor;
+      } else {
+        dto.value.lastItem = null;
+        dto.lastItemCursor = null;
       }
-    });
+
+      await _driftChat.upsert(dto, force: true);
+    }
   }
 
   /// Returns the stored or fetched [DtoChatItem] identified by the provided
@@ -970,17 +967,12 @@ class RxChatImpl extends RxChat {
 
     final ChatAvatar? avatar = await _chatRepository.avatar(id);
 
-    await _driftChat.txn(() async {
-      final DtoChat? chatEntity = await _driftChat.read(id, force: true);
-      if (chatEntity != null) {
-        chatEntity.value.avatar = avatar;
+    dto.value.avatar = avatar;
 
-        // TODO: Avatar should be updated by local subscription.
-        this.avatar.value = avatar;
+    // TODO: Avatar should be updated by local subscription.
+    this.avatar.value = avatar;
 
-        await _driftChat.upsert(chatEntity, force: true);
-      }
-    });
+    await _driftChat.upsert(dto, force: true);
   }
 
   @override
@@ -1099,10 +1091,6 @@ class RxChatImpl extends RxChat {
     return fragment;
   }
 
-  Future<void> handle(ChatEventsEvent event) async {
-    await _chatEvent(event, overwrite: false);
-  }
-
   @override
   int compareTo(RxChat other) => chat.value.compareTo(other.chat.value, me);
 
@@ -1133,18 +1121,12 @@ class RxChatImpl extends RxChat {
             if (page.info.hasPrevious == false) {
               // [PageInfo.hasPrevious] is `false`, when querying `before` only.
               if (before == null || after != null) {
-                _driftChat.txn(() async {
-                  final DtoChat? chatEntity =
-                      await _driftChat.read(id, force: true);
-                  final ChatItem? firstItem = page.edges.firstOrNull?.value;
+                final ChatItem? firstItem = page.edges.firstOrNull?.value;
 
-                  if (chatEntity != null &&
-                      firstItem != null &&
-                      chatEntity.value.firstItem != firstItem) {
-                    chatEntity.value.firstItem = firstItem;
-                    await _driftChat.upsert(chatEntity, force: true);
-                  }
-                });
+                if (firstItem != null && dto.value.firstItem != firstItem) {
+                  dto.value.firstItem = firstItem;
+                  await _driftChat.upsert(dto, force: true);
+                }
               }
             }
 
@@ -1781,17 +1763,30 @@ class RxChatImpl extends RxChat {
   /// Initializes the [_localSubscription].
   void _initLocalSubscription() {
     _localSubscription?.cancel();
-    _localSubscription = _driftChat.watch(id).listen(_setChat);
+    _localSubscription = _driftChat.watch(id).listen((db) {
+      if (db != null && db.ver > dto.ver) {
+        _setChat(db, false);
+      }
+    });
   }
 
   /// Updates the reactive [chat] to the provided [DtoChat], if any.
-  DtoChat? _setChat(DtoChat? e) {
-    Log.trace('_setChat($e)', '$runtimeType');
+  DtoChat? _setChat(DtoChat? e, [bool anyway = true]) {
+    if (!anyway) {
+      if (dto.value == e?.value) {
+        return null;
+      }
 
-    dto = e ?? dto;
-    if (chat.value == e?.value) {
-      return null;
+      dto = e ?? dto;
+    } else {
+      dto = e ?? dto;
+
+      if (chat.value == e?.value) {
+        return null;
+      }
     }
+
+    Log.trace('_setChat($e)', '$runtimeType');
 
     if (e != null) {
       final ChatItem? first = chat.value.firstItem;
@@ -1881,7 +1876,7 @@ class RxChatImpl extends RxChat {
   }
 
   /// Handles [ChatEvent]s from the [ChatRepository.chatEvents] subscription.
-  Future<void> _chatEvent(ChatEvents event, {bool overwrite = true}) async {
+  Future<void> _chatEvent(ChatEvents event) async {
     switch (event.kind) {
       case ChatEventsKind.initialized:
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
@@ -1891,15 +1886,10 @@ class RxChatImpl extends RxChat {
         Log.debug('_chatEvent(${event.kind})', '$runtimeType($id)');
         final node = event as ChatEventsChat;
         await _driftChat.txn(() async {
-          final DtoChat? chatEntity = await _driftChat.read(id, force: true);
-          if (chatEntity != null) {
-            chatEntity.value = node.chat.value;
-            chatEntity.ver = node.chat.ver;
-            ver = node.chat.ver;
-            await _driftChat.upsert(chatEntity, force: true);
-          } else {
-            await _driftChat.upsert(node.chat, force: true);
-          }
+          dto.value = node.chat.value;
+          dto.ver = node.chat.ver;
+          ver = node.chat.ver;
+          await _driftChat.upsert(dto, force: true);
         });
 
         _lastReadItemCursor = node.chat.lastReadItemCursor;
@@ -1907,9 +1897,6 @@ class RxChatImpl extends RxChat {
 
       case ChatEventsKind.event:
         final List<DtoChatItem> itemsToPut = [];
-
-        final DtoChat chatEntity = dto;
-        print('======= read($id) -> isHidden: ${chatEntity.value.isHidden}');
 
         final ChatEventsVersioned versioned = (event as ChatEventsEvent).event;
         if (!subscribed) {
@@ -1935,16 +1922,16 @@ class RxChatImpl extends RxChat {
           '$runtimeType($id)',
         );
 
-        bool shouldPutChat = subscribed && versioned.ver >= chatEntity.ver;
+        bool shouldPutChat = subscribed && versioned.ver >= dto.ver;
 
         ver = versioned.ver;
-        if (chatEntity.ver < versioned.ver && overwrite) {
-          chatEntity.ver = versioned.ver;
+        if (dto.ver < versioned.ver) {
+          dto.ver = versioned.ver;
         }
 
         // Marks the [DtoChat] as needed to be written to the database.
         void write(void Function(DtoChat) handle) {
-          handle(chatEntity);
+          handle(dto);
           shouldPutChat = true;
         }
 
@@ -2024,8 +2011,8 @@ class RxChatImpl extends RxChat {
                 itemsToPut.add(item);
               }
 
-              if (chatEntity.value.lastItem?.id == event.itemId) {
-                final message = chatEntity.value.lastItem as ChatMessage;
+              if (dto.value.lastItem?.id == event.itemId) {
+                final message = dto.value.lastItem as ChatMessage;
                 message.text =
                     event.text != null ? event.text!.newText : message.text;
                 message.attachments = event.attachments ?? message.attachments;
@@ -2061,8 +2048,8 @@ class RxChatImpl extends RxChat {
               event as EventChatUnreadItemsCountUpdated;
               if (event.count < unreadCount.value || _readTimer == null) {
                 unreadCount.value = event.count;
-              } else if (event.count > chatEntity.value.unreadCount) {
-                unreadCount.value += event.count - chatEntity.value.unreadCount;
+              } else if (event.count > dto.value.unreadCount) {
+                unreadCount.value += event.count - dto.value.unreadCount;
               }
 
               write((chat) => chat.value.unreadCount = event.count);
@@ -2071,11 +2058,11 @@ class RxChatImpl extends RxChat {
             case ChatEventKind.callFinished:
               event as EventChatCallFinished;
 
-              if (chatEntity.value.ongoingCall?.id == event.call.id) {
+              if (dto.value.ongoingCall?.id == event.call.id) {
                 write((chat) => chat.value.ongoingCall = null);
               }
 
-              if (chatEntity.value.lastItem?.id == event.call.id) {
+              if (dto.value.lastItem?.id == event.call.id) {
                 write((chat) => chat.value.lastItem = event.call);
               }
 
@@ -2103,7 +2090,7 @@ class RxChatImpl extends RxChat {
 
             case ChatEventKind.callMemberLeft:
               event as EventChatCallMemberLeft;
-              int? i = chatEntity.value.ongoingCall?.members
+              int? i = dto.value.ongoingCall?.members
                       .indexWhere((e) => e.user.id == event.user.id) ??
                   -1;
 
@@ -2125,9 +2112,9 @@ class RxChatImpl extends RxChat {
                 ),
               );
 
-              if (chatEntity.value.ongoingCall?.conversationStartedAt == null &&
+              if (dto.value.ongoingCall?.conversationStartedAt == null &&
                   chat.value.isDialog) {
-                final Set<UserId>? ids = chatEntity.value.ongoingCall?.members
+                final Set<UserId>? ids = dto.value.ongoingCall?.members
                     .map((e) => e.user.id)
                     .toSet();
 
@@ -2137,8 +2124,8 @@ class RxChatImpl extends RxChat {
                         event.call.conversationStartedAt ?? event.at,
                   );
 
-                  if (chatEntity.value.ongoingCall != null) {
-                    final call = chatEntity.value.ongoingCall!;
+                  if (dto.value.ongoingCall != null) {
+                    final call = dto.value.ongoingCall!;
                     final message = await get(call.id);
 
                     if (message != null) {
@@ -2157,10 +2144,10 @@ class RxChatImpl extends RxChat {
 
               // TODO: [ChatCall.conversationStartedAt] shouldn't be `null`
               //       here when starting group or monolog [ChatCall].
-              if (chatEntity.value.lastItem is ChatCall) {
-                final ChatCall call = chatEntity.value.lastItem as ChatCall;
+              if (dto.value.lastItem is ChatCall) {
+                final ChatCall call = dto.value.lastItem as ChatCall;
 
-                if (!chatEntity.value.isDialog) {
+                if (!dto.value.isDialog) {
                   call.conversationStartedAt ??= PreciseDateTime.now();
                   write((chat) => (chat.value.lastItem as ChatCall)
                       .conversationStartedAt ??= PreciseDateTime.now());
@@ -2173,7 +2160,7 @@ class RxChatImpl extends RxChat {
               }
 
               write((chat) => chat.value.updatedAt =
-                  event.lastItem?.value.at ?? chatEntity.value.updatedAt);
+                  event.lastItem?.value.at ?? dto.value.updatedAt);
               if (event.lastItem != null) {
                 itemsToPut.add(event.lastItem!);
               }
@@ -2189,12 +2176,12 @@ class RxChatImpl extends RxChat {
 
               _updateReadFor(event.byUser.id, event.at);
 
-              final LastChatRead? lastRead = chatEntity.value.lastReads
+              final LastChatRead? lastRead = dto.value.lastReads
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {
                 write(
                   (chat) => chat.value.lastReads = [
-                    ...chatEntity.value.lastReads,
+                    ...dto.value.lastReads,
                     LastChatRead(event.byUser.id, event.at),
                   ],
                 );
@@ -2211,7 +2198,7 @@ class RxChatImpl extends RxChat {
               event as EventChatItemPosted;
               final DtoChatItem item = event.item;
 
-              if (chatEntity.value.isHidden) {
+              if (dto.value.isHidden) {
                 write((chat) => chat.value.isHidden = false);
               }
 
@@ -2242,6 +2229,7 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.avatarUpdated:
                     final action = msg.action as ChatInfoActionAvatarUpdated;
                     write((chat) => chat.value.avatar = action.avatar);
+                    avatar.value = action.avatar;
                     break;
 
                   case ChatInfoActionKind.created:
@@ -2251,12 +2239,12 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
 
-                    chatEntity.value.membersCount++;
+                    dto.value.membersCount++;
 
                     // Store the first 3 [ChatMember]s in the [Chat.members]
                     // to display default [Chat]s name.
-                    if (chatEntity.value.members.length < 3) {
-                      chatEntity.value.members.add(
+                    if (dto.value.members.length < 3) {
+                      dto.value.members.add(
                         ChatMember(action.user, msg.at),
                       );
                     }
@@ -2268,22 +2256,22 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberRemoved:
                     final action = msg.action as ChatInfoActionMemberRemoved;
 
-                    chatEntity.value.membersCount--;
+                    dto.value.membersCount--;
 
                     await members.remove(action.user.id);
 
-                    chatEntity.value.members
+                    dto.value.members
                         .removeWhere((e) => e.user.id == action.user.id);
 
-                    if (chatEntity.value.members.length < 3) {
+                    if (dto.value.members.length < 3) {
                       if (members.rawLength < 3) {
                         await members.next();
                       }
 
-                      chatEntity.value.members.clear();
+                      dto.value.members.clear();
                       for (var m in members.pagination!.items.values.take(3)) {
                         if (m.user != null) {
-                          chatEntity.value.members.add(
+                          dto.value.members.add(
                             ChatMember(m.user!, m.joinedAt),
                           );
                         }
@@ -2365,13 +2353,7 @@ class RxChatImpl extends RxChat {
         }
 
         if (shouldPutChat) {
-          final DtoChat? entity = _setChat(chatEntity);
-          if (entity != null) {
-            print(
-              '======= write($id) -> isHidden: ${chatEntity.value.isHidden}',
-            );
-            await _driftChat.upsert(entity);
-          }
+          await _driftChat.upsert(_setChat(dto) ?? dto);
         }
 
         break;
