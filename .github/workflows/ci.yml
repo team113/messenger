@@ -283,7 +283,7 @@ jobs:
       - uses: actions/setup-java@v4
         with:
           distribution: temurin  # Temurin is cached on GitHub Actions Runners.
-          java-version: 17
+          java-version: 21
           cache: gradle
         if: ${{ contains('apk appbundle', matrix.platform) }}
 

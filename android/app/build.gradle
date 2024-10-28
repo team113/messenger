@@ -1,15 +1,16 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    id "dev.flutter.flutter-gradle-plugin"
+    id "com.google.gms.google-services"
+}
+
 def localProperties = new Properties()
 def localPropertiesFile = rootProject.file('local.properties')
 if (localPropertiesFile.exists()) {
     localPropertiesFile.withReader('UTF-8') { reader ->
         localProperties.load(reader)
     }
-}
-
-def flutterRoot = localProperties.getProperty('flutter.sdk')
-if (flutterRoot == null) {
-    throw new GradleException("Flutter SDK not found. Define location with " +
-                              "flutter.sdk in the local.properties file.")
 }
 
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
@@ -26,22 +27,27 @@ def properties = new Properties()
 def propertiesFile = rootProject.file('key.properties')
 def hasProperties = propertiesFile.exists()
 
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: 'com.google.gms.google-services'
-apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
-
 android {
-    ndkVersion "25.1.8937393"
+    namespace 'com.team113.messenger'
+
+    ndkVersion "27.0.12077973"
     compileSdkVersion 34
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        // TODO: Remove when MaikuB/flutter_local_notifications#2389 is fixed:
+        //       https://github.com/MaikuB/flutter_local_notifications/issues/2389
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
 
     kotlinOptions {
-        jvmTarget = 17
+        jvmTarget = JavaVersion.VERSION_21
+    }
+
+    kotlin {
+        jvmToolchain(21)
     }
 
     sourceSets {
@@ -77,6 +83,7 @@ android {
             }
         }
     }
+    namespace 'com.team113.messenger'
 }
 
 flutter {
@@ -84,6 +91,9 @@ flutter {
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation platform('com.google.firebase:firebase-bom:31.0.2')
+    implementation platform('com.google.firebase:firebase-bom:33.5.0')
+
+    // TODO: Remove when MaikuB/flutter_local_notifications#2389 is fixed:
+    //       https://github.com/MaikuB/flutter_local_notifications/issues/2389
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
 }
