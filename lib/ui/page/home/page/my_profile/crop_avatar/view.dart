@@ -39,6 +39,7 @@ class CropAvatarView extends StatelessWidget {
 
   /// Displays [CropAvatarView] wrapped in [ModalPopup].
   static Future<CropAreaInput?> show<T>(BuildContext context, Image image) {
+    final size = MediaQuery.sizeOf(context);
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
@@ -46,7 +47,9 @@ class CropAvatarView extends StatelessWidget {
         horizontal: 20,
         vertical: 20,
       ),
-      modalConstraints: const BoxConstraints(),
+      modalConstraints: BoxConstraints(
+        maxWidth: size.width * 0.6,
+      ),
       child: CropAvatarView(image),
     );
   }
