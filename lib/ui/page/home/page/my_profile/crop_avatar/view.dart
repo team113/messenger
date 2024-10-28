@@ -43,13 +43,8 @@ class CropAvatarView extends StatelessWidget {
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
-      desktopPadding: const EdgeInsets.symmetric(
-        horizontal: 20,
-        vertical: 20,
-      ),
-      modalConstraints: BoxConstraints(
-        maxWidth: size.width * 0.6,
-      ),
+      desktopPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+      modalConstraints: BoxConstraints(maxWidth: size.width * 0.6),
       child: CropAvatarView(image),
     );
   }
@@ -63,11 +58,7 @@ class CropAvatarView extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(
-              child: ImageCropper(
-                controller: controller,
-              ),
-            ),
+            Expanded(child: ImageCropper(controller: controller)),
             const SizedBox(height: 10),
             SizedBox(
               height: 30,

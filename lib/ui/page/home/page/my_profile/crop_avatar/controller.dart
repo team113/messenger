@@ -32,31 +32,42 @@ class CropController extends GetxController {
     Rect defaultCrop = const Rect.fromLTWH(0, 0, 1, 1),
     CropRotation rotation = CropRotation.up,
   })  : assert(aspectRatio != 0, 'aspectRatio cannot be zero'),
-        assert(defaultCrop.left >= 0 && defaultCrop.left <= 1,
-            'left should be 0..1'),
-        assert(defaultCrop.right >= 0 && defaultCrop.right <= 1,
-            'right should be 0..1'),
         assert(
-            defaultCrop.top >= 0 && defaultCrop.top <= 1, 'top should be 0..1'),
+          defaultCrop.left >= 0 && defaultCrop.left <= 1,
+          'left should be 0..1',
+        ),
+        assert(
+          defaultCrop.right >= 0 && defaultCrop.right <= 1,
+          'right should be 0..1',
+        ),
+        assert(
+          defaultCrop.top >= 0 && defaultCrop.top <= 1,
+          'top should be 0..1',
+        ),
         assert(defaultCrop.bottom >= 0 && defaultCrop.bottom <= 1,
             'bottom should be 0..1'),
-        assert(defaultCrop.left < defaultCrop.right,
-            'left must be less than right'),
-        assert(defaultCrop.top < defaultCrop.bottom,
-            'top must be less than bottom'),
-        _aspectRatio = Rx<double?>(aspectRatio),
-        rotation = rotation.obs,
-        crop = defaultCrop.obs,
+        assert(
+          defaultCrop.left < defaultCrop.right,
+          'left must be less than right',
+        ),
+        assert(
+          defaultCrop.top < defaultCrop.bottom,
+          'top must be less than bottom',
+        ),
+        _aspectRatio = RxnDouble(aspectRatio),
+        rotation = Rx(rotation),
+        crop = Rx(defaultCrop),
         bitmap = Rx<ui.Image?>(null);
 
+  /// Creates a [CropController] from the provided [CropController].
   CropController.fromValue(CropController value)
       : image = value.image,
         crop = value.crop,
         rotation = value.rotation,
         bitmap = value.bitmap,
-        _aspectRatio = value.aspectRatio.obs;
+        _aspectRatio = RxnDouble(value.aspectRatio);
 
-  /// Image to be cropped.
+  /// [Image] to be cropped.
   final Image image;
 
   /// Crop rectangle coordinates for [image].
@@ -74,9 +85,9 @@ class CropController extends GetxController {
   late final Worker _worker;
 
   /// Current aspect ratio of image.
-  final Rx<double?> _aspectRatio;
+  final RxnDouble _aspectRatio;
 
-  /// Get current aspect ratio.
+  /// Returns the current aspect ratio.
   double? get aspectRatio => _aspectRatio.value;
 
   /// Sets [_aspectRatio] and adjusts [crop] to fit new aspect ratio.

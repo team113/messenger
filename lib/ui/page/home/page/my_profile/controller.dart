@@ -450,18 +450,17 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with the image at [url].
-  ///
-  /// Reads the image [url] and opens [CropAvatarView] to edit it.
-  /// If the user confirms the coordinates, the image is updated.
+  /// Opens the [CropAvatarView] to update the [MyUser.avatar] with the
+  /// [CropAreaInput] returned from it.
   Future<void> editAvatar(String url) async {
     avatarUpload.value = RxStatus.loading();
     try {
-      NativeFile nativeFile = await _readImage(url);
-      CropAreaInput? crop = await CropAvatarView.show(
+      final NativeFile nativeFile = await _readImage(url);
+      final CropAreaInput? crop = await CropAvatarView.show(
         router.context!,
         Image.network(url),
       );
+
       if (crop != null) {
         await _updateAvatar(nativeFile, crop);
       }
@@ -470,7 +469,7 @@ class MyProfileController extends GetxController {
     }
   }
 
-  /// Crops and Uploads image and sets it as [MyUser.avatar] and
+  /// Crops and uploads an image and sets it as [MyUser.avatar] and
   /// [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
@@ -483,12 +482,17 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-        PlatformFile file = result!.files.first;
-        Image image = PlatformUtils.isWeb
+        final PlatformFile file = result!.files.first;
+        final Image image = PlatformUtils.isWeb
             ? Image.memory(file.bytes!)
             : Image.file(File(file.path!));
-        CropAreaInput? crop = await CropAvatarView.show(router.context!, image);
-        if (crop == null) return;
+
+        final CropAreaInput? crop =
+            await CropAvatarView.show(router.context!, image);
+        if (crop == null) {
+          return;
+        }
+
         await _updateAvatar(
           NativeFile.fromPlatformFile(result.files.first),
           crop,
@@ -614,10 +618,12 @@ class MyProfileController extends GetxController {
     displayName.value = scrollController.position.pixels >= 250;
   }
 
-  /// Reads [image] and returns [NativeFile] representation of it.
+  /// Reads an image at the provided [url] and returns [NativeFile]
+  /// representation of it.
   Future<NativeFile> _readImage(String url) async {
     final http.Response response = await http.get(Uri.parse(url));
     final Uint8List bytes = response.bodyBytes;
+
     return NativeFile(
       name: '',
       size: bytes.length,
