@@ -340,7 +340,7 @@ class CropGrid extends StatelessWidget {
     required this.onSize,
   });
 
-  /// Crop [Rect] to be displayed
+  /// Crop [Rect] to be displayed.
   final Rect crop;
 
   /// [Color] of scrim (outside area overlay).

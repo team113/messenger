@@ -112,7 +112,7 @@ class CropController extends GetxController {
     crop.value = _adjustRatio(newCropSize.divide(bitmapSize), aspectRatio);
   }
 
-  /// Returns image dimensions
+  /// Returns image dimensions.
   Size get bitmapSize =>
       Size(bitmap.value!.width.toDouble(), bitmap.value!.height.toDouble());
 

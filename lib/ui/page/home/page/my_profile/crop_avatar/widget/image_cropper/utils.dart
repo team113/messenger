@@ -29,7 +29,7 @@ class CropHandlePoint {
   /// Type of crop handle.
   final CropHandle type;
 
-  /// Offset of crop handle
+  /// Offset of crop handle.
   final Offset offset;
 }
 
@@ -125,7 +125,7 @@ class CropGridPainter extends CustomPainter {
   @override
   bool hitTest(Offset position) => true;
 
-  /// Draws corners of crop [Rect]
+  /// Draws corners of crop [Rect].
   void _drawCorners(
     Canvas canvas,
     Rect bounds,
@@ -177,7 +177,7 @@ class CropGridPainter extends CustomPainter {
     canvas.drawPath(path, paint);
   }
 
-  /// Draws boundaries of crop [Rect]
+  /// Draws boundaries of crop [Rect].
   void _drawBoundaries(
     Canvas canvas,
     Rect bounds,
@@ -225,7 +225,7 @@ class CropGridPainter extends CustomPainter {
     );
   }
 
-  /// Draws grid lines on crop [Rect]
+  /// Draws grid lines on crop [Rect].
   void _drawGrid(Canvas canvas, Rect bounds, Color gridColor) {
     final thirdHeight = bounds.height / 3.0;
     final thirdWidth = bounds.width / 3.0;
