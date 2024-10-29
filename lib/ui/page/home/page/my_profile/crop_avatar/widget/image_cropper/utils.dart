@@ -35,7 +35,7 @@ class CropHandlePoint {
 
 /// [CustomPainter] that paints rotated image based on [CropRotation] value.
 class RotatedImagePainter extends CustomPainter {
-  RotatedImagePainter(this.image, this.rotation);
+  const RotatedImagePainter(this.image, this.rotation);
 
   /// [ui.Image] to be painted.
   final ui.Image image;
@@ -43,11 +43,9 @@ class RotatedImagePainter extends CustomPainter {
   /// [CropRotation] value to determine rotation.
   final CropRotation rotation;
 
-  /// [Paint] object used for painting image.
-  final Paint _paint = Paint();
-
   @override
   void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint();
     double targetWidth = size.width;
     double targetHeight = size.height;
     double offset = 0;
@@ -66,12 +64,12 @@ class RotatedImagePainter extends CustomPainter {
       canvas.rotate(rotation.radians);
       canvas.translate(-targetWidth / 2, -targetHeight / 2);
     }
-    _paint.filterQuality = FilterQuality.high;
+    paint.filterQuality = FilterQuality.high;
     canvas.drawImageRect(
       image,
       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
       Rect.fromLTWH(offset, offset, targetWidth, targetHeight),
-      _paint,
+      paint,
     );
     if (rotation != CropRotation.up) {
       canvas.restore();
@@ -84,7 +82,7 @@ class RotatedImagePainter extends CustomPainter {
 
 /// [CustomPainter] to paint [CropGrid].
 class CropGridPainter extends CustomPainter {
-  CropGridPainter(this.grid);
+  const CropGridPainter(this.grid);
 
   /// [CropGrid] configuration.
   final CropGrid grid;
@@ -122,6 +120,7 @@ class CropGridPainter extends CustomPainter {
   bool shouldRepaint(CropGridPainter oldDelegate) =>
       oldDelegate.grid.crop != grid.crop ||
       oldDelegate.grid.isMoving != grid.isMoving;
+
   @override
   bool hitTest(Offset position) => true;
 

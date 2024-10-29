@@ -55,17 +55,9 @@ class CropController extends GetxController {
           'top must be less than bottom',
         ),
         _aspectRatio = RxnDouble(aspectRatio),
-        rotation = Rx(rotation),
-        crop = Rx(defaultCrop),
+        rotation = rotation.obs,
+        crop = defaultCrop.obs,
         bitmap = Rx<ui.Image?>(null);
-
-  /// Creates a [CropController] from the provided [CropController].
-  CropController.fromValue(CropController value)
-      : image = value.image,
-        crop = value.crop,
-        rotation = value.rotation,
-        bitmap = value.bitmap,
-        _aspectRatio = RxnDouble(value.aspectRatio);
 
   /// [Image] to be cropped.
   final Image image;
@@ -160,7 +152,7 @@ class CropController extends GetxController {
   }
 
   /// Adjusts [crop] rectangle to fit specified aspect ratio.
-  /// and returns adjusted value.
+  /// And returns adjusted value.
   Rect _adjustRatio(
     Rect crop,
     double? aspectRatio, {
