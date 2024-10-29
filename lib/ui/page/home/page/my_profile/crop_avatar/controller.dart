@@ -22,8 +22,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import 'widget/image_cropper/enums.dart';
+import 'widget/image_cropper/widget.dart';
 
-/// Controller for cropping image.
+/// Controller for the [ImageCropper].
+///
 /// It provides methods for rotating image and adjusting crop rectangle.
 class CropController extends GetxController {
   CropController({
@@ -69,8 +71,9 @@ class CropController extends GetxController {
   /// Current image rotation.
   final Rx<CropRotation> rotation;
 
-  /// Bitmap representation of image.
-  /// Initialized in [onInit] method.
+  /// Bitmap representation of [imageProvider].
+  ///
+  /// Used to calculate image dimensions.
   final Rx<ui.Image?> bitmap;
 
   /// Listens to [crop] value changes and adjusts [_aspectRatio].
@@ -90,8 +93,9 @@ class CropController extends GetxController {
     }
   }
 
-  /// Current crop rectangle of the [imageProvider] (in pixels).
-  /// For sideways rotation, width and height are interchanged.
+  /// Crop rectangle of [imageProvider] in pixels, adjusting for rotation.
+  ///
+  /// Swaps width and height if the [rotation] is sideways.
   Rect get cropSize {
     final isSideways = rotation.value.isSideways;
     final width = isSideways ? bitmapSize.height : bitmapSize.width;
