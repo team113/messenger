@@ -27,7 +27,7 @@ import 'widget/image_cropper/enums.dart';
 /// It provides methods for rotating image and adjusting crop rectangle.
 class CropController extends GetxController {
   CropController({
-    required this.image,
+    required this.imageProvider,
     double? aspectRatio,
     Rect defaultCrop = const Rect.fromLTWH(0, 0, 1, 1),
     CropRotation rotation = CropRotation.up,
@@ -59,10 +59,10 @@ class CropController extends GetxController {
         crop = defaultCrop.obs,
         bitmap = Rx<ui.Image?>(null);
 
-  /// [Image] to be cropped.
-  final Image image;
+  /// [ImageProvider] to load the image to be cropped.
+  final ImageProvider imageProvider;
 
-  /// Crop rectangle coordinates for [image].
+  /// Crop rectangle coordinates for [imageProvider].
   /// Values are normalized between 0 and 1.
   final Rx<Rect> crop;
 
@@ -90,7 +90,7 @@ class CropController extends GetxController {
     }
   }
 
-  /// Current crop rectangle of the [image] (in pixels).
+  /// Current crop rectangle of the [imageProvider] (in pixels).
   /// For sideways rotation, width and height are interchanged.
   Rect get cropSize {
     final isSideways = rotation.value.isSideways;
@@ -193,7 +193,7 @@ class CropController extends GetxController {
   /// Resolves image and initializes [bitmap].
   void _initializeBitmap() async {
     final completer = Completer<ImageInfo>();
-    image.image.resolve(const ImageConfiguration()).addListener(
+    imageProvider.resolve(const ImageConfiguration()).addListener(
       ImageStreamListener(
         (info, _) {
           return completer.complete(info);

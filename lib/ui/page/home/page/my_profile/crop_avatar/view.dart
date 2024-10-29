@@ -32,20 +32,21 @@ import 'widget/image_cropper/widget.dart';
 ///
 /// Intended to be displayed with [show] method.
 class CropAvatarView extends StatelessWidget {
-  const CropAvatarView(this.image, {super.key});
+  const CropAvatarView(this.imageProvider, {super.key});
 
   /// [Image] to be cropped.
-  final Image image;
+  final ImageProvider imageProvider;
 
   /// Displays [CropAvatarView] wrapped in [ModalPopup].
-  static Future<CropAreaInput?> show<T>(BuildContext context, Image image) {
+  static Future<CropAreaInput?> show<T>(
+      BuildContext context, ImageProvider imageProvider) {
     final size = MediaQuery.sizeOf(context);
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
       desktopPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       modalConstraints: BoxConstraints(maxWidth: size.width * 0.6),
-      child: CropAvatarView(image),
+      child: CropAvatarView(imageProvider),
     );
   }
 
@@ -53,7 +54,7 @@ class CropAvatarView extends StatelessWidget {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
     return GetBuilder(
-      init: CropController(image: image, aspectRatio: 1),
+      init: CropController(imageProvider: imageProvider, aspectRatio: 1),
       builder: (controller) {
         return Column(
           mainAxisSize: MainAxisSize.max,

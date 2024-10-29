@@ -458,7 +458,7 @@ class MyProfileController extends GetxController {
       final NativeFile nativeFile = await _readImage(url);
       final CropAreaInput? crop = await CropAvatarView.show(
         router.context!,
-        Image.network(url),
+        NetworkImage(url),
       );
 
       if (crop != null) {
@@ -483,12 +483,12 @@ class MyProfileController extends GetxController {
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
         final PlatformFile file = result!.files.first;
-        final Image image = PlatformUtils.isWeb
-            ? Image.memory(file.bytes!)
-            : Image.file(File(file.path!));
+        final ImageProvider imageProvider = PlatformUtils.isWeb
+            ? MemoryImage(file.bytes!)
+            : FileImage(File(file.path!));
 
         final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, image);
+            await CropAvatarView.show(router.context!, imageProvider);
         if (crop == null) {
           return;
         }
