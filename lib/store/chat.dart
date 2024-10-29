@@ -1193,10 +1193,7 @@ class ChatRepository extends DisposableInterface
         var mixin =
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
         yield ChatEventsEvent(
-          ChatEventsVersioned(
-            mixin.events.map((e) => chatEvent(e)).toList(),
-            mixin.ver,
-          ),
+          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
         );
       }
     });

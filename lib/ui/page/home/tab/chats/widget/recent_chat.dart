@@ -949,6 +949,10 @@ class RecentChatTile extends StatelessWidget {
                           ? const Duration(minutes: 1)
                           : const Duration(seconds: 1),
                       builder: (_) {
+                        if (chat.ongoingCall == null) {
+                          return const SizedBox();
+                        }
+
                         final Duration duration =
                             DateTime.now().difference(chat.ongoingCall!.at.val);
                         final String text = duration.hhMmSs();
