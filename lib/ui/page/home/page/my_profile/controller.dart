@@ -23,7 +23,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:http/http.dart' as http;
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -455,14 +454,16 @@ class MyProfileController extends GetxController {
   Future<void> editAvatar(String url) async {
     avatarUpload.value = RxStatus.loading();
     try {
-      final NativeFile nativeFile = await _readImage(url);
-      final CropAreaInput? crop = await CropAvatarView.show(
-        router.context!,
-        NetworkImage(url),
-      );
+      final NativeFile? file = await _readImage(url);
+      if (file != null) {
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          NetworkImage(url),
+        );
 
-      if (crop != null) {
-        await _updateAvatar(nativeFile, crop);
+        if (crop != null) {
+          await _updateAvatar(file, crop);
+        }
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
@@ -620,14 +621,16 @@ class MyProfileController extends GetxController {
 
   /// Reads an image at the provided [url] and returns [NativeFile]
   /// representation of it.
-  Future<NativeFile> _readImage(String url) async {
-    final http.Response response = await http.get(Uri.parse(url));
-    final Uint8List bytes = response.bodyBytes;
+  Future<NativeFile?> _readImage(String url) async {
+    final CacheEntry cache = await CacheWorker.instance.get(url: url);
+    if (cache.bytes == null) {
+      return null;
+    }
 
     return NativeFile(
       name: '',
-      size: bytes.length,
-      bytes: bytes.buffer.asUint8List(),
+      size: cache.bytes!.length,
+      bytes: cache.bytes,
     );
   }
 }

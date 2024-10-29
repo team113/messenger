@@ -39,8 +39,11 @@ class CropAvatarView extends StatelessWidget {
 
   /// Displays [CropAvatarView] wrapped in [ModalPopup].
   static Future<CropAreaInput?> show<T>(
-      BuildContext context, ImageProvider imageProvider) {
-    final size = MediaQuery.sizeOf(context);
+    BuildContext context,
+    ImageProvider imageProvider,
+  ) {
+    final Size size = MediaQuery.sizeOf(context);
+
     return ModalPopup.show<CropAreaInput?>(
       context: context,
       isDismissible: false,
@@ -53,13 +56,14 @@ class CropAvatarView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
+
     return GetBuilder(
       init: CropController(imageProvider: imageProvider, aspectRatio: 1),
-      builder: (controller) {
+      builder: (c) {
         return Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(child: ImageCropper(controller: controller)),
+            Expanded(child: Center(child: ImageCropper(controller: c))),
             const SizedBox(height: 10),
             SizedBox(
               height: 30,
@@ -70,9 +74,7 @@ class CropAvatarView extends StatelessWidget {
                   Positioned(
                     left: 0,
                     child: TextButton(
-                      onPressed: () {
-                        context.popModal();
-                      },
+                      onPressed: context.popModal,
                       child: Text(
                         'btn_cancel'.l10n,
                         style: style.fonts.medium.regular.primary,
@@ -83,12 +85,12 @@ class CropAvatarView extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       WidgetButton(
-                        onPressed: controller.rotateLeft,
+                        onPressed: c.rotateLeft,
                         child: const Icon(Icons.rotate_90_degrees_ccw_outlined),
                       ),
                       const SizedBox(width: 20),
                       WidgetButton(
-                        onPressed: controller.rotateRight,
+                        onPressed: c.rotateRight,
                         child: const Icon(Icons.rotate_90_degrees_cw_outlined),
                       ),
                     ],
@@ -96,9 +98,7 @@ class CropAvatarView extends StatelessWidget {
                   Positioned(
                     right: 0,
                     child: TextButton(
-                      onPressed: () {
-                        _close(context, controller);
-                      },
+                      onPressed: () => _close(context, c),
                       child: Text(
                         'btn_done'.l10n,
                         style: style.fonts.medium.regular.primary,
@@ -114,20 +114,19 @@ class CropAvatarView extends StatelessWidget {
     );
   }
 
-  /// Closes modal with [CropAreaInput] data.
-  void _close(BuildContext context, CropController controller) {
-    final Rect cropSize = controller.cropSize;
+  /// Pops this modal with [CropAreaInput] data.
+  void _close(BuildContext context, CropController c) {
+    final Rect cropSize = c.cropSize;
+
     final CropAreaInput cropArea = CropAreaInput(
       bottomRight: PointInput(
         x: cropSize.right.toInt(),
         y: cropSize.bottom.toInt(),
       ),
-      topLeft: PointInput(
-        x: cropSize.left.toInt(),
-        y: cropSize.top.toInt(),
-      ),
-      angle: controller.rotation.value.angle,
+      topLeft: PointInput(x: cropSize.left.toInt(), y: cropSize.top.toInt()),
+      angle: c.rotation.value.angle,
     );
+
     context.popModal(cropArea);
   }
 }

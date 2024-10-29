@@ -31,144 +31,137 @@ class ImageCropper extends StatefulWidget {
     required this.controller,
     this.scrimColor = Colors.black54,
     this.minimumImageSize = 100,
-  }) : assert(minimumImageSize > 0,
-            'minimumImageSize should be greater than zero.');
+  }) : assert(
+          minimumImageSize > 0,
+          'minimumImageSize should be greater than zero.',
+        );
 
   /// Controller for managing crop area and notifying listeners of changes.
   final CropController controller;
 
   /// [CropGrid] scrim (outside area overlay) color.
-  /// Defaults to 54% black.
   final Color scrimColor;
 
   /// Minimum pixel size crop [Rect] can be shrunk to.
-  /// Defaults to `100`.
   final double minimumImageSize;
 
   @override
   State<ImageCropper> createState() => _ImageCropperState();
 }
 
-/// State class for the [ImageCropper] widget.
-///
-/// Manages the state and behavior of the image cropping functionality.
+/// State of an [ImageCropper] managing the state and behavior of the image
+/// cropping.
 class _ImageCropperState extends State<ImageCropper> {
-  /// Manages crop area and notifying listeners of changes.
-  late CropController controller;
-
   /// [Size] of displayed image.
-  /// Updated by [CropGrid] on layout's [onSize] callback.
-  Size size = Size.zero;
+  Size _size = Size.zero;
 
   /// Current crop handle point being interacted with, if any.
-  CropHandlePoint? cropHandlePoint;
+  CropHandlePoint? _handle;
+
+  /// Returns the [CropController] managing the crop area.
+  CropController get c => widget.controller;
 
   /// [Map] of crop handle positions.
   ///
   /// Used to determine which part of crop rectangle is being interacted with.
-  Map<CropHandle, Offset> get cropHandlePositions => <CropHandle, Offset>{
+  Map<CropHandle, Offset> get _positions => <CropHandle, Offset>{
         CropHandle.upperLeft:
-            controller.crop.value.topLeft.scale(size.width, size.height),
+            c.crop.value.topLeft.scale(_size.width, _size.height),
         CropHandle.upperRight:
-            controller.crop.value.topRight.scale(size.width, size.height),
+            c.crop.value.topRight.scale(_size.width, _size.height),
         CropHandle.lowerRight:
-            controller.crop.value.bottomRight.scale(size.width, size.height),
+            c.crop.value.bottomRight.scale(_size.width, _size.height),
         CropHandle.lowerLeft:
-            controller.crop.value.bottomLeft.scale(size.width, size.height),
+            c.crop.value.bottomLeft.scale(_size.width, _size.height),
       };
 
   @override
-  void initState() {
-    super.initState();
-    controller = widget.controller;
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Center(
-      child: LayoutBuilder(
-        builder: (BuildContext context, BoxConstraints constraints) {
-          return Obx(
-            () {
-              if (controller.bitmap.value == null) {
-                return const CircularProgressIndicator.adaptive();
-              }
-              final double maxWidth = constraints.maxWidth;
-              final double maxHeight = constraints.maxHeight;
-              final double width = _getWidth(maxWidth, maxHeight);
-              final double height = _getHeight(maxWidth, maxHeight);
-              return Stack(
-                alignment: Alignment.center,
-                children: <Widget>[
-                  SizedBox(
-                    width: width,
-                    height: height,
-                    child: CustomPaint(
-                      painter: RotatedImagePainter(
-                        controller.bitmap.value!,
-                        controller.rotation.value,
-                      ),
-                    ),
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Obx(() {
+          if (c.bitmap.value == null) {
+            return const CircularProgressIndicator.adaptive();
+          }
+
+          final double maxWidth = constraints.maxWidth;
+          final double maxHeight = constraints.maxHeight;
+          final double width = _getWidth(maxWidth, maxHeight);
+          final double height = _getHeight(maxWidth, maxHeight);
+
+          return Stack(
+            alignment: Alignment.center,
+            children: <Widget>[
+              SizedBox(
+                width: width,
+                height: height,
+                child: CustomPaint(
+                  painter: RotatedImagePainter(
+                    c.bitmap.value!,
+                    c.rotation.value,
                   ),
-                  SizedBox(
-                    width: width,
-                    height: height,
-                    child: GestureDetector(
-                      onPanStart: _onPanStart,
-                      onPanUpdate: _onPanUpdate,
-                      onPanEnd: _onPanEnd,
-                      child: CropGrid(
-                        crop: controller.crop.value,
-                        scrimColor: widget.scrimColor,
-                        isMoving: cropHandlePoint != null,
-                        onSize: (size) {
-                          this.size = size;
-                        },
-                      ),
-                    ),
+                ),
+              ),
+              SizedBox(
+                width: width,
+                height: height,
+                child: GestureDetector(
+                  onPanStart: _onPanStart,
+                  onPanUpdate: _onPanUpdate,
+                  onPanEnd: _onPanEnd,
+                  child: CropGrid(
+                    crop: c.crop.value,
+                    scrimColor: widget.scrimColor,
+                    isMoving: _handle != null,
+                    onSize: (size) => _size = size,
                   ),
-                ],
-              );
-            },
+                ),
+              ),
+            ],
           );
-        },
-      ),
+        });
+      },
     );
   }
 
   /// Returns [CropHandle] that is being interacted with based on [point].
   CropHandle hitTest(Offset point) {
-    for (final gridCorner in cropHandlePositions.entries) {
-      final area = Rect.fromCenter(
+    for (final gridCorner in _positions.entries) {
+      final Rect area = Rect.fromCenter(
         center: gridCorner.value,
         width: 50,
         height: 50,
       );
+
       if (area.contains(point)) {
         return gridCorner.key;
       }
     }
-    final area = Rect.fromPoints(
-      cropHandlePositions[CropHandle.upperLeft]!,
-      cropHandlePositions[CropHandle.lowerRight]!,
+
+    final Rect area = Rect.fromPoints(
+      _positions[CropHandle.upperLeft]!,
+      _positions[CropHandle.lowerRight]!,
     );
+
     return area.contains(point) ? CropHandle.move : CropHandle.none;
   }
 
   /// Moves the crop rectangle based on the [cropHandlePoint].
   void moveArea(Offset point) {
-    final crop = controller.crop.value.multiply(size);
-    controller.crop.value = Rect.fromLTWH(
-      point.dx.clamp(0, size.width - crop.width),
-      point.dy.clamp(0, size.height - crop.height),
+    final Rect crop = c.crop.value.multiply(_size);
+
+    c.crop.value = Rect.fromLTWH(
+      point.dx.clamp(0, _size.width - crop.width),
+      point.dy.clamp(0, _size.height - crop.height),
       crop.width,
       crop.height,
-    ).divide(size);
+    ).divide(_size);
   }
 
   /// Resizes the crop rectangle by moving corner based on [type] and [point].
   void moveCorner(CropHandle type, Offset point) {
-    final Rect crop = controller.crop.value.multiply(size);
+    final Rect crop = c.crop.value.multiply(_size);
+
     double left = crop.left;
     double top = crop.top;
     double right = crop.right;
@@ -183,137 +176,158 @@ class _ImageCropperState extends State<ImageCropper> {
         if (minX <= maxX) {
           left = point.dx.clamp(minX, maxX);
         }
+
         minY = 0;
         maxY = bottom - widget.minimumImageSize;
         if (minY <= maxY) {
           top = point.dy.clamp(minY, maxY);
         }
         break;
+
       case CropHandle.upperRight:
         minX = left + widget.minimumImageSize;
-        maxX = size.width;
+        maxX = _size.width;
         if (minX <= maxX) {
           right = point.dx.clamp(minX, maxX);
         }
+
         minY = 0;
         maxY = bottom - widget.minimumImageSize;
         if (minY <= maxY) {
           top = point.dy.clamp(minY, maxY);
         }
         break;
+
       case CropHandle.lowerRight:
         minX = left + widget.minimumImageSize;
-        maxX = size.width;
+        maxX = _size.width;
         if (minX <= maxX) {
           right = point.dx.clamp(minX, maxX);
         }
+
         minY = top + widget.minimumImageSize;
-        maxY = size.height;
+        maxY = _size.height;
         if (minY <= maxY) {
           bottom = point.dy.clamp(minY, maxY);
         }
         break;
+
       case CropHandle.lowerLeft:
         minX = 0;
         maxX = right - widget.minimumImageSize;
         if (minX <= maxX) {
           left = point.dx.clamp(minX, maxX);
         }
+
         minY = top + widget.minimumImageSize;
-        maxY = size.height;
+        maxY = _size.height;
         if (minY <= maxY) {
           bottom = point.dy.clamp(minY, maxY);
         }
         break;
+
       default:
-        assert(false);
+        // No-op, as shouldn't be invoked.
+        break;
     }
 
-    if (controller.aspectRatio != null) {
+    if (c.aspectRatio != null) {
       final width = right - left;
       final height = bottom - top;
-      if (width / height > controller.aspectRatio!) {
+
+      if (width / height > c.aspectRatio!) {
         switch (type) {
           case CropHandle.upperLeft:
           case CropHandle.lowerLeft:
-            left = right - height * controller.aspectRatio!;
+            left = right - height * c.aspectRatio!;
             break;
+
           case CropHandle.upperRight:
           case CropHandle.lowerRight:
-            right = left + height * controller.aspectRatio!;
+            right = left + height * c.aspectRatio!;
             break;
+
           default:
-            assert(false);
+            // No-op, as shouldn't be invoked.
+            break;
         }
       } else {
         switch (type) {
           case CropHandle.upperLeft:
           case CropHandle.upperRight:
-            top = bottom - width / controller.aspectRatio!;
+            top = bottom - width / c.aspectRatio!;
             break;
+
           case CropHandle.lowerRight:
           case CropHandle.lowerLeft:
-            bottom = top + width / controller.aspectRatio!;
+            bottom = top + width / c.aspectRatio!;
             break;
+
           default:
-            assert(false);
+            // No-op, as shouldn't be invoked.
+            break;
         }
       }
     }
 
-    controller.crop.value =
-        Rect.fromLTRB(left, top, right, bottom).divide(size);
+    c.crop.value = Rect.fromLTRB(left, top, right, bottom).divide(_size);
   }
 
-  /// Updates [cropHandlePoint] based on user's touch point.
+  /// Updates the [_handle] based on the provided [details].
   void _onPanStart(DragStartDetails details) {
-    if (cropHandlePoint == null) {
-      final type = hitTest(details.localPosition);
+    if (_handle == null) {
+      final CropHandle type = hitTest(details.localPosition);
+
       if (type != CropHandle.none) {
-        final Offset basePoint = cropHandlePositions[
-            (type == CropHandle.move) ? CropHandle.upperLeft : type]!;
+        final Offset basePoint =
+            _positions[type == CropHandle.move ? CropHandle.upperLeft : type]!;
+
         setState(() {
-          cropHandlePoint =
-              CropHandlePoint(type, details.localPosition - basePoint);
+          _handle = CropHandlePoint(type, details.localPosition - basePoint);
         });
       }
     }
   }
 
-  /// Resizes or moves crop rectangle bases on [DragUpdateDetails] provided.
+  /// Resizes or moves crop rectangle based on the [details] provided.
   void _onPanUpdate(DragUpdateDetails details) {
-    if (cropHandlePoint != null) {
-      final offset = details.localPosition - cropHandlePoint!.offset;
-      if (cropHandlePoint!.type == CropHandle.move) {
-        moveArea(offset);
-      } else {
-        moveCorner(cropHandlePoint!.type, offset);
+    if (_handle != null) {
+      final Offset offset = details.localPosition - _handle!.offset;
+
+      switch (_handle?.type) {
+        case CropHandle.move:
+          moveArea(offset);
+          break;
+
+        default:
+          moveCorner(_handle!.type, offset);
+          break;
       }
     }
   }
 
-  /// Resets [cropHandlePoint] when pan gesture ends.
+  /// Sets the [_handle] to `null`.
   void _onPanEnd(DragEndDetails details) {
-    setState(() {
-      cropHandlePoint = null;
-    });
+    setState(() => _handle = null);
   }
 
   /// Returns ratio of image's width to height.
-  double _getImageRatio() =>
-      controller.bitmapSize.width / controller.bitmapSize.height;
+  double _getImageRatio() => c.bitmapSize.width / c.bitmapSize.height;
 
   /// Returns image width based on rotation, maximum width and height
   /// constraints.
   double _getWidth(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio();
     final screenRatio = maxWidth / maxHeight;
-    if (controller.rotation.value.isSideways) {
+
+    if (c.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
     }
+
     if (imageRatio > screenRatio) {
       return maxWidth;
     }
+
     return maxHeight * imageRatio;
   }
 
@@ -321,20 +335,22 @@ class _ImageCropperState extends State<ImageCropper> {
   /// constraints.
   double _getHeight(final double maxWidth, final double maxHeight) {
     double imageRatio = _getImageRatio();
-    final screenRatio = maxWidth / maxHeight;
-    if (controller.rotation.value.isSideways) {
+    final double screenRatio = maxWidth / maxHeight;
+
+    if (c.rotation.value.isSideways) {
       imageRatio = 1 / imageRatio;
     }
+
     if (imageRatio < screenRatio) {
       return maxHeight;
     }
+
     return maxWidth / imageRatio;
   }
 }
 
-/// Crop Grid with invisible border, for better touch detection.
+/// [CropGridPainter] with invisible border.
 class CropGrid extends StatelessWidget {
-  /// Creates a [CropGrid] widget.
   const CropGrid({
     super.key,
     required this.crop,
@@ -349,18 +365,16 @@ class CropGrid extends StatelessWidget {
   /// [Color] of scrim (outside area overlay).
   final Color scrimColor;
 
-  /// Whether crop area is being moved.
+  /// Indicator whether crop area is being moved.
   final bool isMoving;
 
-  /// Callback to updated [Size] of displayed image.
-  final ValueChanged<Size> onSize;
+  /// Callback, called when the [Size] of displayed image is changed.
+  final void Function(Size value) onSize;
 
   @override
   Widget build(BuildContext context) {
     return RepaintBoundary(
-      child: CustomPaint(
-        foregroundPainter: CropGridPainter(this),
-      ),
+      child: CustomPaint(foregroundPainter: CropGridPainter(this)),
     );
   }
 }

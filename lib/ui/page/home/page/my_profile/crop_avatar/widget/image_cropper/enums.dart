@@ -43,12 +43,7 @@ enum CropHandle {
 }
 
 /// Enum for all possible 90 degree rotations.
-enum CropRotation {
-  up,
-  right,
-  down,
-  left,
-}
+enum CropRotation { up, right, down, left }
 
 /// Extension methods for [CropRotation].
 extension CropRotationExtension on CropRotation {
@@ -95,10 +90,13 @@ extension CropRotationExtension on CropRotation {
     switch (this) {
       case CropRotation.up:
         return CropRotation.right;
+
       case CropRotation.right:
         return CropRotation.down;
+
       case CropRotation.down:
         return CropRotation.left;
+
       case CropRotation.left:
         return CropRotation.up;
     }
@@ -109,10 +107,13 @@ extension CropRotationExtension on CropRotation {
     switch (this) {
       case CropRotation.up:
         return CropRotation.left;
+
       case CropRotation.left:
         return CropRotation.down;
+
       case CropRotation.down:
         return CropRotation.right;
+
       case CropRotation.right:
         return CropRotation.up;
     }
@@ -124,54 +125,54 @@ extension CropRotationExtension on CropRotation {
       case CropRotation.up:
       case CropRotation.down:
         return false;
+
       case CropRotation.right:
       case CropRotation.left:
         return true;
     }
   }
 
-  /// Returns rotated offset.
+  /// Returns the [Offset] rotated from this [CropRotation].
   Offset getRotatedOffset(
-    final Offset offset01,
+    final Offset offset,
     final double straightWidth,
     final double straightHeight,
   ) {
     switch (this) {
       case CropRotation.up:
         return Offset(
-          straightWidth * offset01.dx,
-          straightHeight * offset01.dy,
+          straightWidth * offset.dx,
+          straightHeight * offset.dy,
         );
+
       case CropRotation.down:
         return Offset(
-          straightWidth * (1 - offset01.dx),
-          straightHeight * (1 - offset01.dy),
+          straightWidth * (1 - offset.dx),
+          straightHeight * (1 - offset.dy),
         );
+
       case CropRotation.right:
         return Offset(
-          straightWidth * offset01.dy,
-          straightHeight * (1 - offset01.dx),
+          straightWidth * offset.dy,
+          straightHeight * (1 - offset.dx),
         );
+
       case CropRotation.left:
         return Offset(
-          straightWidth * (1 - offset01.dy),
-          straightHeight * offset01.dx,
+          straightWidth * (1 - offset.dy),
+          straightHeight * offset.dx,
         );
     }
   }
 
-  /// Returns rotation angle.
+  /// Returns the [Angle] from this [CropRotation].
   Angle get angle {
-    switch (this) {
-      case CropRotation.up:
-        return Angle.deg0;
-      case CropRotation.right:
-        return Angle.deg90;
-      case CropRotation.down:
-        return Angle.deg180;
-      case CropRotation.left:
-        return Angle.deg270;
-    }
+    return switch (this) {
+      CropRotation.up => Angle.deg0,
+      CropRotation.right => Angle.deg90,
+      CropRotation.down => Angle.deg180,
+      CropRotation.left => Angle.deg270,
+    };
   }
 }
 
