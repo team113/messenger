@@ -31,6 +31,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Invalid diagonal window resize cursors on macOS. ([#1120], [#568])
+    - Chats tab:
+        - Deleted chats still displaying in list after mass clearing. ([#1133])
 - Web:
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
@@ -45,6 +47,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1117]: /../../pull/1117
 [#1120]: /../../pull/1120
 [#1121]: /../../pull/1121
+[#1133]: /../../pull/1133
 
 
 
