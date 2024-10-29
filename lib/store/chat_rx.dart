@@ -1786,7 +1786,7 @@ class RxChatImpl extends RxChat {
       final bool positionChanged =
           e.value.favoritePosition != chat.value.favoritePosition;
 
-      chat.value = e.value;
+      chat.value = e.value.copyWith();
       chat.value.firstItem = first ?? chat.value.firstItem;
       ver = e.ver;
 
