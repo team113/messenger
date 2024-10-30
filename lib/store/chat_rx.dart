@@ -665,6 +665,9 @@ class RxChatImpl extends RxChat {
         () async {
           try {
             await _chatRepository.readUntil(id, untilId);
+
+            final DtoChatItem? item = await _driftItems.read(untilId);
+            _lastReadItemCursor = item?.cursor ?? _lastReadItemCursor;
           } catch (_) {
             chat.update((e) => e?..lastReadItem = lastReadItem);
             unreadCount.value = chat.value.unreadCount;
@@ -1740,7 +1743,7 @@ class RxChatImpl extends RxChat {
           members.values.firstWhereOrNull((e) => e.user.id == readId);
 
       // Only proceed, if the [ChatMember] this event represents
-      // joined earlier that latest acquired message.
+      // joined earlier than latest acquired message.
       if (member?.joinedAt.isAfter(at) != true) {
         if (read == null) {
           reads.add(LastChatRead(readId, at));
@@ -2177,6 +2180,11 @@ class RxChatImpl extends RxChat {
                 );
               } else {
                 lastRead.at = event.at;
+              }
+
+              if (event.byUser.id == me) {
+                final DtoChatItem? item = await _driftItems.readAt(event.at);
+                _lastReadItemCursor = item?.cursor ?? _lastReadItemCursor;
               }
               break;
 
