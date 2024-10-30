@@ -887,6 +887,7 @@ class RxChatImpl extends RxChat {
     Log.debug('updateChat($newChat)', '$runtimeType($id)');
 
     if (chat.value.id != newChat.value.id) {
+      dto = newChat;
       chat.value = newChat.value;
       ver = newChat.ver;
 
