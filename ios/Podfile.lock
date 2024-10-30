@@ -114,15 +114,15 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (128.0.6613.119)
+  - instrumentisto-libwebrtc-bin (130.0.6723.69)
   - integration_test (0.0.1):
     - Flutter
   - just_audio (0.0.1):
     - Flutter
-  - medea_flutter_webrtc (0.11.1):
+  - medea_flutter_webrtc (0.11.2):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 128.0.6613.119)
-  - medea_jason (0.5.0):
+    - instrumentisto-libwebrtc-bin (= 130.0.6723.69)
+  - medea_jason (0.7.0):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -339,11 +339,11 @@ SPEC CHECKSUMS:
   GoogleUtilities: ea963c370a38a8069cc5f7ba4ca849a60b6d7d15
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
-  instrumentisto-libwebrtc-bin: 9504c2bb2f3c154b786fe04a5af96f482199e2c1
+  instrumentisto-libwebrtc-bin: 769972c5c8a2b370ab2d6b242180e0bba64bd5c3
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  medea_flutter_webrtc: 4d67417b7c757a5de732a09cb6caab8259d316f9
-  medea_jason: 8ae6cad8f42474e0437eb1ed230be00eacfff464
+  medea_flutter_webrtc: 2edd16f21de79901c91cd7dc3e132b3bf5af3b3a
+  medea_jason: dd2579ca796f0bff007212896cc27e333d6b4c9c
   media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
   media_kit_video: 5da63f157170e5bf303bf85453b7ef6971218a2e
