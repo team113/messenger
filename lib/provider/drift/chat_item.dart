@@ -161,6 +161,26 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     }, tag: 'chat_item.read($id)');
   }
 
+  /// Returns the [DtoChatItem] stored in the database by the provided [at], if
+  /// any.
+  Future<DtoChatItem?> readAt(PreciseDateTime at) async {
+    return await safe<DtoChatItem?>((db) async {
+      final stmt = db.select(db.chatItems)
+        ..where(
+          (u) => u.at.isSmallerOrEqual(Variable(at.microsecondsSinceEpoch)),
+        )
+        ..orderBy([(u) => OrderingTerm.desc(u.at)])
+        ..limit(1);
+      final ChatItemRow? row = await stmt.getSingleOrNull();
+
+      if (row == null) {
+        return null;
+      }
+
+      return _ChatItemDb.fromDb(row);
+    }, tag: 'chat_item.readAt($at)');
+  }
+
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
   /// database.
   Future<void> delete(ChatItemId id) async {
