@@ -612,7 +612,10 @@ class MyUserRepository extends DisposableInterface
     CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
+    Log.debug(
+      'updateAvatar($file, crop: $crop, onSendProgress)',
+      '$runtimeType',
+    );
 
     dio.MultipartFile? upload;
 

@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -31,6 +30,7 @@ import '/api/backend/schema.dart'
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
@@ -451,18 +451,33 @@ class MyProfileController extends GetxController {
 
   /// Opens the [CropAvatarView] to update the [MyUser.avatar] with the
   /// [CropAreaInput] returned from it.
-  Future<void> editAvatar(String url) async {
+  Future<void> editAvatar() async {
+    final ImageFile? file = myUser.value?.avatar?.original;
+    if (file == null) {
+      return;
+    }
+
     avatarUpload.value = RxStatus.loading();
+
     try {
-      final NativeFile? file = await _readImage(url);
-      if (file != null) {
-        final CropAreaInput? crop = await CropAvatarView.show(
-          router.context!,
-          NetworkImage(url),
-        );
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: file.url,
+        checksum: file.checksum,
+      );
+
+      if (cache.bytes != null) {
+        final CropAreaInput? crop =
+            await CropAvatarView.show(router.context!, cache.bytes!);
 
         if (crop != null) {
-          await _updateAvatar(file, crop);
+          await _updateAvatar(
+            NativeFile(
+              name: file.name,
+              size: cache.bytes!.lengthInBytes,
+              bytes: cache.bytes,
+            ),
+            crop,
+          );
         }
       }
     } finally {
@@ -474,7 +489,7 @@ class MyProfileController extends GetxController {
   /// [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
-      FilePickerResult? result = await PlatformUtils.pickFiles(
+      final FilePickerResult? result = await PlatformUtils.pickFiles(
         type: FileType.image,
         allowMultiple: false,
         withData: true,
@@ -483,13 +498,10 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-        final PlatformFile file = result!.files.first;
-        final ImageProvider imageProvider = PlatformUtils.isWeb
-            ? MemoryImage(file.bytes!)
-            : FileImage(File(file.path!));
 
+        final PlatformFile file = result!.files.first;
         final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, imageProvider);
+            await CropAvatarView.show(router.context!, file.bytes!);
         if (crop == null) {
           return;
         }
@@ -593,7 +605,8 @@ class MyProfileController extends GetxController {
     });
   }
 
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file]
+  /// and [crop].
   ///
   /// If [file] is `null`, then deletes [MyUser.avatar] and
   /// [MyUser.callCover].
@@ -617,21 +630,6 @@ class MyProfileController extends GetxController {
   /// [scrollController].
   void _ensureNameDisplayed() {
     displayName.value = scrollController.position.pixels >= 250;
-  }
-
-  /// Reads an image at the provided [url] and returns [NativeFile]
-  /// representation of it.
-  Future<NativeFile?> _readImage(String url) async {
-    final CacheEntry cache = await CacheWorker.instance.get(url: url);
-    if (cache.bytes == null) {
-      return null;
-    }
-
-    return NativeFile(
-      name: '',
-      size: cache.bytes!.length,
-      bytes: cache.bytes,
-    );
   }
 }
 

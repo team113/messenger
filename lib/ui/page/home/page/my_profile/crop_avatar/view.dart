@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -22,26 +24,24 @@ import '/api/backend/schema.dart' show CropAreaInput, PointInput;
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/image_cropper/enums.dart';
 import 'widget/image_cropper/widget.dart';
 
-/// View for cropping avatar image.
+/// View for cropping an image specified as the [Uint8List].
 ///
 /// Intended to be displayed with [show] method.
 class CropAvatarView extends StatelessWidget {
-  const CropAvatarView(this.imageProvider, {super.key});
+  const CropAvatarView(this.image, {super.key});
 
-  /// [Image] to be cropped.
-  final ImageProvider imageProvider;
+  /// [Uint8List] of the encoded image.
+  final Uint8List image;
 
-  /// Displays [CropAvatarView] wrapped in [ModalPopup].
-  static Future<CropAreaInput?> show<T>(
-    BuildContext context,
-    ImageProvider imageProvider,
-  ) {
+  /// Displays a [CropAvatarView] wrapped in a [ModalPopup].
+  static Future<CropAreaInput?> show<T>(BuildContext context, Uint8List image) {
     final Size size = MediaQuery.sizeOf(context);
 
     return ModalPopup.show<CropAreaInput?>(
@@ -49,7 +49,7 @@ class CropAvatarView extends StatelessWidget {
       isDismissible: false,
       desktopPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
       modalConstraints: BoxConstraints(maxWidth: size.width * 0.6),
-      child: CropAvatarView(imageProvider),
+      child: CropAvatarView(image),
     );
   }
 
@@ -58,12 +58,27 @@ class CropAvatarView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: CropController(imageProvider: imageProvider, aspectRatio: 1),
-      builder: (c) {
+      init: CropController(image),
+      builder: (CropController c) {
         return Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Expanded(child: Center(child: ImageCropper(controller: c))),
+            Expanded(
+              child: Center(
+                child: Obx(() {
+                  if (c.size.isEmpty) {
+                    return const CustomProgressIndicator();
+                  }
+
+                  return ImageCropper(
+                    image: image,
+                    size: c.size,
+                    rotation: c.rotation.value,
+                    onCropped: (crop) => c.crop.value = crop,
+                  );
+                }),
+              ),
+            ),
             const SizedBox(height: 10),
             SizedBox(
               height: 30,
@@ -86,12 +101,18 @@ class CropAvatarView extends StatelessWidget {
                     children: [
                       WidgetButton(
                         onPressed: c.rotateLeft,
-                        child: const Icon(Icons.rotate_90_degrees_ccw_outlined),
+                        child: Icon(
+                          Icons.rotate_90_degrees_ccw_outlined,
+                          color: style.colors.primary,
+                        ),
                       ),
                       const SizedBox(width: 20),
                       WidgetButton(
                         onPressed: c.rotateRight,
-                        child: const Icon(Icons.rotate_90_degrees_cw_outlined),
+                        child: Icon(
+                          Icons.rotate_90_degrees_cw_outlined,
+                          color: style.colors.primary,
+                        ),
                       ),
                     ],
                   ),
@@ -116,17 +137,13 @@ class CropAvatarView extends StatelessWidget {
 
   /// Pops this modal with [CropAreaInput] data.
   void _close(BuildContext context, CropController c) {
-    final Rect cropSize = c.cropSize;
-
-    final CropAreaInput cropArea = CropAreaInput(
-      bottomRight: PointInput(
-        x: cropSize.right.toInt(),
-        y: cropSize.bottom.toInt(),
+    context.popModal(
+      CropAreaInput(
+        bottomRight:
+            PointInput(x: c.real.right.toInt(), y: c.real.bottom.toInt()),
+        topLeft: PointInput(x: c.real.left.toInt(), y: c.real.top.toInt()),
+        angle: c.rotation.value.angle,
       ),
-      topLeft: PointInput(x: cropSize.left.toInt(), y: cropSize.top.toInt()),
-      angle: c.rotation.value.angle,
     );
-
-    context.popModal(cropArea);
   }
 }

@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -112,6 +113,12 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final Iterable<void Function()> callbacks = [
+      widget.onUpload,
+      widget.onEdit,
+      widget.onDelete,
+    ].whereNotNull();
+
     return Column(
       children: [
         Stack(
@@ -146,13 +153,13 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             ),
           ],
         ),
-        if (widget.onUpload != null || widget.onDelete != null) ...[
+        if (callbacks.isNotEmpty) ...[
           const SizedBox(height: 5),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
               mainAxisSize:
-                  widget.onDelete != null ? MainAxisSize.max : MainAxisSize.min,
+                  callbacks.length == 1 ? MainAxisSize.min : MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (widget.onUpload != null)

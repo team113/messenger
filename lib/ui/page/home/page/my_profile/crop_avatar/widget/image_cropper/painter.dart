@@ -20,7 +20,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 
 import 'enums.dart';
-import 'widget.dart';
 
 /// Represents handle's position on crop [Rect].
 class CropHandlePoint {
@@ -45,10 +44,12 @@ class RotatedImagePainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint();
+    final Paint paint = Paint()..filterQuality = FilterQuality.high;
+
     double targetWidth = size.width;
     double targetHeight = size.height;
     double offset = 0;
+
     if (rotation != CropRotation.up) {
       if (rotation.isSideways) {
         final double tmp = targetHeight;
@@ -64,13 +65,14 @@ class RotatedImagePainter extends CustomPainter {
       canvas.rotate(rotation.radians);
       canvas.translate(-targetWidth / 2, -targetHeight / 2);
     }
-    paint.filterQuality = FilterQuality.high;
+
     canvas.drawImageRect(
       image,
       Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble()),
       Rect.fromLTWH(offset, offset, targetWidth, targetHeight),
       paint,
     );
+
     if (rotation != CropRotation.up) {
       canvas.restore();
     }
@@ -82,27 +84,43 @@ class RotatedImagePainter extends CustomPainter {
 
 /// [CustomPainter] to paint [CropGrid].
 class CropGridPainter extends CustomPainter {
-  const CropGridPainter(this.grid);
+  const CropGridPainter({
+    required this.crop,
+    required this.scrimColor,
+    required this.gridColor,
+    this.grid = false,
+    this.onSize,
+  });
 
-  /// [CropGrid] configuration.
-  final CropGrid grid;
+  /// [Rect] to display.
+  final Rect crop;
+
+  /// [Color] of the scrim.
+  final Color scrimColor;
+
+  /// [Color] of the grid.
+  final Color gridColor;
+
+  /// Indicator whether grid should be displayed over the [crop].
+  final bool grid;
+
+  /// Callback, called when the [Size] of the [crop] changes.
+  final void Function(Size value)? onSize;
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Constant parameters.
-    const Color gridColor = Colors.white70;
     const double cornerSize = 50;
 
     final Rect full = Offset.zero & size;
-    final Rect bounds = grid.crop.multiply(size);
-    grid.onSize(size);
+    final Rect bounds = crop.multiply(size);
+    onSize?.call(size);
 
     canvas.save();
     canvas.clipRect(bounds, clipOp: ui.ClipOp.difference);
     canvas.drawRect(
       full,
       Paint()
-        ..color = grid.scrimColor
+        ..color = scrimColor
         ..style = PaintingStyle.fill
         ..isAntiAlias = true,
     );
@@ -111,15 +129,14 @@ class CropGridPainter extends CustomPainter {
     _drawCorners(canvas, bounds, gridColor, cornerSize);
     _drawBoundaries(canvas, bounds, gridColor, cornerSize);
 
-    if (grid.isMoving) {
+    if (grid) {
       _drawGrid(canvas, bounds, gridColor);
     }
   }
 
   @override
   bool shouldRepaint(CropGridPainter oldDelegate) =>
-      oldDelegate.grid.crop != grid.crop ||
-      oldDelegate.grid.isMoving != grid.isMoving;
+      oldDelegate.crop != crop || oldDelegate.grid != grid;
 
   @override
   bool hitTest(Offset position) => true;

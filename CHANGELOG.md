@@ -19,6 +19,8 @@ All user visible changes to this project will be documented in this file. This p
         - Messages searching. ([#1116], [#692])
     - Chats tab:
         - Device being offline label. ([#1121], [#547])
+    - Profile page:
+        - Avatar cropping. ([#1130], [#530])
 
 ### Changed
 
@@ -37,6 +39,7 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
 [#296]: /../../issues/296
+[#530]: /../../issues/530
 [#547]: /../../issues/547
 [#568]: /../../issues/568
 [#603]: /../../issues/603
@@ -47,6 +50,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1117]: /../../pull/1117
 [#1120]: /../../pull/1120
 [#1121]: /../../pull/1121
+[#1130]: /../../pull/1130
 [#1133]: /../../pull/1133
 
 

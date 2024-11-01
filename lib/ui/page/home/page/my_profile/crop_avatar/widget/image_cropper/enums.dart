@@ -17,152 +17,98 @@
 
 import 'dart:math' as math;
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:vector_math/vector_math_64.dart';
 
 import '/api/backend/schema.dart' show Angle;
 
-/// Enum for representing different handles for cropping.
+/// Enum representing different handles for cropping.
 enum CropHandle {
   /// Represents upper-left corner of crop [Rect].
-  upperLeft,
+  topLeft,
 
   /// Represents upper-right corner of crop [Rect].
-  upperRight,
+  topRight,
 
   /// Represents lower-right corner of crop [Rect].
-  lowerRight,
+  bottomRight,
 
   /// Represents lower-left corner of crop [Rect].
-  lowerLeft,
-
-  /// Represents no interaction.
-  none,
-
-  /// Represents action of moving entire crop [Rect].
-  move
+  bottomLeft,
 }
 
-/// Enum for all possible 90 degree rotations.
+/// Possible 90 degree rotations.
 enum CropRotation { up, right, down, left }
 
 /// Extension methods for [CropRotation].
 extension CropRotationExtension on CropRotation {
   /// Returns rotation in radians clockwise.
   double get radians {
-    switch (this) {
-      case CropRotation.up:
-        return 0;
-      case CropRotation.right:
-        return math.pi / 2;
-      case CropRotation.down:
-        return math.pi;
-      case CropRotation.left:
-        return 3 * math.pi / 2;
-    }
+    return switch (this) {
+      CropRotation.up => 0,
+      CropRotation.right => math.pi / 2,
+      CropRotation.down => math.pi,
+      CropRotation.left => 3 * math.pi / 2,
+    };
   }
 
   /// Returns rotation in degrees clockwise.
   int get degrees {
-    switch (this) {
-      case CropRotation.up:
-        return 0;
-      case CropRotation.right:
-        return 90;
-      case CropRotation.down:
-        return 180;
-      case CropRotation.left:
-        return 270;
-    }
+    return switch (this) {
+      CropRotation.up => 0,
+      CropRotation.right => 90,
+      CropRotation.down => 180,
+      CropRotation.left => 270,
+    };
   }
 
-  /// Returns [CropRotation] from degrees.
+  /// Constructs a [CropRotation] from degrees.
   static CropRotation? fromDegrees(final int degrees) {
-    for (final CropRotation rotation in CropRotation.values) {
-      if (rotation.degrees == degrees) {
-        return rotation;
-      }
-    }
-    return null;
+    return CropRotation.values.firstWhereOrNull((e) => e.degrees == degrees);
   }
 
   /// Returns 90 degrees right rotation.
   CropRotation get rotateRight {
-    switch (this) {
-      case CropRotation.up:
-        return CropRotation.right;
-
-      case CropRotation.right:
-        return CropRotation.down;
-
-      case CropRotation.down:
-        return CropRotation.left;
-
-      case CropRotation.left:
-        return CropRotation.up;
-    }
+    return switch (this) {
+      CropRotation.up => CropRotation.right,
+      CropRotation.right => CropRotation.down,
+      CropRotation.down => CropRotation.left,
+      CropRotation.left => CropRotation.up,
+    };
   }
 
   /// Returns 90 degrees left rotation.
   CropRotation get rotateLeft {
-    switch (this) {
-      case CropRotation.up:
-        return CropRotation.left;
-
-      case CropRotation.left:
-        return CropRotation.down;
-
-      case CropRotation.down:
-        return CropRotation.right;
-
-      case CropRotation.right:
-        return CropRotation.up;
-    }
+    return switch (this) {
+      CropRotation.up => CropRotation.left,
+      CropRotation.left => CropRotation.down,
+      CropRotation.down => CropRotation.right,
+      CropRotation.right => CropRotation.up,
+    };
   }
 
   /// Returns `true` if rotation is `right` or `left`.
   bool get isSideways {
-    switch (this) {
-      case CropRotation.up:
-      case CropRotation.down:
-        return false;
-
-      case CropRotation.right:
-      case CropRotation.left:
-        return true;
-    }
+    return switch (this) {
+      CropRotation.up || CropRotation.down => false,
+      CropRotation.right || CropRotation.left => true
+    };
   }
 
   /// Returns the [Offset] rotated from this [CropRotation].
   Offset getRotatedOffset(
     final Offset offset,
-    final double straightWidth,
-    final double straightHeight,
+    final double width,
+    final double height,
   ) {
-    switch (this) {
-      case CropRotation.up:
-        return Offset(
-          straightWidth * offset.dx,
-          straightHeight * offset.dy,
-        );
-
-      case CropRotation.down:
-        return Offset(
-          straightWidth * (1 - offset.dx),
-          straightHeight * (1 - offset.dy),
-        );
-
-      case CropRotation.right:
-        return Offset(
-          straightWidth * offset.dy,
-          straightHeight * (1 - offset.dx),
-        );
-
-      case CropRotation.left:
-        return Offset(
-          straightWidth * (1 - offset.dy),
-          straightHeight * offset.dx,
-        );
-    }
+    return switch (this) {
+      CropRotation.up => Offset(width * offset.dx, height * offset.dy),
+      CropRotation.down =>
+        Offset(width * (1 - offset.dx), height * (1 - offset.dy)),
+      CropRotation.right => Offset(width * offset.dy, height * (1 - offset.dx)),
+      CropRotation.left => Offset(width * (1 - offset.dy), height * offset.dx),
+    };
   }
 
   /// Returns the [Angle] from this [CropRotation].
@@ -195,6 +141,18 @@ extension RectExtensions on Rect {
       top / size.height,
       right / size.width,
       bottom / size.height,
+    );
+  }
+
+  Rect rotated(CropRotation rotation) {
+    final matrix = Matrix4.rotationZ(rotation.radians);
+    final topLeft = matrix.transform3(Vector3(left, top, 0));
+    final bottomRight = matrix.transform3(Vector3(bottom, right, 0));
+    return Rect.fromLTRB(
+      topLeft.x.abs(),
+      topLeft.y.abs(),
+      bottomRight.y.abs(),
+      bottomRight.x.abs(),
     );
   }
 }

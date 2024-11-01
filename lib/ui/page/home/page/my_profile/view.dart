@@ -176,9 +176,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                       c.myUser.value,
                       loading: c.avatarUpload.value.isLoading,
                       onUpload: c.uploadAvatar,
-                      onEdit: avatar != null
-                          ? () => c.editAvatar(avatar.original.url)
-                          : null,
+                      onEdit: avatar != null ? c.editAvatar : null,
                       onDelete: avatar != null ? c.deleteAvatar : null,
                     );
                   }),
