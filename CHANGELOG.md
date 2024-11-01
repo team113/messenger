@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.0] · 2024-??-??
+[0.3.0]: /../../tree/v0.3.0
+
+[Diff](/../../compare/v0.2.2...v0.3.0) | [Milestone](/../../milestone/31)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Avatar cropping. ([#1130], [#530])
+
+[#530]: /../../issues/530
+[#1130]: /../../pull/1130
+
+
+
+
 ## [0.2.2] · 2024-11-01
 [0.2.2]: /../../tree/v0.2.2
 

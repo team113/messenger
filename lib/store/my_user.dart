@@ -609,9 +609,13 @@ class MyUserRepository extends DisposableInterface
   @override
   Future<void> updateAvatar(
     NativeFile? file, {
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateAvatar($file, onSendProgress)', '$runtimeType');
+    Log.debug(
+      'updateAvatar($file, crop: $crop, onSendProgress)',
+      '$runtimeType',
+    );
 
     dio.MultipartFile? upload;
 
@@ -652,7 +656,7 @@ class MyUserRepository extends DisposableInterface
     try {
       await _graphQlProvider.updateUserAvatar(
         upload,
-        null,
+        crop,
         onSendProgress: onSendProgress,
       );
     } catch (_) {

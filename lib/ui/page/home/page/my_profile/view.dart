@@ -26,6 +26,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import '/config.dart';
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/cache_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/my_user.dart';
@@ -169,13 +170,14 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
               block(
                 children: [
                   Obx(() {
+                    final UserAvatar? avatar = c.myUser.value?.avatar;
+
                     return BigAvatarWidget.myUser(
                       c.myUser.value,
                       loading: c.avatarUpload.value.isLoading,
                       onUpload: c.uploadAvatar,
-                      onDelete: c.myUser.value?.avatar != null
-                          ? c.deleteAvatar
-                          : null,
+                      onEdit: avatar != null ? c.editAvatar : null,
+                      onDelete: avatar != null ? c.deleteAvatar : null,
                     );
                   }),
                 ],

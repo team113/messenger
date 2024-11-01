@@ -200,6 +200,7 @@ btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_do_not_allow = Do not allow
+btn_done = Done
 btn_download = Download
 btn_download_all = Download all
 btn_download_all_as = Download all as
