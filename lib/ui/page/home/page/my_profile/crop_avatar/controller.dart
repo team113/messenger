@@ -51,15 +51,7 @@ class CropController extends GetxController {
 
   /// Returns the [crop] rectangle of [image] in pixels.
   Rect get real {
-    final isSideways = rotation.value.isSideways;
-    final width = isSideways ? size.height : size.width;
-    final height = isSideways ? size.width : size.height;
-    return crop.value.multiply(Size(width, height));
-  }
-
-  /// Sets the [rect] in pixels to be [crop] and adjust [crop] to fit new size.
-  set real(Rect rect) {
-    crop.value = _adjustRatio(rect.divide(size), aspect);
+    return crop.value.multiply(size).rotated(rotation.value, size);
   }
 
   @override
@@ -76,66 +68,8 @@ class CropController extends GetxController {
 
   /// Rotates image 90 degrees based on [left].
   void _rotate(bool left) {
-    final CropRotation newRotation =
+    rotation.value =
         left ? rotation.value.rotateLeft : rotation.value.rotateRight;
-
-    final Offset newCenter = left
-        ? Offset(crop.value.center.dy, 1 - crop.value.center.dx)
-        : Offset(1 - crop.value.center.dy, crop.value.center.dx);
-
-    crop.value = _adjustRatio(
-      Rect.fromCenter(
-        center: newCenter,
-        width: crop.value.height,
-        height: crop.value.width,
-      ),
-      aspect,
-      rotation: newRotation,
-    );
-
-    rotation.value = newRotation;
-  }
-
-  /// Adjusts [crop] rectangle to fit the specified aspect ratio.
-  Rect _adjustRatio(
-    Rect crop,
-    double? aspectRatio, {
-    CropRotation? rotation,
-  }) {
-    if (aspectRatio == null) {
-      return crop;
-    }
-
-    final bool justRotated = rotation != null;
-    rotation ??= this.rotation.value;
-
-    final bitmapWidth = rotation.isSideways ? size.height : size.width;
-    final bitmapHeight = rotation.isSideways ? size.width : size.height;
-    if (justRotated) {
-      const Offset center = Offset(.5, .5);
-
-      final double width = bitmapWidth;
-      final double height = bitmapHeight;
-
-      if (width / height > aspectRatio) {
-        final double w = height * aspectRatio / bitmapWidth;
-        return Rect.fromCenter(center: center, width: w, height: 1);
-      }
-
-      final double h = width / aspectRatio / bitmapHeight;
-      return Rect.fromCenter(center: center, width: 1, height: h);
-    }
-
-    final double width = crop.width * bitmapWidth;
-    final double height = crop.height * bitmapHeight;
-
-    if (width / height > aspectRatio) {
-      final double w = height * aspectRatio / bitmapWidth;
-      return Rect.fromLTWH(crop.center.dx - w / 2, crop.top, w, crop.height);
-    } else {
-      final double h = width / aspectRatio / bitmapHeight;
-      return Rect.fromLTWH(crop.left, crop.center.dy - h / 2, crop.width, h);
-    }
   }
 
   /// Resolves image and initializes [dimensions].
@@ -146,6 +80,5 @@ class CropController extends GetxController {
       frame.image.width.toDouble(),
       frame.image.height.toDouble(),
     );
-    crop.value = _adjustRatio(crop.value, aspect);
   }
 }

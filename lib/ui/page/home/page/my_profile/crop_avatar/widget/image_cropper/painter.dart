@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
@@ -82,14 +83,13 @@ class RotatedImagePainter extends CustomPainter {
   bool shouldRepaint(CustomPainter oldDelegate) => false;
 }
 
-/// [CustomPainter] to paint [CropGrid].
+/// [CustomPainter] painting the grid with corners.
 class CropGridPainter extends CustomPainter {
   const CropGridPainter({
     required this.crop,
     required this.scrimColor,
     required this.gridColor,
     this.grid = false,
-    this.onSize,
   });
 
   /// [Rect] to display.
@@ -104,16 +104,11 @@ class CropGridPainter extends CustomPainter {
   /// Indicator whether grid should be displayed over the [crop].
   final bool grid;
 
-  /// Callback, called when the [Size] of the [crop] changes.
-  final void Function(Size value)? onSize;
-
   @override
   void paint(Canvas canvas, Size size) {
-    const double cornerSize = 50;
-
     final Rect full = Offset.zero & size;
     final Rect bounds = crop.multiply(size);
-    onSize?.call(size);
+    final double cornerSize = min(50, bounds.shortestSide / 3);
 
     canvas.save();
     canvas.clipRect(bounds, clipOp: ui.ClipOp.difference);

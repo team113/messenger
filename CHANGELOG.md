@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.0] · 2024-??-??
+[0.3.0]: /../../tree/v0.3.0
+
+[Diff](/../../compare/v0.2.2...v0.3.0) | [Milestone](/../../milestone/31)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Avatar cropping. ([#1130], [#530])
+
+[#530]: /../../issues/530
+[#1130]: /../../pull/1130
+
+
+
+
 ## [0.2.2] · 2024-11-01
 [0.2.2]: /../../tree/v0.2.2
 
@@ -19,8 +36,6 @@ All user visible changes to this project will be documented in this file. This p
         - Messages searching. ([#1116], [#692])
     - Chats tab:
         - Device being offline label. ([#1121], [#547])
-    - Profile page:
-        - Avatar cropping. ([#1130], [#530])
 
 ### Changed
 
@@ -39,7 +54,6 @@ All user visible changes to this project will be documented in this file. This p
     - Invalid camera, microphone and output device names in Firefox. ([#1117])
 
 [#296]: /../../issues/296
-[#530]: /../../issues/530
 [#547]: /../../issues/547
 [#568]: /../../issues/568
 [#603]: /../../issues/603
@@ -50,7 +64,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1117]: /../../pull/1117
 [#1120]: /../../pull/1120
 [#1121]: /../../pull/1121
-[#1130]: /../../pull/1130
 [#1133]: /../../pull/1133
 
 

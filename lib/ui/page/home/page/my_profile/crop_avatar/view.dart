@@ -139,8 +139,10 @@ class CropAvatarView extends StatelessWidget {
   void _close(BuildContext context, CropController c) {
     context.popModal(
       CropAreaInput(
-        bottomRight:
-            PointInput(x: c.real.right.toInt(), y: c.real.bottom.toInt()),
+        bottomRight: PointInput(
+          x: c.real.right.toInt(),
+          y: c.real.bottom.toInt(),
+        ),
         topLeft: PointInput(x: c.real.left.toInt(), y: c.real.top.toInt()),
         angle: c.rotation.value.angle,
       ),

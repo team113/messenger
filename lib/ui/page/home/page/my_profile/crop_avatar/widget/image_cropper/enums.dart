@@ -19,7 +19,6 @@ import 'dart:math' as math;
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:vector_math/vector_math_64.dart';
 
 import '/api/backend/schema.dart' show Angle;
 
@@ -144,15 +143,28 @@ extension RectExtensions on Rect {
     );
   }
 
-  Rect rotated(CropRotation rotation) {
-    final matrix = Matrix4.rotationZ(rotation.radians);
-    final topLeft = matrix.transform3(Vector3(left, top, 0));
-    final bottomRight = matrix.transform3(Vector3(bottom, right, 0));
-    return Rect.fromLTRB(
-      topLeft.x.abs(),
-      topLeft.y.abs(),
-      bottomRight.y.abs(),
-      bottomRight.x.abs(),
-    );
+  /// Returns this [Rect] rotated with [rotation] relative to the [size].
+  Rect rotated(CropRotation rotation, Size size) {
+    return switch (rotation) {
+      CropRotation.up => this,
+      CropRotation.right => Rect.fromLTWH(
+          size.height - top - height,
+          left,
+          height,
+          width,
+        ),
+      CropRotation.down => Rect.fromLTWH(
+          size.width - width - left,
+          size.height - height - top,
+          width,
+          height,
+        ),
+      CropRotation.left => Rect.fromLTWH(
+          top,
+          size.width - width - left,
+          width,
+          height,
+        ),
+    };
   }
 }
