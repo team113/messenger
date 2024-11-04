@@ -812,7 +812,7 @@ class ChatsTabView extends StatelessWidget {
                                     : Key('RecentChat_${e.id}'),
                                 me: c.me,
                                 blocked: e.blocked,
-                                selected: selected,
+                                selected: c.selecting.value ? selected : null,
                                 getUser: c.getUser,
                                 avatarBuilder: c.selecting.value
                                     ? (c) => WidgetButton(

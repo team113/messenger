@@ -45,7 +45,7 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
           context.world.appDriver
               .findBy('ChatAvatar_${chat?.id}', FindType.key),
           context.world.appDriver.findBy(
-            'Image_${chat?.avatar.value?.full.url}',
+            'Image_${chat?.avatar.value?.big.url}',
             FindType.key,
           ),
           firstMatchOnly: true,
