@@ -1255,7 +1255,11 @@ class ChatRepository extends DisposableInterface
             _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
-        await _monologLocal.upsert(me, this.monolog = id);
+
+        await Future.wait([
+          _monologLocal.upsert(me, this.monolog = id),
+          _putEntry(monolog, ignoreVersion: true),
+        ]);
       } else if (id.isLocal) {
         final RxChatImpl? chat = await ensureRemoteDialog(id);
         if (chat != null) {
