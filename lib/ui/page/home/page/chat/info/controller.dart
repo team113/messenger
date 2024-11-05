@@ -255,7 +255,15 @@ class ChatInfoController extends GetxController {
     );
 
     if (result != null) {
-      await updateChatAvatar(result.files.first);
+      final PlatformFile file = result.files.first;
+
+      final CropAreaInput? crop =
+          await CropAvatarView.show(router.context!, file.bytes!);
+      if (crop == null) {
+        return;
+      }
+
+      await updateChatAvatar(file);
     }
   }
 
@@ -264,19 +272,13 @@ class ChatInfoController extends GetxController {
 
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// `null`.
-  Future<void> updateChatAvatar(PlatformFile? image) async {
+  Future<void> updateChatAvatar(
+    PlatformFile? image, {
+    CropAreaInput? crop,
+  }) async {
     avatarUpload.value = RxStatus.loading();
 
     try {
-      CropAreaInput? crop;
-
-      if (image != null) {
-        crop = await CropAvatarView.show(router.context!, image.bytes!);
-        if (crop == null) {
-          return;
-        }
-      }
-
       await _chatService.updateChatAvatar(
         chatId,
         file: image == null ? null : NativeFile.fromPlatformFile(image),
