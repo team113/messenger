@@ -15,10 +15,11 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Avatar cropping. ([#1130], [#530])
+        - Avatar cropping. ([#1139], [#1130], [#530])
 
 [#530]: /../../issues/530
 [#1130]: /../../pull/1130
+[#1139]: /../../pull/1139
 
 
 
