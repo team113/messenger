@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
-    show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
+    show CropAreaInput, DeleteChatForwardErrorCode, DeleteChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -389,13 +389,18 @@ class ChatService extends DisposableService {
   Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateChatAvatar($id, $file, onSendProgress)', '$runtimeType');
+    Log.debug(
+      'updateChatAvatar($id, $file, crop: $crop, onSendProgress)',
+      '$runtimeType',
+    );
 
     await _chatRepository.updateChatAvatar(
       id,
       file: file,
+      crop: crop,
       onSendProgress: onSendProgress,
     );
   }

@@ -22,6 +22,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 import 'enums.dart';
 import 'painter.dart';
 
@@ -108,12 +109,16 @@ class _ImageCropperState extends State<ImageCropper> {
                   hitTestBehavior: HitTestBehavior.translucent,
                   cursor: SystemMouseCursors.grab,
                   child: GestureDetector(
-                    onPanUpdate: (d) => _move(
-                      Offset(
-                        (real.left + d.delta.dx) / constraints.maxWidth,
-                        (real.top + d.delta.dy) / constraints.maxHeight,
-                      ),
-                    ),
+                    onPanUpdate: (d) {
+                      final Offset delta = _offset(d.delta);
+
+                      _move(
+                        Offset(
+                          (real.left + delta.dx) / constraints.maxWidth,
+                          (real.top + delta.dy) / constraints.maxHeight,
+                        ),
+                      );
+                    },
                     child: CustomPaint(
                       foregroundPainter: CropGridPainter(
                         crop: _crop,
@@ -288,6 +293,20 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
+  /// Returns the [Offset] with its delta corrected according to the platform
+  /// differences.
+  Offset _offset(Offset offset) {
+    if (PlatformUtils.isDesktop) {
+      if (WebUtils.isSafari) {
+        return Offset(offset.dx * 1.9, offset.dy * 1.9);
+      } else if (PlatformUtils.isWeb) {
+        return Offset(offset.dx * 1.45, offset.dy * 1.45);
+      }
+    }
+
+    return offset;
+  }
+
   // Returns a [Scaler] scaling the crop area.
   Widget _scaler({
     Key? key,
@@ -301,9 +320,17 @@ class _ImageCropperState extends State<ImageCropper> {
       child: Scaler(
         key: key,
         onDragUpdate: (dx, dy) {
+          final Offset delta = _offset(Offset(dx, dy));
+
           onDrag?.call(
-            switch (widget.rotation) { CropRotation.down => -dx, (_) => dx },
-            switch (widget.rotation) { CropRotation.down => -dy, (_) => dy },
+            switch (widget.rotation) {
+              CropRotation.down => -delta.dx,
+              (_) => delta.dx
+            },
+            switch (widget.rotation) {
+              CropRotation.down => -delta.dy,
+              (_) => delta.dy
+            },
           );
         },
         width: width ?? Scaler.size,
@@ -312,7 +339,7 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
-  /// Moves the crop rectangle based on the [cropHandlePoint].
+  /// Moves the crop rectangle based on the [point].
   void _move(Offset point) {
     final Rect crop = _crop.multiply(widget.size);
 

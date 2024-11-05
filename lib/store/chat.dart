@@ -972,10 +972,11 @@ class ChatRepository extends DisposableInterface
   Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateChatAvatar($id, $file, onSendProgress)',
+      'updateChatAvatar($id, $file, crop: $crop, onSendProgress)',
       '$runtimeType',
     );
 
@@ -1025,6 +1026,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.updateChatAvatar(
         id,
         file: file == null ? null : upload,
+        crop: crop,
         onSendProgress: onSendProgress,
       );
     } catch (e) {
