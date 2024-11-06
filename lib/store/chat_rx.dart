@@ -2318,9 +2318,6 @@ class RxChatImpl extends RxChat {
             case ChatEventKind.favorited:
               event as EventChatFavorited;
               write((chat) => chat.value.favoritePosition = event.position);
-              print(
-                '====== case ChatEventKind.favorited -> ${dto.value.favoritePosition}',
-              );
               break;
 
             case ChatEventKind.unfavorited:
