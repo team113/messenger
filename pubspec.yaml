@@ -3,8 +3,8 @@ version: 0.2.3
 publish_to: none
 
 environment:
-  flutter: ">=3.24.0"
-  sdk: ">=3.5.0 <4.0.0"
+  flutter: ">=3.24.4"
+  sdk: ">=3.5.4 <4.0.0"
 
 dependencies:
   all_sensors:
@@ -15,23 +15,23 @@ dependencies:
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
-  collection: ^1.17.2
-  connectivity_plus: ^6.0.5
+  collection: ^1.18.0
+  connectivity_plus: ^6.1.0
   crypto: ^3.0.3
   desktop_drop:
     git:
       url: https://github.com/MixinNetwork/flutter-plugins
       path: packages/desktop_drop
-      ref: 08c1ce40eb6abfad6049fb6aad8bd30312ec5319
-  device_info_plus: ^10.1.0
+      ref: b2beb15590f7b6c38e650ae501923b9bd3e7849c
+  device_info_plus: ^11.1.0
   dio: ^5.1.2
   dough: ^2.0.0
   drift: ^2.19.1+1
   email_validator: ^3.0.0
   ffi: ^2.0.2
   file_picker: ^8.0.3
-  firebase_core: ^2.32.0
-  firebase_messaging: ^14.9.4
+  firebase_core: ^3.6.0
+  firebase_messaging: ^15.1.3
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
@@ -44,7 +44,7 @@ dependencies:
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^17.2.3
+  flutter_local_notifications: ^18.0.0
   flutter_markdown: ^0.7.1
   flutter_native_badge: ^1.0.5+dev
   flutter_slidable: ^3.1.0
@@ -57,7 +57,7 @@ dependencies:
   flutter_widget_from_html_core: ^0.14.12
   flutter_xlider: ^3.5.0
   get: ^4.6.5
-  graphql_flutter: ^5.2.0-beta.6
+  graphql_flutter: ^5.2.0-beta.7
   http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
   image_gallery_saver:
@@ -81,7 +81,7 @@ dependencies:
   media_kit_libs_windows_video: ^1.0.7
   media_kit_native_event_loop: ^1.0.7
   media_kit_video: ^1.1.6
-  mime: ^1.0.4
+  mime: ^2.0.0
   mutex: ^3.0.1
   open_file: ^3.3.2
   path: ^1.8.2
@@ -112,12 +112,12 @@ dependencies:
   vibration: ^1.8.1
   volume_controller: any
   wakelock_plus: ^1.1.4
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^3.0.1
   web: ">=0.5.1 <2.0.0"
   win_toast: ^0.3.0
   win32: ^5.0.6
   win32_registry: ^1.1.3
-  window_manager: ^0.3.5
+  window_manager: ^0.4.3
   windows_taskbar: ^1.1.1
   xml: ^6.5.0
   yaml: ^3.1.2
@@ -127,7 +127,7 @@ dev_dependencies:
     git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
   build_runner: ^2.4.11
-  dartdoc: ^8.0.13
+  dartdoc: 8.1.0
   drift_dev: ^2.19.1
   flutter_driver:
     sdk: flutter
@@ -135,7 +135,7 @@ dev_dependencies:
     git:
       url: https://github.com/jonsamwell/flutter_gherkin.git
       ref: ea59f6376f2d78e5b2140980e74879b862218ea1
-  flutter_lints: ^4.0.0
+  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
   http_mock_adapter: ^0.6.0
@@ -148,7 +148,17 @@ dev_dependencies:
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^6.4.1
+  analyzer: ^6.7.0
+  # TODO: Remove when `graphql` updates.
+  graphql:
+    git:
+      url: https://github.com/hagen00/graphql-flutter.git
+      path: packages/graphql
+  # TODO: Remove when `graphql_flutter` updates.
+  graphql_flutter:
+    git:
+      url: https://github.com/hagen00/graphql-flutter.git
+      path: packages/graphql_flutter
   # TODO: Remove when `flutter_gherkin` updates.
   http: ^1.0.0
   image_picker_ios:

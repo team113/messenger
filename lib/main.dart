@@ -15,12 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-/// Mobile front-end part of social network project.
-///
-/// Application is currently under heavy development and may change drastically
-/// between minor revisions.
-library main;
-
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';

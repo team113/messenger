@@ -1778,6 +1778,7 @@ class RxChatImpl extends RxChat {
       dto = e ?? dto;
 
       if (chat.value == e?.value) {
+        chat.refresh();
         return null;
       }
     }

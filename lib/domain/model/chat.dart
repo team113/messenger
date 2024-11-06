@@ -498,4 +498,12 @@ class ChatFavoritePosition extends NewType<double>
 
   @override
   int compareTo(ChatFavoritePosition other) => val.compareTo(other.val);
+
+  @override
+  bool operator ==(Object other) {
+    return other is ChatFavoritePosition && other.val == val;
+  }
+
+  @override
+  int get hashCode => val.hashCode;
 }

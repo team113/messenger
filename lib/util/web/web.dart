@@ -17,10 +17,6 @@
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
-/// Helper providing direct access to browser-only features.
-@JS()
-library web_utils;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
@@ -300,8 +296,11 @@ class WebUtils {
     bool held = false;
 
     try {
-      final locks = await _getLocks().toDart;
-      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
+      final locks = (await _getLocks().toDart) as JSArray;
+      held = locks.toDart
+              .map((e) => e?.dartify() as Map?)
+              .any((e) => e?['name'] == 'mutex') ==
+          true;
     } catch (e) {
       held = false;
     }
@@ -733,7 +732,9 @@ class WebUtils {
       if (e != null) {
         e.setProperty(
           'href'.toJS,
-          (e.getProperty('href'.toJS) as String)
+          e
+              .getProperty('href'.toJS)
+              ?.toString()
               .replaceFirst('icons/', 'icons/alert/')
               .toJS,
         );
@@ -750,7 +751,9 @@ class WebUtils {
       if (e != null) {
         e.setProperty(
           'href'.toJS,
-          (e.getProperty('href'.toJS) as String)
+          e
+              .getProperty('href'.toJS)
+              .toString()
               .replaceFirst('icons/alert/', 'icons/')
               .toJS,
         );
