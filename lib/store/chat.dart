@@ -972,10 +972,11 @@ class ChatRepository extends DisposableInterface
   Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateChatAvatar($id, $file, onSendProgress)',
+      'updateChatAvatar($id, $file, crop: $crop, onSendProgress)',
       '$runtimeType',
     );
 
@@ -1025,6 +1026,7 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.updateChatAvatar(
         id,
         file: file == null ? null : upload,
+        crop: crop,
         onSendProgress: onSendProgress,
       );
     } catch (e) {
@@ -1193,10 +1195,7 @@ class ChatRepository extends DisposableInterface
         var mixin =
             events as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
         yield ChatEventsEvent(
-          ChatEventsVersioned(
-            mixin.events.map((e) => chatEvent(e)).toList(),
-            mixin.ver,
-          ),
+          ChatEventsVersioned(mixin.events.map(chatEvent).toList(), mixin.ver),
         );
       }
     });
@@ -1258,7 +1257,11 @@ class ChatRepository extends DisposableInterface
             _chat(await _graphQlProvider.createMonologChat());
 
         id = monolog.chat.value.id;
-        await _monologLocal.upsert(me, this.monolog = id);
+
+        await Future.wait([
+          _monologLocal.upsert(me, this.monolog = id),
+          _putEntry(monolog, ignoreVersion: true),
+        ]);
       } else if (id.isLocal) {
         final RxChatImpl? chat = await ensureRemoteDialog(id);
         if (chat != null) {

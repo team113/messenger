@@ -273,6 +273,31 @@ class Chat implements Comparable<Chat> {
     return result == 0 ? id.compareTo(other.id) : result;
   }
 
+  /// Returns a copy if this [Chat].
+  Chat copyWith() {
+    return Chat(
+      id,
+      avatar: avatar,
+      name: name,
+      members: members,
+      kindIndex: kindIndex,
+      muted: muted,
+      directLink: directLink,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      lastReads: lastReads,
+      lastDelivery: lastDelivery,
+      firstItem: firstItem,
+      lastItem: lastItem,
+      lastReadItem: lastReadItem,
+      unreadCount: unreadCount,
+      totalCount: totalCount,
+      ongoingCall: ongoingCall,
+      favoritePosition: favoritePosition,
+      membersCount: membersCount,
+    );
+  }
+
   @override
   String toString() => '$runtimeType($id)';
 

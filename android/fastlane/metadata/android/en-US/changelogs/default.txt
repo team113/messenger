@@ -1,2 +1,4 @@
-- Fixed active call's duration not being refreshed on chat's page.
-- Fixed "restore chat" button clipping chats.
+- Added messages searching on chat page.
+- Added device being offline label to chats tab.
+- Updated file sizes to be displayed in B, KB, MB, GB and PB.
+- Fixed deleted chats still displaying in list after mass clearing.
