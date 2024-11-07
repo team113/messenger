@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
   flutter_custom_cursor
   gtk
+  irondash_engine_context
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_linux
@@ -15,6 +16,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever_linux
   sentry_flutter
   sqlite3_flutter_libs
+  super_native_extensions
   url_launcher_linux
   window_manager
 )
