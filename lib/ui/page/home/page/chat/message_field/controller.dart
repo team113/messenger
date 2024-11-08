@@ -24,7 +24,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:messenger/util/log.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
 import '/domain/model/application_settings.dart';
@@ -44,6 +43,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'component/more.dart';
