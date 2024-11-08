@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 import '/config.dart';
+import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
@@ -130,20 +131,25 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the [Block] displaying a [Chat.avatar].
   Widget _avatar(ChatInfoController c, BuildContext context) {
-    return Block(
-      children: [
-        SelectionContainer.disabled(
-          child: BigAvatarWidget.chat(
-            c.chat,
-            key: Key('ChatAvatar_${c.chat!.id}'),
-            loading: c.avatar.value.isLoading,
-            error: c.avatar.value.errorMessage,
-            onUpload: c.pickAvatar,
-            onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
+    return Obx(() {
+      final Avatar? avatar = c.chat?.avatar.value;
+
+      return Block(
+        children: [
+          SelectionContainer.disabled(
+            child: BigAvatarWidget.chat(
+              c.chat,
+              key: Key('ChatAvatar_${c.chat!.id}'),
+              loading: c.avatarUpload.value.isLoading,
+              error: c.avatarUpload.value.errorMessage,
+              onUpload: c.pickAvatar,
+              onEdit: avatar != null ? c.editAvatar : null,
+              onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
+            ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    });
   }
 
   /// Returns the [Block] displaying a [Chat.name].

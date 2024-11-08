@@ -1264,14 +1264,19 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> updateChatAvatar(
     ChatId id, {
     dio.MultipartFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateChatAvatar($id, $file, onSendProgress)',
+      'updateChatAvatar($id, $file, $crop, onSendProgress)',
       '$runtimeType',
     );
 
-    final variables = UpdateChatAvatarArguments(chatId: id, file: null);
+    final variables = UpdateChatAvatarArguments(
+      chatId: id,
+      file: null,
+      crop: crop,
+    );
     final query = MutationOptions(
       operationName: 'UpdateChatAvatar',
       document: UpdateChatAvatarMutation(variables: variables).document,

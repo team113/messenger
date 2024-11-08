@@ -27,22 +27,44 @@ class NotificationService: UNNotificationServiceExtension {
     _ request: UNNotificationRequest,
     withContentHandler contentHandler: @escaping (UNNotificationContent) -> Void
   ) {
-    let userInfo = request.content.userInfo
-
     Task {
-      if let chatId = userInfo["chatId"] as? String {
-        await acknowledgeDelivery(chatId: chatId)
+      let userInfo = request.content.userInfo
+
+      Task {
+        if let chatId = userInfo["thread"] as? String {
+          await acknowledgeDelivery(chatId: chatId)
+        }
       }
-    }
 
-    self.contentHandler = contentHandler
-    bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+      if (request.content.title == "Canceled" && request.content.body.isEmpty) {
+        if let thread = userInfo["thread"] as? String {
+          let center = UNUserNotificationCenter.current();
+          let notifications = await center.deliveredNotifications();
 
-    if let bestAttemptContent = bestAttemptContent {
-      Messaging.serviceExtension().populateNotificationContent(
-        bestAttemptContent,
-        withContentHandler: contentHandler
-      )
+          if (!notifications.filter{$0.request.content.threadIdentifier.contains(thread)}.isEmpty) {
+            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
+            cancelNotificationsContaining(thread: thread)
+          } else {
+
+            cancelNotificationsContaining(thread: thread)
+            try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
+            cancelNotificationsContaining(thread: thread)
+            return;
+          }
+        } else if let tag = userInfo["tag"] as? String {
+          cancelNotification(tag: tag)
+        }
+      } else {
+        self.contentHandler = contentHandler
+        bestAttemptContent = (request.content.mutableCopy() as? UNMutableNotificationContent)
+
+        if let bestAttemptContent = bestAttemptContent {
+          Messaging.serviceExtension().populateNotificationContent(
+            bestAttemptContent,
+            withContentHandler: contentHandler
+          )
+        }
+      }
     }
   }
 
@@ -64,8 +86,8 @@ class NotificationService: UNNotificationServiceExtension {
       let accounts = Table("accounts")
       let tokens = Table("tokens")
 
-      let userId = Expression<String>("user_id")
-      let credentials = Expression<String>("credentials")
+      let userId = SQLite.Expression<String>("user_id")
+      let credentials = SQLite.Expression<String>("credentials")
 
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]
@@ -254,5 +276,27 @@ class NotificationService: UNNotificationServiceExtension {
 
   struct RefreshSessionResponseDataCredentialsUser: Decodable {
     let id: String
+  }
+
+  /// Remove the delivered notification with the provided tag.
+  private func cancelNotification(tag: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+    }
+  }
+
+  /// Remove the delivered notifications containing the provided thread.
+  private func cancelNotificationsContaining(thread: String) {
+    if #available(iOS 10.0, *) {
+      let center = UNUserNotificationCenter.current();
+      center.getDeliveredNotifications { (notifications) in
+        for notification in notifications {
+          if (notification.request.content.threadIdentifier.contains(thread) == true) {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+          }
+        }
+      }
+    }
   }
 }

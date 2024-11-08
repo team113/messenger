@@ -193,7 +193,7 @@ class AuthRepository extends DisposableInterface
 
   @override
   Future<void> removeAccount(UserId id, {bool keepProfile = false}) async {
-    Log.debug('removeAccount($id)', '$runtimeType');
+    Log.debug('removeAccount($id, keepProfile: $keepProfile)', '$runtimeType');
 
     if (!keepProfile) {
       profiles.removeWhere((e) => e.id == id);

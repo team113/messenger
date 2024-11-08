@@ -178,6 +178,12 @@ class WebUtils {
     // No-op.
   }
 
+  /// Ensures a call in the provided [chatId] is considered active the browser's
+  /// storage.
+  static void pingCall(ChatId chatId) {
+    // No-op.
+  }
+
   /// Removes a call identified by the provided [chatId] from the browser's
   /// storage.
   static void removeCall(ChatId chatId) {
@@ -225,22 +231,27 @@ class WebUtils {
     // No-op.
   }
 
-  /// Requests the permission to use a camera.
-  static Future<void> cameraPermission() async {
+  /// Requests the permission to use a camera and holds it until unsubscribed.
+  static Future<StreamSubscription<void>> cameraPermission() async {
     try {
       await Permission.camera.request();
     } catch (_) {
       // No-op.
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
-  /// Requests the permission to use a microphone.
-  static Future<void> microphonePermission() async {
+  /// Requests the permission to use a microphone and holds it until
+  /// unsubscribed.
+  static Future<StreamSubscription<void>> microphonePermission() async {
     try {
       await Permission.microphone.request();
     } catch (_) {
       // No-op.
     }
+
+    return const Stream.empty().listen((_) {});
   }
 
   /// Replaces the provided [from] with the specified [to] in the current URL.

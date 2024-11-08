@@ -17,10 +17,6 @@
 
 // ignore_for_file: avoid_web_libraries_in_flutter
 
-/// Helper providing direct access to browser-only features.
-@JS()
-library web_utils;
-
 import 'dart:async';
 import 'dart:convert';
 import 'dart:js_interop';
@@ -135,16 +131,6 @@ class WebUtils {
 
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
-
-  /// Indicator whether [cameraPermission] has finished successfully.
-  ///
-  /// Only populated and used, if [isFirefox] is `true`.
-  static bool _hasCameraPermission = false;
-
-  /// Indicator whether [microphonePermission] has finished successfully.
-  ///
-  /// Only populated and used, if [isFirefox] is `true`.
-  static bool _hasMicrophonePermission = false;
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
@@ -310,8 +296,11 @@ class WebUtils {
     bool held = false;
 
     try {
-      final locks = await _getLocks().toDart;
-      held = (locks as List?)?.any((e) => e.name == 'mutex') == true;
+      final locks = (await _getLocks().toDart) as JSArray;
+      held = locks.toDart
+              .map((e) => e?.dartify() as Map?)
+              .any((e) => e?['name'] == 'mutex') ==
+          true;
     } catch (e) {
       held = false;
     }
@@ -547,23 +536,37 @@ class WebUtils {
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
   static WebStoredCall? getCall(ChatId chatId) {
-    var data = web.window.localStorage['call_$chatId'];
+    final data = web.window.localStorage['call_$chatId'];
     if (data != null) {
-      return WebStoredCall.fromJson(json.decode(data));
+      final at = web.window.localStorage['at_call_$chatId'];
+      final updatedAt = at == null ? DateTime.now() : DateTime.parse(at);
+      if (DateTime.now().difference(updatedAt).inSeconds <= 1) {
+        return WebStoredCall.fromJson(json.decode(data));
+      }
     }
 
     return null;
   }
 
   /// Stores the provided [call] in the browser's storage.
-  static void setCall(WebStoredCall call) =>
-      web.window.localStorage['call_${call.chatId}'] =
-          json.encode(call.toJson());
+  static void setCall(WebStoredCall call) {
+    web.window.localStorage['call_${call.chatId}'] = json.encode(call.toJson());
+    web.window.localStorage['at_call_${call.chatId}'] =
+        DateTime.now().add(const Duration(seconds: 5)).toString();
+  }
+
+  /// Ensures a call in the provided [chatId] is considered active the browser's
+  /// storage.
+  static void pingCall(ChatId chatId) {
+    web.window.localStorage['at_call_$chatId'] = DateTime.now().toString();
+  }
 
   /// Removes a call identified by the provided [chatId] from the browser's
   /// storage.
-  static void removeCall(ChatId chatId) =>
-      web.window.localStorage.removeItem('call_$chatId');
+  static void removeCall(ChatId chatId) {
+    web.window.localStorage.removeItem('call_$chatId');
+    web.window.localStorage.removeItem('at_call_$chatId');
+  }
 
   /// Moves a call identified by its [chatId] to the [newChatId] replacing its
   /// stored state with an optional [newState].
@@ -590,8 +593,7 @@ class WebUtils {
 
   /// Indicates whether the browser's storage contains a call identified by the
   /// provided [chatId].
-  static bool containsCall(ChatId chatId) =>
-      web.window.localStorage.getItem('call_$chatId') != null;
+  static bool containsCall(ChatId chatId) => getCall(chatId) != null;
 
   /// Indicates whether the browser's storage contains any calls.
   static bool containsCalls() {
@@ -638,9 +640,9 @@ class WebUtils {
   static void consoleError(Object? object) =>
       web.console.error(object?.toString().toJS);
 
-  /// Requests the permission to use a camera.
-  static Future<void> cameraPermission() async {
-    bool granted = _hasCameraPermission;
+  /// Requests the permission to use a camera and holds it until unsubscribed.
+  static Future<StreamSubscription<void>> cameraPermission() async {
+    bool granted = false;
 
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
@@ -657,18 +659,27 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        _hasCameraPermission = true;
-      }
+        final StreamController controller = StreamController(onCancel: () {
+          for (var e in stream.getTracks().toDart) {
+            e.stop();
+          }
+        });
 
-      for (var e in stream.getTracks().toDart) {
-        e.stop();
+        return controller.stream.listen((_) {});
+      } else {
+        for (var e in stream.getTracks().toDart) {
+          e.stop();
+        }
       }
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
-  /// Requests the permission to use a microphone.
-  static Future<void> microphonePermission() async {
-    bool granted = _hasMicrophonePermission;
+  /// Requests the permission to use a microphone and holds it until
+  /// unsubscribed.
+  static Future<StreamSubscription<void>> microphonePermission() async {
+    bool granted = false;
 
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
@@ -685,13 +696,21 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        _hasMicrophonePermission = true;
-      }
+        final StreamController controller = StreamController(onCancel: () {
+          for (var e in stream.getTracks().toDart) {
+            e.stop();
+          }
+        });
 
-      for (var e in stream.getTracks().toDart) {
-        e.stop();
+        return controller.stream.listen((_) {});
+      } else {
+        for (var e in stream.getTracks().toDart) {
+          e.stop();
+        }
       }
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
@@ -713,7 +732,9 @@ class WebUtils {
       if (e != null) {
         e.setProperty(
           'href'.toJS,
-          (e.getProperty('href'.toJS) as String)
+          e
+              .getProperty('href'.toJS)
+              ?.toString()
               .replaceFirst('icons/', 'icons/alert/')
               .toJS,
         );
@@ -730,7 +751,9 @@ class WebUtils {
       if (e != null) {
         e.setProperty(
           'href'.toJS,
-          (e.getProperty('href'.toJS) as String)
+          e
+              .getProperty('href'.toJS)
+              .toString()
               .replaceFirst('icons/alert/', 'icons/')
               .toJS,
         );

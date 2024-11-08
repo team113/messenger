@@ -47,6 +47,7 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
 import '/provider/gql/exceptions.dart'
     show
@@ -77,6 +78,7 @@ class ChatsTabController extends GetxController {
     this._userService,
     this._contactService,
     this._myUserService,
+    this._sessionService,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -147,6 +149,9 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
+  /// [SessionService] for checking the current [connected] status.
+  final SessionService _sessionService;
+
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -175,6 +180,9 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether the [chats] have a next page.
   RxBool get hasNext => _chatService.hasNext;
+
+  /// Indicates whether the current device is connected to any network.
+  RxBool get connected => _sessionService.connected;
 
   @override
   void onInit() {
@@ -377,12 +385,11 @@ class ChatsTabController extends GetxController {
   /// well if [clear] is `true`.
   Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      final Iterable<Future> futures = [
-        if (clear) _chatService.clearChat(id),
-        _chatService.hideChat(id)
-      ];
+      await _chatService.hideChat(id);
 
-      await Future.wait(futures);
+      if (clear) {
+        await _chatService.clearChat(id);
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
@@ -402,12 +409,11 @@ class ChatsTabController extends GetxController {
     router.navigation.value = !selecting.value;
 
     try {
-      final Iterable<Future> futures = [
-        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
-        ...selectedChats.map((e) => _chatService.hideChat(e)),
-      ];
+      await Future.wait(selectedChats.map(_chatService.hideChat));
 
-      await Future.wait(futures);
+      if (clear) {
+        await Future.wait(selectedChats.map(_chatService.clearChat));
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {

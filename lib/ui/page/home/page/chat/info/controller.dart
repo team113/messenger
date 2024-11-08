@@ -26,8 +26,10 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '/api/backend/schema.dart' show CropAreaInput;
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -46,7 +48,9 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/home/page/my_profile/crop_avatar/view.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -79,7 +83,7 @@ class ChatInfoController extends GetxController {
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
   /// Status of the [Chat.avatar] upload or removal.
-  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+  final Rx<RxStatus> avatarUpload = Rx<RxStatus>(RxStatus.empty());
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -245,13 +249,21 @@ class ChatInfoController extends GetxController {
   Future<void> pickAvatar() async {
     final FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
-      withReadStream: !PlatformUtils.isWeb,
-      withData: PlatformUtils.isWeb,
+      allowMultiple: false,
+      withData: true,
       lockParentWindow: true,
     );
 
     if (result != null) {
-      updateChatAvatar(result.files.first);
+      final PlatformFile file = result.files.first;
+
+      final CropAreaInput? crop =
+          await CropAvatarView.show(router.context!, file.bytes!);
+      if (crop == null) {
+        return;
+      }
+
+      await updateChatAvatar(file);
     }
   }
 
@@ -260,20 +272,24 @@ class ChatInfoController extends GetxController {
 
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// `null`.
-  Future<void> updateChatAvatar(PlatformFile? image) async {
-    avatar.value = RxStatus.loading();
+  Future<void> updateChatAvatar(
+    PlatformFile? image, {
+    CropAreaInput? crop,
+  }) async {
+    avatarUpload.value = RxStatus.loading();
 
     try {
       await _chatService.updateChatAvatar(
         chatId,
         file: image == null ? null : NativeFile.fromPlatformFile(image),
+        crop: crop,
       );
 
-      avatar.value = RxStatus.empty();
+      avatarUpload.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
-      avatar.value = RxStatus.error(e.toMessage());
+      avatarUpload.value = RxStatus.error(e.toMessage());
     } catch (e) {
-      avatar.value = RxStatus.empty();
+      avatarUpload.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
     }
@@ -478,6 +494,43 @@ class ChatInfoController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlighted.value = null;
     });
+  }
+
+  /// Opens the [CropAvatarView] to update the [MyUser.avatar] with the
+  /// [CropAreaInput] returned from it.
+  Future<void> editAvatar() async {
+    final ImageFile? file = chat?.chat.value.avatar?.original;
+    if (file == null) {
+      return;
+    }
+
+    avatarUpload.value = RxStatus.loading();
+
+    try {
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: file.url,
+        checksum: file.checksum,
+      );
+
+      if (cache.bytes != null) {
+        final CropAreaInput? crop =
+            await CropAvatarView.show(router.context!, cache.bytes!);
+
+        if (crop != null) {
+          await _chatService.updateChatAvatar(
+            chatId,
+            file: NativeFile(
+              name: file.name,
+              size: cache.bytes!.lengthInBytes,
+              bytes: cache.bytes,
+            ),
+            crop: crop,
+          );
+        }
+      }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
   }
 
   /// Fetches the [chat].

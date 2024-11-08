@@ -1,3 +1,7 @@
-- Fixed active call's duration not being refreshed on chat's page.
-- Fixed "restore chat" button clipping chats on mobile platforms.
-- Fixed inability to input chat's name during group creation in Firefox.
+- Added swipe to reply trackpad gesture on macOS.
+- Added messages searching on chat page.
+- Added device being offline label to chats tab.
+- Updated file sizes to be displayed in B, KB, MB, GB and PB.
+- Fixed invalid diagonal window resize cursors on macOS.
+- Fixed deleted chats still displaying in list after mass clearing.
+- Fixed invalid camera, microphone and output device names in Firefox.

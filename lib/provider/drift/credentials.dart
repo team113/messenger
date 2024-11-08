@@ -151,16 +151,14 @@ class CredentialsDriftProvider extends DriftProviderBase {
   /// Returns the [Stream] of real-time changes happening with the
   /// [Credentials].
   Stream<List<MapChangeNotification<UserId, Credentials?>>> watch() {
-    if (db == null) {
-      return const Stream.empty();
-    }
-
-    final stmt = db!.select(db!.tokens);
-    return stmt
-        .watch()
-        .map((rows) => rows.map(_CredentialsDb.fromDb).toList())
-        .map((i) => {for (var e in i) e.userId: e})
-        .changes();
+    return stream((db) {
+      final stmt = db.select(db.tokens);
+      return stmt
+          .watch()
+          .map((rows) => rows.map(_CredentialsDb.fromDb).toList())
+          .map((i) => {for (var e in i) e.userId: e})
+          .changes();
+    });
   }
 }
 

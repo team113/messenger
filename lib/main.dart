@@ -15,12 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-/// Mobile front-end part of social network project.
-///
-/// Application is currently under heavy development and may change drastically
-/// between minor revisions.
-library main;
-
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
@@ -31,6 +25,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_callkit_incoming/entities/entities.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
@@ -74,7 +69,6 @@ import 'themes.dart';
 import 'ui/worker/cache.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
-import 'util/android_utils.dart';
 import 'util/backoff.dart';
 import 'util/get.dart';
 import 'util/ios_utils.dart';
@@ -101,10 +95,11 @@ Future<void> main() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
 
-    Get.put(
-      CommonDriftProvider.from(
+    Get.putOrGet<CommonDriftProvider>(
+      () => CommonDriftProvider.from(
         Get.putOrGet(() => CommonDatabase(), permanent: true),
       ),
+      permanent: true,
     );
 
     final myUserProvider = Get.put(MyUserDriftProvider(Get.find()));
@@ -297,11 +292,9 @@ Future<void> main() async {
 /// Messaging notification background handler.
 @pragma('vm:entry-point')
 Future<void> handlePushNotification(RemoteMessage message) async {
-  Log.debug('handlePushNotification($message)', 'main');
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  Log.debug('handlePushNotification($message)', 'main');
 
   if (message.notification?.android?.tag?.endsWith('_call') == true &&
       message.data['chatId'] != null) {
@@ -432,16 +425,28 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     // If message contains no notification (it's a background notification),
     // then try canceling the notifications with the provided thread, if any, or
     // otherwise a single one, if data contains a tag.
-    if (message.notification == null) {
+    if (message.notification == null ||
+        (message.notification?.title == 'Canceled' &&
+            message.notification?.body == null)) {
       final String? tag = message.data['tag'];
       final String? thread = message.data['thread'];
 
       if (PlatformUtils.isAndroid) {
-        if (thread != null) {
-          await AndroidUtils.cancelNotificationsContaining(thread);
-        } else if (tag != null) {
-          await AndroidUtils.cancelNotification(tag);
-        }
+        final FlutterLocalNotificationsPlugin plugin =
+            FlutterLocalNotificationsPlugin();
+
+        Future.delayed(
+          const Duration(milliseconds: 16),
+          () async {
+            final notifications = await plugin.getActiveNotifications();
+
+            for (var e in notifications) {
+              if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
+                plugin.cancel(e.id ?? 0, tag: e.tag);
+              }
+            }
+          },
+        );
       } else if (PlatformUtils.isIOS) {
         if (thread != null) {
           await IosUtils.cancelNotificationsContaining(thread);
@@ -458,7 +463,7 @@ Future<void> handlePushNotification(RemoteMessage message) async {
     // Service Extension, as this code isn't guaranteed to be invoked at all,
     // especially for visual notifications.
     if (PlatformUtils.isAndroid) {
-      final String? chatId = message.data['chatId'];
+      final String? chatId = message.data['thread'] ?? message.data['chatId'];
 
       if (chatId != null) {
         await Config.init();

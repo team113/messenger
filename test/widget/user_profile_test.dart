@@ -84,6 +84,7 @@ void main() async {
   await accountProvider.upsert(const UserId('me'));
 
   final graphQlProvider = MockGraphQlProvider();
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
     (_) => const Stream.empty(),

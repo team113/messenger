@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
@@ -23,6 +24,7 @@ import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/repository/chat.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
+import 'package:messenger/store/chat_rx.dart';
 
 import '../configuration.dart';
 import '../world/custom_world.dart';
@@ -34,19 +36,38 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric tapMessage = then1<String, CustomWorld>(
   'I tap {string} message',
   (text, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.text?.val == text);
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      ChatMessage? message = chat!.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .firstWhereOrNull((e) => e.text?.val == text);
 
-    final Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+      if (message == null) {
+        final RxChatImpl rxChat = chat as RxChatImpl;
+        message = rxChat.fragments
+            .map((e) => e.items.values)
+            .expand((e) => e)
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhereOrNull((e) => e.text?.val == text);
+      }
 
-    await context.world.appDriver.nativeDriver.tap(finder, warnIfMissed: false);
-    await context.world.appDriver.waitForAppToSettle();
+      if (message == null) {
+        return false;
+      }
+
+      final Finder finder = context.world.appDriver
+          .findByKeySkipOffstage('Message_${message.id}');
+
+      await context.world.appDriver.nativeDriver
+          .tap(finder, warnIfMissed: false);
+      await context.world.appDriver.waitForAppToSettle();
+
+      return true;
+    });
   },
 );

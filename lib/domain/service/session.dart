@@ -31,6 +31,9 @@ class SessionService extends DisposableService {
   /// Returns the reactive list of active [Session]s.
   RxList<RxSession> get sessions => _sessionRepository.sessions;
 
+  /// Indicates whether the current device is connected to any network.
+  RxBool get connected => _sessionRepository.connected;
+
   /// Sets the provided [language] as a preferred localization of
   /// [IpGeoLocation].
   void setLanguage(String? language) =>

@@ -730,20 +730,58 @@ class CustomMouseCursors {
     return SystemMouseCursors.grabbing;
   }
 
+  /// Returns a resize up-left down-right [MouseCursor].
+  static MouseCursor get resizeUpLeftDownRight {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'resizeUpLeftDownRight');
+    }
+
+    return SystemMouseCursors.resizeUpLeftDownRight;
+  }
+
+  /// Returns a resize up-right down-left [MouseCursor].
+  static MouseCursor get resizeUpRightDownLeft {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'resizeUpRightDownLeft');
+    }
+
+    return SystemMouseCursors.resizeUpRightDownLeft;
+  }
+
   /// Ensures these [CustomMouseCursors] are initialized.
   static Future<void> ensureInitialized() async {
     if (!_initialized) {
       _initialized = true;
 
-      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-        await _initCursor('assets/images/grab.bgra', 'grab');
-        await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+      if (!PlatformUtils.isWeb) {
+        if (PlatformUtils.isWindows) {
+          await _initCursor('assets/images/grab.bgra', 'grab');
+          await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+        } else if (PlatformUtils.isMacOS) {
+          await _initCursor(
+            'assets/images/resizeUpLeftDownRight.png',
+            'resizeUpLeftDownRight',
+            width: 15,
+            height: 15,
+          );
+          await _initCursor(
+            'assets/images/resizeUpRightDownLeft.png',
+            'resizeUpRightDownLeft',
+            width: 15,
+            height: 15,
+          );
+        }
       }
     }
   }
 
   /// Registers a custom [MouseCursor] from the provided [path] and [name].
-  static Future<void> _initCursor(String path, String name) async {
+  static Future<void> _initCursor(
+    String path,
+    String name, {
+    double width = 30,
+    double height = 30,
+  }) async {
     try {
       final ByteData bytes = await rootBundle.load(path);
 
@@ -751,10 +789,10 @@ class CustomMouseCursors {
         CursorData()
           ..name = name
           ..buffer = bytes.buffer.asUint8List()
-          ..height = 30
-          ..width = 30
-          ..hotX = 15
-          ..hotY = 15,
+          ..height = height.round()
+          ..width = width.round()
+          ..hotX = width / 2
+          ..hotY = height / 2,
       );
     } catch (e) {
       Log.error(

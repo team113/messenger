@@ -95,7 +95,9 @@ class RecentChatTile extends StatelessWidget {
   final bool blocked;
 
   /// Indicator whether this [RecentChatTile] is selected.
-  final bool selected;
+  ///
+  /// If `null`, then uses the [ChatIsRoute.isRoute].
+  final bool? selected;
 
   /// Indicator whether [ChatIsRoute.isRoute] should be treated as [selected].
   final bool invertible;
@@ -175,7 +177,7 @@ class RecentChatTile extends StatelessWidget {
       final String? lastRoute =
           router.routes.lastWhereOrNull((e) => e.startsWith(Routes.chats));
       final bool isRoute = chat.isRoute(lastRoute ?? '', me);
-      final bool inverted = selected || (invertible && isRoute);
+      final bool inverted = selected ?? (invertible && isRoute);
 
       return Slidable(
         key: Key(rxChat.id.val),
@@ -234,7 +236,9 @@ class RecentChatTile extends StatelessWidget {
               child: Row(
                 children: [
                   const SizedBox(height: 3),
-                  Expanded(child: _subtitle(context, selected, inverted)),
+                  Expanded(
+                    child: _subtitle(context, selected ?? false, inverted),
+                  ),
                   const SizedBox(width: 3),
                   _status(context, inverted),
                   if (!chat.id.isLocal)
@@ -949,6 +953,10 @@ class RecentChatTile extends StatelessWidget {
                           ? const Duration(minutes: 1)
                           : const Duration(seconds: 1),
                       builder: (_) {
+                        if (chat.ongoingCall == null) {
+                          return const SizedBox();
+                        }
+
                         final Duration duration =
                             DateTime.now().difference(chat.ongoingCall!.at.val);
                         final String text = duration.hhMmSs();

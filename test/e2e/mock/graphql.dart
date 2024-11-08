@@ -17,6 +17,7 @@
 
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
@@ -49,6 +50,9 @@ class MockGraphQlProvider extends GraphQlProvider {
   set token(AccessTokenSecret? value) => _client.token = value;
 
   @override
+  RxBool get connected => _client.connected;
+
+  @override
   Future<void> reconnect() => _client.reconnect();
 
   @override
@@ -56,6 +60,14 @@ class MockGraphQlProvider extends GraphQlProvider {
 
   @override
   void clearCache() => _client.clearCache();
+
+  @override
+  void addListener(void Function(Exception?) handler) =>
+      _client.addListener(handler);
+
+  @override
+  void removeListener(void Function(Exception?) handler) =>
+      _client.removeListener(handler);
 
   @override
   Future<MyUserEventsVersionedMixin?> addUserEmail(
@@ -120,13 +132,32 @@ class MockGraphQlProvider extends GraphQlProvider {
 
 /// Mocked [GraphQlClient] with an ability to add [delay] to its requests.
 class MockGraphQlClient extends GraphQlClient {
-  /// [Duration] to add to all requests simulating a delay.
-  Duration? delay;
-
   /// Indicator whether requests should throw [ConnectionException]s or not.
   ///
   /// Intended to be used to simulate a connection loss.
-  bool throwException = false;
+  bool _throwException = false;
+
+  /// [Duration] to add to all requests simulating a delay.
+  Duration? _delay;
+
+  /// Indicates whether requests should throw [ConnectionException]s or not.
+  bool get throwException => _throwException;
+
+  /// Sets the indicator whether requests should throw [ConnectionException]s or
+  /// not.
+  set throwException(bool value) {
+    connected.value = !value;
+    _throwException = value;
+  }
+
+  /// Returns the [Duration] to add to all requests simulating a delay.
+  Duration? get delay => _delay;
+
+  /// Sets the [Duration] to add to all requests simulating a delay.
+  set delay(Duration? value) {
+    connected.value = true;
+    _delay = value;
+  }
 
   @override
   Future<QueryResult> query(
@@ -138,6 +169,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -155,6 +187,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -174,6 +207,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 

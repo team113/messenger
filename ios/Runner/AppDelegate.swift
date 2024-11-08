@@ -18,6 +18,7 @@
  */
 
 import Flutter
+import Firebase
 import FirebaseMessaging
 import MachO
 import UIKit
@@ -55,6 +56,7 @@ import UIKit
       }
     })
 
+    FirebaseApp.configure()
     if #available(iOS 10.0, *) {
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
@@ -64,6 +66,16 @@ import UIKit
     UIApplication.shared.registerForRemoteNotifications()
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
+
+  override func application(
+    _ application: UIApplication,
+    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+  ) {
+    super.application(
+      application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler
+    )
   }
 
   /// Return the architecture of this device.

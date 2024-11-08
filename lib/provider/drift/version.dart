@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:drift/remote.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/user.dart';
@@ -94,14 +95,20 @@ class VersionDriftProvider extends DriftProviderBase {
     this.data[userId] = (existing ?? SessionData()).copyFrom(data);
 
     final result = await safe((db) async {
-      final SessionData stored = _SessionDataDb.fromDb(
-        await db.into(db.versions).insertReturning(
-              data.toDb(userId),
-              onConflict: DoUpdate((_) => data.toDb(userId)),
-            ),
-      );
+      try {
+        final SessionData stored = _SessionDataDb.fromDb(
+          await db.into(db.versions).insertReturning(
+                data.toDb(userId),
+                onConflict: DoUpdate((_) => data.toDb(userId)),
+              ),
+        );
 
-      return stored;
+        return stored;
+      } on DriftRemoteException {
+        // Upsert may fail during E2E tests due to rapid database resetting and
+        // creating.
+        return null;
+      }
     });
 
     return result ?? data;

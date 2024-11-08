@@ -34,6 +34,7 @@ import 'package:messenger/domain/service/call.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/domain/service/contact.dart';
 import 'package:messenger/domain/service/my_user.dart';
+import 'package:messenger/domain/service/session.dart';
 import 'package:messenger/domain/service/user.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/background.dart';
@@ -47,8 +48,10 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/geolocation.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/session.dart';
 import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
@@ -60,6 +63,7 @@ import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
 import 'package:messenger/store/contact.dart';
 import 'package:messenger/store/my_user.dart';
+import 'package:messenger/store/session.dart';
 import 'package:messenger/store/settings.dart';
 import 'package:messenger/store/user.dart';
 import 'package:messenger/themes.dart';
@@ -67,6 +71,7 @@ import 'package:messenger/ui/page/home/tab/chats/view.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
+import '../mock/geo_provider.dart';
 import 'chat_hide_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider, PlatformRouteInformationProvider])
@@ -94,8 +99,11 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final versionProvider = Get.put(VersionDriftProvider(common));
+  final sessionProvider = Get.put(SessionDriftProvider(common, scoped));
+  final geoProvider = Get.put(GeoLocationDriftProvider(common));
 
   var graphQlProvider = Get.put(MockGraphQlProvider());
+  when(graphQlProvider.connected).thenReturn(RxBool(true));
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.recentChatsTopEvents(3)).thenAnswer(
     (_) => Stream.value(
@@ -266,6 +274,18 @@ void main() async {
         }
       })),
     );
+
+    SessionRepository sessionRepository = Get.put(
+      SessionRepository(
+        graphQlProvider,
+        accountProvider,
+        versionProvider,
+        sessionProvider,
+        geoProvider,
+        MockedGeoLocationProvider(),
+      ),
+    );
+    Get.put(SessionService(sessionRepository));
 
     UserRepository userRepository =
         UserRepository(graphQlProvider, userProvider);

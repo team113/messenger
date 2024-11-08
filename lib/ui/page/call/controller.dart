@@ -1048,6 +1048,8 @@ class CallController extends GetxController {
 
     updateSecondaryAttach();
     applySecondaryConstraints();
+
+    refresh();
   }
 
   /// Invokes [focusAll], moving every [Participant] to their `default`, or
@@ -1581,6 +1583,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeX.right:
         double w = _applyWidth(context, width.value - dx!);
         if (width.value - dx == w) {
@@ -1590,6 +1593,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }
@@ -1608,6 +1612,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       case ScaleModeY.bottom:
         double h = _applyHeight(context, height.value - dy!);
         if (height.value - dy == h) {
@@ -1617,6 +1622,7 @@ class CallController extends GetxController {
           }
         }
         break;
+
       default:
         break;
     }

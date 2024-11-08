@@ -112,27 +112,25 @@ class BackgroundDriftProvider extends DriftProviderBase {
   /// Returns the [Stream] of real-time changes happening with the
   /// [DtoBackground] identified by the provided [id].
   Stream<DtoBackground?> watch(UserId id) {
-    if (db == null) {
-      return const Stream.empty();
-    }
+    return stream((db) {
+      final stmt = db.select(db.background)
+        ..where((u) => u.userId.equals(id.val));
 
-    final stmt = db!.select(db!.background)
-      ..where((u) => u.userId.equals(id.val));
+      StreamController<DtoBackground?>? controller = _controllers[id];
+      if (controller == null) {
+        controller = StreamController<DtoBackground?>.broadcast(sync: true);
+        _controllers[id] = controller;
+      }
 
-    StreamController<DtoBackground?>? controller = _controllers[id];
-    if (controller == null) {
-      controller = StreamController<DtoBackground?>.broadcast(sync: true);
-      _controllers[id] = controller;
-    }
-
-    return StreamGroup.merge(
-      [
-        controller.stream,
-        stmt
-            .watch()
-            .map((e) => e.isEmpty ? null : _BackgroundDb.fromDb(e.first)),
-      ],
-    );
+      return StreamGroup.merge(
+        [
+          controller.stream,
+          stmt
+              .watch()
+              .map((e) => e.isEmpty ? null : _BackgroundDb.fromDb(e.first)),
+        ],
+      );
+    });
   }
 }
 

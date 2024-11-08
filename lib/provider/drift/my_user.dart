@@ -154,38 +154,34 @@ class MyUserDriftProvider extends DriftProviderBase {
 
   /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]s.
   Stream<List<MapChangeNotification<UserId, DtoMyUser>>> watch() {
-    if (db == null) {
-      return const Stream.empty();
-    }
-
-    return db!
-        .select(db!.myUsers)
-        .watch()
-        .map((items) => {for (var e in items.map(_MyUserDb.fromDb)) e.id: e})
-        .changes();
+    return stream((db) {
+      return db
+          .select(db.myUsers)
+          .watch()
+          .map((items) => {for (var e in items.map(_MyUserDb.fromDb)) e.id: e})
+          .changes();
+    });
   }
 
   /// Returns the [Stream] of real-time changes happening with the [DtoMyUser]
   /// identified by the provided [id].
   Stream<DtoMyUser?> watchSingle(UserId id) {
-    if (db == null) {
-      return const Stream.empty();
-    }
+    return stream((db) {
+      final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
 
-    final stmt = db!.select(db!.myUsers)..where((u) => u.id.equals(id.val));
+      StreamController<DtoMyUser?>? controller = _controllers[id];
+      if (controller == null) {
+        controller = StreamController<DtoMyUser?>.broadcast(sync: true);
+        _controllers[id] = controller;
+      }
 
-    StreamController<DtoMyUser?>? controller = _controllers[id];
-    if (controller == null) {
-      controller = StreamController<DtoMyUser?>.broadcast(sync: true);
-      _controllers[id] = controller;
-    }
-
-    return StreamGroup.merge(
-      [
-        controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : _MyUserDb.fromDb(e.first)),
-      ],
-    );
+      return StreamGroup.merge(
+        [
+          controller.stream,
+          stmt.watch().map((e) => e.isEmpty ? null : _MyUserDb.fromDb(e.first)),
+        ],
+      );
+    });
   }
 }
 
