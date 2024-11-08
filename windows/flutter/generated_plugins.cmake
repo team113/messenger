@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   firebase_core
   flutter_custom_cursor
+  irondash_engine_context
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_windows_video
@@ -18,6 +19,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   screen_retriever_windows
   share_plus
   sqlite3_flutter_libs
+  super_native_extensions
   url_launcher_windows
   win_toast
   window_manager

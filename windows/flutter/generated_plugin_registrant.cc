@@ -12,6 +12,7 @@
 #include <file_selector_windows/file_selector_windows.h>
 #include <firebase_core/firebase_core_plugin_c_api.h>
 #include <flutter_custom_cursor/flutter_custom_cursor_plugin.h>
+#include <irondash_engine_context/irondash_engine_context_plugin_c_api.h>
 #include <medea_flutter_webrtc/medea_flutter_webrtc_plugin_c_api.h>
 #include <medea_jason/medea_jason_plugin.h>
 #include <media_kit_libs_windows_video/media_kit_libs_windows_video_plugin_c_api.h>
@@ -21,6 +22,7 @@
 #include <screen_retriever_windows/screen_retriever_windows_plugin_c_api.h>
 #include <share_plus/share_plus_windows_plugin_c_api.h>
 #include <sqlite3_flutter_libs/sqlite3_flutter_libs_plugin.h>
+#include <super_native_extensions/super_native_extensions_plugin_c_api.h>
 #include <url_launcher_windows/url_launcher_windows.h>
 #include <win_toast/win_toast_plugin.h>
 #include <window_manager/window_manager_plugin.h>
@@ -39,6 +41,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("FirebaseCorePluginCApi"));
   FlutterCustomCursorPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("FlutterCustomCursorPlugin"));
+  IrondashEngineContextPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("IrondashEngineContextPluginCApi"));
   MedeaFlutterWebrtcPluginCApiRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("MedeaFlutterWebrtcPluginCApi"));
   MedeaJasonPluginRegisterWithRegistrar(
@@ -57,6 +61,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("SharePlusWindowsPluginCApi"));
   Sqlite3FlutterLibsPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("Sqlite3FlutterLibsPlugin"));
+  SuperNativeExtensionsPluginCApiRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("SuperNativeExtensionsPluginCApi"));
   UrlLauncherWindowsRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("UrlLauncherWindows"));
   WinToastPluginRegisterWithRegistrar(
