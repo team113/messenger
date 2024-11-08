@@ -438,7 +438,7 @@ class MessageFieldController extends GetxController {
 
       final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
       Log.debug(
-        '_pasteItem() -> formats: ${formats.map((e) => e.runtimeType)}',
+        '_pasteItem() -> formats${formats.map((e) => e.runtimeType)} with mime types${formats.whereType<SimpleFileFormat>().map((e) => e.receiverFormats)}',
         '$runtimeType',
       );
 
@@ -448,13 +448,10 @@ class MessageFieldController extends GetxController {
       if (file != null) {
         final String? name = await e.getSuggestedName();
 
-        Log.debug('_pasteItem() -> suggested name is: name', '$runtimeType');
+        Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
-        if (name != null || PlatformUtils.isWeb) {
-          e.getFile(
-            file,
-            (f) => _addReaderAttachment(f, suggested: name),
-          );
+        if (name != null) {
+          e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
           handled = true;
         }
       }
