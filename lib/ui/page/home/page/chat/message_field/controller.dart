@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:messenger/util/log.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
 import '/domain/model/application_settings.dart';
@@ -415,6 +416,7 @@ class MessageFieldController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
+  /// Reads the [SystemClipboard] and pastes any content contained in it.
   Future<void> handlePaste() async {
     final clipboard = SystemClipboard.instance;
     if (clipboard == null) {
@@ -424,18 +426,20 @@ class MessageFieldController extends GetxController {
     _pasteItem(await clipboard.read());
   }
 
+  /// Reads the [event] and pastes any content contained in it.
   Future<void> _pasteEventListener(ClipboardReadEvent event) async {
     await _pasteItem(await event.getClipboardReader());
   }
 
+  /// Handles the [reader] to retrieve any content contained in it.
   Future<void> _pasteItem(ClipboardReader reader) async {
     for (var e in reader.items) {
       bool handled = false;
 
       final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
-      print('formats -> ${formats.map((e) => e.runtimeType)}');
-      print(
-        'files -> ${formats.whereType<SimpleFileFormat>().map((e) => e.receiverFormats)}',
+      Log.debug(
+        '_pasteItem() -> formats: ${formats.map((e) => e.runtimeType)}',
+        '$runtimeType',
       );
 
       final SimpleFileFormat? file =
@@ -443,7 +447,8 @@ class MessageFieldController extends GetxController {
 
       if (file != null) {
         final String? name = await e.getSuggestedName();
-        print('name -> $name');
+
+        Log.debug('_pasteItem() -> suggested name is: name', '$runtimeType');
 
         if (name != null || PlatformUtils.isWeb) {
           e.getFile(
@@ -478,7 +483,10 @@ class MessageFieldController extends GetxController {
             );
           }
         } else {
-          print('=== cannot provide');
+          Log.warning(
+            '_pasteItem() -> cannot provide a handler for the $e',
+            '$runtimeType',
+          );
         }
       }
     }
@@ -582,6 +590,7 @@ class MessageFieldController extends GetxController {
     return persisted ?? [];
   }
 
+  /// Adds the [DataReaderFile] as an [Attachment] to the [attachments].
   Future<void> _addReaderAttachment(
     DataReaderFile file, {
     String? suggested,
