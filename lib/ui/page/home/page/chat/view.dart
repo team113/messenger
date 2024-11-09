@@ -153,9 +153,9 @@ class ChatView extends StatelessWidget {
 
           return CustomDropTarget(
             key: Key('ChatView_$id'),
-            onDragDone: (details) => c.dropFiles(details),
-            onDragEntered: (_) => c.isDraggingFiles.value = true,
-            onDragExited: (_) => c.isDraggingFiles.value = false,
+            onPerformDrop: c.dropFiles,
+            onDropEnter: (_) => c.isDraggingFiles.value = true,
+            onDropLeave: (_) => c.isDraggingFiles.value = false,
             child: GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(

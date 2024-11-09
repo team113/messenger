@@ -16,31 +16,31 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 /// [DropTarget] allowed to be stacked over each other.
 class CustomDropTarget extends StatefulWidget {
   const CustomDropTarget({
     required super.key,
-    this.onDragDone,
-    this.onDragEntered,
-    this.onDragExited,
+    required this.onPerformDrop,
+    this.onDropEnter,
+    this.onDropLeave,
     required this.child,
   });
 
   /// [Widget] to wrap this [CustomDropTarget] around.
   final Widget child;
 
-  /// Callback, called when [DropTarget.onDragDone].
-  final void Function(DropDoneDetails)? onDragDone;
+  /// Callback, called when [DropRegion.onPerformDrop].
+  final Future<void> Function(PerformDropEvent) onPerformDrop;
 
-  /// Callback, called when [DropTarget.onDragEntered].
-  final void Function(DropEventDetails)? onDragEntered;
+  /// Callback, called when [DropRegion.onDropEnter].
+  final void Function(DropEvent)? onDropEnter;
 
-  /// Callback, called when [DropTarget.onDragExited].
-  final void Function(DropEventDetails)? onDragExited;
+  /// Callback, called when [DropRegion.onDropLeave].
+  final void Function(DropEvent)? onDropLeave;
 
   @override
   State<CustomDropTarget> createState() => _CustomDropTargetState();
@@ -66,14 +66,21 @@ class _CustomDropTargetState extends State<CustomDropTarget> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return DropTarget(
-        enable: keys.lastOrNull == widget.key,
-        onDragDone: widget.onDragDone,
-        onDragEntered: widget.onDragEntered,
-        onDragExited: widget.onDragExited,
-        child: widget.child,
-      );
-    });
+    return Obx(
+      () {
+        if (keys.lastOrNull != widget.key) {
+          return widget.child;
+        }
+        return DropRegion(
+          formats: Formats.standardFormats,
+          onDropOver: (event) =>
+              event.session.allowedOperations.firstOrNull ?? DropOperation.none,
+          onPerformDrop: widget.onPerformDrop,
+          onDropEnter: widget.onDropEnter,
+          onDropLeave: widget.onDropLeave,
+          child: widget.child,
+        );
+      },
+    );
   }
 }

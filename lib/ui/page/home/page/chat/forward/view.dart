@@ -115,9 +115,9 @@ class ChatForwardView extends StatelessWidget {
         return Obx(() {
           return CustomDropTarget(
             key: Key('ChatForwardView_$from'),
-            onDragDone: c.dropFiles,
-            onDragEntered: (_) => c.isDraggingFiles.value = true,
-            onDragExited: (_) => c.isDraggingFiles.value = false,
+            onPerformDrop: c.dropFiles,
+            onDropEnter: (_) => c.isDraggingFiles.value = true,
+            onDropLeave: (_) => c.isDraggingFiles.value = false,
             child: Stack(
               children: [
                 Container(

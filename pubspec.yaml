@@ -18,11 +18,6 @@ dependencies:
   collection: ^1.18.0
   connectivity_plus: ^6.1.0
   crypto: ^3.0.3
-  desktop_drop:
-    git:
-      url: https://github.com/MixinNetwork/flutter-plugins
-      path: packages/desktop_drop
-      ref: b2beb15590f7b6c38e650ae501923b9bd3e7849c
   device_info_plus: ^11.1.0
   dio: ^5.1.2
   dough: ^2.0.0
@@ -106,6 +101,7 @@ dependencies:
   sqlite3: ^2.4.4
   stdlibc: ^0.1.4
   super_clipboard: ^0.9.0-dev.3
+  super_drag_and_drop: ^0.9.0-dev.3
   toml: ^0.16.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12

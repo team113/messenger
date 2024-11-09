@@ -20,7 +20,6 @@ import 'dart:collection';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
@@ -30,7 +29,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/util/data_reader.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -97,6 +98,7 @@ import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'forward/controller.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
@@ -1293,15 +1295,13 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Adds the specified [details] files to the [send] field.
-  void dropFiles(DropDoneDetails details) async {
-    for (var file in details.files) {
-      send.addPlatformAttachment(PlatformFile(
-        path: file.path,
-        name: file.name,
-        size: await file.length(),
-        readStream: file.openRead(),
-      ));
+  /// Adds the specified [event] files to the [send] field.
+  Future<void> dropFiles(PerformDropEvent event) async {
+    for (final item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.getPlatformFile();
+      if (file != null) {
+        send.addPlatformAttachment(file);
+      }
     }
   }
 
