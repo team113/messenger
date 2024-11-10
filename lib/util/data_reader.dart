@@ -24,19 +24,21 @@ import 'package:super_clipboard/super_clipboard.dart';
 /// Extension adding a method to read the file bytes asynchronously.
 extension DropItemExtension on DataReader {
   /// Reads the file bytes asynchronously.
-  Future<PlatformFile?> getPlatformFile() async {
-    final completer = Completer<PlatformFile?>();
-
+  Future<PlatformFile?> getPlatformFile({FileFormat? format}) {
+    final Completer<PlatformFile?> completer = Completer<PlatformFile?>();
+    final SimpleFileFormat? format = getFormats(Formats.standardFormats)
+        .whereType<SimpleFileFormat>()
+        .lastOrNull;
     getFile(
-      null,
+      format,
       (DataReaderFile file) async {
         try {
           // Read the file bytes asynchronously
           final Uint8List bytes = await file.readAll();
 
           final PlatformFile platformFile = PlatformFile(
-            name: file.fileName!,
-            size: file.fileSize!,
+            name: file.fileName ?? '',
+            size: file.fileSize ?? 0,
             bytes: bytes,
           );
 
