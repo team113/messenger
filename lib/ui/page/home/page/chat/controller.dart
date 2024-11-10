@@ -1297,7 +1297,7 @@ class ChatController extends GetxController {
 
   /// Adds the specified [event] files to the [send] field.
   Future<void> dropFiles(PerformDropEvent event) async {
-    for (final item in event.session.items) {
+    for (final DropItem item in event.session.items) {
       final PlatformFile? file = await item.dataReader?.getPlatformFile();
       if (file != null) {
         send.addPlatformAttachment(file);

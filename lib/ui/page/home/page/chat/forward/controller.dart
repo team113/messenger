@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
@@ -244,8 +245,8 @@ class ChatForwardController extends GetxController {
 
   /// Adds the specified [event] files to the [attachments].
   Future<void> dropFiles(PerformDropEvent event) async {
-    for (final item in event.session.items) {
-      final file = await item.dataReader?.getPlatformFile();
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.getPlatformFile();
       if (file != null) {
         send.addPlatformAttachment(file);
       }
