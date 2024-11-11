@@ -23,6 +23,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
@@ -396,7 +397,29 @@ class NotificationService extends DisposableService {
     );
 
     try {
-      await Firebase.initializeApp(options: options);
+      // if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
+      await Firebase.initializeApp(
+        name: 'voip',
+        options: FirebaseOptions(
+          apiKey: 'AIzaSyD_LjDDMri8_1oPeO-nZO4MLRF7GMn3XwM',
+          appId: '1:723667866817:ios:62c8859d1879669edf3040',
+          messagingSenderId: '723667866817',
+          projectId: 'messenger-voip',
+          storageBucket: 'messenger-voip.firebasestorage.app',
+          iosBundleId: 'com.team113.messenger.voip',
+        ),
+      );
+
+      FlutterCallkitIncoming.getDevicePushTokenVoIP()
+          .then((e) => print('=== CallKit -> $e'));
+
+      FirebaseMessaging.instance
+          .getAPNSToken()
+          .then((r) => print('=== APNS -> $r'));
+
+      // } else {
+      //   await Firebase.initializeApp(options: options);
+      // }
     } catch (e) {
       if (e.toString().contains('[core/duplicate-app]')) {
         // No-op.
@@ -544,6 +567,8 @@ class NotificationService extends DisposableService {
     _pushNotifications = false;
 
     if (_token != null) {
+      print('======= $_token');
+
       await _graphQlProvider.registerFcmDevice(
         FcmRegistrationToken(_token!),
         _language,

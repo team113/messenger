@@ -79,13 +79,11 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBYimRBTaBbC1YjRmgyJC8r00RK-rkWYFg',
-    appId: '1:985927661367:ios:7eebd61d36a1318a5c0cb2',
-    messagingSenderId: '985927661367',
-    projectId: 'messenger-3872c',
-    storageBucket: 'messenger-3872c.appspot.com',
-    iosClientId:
-        '985927661367-2gl74fsbqrk8d5it06lot1v3dk8k4au3.apps.googleusercontent.com',
+    apiKey: 'AIzaSyD_LjDDMri8_1oPeO-nZO4MLRF7GMn3XwM',
+    appId: '1:723667866817:ios:87d105dfb58bf9ccdf3040',
+    messagingSenderId: '723667866817',
+    projectId: 'messenger-voip',
+    storageBucket: 'messenger-voip.firebasestorage.app',
     iosBundleId: 'com.team113.messenger',
   );
 
