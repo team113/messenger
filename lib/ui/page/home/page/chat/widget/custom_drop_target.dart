@@ -17,13 +17,12 @@
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-/// [DropTarget] allowed to be stacked over each other.
-class CustomDropTarget extends StatefulWidget {
+/// Custom wrapper around [DropRegion] to simplify usage.
+class CustomDropTarget extends StatelessWidget {
   const CustomDropTarget({
-    required super.key,
+    super.key,
     required this.onPerformDrop,
     this.onDropEnter,
     this.onDropLeave,
@@ -43,44 +42,15 @@ class CustomDropTarget extends StatefulWidget {
   final void Function(DropEvent)? onDropLeave;
 
   @override
-  State<CustomDropTarget> createState() => _CustomDropTargetState();
-}
-
-/// State of a [CustomDropTarget].
-class _CustomDropTargetState extends State<CustomDropTarget> {
-  /// List of [CustomDropTarget]s [Key]s.
-  static final RxList<Key> keys = RxList();
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => keys.add(widget.key!));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => keys.remove(widget.key));
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        if (keys.lastOrNull != widget.key) {
-          return widget.child;
-        }
-        return DropRegion(
-          formats: Formats.standardFormats,
-          onDropOver: (event) =>
-              event.session.allowedOperations.firstOrNull ?? DropOperation.none,
-          onPerformDrop: widget.onPerformDrop,
-          onDropEnter: widget.onDropEnter,
-          onDropLeave: widget.onDropLeave,
-          child: widget.child,
-        );
-      },
+    return DropRegion(
+      formats: Formats.standardFormats,
+      onDropOver: (event) =>
+          event.session.allowedOperations.firstOrNull ?? DropOperation.none,
+      onPerformDrop: onPerformDrop,
+      onDropEnter: onDropEnter,
+      onDropLeave: onDropLeave,
+      child: child,
     );
   }
 }
