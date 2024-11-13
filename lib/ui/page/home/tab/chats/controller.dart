@@ -66,7 +66,8 @@ import '/provider/gql/exceptions.dart'
         JoinChatCallException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException;
+        UnfavoriteChatException,
+        UploadAttachmentException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/widget/text_field.dart';
@@ -750,8 +751,10 @@ class ChatsTabController extends GetxController {
         var attachment = LocalAttachment(file, status: SendingStatus.sending);
         Attachment uploaded = await _chatService.uploadAttachment(attachment);
         return uploaded;
-      } catch (e) {
+      } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error('err_upload_failed'.l10n);
       }
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
