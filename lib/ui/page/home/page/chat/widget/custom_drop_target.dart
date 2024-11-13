@@ -33,7 +33,7 @@ class CustomDropTarget extends StatelessWidget {
   final Widget child;
 
   /// Callback, called when [DropRegion.onPerformDrop].
-  final Future<void> Function(PerformDropEvent) onPerformDrop;
+  final void Function(PerformDropEvent) onPerformDrop;
 
   /// Callback, called when [DropRegion.onDropEnter].
   final void Function(DropEvent)? onDropEnter;
@@ -47,7 +47,9 @@ class CustomDropTarget extends StatelessWidget {
       formats: Formats.standardFormats,
       onDropOver: (event) =>
           event.session.allowedOperations.firstOrNull ?? DropOperation.none,
-      onPerformDrop: onPerformDrop,
+      onPerformDrop: (event) async {
+        onPerformDrop(event);
+      },
       onDropEnter: onDropEnter,
       onDropLeave: onDropLeave,
       child: child,

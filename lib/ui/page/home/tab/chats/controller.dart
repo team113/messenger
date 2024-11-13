@@ -20,11 +20,19 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
+import '/l10n/l10n.dart';
+import '/util/data_reader.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
@@ -557,6 +565,27 @@ class ChatsTabController extends GetxController {
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
 
+  /// Sends the dropped [files] to the [Chat] identified by its [id].
+  Future<void> sendFiles(ChatId id, PerformDropEvent event) async {
+    final List<Attachment> attachments = [];
+
+    // Populate attachments with dropped files.
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.getPlatformFile();
+      if (file != null) {
+        final Attachment? uploaded =
+            await _uploadAttachment(NativeFile.fromPlatformFile(file));
+        if (uploaded != null) {
+          attachments.add(uploaded);
+        }
+      }
+    }
+
+    if (attachments.isNotEmpty) {
+      await _chatService.sendChatMessage(id, attachments: attachments);
+    }
+  }
+
   /// Enables and initializes the [search]ing.
   void startSearch() {
     searching.value = true;
@@ -710,6 +739,24 @@ class ChatsTabController extends GetxController {
         e.hidden.value = true;
       }
     }
+  }
+
+  /// Uploads the [file] as an [Attachment].
+  ///
+  /// Returns the uploaded [Attachment] or `null` if the [file] is too big.
+  Future<Attachment?> _uploadAttachment(NativeFile file) async {
+    if (file.size < MessageFieldController.maxAttachmentSize) {
+      try {
+        var attachment = LocalAttachment(file, status: SendingStatus.sending);
+        Attachment uploaded = await _chatService.uploadAttachment(attachment);
+        return uploaded;
+      } catch (e) {
+        MessagePopup.error(e);
+      }
+    } else {
+      MessagePopup.error('err_size_too_big'.l10n);
+    }
+    return null;
   }
 
   /// Enables and initializes or disables and disposes the [search].

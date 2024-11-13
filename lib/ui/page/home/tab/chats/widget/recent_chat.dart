@@ -172,7 +172,7 @@ class RecentChatTile extends StatelessWidget {
   final bool? hasCall;
 
   /// Callback, called when a file is dropped on this [RecentChatTile]
-  final Future<void> Function(PerformDropEvent)? onPerformDrop;
+  final void Function(PerformDropEvent)? onPerformDrop;
 
   @override
   Widget build(BuildContext context) {
@@ -204,7 +204,7 @@ class RecentChatTile extends StatelessWidget {
           ],
         ),
         child: CustomDropTarget(
-          onPerformDrop: onPerformDrop ?? (_) async {},
+          onPerformDrop: onPerformDrop ?? (_) {},
           onDropEnter: (DropEvent event) {},
           onDropLeave: (DropEvent event) {},
           child: ChatTile(
