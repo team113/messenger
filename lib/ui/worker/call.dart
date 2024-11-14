@@ -18,6 +18,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -93,6 +94,8 @@ class CallWorker extends DisposableService {
 
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
+
+  StreamSubscription? _callKitSubscription;
 
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
@@ -278,6 +281,35 @@ class CallWorker extends DisposableService {
       }
     });
 
+    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+      _callKitSubscription =
+          FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+        print('==== FlutterCallkitIncoming.onEvent -> $event');
+
+        switch (event!.event) {
+          case Event.actionCallAccept:
+            //
+            break;
+
+          case Event.actionCallDecline:
+            //
+            break;
+
+          case Event.actionCallEnded:
+          case Event.actionCallTimeout:
+            //
+            break;
+
+          case Event.actionCallCallback:
+            // TODO: Handle.
+            break;
+
+          default:
+            break;
+        }
+      });
+    }
+
     super.onInit();
   }
 
@@ -292,6 +324,7 @@ class CallWorker extends DisposableService {
   void onClose() {
     _outgoingAudio?.cancel();
     _incomingAudio?.cancel();
+    _callKitSubscription?.cancel();
 
     _subscription.cancel();
     _storageSubscription?.cancel();

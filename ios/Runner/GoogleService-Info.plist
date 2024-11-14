@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.team113.messenger</string>
+	<string>com.team113.messenger.voip</string>
 	<key>PROJECT_ID</key>
 	<string>messenger-voip</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:723667866817:ios:87d105dfb58bf9ccdf3040</string>
+	<string>1:723667866817:ios:62c8859d1879669edf3040</string>
 </dict>
 </plist>
