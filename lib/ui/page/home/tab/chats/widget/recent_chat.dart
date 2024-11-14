@@ -187,6 +187,7 @@ class RecentChatTile extends StatefulWidget {
       );
 }
 
+/// State class for the [RecentChatTile].
 class _RecentChatTileState extends State<RecentChatTile> {
   /// Indicator whether there is an ongoing drag-n-drop at the moment.
   final RxBool _isDraggingFiles = RxBool(false);

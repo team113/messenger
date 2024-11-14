@@ -33,7 +33,7 @@ extension DropItemExtension on DataReader {
       format,
       (DataReaderFile file) async {
         try {
-          // Read the file bytes asynchronously
+          // Read the file bytes asynchronously.
           final Uint8List bytes = await file.readAll();
 
           final PlatformFile platformFile = PlatformFile(

@@ -23,7 +23,6 @@ import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-import '/util/data_reader.dart';
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -38,6 +37,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';

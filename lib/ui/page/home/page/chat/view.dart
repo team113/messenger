@@ -28,9 +28,9 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';

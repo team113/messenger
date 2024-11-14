@@ -31,7 +31,6 @@ import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-import '/util/data_reader.dart';
 import '/api/backend/schema.dart'
     hide
         ChatItemQuoteInput,
@@ -40,13 +39,13 @@ import '/api/backend/schema.dart'
         ChatMessageRepliesInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -93,6 +92,7 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
+import '/util/data_reader.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
