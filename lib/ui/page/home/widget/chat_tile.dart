@@ -48,7 +48,6 @@ class ChatTile extends StatelessWidget {
     Widget Function(Widget)? avatarBuilder,
     this.enableContextMenu = true,
     this.onForbidden,
-    this.isDraggingFiles = false,
   })  : titleBuilder = titleBuilder ?? _defaultBuilder,
         avatarBuilder = avatarBuilder ?? _defaultBuilder;
 
@@ -105,9 +104,6 @@ class ChatTile extends StatelessWidget {
   /// Callback, called when [ChatAvatar] fetching fails with `Forbidden` error.
   final FutureOr<void> Function()? onForbidden;
 
-  /// Indicator whether files are being dragged over this [ChatTile].
-  final bool isDraggingFiles;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -134,72 +130,63 @@ class ChatTile extends StatelessWidget {
           unselectedHoverColor: style.cardHoveredColor,
           selectedHoverColor: style.colors.primary,
           folded: chat?.chat.value.favoritePosition != null,
-          child: AnimatedContainer(
-            decoration: BoxDecoration(
-              color:
-                  isDraggingFiles ? style.colors.onBackgroundOpacity27 : null,
-              borderRadius: style.cardRadius,
-            ),
-            duration: const Duration(milliseconds: 300),
-            child: SizedBox(
-              height: height,
-              child: Padding(
-                key: chat?.chat.value.favoritePosition != null
-                    ? Key('FavoriteIndicator_${chat?.chat.value.id}')
-                    : null,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                child: Row(
-                  children: [
-                    avatarBuilder(
-                      AvatarWidget.fromRxChat(
-                        chat,
-                        radius: AvatarRadius.large,
-                        onForbidden: onForbidden,
-                      ),
+          child: SizedBox(
+            height: height,
+            child: Padding(
+              key: chat?.chat.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                  : null,
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              child: Row(
+                children: [
+                  avatarBuilder(
+                    AvatarWidget.fromRxChat(
+                      chat,
+                      radius: AvatarRadius.large,
+                      onForbidden: onForbidden,
                     ),
-                    const SizedBox(width: 12),
-                    ...leading,
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Row(
-                                  children: [
-                                    Flexible(
-                                      child: titleBuilder(
-                                        Obx(() {
-                                          return Text(
-                                            chat?.title ?? ('dot'.l10n * 3),
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 1,
-                                            style: selected
-                                                ? style
-                                                    .fonts.big.regular.onPrimary
-                                                : style.fonts.big.regular
-                                                    .onBackground,
-                                          );
-                                        }),
-                                      ),
+                  ),
+                  const SizedBox(width: 12),
+                  ...leading,
+                  Expanded(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Flexible(
+                                    child: titleBuilder(
+                                      Obx(() {
+                                        return Text(
+                                          chat?.title ?? ('dot'.l10n * 3),
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 1,
+                                          style: selected
+                                              ? style
+                                                  .fonts.big.regular.onPrimary
+                                              : style.fonts.big.regular
+                                                  .onBackground,
+                                        );
+                                      }),
                                     ),
-                                    ...title,
-                                  ],
-                                ),
+                                  ),
+                                  ...title,
+                                ],
                               ),
-                              ...status,
-                            ],
-                          ),
-                          ...subtitle,
-                        ],
-                      ),
+                            ),
+                            ...status,
+                          ],
+                        ),
+                        ...subtitle,
+                      ],
                     ),
-                    ...trailing,
-                  ],
-                ),
+                  ),
+                  ...trailing,
+                ],
               ),
             ),
           ),

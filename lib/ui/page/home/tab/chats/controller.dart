@@ -748,17 +748,15 @@ class ChatsTabController extends GetxController {
   Future<Attachment?> _uploadAttachment(NativeFile file) async {
     if (file.size < MessageFieldController.maxAttachmentSize) {
       try {
-        var attachment = LocalAttachment(file, status: SendingStatus.sending);
-        Attachment uploaded = await _chatService.uploadAttachment(attachment);
-        return uploaded;
+        final attachment = LocalAttachment(file, status: SendingStatus.sending);
+        return await _chatService.uploadAttachment(attachment);
       } on UploadAttachmentException catch (e) {
         MessagePopup.error(e);
-      } catch (e) {
-        MessagePopup.error('err_upload_failed'.l10n);
       }
     } else {
       MessagePopup.error('err_size_too_big'.l10n);
     }
+
     return null;
   }
 

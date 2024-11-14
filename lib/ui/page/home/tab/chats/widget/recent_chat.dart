@@ -223,16 +223,15 @@ class _RecentChatTileState extends State<RecentChatTile> {
         ),
         child: CustomDropTarget(
           onPerformDrop: widget.onPerformDrop ?? (_) {},
-          onDropEnter: (DropEvent event) {
+          onDropEnter: (_) {
             _isDraggingFiles.value = true;
           },
-          onDropLeave: (DropEvent event) {
+          onDropLeave: (_) {
             _isDraggingFiles.value = false;
           },
           child: ChatTile(
             chat: widget.rxChat,
-            dimmed: widget.blocked,
-            isDraggingFiles: _isDraggingFiles.value,
+            dimmed: widget.blocked || _isDraggingFiles.value,
             status: [
               const SizedBox(height: 28),
               if (widget.trailing == null) ...[
