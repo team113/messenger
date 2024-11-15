@@ -1,1 +1,0 @@
-{"flutter":{"platforms":{"ios":{"default":{"projectId":"messenger-voip","appId":"1:723667866817:ios:87d105dfb58bf9ccdf3040","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"messenger-voip","configurations":{"ios":"1:723667866817:ios:87d105dfb58bf9ccdf3040"}}}}}}

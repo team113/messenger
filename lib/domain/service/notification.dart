@@ -397,29 +397,19 @@ class NotificationService extends DisposableService {
     );
 
     try {
-      // if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
-      await Firebase.initializeApp(
-        name: 'voip',
-        options: FirebaseOptions(
-          apiKey: 'AIzaSyD_LjDDMri8_1oPeO-nZO4MLRF7GMn3XwM',
-          appId: '1:723667866817:ios:62c8859d1879669edf3040',
-          messagingSenderId: '723667866817',
-          projectId: 'messenger-voip',
-          storageBucket: 'messenger-voip.firebasestorage.app',
-          iosBundleId: 'com.team113.messenger.voip',
-        ),
-      );
+      await Firebase.initializeApp(options: options);
 
-      FlutterCallkitIncoming.getDevicePushTokenVoIP()
-          .then((e) => print('=== CallKit -> $e'));
+      if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
+        FlutterCallkitIncoming.getDevicePushTokenVoIP().then((e) {
+          // TODO: Register the token on the backend.
+          Log.info('CallKit token -> $e', '$runtimeType');
+        });
 
-      FirebaseMessaging.instance
-          .getAPNSToken()
-          .then((r) => print('=== APNS -> $r'));
-
-      // } else {
-      //   await Firebase.initializeApp(options: options);
-      // }
+        FirebaseMessaging.instance.getAPNSToken().then((e) {
+          // TODO: Register the token on the backend.
+          Log.info('APNs token -> $e', '$runtimeType');
+        });
+      }
     } catch (e) {
       if (e.toString().contains('[core/duplicate-app]')) {
         // No-op.
@@ -567,8 +557,6 @@ class NotificationService extends DisposableService {
     _pushNotifications = false;
 
     if (_token != null) {
-      print('======= $_token');
-
       await _graphQlProvider.registerFcmDevice(
         FcmRegistrationToken(_token!),
         _language,

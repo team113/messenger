@@ -19,12 +19,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
@@ -37,6 +39,7 @@ import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -95,6 +98,8 @@ class CallWorker extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
+  /// [FlutterCallkitIncoming.onEvent] subscription reacting on the native call
+  /// interface events.
   StreamSubscription? _callKitSubscription;
 
   /// [Duration] indicating the time after which the push notification should be
@@ -113,6 +118,9 @@ class CallWorker extends DisposableService {
 
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
+
+  /// Indicates whether [FlutterCallkitIncoming] should be considered active.
+  bool get _isCallKit => PlatformUtils.isIOS && !PlatformUtils.isWeb;
 
   @override
   void onInit() {
@@ -237,16 +245,53 @@ class CallWorker extends DisposableService {
                 }
               }
             }
+          }
 
-            _workers[event.key!] = ever(c.state, (OngoingCallState state) {
-              if (state != OngoingCallState.pending &&
-                  state != OngoingCallState.local) {
+          _workers[event.key!] = ever(c.state, (OngoingCallState state) async {
+            final ChatItemId? callId = c.call.value?.id;
+
+            switch (state) {
+              case OngoingCallState.local:
+              case OngoingCallState.pending:
+                // No-op.
+                break;
+
+              case OngoingCallState.joining:
+              case OngoingCallState.active:
                 _workers.remove(event.key!)?.dispose();
                 if (_workers.isEmpty) {
                   stop();
                 }
-              }
-            });
+
+                if (callId != null) {
+                  await FlutterCallkitIncoming.setCallConnected(callId.val);
+                }
+                break;
+
+              case OngoingCallState.ended:
+                _workers.remove(event.key!)?.dispose();
+                if (_workers.isEmpty) {
+                  stop();
+                }
+
+                if (callId != null) {
+                  await FlutterCallkitIncoming.endCall(callId.val);
+                }
+                break;
+            }
+          });
+
+          if (_isCallKit) {
+            final RxChat? chat = await _chatService.get(c.chatId.value);
+
+            await FlutterCallkitIncoming.startCall(
+              CallKitParams(
+                nameCaller: chat?.title ?? 'Call',
+                id: c.call.value?.id.val ?? c.chatId.value.val,
+                handle: c.chatId.value.val,
+                extra: {'chatId': c.chatId.value.val},
+              ),
+            );
           }
           break;
 
@@ -268,11 +313,24 @@ class CallWorker extends DisposableService {
             if (withMe && isActiveOrEnded && call.participated) {
               play(_endCall);
             }
+
+            if (_isCallKit) {
+              final ChatItemId? callId = call.call.value?.id;
+              if (callId != null) {
+                await FlutterCallkitIncoming.endCall(callId.val);
+              }
+
+              await FlutterCallkitIncoming.endCall(call.chatId.value.val);
+            }
           }
 
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
             await AudioUtils.setDefaultSpeaker();
+
+            if (_isCallKit) {
+              await FlutterCallkitIncoming.endAllCalls();
+            }
           }
           break;
 
@@ -284,27 +342,42 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
       _callKitSubscription =
           FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
-        print('==== FlutterCallkitIncoming.onEvent -> $event');
+        Log.debug('FlutterCallkitIncoming.onEvent -> $event', '$runtimeType');
 
         switch (event!.event) {
           case Event.actionCallAccept:
-            //
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              await _callService.join(ChatId(chatId));
+            }
             break;
 
           case Event.actionCallDecline:
-            //
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              await _callService.decline(ChatId(chatId));
+            }
             break;
 
           case Event.actionCallEnded:
           case Event.actionCallTimeout:
-            //
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              _callService.remove(ChatId(chatId));
+            }
             break;
 
+          case Event.actionDidUpdateDevicePushTokenVoip:
+          case Event.actionCallIncoming:
+          case Event.actionCallStart:
           case Event.actionCallCallback:
-            // TODO: Handle.
-            break;
-
-          default:
+          case Event.actionCallToggleHold:
+          case Event.actionCallToggleMute:
+          case Event.actionCallToggleDmtf:
+          case Event.actionCallToggleGroup:
+          case Event.actionCallToggleAudioSession:
+          case Event.actionCallCustom:
+            // No-op.
             break;
         }
       });
