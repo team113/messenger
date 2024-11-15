@@ -81,9 +81,6 @@ class ChatForwardController extends GetxController {
   /// Callback, called when the [quotes] are sent.
   final void Function()? onSent;
 
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
-
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
 
@@ -246,7 +243,7 @@ class ChatForwardController extends GetxController {
   /// Adds the specified [event] files to the [attachments].
   Future<void> dropFiles(PerformDropEvent event) async {
     for (final DropItem item in event.session.items) {
-      final PlatformFile? file = await item.dataReader?.getPlatformFile();
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
       if (file != null) {
         send.addPlatformAttachment(file);
       }

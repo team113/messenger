@@ -648,9 +648,8 @@ class ChatsTabView extends StatelessWidget {
                                       hasCall: c.status.value.isLoadingMore
                                           ? false
                                           : null,
-                                      onPerformDrop: (event) {
-                                        c.sendFiles(chat.id, event);
-                                      },
+                                      onPerformDrop: (e) =>
+                                          c.sendFiles(chat.id, e),
                                     );
                                   }),
                                 );
@@ -870,9 +869,7 @@ class ChatsTabView extends StatelessWidget {
                                     : null,
                                 hasCall:
                                     c.status.value.isLoadingMore ? false : null,
-                                onPerformDrop: (event) {
-                                  c.sendFiles(e.id, event);
-                                },
+                                onPerformDrop: (f) => c.sendFiles(e.id, f),
                               );
                             }
 

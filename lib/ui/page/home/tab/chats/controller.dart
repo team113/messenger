@@ -572,7 +572,7 @@ class ChatsTabController extends GetxController {
 
     // Populate attachments with dropped files.
     for (final DropItem item in event.session.items) {
-      final PlatformFile? file = await item.dataReader?.getPlatformFile();
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
       if (file != null) {
         final Attachment? uploaded =
             await _uploadAttachment(NativeFile.fromPlatformFile(file));

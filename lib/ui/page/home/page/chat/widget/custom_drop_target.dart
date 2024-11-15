@@ -20,26 +20,35 @@ import 'package:flutter/material.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 /// Custom wrapper around [DropRegion] to simplify usage.
-class CustomDropTarget extends StatelessWidget {
+class CustomDropTarget extends StatefulWidget {
   const CustomDropTarget({
     super.key,
-    required this.onPerformDrop,
+    this.onPerformDrop,
     this.onDropEnter,
     this.onDropLeave,
-    required this.child,
+    required this.builder,
   });
 
-  /// [Widget] to wrap this [CustomDropTarget] around.
-  final Widget child;
-
   /// Callback, called when [DropRegion.onPerformDrop].
-  final void Function(PerformDropEvent) onPerformDrop;
+  final Future<void> Function(PerformDropEvent)? onPerformDrop;
 
   /// Callback, called when [DropRegion.onDropEnter].
   final void Function(DropEvent)? onDropEnter;
 
   /// Callback, called when [DropRegion.onDropLeave].
   final void Function(DropEvent)? onDropLeave;
+
+  /// Builder building a [Widget] to wrap this [CustomDropTarget] around.
+  final Widget Function(bool) builder;
+
+  @override
+  State<CustomDropTarget> createState() => _CustomDropTargetState();
+}
+
+/// State of a [CustomDropTarget] maintaining the [_dragging].
+class _CustomDropTargetState extends State<CustomDropTarget> {
+  /// Indicator whether there's an active dragging happening.
+  bool _dragging = false;
 
   @override
   Widget build(BuildContext context) {
@@ -48,11 +57,17 @@ class CustomDropTarget extends StatelessWidget {
       onDropOver: (event) =>
           event.session.allowedOperations.firstOrNull ?? DropOperation.none,
       onPerformDrop: (event) async {
-        onPerformDrop(event);
+        await widget.onPerformDrop?.call(event);
       },
-      onDropEnter: onDropEnter,
-      onDropLeave: onDropLeave,
-      child: child,
+      onDropEnter: (e) {
+        setState(() => _dragging = true);
+        widget.onDropEnter?.call(e);
+      },
+      onDropLeave: (e) {
+        setState(() => _dragging = false);
+        widget.onDropLeave?.call(e);
+      },
+      child: widget.builder(_dragging),
     );
   }
 }

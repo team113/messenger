@@ -180,9 +180,6 @@ class ChatController extends GetxController {
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
 
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
-
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
 
@@ -1298,7 +1295,7 @@ class ChatController extends GetxController {
   /// Adds the specified [event] files to the [send] field.
   Future<void> dropFiles(PerformDropEvent event) async {
     for (final DropItem item in event.session.items) {
-      final PlatformFile? file = await item.dataReader?.getPlatformFile();
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
       if (file != null) {
         send.addPlatformAttachment(file);
       }

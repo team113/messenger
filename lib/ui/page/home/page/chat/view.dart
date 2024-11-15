@@ -154,9 +154,7 @@ class ChatView extends StatelessWidget {
           return CustomDropTarget(
             key: Key('ChatView_$id'),
             onPerformDrop: c.dropFiles,
-            onDropEnter: (_) => c.isDraggingFiles.value = true,
-            onDropLeave: (_) => c.isDraggingFiles.value = false,
-            child: GestureDetector(
+            builder: (dragging) => GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(
                 children: [
@@ -822,38 +820,35 @@ class ChatView extends StatelessWidget {
                     ),
                   ),
                   IgnorePointer(
-                    child: Obx(() {
-                      return SafeAnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: c.isDraggingFiles.value
-                            ? Container(
-                                color: style.colors.onBackgroundOpacity27,
-                                child: Center(
-                                  child: AnimatedDelayedScale(
-                                    duration: const Duration(milliseconds: 300),
-                                    beginScale: 1,
-                                    endScale: 1.06,
-                                    child: ConditionalBackdropFilter(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          color: style
-                                              .colors.onBackgroundOpacity27,
-                                        ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(16),
-                                          child: SvgIcon(SvgIcons.addBigger),
-                                        ),
+                    child: SafeAnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: dragging
+                          ? Container(
+                              color: style.colors.onBackgroundOpacity27,
+                              child: Center(
+                                child: AnimatedDelayedScale(
+                                  duration: const Duration(milliseconds: 300),
+                                  beginScale: 1,
+                                  endScale: 1.06,
+                                  child: ConditionalBackdropFilter(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color:
+                                            style.colors.onBackgroundOpacity27,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: SvgIcon(SvgIcons.addBigger),
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                            : null,
-                      );
-                    }),
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
                 ],
               ),

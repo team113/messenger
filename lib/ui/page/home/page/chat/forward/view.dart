@@ -116,9 +116,7 @@ class ChatForwardView extends StatelessWidget {
           return CustomDropTarget(
             key: Key('ChatForwardView_$from'),
             onPerformDrop: c.dropFiles,
-            onDropEnter: (_) => c.isDraggingFiles.value = true,
-            onDropLeave: (_) => c.isDraggingFiles.value = false,
-            child: Stack(
+            builder: (dragging) => Stack(
               children: [
                 Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -157,7 +155,7 @@ class ChatForwardView extends StatelessWidget {
                 IgnorePointer(
                   child: SafeAnimatedSwitcher(
                     duration: 200.milliseconds,
-                    child: c.isDraggingFiles.value
+                    child: dragging
                         ? Container(
                             color: style.colors.onBackgroundOpacity27,
                             child: Center(
