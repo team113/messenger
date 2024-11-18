@@ -20,18 +20,23 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -49,6 +54,7 @@ import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         ClearChatException,
@@ -61,7 +67,9 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
 import '/ui/widget/text_field.dart';
+import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -556,6 +564,37 @@ class ChatsTabController extends GetxController {
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
+
+  /// Sends the dropped files of [event] to the [Chat] identified by its [id].
+  Future<void> sendFiles(ChatId id, PerformDropEvent event) async {
+    final List<Attachment> attachments = [];
+
+    // Populate attachments with dropped files.
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
+      if (file != null) {
+        if (file.size >= MessageFieldController.maxAttachmentSize) {
+          MessagePopup.error('err_size_too_big'.l10n);
+          continue;
+        }
+
+        attachments.add(
+          LocalAttachment(
+            NativeFile.fromPlatformFile(file),
+            status: SendingStatus.sending,
+          ),
+        );
+      }
+    }
+
+    if (attachments.isNotEmpty) {
+      attachments
+          .whereType<LocalAttachment>()
+          .forEach(_chatService.uploadAttachment);
+
+      await _chatService.sendChatMessage(id, attachments: attachments);
+    }
+  }
 
   /// Enables and initializes the [search]ing.
   void startSearch() {
