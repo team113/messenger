@@ -52,6 +52,10 @@ class _CustomDropTargetState extends State<CustomDropTarget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.onPerformDrop == null) {
+      return widget.builder(false);
+    }
+
     return DropRegion(
       formats: Formats.standardFormats,
       onDropOver: (event) =>

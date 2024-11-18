@@ -21,9 +21,9 @@ import 'dart:typed_data';
 import 'package:file_picker/file_picker.dart';
 import 'package:super_clipboard/super_clipboard.dart';
 
-/// Extension adding a method to read the file bytes asynchronously.
+/// Extension adding a method to construct a [PlatformFile] from [DataReader].
 extension DropItemExtension on DataReader {
-  /// Constructs the [PlatformFile] from this DataReader.
+  /// Constructs the [PlatformFile] from this [DataReader].
   Future<PlatformFile?> asPlatformFile() {
     final Completer<PlatformFile?> completer = Completer<PlatformFile?>();
     final SimpleFileFormat? format = getFormats(Formats.standardFormats)

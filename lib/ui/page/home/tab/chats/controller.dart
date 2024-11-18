@@ -64,8 +64,7 @@ import '/provider/gql/exceptions.dart'
         JoinChatCallException,
         RemoveChatMemberException,
         ToggleChatMuteException,
-        UnfavoriteChatException,
-        UploadAttachmentException;
+        UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
@@ -574,15 +573,25 @@ class ChatsTabController extends GetxController {
     for (final DropItem item in event.session.items) {
       final PlatformFile? file = await item.dataReader?.asPlatformFile();
       if (file != null) {
-        final Attachment? uploaded =
-            await _uploadAttachment(NativeFile.fromPlatformFile(file));
-        if (uploaded != null) {
-          attachments.add(uploaded);
+        if (file.size >= MessageFieldController.maxAttachmentSize) {
+          MessagePopup.error('err_size_too_big'.l10n);
+          continue;
         }
+
+        attachments.add(
+          LocalAttachment(
+            NativeFile.fromPlatformFile(file),
+            status: SendingStatus.sending,
+          ),
+        );
       }
     }
 
     if (attachments.isNotEmpty) {
+      attachments
+          .whereType<LocalAttachment>()
+          .forEach(_chatService.uploadAttachment);
+
       await _chatService.sendChatMessage(id, attachments: attachments);
     }
   }
@@ -740,24 +749,6 @@ class ChatsTabController extends GetxController {
         e.hidden.value = true;
       }
     }
-  }
-
-  /// Uploads the [file] as an [Attachment].
-  ///
-  /// Returns the uploaded [Attachment] or `null` if the [file] is too big.
-  Future<Attachment?> _uploadAttachment(NativeFile file) async {
-    if (file.size < MessageFieldController.maxAttachmentSize) {
-      try {
-        final attachment = LocalAttachment(file, status: SendingStatus.sending);
-        return await _chatService.uploadAttachment(attachment);
-      } on UploadAttachmentException catch (e) {
-        MessagePopup.error(e);
-      }
-    } else {
-      MessagePopup.error('err_size_too_big'.l10n);
-    }
-
-    return null;
   }
 
   /// Enables and initializes or disables and disposes the [search].
