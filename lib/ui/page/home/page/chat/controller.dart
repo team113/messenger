@@ -20,7 +20,6 @@ import 'dart:collection';
 
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
@@ -30,6 +29,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/api/backend/schema.dart'
     hide
@@ -39,13 +39,13 @@ import '/api/backend/schema.dart'
         ChatMessageRepliesInput;
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -92,11 +92,13 @@ import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
 import '/util/audio_utils.dart';
+import '/util/data_reader.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
+import 'forward/controller.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
@@ -177,9 +179,6 @@ class ChatController extends GetxController {
 
   /// [FlutterListViewController] of a messages [FlutterListView].
   final FlutterListViewController listController = FlutterListViewController();
-
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
 
   /// Summarized [Offset] of an ongoing scroll.
   Offset scrollOffset = Offset.zero;
@@ -1293,15 +1292,13 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Adds the specified [details] files to the [send] field.
-  void dropFiles(DropDoneDetails details) async {
-    for (var file in details.files) {
-      send.addPlatformAttachment(PlatformFile(
-        path: file.path,
-        name: file.name,
-        size: await file.length(),
-        readStream: file.openRead(),
-      ));
+  /// Adds the specified [event] files to the [send] field.
+  Future<void> dropFiles(PerformDropEvent event) async {
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
+      if (file != null) {
+        send.addPlatformAttachment(file);
+      }
     }
   }
 

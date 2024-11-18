@@ -18,10 +18,14 @@ All user visible changes to this project will be documented in this file. This p
         - Avatar cropping. ([#1139], [#1130], [#530])
     - Chat page:
         - Image and file attachments pasting from pasteboard. ([#1141])
+    - Chats tab:
+        - Image and file attachments drag-n-drop. ([#1140], [#594])
 
 [#530]: /../../issues/530
+[#594]: /../../issues/594
 [#1130]: /../../pull/1130
 [#1139]: /../../pull/1139
+[#1140]: /../../pull/1140
 [#1141]: /../../pull/1141
 
 

@@ -18,10 +18,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
@@ -37,6 +37,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -79,9 +80,6 @@ class ChatForwardController extends GetxController {
 
   /// Callback, called when the [quotes] are sent.
   final void Function()? onSent;
-
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
 
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
@@ -242,15 +240,13 @@ class ChatForwardController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Adds the specified [details] files to the [attachments].
-  void dropFiles(DropDoneDetails details) async {
-    for (var file in details.files) {
-      send.addPlatformAttachment(PlatformFile(
-        path: file.path,
-        name: file.name,
-        size: await file.length(),
-        readStream: file.openRead(),
-      ));
+  /// Adds the specified [event] files to the [attachments].
+  Future<void> dropFiles(PerformDropEvent event) async {
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
+      if (file != null) {
+        send.addPlatformAttachment(file);
+      }
     }
   }
 }

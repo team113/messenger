@@ -28,9 +28,9 @@ import 'package:get/get.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
-import '/domain/model/chat_item_quote_input.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/paginated.dart';
@@ -153,10 +153,8 @@ class ChatView extends StatelessWidget {
 
           return CustomDropTarget(
             key: Key('ChatView_$id'),
-            onDragDone: (details) => c.dropFiles(details),
-            onDragEntered: (_) => c.isDraggingFiles.value = true,
-            onDragExited: (_) => c.isDraggingFiles.value = false,
-            child: GestureDetector(
+            onPerformDrop: c.dropFiles,
+            builder: (dragging) => GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: Stack(
                 children: [
@@ -822,38 +820,35 @@ class ChatView extends StatelessWidget {
                     ),
                   ),
                   IgnorePointer(
-                    child: Obx(() {
-                      return SafeAnimatedSwitcher(
-                        duration: 200.milliseconds,
-                        child: c.isDraggingFiles.value
-                            ? Container(
-                                color: style.colors.onBackgroundOpacity27,
-                                child: Center(
-                                  child: AnimatedDelayedScale(
-                                    duration: const Duration(milliseconds: 300),
-                                    beginScale: 1,
-                                    endScale: 1.06,
-                                    child: ConditionalBackdropFilter(
-                                      borderRadius: BorderRadius.circular(16),
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(16),
-                                          color: style
-                                              .colors.onBackgroundOpacity27,
-                                        ),
-                                        child: const Padding(
-                                          padding: EdgeInsets.all(16),
-                                          child: SvgIcon(SvgIcons.addBigger),
-                                        ),
+                    child: SafeAnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child: dragging
+                          ? Container(
+                              color: style.colors.onBackgroundOpacity27,
+                              child: Center(
+                                child: AnimatedDelayedScale(
+                                  duration: const Duration(milliseconds: 300),
+                                  beginScale: 1,
+                                  endScale: 1.06,
+                                  child: ConditionalBackdropFilter(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(16),
+                                        color:
+                                            style.colors.onBackgroundOpacity27,
+                                      ),
+                                      child: const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: SvgIcon(SvgIcons.addBigger),
                                       ),
                                     ),
                                   ),
                                 ),
-                              )
-                            : null,
-                      );
-                    }),
+                              ),
+                            )
+                          : null,
+                    ),
                   ),
                 ],
               ),
