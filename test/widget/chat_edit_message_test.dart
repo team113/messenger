@@ -23,6 +23,7 @@ import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart' hide ChatMessageTextInput;
 import 'package:messenger/api/backend/schema.dart' as api;
+import 'package:messenger/config.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
@@ -84,6 +85,8 @@ void main() async {
 
   final CommonDriftProvider common = CommonDriftProvider.memory();
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
+
+  Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);

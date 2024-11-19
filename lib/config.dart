@@ -84,6 +84,11 @@ class Config {
   /// Intended to be used in E2E testing.
   static bool disableInfiniteAnimations = false;
 
+  /// Indicator whether all [DropRegion]s should be disabled.
+  ///
+  /// Intended to be used in E2E testing.
+  static bool disableDragArea = false;
+
   /// Product identifier of `User-Agent` header to put in network queries.
   static String userAgentProduct = 'Gapopa';
 
