@@ -69,11 +69,16 @@ class CallWorker extends DisposableService {
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
 
-  /// Workers of [OngoingCall.state] responsible for stopping the [_audioPlayer]
-  /// when corresponding [OngoingCall] becomes active.
+  /// Workers of [OngoingCall.state] responsible for stopping the
+  /// [_incomingAudio] when corresponding [OngoingCall] becomes active.
   final Map<ChatId, Worker> _workers = {};
 
-  /// Subscription to [WebUtils.onStorageChange] [stop]ping the [_audioPlayer].
+  /// Workers of [OngoingCall.audioState] toggling the
+  /// [FlutterCallkitIncoming.muteCall] on iOS devices.
+  final Map<ChatId, Worker> _audioWorkers = {};
+
+  /// Subscription to [WebUtils.onStorageChange] [stop]ping the
+  /// [_incomingAudio].
   StreamSubscription? _storageSubscription;
 
   /// [ChatId]s of the calls that should be answered right away.
@@ -247,6 +252,22 @@ class CallWorker extends DisposableService {
             }
           }
 
+          if (_isCallKit) {
+            _audioWorkers[event.key!] = ever(
+              c.audioState,
+              (LocalTrackState state) async {
+                final ChatItemId? callId = c.call.value?.id;
+
+                if (callId != null) {
+                  await FlutterCallkitIncoming.muteCall(
+                    callId.val,
+                    isMuted: !state.isEnabled,
+                  );
+                }
+              },
+            );
+          }
+
           _workers[event.key!] = ever(c.state, (OngoingCallState state) async {
             final ChatItemId? callId = c.call.value?.id;
 
@@ -297,6 +318,7 @@ class CallWorker extends DisposableService {
 
         case OperationKind.removed:
           _answeredCalls.remove(event.key);
+          _audioWorkers.remove(event.key)?.dispose();
           _workers.remove(event.key)?.dispose();
           if (_workers.isEmpty) {
             stop();
@@ -367,12 +389,20 @@ class CallWorker extends DisposableService {
             }
             break;
 
+          case Event.actionCallToggleMute:
+            final bool? isMuted = event.body['isMuted'] as bool?;
+            if (isMuted != null) {
+              for (var e in _callService.calls.entries) {
+                e.value.value.setAudioEnabled(!isMuted);
+              }
+            }
+            break;
+
           case Event.actionDidUpdateDevicePushTokenVoip:
           case Event.actionCallIncoming:
           case Event.actionCallStart:
           case Event.actionCallCallback:
           case Event.actionCallToggleHold:
-          case Event.actionCallToggleMute:
           case Event.actionCallToggleDmtf:
           case Event.actionCallToggleGroup:
           case Event.actionCallToggleAudioSession:
@@ -403,6 +433,7 @@ class CallWorker extends DisposableService {
     _storageSubscription?.cancel();
     _onFocusChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
+    _audioWorkers.forEach((_, value) => value.dispose());
     _lifecycleWorker?.dispose();
 
     if (_vibrationTimer != null) {
@@ -456,6 +487,7 @@ class CallWorker extends DisposableService {
         final chatId = ChatId(e.key!.replaceAll('call_', ''));
         if (e.newValue == null) {
           _callService.remove(chatId);
+          _audioWorkers.remove(chatId)?.dispose();
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
