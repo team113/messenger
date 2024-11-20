@@ -87,8 +87,6 @@ class _ImageCropperState extends State<ImageCropper> {
         child: LayoutBuilder(builder: (context, constraints) {
           final Rect real = _calculate(constraints);
 
-          // print('_crop: ${_crop.pretty}, real: ${real.pretty}');
-
           return Stack(
             alignment: Alignment.center,
             children: <Widget>[
