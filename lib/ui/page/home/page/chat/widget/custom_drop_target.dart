@@ -19,6 +19,8 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/config.dart';
+
 /// Custom wrapper around [DropRegion] to simplify usage.
 class CustomDropTarget extends StatefulWidget {
   const CustomDropTarget({
@@ -52,7 +54,7 @@ class _CustomDropTargetState extends State<CustomDropTarget> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.onPerformDrop == null) {
+    if (widget.onPerformDrop == null || Config.disableDragArea) {
       return widget.builder(false);
     }
 

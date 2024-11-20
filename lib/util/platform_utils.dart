@@ -795,7 +795,7 @@ class CustomMouseCursors {
           ..hotY = height / 2,
       );
     } catch (e) {
-      Log.error(
+      Log.warning(
         'Failed to initialize `$name` cursor due to: $e',
         'CustomMouseCursors',
       );
