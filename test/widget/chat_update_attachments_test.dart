@@ -120,6 +120,7 @@ void main() async {
   final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
   Config.files = '';
+  Config.disableDragArea = true;
 
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);

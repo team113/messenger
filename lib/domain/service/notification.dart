@@ -59,10 +59,6 @@ class NotificationService extends DisposableService {
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
-
   /// Subscription to the [FirebaseMessaging.onTokenRefresh] refreshing the
   /// [_token].
   StreamSubscription? _onTokenRefresh;
@@ -163,7 +159,6 @@ class NotificationService extends DisposableService {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _onActivityChanged?.cancel();
