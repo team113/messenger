@@ -399,7 +399,7 @@ class _ImageCropperState extends State<ImageCropper> {
           left = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
-        if (left == minX) {
+        if (left <= minX || left >= maxX) {
           return;
         }
 
@@ -417,7 +417,7 @@ class _ImageCropperState extends State<ImageCropper> {
           right = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
-        if (right >= maxX) {
+        if (right <= minX || right >= maxX) {
           return;
         }
 
@@ -435,7 +435,7 @@ class _ImageCropperState extends State<ImageCropper> {
           right = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
-        if (right >= maxX) {
+        if (right <= minX || right >= maxX) {
           return;
         }
 
@@ -453,7 +453,7 @@ class _ImageCropperState extends State<ImageCropper> {
           left = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
-        if (left == maxX) {
+        if (left <= minX || left >= maxX) {
           return;
         }
 
