@@ -211,6 +211,8 @@ class RouterState extends ChangeNotifier {
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
+  final List<String> _accounted = [];
+
   /// Current route (last in the [routes] history).
   String get route => routes.lastOrNull == null ? Routes.home : routes.last;
 
@@ -230,6 +232,14 @@ class RouterState extends ChangeNotifier {
   /// Clears the whole [routes] stack.
   void go(String to) {
     arguments = null;
+
+    for (var e in routes) {
+      if (e != '/') {
+        _accounted.add(e);
+      }
+    }
+
+    print('go($to) -> $_accounted');
     routes.value = [_guarded(to)];
     notifyListeners();
   }
@@ -254,6 +264,10 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
+    if (page != null && _accounted.remove(page)) {
+      return;
+    }
+
     if (routes.isNotEmpty) {
       if (page != null && !routes.contains(page)) {
         return;
@@ -271,11 +285,13 @@ class RouterState extends ChangeNotifier {
           last = Routes.home;
         }
 
+        _accounted.remove(routes.last);
         routes.last = last;
       } else {
         if (page != null) {
           routes.remove(page);
         } else {
+          _accounted.remove(routes.last);
           routes.removeLast();
         }
 
@@ -286,6 +302,8 @@ class RouterState extends ChangeNotifier {
 
       notifyListeners();
     }
+
+    print('pop($page) -> $_accounted');
   }
 
   /// Removes the [routes] satisfying the provided [predicate].
@@ -293,6 +311,7 @@ class RouterState extends ChangeNotifier {
     for (String e in routes.toList(growable: false)) {
       if (predicate(e)) {
         routes.remove(route);
+        _accounted.add(route);
       }
     }
 
@@ -905,6 +924,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onDidRemovePage: (Page<Object?> page) {
+              print('===== [router] onDidRemovePage -> $page');
+
               final bool success = page.canPop;
               if (success) {
                 _state.pop(page.name);
