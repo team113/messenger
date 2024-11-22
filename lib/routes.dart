@@ -211,6 +211,7 @@ class RouterState extends ChangeNotifier {
   /// Current [Routes.home] tab.
   HomeTab _tab = HomeTab.chats;
 
+  /// List of [routes] already [pop]ped so that those aren't removed twice.
   final List<String> _accounted = [];
 
   /// Current route (last in the [routes] history).
@@ -234,12 +235,11 @@ class RouterState extends ChangeNotifier {
     arguments = null;
 
     for (var e in routes) {
-      if (e != '/') {
+      if (e != '/' && e != to) {
         _accounted.add(e);
       }
     }
 
-    print('go($to) -> $_accounted');
     routes.value = [_guarded(to)];
     notifyListeners();
   }
@@ -264,7 +264,7 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
-    if (page != null && _accounted.remove(page)) {
+    if (_accounted.remove(page ?? routes.lastOrNull)) {
       return;
     }
 
@@ -302,8 +302,6 @@ class RouterState extends ChangeNotifier {
 
       notifyListeners();
     }
-
-    print('pop($page) -> $_accounted');
   }
 
   /// Removes the [routes] satisfying the provided [predicate].
@@ -924,8 +922,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onDidRemovePage: (Page<Object?> page) {
-              print('===== [router] onDidRemovePage -> $page');
-
               final bool success = page.canPop;
               if (success) {
                 _state.pop(page.name);
