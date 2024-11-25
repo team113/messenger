@@ -667,7 +667,9 @@ class RxChatImpl extends RxChat {
             await _chatRepository.readUntil(id, untilId);
 
             final DtoChatItem? item = await _driftItems.read(untilId);
-            _lastReadItemCursor = item?.cursor ?? _lastReadItemCursor;
+            _lastReadItemCursor =
+                item?.cursor ?? _lastReadItemCursor ?? dto.lastReadItemCursor;
+            dto.lastReadItemCursor = _lastReadItemCursor;
           } catch (_) {
             chat.update((e) => e?..lastReadItem = lastReadItem);
             unreadCount.value = chat.value.unreadCount;
@@ -2187,6 +2189,7 @@ class RxChatImpl extends RxChat {
               if (event.byUser.id == me) {
                 final DtoChatItem? item = await _driftItems.readAt(event.at);
                 _lastReadItemCursor = item?.cursor ?? _lastReadItemCursor;
+                write((chat) => chat..lastReadItemCursor = _lastReadItemCursor);
               }
               break;
 
