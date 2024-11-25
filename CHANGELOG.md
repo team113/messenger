@@ -15,7 +15,7 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Avatar cropping. ([#1139], [#1130], [#530])
+        - Avatar cropping. ([#1143], [#1139], [#1130], [#530])
     - Chat page:
         - Image and file attachments pasting from pasteboard. ([#1141])
     - Chats tab:
@@ -27,6 +27,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1139]: /../../pull/1139
 [#1140]: /../../pull/1140
 [#1141]: /../../pull/1141
+[#1143]: /../../pull/1143
 
 
 
