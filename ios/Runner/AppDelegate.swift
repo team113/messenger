@@ -107,6 +107,7 @@ import UIKit
     let nameCaller = payload.dictionaryPayload["nameCaller"] as? String ?? ""
     let handle = payload.dictionaryPayload["handle"] as? String ?? ""
     let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
+    let endedAt = payload.dictionaryPayload["endedAt"] as? String ?? ""
 
     let data = flutter_callkit_incoming.Data(
       id: id,
@@ -121,7 +122,11 @@ import UIKit
     data.supportsUngrouping = false;
     data.extra = payload.dictionaryPayload["extra"] as? NSDictionary ?? [:];
 
-    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
+    if (endedAt != "") {
+      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
+    } else {
+      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
+    }
 
     DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
         completion()
