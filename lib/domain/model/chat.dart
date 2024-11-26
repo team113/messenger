@@ -282,6 +282,7 @@ class Chat implements Comparable<Chat> {
       members: members,
       kindIndex: kindIndex,
       muted: muted,
+      isHidden: isHidden,
       directLink: directLink,
       createdAt: createdAt,
       updatedAt: updatedAt,

@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -42,6 +43,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'component/more.dart';
@@ -303,6 +305,7 @@ class MessageFieldController extends GetxController {
 
   @override
   Future<void> onReady() async {
+    ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
     await CustomMouseCursors.ensureInitialized();
     super.onReady();
   }
@@ -321,6 +324,8 @@ class MessageFieldController extends GetxController {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       BackButtonInterceptor.remove(_onBack);
     }
+
+    ClipboardEvents.instance?.unregisterPasteEventListener(_pasteEventListener);
 
     super.onClose();
   }
@@ -409,6 +414,79 @@ class MessageFieldController extends GetxController {
   Future<void> addPlatformAttachment(PlatformFile platformFile) async {
     NativeFile nativeFile = NativeFile.fromPlatformFile(platformFile);
     await _addAttachment(nativeFile);
+  }
+
+  /// Reads the [SystemClipboard] and pastes any content contained in it.
+  Future<void> handlePaste() async {
+    final clipboard = SystemClipboard.instance;
+    if (clipboard == null) {
+      return;
+    }
+
+    _pasteItem(await clipboard.read());
+  }
+
+  /// Reads the [event] and pastes any content contained in it.
+  Future<void> _pasteEventListener(ClipboardReadEvent event) async {
+    await _pasteItem(await event.getClipboardReader());
+  }
+
+  /// Handles the [reader] to retrieve any content contained in it.
+  Future<void> _pasteItem(ClipboardReader reader) async {
+    for (var e in reader.items) {
+      bool handled = false;
+
+      final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
+      Log.debug(
+        '_pasteItem() -> formats${formats.map((e) => e.runtimeType)} with mime types${formats.whereType<SimpleFileFormat>().map((e) => e.receiverFormats)}',
+        '$runtimeType',
+      );
+
+      final SimpleFileFormat? file =
+          formats.whereType<SimpleFileFormat>().lastOrNull;
+
+      if (file != null) {
+        final String? name = await e.getSuggestedName();
+
+        Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
+
+        if (name != null) {
+          e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
+          handled = true;
+        }
+      }
+
+      if (!handled) {
+        final SimpleValueFormat<String>? text =
+            formats.whereType<SimpleValueFormat<String>>().firstOrNull;
+
+        if (text != null) {
+          final text = await reader.readValue(Formats.plainText);
+
+          if (field.focus.hasFocus) {
+            int cursor;
+            if (field.controller.selection.isCollapsed) {
+              cursor = field.controller.selection.base.offset;
+              field.text =
+                  '${field.text.substring(0, cursor)}$text${field.text.substring(cursor, field.text.length)}';
+            } else {
+              cursor = field.controller.selection.start;
+              field.text =
+                  '${field.text.substring(0, field.controller.selection.start)}$text${field.text.substring(field.controller.selection.end, field.text.length)}';
+            }
+
+            field.controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: cursor + (text?.length ?? 0)),
+            );
+          }
+        } else {
+          Log.warning(
+            '_pasteItem() -> cannot provide a handler for the $e',
+            '$runtimeType',
+          );
+        }
+      }
+    }
   }
 
   /// Opens a file choose popup of the specified [type] and adds the selected
@@ -507,5 +585,19 @@ class MessageFieldController extends GetxController {
         .toList();
 
     return persisted ?? [];
+  }
+
+  /// Adds the [DataReaderFile] as an [Attachment] to the [attachments].
+  Future<void> _addReaderAttachment(
+    DataReaderFile file, {
+    String? suggested,
+  }) async {
+    await _addAttachment(
+      NativeFile(
+        name: file.fileName ?? suggested ?? 'attachment',
+        size: file.fileSize ?? 0,
+        bytes: await file.readAll(),
+      ),
+    );
   }
 }

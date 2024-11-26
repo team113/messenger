@@ -117,7 +117,8 @@ class ChatTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
         child: InkWellWithHover(
-          selectedColor: style.colors.primary,
+          selectedColor:
+              dimmed ? style.colors.primary.darken(0.03) : style.colors.primary,
           unselectedColor: dimmed
               ? style.colors.onPrimaryOpacity50
               : style.cardColor.darken(darken),
@@ -128,7 +129,8 @@ class ChatTile extends StatelessWidget {
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor: style.colors.primary,
+          selectedHoverColor:
+              dimmed ? style.colors.primary.darken(0.03) : style.colors.primary,
           folded: chat?.chat.value.favoritePosition != null,
           child: SizedBox(
             height: height,

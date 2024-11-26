@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -22,7 +23,6 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'enums.dart';
 import 'painter.dart';
 
@@ -85,12 +85,7 @@ class _ImageCropperState extends State<ImageCropper> {
       child: AspectRatio(
         aspectRatio: widget.size.aspectRatio,
         child: LayoutBuilder(builder: (context, constraints) {
-          final Rect real = Rect.fromLTWH(
-            _crop.left * constraints.maxWidth,
-            _crop.top * constraints.maxHeight,
-            _crop.width * constraints.maxWidth,
-            _crop.height * constraints.maxHeight,
-          );
+          final Rect real = _calculate(constraints);
 
           return Stack(
             alignment: Alignment.center,
@@ -110,12 +105,12 @@ class _ImageCropperState extends State<ImageCropper> {
                   cursor: SystemMouseCursors.grab,
                   child: GestureDetector(
                     onPanUpdate: (d) {
-                      final Offset delta = _offset(d.delta);
+                      final Rect real = _calculate(constraints);
 
                       _move(
                         Offset(
-                          (real.left + delta.dx) / constraints.maxWidth,
-                          (real.top + delta.dy) / constraints.maxHeight,
+                          (real.left + d.delta.dx) / constraints.maxWidth,
+                          (real.top + d.delta.dy) / constraints.maxHeight,
                         ),
                       );
                     },
@@ -159,6 +154,8 @@ class _ImageCropperState extends State<ImageCropper> {
                       (_) => dy,
                     };
 
+                    final Rect real = _calculate(constraints);
+
                     _resize(
                       CropHandle.topLeft,
                       Offset(
@@ -197,6 +194,8 @@ class _ImageCropperState extends State<ImageCropper> {
                       CropRotation.left => dy,
                       (_) => dy,
                     };
+
+                    final Rect real = _calculate(constraints);
 
                     _resize(
                       CropHandle.topRight,
@@ -237,6 +236,8 @@ class _ImageCropperState extends State<ImageCropper> {
                       (_) => dy,
                     };
 
+                    final Rect real = _calculate(constraints);
+
                     _resize(
                       CropHandle.bottomLeft,
                       Offset(
@@ -276,6 +277,8 @@ class _ImageCropperState extends State<ImageCropper> {
                       (_) => dy,
                     };
 
+                    final Rect real = _calculate(constraints);
+
                     _resize(
                       CropHandle.bottomRight,
                       Offset(
@@ -293,20 +296,6 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
-  /// Returns the [Offset] with its delta corrected according to the platform
-  /// differences.
-  Offset _offset(Offset offset) {
-    if (PlatformUtils.isDesktop) {
-      if (WebUtils.isSafari) {
-        return Offset(offset.dx * 1.9, offset.dy * 1.9);
-      } else if (PlatformUtils.isWeb) {
-        return Offset(offset.dx * 1.45, offset.dy * 1.45);
-      }
-    }
-
-    return offset;
-  }
-
   // Returns a [Scaler] scaling the crop area.
   Widget _scaler({
     Key? key,
@@ -320,17 +309,9 @@ class _ImageCropperState extends State<ImageCropper> {
       child: Scaler(
         key: key,
         onDragUpdate: (dx, dy) {
-          final Offset delta = _offset(Offset(dx, dy));
-
           onDrag?.call(
-            switch (widget.rotation) {
-              CropRotation.down => -delta.dx,
-              (_) => delta.dx
-            },
-            switch (widget.rotation) {
-              CropRotation.down => -delta.dy,
-              (_) => delta.dy
-            },
+            switch (widget.rotation) { CropRotation.down => -dx, (_) => dx },
+            switch (widget.rotation) { CropRotation.down => -dy, (_) => dy },
           );
         },
         width: width ?? Scaler.size,
@@ -339,18 +320,32 @@ class _ImageCropperState extends State<ImageCropper> {
     );
   }
 
+  /// Returns the total [_crop] relative to the [constraints].
+  Rect _calculate(BoxConstraints constraints) {
+    return Rect.fromLTWH(
+      _crop.left * constraints.maxWidth,
+      _crop.top * constraints.maxHeight,
+      _crop.width * constraints.maxWidth,
+      _crop.height * constraints.maxHeight,
+    );
+  }
+
   /// Moves the crop rectangle based on the [point].
   void _move(Offset point) {
     final Rect crop = _crop.multiply(widget.size);
 
+    _crop = Rect.fromLTWH(point.dx, point.dy, _crop.width, _crop.height);
     _crop = Rect.fromLTWH(
-      (point.dx * widget.size.width).clamp(0, widget.size.width - crop.width),
+      (point.dx * widget.size.width).clamp(
+        0,
+        max(0, widget.size.width - crop.width),
+      ),
       (point.dy * widget.size.height).clamp(
         0,
-        widget.size.height - crop.height,
+        max(0, widget.size.height - crop.height),
       ),
-      crop.width,
-      crop.height,
+      min(widget.size.width, crop.width),
+      min(widget.size.height, crop.height),
     ).divide(widget.size);
 
     setState(() {});
@@ -402,6 +397,10 @@ class _ImageCropperState extends State<ImageCropper> {
           left = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
+        if (left <= minX || left >= maxX) {
+          return;
+        }
+
         minY = 0;
         maxY = bottom - _minimum;
         if (minY <= maxY) {
@@ -414,6 +413,10 @@ class _ImageCropperState extends State<ImageCropper> {
         maxX = widget.size.width;
         if (minX <= maxX) {
           right = (point.dx * widget.size.width).clamp(minX, maxX);
+        }
+
+        if (right <= minX || right >= maxX) {
+          return;
         }
 
         minY = 0;
@@ -430,6 +433,10 @@ class _ImageCropperState extends State<ImageCropper> {
           right = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
+        if (right <= minX || right >= maxX) {
+          return;
+        }
+
         minY = top + _minimum;
         maxY = widget.size.height;
         if (minY <= maxY) {
@@ -444,6 +451,10 @@ class _ImageCropperState extends State<ImageCropper> {
           left = (point.dx * widget.size.width).clamp(minX, maxX);
         }
 
+        if (left <= minX || left >= maxX) {
+          return;
+        }
+
         minY = top + _minimum;
         maxY = widget.size.height;
         if (minY <= maxY) {
@@ -456,41 +467,22 @@ class _ImageCropperState extends State<ImageCropper> {
         break;
     }
 
-    final double width = right - left;
     final double height = bottom - top;
 
-    if (width / height > _ratio) {
-      switch (type) {
-        case CropHandle.topLeft:
-        case CropHandle.bottomLeft:
-          left = right - height * _ratio;
-          break;
+    switch (type) {
+      case CropHandle.topLeft:
+      case CropHandle.bottomLeft:
+        left = right - height * _ratio;
+        break;
 
-        case CropHandle.topRight:
-        case CropHandle.bottomRight:
-          right = left + height * _ratio;
-          break;
+      case CropHandle.topRight:
+      case CropHandle.bottomRight:
+        right = left + height * _ratio;
+        break;
 
-        default:
-          // No-op, as shouldn't be invoked.
-          break;
-      }
-    } else {
-      switch (type) {
-        case CropHandle.topLeft:
-        case CropHandle.topRight:
-          top = bottom - width / _ratio;
-          break;
-
-        case CropHandle.bottomRight:
-        case CropHandle.bottomLeft:
-          bottom = top + width / _ratio;
-          break;
-
-        default:
-          // No-op, as shouldn't be invoked.
-          break;
-      }
+      default:
+        // No-op, as shouldn't be invoked.
+        break;
     }
 
     setState(

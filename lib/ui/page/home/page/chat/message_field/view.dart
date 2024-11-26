@@ -21,6 +21,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart' hide CloseButton;
 import 'package:flutter/scheduler.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:path/path.dart' as p;
 
@@ -139,30 +140,43 @@ class MessageFieldView extends StatelessWidget {
           MessageFieldController(Get.find(), Get.find(), Get.find()),
       global: false,
       builder: (MessageFieldController c) {
-        return Theme(
-          data: theme(context),
-          child: CustomSafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
-              ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
+        return CallbackShortcuts(
+          bindings: {
+            if (!PlatformUtils.isWeb)
+              SingleActivator(LogicalKeyboardKey.keyV, control: true):
+                  c.handlePaste,
+            if (!PlatformUtils.isWeb)
+              SingleActivator(LogicalKeyboardKey.keyV, meta: true):
+                  c.handlePaste,
+          },
+          child: Theme(
+            data: theme(context),
+            child: CustomSafeArea(
+              child: Container(
+                key: const Key('SendField'),
+                decoration: BoxDecoration(
+                  borderRadius: style.cardRadius,
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
                 ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
+                child: ConditionalBackdropFilter(
+                  condition: style.cardBlur > 0,
+                  filter: ImageFilter.blur(
+                    sigmaX: style.cardBlur,
+                    sigmaY: style.cardBlur,
+                  ),
+                  borderRadius: style.cardRadius,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildHeader(c, context),
+                      _buildField(c, context)
+                    ],
+                  ),
                 ),
               ),
             ),

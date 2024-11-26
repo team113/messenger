@@ -16,64 +16,64 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
-/// [DropTarget] allowed to be stacked over each other.
+import '/config.dart';
+
+/// Custom wrapper around [DropRegion] to simplify usage.
 class CustomDropTarget extends StatefulWidget {
   const CustomDropTarget({
-    required super.key,
-    this.onDragDone,
-    this.onDragEntered,
-    this.onDragExited,
-    required this.child,
+    super.key,
+    this.onPerformDrop,
+    this.onDropEnter,
+    this.onDropLeave,
+    required this.builder,
   });
 
-  /// [Widget] to wrap this [CustomDropTarget] around.
-  final Widget child;
+  /// Callback, called when [DropRegion.onPerformDrop].
+  final Future<void> Function(PerformDropEvent)? onPerformDrop;
 
-  /// Callback, called when [DropTarget.onDragDone].
-  final void Function(DropDoneDetails)? onDragDone;
+  /// Callback, called when [DropRegion.onDropEnter].
+  final void Function(DropEvent)? onDropEnter;
 
-  /// Callback, called when [DropTarget.onDragEntered].
-  final void Function(DropEventDetails)? onDragEntered;
+  /// Callback, called when [DropRegion.onDropLeave].
+  final void Function(DropEvent)? onDropLeave;
 
-  /// Callback, called when [DropTarget.onDragExited].
-  final void Function(DropEventDetails)? onDragExited;
+  /// Builder building a [Widget] to wrap this [CustomDropTarget] around.
+  final Widget Function(bool) builder;
 
   @override
   State<CustomDropTarget> createState() => _CustomDropTargetState();
 }
 
-/// State of a [CustomDropTarget].
+/// State of a [CustomDropTarget] maintaining the [_dragging].
 class _CustomDropTargetState extends State<CustomDropTarget> {
-  /// List of [CustomDropTarget]s [Key]s.
-  static final RxList<Key> keys = RxList();
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => keys.add(widget.key!));
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => keys.remove(widget.key));
-    super.dispose();
-  }
+  /// Indicator whether there's an active dragging happening.
+  bool _dragging = false;
 
   @override
   Widget build(BuildContext context) {
-    return Obx(() {
-      return DropTarget(
-        enable: keys.lastOrNull == widget.key,
-        onDragDone: widget.onDragDone,
-        onDragEntered: widget.onDragEntered,
-        onDragExited: widget.onDragExited,
-        child: widget.child,
-      );
-    });
+    if (widget.onPerformDrop == null || Config.disableDragArea) {
+      return widget.builder(false);
+    }
+
+    return DropRegion(
+      formats: Formats.standardFormats,
+      onDropOver: (event) =>
+          event.session.allowedOperations.firstOrNull ?? DropOperation.none,
+      onPerformDrop: (event) async {
+        await widget.onPerformDrop?.call(event);
+      },
+      onDropEnter: (e) {
+        setState(() => _dragging = true);
+        widget.onDropEnter?.call(e);
+      },
+      onDropLeave: (e) {
+        setState(() => _dragging = false);
+        widget.onDropLeave?.call(e);
+      },
+      child: widget.builder(_dragging),
+    );
   }
 }
