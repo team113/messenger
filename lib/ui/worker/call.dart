@@ -26,17 +26,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '/api/backend/schema.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
 import '/util/log.dart';
@@ -52,6 +56,7 @@ class CallWorker extends DisposableService {
     this._chatService,
     this._myUserService,
     this._notificationService,
+    this._authService,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -65,6 +70,8 @@ class CallWorker extends DisposableService {
 
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
+
+  final AuthService _authService;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -106,6 +113,8 @@ class CallWorker extends DisposableService {
   /// [FlutterCallkitIncoming.onEvent] subscription reacting on the native call
   /// interface events.
   StreamSubscription? _callKitSubscription;
+
+  final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
 
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
@@ -398,8 +407,58 @@ class CallWorker extends DisposableService {
             }
             break;
 
-          case Event.actionDidUpdateDevicePushTokenVoip:
           case Event.actionCallIncoming:
+            final String? extra = event.body['extra']?['chatId'];
+            final Credentials? credentials = _authService.credentials.value;
+
+            if (extra != null && credentials != null) {
+              final ChatId chatId = ChatId(extra);
+
+              final GraphQlProvider provider = GraphQlProvider();
+              provider.token = credentials.access.secret;
+
+              _eventsSubscriptions[chatId]?.cancel();
+              _eventsSubscriptions[chatId] = provider
+                  .chatEvents(chatId, null, () => null)
+                  .listen((e) async {
+                var events =
+                    ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+                if (events.$$typename == 'ChatEventsVersioned') {
+                  var mixin = events
+                      as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+                  for (var e in mixin.events) {
+                    if (e.$$typename == 'EventChatCallFinished') {
+                      final node = e
+                          as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+                      await FlutterCallkitIncoming.endCall(node.call.id.val);
+                    } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                      final node = e
+                          as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                      if (node.user.id == credentials.userId) {
+                        await FlutterCallkitIncoming.endCall(node.call.id.val);
+                      }
+                    } else if (e.$$typename == 'EventChatCallDeclined') {
+                      final node = e
+                          as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                      if (node.user.id == credentials.userId) {
+                        await FlutterCallkitIncoming.endCall(node.call.id.val);
+                      }
+                    } else if (e.$$typename ==
+                        'EventChatCallAnswerTimeoutPassed') {
+                      final node = e
+                          as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                      if (node.userId == credentials.userId) {
+                        await FlutterCallkitIncoming.endCall(node.callId.val);
+                      }
+                    }
+                  }
+                }
+              });
+            }
+            break;
+
+          case Event.actionDidUpdateDevicePushTokenVoip:
           case Event.actionCallStart:
           case Event.actionCallCallback:
           case Event.actionCallToggleHold:
