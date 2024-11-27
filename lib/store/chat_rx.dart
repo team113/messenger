@@ -1795,6 +1795,7 @@ class RxChatImpl extends RxChat {
 
       chat.value = e.value.copyWith();
       chat.value.firstItem = first ?? chat.value.firstItem;
+      _lastReadItemCursor = e.lastReadItemCursor ?? _lastReadItemCursor;
       ver = e.ver;
 
       if (positionChanged) {
