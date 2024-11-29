@@ -456,16 +456,15 @@ fcm_group_title =
     }
 fcm_incoming_call =
     { $type ->
-        [dialog] {""}
-        *[group]
-            {$userName ->
-                [x] {$userNum}
-                *[other] {$userName}
-            }:{" "}
-    }[входящий { $isVideo ->
+        [dialog] Входящий
+        *[group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } начинает
+    } { $isVideo ->
         [yes] видео
         *[other] аудио
-    } звонок]
+    } звонок
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -507,17 +506,16 @@ fcm_message =
         }
     }
 fcm_missed_call =
-    { $type ->
-        [dialog] {""}
-        *[group]
-            {$userName ->
-                [x] {$userNum}
-                *[other] {$userName}
-            }:{" "}
-    }[пропущенный { $isVideo ->
+    Пропущенный { $isVideo ->
         [yes] видео
         *[other] аудио
-    } звонок]
+    } звонок{ $type ->
+        [dialog] {""}
+        *[group] {" от "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+    }
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
