@@ -451,7 +451,18 @@ fcm_group_title =
         [yes] ...
        *[no] {""}
     }
-fcm_incoming_call = Incoming call
+fcm_incoming_call =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    }[incoming { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call]
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -484,6 +495,18 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
+fcm_missed_call =
+    { $type ->
+        [dialog] {""}
+        *[group]
+            {$userName ->
+                [x] {$userNum}
+                *[other] {$userName}
+            }:{" "}
+    }[missed { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call]
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
