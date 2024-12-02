@@ -451,8 +451,15 @@ class MessageFieldController extends GetxController {
         Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
         if (name != null) {
-          e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
-          handled = true;
+          if (!PlatformUtils.isDesktop || formats.length > 3) {
+            e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
+            handled = true;
+          } else {
+            Log.debug(
+              '_pasteItem() -> `formats.length` is no bigger than 3, thus by heuristic this is considered to be text',
+              '$runtimeType',
+            );
+          }
         }
       }
 
