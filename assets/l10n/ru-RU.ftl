@@ -456,11 +456,11 @@ fcm_group_title =
     }
 fcm_incoming_call =
     { $type ->
-        [dialog] Входящий
-        *[group] {$userName ->
+        [group] {$userName ->
            [x] {$userNum}
            *[other] {$userName}
         } начинает
+        *[dialog] Входящий
     } { $isVideo ->
         [yes] видео
         *[other] аудио
@@ -510,11 +510,11 @@ fcm_missed_call =
         [yes] видео
         *[other] аудио
     } звонок{ $type ->
-        [dialog] {""}
-        *[group] {" от "}{$userName ->
+        [group] {" от "}{$userName ->
             [x] {$userNum}
             *[other] {$userName}
         }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->
