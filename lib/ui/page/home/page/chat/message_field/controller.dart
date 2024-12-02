@@ -442,26 +442,34 @@ class MessageFieldController extends GetxController {
         '$runtimeType',
       );
 
-      final SimpleFileFormat? file =
-          formats.whereType<SimpleFileFormat>().lastOrNull;
+      // Tries reading the [ClipboardDataReader] as a file.
+      Future<bool> handleAsFile([bool force = false]) async {
+        final SimpleFileFormat? file =
+            formats.whereType<SimpleFileFormat>().lastOrNull;
 
-      if (file != null) {
-        final String? name = await e.getSuggestedName();
+        if (file != null) {
+          final String? name = await e.getSuggestedName();
 
-        Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
+          Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
-        if (name != null) {
-          if (!PlatformUtils.isDesktop || formats.length > 3) {
-            e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
-            handled = true;
-          } else {
-            Log.debug(
-              '_pasteItem() -> `formats.length` is no bigger than 3, thus by heuristic this is considered to be text',
-              '$runtimeType',
-            );
+          if (name != null) {
+            if (force || !PlatformUtils.isDesktop || formats.length > 3) {
+              e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
+              handled = true;
+              return true;
+            } else {
+              Log.debug(
+                '_pasteItem() -> `formats.length` is no bigger than 3, thus by heuristic this is considered to be text',
+                '$runtimeType',
+              );
+            }
           }
         }
+
+        return false;
       }
+
+      await handleAsFile();
 
       if (!handled) {
         final SimpleValueFormat<String>? text =
@@ -487,10 +495,12 @@ class MessageFieldController extends GetxController {
             );
           }
         } else {
-          Log.warning(
-            '_pasteItem() -> cannot provide a handler for the $e',
-            '$runtimeType',
-          );
+          if (!await handleAsFile(true)) {
+            Log.warning(
+              '_pasteItem() -> cannot provide a handler for the $e',
+              '$runtimeType',
+            );
+          }
         }
       }
     }
