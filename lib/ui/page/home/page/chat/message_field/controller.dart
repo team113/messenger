@@ -453,7 +453,9 @@ class MessageFieldController extends GetxController {
           Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
           if (name != null) {
-            if (force || !PlatformUtils.isDesktop || formats.length > 3) {
+            final bool isMacOS = PlatformUtils.isMacOS && !PlatformUtils.isWeb;
+
+            if (force || !isMacOS || formats.length > 3) {
               e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
               handled = true;
               return true;
