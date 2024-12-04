@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
@@ -77,23 +77,20 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
-
   /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
   /// section.
   final ScrollController devicesScrollController = ScrollController();
 
-  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
-  final ItemScrollController itemScrollController = ItemScrollController();
+  /// [ListObserverController] to pass to a [ListViewObserver]
+  final ListObserverController observerController =
+      ListObserverController(controller: ScrollController());
 
-  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
-  final ItemPositionsListener positionsListener =
-      ItemPositionsListener.create();
+  /// [ScrollController] passed to [ListView.builder] that is attached to
+  /// [ListObserverController] to pass to a [Scrollbar].
+  ScrollController get scrollController => observerController.controller!;
 
-  /// Index of the initial profile page section to show in a
-  /// [ScrollablePositionedList].
-  int listInitIndex = 0;
+  /// Callback passed to [ListViewObserver]
+  void Function(ListViewObserveModel resultModel)? onObserve;
 
   /// [TextFieldState] of a [UserEmail] text input.
   late final TextFieldState email;
@@ -182,6 +179,12 @@ class MyProfileController extends GetxController {
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;
 
+  /// Private flag for returning early from [onObserve] callback
+  bool _isIgnoreObserving = false;
+
+  /// Last selected [ProfileTab]
+  ProfileTab? _lastSelectedProfileTab;
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
@@ -194,41 +197,43 @@ class MyProfileController extends GetxController {
       }
     }
 
-    listInitIndex = router.profileSection.value?.index ?? 0;
-
-    bool ignoreWorker = false;
-    bool ignorePositions = false;
+    observerController.initialIndex = router.profileSection.value?.index ?? 0;
 
     _profileWorker = ever(
       router.profileSection,
       (ProfileTab? tab) async {
-        if (ignoreWorker) {
-          ignoreWorker = false;
-        } else {
-          ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-          Future.delayed(Duration.zero, () => ignorePositions = false);
+        if (tab == _lastSelectedProfileTab) return;
 
-          highlight(tab);
-        }
+        _lastSelectedProfileTab = tab;
+        _isIgnoreObserving = true;
+
+        await observerController.animateTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+
+        highlight(tab);
       },
     );
 
-    positionsListener.itemPositions.addListener(() {
-      if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
-        if (router.profileSection.value != tab) {
-          ignoreWorker = true;
-          router.profileSection.value = tab;
-          Future.delayed(Duration.zero, () => ignoreWorker = false);
-        }
+    onObserve = (resultModel) {
+      if (_isIgnoreObserving) {
+        Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
+        return;
       }
-    });
+
+      final showedChild = resultModel.displayingChildModelList.lastWhere(
+        (childModel) => childModel.displayPercentage >= 0.9,
+        orElse: () => resultModel.displayingChildModelList.last,
+      );
+
+      final ProfileTab tab = ProfileTab.values[showedChild.index];
+      if (router.profileSection.value != tab) {
+        _lastSelectedProfileTab = tab;
+        router.profileSection.value = tab;
+      }
+    };
 
     phone = TextFieldState(
       approvable: true,
