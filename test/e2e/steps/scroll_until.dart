@@ -70,6 +70,47 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
   },
 );
 
+/// Scrolls the provided [Scrollable] back until the specified [WidgetKey] is
+/// present within that list.
+///
+/// Examples:
+/// - Then I scroll back `Menu` until `LogoutButton` is present
+final StepDefinitionGeneric<CustomWorld> scrollBackUntilPresent =
+    then2<WidgetKey, WidgetKey, CustomWorld>(
+  RegExp(r'I scroll back {key} until {key} is present'),
+  (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver
+          .waitForAppToSettle(timeout: const Duration(seconds: 1));
+      final scrollable = find.descendant(
+        of: find.byKey(Key(list.name)),
+        matching: find.byWidgetPredicate((widget) {
+          // TODO: Find a proper way to differentiate [Scrollable]s from
+          //       [TextField]s:
+          //       https://github.com/flutter/flutter/issues/76981
+          if (widget is Scrollable) {
+            return widget.restorationId == null;
+          }
+          return false;
+        }),
+      );
+
+      if (scrollable.evaluate().isEmpty) {
+        return false;
+      }
+      await context.world.appDriver.scrollIntoVisible(
+        context.world.appDriver.findByKeySkipOffstage(key.name),
+        scrollable.first,
+        dy: -50,
+      );
+
+      return true;
+    }, timeout: const Duration(seconds: 30));
+
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);
+
 /// Scrolls the provided [Scrollable] to the bottom.
 ///
 /// Examples:

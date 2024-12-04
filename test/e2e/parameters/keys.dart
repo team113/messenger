@@ -75,6 +75,7 @@ enum WidgetKey {
   CurrentPasswordField,
   CurrentSession,
   DangerZone,
+  Legal,
   Delete,
   DeleteAccount,
   DeleteAvatar,
@@ -128,6 +129,7 @@ enum WidgetKey {
   MyProfileScrollable,
   MyProfileView,
   NameField,
+  LegalField,
   NewPasswordField,
   NoLeftButton,
   NoMessages,
@@ -197,6 +199,7 @@ enum WidgetKey {
   VerifyPhone,
   WelcomeMessage,
   WelcomeMessageField,
+  BigAvatarProfileField,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].
