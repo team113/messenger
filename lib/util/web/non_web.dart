@@ -104,6 +104,7 @@ class WebUtils {
   /// code block at the same time.
   static Future<T> protect<T>(
     Future<T> Function() callback, {
+    bool exclusive = true,
     String tag = 'mutex',
   }) {
     Mutex? mutex = _guards[tag];

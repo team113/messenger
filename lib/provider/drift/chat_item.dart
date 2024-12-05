@@ -149,36 +149,44 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoChatItem?>((db) async {
-      final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
-      final ChatItemRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoChatItem?>(
+      (db) async {
+        final stmt = db.select(db.chatItems)..where((u) => u.id.equals(id.val));
+        final ChatItemRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _ChatItemDb.fromDb(row);
-    }, tag: 'chat_item.read($id)');
+        return _ChatItemDb.fromDb(row);
+      },
+      tag: 'chat_item.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Returns the [DtoChatItem] stored in the database by the provided [at], if
   /// any.
   Future<DtoChatItem?> readAt(PreciseDateTime at) async {
-    return await safe<DtoChatItem?>((db) async {
-      final stmt = db.select(db.chatItems)
-        ..where(
-          (u) => u.at.isSmallerOrEqual(Variable(at.microsecondsSinceEpoch)),
-        )
-        ..orderBy([(u) => OrderingTerm.desc(u.at)])
-        ..limit(1);
-      final ChatItemRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoChatItem?>(
+      (db) async {
+        final stmt = db.select(db.chatItems)
+          ..where(
+            (u) => u.at.isSmallerOrEqual(Variable(at.microsecondsSinceEpoch)),
+          )
+          ..orderBy([(u) => OrderingTerm.desc(u.at)])
+          ..limit(1);
+        final ChatItemRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _ChatItemDb.fromDb(row);
-    }, tag: 'chat_item.readAt($at)');
+        return _ChatItemDb.fromDb(row);
+      },
+      tag: 'chat_item.readAt($at)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoChatItem] identified by the provided [id] from the
@@ -216,55 +224,59 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     PreciseDateTime? around,
     ChatMessageText? withText,
   }) async {
-    final result = await safe((db) async {
-      if (around != null) {
-        final stmt = db.chatItemsAround(
-          chatId.val,
-          around,
-          (before ?? 50).toDouble(),
-          after ?? 50,
-        );
+    final result = await safe(
+      (db) async {
+        if (around != null) {
+          final stmt = db.chatItemsAround(
+            chatId.val,
+            around,
+            (before ?? 50).toDouble(),
+            after ?? 50,
+          );
+
+          return (await stmt.get())
+              .map(
+                (r) => ChatItemRow(
+                  id: r.id,
+                  chatId: r.chatId,
+                  authorId: r.authorId,
+                  at: r.at,
+                  status: r.status,
+                  data: r.data,
+                  cursor: r.cursor,
+                  ver: r.ver,
+                ),
+              )
+              .map(_ChatItemDb.fromDb)
+              .toList();
+        }
+
+        final stmt = db.select(db.chatItemViews).join([
+          innerJoin(
+            db.chatItems,
+            db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+          ),
+        ]);
+
+        stmt.where(db.chatItemViews.chatId.equals(chatId.val));
+        if (withText != null) {
+          stmt.where(db.chatItems.data.like('%"text":"%$withText%"%'));
+        }
+
+        stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+
+        if (after != null || before != null) {
+          stmt.limit((after ?? 0) + (before ?? 0));
+        }
 
         return (await stmt.get())
-            .map(
-              (r) => ChatItemRow(
-                id: r.id,
-                chatId: r.chatId,
-                authorId: r.authorId,
-                at: r.at,
-                status: r.status,
-                data: r.data,
-                cursor: r.cursor,
-                ver: r.ver,
-              ),
-            )
+            .map((rows) => rows.readTable(db.chatItems))
             .map(_ChatItemDb.fromDb)
             .toList();
-      }
-
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
-
-      stmt.where(db.chatItemViews.chatId.equals(chatId.val));
-      if (withText != null) {
-        stmt.where(db.chatItems.data.like('%"text":"%$withText%"%'));
-      }
-
-      stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
-
-      if (after != null || before != null) {
-        stmt.limit((after ?? 0) + (before ?? 0));
-      }
-
-      return (await stmt.get())
-          .map((rows) => rows.readTable(db.chatItems))
-          .map(_ChatItemDb.fromDb)
-          .toList();
-    }, tag: 'chat_item.view($chatId, $before, $after, $around)');
+      },
+      tag: 'chat_item.view($chatId, $before, $after, $around)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }
@@ -277,54 +289,58 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
     int? after,
     PreciseDateTime? around,
   }) async {
-    final result = await safe((db) async {
-      if (around != null) {
-        final stmt = db.attachmentsAround(
-          chatId.val,
-          around,
-          (before ?? 50).toDouble(),
-          after ?? 50,
+    final result = await safe(
+      (db) async {
+        if (around != null) {
+          final stmt = db.attachmentsAround(
+            chatId.val,
+            around,
+            (before ?? 50).toDouble(),
+            after ?? 50,
+          );
+
+          return (await stmt.get())
+              .map(
+                (r) => ChatItemRow(
+                  id: r.id,
+                  chatId: r.chatId,
+                  authorId: r.authorId,
+                  at: r.at,
+                  status: r.status,
+                  data: r.data,
+                  cursor: r.cursor,
+                  ver: r.ver,
+                ),
+              )
+              .map(_ChatItemDb.fromDb)
+              .toList();
+        }
+
+        final stmt = db.select(db.chatItemViews).join([
+          innerJoin(
+            db.chatItems,
+            db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
+          ),
+        ]);
+
+        stmt.where(
+          db.chatItemViews.chatId.equals(chatId.val) &
+              db.chatItems.data.like('%"attachments":[{'),
         );
+        stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
+
+        if (after != null || before != null) {
+          stmt.limit((after ?? 0) + (before ?? 0));
+        }
 
         return (await stmt.get())
-            .map(
-              (r) => ChatItemRow(
-                id: r.id,
-                chatId: r.chatId,
-                authorId: r.authorId,
-                at: r.at,
-                status: r.status,
-                data: r.data,
-                cursor: r.cursor,
-                ver: r.ver,
-              ),
-            )
+            .map((rows) => rows.readTable(db.chatItems))
             .map(_ChatItemDb.fromDb)
             .toList();
-      }
-
-      final stmt = db.select(db.chatItemViews).join([
-        innerJoin(
-          db.chatItems,
-          db.chatItems.id.equalsExp(db.chatItemViews.chatItemId),
-        ),
-      ]);
-
-      stmt.where(
-        db.chatItemViews.chatId.equals(chatId.val) &
-            db.chatItems.data.like('%"attachments":[{'),
-      );
-      stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
-
-      if (after != null || before != null) {
-        stmt.limit((after ?? 0) + (before ?? 0));
-      }
-
-      return (await stmt.get())
-          .map((rows) => rows.readTable(db.chatItems))
-          .map(_ChatItemDb.fromDb)
-          .toList();
-    }, tag: 'chat_item.attachments($chatId, $before, $after, $around)');
+      },
+      tag: 'chat_item.attachments($chatId, $before, $after, $around)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }

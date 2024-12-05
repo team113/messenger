@@ -63,17 +63,21 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>((db) async {
-      final stmt = db.select(db.callCredentials)
-        ..where((u) => u.callId.equals(id.val));
-      final CallCredentialsRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatCallCredentials?>(
+      (db) async {
+        final stmt = db.select(db.callCredentials)
+          ..where((u) => u.callId.equals(id.val));
+        final CallCredentialsRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _CallCredentialsDb.fromDb(row);
-    }, tag: 'call_credentials.read($id)');
+        return _CallCredentialsDb.fromDb(row);
+      },
+      tag: 'call_credentials.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.

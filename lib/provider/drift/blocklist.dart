@@ -88,17 +88,21 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoBlocklistRecord?>((db) async {
-      final stmt = db.select(db.blocklist)
-        ..where((u) => u.userId.equals(id.val));
-      final BlocklistRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoBlocklistRecord?>(
+      (db) async {
+        final stmt = db.select(db.blocklist)
+          ..where((u) => u.userId.equals(id.val));
+        final BlocklistRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _BlocklistDb.fromDb(row);
-    }, tag: 'blocklist.read($id)');
+        return _BlocklistDb.fromDb(row);
+      },
+      tag: 'blocklist.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoBlocklistRecord] identified by the provided [id] from the
@@ -124,17 +128,21 @@ class BlocklistDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the recent [DtoBlocklistRecord]s being in a historical view order.
   Future<List<DtoBlocklistRecord>> records({int? limit}) async {
-    final result = await safe((db) async {
-      final stmt = db.select(db.blocklist);
+    final result = await safe(
+      (db) async {
+        final stmt = db.select(db.blocklist);
 
-      stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
+        stmt.orderBy([(u) => OrderingTerm.desc(u.at)]);
 
-      if (limit != null) {
-        stmt.limit(limit);
-      }
+        if (limit != null) {
+          stmt.limit(limit);
+        }
 
-      return (await stmt.get()).map(_BlocklistDb.fromDb).toList();
-    }, tag: 'blocklist.records(limit: $limit)');
+        return (await stmt.get()).map(_BlocklistDb.fromDb).toList();
+      },
+      tag: 'blocklist.records(limit: $limit)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }

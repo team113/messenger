@@ -611,6 +611,7 @@ abstract class DriftProviderBase extends DisposableInterface {
   /// [CommonDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(
     Future<T> Function(CommonDatabase db) callback, {
+    bool exclusive = true,
     String? tag,
   }) async {
     if (isClosed || db == null) {
@@ -674,14 +675,24 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   Future<T?> safe<T>(
     Future<T> Function(ScopedDatabase db) callback, {
     String? tag,
+    bool exclusive = true,
     bool force = false,
   }) async {
     if (PlatformUtils.isWeb && !force) {
+      final Stopwatch watch = Stopwatch()..start();
+
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
-        () async => await _scoped.wrapped(callback),
+        exclusive: exclusive,
+        () async {
+          print(
+            '======= await WebUtils.protect(${exclusive ? 'exclusive' : 'shared'}) took ${watch.elapsed}',
+          );
+
+          return await _scoped.wrapped(callback);
+        },
       );
     }
 
