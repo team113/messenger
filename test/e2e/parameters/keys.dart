@@ -33,6 +33,7 @@ enum WidgetKey {
   Approve,
   AudioCall,
   AuthView,
+  BigAvatarProfileField,
   Block,
   Blocklist,
   BlocklistLoading,
@@ -199,7 +200,6 @@ enum WidgetKey {
   VerifyPhone,
   WelcomeMessage,
   WelcomeMessageField,
-  BigAvatarProfileField,
 }
 
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].

@@ -83,14 +83,8 @@ class MyProfileController extends GetxController {
 
   /// [ListObserverController] to pass to a [ListViewObserver]
   final ListObserverController observerController =
-      ListObserverController(controller: ScrollController());
-
-  /// [ScrollController] passed to [ListView.builder] that is attached to
-  /// [ListObserverController] to pass to a [Scrollbar].
-  ScrollController get scrollController => observerController.controller!;
-
-  /// Callback passed to [ListViewObserver]
-  void Function(ListViewObserveModel resultModel)? onObserve;
+      ListObserverController(controller: ScrollController())
+        ..initialIndex = router.profileSection.value?.index ?? 0;
 
   /// [TextFieldState] of a [UserEmail] text input.
   late final TextFieldState email;
@@ -161,6 +155,9 @@ class MyProfileController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// Private flag for returning early from [onObserve] callback.
+  bool _isIgnoreObserving = false;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -179,14 +176,34 @@ class MyProfileController extends GetxController {
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;
 
-  /// Private flag for returning early from [onObserve] callback
-  bool _isIgnoreObserving = false;
+  /// [ScrollController] passed to [ListView.builder] that is attached to
+  /// [ListObserverController] to pass to a [Scrollbar].
+  ScrollController get scrollController => observerController.controller!;
 
-  /// Last selected [ProfileTab]
+  /// Callback getter passed to [ListViewObserver].
+  Function(ListViewObserveModel resultModel) get onObserve => (resultModel) {
+        if (_isIgnoreObserving) {
+          Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
+          return;
+        }
+
+        final showedChild = resultModel.displayingChildModelList.first;
+
+        final ProfileTab tab = ProfileTab.values[showedChild.index];
+        if (router.profileSection.value != tab) {
+          _lastSelectedProfileTab = tab;
+          router.profileSection.value = tab;
+        }
+      };
+
+  /// Last selected [ProfileTab].
   ProfileTab? _lastSelectedProfileTab;
 
   @override
   void onInit() {
+    router.profileSection.value =
+        ProfileTab.values[observerController.initialIndex];
+
     if (!PlatformUtils.isMobile) {
       try {
         _devicesSubscription =
@@ -196,8 +213,6 @@ class MyProfileController extends GetxController {
         // No-op, shouldn't break the view.
       }
     }
-
-    observerController.initialIndex = router.profileSection.value?.index ?? 0;
 
     _profileWorker = ever(
       router.profileSection,
@@ -216,24 +231,6 @@ class MyProfileController extends GetxController {
         highlight(tab);
       },
     );
-
-    onObserve = (resultModel) {
-      if (_isIgnoreObserving) {
-        Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
-        return;
-      }
-
-      final showedChild = resultModel.displayingChildModelList.lastWhere(
-        (childModel) => childModel.displayPercentage >= 0.9,
-        orElse: () => resultModel.displayingChildModelList.last,
-      );
-
-      final ProfileTab tab = ProfileTab.values[showedChild.index];
-      if (router.profileSection.value != tab) {
-        _lastSelectedProfileTab = tab;
-        router.profileSection.value = tab;
-      }
-    };
 
     phone = TextFieldState(
       approvable: true,

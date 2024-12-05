@@ -21,7 +21,6 @@ Feature: User scrolls MyProfileScrollable
     Given I am Alice
 
     When I tap `MenuButton` button
-    And I tap `PublicInformation` button
     Then I wait until `MyProfileView` is present
     And I wait until `BigAvatarProfileField` is present
 
