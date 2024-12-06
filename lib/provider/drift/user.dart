@@ -98,16 +98,20 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoUser?>((db) async {
-      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
-      final UserRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoUser?>(
+      (db) async {
+        final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+        final UserRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return UserDb.fromDb(row);
-    }, tag: 'user.read($id)');
+        return UserDb.fromDb(row);
+      },
+      tag: 'user.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.

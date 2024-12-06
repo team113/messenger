@@ -67,16 +67,21 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatMessage?>((db) async {
-      final stmt = db.select(db.drafts)..where((u) => u.chatId.equals(id.val));
-      final DraftRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatMessage?>(
+      (db) async {
+        final stmt = db.select(db.drafts)
+          ..where((u) => u.chatId.equals(id.val));
+        final DraftRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _DraftDb.fromDb(row);
-    }, tag: 'draft.read($id)');
+        return _DraftDb.fromDb(row);
+      },
+      tag: 'draft.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [ChatMessage] identified by the provided [id] from the
