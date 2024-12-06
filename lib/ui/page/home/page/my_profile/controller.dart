@@ -158,6 +158,9 @@ class MyProfileController extends GetxController {
   /// Private flag for returning early from [onObserve] callback.
   bool _isIgnoreObserving = false;
 
+  /// Last selected [ProfileTab].
+  ProfileTab? _lastSelectedProfileTab;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -180,24 +183,21 @@ class MyProfileController extends GetxController {
   /// [ListObserverController] to pass to a [Scrollbar].
   ScrollController get scrollController => observerController.controller!;
 
-  /// Callback getter passed to [ListViewObserver].
-  Function(ListViewObserveModel resultModel) get onObserve => (resultModel) {
-        if (_isIgnoreObserving) {
-          Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
-          return;
-        }
+  /// Callback passed to [ListViewObserver].
+  void onObserve(resultModel) {
+    if (_isIgnoreObserving) {
+      Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
+      return;
+    }
 
-        final showedChild = resultModel.displayingChildModelList.first;
+    final showedChild = resultModel.displayingChildModelList.first;
 
-        final ProfileTab tab = ProfileTab.values[showedChild.index];
-        if (router.profileSection.value != tab) {
-          _lastSelectedProfileTab = tab;
-          router.profileSection.value = tab;
-        }
-      };
-
-  /// Last selected [ProfileTab].
-  ProfileTab? _lastSelectedProfileTab;
+    final ProfileTab tab = ProfileTab.values[showedChild.index];
+    if (router.profileSection.value != tab) {
+      _lastSelectedProfileTab = tab;
+      router.profileSection.value = tab;
+    }
+  }
 
   @override
   void onInit() {
