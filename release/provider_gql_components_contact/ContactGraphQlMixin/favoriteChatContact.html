@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the favoriteChatContact method from the ContactGraphQlMixin mixin, for the Dart programming language.">
+  <title>favoriteChatContact method - ContactGraphQlMixin mixin - contact library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_contact/provider_gql_components_contact-library.html">provider&#47;gql&#47;components&#47;contact.dart</a></li>
+    <li><a href="../../provider_gql_components_contact/ContactGraphQlMixin-mixin.html">ContactGraphQlMixin</a></li>
+    <li class="self-crumb">favoriteChatContact method</li>
+  </ol>
+  <div class="self-name">favoriteChatContact</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="provider_gql_components_contact&#47;ContactGraphQlMixin-mixin-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">favoriteChatContact</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../../api_backend_schema.graphql/ChatContactEventsVersionedMixin-mixin.html">ChatContactEventsVersionedMixin</a>?</span>&gt;</span></span>
+<span class="name ">favoriteChatContact</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="favoriteChatContact-param-id"><span class="type-annotation"><a href="../../domain_model_contact/ChatContactId-class.html">ChatContactId</a></span> <span class="parameter-name">id</span>, </span></li>
+<li><span class="parameter" id="favoriteChatContact-param-position"><span class="type-annotation"><a href="../../domain_model_contact/ChatContactFavoritePosition-class.html">ChatContactFavoritePosition</a></span> <span class="parameter-name">position</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Marks the specified <a href="../../domain_model_contact/ChatContact-class.html">ChatContact</a> as favorited for the authenticated
+<a href="../../domain_model_my_user/MyUser-class.html">MyUser</a> and sets its position in the favorites list.</p>
+<p>To move the <a href="../../domain_model_contact/ChatContact-class.html">ChatContact</a> to a concrete position in a favorites list,
+provide the average value of two other <a href="../../domain_model_contact/ChatContact-class.html">ChatContact</a>s positions
+surrounding it.</p>
+<h3 id="authentication">Authentication</h3>
+<p>Mandatory.</p>
+<h3 id="result">Result</h3>
+<p>Only the following <a href="../../store_event_contact/ChatContactEvent-class.html">ChatContactEvent</a> may be produced on success:</p>
+<ul>
+<li><a href="../../store_event_contact/EventChatContactFavorited-class.html">EventChatContactFavorited</a>.</li>
+</ul>
+<h3 id="idempotent">Idempotent</h3>
+<p>Succeeds as no-op (and returns no <a href="../../store_event_contact/ChatContactEvent-class.html">ChatContactEvent</a>) if the specified
+<a href="../../domain_model_contact/ChatContact-class.html">ChatContact</a> is already favorited at the same position.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">Future&lt;ChatContactEventsVersionedMixin?&gt; favoriteChatContact(
+  ChatContactId id,
+  ChatContactFavoritePosition position,
+) async {
+  throw UnimplementedError();
+
+  &#47;&#47; Log.debug(&#39;favoriteChatContact($id, $position)&#39;, &#39;$runtimeType&#39;);
+
+  &#47;&#47; final variables = FavoriteChatContactArguments(id: id, pos: position);
+  &#47;&#47; final QueryResult result = await client.mutate(
+  &#47;&#47;   MutationOptions(
+  &#47;&#47;     operationName: &#39;FavoriteChatContact&#39;,
+  &#47;&#47;     document: FavoriteChatContactMutation(variables: variables).document,
+  &#47;&#47;     variables: variables.toJson(),
+  &#47;&#47;   ),
+  &#47;&#47;   onException: (data) =&gt; FavoriteChatContactException(
+  &#47;&#47;       (FavoriteChatContact$Mutation.fromJson(data).favoriteChatContact
+  &#47;&#47;               as FavoriteChatContact$Mutation$FavoriteChatContact$FavoriteChatContactError)
+  &#47;&#47;           .code),
+  &#47;&#47; );
+  &#47;&#47; return FavoriteChatContact$Mutation.fromJson(result.data!)
+  &#47;&#47;     .favoriteChatContact as ChatContactEventsVersionedMixin?;
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../provider_gql_components_contact/provider_gql_components_contact-library.html">contact</a></li>
+    <li><a href="../../provider_gql_components_contact/ContactGraphQlMixin-mixin.html">ContactGraphQlMixin</a></li>
+    <li class="self-crumb">favoriteChatContact method</li>
+</ol>
+
+    <h5>ContactGraphQlMixin mixin</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

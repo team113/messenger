@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the ChatInfoController class from the controller library, for the Dart programming language.">
+  <title>ChatInfoController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../static-assets/styles.css?v1">
+  <link rel="icon" href="../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_home_page_chat_info_controller/ui_page_home_page_chat_info_controller-library.html">ui&#47;page&#47;home&#47;page&#47;chat&#47;info&#47;controller.dart</a></li>
+    <li class="self-crumb">ChatInfoController class</li>
+  </ol>
+  <div class="self-name">ChatInfoController</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_home_page_chat_info_controller&#47;ui_page_home_page_chat_info_controller-library-sidebar.html"
+    data-below-sidebar="ui_page_home_page_chat_info_controller&#47;ChatInfoController-class-sidebar.html">
+    <div>
+<h1><span class="kind-class">ChatInfoController</span> class 
+ 
+</h1></div>
+
+    
+<section class="desc markdown">
+  <p>Controller of the <a href="../routes/Routes/chatInfo-constant.html">Routes.chatInfo</a> page.</p>
+</section>
+
+
+    <section>
+      <dl class="dl-horizontal">
+        
+  <dt>Inheritance</dt>
+  <dd>
+    <ul class="gt-separated dark clazz-relationships">
+      <li><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycle-class.html">GetLifeCycle</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/DisposableInterface-class.html">DisposableInterface</a></li>
+        <li><a href="https://pub.dev/documentation/get/4.6.6/get/GetxController-class.html">GetxController</a></li>
+      <li>ChatInfoController</li>
+    </ul>
+  </dd>
+
+        
+        
+
+
+        
+        
+
+
+      </dl>
+    </section>
+
+    
+  <section class="summary offset-anchor" id="constructors">
+    <h2>Constructors</h2>
+    <dl class="constructor-summary-list">
+        <dt id="ChatInfoController" class="callable">
+          <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/ChatInfoController.html">ChatInfoController</a></span><span class="signature">(<span class="parameter" id="-param-chatId"><span class="type-annotation"><a href="../domain_model_chat/ChatId-class.html">ChatId</a></span> <span class="parameter-name">chatId</span>, </span><span class="parameter" id="-param-_chatService"><span class="type-annotation"><a href="../domain_service_chat/ChatService-class.html">ChatService</a></span> <span class="parameter-name">_chatService</span>, </span><span class="parameter" id="-param-_authService"><span class="type-annotation"><a href="../domain_service_auth/AuthService-class.html">AuthService</a></span> <span class="parameter-name">_authService</span>, </span><span class="parameter" id="-param-_callService"><span class="type-annotation"><a href="../domain_service_call/CallService-class.html">CallService</a></span> <span class="parameter-name">_callService</span>, </span><span class="parameter" id="-param-_myUserService"><span class="type-annotation"><a href="../domain_service_my_user/MyUserService-class.html">MyUserService</a></span> <span class="parameter-name">_myUserService</span>, </span><span class="parameter" id="-param-_settingsRepo"><span class="type-annotation"><a href="../domain_repository_settings/AbstractSettingsRepository-class.html">AbstractSettingsRepository</a></span> <span class="parameter-name">_settingsRepo</span></span>)</span>
+        </dt>
+        <dd>
+          
+        </dd>
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-properties">
+    <h2>Properties</h2>
+    <dl class="properties">
+        <dt id="avatar" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/avatar.html">avatar</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/get/4.6.6/get/RxStatus-class.html">RxStatus</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Status of the <a href="../domain_model_chat/Chat/avatar.html">Chat.avatar</a> upload or removal.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="avatarKey" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/avatarKey.html">avatarKey</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a> of an <a href="../ui_page_home_widget_avatar/AvatarWidget-class.html">AvatarWidget</a> displayed used to open a <a href="../ui_page_home_widget_gallery_popup/GalleryPopup-class.html">GalleryPopup</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="background" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/background.html">background</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/drift/Uint8List-class.html">Uint8List</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the current background's <a href="https://api.flutter.dev/flutter/drift/Uint8List-class.html">Uint8List</a> value.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="chat" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a></span>
+  <span class="signature">&#8596; <a href="../domain_repository_chat/RxChat-class.html">RxChat</a>?</span>
+  
+
+</dt>
+<dd>
+  Reactive state of the <a href="../domain_model_chat/Chat-class.html">Chat</a> this page is about.
+  <div class="features"><span class="feature">getter/setter pair</span></div>
+
+</dd>
+
+        <dt id="chatId" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chatId.html">chatId</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_chat/ChatId-class.html">ChatId</a></span>
+  
+
+</dt>
+<dd>
+  ID of the <a href="../domain_model_chat/Chat-class.html">Chat</a> this page is about.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="hashCode" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/hashCode.html">hashCode</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  The hash code for this object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="hasListeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/hasListeners.html">hasListeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="haveNext" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/haveNext.html">haveNext</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the <a href="../domain_model_chat/Chat/members.html">Chat.members</a> have a next page.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="highlighted" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/highlighted.html">highlighted</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxnInt-class.html">RxnInt</a></span>
+  
+
+</dt>
+<dd>
+  Index of an item from the page's <code>ScrollablePositionedList</code> that should
+be highlighted.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="initialized" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/initialized.html">initialized</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been initialized.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isClosed" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/isClosed.html">isClosed</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  Checks whether the controller has already been closed.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="isMonolog" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/isMonolog.html">isMonolog</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  
+
+</dt>
+<dd>
+  Indicates whether the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a> is a monolog.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="itemScrollController" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/itemScrollController.html">itemScrollController</a></span>
+  <span class="signature">&#8594; ItemScrollController</span>
+  
+
+</dt>
+<dd>
+  <code>ItemScrollController</code> of the page's <code>ScrollablePositionedList</code>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="listeners" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/listeners.html">listeners</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="me" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/me.html">me</a></span>
+  <span class="signature">&#8594; <a href="../domain_model_user/UserId-class.html">UserId</a>?</span>
+  
+
+</dt>
+<dd>
+  Returns <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>'s <a href="../domain_model_user/UserId-class.html">UserId</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="membersScrollController" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/membersScrollController.html">membersScrollController</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a> to pass to a members <a href="https://api.flutter.dev/flutter/widgets/ListView-class.html">ListView</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="moreKey" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/moreKey.html">moreKey</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/State-class.html">State</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a></span>&gt;</span></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/GlobalKey-class.html">GlobalKey</a> of the more <a href="../ui_widget_context_menu_region/ContextMenuRegion-class.html">ContextMenuRegion</a> button.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="myUser" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/myUser.html">myUser</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="../domain_model_my_user/MyUser-class.html">MyUser</a>?</span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Returns the currently authenticated <a href="../domain_model_my_user/MyUser-class.html">MyUser</a>.
+  <div class="features"><span class="feature">no setter</span></div>
+
+</dd>
+
+        <dt id="name" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/name.html">name</a></span>
+  <span class="signature">&#8596; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../domain_model_chat/Chat/name.html">Chat.name</a> field state.
+  <div class="features"><span class="feature">late</span><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="nameEditing" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/nameEditing.html">nameEditing</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/RxBool-class.html">RxBool</a></span>
+  
+
+</dt>
+<dd>
+  Indicator whether the <a href="../domain_model_chat/Chat/avatar.html">Chat.avatar</a> and <a href="../domain_model_chat/Chat/name.html">Chat.name</a> editing mode is
+enabled.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="onDelete" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onDelete.html">onDelete</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Internal callback that starts the cycle of this controller.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onStart" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onStart.html">onStart</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/InternalFinalCallback-class.html">InternalFinalCallback</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  
+
+</dt>
+<dd class="inherited">
+  Called at the exact moment the widget is allocated in memory.
+It uses an internal "callable" type, to avoid any @overrides in subclases.
+This method should be internal and is required to define the
+lifetime cycle of the subclass.
+  <div class="features"><span class="feature">final</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="positionsListener" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/positionsListener.html">positionsListener</a></span>
+  <span class="signature">&#8594; ItemPositionsListener</span>
+  
+
+</dt>
+<dd>
+  <code>ItemPositionsListener</code> of the page's <code>ScrollablePositionedList</code>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="reporting" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/reporting.html">reporting</a></span>
+  <span class="signature">&#8594; <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a></span>
+  
+
+</dt>
+<dd>
+  <a href="../ui_widget_text_field/TextFieldState-class.html">TextFieldState</a> for report reason.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="runtimeType" class="property inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/runtimeType.html">runtimeType</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/Type-class.html">Type</a></span>
+  
+
+</dt>
+<dd class="inherited">
+  A representation of the runtime type of the object.
+  <div class="features"><span class="feature">no setter</span><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="scrollController" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/scrollController.html">scrollController</a></span>
+  <span class="signature">&#8594; <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a></span>
+  
+
+</dt>
+<dd>
+  <a href="https://api.flutter.dev/flutter/widgets/ScrollController-class.html">ScrollController</a> to pass to a <a href="https://api.flutter.dev/flutter/material/Scrollbar-class.html">Scrollbar</a>.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+        <dt id="status" class="property">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/status.html">status</a></span>
+  <span class="signature">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get/Rx-class.html">Rx</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://pub.dev/documentation/get/4.6.6/get/RxStatus-class.html">RxStatus</a></span>&gt;</span></span>
+  
+
+</dt>
+<dd>
+  Status of the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a> fetching.
+  <div class="features"><span class="feature">final</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor"
+      id="instance-methods">
+    <h2>Methods</h2>
+    <dl class="callables">
+        <dt id="$configureLifeCycle" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/$configureLifeCycle.html">$configureLifeCycle</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListener.html">addListener</a></span><span class="signature">(<wbr><span class="parameter" id="addListener-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Register a closure to be called when the object notifies its listeners.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="addListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/addListenerId.html">addListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="addListenerId-param-key"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a>?</span> <span class="parameter-name">key</span>, </span><span class="parameter" id="addListenerId-param-listener"><span class="type-annotation"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/GetStateUpdate.html">GetStateUpdate</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/Disposer.html">Disposer</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="call" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/call.html">call</a></span><span class="signature">(<wbr><span class="parameter" id="call-param-withVideo"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">withVideo</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Starts a <a href="../domain_model_chat_call/ChatCall-class.html">ChatCall</a> in this <a href="../domain_model_chat/Chat-class.html">Chat</a> <code>withVideo</code> or without.
+  
+
+</dd>
+
+        <dt id="clearChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/clearChat.html">clearChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Clears all the <a href="../domain_model_chat_item/ChatItem-class.html">ChatItem</a>s of the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="createChatDirectLink" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/createChatDirectLink.html">createChatDirectLink</a></span><span class="signature">(<wbr><span class="parameter" id="createChatDirectLink-param-slug"><span class="type-annotation"><a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a>?</span> <span class="parameter-name">slug</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Creates a new <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> with the specified <a href="../domain_model_user/ChatDirectLinkSlug-class.html">ChatDirectLinkSlug</a>
+and deletes the current active <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group
+(if any).
+  
+
+</dd>
+
+        <dt id="deleteAvatar" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/deleteAvatar.html">deleteAvatar</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Resets the <a href="../domain_model_chat/Chat/avatar.html">Chat.avatar</a> to <code>null</code>.
+  
+
+</dd>
+
+        <dt id="deleteChatDirectLink" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/deleteChatDirectLink.html">deleteChatDirectLink</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Deletes the current <a href="../domain_model_user/ChatDirectLink-class.html">ChatDirectLink</a> of the given <a href="../domain_model_chat/Chat-class.html">Chat</a>-group.
+  
+
+</dd>
+
+        <dt id="dispose" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/dispose.html">dispose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="disposeId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/disposeId.html">disposeId</a></span><span class="signature">(<wbr><span class="parameter" id="disposeId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  To dispose an <code>id</code> from future updates(), this ids are registered
+by <code>GetBuilder()</code> or similar, so is a way to unlink the state change with
+the Widget from the Controller.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="favoriteChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/favoriteChat.html">favoriteChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Marks the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a> as favorited.
+  
+
+</dd>
+
+        <dt id="hideChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/hideChat.html">hideChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Hides the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="highlight" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/highlight.html">highlight</a></span><span class="signature">(<wbr><span class="parameter" id="highlight-param-index"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/int-class.html">int</a></span> <span class="parameter-name">index</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Highlights the item with the provided <code>index</code>.
+  
+
+</dd>
+
+        <dt id="joinCall" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/joinCall.html">joinCall</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Joins an <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> happening in the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="muteChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/muteChat.html">muteChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Mutes the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="noSuchMethod" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/noSuchMethod.html">noSuchMethod</a></span><span class="signature">(<wbr><span class="parameter" id="noSuchMethod-param-invocation"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Invocation-class.html">Invocation</a></span> <span class="parameter-name">invocation</span></span>)
+    <span class="returntype parameter">&#8594; dynamic</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Invoked when a nonexistent method or property is accessed.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="notifyChildrens" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/notifyChildrens.html">notifyChildrens</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="onClose" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/onClose.html">onClose</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called before <a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/onDelete.html">onDelete</a> method. <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/onClose.html">onClose</a> might be used to
+dispose resources used by the controller. Like closing events,
+or streams before the controller is destroyed.
+Or dispose objects that can potentially create some memory leaks,
+like TextEditingControllers, AnimationControllers.
+Might be useful as well to persist some data on disk.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="onInit" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/onInit.html">onInit</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="onReady" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/onReady.html">onReady</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd>
+  Called 1 frame after onInit(). It is the perfect place to enter
+navigation events, like snackbar, dialogs, or a new route, or
+async request.
+  <div class="features"><span class="feature">override</span></div>
+
+</dd>
+
+        <dt id="pickAvatar" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/pickAvatar.html">pickAvatar</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Opens a file choose popup and updates the <a href="../domain_model_chat/Chat/avatar.html">Chat.avatar</a> with the selected
+image, if any.
+  
+
+</dd>
+
+        <dt id="redialChatCallMember" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/redialChatCallMember.html">redialChatCallMember</a></span><span class="signature">(<wbr><span class="parameter" id="redialChatCallMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Redials the <a href="../domain_model_user/User-class.html">User</a> identified by its <code>userId</code>.
+  
+
+</dd>
+
+        <dt id="refresh" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refresh.html">refresh</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="refreshGroup" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/refreshGroup.html">refreshGroup</a></span><span class="signature">(<wbr><span class="parameter" id="refreshGroup-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="removeChatCallMember" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/removeChatCallMember.html">removeChatCallMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatCallMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes the specified <a href="../domain_model_user/User-class.html">User</a> from a <a href="../domain_model_ongoing_call/OngoingCall-class.html">OngoingCall</a> happening in the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="removeChatMember" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/removeChatMember.html">removeChatMember</a></span><span class="signature">(<wbr><span class="parameter" id="removeChatMember-param-userId"><span class="type-annotation"><a href="../domain_model_user/UserId-class.html">UserId</a></span> <span class="parameter-name">userId</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes <a href="../domain_model_user/User-class.html">User</a> identified by the provided <code>userId</code> from the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="removeListener" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListener.html">removeListener</a></span><span class="signature">(<wbr><span class="parameter" id="removeListener-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Remove a previously registered closure from the list of closures that the
+object notifies.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="removeListenerId" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get_state_manager_src_simple_list_notifier/ListNotifierMixin/removeListenerId.html">removeListenerId</a></span><span class="signature">(<wbr><span class="parameter" id="removeListenerId-param-id"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">id</span>, </span><span class="parameter" id="removeListenerId-param-listener"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-ui/VoidCallback.html">VoidCallback</a></span> <span class="parameter-name">listener</span></span>)
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="reportChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/reportChat.html">reportChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Reports the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="submitName" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/submitName.html">submitName</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Submits the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/name.html">name</a> field.
+  
+
+</dd>
+
+        <dt id="toString" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/toString.html">toString</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/String-class.html">String</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  A string representation of this object.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="unfavoriteChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/unfavoriteChat.html">unfavoriteChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Removes the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a> from the favorites.
+  
+
+</dd>
+
+        <dt id="unmuteChat" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/unmuteChat.html">unmuteChat</a></span><span class="signature">(<wbr>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Unmutes the <a href="../ui_page_home_page_chat_info_controller/ChatInfoController/chat.html">chat</a>.
+  
+
+</dd>
+
+        <dt id="update" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetxController/update.html">update</a></span><span class="signature">(<wbr>[<span class="parameter" id="update-param-ids"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/List-class.html">List</a><span class="signature">&lt;<wbr><span class="type-parameter"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span>&gt;</span>?</span> <span class="parameter-name">ids</span>, </span><span class="parameter" id="update-param-condition"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span> <span class="parameter-name">condition</span> = <span class="default-value">true</span></span>])
+    <span class="returntype parameter">&#8594; void</span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  Rebuilds <code>GetBuilder</code> each time you call <code>update()</code>;
+Can take a List of <code>ids</code>, that will only update the matching
+<code>GetBuilder( id: )</code>,
+<code>ids</code> can be reused among <code>GetBuilders</code> like group tags.
+The update will only notify the Widgets, if <code>condition</code> is true.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+        <dt id="updateChatAvatar" class="callable">
+  <span class="name"><a href="../ui_page_home_page_chat_info_controller/ChatInfoController/updateChatAvatar.html">updateChatAvatar</a></span><span class="signature">(<wbr><span class="parameter" id="updateChatAvatar-param-image"><span class="type-annotation"><a href="https://pub.dev/documentation/file_picker/8.0.7/file_picker/PlatformFile-class.html">PlatformFile</a>?</span> <span class="parameter-name">image</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/flutter_test/Future-class.html">Future</a><span class="signature">&lt;<wbr><span class="type-parameter">void</span>&gt;</span></span>
+  </span>
+  
+
+</dt>
+<dd>
+  Updates the <a href="../domain_model_chat/Chat/avatar.html">Chat.avatar</a> with the provided <code>image</code>, or resets it to
+<code>null</code>.
+  
+
+</dd>
+
+    </dl>
+  </section>
+    
+  <section
+      class="summary offset-anchor inherited"
+      id="operators">
+    <h2>Operators</h2>
+    <dl class="callables">
+        <dt id="operator ==" class="callable inherited">
+  <span class="name"><a href="https://pub.dev/documentation/get/4.6.6/get/GetLifeCycleBase/operator_equals.html">operator ==</a></span><span class="signature">(<wbr><span class="parameter" id="==-param-other"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/Object-class.html">Object</a></span> <span class="parameter-name">other</span></span>)
+    <span class="returntype parameter">&#8594; <a href="https://api.flutter.dev/flutter/dart-core/bool-class.html">bool</a></span>
+  </span>
+  
+
+</dt>
+<dd class="inherited">
+  The equality operator.
+  <div class="features"><span class="feature">inherited</span></div>
+
+</dd>
+
+    </dl>
+  </section>
+    
+    
+    
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../index.html">messenger</a></li>
+    <li><a href="../ui_page_home_page_chat_info_controller/ui_page_home_page_chat_info_controller-library.html">controller</a></li>
+    <li class="self-crumb">ChatInfoController class</li>
+</ol>
+
+    <h5>controller library</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div>
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../static-assets/highlight.pack.js?v1"></script>
+<script src="../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

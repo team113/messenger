@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the build method from the ContactsTabView class, for the Dart programming language.">
+  <title>build method - ContactsTabView class - view library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_tab_contacts_view/ui_page_home_tab_contacts_view-library.html">ui&#47;page&#47;home&#47;tab&#47;contacts&#47;view.dart</a></li>
+    <li><a href="../../ui_page_home_tab_contacts_view/ContactsTabView-class.html">ContactsTabView</a></li>
+    <li class="self-crumb">build method</li>
+  </ol>
+  <div class="self-name">build</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_home_tab_contacts_view&#47;ContactsTabView-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">build</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype"><a href="https://api.flutter.dev/flutter/widgets/Widget-class.html">Widget</a></span>
+<span class="name ">build</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="build-param-context"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a></span> <span class="parameter-name">context</span></span></li>
+</ol>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Describes the part of the user interface represented by this widget.</p>
+<p>The framework calls this method when this widget is inserted into the tree
+in a given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> and when the dependencies of this widget change
+(e.g., an <a href="https://api.flutter.dev/flutter/widgets/InheritedWidget-class.html">InheritedWidget</a> referenced by this widget changes). This
+method can potentially be called in every frame and should not have any side
+effects beyond building a widget.</p>
+<p>The framework replaces the subtree below this widget with the widget
+returned by this method, either by updating the existing subtree or by
+removing the subtree and inflating a new subtree, depending on whether the
+widget returned by this method can update the root of the existing
+subtree, as determined by calling <a href="https://api.flutter.dev/flutter/widgets/Widget/canUpdate.html">Widget.canUpdate</a>.</p>
+<p>Typically implementations return a newly created constellation of widgets
+that are configured with information from this widget's constructor and
+from the given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>.</p>
+<p>The given <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a> contains information about the location in the
+tree at which this widget is being built. For example, the context
+provides the set of inherited widgets for this location in the tree. A
+given widget might be built with multiple different <a href="https://api.flutter.dev/flutter/widgets/BuildContext-class.html">BuildContext</a>
+arguments over time if the widget is moved around the tree or if the
+widget is inserted into the tree in multiple places at once.</p>
+<p>The implementation of this method must only depend on:</p>
+<ul>
+<li>the fields of the widget, which themselves must not change over time,
+and</li>
+<li>any ambient state obtained from the <code>context</code> using
+<a href="https://api.flutter.dev/flutter/widgets/BuildContext/dependOnInheritedWidgetOfExactType.html">BuildContext.dependOnInheritedWidgetOfExactType</a>.</li>
+</ul>
+<p>If a widget's <a href="../../ui_page_home_tab_contacts_view/ContactsTabView/build.html">build</a> method is to depend on anything else, use a
+<a href="https://api.flutter.dev/flutter/widgets/StatefulWidget-class.html">StatefulWidget</a> instead.</p>
+<p>See also:</p>
+<ul>
+<li><a href="https://api.flutter.dev/flutter/widgets/StatelessWidget-class.html">StatelessWidget</a>, which contains the discussion on performance considerations.</li>
+</ul>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+Widget build(BuildContext context) {
+  final style = Theme.of(context).style;
+
+  return GetBuilder(
+    key: const Key(&#39;ContactsTab&#39;),
+    init: ContactsTabController(
+      Get.find(),
+      Get.find(),
+      Get.find(),
+      Get.find(),
+      Get.find(),
+    ),
+    builder: (ContactsTabController c) =&gt; Obx(() {
+      return Scaffold(
+        appBar: CustomAppBar(
+          border: c.search.value != null || c.selecting.value
+              ? Border.all(color: style.colors.primary, width: 2)
+              : null,
+          title: Obx(() {
+            final Widget child;
+
+            if (c.search.value != null) {
+              child = Theme(
+                data: MessageFieldView.theme(context),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  child: Transform.translate(
+                    offset: const Offset(0, 1),
+                    child: ReactiveTextField(
+                      key: const Key(&#39;SearchField&#39;),
+                      state: c.search.value!.search,
+                      hint: &#39;label_search&#39;.l10n,
+                      maxLines: 1,
+                      filled: false,
+                      dense: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      style: style.fonts.medium.regular.onBackground,
+                      onChanged: () =&gt; c.search.value?.query.value =
+                          c.search.value?.search.text ?? &#39;&#39;,
+                    ),
+                  ),
+                ),
+              );
+            } else if (c.selecting.value) {
+              child = Text(&#39;label_select_contacts&#39;.l10n);
+            } else {
+              final Widget synchronization;
+
+              if (c.fetching.value == null &amp;&amp; c.status.value.isLoadingMore) {
+                synchronization = Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Center(
+                    child: Text(
+                      &#39;label_synchronization&#39;.l10n,
+                      style: style.fonts.small.regular.secondary,
+                    ),
+                  ),
+                );
+              } else {
+                synchronization = const SizedBox.shrink();
+              }
+
+              child = Align(
+                alignment: Alignment.centerLeft,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(&#39;label_contacts&#39;.l10n),
+                    AnimatedSizeAndFade(
+                      sizeDuration: const Duration(milliseconds: 300),
+                      fadeDuration: const Duration(milliseconds: 300),
+                      child: synchronization,
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return SafeAnimatedSwitcher(
+              duration: 250.milliseconds,
+              child: child,
+            );
+          }),
+          actions: [
+            Obx(() {
+              final Widget? child;
+
+              if (c.search.value != null) {
+                if (c.search.value?.search.isEmpty.value == false) {
+                  child = const SvgIcon(
+                    SvgIcons.clearSearch,
+                    key: Key(&#39;CloseSearch&#39;),
+                  );
+                } else {
+                  child = const SvgIcon(
+                    SvgIcons.closePrimary,
+                    key: Key(&#39;CloseSearch&#39;),
+                  );
+                }
+              } else {
+                child = c.selecting.value
+                    ? const SvgIcon(
+                        SvgIcons.closePrimary,
+                        key: Key(&#39;CloseGroupSearching&#39;),
+                      )
+                    : null;
+              }
+
+              if (child != null) {
+                return AnimatedButton(
+                  key: c.search.value != null
+                      ? const Key(&#39;CloseSearchButton&#39;)
+                      : c.selecting.value
+                          ? const Key(&#39;CloseSelectingButton&#39;)
+                          : null,
+                  onPressed: () {
+                    if (c.search.value != null) {
+                      if (c.search.value?.search.isEmpty.value == false) {
+                        c.search.value?.search.clear();
+                        c.search.value?.query.value = &#39;&#39;;
+                        c.search.value?.search.focus.requestFocus();
+                      }
+                    } else if (c.selecting.value) {
+                      c.toggleSelecting();
+                    }
+                  },
+                  decorator: (child) {
+                    return Container(
+                      padding: const EdgeInsets.only(left: 12, right: 16),
+                      height: double.infinity,
+                      child: child,
+                    );
+                  },
+                  child: SizedBox(
+                    width: 29.17,
+                    child: AnimatedSwitcher(
+                      duration: 250.milliseconds,
+                      child: child,
+                    ),
+                  ),
+                );
+              }
+
+              return Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedButton(
+                    key: const Key(&#39;ChatsButton&#39;),
+                    onPressed: () =&gt; router.tab = HomeTab.chats,
+                    decorator: (child) {
+                      return Container(
+                        padding: const EdgeInsets.only(left: 20, right: 8),
+                        height: double.infinity,
+                        child: child,
+                      );
+                    },
+                    child: const SvgIcon(SvgIcons.chatsSwitch),
+                  ),
+                  AnimatedButton(
+                    key: const Key(&#39;SearchButton&#39;),
+                    onPressed: () =&gt; c.toggleSearch(),
+                    decorator: (child) =&gt; Container(
+                      padding: const EdgeInsets.only(left: 20, right: 12),
+                      height: double.infinity,
+                      child: child,
+                    ),
+                    child: const SvgIcon(SvgIcons.search, key: Key(&#39;Search&#39;)),
+                  ),
+                  ContextMenuRegion(
+                    key: const Key(&#39;ContactsMenu&#39;),
+                    alignment: Alignment.topRight,
+                    enablePrimaryTap: true,
+                    enableLongTap: false,
+                    enableSecondaryTap: false,
+                    selector: c.moreKey,
+                    margin: const EdgeInsets.only(bottom: 4),
+                    actions: [
+                      ContextMenuButton(
+                        key: const Key(&#39;SelectContactsButton&#39;),
+                        label: &#39;btn_select_and_delete&#39;.l10n,
+                        onPressed: c.toggleSelecting,
+                        trailing: const SvgIcon(SvgIcons.select),
+                        inverted: const SvgIcon(SvgIcons.selectWhite),
+                      ),
+                    ],
+                    child: AnimatedButton(
+                      decorator: (child) =&gt; Container(
+                        key: c.moreKey,
+                        padding: const EdgeInsets.only(left: 12, right: 18),
+                        height: double.infinity,
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: child,
+                        ),
+                      ),
+                      child: const SvgIcon(SvgIcons.more),
+                    ),
+                  ),
+                ],
+              );
+            }),
+          ],
+          leading: [
+            Obx(() {
+              if (c.selecting.value) {
+                final bool selected = c.contacts.isNotEmpty &amp;&amp;
+                    c.contacts.every(
+                      (e) =&gt; c.selectedContacts.any((m) =&gt; m == e.id),
+                    );
+
+                return AnimatedButton(
+                  onPressed: () {
+                    bool selected = c.contacts.every(
+                      (e) =&gt; c.selectedContacts.any((m) =&gt; m == e.id),
+                    );
+
+                    if (selected) {
+                      c.selectedContacts.clear();
+                    } else {
+                      for (var e in c.contacts) {
+                        if (!c.selectedContacts.contains(e.id)) {
+                          c.selectContact(e.rx);
+                        }
+                      }
+                    }
+                  },
+                  decorator: (child) =&gt; Container(
+                    padding: const EdgeInsets.only(left: 20, right: 6),
+                    height: double.infinity,
+                    child: child,
+                  ),
+                  child: SelectedDot(
+                    selected: selected,
+                    inverted: false,
+                    outlined: !selected,
+                    size: 21,
+                  ),
+                );
+              }
+
+              if (c.search.value == null) {
+                return const SizedBox(width: 21);
+              }
+
+              return AnimatedButton(
+                key: const Key(&#39;CloseSearchButton&#39;),
+                onPressed: () =&gt; c.toggleSearch(false),
+                decorator: (child) {
+                  return Container(
+                    padding: const EdgeInsets.only(left: 20, right: 6),
+                    height: double.infinity,
+                    child: child,
+                  );
+                },
+                child: const SvgIcon(SvgIcons.search),
+              );
+            }),
+          ],
+        ),
+        extendBodyBehindAppBar: true,
+        body: Obx(() {
+          final RxStatus? searchStatus = c.search.value?.searchStatus.value;
+          if (c.status.value.isLoading) {
+            return const Center(child: CustomProgressIndicator.primary());
+          }
+
+          final Widget? child;
+
+          if (c.search.value?.search.isEmpty.value == false) {
+            if (c.search.value!.searchStatus.value.isLoading &amp;&amp;
+                c.elements.isEmpty) {
+              child = Center(
+                key: UniqueKey(),
+                child: ColoredBox(
+                  key: const Key(&#39;Loading&#39;),
+                  color: style.colors.almostTransparent,
+                  child: const CustomProgressIndicator(),
+                ),
+              );
+            } else if (c.elements.isNotEmpty) {
+              child = SafeScrollbar(
+                controller: c.search.value!.scrollController,
+                child: AnimationLimiter(
+                  key: const Key(&#39;Search&#39;),
+                  child: ListView.builder(
+                    key: const Key(&#39;SearchScrollable&#39;),
+                    controller: c.search.value!.scrollController,
+                    itemCount: c.elements.length,
+                    itemBuilder: (_, i) {
+                      ListElement? element;
+                      if (i &lt; c.elements.length) {
+                        element = c.elements[i];
+                      }
+
+                      Widget child;
+
+                      if (element is ContactElement) {
+                        child = SearchUserTile(
+                          key: Key(&#39;SearchContact_${element.contact.id}&#39;),
+                          contact: element.contact,
+                          onTap: () =&gt; router.user(
+                            (element as ContactElement)
+                                .contact
+                                .user
+                                .value!
+                                .id,
+                          ),
+                        );
+                      } else if (element is UserElement) {
+                        child = SearchUserTile(
+                          key: Key(&#39;SearchUser_${element.user.id}&#39;),
+                          user: element.user,
+                          onTap: () =&gt;
+                              router.user((element as UserElement).user.id),
+                        );
+                      } else if (element is DividerElement) {
+                        child = Center(
+                          child: Container(
+                            margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
+                            padding: const EdgeInsets.fromLTRB(12, 10, 12, 6),
+                            width: double.infinity,
+                            child: Center(
+                              child: Text(
+                                element.category.name.capitalizeFirst!,
+                                style:
+                                    style.fonts.normal.regular.onBackground,
+                              ),
+                            ),
+                          ),
+                        );
+                      } else {
+                        child = const SizedBox();
+                      }
+
+                      if (i == c.elements.length - 1) {
+                        if ((searchStatus?.isLoadingMore ?? false) ||
+                            (searchStatus?.isLoading ?? false)) {
+                          child = Column(
+                            children: [
+                              child,
+                              const CustomProgressIndicator(),
+                            ],
+                          );
+                        }
+                      }
+
+                      return AnimationConfiguration.staggeredList(
+                        position: i,
+                        duration: const Duration(milliseconds: 375),
+                        child: SlideAnimation(
+                          horizontalOffset: 50,
+                          child: FadeInAnimation(child: child),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              );
+            } else {
+              child = AnimatedDelayedSwitcher(
+                key: UniqueKey(),
+                delay: const Duration(milliseconds: 300),
+                child: Center(
+                  key: const Key(&#39;NothingFound&#39;),
+                  child: Text(
+                    &#39;label_nothing_found&#39;.l10n,
+                    style: style.fonts.small.regular.onBackground,
+                  ),
+                ),
+              );
+            }
+          } else {
+            if (c.contacts.isEmpty) {
+              child = KeyedSubtree(
+                key: UniqueKey(),
+                child: Center(
+                  key: const Key(&#39;NoContacts&#39;),
+                  child: Text(&#39;label_no_contacts&#39;.l10n),
+                ),
+              );
+            } else {
+              final List&lt;ContactEntry&gt; favorites = [];
+              final List&lt;ContactEntry&gt; contacts = [];
+
+              for (ContactEntry e in c.contacts) {
+                if (e.contact.value.favoritePosition != null) {
+                  favorites.add(e);
+                } else {
+                  contacts.add(e);
+                }
+              }
+
+              child = AnimationLimiter(
+                key: const Key(&#39;Contacts&#39;),
+                child: SafeScrollbar(
+                  controller: c.scrollController,
+                  child: CustomScrollView(
+                    controller: c.scrollController,
+                    slivers: [
+                      SliverPadding(
+                        padding: const EdgeInsets.only(
+                          top: CustomAppBar.height - 4,
+                          left: 10,
+                          right: 10,
+                        ),
+                        sliver: SliverReorderableList(
+                          onReorderStart: (_) =&gt; c.reordering.value = true,
+                          proxyDecorator: (child, _, animation) {
+                            return AnimatedBuilder(
+                              animation: animation,
+                              builder: (_, Widget? child) {
+                                final double t = Curves.easeInOut
+                                    .transform(animation.value);
+                                final double elevation = lerpDouble(0, 6, t)!;
+                                final Color color = Color.lerp(
+                                  style.colors.transparent,
+                                  style.colors.onBackgroundOpacity20,
+                                  t,
+                                )!;
+
+                                return Container(
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      CustomBoxShadow(
+                                        color: color,
+                                        blurRadius: elevation,
+                                      ),
+                                    ],
+                                    borderRadius: style.cardRadius.copyWith(
+                                      topLeft: Radius.circular(
+                                        style.cardRadius.topLeft.x * 1.75,
+                                      ),
+                                    ),
+                                  ),
+                                  child: child,
+                                );
+                              },
+                              child: child,
+                            );
+                          },
+                          itemBuilder: (_, i) {
+                            if (favorites.isEmpty) {
+                              &#47;&#47; This builder is invoked for some reason when
+                              &#47;&#47; deleting all favorite contacts, so put a
+                              &#47;&#47; guard for that case.
+                              return const SizedBox.shrink(key: Key(&#39;0&#39;));
+                            }
+
+                            final ContactEntry contact = favorites[i];
+
+                            if (contact.hidden.value) {
+                              return const SizedBox();
+                            }
+
+                            return KeyedSubtree(
+                              key: Key(contact.id.val),
+                              child: Obx(() {
+                                final Widget child = _contact(
+                                  context,
+                                  contact,
+                                  c,
+                                  avatarBuilder: (child) {
+                                    if (PlatformUtils.isMobile) {
+                                      return ReorderableDelayedDragStartListener(
+                                        key: Key(
+                                          &#39;ReorderHandle_${contact.id.val}&#39;,
+                                        ),
+                                        index: i,
+                                        enabled: !c.selecting.value,
+                                        child: child,
+                                      );
+                                    }
+
+                                    return RawGestureDetector(
+                                      gestures: {
+                                        DisableSecondaryButtonRecognizer:
+                                            GestureRecognizerFactoryWithHandlers&lt;
+                                                DisableSecondaryButtonRecognizer&gt;(
+                                          () =&gt;
+                                              DisableSecondaryButtonRecognizer(),
+                                          (_) {},
+                                        ),
+                                      },
+                                      child: ReorderableDragStartListener(
+                                        key: Key(
+                                          &#39;ReorderHandle_${contact.id.val}&#39;,
+                                        ),
+                                        index: i,
+                                        enabled: !c.selecting.value,
+
+                                        &#47;&#47; Use a dummy
+                                        &#47;&#47; [GestureDetector.onLongPress]
+                                        &#47;&#47; callback for discarding long
+                                        &#47;&#47; presses on the [child].
+                                        child: GestureDetector(
+                                          onLongPress: () {},
+                                          child: child,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                );
+
+                                &#47;&#47; Ignore the animation, if there&#39;s an ongoing
+                                &#47;&#47; reordering happening.
+                                if (c.reordering.value) {
+                                  return child;
+                                }
+
+                                return AnimationConfiguration.staggeredList(
+                                  position: i,
+                                  duration: const Duration(milliseconds: 375),
+                                  child: SlideAnimation(
+                                    horizontalOffset: 50,
+                                    child: FadeInAnimation(child: child),
+                                  ),
+                                );
+                              }),
+                            );
+                          },
+                          itemCount: favorites.length,
+                          onReorder: (a, b) {
+                            c.reorderContact(a, b);
+                            c.reordering.value = false;
+                          },
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.only(
+                          bottom: CustomNavigationBar.height,
+                          left: 10,
+                          right: 10,
+                        ),
+                        sliver: SliverList(
+                          delegate: SliverChildListDelegate.fixed(
+                            [
+                              ...contacts.mapIndexed((i, e) {
+                                if (e.hidden.value) {
+                                  return const SizedBox();
+                                }
+
+                                return AnimationConfiguration.staggeredList(
+                                  position: favorites.length + i,
+                                  duration: const Duration(milliseconds: 375),
+                                  child: SlideAnimation(
+                                    horizontalOffset: 50,
+                                    child: FadeInAnimation(
+                                      child: _contact(context, e, c),
+                                    ),
+                                  ),
+                                );
+                              }),
+                              if (c.hasNext.isTrue)
+                                Center(
+                                  child: CustomProgressIndicator(
+                                    key: const Key(&#39;ContactsLoading&#39;),
+                                    value: Config.disableInfiniteAnimations
+                                        ? 0
+                                        : null,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }
+          }
+
+          return Stack(
+            children: [
+              Obx(() {
+                return AnimatedContainer(
+                  duration: 200.milliseconds,
+                  color: c.search.value != null
+                      ? style.colors.secondaryHighlight
+                      : style.colors.secondaryHighlight.withOpacity(0),
+                );
+              }),
+              ContextMenuInterceptor(
+                child: SlidableAutoCloseBehavior(
+                  child: SafeAnimatedSwitcher(
+                    duration: const Duration(milliseconds: 250),
+                    child: child,
+                  ),
+                ),
+              ),
+            ],
+          );
+        }),
+        bottomNavigationBar: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Obx(() {
+              final Widget child;
+              final action = c.dismissed.lastOrNull;
+
+              if (action == null) {
+                child = const SizedBox(key: Key(&#39;NoDismissed&#39;));
+              } else {
+                child = Padding(
+                  key: Key(&#39;Dismissed_${action.contact.id}&#39;),
+                  padding: EdgeInsets.fromLTRB(
+                    10 + 10,
+                    0,
+                    10 + 10,
+                    72 + router.context!.mediaQueryViewPadding.bottom,
+                  ),
+                  child: WidgetButton(
+                    key: const Key(&#39;Restore&#39;),
+                    onPressed: action.cancel,
+                    child: Container(
+                      key: Key(&#39;${action.contact.id}&#39;),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color: style.colors.primary.withOpacity(0.9),
+                        boxShadow: [
+                          CustomBoxShadow(
+                            blurRadius: 8,
+                            color: style.colors.onBackgroundOpacity13,
+                            blurStyle: BlurStyle.outer.workaround,
+                          ),
+                        ],
+                      ),
+                      height: CustomNavigationBar.height,
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      child: Stack(
+                        alignment: Alignment.centerLeft,
+                        children: [
+                          Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  value: action.remaining.value &#47; 5000,
+                                  color: style.colors.onPrimary,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                              Text(
+                                &#39;${action.remaining.value ~&#47; 1000 + 1}&#39;,
+                                style: style.fonts.small.regular.onPrimary,
+                              )
+                            ],
+                          ),
+                          Center(
+                            child: Text(
+                              &#39;btn_undo_delete&#39;.l10n,
+                              style: style.fonts.big.regular.onPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              }
+
+              return SafeAnimatedSwitcher(
+                duration: 200.milliseconds,
+                child: child,
+              );
+            }),
+            Obx(() {
+              if (c.selecting.value) {
+                return BottomPaddedRow(
+                  children: [
+                    ShadowedRoundedButton(
+                      onPressed: c.toggleSelecting,
+                      child: Text(
+                        &#39;btn_cancel&#39;.l10n,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: style.fonts.medium.regular.onBackground,
+                      ),
+                    ),
+                    ShadowedRoundedButton(
+                      key: const Key(&#39;DeleteContacts&#39;),
+                      onPressed: c.selectedContacts.isEmpty
+                          ? null
+                          : () =&gt; _removeContacts(context, c),
+                      color: style.colors.primary,
+                      child: Text(
+                        &#39;btn_delete_count&#39;.l10nfmt({
+                          &#39;count&#39;: c.selectedContacts.length,
+                        }),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: c.selectedContacts.isEmpty
+                            ? style.fonts.medium.regular.onBackground
+                            : style.fonts.medium.regular.onPrimary,
+                      ),
+                    )
+                  ],
+                );
+              }
+
+              return const SizedBox();
+            }),
+          ],
+        ),
+      );
+    }),
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_tab_contacts_view/ui_page_home_tab_contacts_view-library.html">view</a></li>
+    <li><a href="../../ui_page_home_tab_contacts_view/ContactsTabView-class.html">ContactsTabView</a></li>
+    <li class="self-crumb">build method</li>
+</ol>
+
+    <h5>ContactsTabView class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
