@@ -1260,10 +1260,17 @@ mixin UserGraphQlMixin {
         },
       ),
       operationName: query.operationName,
-      onException: (data) => RegisterFcmDeviceException(
-        RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
-            as RegisterFcmDeviceErrorCode,
-      ),
+      onException: (data) {
+        if (data.isNotEmpty) {
+          final response =
+              RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice;
+          if (response is RegisterFcmDeviceErrorCode) {
+            return RegisterFcmDeviceException(response);
+          }
+        }
+
+        return Exception('Unknown: $data');
+      },
     );
   }
 
