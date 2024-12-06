@@ -679,20 +679,12 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
     bool force = false,
   }) async {
     if (PlatformUtils.isWeb && !force) {
-      final Stopwatch watch = Stopwatch()..start();
-
       // WAL doesn't work in Web, thus guard all the writes/reads with Web Locks
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
         exclusive: exclusive,
-        () async {
-          print(
-            '======= await WebUtils.protect(${exclusive ? 'exclusive' : 'shared'}) took ${watch.elapsed}',
-          );
-
-          return await _scoped.wrapped(callback);
-        },
+        () async => await _scoped.wrapped(callback),
       );
     }
 
