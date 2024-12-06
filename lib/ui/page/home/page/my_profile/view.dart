@@ -21,7 +21,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scrollview_observer/scrollview_observer.dart';
 
 import '/config.dart';
 import '/domain/model/application_settings.dart';
@@ -111,15 +111,17 @@ class MyProfileView extends StatelessWidget {
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Builder(builder: (context) {
-              final Widget child = ScrollablePositionedList.builder(
-                key: const Key('MyProfileScrollable'),
-                initialScrollIndex: c.listInitIndex,
-                scrollController: c.scrollController,
-                itemScrollController: c.itemScrollController,
-                itemPositionsListener: c.positionsListener,
-                itemCount: ProfileTab.values.length,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: (context, i) => _block(context, c, i),
+              final Widget child = ListViewObserver(
+                controller: c.observerController,
+                onObserve: c.onObserve,
+                triggerOnObserveType: ObserverTriggerOnObserveType.directly,
+                child: ListView.builder(
+                  key: const Key('MyProfileScrollable'),
+                  controller: c.scrollController,
+                  itemCount: ProfileTab.values.length,
+                  physics: const ClampingScrollPhysics(),
+                  itemBuilder: (context, i) => _block(context, c, i),
+                ),
               );
 
               if (PlatformUtils.isMobile) {
@@ -173,6 +175,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                     final UserAvatar? avatar = c.myUser.value?.avatar;
 
                     return BigAvatarWidget.myUser(
+                      key: const ValueKey('BigAvatarProfileField'),
                       c.myUser.value,
                       loading: c.avatarUpload.value.isLoading,
                       onUpload: c.uploadAvatar,
@@ -262,13 +265,21 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
               background: c.background.value,
               onEditing: (b) {
                 if (b) {
-                  final ItemPosition? first =
-                      c.positionsListener.itemPositions.value.firstOrNull;
+                  // Get last observed data of the first child widget that is
+                  // displaying.
+                  final currentFirstChild = ListViewObserver.of(context)
+                      .lastResultMap
+                      .entries
+                      .first
+                      .value
+                      .firstChild;
+                  if (currentFirstChild == null) return;
 
                   // If the [Block] containing this widget isn't fully visible,
                   // then animate to it's beginning.
-                  if (first?.index == i && first!.itemLeadingEdge < 0) {
-                    c.itemScrollController.scrollTo(
+                  if (currentFirstChild.index == i &&
+                      currentFirstChild.leadingMarginToViewport < 0) {
+                    c.observerController.animateTo(
                       index: i,
                       curve: Curves.ease,
                       duration: const Duration(milliseconds: 600),
@@ -1454,6 +1465,7 @@ Widget _legal(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
   return Column(
+    key: const ValueKey('LegalField'),
     children: [
       Center(
         child: StyledCupertinoButton(

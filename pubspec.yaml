@@ -91,6 +91,7 @@ dependencies:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
+  scrollview_observer: ^1.24.0
   screen_brightness: any
   sentry_flutter: ^8.2.0
   share_plus: ^10.0.0

@@ -232,6 +232,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToBottom,
         scrollToTop,
         scrollUntilPresent,
+        scrollBackUntilPresent,
         seeAccountInAccounts,
         seeBlockedUsers,
         seeChatAsDismissed,
