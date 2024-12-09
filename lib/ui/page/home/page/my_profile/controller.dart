@@ -185,8 +185,7 @@ class MyProfileController extends GetxController {
 
   @override
   void onInit() {
-    router.profileSection.value =
-        ProfileTab.values[observerController.initialIndex];
+    router.profileSection.value ??= ProfileTab.values.first;
 
     if (!PlatformUtils.isMobile) {
       try {
