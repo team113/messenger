@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scrollview_observer/scrollview_observer.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
@@ -77,23 +77,14 @@ class MyProfileController extends GetxController {
   /// - `status.isLoading`, meaning [uploadAvatar]/[deleteAvatar] is executing.
   final Rx<RxStatus> avatarUpload = Rx(RxStatus.empty());
 
-  /// [ScrollController] to pass to a [Scrollbar].
-  final ScrollController scrollController = ScrollController();
-
   /// [ScrollController] to pass to a [Scrollbar] in the [ProfileTab.devices]
   /// section.
   final ScrollController devicesScrollController = ScrollController();
 
-  /// [ItemScrollController] of the profile's [ScrollablePositionedList].
-  final ItemScrollController itemScrollController = ItemScrollController();
-
-  /// [ItemPositionsListener] of the profile's [ScrollablePositionedList].
-  final ItemPositionsListener positionsListener =
-      ItemPositionsListener.create();
-
-  /// Index of the initial profile page section to show in a
-  /// [ScrollablePositionedList].
-  int listInitIndex = 0;
+  /// [ListObserverController] to pass to a [ListViewObserver]
+  final ListObserverController observerController =
+      ListObserverController(controller: ScrollController())
+        ..initialIndex = router.profileSection.value?.index ?? 0;
 
   /// [TextFieldState] of a [UserEmail] text input.
   late final TextFieldState email;
@@ -164,6 +155,12 @@ class MyProfileController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// Private flag for returning early from [onObserve] callback.
+  bool _isIgnoreObserving = false;
+
+  /// Last selected [ProfileTab].
+  ProfileTab? _lastSelectedProfileTab;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -182,8 +179,14 @@ class MyProfileController extends GetxController {
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;
 
+  /// [ScrollController] passed to [ListView.builder] that is attached to
+  /// [ListObserverController] to pass to a [Scrollbar].
+  ScrollController get scrollController => observerController.controller!;
+
   @override
   void onInit() {
+    router.profileSection.value ??= ProfileTab.values.first;
+
     if (!PlatformUtils.isMobile) {
       try {
         _devicesSubscription =
@@ -194,41 +197,23 @@ class MyProfileController extends GetxController {
       }
     }
 
-    listInitIndex = router.profileSection.value?.index ?? 0;
-
-    bool ignoreWorker = false;
-    bool ignorePositions = false;
-
     _profileWorker = ever(
       router.profileSection,
       (ProfileTab? tab) async {
-        if (ignoreWorker) {
-          ignoreWorker = false;
-        } else {
-          ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-          Future.delayed(Duration.zero, () => ignorePositions = false);
+        if (tab == _lastSelectedProfileTab) return;
 
-          highlight(tab);
-        }
+        _lastSelectedProfileTab = tab;
+        _isIgnoreObserving = true;
+
+        await observerController.animateTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+
+        highlight(tab);
       },
     );
-
-    positionsListener.itemPositions.addListener(() {
-      if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
-        if (router.profileSection.value != tab) {
-          ignoreWorker = true;
-          router.profileSection.value = tab;
-          Future.delayed(Duration.zero, () => ignoreWorker = false);
-        }
-      }
-    });
 
     phone = TextFieldState(
       approvable: true,
@@ -399,6 +384,33 @@ class MyProfileController extends GetxController {
     _devicesSubscription?.cancel();
     scrollController.dispose();
     super.onClose();
+  }
+
+  /// A callback triggered by [ListViewObserver] to update the currently selected
+  /// profile section tab based on the first visible child in the [ListView].
+  ///
+  /// This callback is invoked when the observation type, as defined in the
+  /// [ObserverTriggerOnObserveType] field of [ListViewObserver], is met.
+  ///
+  /// [resultModel] provides the data about the currently observed state of
+  /// the [ListView], including the list of visible child widgets.
+  ///
+  /// Note:
+  /// - The callback ensures that changes to the profile tab are applied only
+  ///   when necessary, avoiding redundant updates.
+  void onObserve(ListViewObserveModel resultModel) {
+    if (_isIgnoreObserving) {
+      Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
+      return;
+    }
+
+    final showedChild = resultModel.displayingChildModelList.first;
+
+    final ProfileTab tab = ProfileTab.values[showedChild.index];
+    if (router.profileSection.value != tab) {
+      _lastSelectedProfileTab = tab;
+      router.profileSection.value = tab;
+    }
   }
 
   /// Removes the currently set [background].
