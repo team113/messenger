@@ -183,22 +183,6 @@ class MyProfileController extends GetxController {
   /// [ListObserverController] to pass to a [Scrollbar].
   ScrollController get scrollController => observerController.controller!;
 
-  /// Callback passed to [ListViewObserver].
-  void onObserve(resultModel) {
-    if (_isIgnoreObserving) {
-      Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
-      return;
-    }
-
-    final showedChild = resultModel.displayingChildModelList.first;
-
-    final ProfileTab tab = ProfileTab.values[showedChild.index];
-    if (router.profileSection.value != tab) {
-      _lastSelectedProfileTab = tab;
-      router.profileSection.value = tab;
-    }
-  }
-
   @override
   void onInit() {
     router.profileSection.value =
@@ -401,6 +385,33 @@ class MyProfileController extends GetxController {
     _devicesSubscription?.cancel();
     scrollController.dispose();
     super.onClose();
+  }
+
+  /// A callback triggered by [ListViewObserver] to update the currently selected
+  /// profile section tab based on the first visible child in the [ListView].
+  ///
+  /// This callback is invoked when the observation type, as defined in the
+  /// [ObserverTriggerOnObserveType] field of [ListViewObserver], is met.
+  ///
+  /// [resultModel] provides the data about the currently observed state of
+  /// the [ListView], including the list of visible child widgets.
+  ///
+  /// Note:
+  /// - The callback ensures that changes to the profile tab are applied only
+  ///   when necessary, avoiding redundant updates.
+  void onObserve(ListViewObserveModel resultModel) {
+    if (_isIgnoreObserving) {
+      Future.delayed(300.milliseconds, () => _isIgnoreObserving = false);
+      return;
+    }
+
+    final showedChild = resultModel.displayingChildModelList.first;
+
+    final ProfileTab tab = ProfileTab.values[showedChild.index];
+    if (router.profileSection.value != tab) {
+      _lastSelectedProfileTab = tab;
+      router.profileSection.value = tab;
+    }
   }
 
   /// Removes the currently set [background].
