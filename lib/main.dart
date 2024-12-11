@@ -296,8 +296,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
   Log.debug('handlePushNotification($message)', 'main');
 
-  if (message.notification?.android?.tag?.endsWith('_call') == true &&
-      message.data['chatId'] != null) {
+  final String? tag = message.notification?.android?.tag;
+  final bool isCall =
+      tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
+
+  if (isCall && message.data['chatId'] != null) {
     SharedPreferences? prefs;
     CredentialsDriftProvider? credentialsProvider;
     AccountDriftProvider? accountProvider;
