@@ -129,12 +129,9 @@ final StepDefinitionGeneric sendsCountMessages =
     provider.token = context.world.sessions[user.name]?.token;
 
     final ChatId chatId = context.world.groups[name]!;
-    final List<Future> futures = List.generate(
-      count,
-      (i) => provider.postChatMessage(chatId, text: ChatMessageText('$i')),
-    );
-
-    await Future.wait(futures);
+    for (var i = 0; i < count; ++i) {
+      await provider.postChatMessage(chatId, text: ChatMessageText('$i'));
+    }
 
     provider.disconnect();
   },

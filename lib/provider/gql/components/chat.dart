@@ -386,11 +386,11 @@ mixin ChatGraphQlMixin {
         document: PostChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => PostChatMessageException((PostChatMessage$Mutation
-                      .fromJson(data)
-                  .postChatMessage
-              as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
-          .code),
+      onException: (data) => PostChatMessageException(
+        (PostChatMessage$Mutation.fromJson(data).postChatMessage
+                as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
+            .code,
+      ),
     );
     return PostChatMessage$Mutation.fromJson(result.data!).postChatMessage
         as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned;
