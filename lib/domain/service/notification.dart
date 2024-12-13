@@ -23,6 +23,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
@@ -392,6 +393,18 @@ class NotificationService extends DisposableService {
 
     try {
       await Firebase.initializeApp(options: options);
+
+      if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
+        FlutterCallkitIncoming.getDevicePushTokenVoIP().then((e) {
+          // TODO: Register the token on the backend.
+          Log.info('CallKit token -> $e', '$runtimeType');
+        });
+
+        FirebaseMessaging.instance.getAPNSToken().then((e) {
+          // TODO: Register the token on the backend.
+          Log.info('APNs token -> $e', '$runtimeType');
+        });
+      }
     } catch (e) {
       if (e.toString().contains('[core/duplicate-app]')) {
         // No-op.

@@ -255,6 +255,7 @@ fragment ChatEventsVersioned on ChatEventsVersioned {
         }
         ... on EventChatCallAnswerTimeoutPassed {
             callId
+            userId
         }
     }
     ver
