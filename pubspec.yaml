@@ -124,7 +124,7 @@ dev_dependencies:
     git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
   build_runner: ^2.4.11
-  dartdoc: 8.1.0
+  dartdoc: 8.3.0
   drift_dev: ^2.19.1
   flutter_driver:
     sdk: flutter
