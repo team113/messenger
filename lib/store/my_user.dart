@@ -285,7 +285,7 @@ class MyUserRepository extends DisposableInterface
               );
             }
           })
-          .whereNotNull()
+          .nonNulls
           .toList();
 
       await Future.wait(uploads ?? []);

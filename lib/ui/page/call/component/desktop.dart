@@ -102,7 +102,9 @@ Widget desktopCall(CallController c, BuildContext context) {
               child: Container(
                 height: height,
                 width: width,
-                color: style.colors.primaryAuxiliaryOpacity25,
+                color: ConditionalBackdropFilter.enabled
+                    ? style.colors.primaryAuxiliaryOpacity25
+                    : style.colors.primaryAuxiliaryOpacity90,
               ),
             ),
           );
@@ -721,7 +723,9 @@ Widget desktopCall(CallController c, BuildContext context) {
                       filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: style.colors.primaryAuxiliaryOpacity25,
+                          color: ConditionalBackdropFilter.enabled
+                              ? style.colors.primaryAuxiliaryOpacity25
+                              : style.colors.primaryAuxiliaryOpacity90,
                           borderRadius: BorderRadius.circular(11),
                         ),
                         padding: const EdgeInsets.symmetric(
@@ -1897,11 +1901,10 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     )
                                   : BorderRadius.zero,
                               child: ConditionalBackdropFilter(
-                                condition: PlatformUtils.isWeb &&
-                                    (c.minimized.isFalse ||
-                                        c.fullscreen.isTrue),
+                                condition: (c.minimized.isFalse ||
+                                    c.fullscreen.isTrue),
                                 child: Container(
-                                  color: PlatformUtils.isWeb
+                                  color: ConditionalBackdropFilter.enabled
                                       ? style.colors.onSecondaryOpacity60
                                       : style.colors.onSecondaryOpacity88,
                                   child: Row(
@@ -2060,14 +2063,14 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                     ? RoundedRectangleBorder(
                                         side: BorderSide(
                                           color: style.colors.secondary
-                                              .withOpacity(0),
+                                              .withValues(alpha: 0),
                                           width: 1,
                                         ),
                                         borderRadius: borderRadius,
                                       )
                                     : Border.all(
                                         color: style.colors.secondary
-                                            .withOpacity(0),
+                                            .withValues(alpha: 0),
                                         width: 1,
                                       ),
                           ),

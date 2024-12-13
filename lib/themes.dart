@@ -695,45 +695,53 @@ class Palette {
     required this.danger,
     required this.warning,
     required this.userColors,
-  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withValues(alpha: 0.20),
         primaryDarkOpacity70 =
-            primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
+            primaryDarkOpacity70 ?? primaryDark.withValues(alpha: 0.70),
         primaryDarkOpacity90 =
-            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
-        primaryAuxiliaryOpacity25 =
-            primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
-        onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
-        onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
-        onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
-        onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
-        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
-        secondaryOpacity40 = secondaryOpacity40 ?? secondary.withOpacity(0.40),
+            primaryDarkOpacity90 ?? primaryDark.withValues(alpha: 0.90),
+        primaryAuxiliaryOpacity25 = primaryAuxiliaryOpacity25 ??
+            primaryAuxiliary.withValues(alpha: 0.25),
+        primaryAuxiliaryOpacity90 = primaryAuxiliaryOpacity90 ??
+            primaryAuxiliary.withValues(alpha: 0.55),
+        onPrimaryOpacity7 =
+            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
+        onPrimaryOpacity25 =
+            onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
+        onPrimaryOpacity50 =
+            onPrimaryOpacity50 ?? onPrimary.withValues(alpha: 0.50),
+        onPrimaryOpacity95 =
+            onPrimaryOpacity95 ?? onPrimary.withValues(alpha: 0.95),
+        secondaryOpacity87 =
+            secondaryOpacity87 ?? secondary.withValues(alpha: 0.87),
+        secondaryOpacity40 =
+            secondaryOpacity40 ?? secondary.withValues(alpha: 0.40),
         onSecondaryOpacity20 =
-            onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
+            onSecondaryOpacity20 ?? onSecondary.withValues(alpha: 0.20),
         onSecondaryOpacity50 =
-            onSecondaryOpacity50 ?? onSecondary.withOpacity(0.50),
+            onSecondaryOpacity50 ?? onSecondary.withValues(alpha: 0.50),
         onSecondaryOpacity60 =
-            onSecondaryOpacity60 ?? onSecondary.withOpacity(0.60),
+            onSecondaryOpacity60 ?? onSecondary.withValues(alpha: 0.60),
         onSecondaryOpacity88 =
-            onSecondaryOpacity88 ?? onSecondary.withOpacity(0.88),
+            onSecondaryOpacity88 ?? onSecondary.withValues(alpha: 0.88),
         onBackgroundOpacity2 =
-            onBackgroundOpacity2 ?? onBackground.withOpacity(0.02),
+            onBackgroundOpacity2 ?? onBackground.withValues(alpha: 0.02),
         onBackgroundOpacity7 =
-            onBackgroundOpacity7 ?? onBackground.withOpacity(0.07),
+            onBackgroundOpacity7 ?? onBackground.withValues(alpha: 0.07),
         onBackgroundOpacity13 =
-            onBackgroundOpacity13 ?? onBackground.withOpacity(0.13),
+            onBackgroundOpacity13 ?? onBackground.withValues(alpha: 0.13),
         onBackgroundOpacity20 =
-            onBackgroundOpacity20 ?? onBackground.withOpacity(0.20),
+            onBackgroundOpacity20 ?? onBackground.withValues(alpha: 0.20),
         onBackgroundOpacity27 =
-            onBackgroundOpacity27 ?? onBackground.withOpacity(0.27),
+            onBackgroundOpacity27 ?? onBackground.withValues(alpha: 0.27),
         onBackgroundOpacity40 =
-            onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
+            onBackgroundOpacity40 ?? onBackground.withValues(alpha: 0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+            onBackgroundOpacity50 ?? onBackground.withValues(alpha: 0.50),
         onBackgroundOpacity70 =
-            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70),
-        declineOpacity50 = declineOpacity50 ?? decline.withOpacity(0.50),
-        declineOpacity88 = declineOpacity88 ?? decline.withOpacity(0.88);
+            onBackgroundOpacity70 ?? onBackground.withValues(alpha: 0.70),
+        declineOpacity50 = declineOpacity50 ?? decline.withValues(alpha: 0.50),
+        declineOpacity88 = declineOpacity88 ?? decline.withValues(alpha: 0.88);
 
   /// Primary [Color] of the application.
   ///
@@ -799,6 +807,8 @@ class Palette {
   ///
   /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
+
+  final Color primaryAuxiliaryOpacity90;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -1124,10 +1134,10 @@ extension ThemeStylesExtension on ThemeData {
 extension HexColor on Color {
   /// Returns a HEX string value of this color.
   String toHex({bool withAlpha = true}) => '#'
-      '${(withAlpha ? alpha.toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
-      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+      '${(withAlpha ? (a * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
+      '${(r * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${(g * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${(b * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}';
 }
 
 // TODO: Remove, when flutter/flutter#132839 is fixed:

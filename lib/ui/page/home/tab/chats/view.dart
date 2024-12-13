@@ -84,7 +84,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.secondaryHighlight.withOpacity(0),
+                    : style.colors.secondaryHighlight.withValues(alpha: 0),
               );
             }),
             Obx(() {
@@ -1174,7 +1174,7 @@ class ChatsTabView extends StatelessWidget {
                         key: Key('${action.chat.id}'),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: style.colors.primary.withOpacity(0.9),
+                          color: style.colors.primary.withValues(alpha: .9),
                           boxShadow: [
                             CustomBoxShadow(
                               blurRadius: 8,

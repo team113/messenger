@@ -55,9 +55,11 @@ class ConditionalBackdropFilter extends StatelessWidget {
   /// otherwise.
   final BorderRadius? borderRadius;
 
+  static bool get enabled => false; //!PlatformUtils.isWeb;
+
   @override
   Widget build(BuildContext context) {
-    if (condition) {
+    if (condition && enabled) {
       if (borderRadius != null) {
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,

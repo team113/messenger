@@ -161,7 +161,7 @@ else
 	flutter build $(or $(platform),apk) \
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
-		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+		$(if $(call eq,$(platform),web),--source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
@@ -294,7 +294,7 @@ ifeq ($(dockerized),yes)
 			              dockerized=no gen=no clean=no start-app=no
 else
 	flutter drive --headless -d $(or $(device),chrome) \
-		--web-renderer html --web-port 50000 \
+		--web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))

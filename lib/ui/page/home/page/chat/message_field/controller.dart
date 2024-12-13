@@ -86,7 +86,7 @@ class MessageFieldController extends GetxController {
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
         replied.value = item.repliesTo
             .map((e) => e.original)
-            .whereNotNull()
+            .nonNulls
             .map((e) => Rx(e))
             .toList();
       } else {
@@ -600,7 +600,7 @@ class MessageFieldController extends GetxController {
         ?.map(
           (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
         )
-        .whereNotNull()
+        .nonNulls
         .toList();
 
     return persisted ?? [];

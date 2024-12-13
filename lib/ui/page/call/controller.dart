@@ -741,7 +741,7 @@ class CallController extends GetxController {
                 return RemoteAudioButton(this);
             }
           })
-          .whereNotNull()
+          .nonNulls
           .toList();
 
       // Add default [CallButton]s, if none are persisted.
@@ -1857,9 +1857,6 @@ class CallController extends GetxController {
         sizeAxis = secondaryHeight;
         applyAxisSize = _applySHeight;
         break;
-
-      default:
-        return;
     }
 
     final double previousSize = sizeAxis.value;

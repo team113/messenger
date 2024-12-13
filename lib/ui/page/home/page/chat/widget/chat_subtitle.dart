@@ -196,9 +196,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               return const SizedBox();
             }
 
-            final String subtitle = [presence, bio]
-                .whereNotNull()
-                .join('space_vertical_space'.l10n);
+            final String subtitle =
+                [presence, bio].nonNulls.join('space_vertical_space'.l10n);
 
             return Text(subtitle, style: style.fonts.small.regular.secondary);
           });
