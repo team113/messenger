@@ -19,6 +19,8 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 
+import '/util/platform_utils.dart';
+
 /// Wrapper around a [child] with or without [BackdropFilter] based on a
 /// [condition].
 class ConditionalBackdropFilter extends StatelessWidget {
@@ -55,7 +57,8 @@ class ConditionalBackdropFilter extends StatelessWidget {
   /// otherwise.
   final BorderRadius? borderRadius;
 
-  static bool get enabled => false; //!PlatformUtils.isWeb;
+  /// Indicates whether the [BackdropFilter] is supported and enabled.
+  static bool get enabled => !PlatformUtils.isWeb;
 
   @override
   Widget build(BuildContext context) {

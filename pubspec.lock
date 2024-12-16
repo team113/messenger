@@ -140,10 +140,10 @@ packages:
     dependency: "direct main"
     description:
       name: audio_session
-      sha256: "343e83bc7809fbda2591a49e525d6b63213ade10c76f15813be9aed6657b3261"
+      sha256: b2a26ba8b7efa1790d6460e82971fde3e398cfbe2295df9dea22f3499d2c12a7
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.21"
+    version: "0.1.23"
   back_button_interceptor:
     dependency: "direct main"
     description:
@@ -995,10 +995,10 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: "599d08e369969bdf83138f5b4e0a7e823d3f992f23b8a64dd626877c37013533"
+      sha256: "20842a5ad1555be624c314b0c0cc0566e8ece412f61e859a42efeb6d4101a26c"
       url: "https://pub.dev"
     source: hosted
-    version: "4.4.0"
+    version: "4.5.0"
   image_gallery_saver:
     dependency: "direct main"
     description:
@@ -1914,18 +1914,18 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "7f172d1b06de5da47b6264c2692ee2ead20bbbc246690427cdb4fc301cd0c549"
+      sha256: "02a7d8a9ef346c9af715811b01fbd8e27845ad2c41148eefd31321471b41863d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.4"
+    version: "2.4.0"
   shared_preferences_foundation:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "07e050c7cd39bad516f8d64c455f04508d09df104be326d8c02551590a0d513d"
+      sha256: "6a52cfcdaeac77cad8c97b539ff688ccfc458c007b4db12be584fbe5c0e49e03"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.3"
+    version: "2.5.4"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -2484,5 +2484,5 @@ packages:
     source: hosted
     version: "3.1.2"
 sdks:
-  dart: ">=3.6.0-0 <4.0.0"
+  dart: ">=3.6.0 <4.0.0"
   flutter: ">=3.27.0"

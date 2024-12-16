@@ -104,7 +104,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 width: width,
                 color: ConditionalBackdropFilter.enabled
                     ? style.colors.primaryAuxiliaryOpacity25
-                    : style.colors.primaryAuxiliaryOpacity90,
+                    : style.colors.primaryAuxiliaryOpacity55,
               ),
             ),
           );
@@ -725,7 +725,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                         decoration: BoxDecoration(
                           color: ConditionalBackdropFilter.enabled
                               ? style.colors.primaryAuxiliaryOpacity25
-                              : style.colors.primaryAuxiliaryOpacity90,
+                              : style.colors.primaryAuxiliaryOpacity55,
                           borderRadius: BorderRadius.circular(11),
                         ),
                         padding: const EdgeInsets.symmetric(

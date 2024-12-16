@@ -4,7 +4,7 @@ publish_to: none
 
 environment:
   flutter: ">=3.27.0"
-  sdk: ">=3.5.4 <4.0.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
   all_sensors:

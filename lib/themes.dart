@@ -648,7 +648,7 @@ class Palette {
     Color? primaryDarkOpacity90,
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity90,
+    Color? primaryAuxiliaryOpacity55,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
@@ -702,7 +702,7 @@ class Palette {
             primaryDarkOpacity90 ?? primaryDark.withValues(alpha: 0.90),
         primaryAuxiliaryOpacity25 = primaryAuxiliaryOpacity25 ??
             primaryAuxiliary.withValues(alpha: 0.25),
-        primaryAuxiliaryOpacity90 = primaryAuxiliaryOpacity90 ??
+        primaryAuxiliaryOpacity55 = primaryAuxiliaryOpacity55 ??
             primaryAuxiliary.withValues(alpha: 0.55),
         onPrimaryOpacity7 =
             onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
@@ -808,7 +808,8 @@ class Palette {
   /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
-  final Color primaryAuxiliaryOpacity90;
+  /// 55% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity55;
 
   /// [Color] for elements to put above the [primary] color.
   ///
