@@ -62,8 +62,15 @@ class ConditionalBackdropFilter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (condition && enabled) {
+    if (condition) {
       if (borderRadius != null) {
+        if (!enabled) {
+          ClipRRect(
+            borderRadius: borderRadius ?? BorderRadius.zero,
+            child: child,
+          );
+        }
+
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
           child: BackdropFilter(
@@ -72,6 +79,10 @@ class ConditionalBackdropFilter extends StatelessWidget {
             child: child,
           ),
         );
+      }
+
+      if (!enabled) {
+        return child;
       }
 
       return ClipRect(

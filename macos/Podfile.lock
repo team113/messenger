@@ -96,8 +96,6 @@ PODS:
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
-  - nanopb/decode (3.30910.0)
-  - nanopb/encode (3.30910.0)
   - open_file_mac (0.0.1):
     - FlutterMacOS
   - package_info_plus (0.0.1):
@@ -111,7 +109,7 @@ PODS:
   - screen_retriever_macos (0.0.1):
     - FlutterMacOS
   - Sentry/HybridSDK (8.40.1)
-  - sentry_flutter (8.10.0):
+  - sentry_flutter (8.10.1):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.40.1)
@@ -297,7 +295,7 @@ SPEC CHECKSUMS:
   screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
   screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
   Sentry: e9215d7b17f7902692b4f8700e061e4f853e3521
-  sentry_flutter: bf40d5e34dffa1769ae980d273b93511c0fbd45e
+  sentry_flutter: 927eed60d66951d1b0f1db37fe94ff5cb7c80231
   share_plus: 1fa619de8392a4398bfaf176d441853922614e89
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sqlite3: 7559e33dae4c78538df563795af3a86fc887ee71
@@ -307,6 +305,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
   window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
-PODFILE CHECKSUM: d31615892e294512c5c96e376ac03ed16d1d001d
+PODFILE CHECKSUM: 1eb246b7252feb97518a5c5b6e33b324dc30a54d
 
 COCOAPODS: 1.16.2
