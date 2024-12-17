@@ -1404,7 +1404,7 @@ class RemoveChatCallMemberException
   }
 }
 
-/// Exception of `Mutation.registerFcmDevice` described in the [code].
+/// Exception of `Mutation.registerPushDevice` described in the [code].
 class RegisterPushDeviceException
     with LocalizedExceptionMixin
     implements Exception {

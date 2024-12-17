@@ -72,7 +72,7 @@ abstract class AbstractAuthRepository {
   /// identified by the [token].
   ///
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
-  /// via Firebase Cloud Messaging, if [fcmToken] is provided.
+  /// via Firebase Cloud Messaging, if [token] is provided.
   Future<void> deleteSession({
     SessionId? id,
     UserPassword? password,

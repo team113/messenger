@@ -307,8 +307,8 @@ class NotificationService extends DisposableService {
       _language = language;
 
       if (_token != null) {
-        await _unregisterFcmDevice();
-        await _registerFcmDevice();
+        await _unregisterPushDevice();
+        await _registerPushDevice();
       }
     }
   }
@@ -523,19 +523,19 @@ class NotificationService extends DisposableService {
 
       _onTokenRefresh =
           FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-        await _unregisterFcmDevice();
+        await _unregisterPushDevice();
         _token = token;
-        await _registerFcmDevice();
+        await _registerPushDevice();
       });
 
-      await _registerFcmDevice();
+      await _registerPushDevice();
     }
   }
 
   /// Registers a device (Android, iOS, or Web) for receiving notifications via
   /// Firebase Cloud Messaging.
-  Future<void> _registerFcmDevice() async {
-    Log.debug('_registerFcmDevice()', '$runtimeType');
+  Future<void> _registerPushDevice() async {
+    Log.debug('_registerPushDevice()', '$runtimeType');
 
     _pushNotifications = false;
 
@@ -551,8 +551,8 @@ class NotificationService extends DisposableService {
 
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications
   /// via Firebase Cloud Messaging.
-  Future<void> _unregisterFcmDevice() async {
-    Log.debug('_unregisterFcmDevice()', '$runtimeType');
+  Future<void> _unregisterPushDevice() async {
+    Log.debug('_unregisterPushDevice()', '$runtimeType');
 
     if (_token != null) {
       await _graphQlProvider.unregisterPushDevice(

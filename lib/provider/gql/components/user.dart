@@ -1216,8 +1216,8 @@ mixin UserGraphQlMixin {
   /// best match of the supported locales.
   ///
   /// In order to change the locale of the device, you should re-register it
-  /// supplying the desired locale (use [unregisterFcmDevice], and then
-  /// [registerFcmDevice] once again).
+  /// supplying the desired locale (use [unregisterPushDevice], and then
+  /// [registerPushDevice] once again).
   ///
   /// ### Authentication
   ///
@@ -1238,7 +1238,7 @@ mixin UserGraphQlMixin {
 
     final variables = RegisterPushDeviceArguments(token: token);
     final query = MutationOptions(
-      operationName: 'RegisterFcmDevice',
+      operationName: 'RegisterPushDevice',
       document: RegisterPushDeviceMutation(variables: variables).document,
       variables: variables.toJson(),
     );
