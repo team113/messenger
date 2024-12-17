@@ -27,9 +27,10 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/api/backend/schema.dart' show PushDeviceToken;
 import '/config.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/file.dart';
+import '/domain/model/push_token.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
@@ -539,8 +540,8 @@ class NotificationService extends DisposableService {
     _pushNotifications = false;
 
     if (_token != null) {
-      await _graphQlProvider.registerFcmDevice(
-        FcmRegistrationToken(_token!),
+      await _graphQlProvider.registerPushDevice(
+        PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
         _language,
       );
 
@@ -554,7 +555,10 @@ class NotificationService extends DisposableService {
     Log.debug('_unregisterFcmDevice()', '$runtimeType');
 
     if (_token != null) {
-      await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
+      await _graphQlProvider.unregisterPushDevice(
+        PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+      );
+
       _pushNotifications = false;
     }
   }

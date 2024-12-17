@@ -25,7 +25,6 @@ import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -341,14 +340,14 @@ mixin UserGraphQlMixin {
   /// Additionally, always uses the provided ConfirmationCode, disallowing to use it again.
   Future<MyUserEventsVersionedMixin?> updateUserPassword({
     MyUserIdentifier? identifier,
-    required UserPassword newPassword,
+    UserPassword? newPassword,
     MyUserCredentials? confirmation,
   }) async {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final variables = UpdateUserPasswordArguments(
       ident: identifier,
-      kw$new: newPassword,
+      password: newPassword,
       confirmation: confirmation,
     );
     QueryResult res = await client.mutate(
@@ -1231,16 +1230,16 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is registered already.
-  Future<void> registerFcmDevice(
-    FcmRegistrationToken token,
+  Future<void> registerPushDevice(
+    PushDeviceToken token,
     String? locale,
   ) async {
-    Log.debug('registerFcmDevice($token, $locale)', '$runtimeType');
+    Log.debug('registerPushDevice($token, $locale)', '$runtimeType');
 
-    final variables = RegisterFcmDeviceArguments(token: token);
+    final variables = RegisterPushDeviceArguments(token: token);
     final query = MutationOptions(
       operationName: 'RegisterFcmDevice',
-      document: RegisterFcmDeviceMutation(variables: variables).document,
+      document: RegisterPushDeviceMutation(variables: variables).document,
       variables: variables.toJson(),
     );
 
@@ -1260,9 +1259,9 @@ mixin UserGraphQlMixin {
         },
       ),
       operationName: query.operationName,
-      onException: (data) => RegisterFcmDeviceException(
-        RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice
-            as RegisterFcmDeviceErrorCode,
+      onException: (data) => RegisterPushDeviceException(
+        RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
+            as RegisterPushDeviceErrorCode,
       ),
     );
   }
@@ -1281,14 +1280,14 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is not registered already.
-  Future<void> unregisterFcmDevice(FcmRegistrationToken token) async {
-    Log.debug('unregisterFcmDevice($token)', '$runtimeType');
+  Future<void> unregisterPushDevice(PushDeviceToken token) async {
+    Log.debug('unregisterPushDevice($token)', '$runtimeType');
 
-    final variables = UnregisterFcmDeviceArguments(token: token);
+    final variables = UnregisterPushDeviceArguments(token: token);
     await client.mutate(
       MutationOptions(
-        operationName: 'UnregisterFcmDevice',
-        document: UnregisterFcmDeviceMutation(variables: variables).document,
+        operationName: 'UnregisterPushDevice',
+        document: UnregisterPushDeviceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
     );

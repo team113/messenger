@@ -24,8 +24,8 @@ import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -171,16 +171,18 @@ class AuthRepository extends DisposableInterface
   Future<void> deleteSession({
     SessionId? id,
     UserPassword? password,
-    FcmRegistrationToken? fcmToken,
+    DeviceToken? token,
     AccessTokenSecret? accessToken,
   }) async {
     Log.debug(
-      'deleteSession(id: $id, password: ${password?.obscured}, fcmToken: $fcmToken, accessToken: $accessToken)',
+      'deleteSession(id: $id, password: ${password?.obscured}, token: $token, accessToken: $accessToken)',
       '$runtimeType',
     );
 
-    if (fcmToken != null) {
-      await _graphQlProvider.unregisterFcmDevice(fcmToken);
+    if (token != null) {
+      await _graphQlProvider.unregisterPushDevice(
+        PushDeviceToken(apns: token.apns, apnsVoip: token.voip, fcm: token.fcm),
+      );
     }
 
     await _graphQlProvider.deleteSession(
