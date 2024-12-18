@@ -1142,7 +1142,7 @@ class ChatView extends StatelessWidget {
                     for (ChatItem item in [
                       element.note.value?.value,
                       ...element.forwards.map((e) => e.value),
-                    ].whereNotNull()) {
+                    ].nonNulls) {
                       await c.chat?.updateAttachments(item);
                     }
 

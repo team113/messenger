@@ -447,7 +447,7 @@ class UserRepository extends DisposableInterface
       }
     }
 
-    users.addAll((await Future.wait(futures)).whereNotNull());
+    users.addAll((await Future.wait(futures)).nonNulls);
 
     return Page(RxList(users), pageInfo);
   }
