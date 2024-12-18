@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the lerp method from the Palette class, for the Dart programming language.">
+  <title>lerp method - Palette class - themes library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../themes/themes-library.html">themes.dart</a></li>
+    <li><a href="../../themes/Palette-class.html">Palette</a></li>
+    <li class="self-crumb">lerp static method</li>
+  </ol>
+  <div class="self-name">lerp</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="themes&#47;Palette-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">lerp</span> static method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+<span class="returntype"><a href="../../themes/Palette-class.html">Palette</a></span>
+<span class="name ">lerp</span>(<wbr><ol class="parameter-list single-line"> <li><span class="parameter" id="lerp-param-color"><span class="type-annotation"><a href="../../themes/Palette-class.html">Palette</a></span> <span class="parameter-name">color</span>, </span></li>
+<li><span class="parameter" id="lerp-param-other"><span class="type-annotation"><a href="../../themes/Palette-class.html">Palette</a>?</span> <span class="parameter-name">other</span>, </span></li>
+<li><span class="parameter" id="lerp-param-t"><span class="type-annotation"><a href="https://api.flutter.dev/flutter/dart-core/double-class.html">double</a></span> <span class="parameter-name">t</span></span></li>
+</ol>)
+
+      
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Linear interpolation between two <a href="../../themes/Palette-class.html">Palette</a> objects based on a given <code>t</code>
+value.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">static Palette lerp(Palette color, Palette? other, double t) {
+  if (other is! Palette) {
+    return color;
+  }
+
+  return Palette(
+    primary: Color.lerp(color.primary, other.primary, t)!,
+    primaryAuxiliary:
+        Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
+    primaryAuxiliaryOpacity25: Color.lerp(
+        color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
+    primaryHighlight:
+        Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
+    primaryHighlightShiny: Color.lerp(
+      color.primaryHighlightShiny,
+      other.primaryHighlightShiny,
+      t,
+    )!,
+    primaryHighlightShiniest: Color.lerp(
+        color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
+    primaryHighlightLightest: Color.lerp(
+        color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
+    primaryLight: Color.lerp(color.primaryLight, other.primaryLight, t)!,
+    primaryLightest:
+        Color.lerp(color.primaryLightest, other.primaryLightest, t)!,
+    primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
+    primaryDarkOpacity70: Color.lerp(
+        color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
+    primaryDarkOpacity90: Color.lerp(
+        color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
+    onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
+    onPrimaryOpacity7:
+        Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
+    onPrimaryOpacity25:
+        Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
+    onPrimaryOpacity50:
+        Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
+    onPrimaryOpacity95:
+        Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
+    secondary: Color.lerp(color.secondary, other.secondary, t)!,
+    secondaryOpacity87:
+        Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
+    secondaryHighlight:
+        Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t)!,
+    secondaryHighlightDark: Color.lerp(
+        color.secondaryHighlightDark, other.secondaryHighlightDark, t)!,
+    secondaryHighlightDarkest: Color.lerp(
+        color.secondaryHighlightDarkest, other.secondaryHighlightDarkest, t)!,
+    secondaryBackground:
+        Color.lerp(color.secondaryBackground, other.secondaryBackground, t)!,
+    secondaryBackgroundLight: Color.lerp(
+        color.secondaryBackgroundLight, other.secondaryBackgroundLight, t)!,
+    secondaryBackgroundLightest: Color.lerp(color.secondaryBackgroundLightest,
+        other.secondaryBackgroundLightest, t)!,
+    onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t)!,
+    onSecondaryOpacity20: Color.lerp(
+        color.onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,
+    onSecondaryOpacity50: Color.lerp(
+        color.onSecondaryOpacity50, other.onSecondaryOpacity50, t)!,
+    onSecondaryOpacity60: Color.lerp(
+        color.onSecondaryOpacity60, other.onSecondaryOpacity60, t)!,
+    onSecondaryOpacity88: Color.lerp(
+        color.onSecondaryOpacity88, other.onSecondaryOpacity88, t)!,
+    background: Color.lerp(color.background, other.background, t)!,
+    backgroundAuxiliary:
+        Color.lerp(color.backgroundAuxiliary, other.backgroundAuxiliary, t)!,
+    backgroundAuxiliaryLight: Color.lerp(
+        color.backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t)!,
+    backgroundAuxiliaryLighter: Color.lerp(color.backgroundAuxiliaryLighter,
+        other.backgroundAuxiliaryLighter, t)!,
+    backgroundAuxiliaryLightest: Color.lerp(color.backgroundAuxiliaryLightest,
+        other.backgroundAuxiliaryLightest, t)!,
+    onBackground: Color.lerp(color.onBackground, other.onBackground, t)!,
+    onBackgroundOpacity2: Color.lerp(
+        color.onBackgroundOpacity2, other.onBackgroundOpacity2, t)!,
+    onBackgroundOpacity7: Color.lerp(
+        color.onBackgroundOpacity7, other.onBackgroundOpacity7, t)!,
+    onBackgroundOpacity13: Color.lerp(
+        color.onBackgroundOpacity13, other.onBackgroundOpacity13, t)!,
+    onBackgroundOpacity20: Color.lerp(
+        color.onBackgroundOpacity20, other.onBackgroundOpacity20, t)!,
+    onBackgroundOpacity27: Color.lerp(
+        color.onBackgroundOpacity27, other.onBackgroundOpacity27, t)!,
+    onBackgroundOpacity40: Color.lerp(
+        color.onBackgroundOpacity40, other.onBackgroundOpacity40, t)!,
+    onBackgroundOpacity50: Color.lerp(
+        color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
+    transparent: Color.lerp(color.transparent, other.transparent, t)!,
+    almostTransparent:
+        Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
+    accept: Color.lerp(color.accept, other.accept, t)!,
+    acceptAuxiliary:
+        Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+    acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
+    acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
+    acceptLightest:
+        Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
+    decline: Color.lerp(color.decline, other.decline, t)!,
+    declineOpacity50:
+        Color.lerp(color.declineOpacity50, other.declineOpacity50, t)!,
+    declineOpacity88:
+        Color.lerp(color.declineOpacity88, other.declineOpacity88, t)!,
+    danger: Color.lerp(color.danger, other.danger, t)!,
+    warning: Color.lerp(color.warning, other.warning, t)!,
+    userColors:
+        other.userColors.isNotEmpty ? other.userColors : color.userColors,
+  );
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../themes/themes-library.html">themes</a></li>
+    <li><a href="../../themes/Palette-class.html">Palette</a></li>
+    <li class="self-crumb">lerp static method</li>
+</ol>
+
+    <h5>Palette class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the onInit method from the LoginController class, for the Dart programming language.">
+  <title>onInit method - LoginController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_login_controller/ui_page_login_controller-library.html">ui&#47;page&#47;login&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_login_controller/LoginController-class.html">LoginController</a></li>
+    <li class="self-crumb">onInit method</li>
+  </ol>
+  <div class="self-name">onInit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_login_controller&#47;LoginController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">onInit</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">onInit</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void onInit() {
+  login = TextFieldState(
+    text: _myUser?.num.toString(),
+    onChanged: (_) {
+      password.error.value = null;
+      password.unsubmit();
+      repeatPassword.unsubmit();
+    },
+    onSubmitted: (s) {
+      password.focus.requestFocus();
+      s.unsubmit();
+    },
+  );
+
+  password = TextFieldState(
+    onFocus: (s) =&gt; s.unsubmit(),
+    onChanged: (_) {
+      password.error.value = null;
+      password.unsubmit();
+      repeatPassword.error.value = null;
+      repeatPassword.unsubmit();
+    },
+    onSubmitted: (s) =&gt; signIn(),
+  );
+
+  recovery = TextFieldState(onSubmitted: (s) =&gt; recoverAccess());
+
+  recoveryCode = TextFieldState(onSubmitted: (s) =&gt; validateCode());
+
+  newPassword = TextFieldState(
+    onChanged: (_) {
+      repeatPassword.error.value = null;
+      repeatPassword.unsubmit();
+    },
+    onSubmitted: (s) {
+      repeatPassword.focus.requestFocus();
+      s.unsubmit();
+    },
+  );
+
+  repeatPassword = TextFieldState(
+    onFocus: (s) {
+      switch (stage.value) {
+        case LoginViewStage.signUpWithPassword:
+          if (s.text != password.text &amp;&amp; password.isValidated) {
+            s.error.value = &#39;err_passwords_mismatch&#39;.l10n;
+          }
+          break;
+
+        default:
+          if (s.text != newPassword.text &amp;&amp; newPassword.isValidated) {
+            s.error.value = &#39;err_passwords_mismatch&#39;.l10n;
+          }
+          break;
+      }
+    },
+    onSubmitted: (s) async {
+      switch (stage.value) {
+        case LoginViewStage.signUpWithPassword:
+          final userLogin = UserLogin.tryParse(login.text);
+          final userPassword = UserPassword.tryParse(password.text);
+
+          if (userLogin == null) {
+            login.error.value = &#39;err_incorrect_login_input&#39;.l10n;
+            return;
+          }
+
+          if (userPassword == null) {
+            password.error.value = &#39;err_password_incorrect&#39;.l10n;
+            return;
+          }
+
+          try {
+            await register(login: userLogin, password: userPassword);
+          } on SignUpException catch (e) {
+            login.error.value = e.toMessage();
+          } catch (e) {
+            password.error.value = &#39;err_data_transfer&#39;.l10n;
+            rethrow;
+          }
+          break;
+
+        default:
+          await resetUserPassword();
+          break;
+      }
+    },
+  );
+
+  email = TextFieldState(
+    onFocus: (s) {
+      if (s.text.isNotEmpty) {
+        try {
+          UserEmail(s.text.toLowerCase());
+        } on FormatException {
+          s.error.value = &#39;err_incorrect_email&#39;.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
+
+      if (email == null) {
+        s.error.value = &#39;err_incorrect_email&#39;.l10n;
+      } else {
+        emailCode.clear();
+
+        final LoginViewStage previous = stage.value;
+
+        stage.value = switch (stage.value) {
+          LoginViewStage.signInWithEmail =&gt;
+            LoginViewStage.signInWithEmailCode,
+          (_) =&gt; LoginViewStage.signUpWithEmailCode,
+        };
+
+        try {
+          await _authService.createConfirmationCode(email: email);
+          s.unsubmit();
+        } on AddUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+          _setResendEmailTimer(false);
+
+          stage.value = previous;
+        } catch (_) {
+          s.resubmitOnError.value = true;
+          s.error.value = &#39;err_data_transfer&#39;.l10n;
+          _setResendEmailTimer(false);
+          s.unsubmit();
+
+          stage.value = previous;
+          rethrow;
+        }
+      }
+    },
+  );
+
+  emailCode = TextFieldState(
+    onSubmitted: (s) async {
+      s.status.value = RxStatus.loading();
+      try {
+        await _authService.signIn(
+          email: UserEmail(email.text),
+          code: ConfirmationCode(emailCode.text),
+        );
+
+        (onSuccess ?? router.home)(signedUp: true);
+      } on CreateSessionException catch (e) {
+        switch (e.code) {
+          case CreateSessionErrorCode.wrongCode:
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts &gt;= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            s.status.value = RxStatus.empty();
+            break;
+
+          default:
+            s.error.value = &#39;err_wrong_recovery_code&#39;.l10n;
+            break;
+        }
+      } on FormatException catch (_) {
+        s.error.value = &#39;err_wrong_recovery_code&#39;.l10n;
+        s.status.value = RxStatus.empty();
+        ++codeAttempts;
+        if (codeAttempts &gt;= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
+      } catch (_) {
+        s.resubmitOnError.value = true;
+        s.error.value = &#39;err_data_transfer&#39;.l10n;
+        s.status.value = RxStatus.empty();
+        s.unsubmit();
+        rethrow;
+      }
+    },
+  );
+
+  super.onInit();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_login_controller/ui_page_login_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_login_controller/LoginController-class.html">LoginController</a></li>
+    <li class="self-crumb">onInit method</li>
+</ol>
+
+    <h5>LoginController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+

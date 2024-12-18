@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, height=device-height, initial-scale=1, user-scalable=no">
+  <meta name="description" content="API docs for the onInit method from the AccountsController class, for the Dart programming language.">
+  <title>onInit method - AccountsController class - controller library - Dart API</title>
+
+
+  
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:ital,wght@0,300;0,400;0,500;0,700;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+  
+  <link rel="stylesheet" href="../../static-assets/github.css?v1">
+  <link rel="stylesheet" href="../../static-assets/styles.css?v1">
+  <link rel="icon" href="../../static-assets/favicon.png?v1">
+  
+</head>
+
+<body data-base-href="../../" data-using-base-href="false" class="light-theme">
+<div id="overlay-under-drawer"></div>
+<header id="title">
+  <span id="sidenav-left-toggle" class="material-symbols-outlined" role="button" tabindex="0">menu</span>
+  <ol class="breadcrumbs gt-separated dark hidden-xs">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_tab_menu_accounts_controller/ui_page_home_tab_menu_accounts_controller-library.html">ui&#47;page&#47;home&#47;tab&#47;menu&#47;accounts&#47;controller.dart</a></li>
+    <li><a href="../../ui_page_home_tab_menu_accounts_controller/AccountsController-class.html">AccountsController</a></li>
+    <li class="self-crumb">onInit method</li>
+  </ol>
+  <div class="self-name">onInit</div>
+  <form class="search navbar-right" role="search">
+    <input type="text" id="search-box" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+  <div class="toggle" id="theme-button" title="Toggle brightness">
+    <label for="theme">
+      <input type="checkbox" id="theme" value="light-theme">
+      <span id="dark-theme-button" class="material-symbols-outlined">
+        dark_mode
+      </span>
+      <span id="light-theme-button" class="material-symbols-outlined">
+        light_mode
+      </span>
+    </label>
+  </div>
+</header>
+<main>
+<div
+    id="dartdoc-main-content"
+    class="main-content"
+    data-above-sidebar="ui_page_home_tab_menu_accounts_controller&#47;AccountsController-class-sidebar.html"
+    data-below-sidebar="">
+    <div>
+<h1><span class="kind-method">onInit</span> method 
+</h1></div>
+
+    <section class="multi-line-signature">
+      
+  <div>
+    <ol class="annotation-list">
+        <li>@<a href="https://api.flutter.dev/flutter/dart-core/override-constant.html">override</a></li>
+    </ol>
+  </div>
+<span class="returntype">void</span>
+<span class="name ">onInit</span>(<wbr>)
+
+      <div class="features"><span class="feature">override</span></div>
+
+    </section>
+    
+<section class="desc markdown">
+  <p>Called immediately after the widget is allocated in memory.
+You might use this to initialize something for the controller.</p>
+</section>
+
+
+    
+<section class="summary source-code" id="source">
+  <h2><span>Implementation</span></h2>
+  <pre class="language-dart"><code class="language-dart">@override
+void onInit() {
+  for (var e in _profiles.values) {
+    accounts.add(e);
+  }
+  accounts.sort(_compareAccounts);
+
+  _profilesSubscription = _profiles.changes.listen((e) async {
+    switch (e.op) {
+      case OperationKind.added:
+        accounts.add(e.value!);
+        accounts.sort(_compareAccounts);
+        break;
+
+      case OperationKind.removed:
+        accounts.removeWhere((u) =&gt; u.value.id == e.key);
+        break;
+
+      case OperationKind.updated:
+        accounts.sort(_compareAccounts);
+        break;
+    }
+  });
+
+  login = TextFieldState(
+    onFocus: (s) {
+      s.error.value = null;
+      password.unsubmit();
+    },
+    onSubmitted: (s) {
+      password.focus.requestFocus();
+      s.unsubmit();
+    },
+  );
+
+  password = TextFieldState(
+    onFocus: (s) {
+      s.error.value = null;
+      s.unsubmit();
+    },
+    onSubmitted: (_) =&gt; signIn(),
+  );
+
+  email = TextFieldState(
+    onFocus: (s) {
+      try {
+        if (s.text.isNotEmpty) {
+          UserEmail(s.text.toLowerCase());
+        }
+
+        s.error.value = null;
+      } on FormatException {
+        s.error.value = &#39;err_incorrect_email&#39;.l10n;
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.error.value != null) {
+        return;
+      }
+
+      final UserEmail? email = UserEmail.tryParse(s.text.toLowerCase());
+
+      if (email == null) {
+        s.error.value = &#39;err_incorrect_email&#39;.l10n;
+      } else {
+        emailCode.clear();
+        stage.value = AccountsViewStage.signUpWithEmailCode;
+        try {
+          await _authService.createConfirmationCode(email: email);
+          s.unsubmit();
+        } on AddUserEmailException catch (e) {
+          s.error.value = e.toMessage();
+          _setResendEmailTimer(false);
+
+          stage.value = AccountsViewStage.signUpWithEmail;
+        } catch (_) {
+          s.resubmitOnError.value = true;
+          s.error.value = &#39;err_data_transfer&#39;.l10n;
+          _setResendEmailTimer(false);
+          s.unsubmit();
+
+          stage.value = AccountsViewStage.signUpWithEmail;
+          rethrow;
+        }
+      }
+    },
+  );
+
+  emailCode = TextFieldState(
+    onSubmitted: (s) async {
+      s.status.value = RxStatus.loading();
+      try {
+        await _authService.signIn(
+          email: UserEmail(email.text),
+          code: ConfirmationCode(emailCode.text),
+          force: true,
+        );
+
+        &#47;&#47; TODO: This is a hack that should be removed, as whenever the
+        &#47;&#47;       account is changed, the [HomeView] and its dependencies must
+        &#47;&#47;       be rebuilt, which may take some unidentifiable amount of time
+        &#47;&#47;       as of now.
+        router.go(Routes.nowhere);
+        await Future.delayed(const Duration(milliseconds: 500));
+        router.home();
+      } on AddUserEmailException catch (e) {
+        switch (e.code) {
+          case AddUserEmailErrorCode.wrongCode:
+            s.error.value = e.toMessage();
+
+            ++codeAttempts;
+            if (codeAttempts &gt;= 3) {
+              codeAttempts = 0;
+              _setCodeTimer();
+            }
+            s.status.value = RxStatus.empty();
+            break;
+
+          default:
+            s.error.value = e.toMessage();
+            break;
+        }
+      } on FormatException catch (_) {
+        s.error.value = &#39;err_wrong_recovery_code&#39;.l10n;
+        s.status.value = RxStatus.empty();
+        ++codeAttempts;
+        if (codeAttempts &gt;= 3) {
+          codeAttempts = 0;
+          _setCodeTimer();
+        }
+      } catch (_) {
+        s.resubmitOnError.value = true;
+        s.error.value = &#39;err_data_transfer&#39;.l10n;
+        s.status.value = RxStatus.empty();
+        s.unsubmit();
+        rethrow;
+      }
+    },
+  );
+
+  super.onInit();
+}</code></pre>
+</section>
+
+
+  </div> <!-- /.main-content -->
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    <!-- The search input and breadcrumbs below are only responsively visible at low resolutions. -->
+<header id="header-search-sidebar" class="hidden-l">
+  <form class="search-sidebar" role="search">
+    <input type="text" id="search-sidebar" autocomplete="off" disabled class="form-control typeahead" placeholder="Loading search...">
+  </form>
+</header>
+<ol class="breadcrumbs gt-separated dark hidden-l" id="sidebar-nav">
+    <li><a href="../../index.html">messenger</a></li>
+    <li><a href="../../ui_page_home_tab_menu_accounts_controller/ui_page_home_tab_menu_accounts_controller-library.html">controller</a></li>
+    <li><a href="../../ui_page_home_tab_menu_accounts_controller/AccountsController-class.html">AccountsController</a></li>
+    <li class="self-crumb">onInit method</li>
+</ol>
+
+    <h5>AccountsController class</h5>
+    <div id="dartdoc-sidebar-left-content"></div>
+  </div><!--/.sidebar-offcanvas-->
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+</div><!--/.sidebar-offcanvas-->
+</main>
+<footer>
+  <span class="no-break">
+    messenger
+      0.2.2
+  </span>
+  
+</footer>
+
+
+<script src="../../static-assets/highlight.pack.js?v1"></script>
+<script src="../../static-assets/docs.dart.js"></script>
+
+</body>
+</html>
+
