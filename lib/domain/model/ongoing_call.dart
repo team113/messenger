@@ -2278,10 +2278,7 @@ class CallMemberId {
       throw const FormatException('Must have a UserId.DeviceId format');
     }
 
-    return CallMemberId(
-      UserId(_uuidToBase62(split[0])),
-      ChatCallDeviceId(_uuidToBase62(split[1])),
-    );
+    return CallMemberId(UserId(split[0]), ChatCallDeviceId(split[1]));
   }
 
   /// [UserId] part of this [CallMemberId].
@@ -2303,33 +2300,6 @@ class CallMemberId {
           runtimeType == other.runtimeType &&
           userId == other.userId &&
           deviceId == other.deviceId;
-
-  // Converts the [uuid] to base62.
-  static String _uuidToBase62(String uuid) {
-    const base62 =
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
-
-    // Remove dashes from UUID
-    final String cleanUuid = uuid.replaceAll('-', '');
-
-    // Parse UUID as a big integer
-    BigInt uuidInt = BigInt.parse(cleanUuid, radix: 16);
-
-    if (uuidInt == BigInt.zero) {
-      return base62[0];
-    }
-
-    final base = BigInt.from(base62.length);
-    String result = '';
-
-    while (uuidInt > BigInt.zero) {
-      final remainder = uuidInt % base;
-      uuidInt = uuidInt ~/ base;
-      result = base62[remainder.toInt()] + result;
-    }
-
-    return result;
-  }
 }
 
 /// Participant of an [OngoingCall].
