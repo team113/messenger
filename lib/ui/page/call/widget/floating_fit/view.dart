@@ -18,7 +18,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../animated_transition.dart';
@@ -258,8 +257,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       );
     });
 
-    Overlay.of(context)
-        .insertAll([paneled.entry, primary.entry].whereNotNull());
+    Overlay.of(context).insertAll([paneled.entry, primary.entry].nonNulls);
 
     _paneled = primary;
     _primary = paneled;

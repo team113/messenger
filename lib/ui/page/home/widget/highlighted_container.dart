@@ -46,7 +46,7 @@ class HighlightedContainer extends StatelessWidget {
       curve: Curves.ease,
       color: highlight
           ? style.colors.primaryOpacity20
-          : style.colors.primaryOpacity20.withOpacity(0),
+          : style.colors.primaryOpacity20.withValues(alpha: 0),
       padding: padding,
       child: child,
     );

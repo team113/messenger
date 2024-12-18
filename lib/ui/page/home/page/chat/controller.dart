@@ -837,10 +837,7 @@ class ChatController extends GetxController {
         send.inCall = chat!.inCall;
         send.field.unsubmit();
         send.replied.value = List.from(
-          draft?.repliesTo
-                  .map((e) => e.original)
-                  .whereNotNull()
-                  .map((e) => Rx(e)) ??
+          draft?.repliesTo.map((e) => e.original).nonNulls.map((e) => Rx(e)) ??
               <Rx<ChatItem>>[],
         );
 

@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -72,7 +71,7 @@ class MessageInfoController extends GetxController {
             }
           },
         )
-        .whereNotNull()
+        .nonNulls
         .toList();
 
     await Future.wait(futures);

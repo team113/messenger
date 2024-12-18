@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -117,7 +116,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       widget.onUpload,
       widget.onEdit,
       widget.onDelete,
-    ].whereNotNull();
+    ].nonNulls;
 
     return Column(
       children: [

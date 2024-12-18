@@ -294,12 +294,11 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                         sigmaY: 0.01 + 10 * _fading.value,
                       ),
                       child: Container(
-                        color: Color.fromARGB(
-                          (kCupertinoModalBarrierColor.alpha * _fading.value)
-                              .toInt(),
-                          kCupertinoModalBarrierColor.red,
-                          kCupertinoModalBarrierColor.green,
-                          kCupertinoModalBarrierColor.blue,
+                        color: Color.from(
+                          alpha: kCupertinoModalBarrierColor.a * _fading.value,
+                          red: kCupertinoModalBarrierColor.r,
+                          green: kCupertinoModalBarrierColor.g,
+                          blue: kCupertinoModalBarrierColor.b,
                         ),
                       ),
                     ),
