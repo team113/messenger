@@ -600,6 +600,8 @@ abstract class DriftProviderBase extends DisposableInterface {
 
     try {
       await db?.transaction(action);
+    } on StateError {
+      // No-op.
     } on CouldNotRollBackException {
       // No-op.
     }
@@ -657,6 +659,8 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
             try {
               return await db.transaction(action);
+            } on StateError {
+              // No-op.
             } on CouldNotRollBackException {
               // No-op.
             }

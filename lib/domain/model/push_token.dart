@@ -17,6 +17,37 @@
 
 import '/util/new_type.dart';
 
+/// Possible identifiers of [MyUser]'s push device token.
+class DeviceToken {
+  const DeviceToken({this.apns, this.voip, this.fcm});
+
+  /// Apple Push Notification service device token.
+  final ApnsDeviceToken? apns;
+
+  /// Apple Push Notification service VoIP device token.
+  final ApnsVoipDeviceToken? voip;
+
+  /// Firebase Cloud Messaging registration token.
+  final FcmRegistrationToken? fcm;
+
+  @override
+  String toString() => 'DeviceToken(apns: $apns, voip: $voip, fcm: $fcm)';
+}
+
+/// [Apple Push Notification][1] service device token.
+///
+/// [1]: https://developer.apple.com/documentation/usernotifications
+class ApnsDeviceToken extends NewType<String> {
+  const ApnsDeviceToken(super.val);
+}
+
+/// [Apple Push Notification VoIP][1] service device token.
+///
+/// [1]: https://developer.apple.com/documentation/usernotifications
+class ApnsVoipDeviceToken extends NewType<String> {
+  const ApnsVoipDeviceToken(super.val);
+}
+
 /// [Firebase Cloud Messaging][1] registration token.
 ///
 /// [1]: https://firebase.google.com/docs/cloud-messaging

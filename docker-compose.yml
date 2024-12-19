@@ -31,10 +31,14 @@ services:
     environment:
       CONF.MODE.DEBUG: "true"
       CONF.DB.COCKROACHDB.HOST: cockroachdb
-      CONF.FCM.SA_KEY: ${COMPOSE_FCM_SA_KEY}
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.HTTP.PUBLIC_URL: ws://localhost/api/medea/ws
       CONF.MEDIA_SERVER.MEDEA.SERVER.CLIENT.WEBRTC.PUBLIC_IP: 127.0.0.1
       CONF.MEDIA_SERVER.MEDEA.ICE.EMBEDDED.PUBLIC_HOST: 127.0.0.1:3478
+      CONF.PUSH.FCM.SA_KEY: ${COMPOSE_PUSH_FCM_SA_KEY}
+      CONF.PUSH.APNS.TEAM_ID: ${COMPOSE_PUSH_APNS_TEAM_ID}
+      CONF.PUSH.APNS.KEY_ID: ${COMPOSE_PUSH_APNS_KEY_ID}
+      CONF.PUSH.APNS.TOPIC: ${COMPOSE_PUSH_APNS_TOPIC}
+      CONF.PUSH.APNS.PRIVATE_KEY: ${COMPOSE_PUSH_APNS_PRIVATE_KEY}
       CONF.STORAGE.FILE.S3.HOST: baza-storage
       CONF.SMTP.HOST: mailhog
     ports:
@@ -54,7 +58,11 @@ services:
   cockroachdb:
     container_name: ${COMPOSE_PROJECT_NAME}-cockroachdb
     image: ${COMPOSE_COCKROACHDB}
-    command: ["start-single-node", "--insecure", "--log-config-file=/logs.yaml"]
+    command:
+      - start-single-node
+      - --insecure
+      - --locality=region=local,zone=local
+      - --log-config-file=/logs.yaml
     ports:
       - 8070:8080    # cockroachdb admin ui http
       - 8071:8081    # cockroachdb pgweb ui http

@@ -19,11 +19,8 @@ import '/util/new_type.dart';
 
 /// [String] tracking state's actuality.
 abstract class Version extends NewType<String> implements Comparable<Version> {
-  Version(super.val) : internal = BigInt.parse(val);
-
-  /// Parsed value of this [Version].
-  final BigInt internal;
+  Version(super.val);
 
   @override
-  int compareTo(Version other) => internal.compareTo(other.internal);
+  int compareTo(Version other) => val.compareTo(other.val);
 }
