@@ -294,7 +294,7 @@ ifeq ($(dockerized),yes)
 			              dockerized=no gen=no clean=no start-app=no
 else
 	flutter drive -d $(or $(device),chrome) \
-		--no-headless --web-port 50000 \
+		--profile --web-port 50000 \
 		--driver=test_driver/integration_test_driver.dart \
 		--target=test/e2e/suite.dart \
 		$(foreach v,$(subst $(comma), ,$(dart-env)),--dart-define=$(v))
