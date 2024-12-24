@@ -827,6 +827,10 @@ jobs:
       # Use `grep` to remove the meaningless logs from the output.
       - uses: nanasess/setup-chromedriver@v2
       - run: |
+          mkdir -p $(PWD)/build/web/
+          touch $(PWD)/build/web/.last_build_id
+#          chown -R $(whoami) $(PWD)/build/web/.last_build_id &
+      - run: |
           chromedriver --port=4444 --enable-chrome-logs \
                        --disable-dev-shm-usage \
                        2> >(grep -v -E '${{ join(fromJson(env.OMIT), '|') }}') &
