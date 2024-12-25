@@ -1,1 +1,1 @@
-- Added avatar cropping on profile page.
+- Added avatar cropping to profile page.

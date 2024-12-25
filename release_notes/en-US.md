@@ -1,3 +1,3 @@
-- Added avatar cropping on profile page.
+- Added avatar cropping to profile page.
 - Added images and files pasting from clipboard in chat.
 - Added images and files drag-n-drop in chats tab.
