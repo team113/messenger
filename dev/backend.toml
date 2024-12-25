@@ -9,9 +9,10 @@ total = 20
 [db.cockroachdb.pool.client]
 total = 30
 
-[fcm]
-sender_id = 985927661367
+[push]
 files_url = "http://localhost/files"
+[push.fcm]
+sender_id = 985927661367
 
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]
