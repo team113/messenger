@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
@@ -922,6 +922,151 @@ List<String?>?
         v
             ?.map((e) =>
                 fromDartFcmRegistrationTokenNullableToGraphQLFcmRegistrationTokenNullable(
+                    e))
+            .toList();
+
+// ApnsDeviceToken
+
+ApnsDeviceToken fromGraphQLApnsDeviceTokenToDartApnsDeviceToken(String v) =>
+    ApnsDeviceToken(v);
+String fromDartApnsDeviceTokenToGraphQLApnsDeviceToken(ApnsDeviceToken v) =>
+    v.val;
+List<ApnsDeviceToken> fromGraphQLListApnsDeviceTokenToDartListApnsDeviceToken(
+        List<Object?> v) =>
+    v
+        .map(
+            (e) => fromGraphQLApnsDeviceTokenToDartApnsDeviceToken(e as String))
+        .toList();
+List<String> fromDartListApnsDeviceTokenToGraphQLListApnsDeviceToken(
+        List<ApnsDeviceToken> v) =>
+    v.map((e) => fromDartApnsDeviceTokenToGraphQLApnsDeviceToken(e)).toList();
+List<ApnsDeviceToken>?
+    fromGraphQLListNullableApnsDeviceTokenToDartListNullableApnsDeviceToken(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLApnsDeviceTokenToDartApnsDeviceToken(e as String))
+            .toList();
+List<String>?
+    fromDartListNullableApnsDeviceTokenToGraphQLListNullableApnsDeviceToken(
+            List<ApnsDeviceToken>? v) =>
+        v
+            ?.map((e) => fromDartApnsDeviceTokenToGraphQLApnsDeviceToken(e))
+            .toList();
+
+ApnsDeviceToken?
+    fromGraphQLApnsDeviceTokenNullableToDartApnsDeviceTokenNullable(
+            String? v) =>
+        v == null ? null : ApnsDeviceToken(v);
+String? fromDartApnsDeviceTokenNullableToGraphQLApnsDeviceTokenNullable(
+        ApnsDeviceToken? v) =>
+    v?.val;
+List<ApnsDeviceToken?>
+    fromGraphQLListApnsDeviceTokenNullableToDartListApnsDeviceTokenNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLApnsDeviceTokenNullableToDartApnsDeviceTokenNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListApnsDeviceTokenNullableToGraphQLListApnsDeviceTokenNullable(
+            List<ApnsDeviceToken?> v) =>
+        v
+            .map((e) =>
+                fromDartApnsDeviceTokenNullableToGraphQLApnsDeviceTokenNullable(
+                    e))
+            .toList();
+List<ApnsDeviceToken?>?
+    fromGraphQLListNullableApnsDeviceTokenNullableToDartListNullableApnsDeviceTokenNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLApnsDeviceTokenNullableToDartApnsDeviceTokenNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableApnsDeviceTokenNullableToGraphQLListNullableApnsDeviceTokenNullable(
+            List<ApnsDeviceToken?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartApnsDeviceTokenNullableToGraphQLApnsDeviceTokenNullable(
+                    e))
+            .toList();
+
+// ApnsVoipDeviceToken
+
+ApnsVoipDeviceToken fromGraphQLApnsVoipDeviceTokenToDartApnsVoipDeviceToken(
+        String v) =>
+    ApnsVoipDeviceToken(v);
+String fromDartApnsVoipDeviceTokenToGraphQLApnsVoipDeviceToken(
+        ApnsVoipDeviceToken v) =>
+    v.val;
+List<ApnsVoipDeviceToken>
+    fromGraphQLListApnsVoipDeviceTokenToDartListApnsVoipDeviceToken(
+            List<Object?> v) =>
+        v
+            .map((e) => fromGraphQLApnsVoipDeviceTokenToDartApnsVoipDeviceToken(
+                e as String))
+            .toList();
+List<String> fromDartListApnsVoipDeviceTokenToGraphQLListApnsVoipDeviceToken(
+        List<ApnsVoipDeviceToken> v) =>
+    v
+        .map((e) => fromDartApnsVoipDeviceTokenToGraphQLApnsVoipDeviceToken(e))
+        .toList();
+List<ApnsVoipDeviceToken>?
+    fromGraphQLListNullableApnsVoipDeviceTokenToDartListNullableApnsVoipDeviceToken(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLApnsVoipDeviceTokenToDartApnsVoipDeviceToken(
+                    e as String))
+            .toList();
+List<String>?
+    fromDartListNullableApnsVoipDeviceTokenToGraphQLListNullableApnsVoipDeviceToken(
+            List<ApnsVoipDeviceToken>? v) =>
+        v
+            ?.map((e) =>
+                fromDartApnsVoipDeviceTokenToGraphQLApnsVoipDeviceToken(e))
+            .toList();
+
+ApnsVoipDeviceToken?
+    fromGraphQLApnsVoipDeviceTokenNullableToDartApnsVoipDeviceTokenNullable(
+            String? v) =>
+        v == null ? null : ApnsVoipDeviceToken(v);
+String? fromDartApnsVoipDeviceTokenNullableToGraphQLApnsVoipDeviceTokenNullable(
+        ApnsVoipDeviceToken? v) =>
+    v?.val;
+List<ApnsVoipDeviceToken?>
+    fromGraphQLListApnsVoipDeviceTokenNullableToDartListApnsVoipDeviceTokenNullable(
+            List<Object?> v) =>
+        v
+            .map((e) =>
+                fromGraphQLApnsVoipDeviceTokenNullableToDartApnsVoipDeviceTokenNullable(
+                    e as String?))
+            .toList();
+List<String?>
+    fromDartListApnsVoipDeviceTokenNullableToGraphQLListApnsVoipDeviceTokenNullable(
+            List<ApnsVoipDeviceToken?> v) =>
+        v
+            .map((e) =>
+                fromDartApnsVoipDeviceTokenNullableToGraphQLApnsVoipDeviceTokenNullable(
+                    e))
+            .toList();
+List<ApnsVoipDeviceToken?>?
+    fromGraphQLListNullableApnsVoipDeviceTokenNullableToDartListNullableApnsVoipDeviceTokenNullable(
+            List<Object?>? v) =>
+        v
+            ?.map((e) =>
+                fromGraphQLApnsVoipDeviceTokenNullableToDartApnsVoipDeviceTokenNullable(
+                    e as String?))
+            .toList();
+List<String?>?
+    fromDartListNullableApnsVoipDeviceTokenNullableToGraphQLListNullableApnsVoipDeviceTokenNullable(
+            List<ApnsVoipDeviceToken?>? v) =>
+        v
+            ?.map((e) =>
+                fromDartApnsVoipDeviceTokenNullableToGraphQLApnsVoipDeviceTokenNullable(
                     e))
             .toList();
 

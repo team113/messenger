@@ -25,9 +25,9 @@ import 'package:get/get.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -475,7 +475,7 @@ class AuthService extends DisposableService {
           }
         }
 
-        await _authRepository.deleteSession(fcmToken: fcmToken);
+        await _authRepository.deleteSession(token: DeviceToken(fcm: fcmToken));
       } catch (e) {
         printError(info: e.toString());
       }
