@@ -23,10 +23,10 @@ import 'version.dart';
 ///
 /// It increases monotonically, so may be used (and is intended to) for
 /// tracking state's actuality.
-class SessionVersion extends NewType<BigInt> {
+class SessionVersion extends NewType<String> {
   const SessionVersion(super.val);
 
-  factory SessionVersion.parse(String val) => SessionVersion(BigInt.parse(val));
+  factory SessionVersion.parse(String val) => SessionVersion(val);
 }
 
 /// Version of a [Session]s list.

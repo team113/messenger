@@ -36,6 +36,7 @@ import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
+import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 import 'package:mockito/annotations.dart';
@@ -95,7 +96,7 @@ void main() async {
             }
           ],
           'myUser': myUserData,
-          'ver': '${((await myUserProvider.accounts()).first.ver.internal)}',
+          'ver': '${((await myUserProvider.accounts()).first.ver)}',
         }
       }).addUserEmail
           as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
@@ -121,7 +122,7 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
+              '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
         }
       }).addUserEmail
           as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
@@ -146,7 +147,7 @@ void main() async {
           ],
           'myUser': myUserData,
           'ver':
-              '${((await myUserProvider.accounts()).first.ver.internal + BigInt.one)}',
+              '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
         }
       }).deleteUserEmail
           as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned,

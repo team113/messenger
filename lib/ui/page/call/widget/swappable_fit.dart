@@ -314,7 +314,7 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
         );
       });
 
-      Overlay.of(context).insertAll([a.entry, b.entry].whereNotNull());
+      Overlay.of(context).insertAll([a.entry, b.entry].nonNulls);
     }
 
     setState(() {});

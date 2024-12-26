@@ -263,7 +263,7 @@ class ChatInfoController extends GetxController {
         return;
       }
 
-      await updateChatAvatar(file);
+      await updateChatAvatar(file, crop: crop);
     }
   }
 

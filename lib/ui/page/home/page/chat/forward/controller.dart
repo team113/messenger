@@ -119,7 +119,7 @@ class ChatForwardController extends GetxController {
               .map((e) => e.value)
               .whereType<LocalAttachment>()
               .map((e) => e.upload.value?.future)
-              .whereNotNull()
+              .nonNulls
               .toList();
           if (uploads.isNotEmpty) {
             await Future.wait(uploads);

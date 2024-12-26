@@ -63,17 +63,20 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>((db) async {
-      final stmt = db.select(db.chatCredentials)
-        ..where((u) => u.chatId.equals(id.val));
-      final ChatCredentialsRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatCallCredentials?>(
+      (db) async {
+        final stmt = db.select(db.chatCredentials)
+          ..where((u) => u.chatId.equals(id.val));
+        final ChatCredentialsRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _CallCredentialsDb.fromDb(row);
-    });
+        return _CallCredentialsDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.

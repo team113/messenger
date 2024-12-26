@@ -31,8 +31,6 @@ import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-// ignore: implementation_imports
-import 'package:sentry_flutter/src/integrations/integrations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -260,19 +258,6 @@ Future<void> main() async {
     appRunner: appRunner,
   );
 
-  // TODO: Remove, when Sentry supports app start measurement for all platforms.
-  // ignore: invalid_use_of_internal_member
-  NativeAppStartIntegration.setAppStartInfo(
-    AppStartInfo(
-      AppStartType.cold,
-      start: DateTime.now().subtract(watch.elapsed),
-      pluginRegistration: DateTime.now().subtract(watch.elapsed),
-      sentrySetupStart: DateTime.now().subtract(watch.elapsed),
-      nativeSpanTimes: [],
-      end: DateTime.now(),
-    ),
-  );
-
   // Transaction indicating Flutter engine has rasterized the first frame.
   final ISentrySpan ready = Sentry.startTransaction(
     'ui.app.ready',
@@ -296,8 +281,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
   Log.debug('handlePushNotification($message)', 'main');
 
-  if (message.notification?.android?.tag?.endsWith('_call') == true &&
-      message.data['chatId'] != null) {
+  final String? tag = message.notification?.android?.tag;
+  final bool isCall =
+      tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
+
+  if (isCall && message.data['chatId'] != null) {
     SharedPreferences? prefs;
     CredentialsDriftProvider? credentialsProvider;
     AccountDriftProvider? accountProvider;

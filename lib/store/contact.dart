@@ -521,7 +521,7 @@ class ContactRepository extends DisposableInterface
 
     // final List<RxChatContact> contacts =
     //     (await Future.wait(result.map((e) async => await get(e.value.id))))
-    //         .whereNotNull()
+    //         .nonNulls
     //         .toList();
 
     // return Page(

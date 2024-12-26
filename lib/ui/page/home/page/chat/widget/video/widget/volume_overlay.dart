@@ -94,10 +94,10 @@ class VolumeOverlay extends StatelessWidget {
                                 colors: ProgressBarColors(
                                   played: style.colors.primary,
                                   handle: style.colors.primary,
-                                  buffered:
-                                      style.colors.background.withOpacity(0.5),
-                                  background:
-                                      style.colors.secondary.withOpacity(0.5),
+                                  buffered: style.colors.background
+                                      .withValues(alpha: 0.5),
+                                  background: style.colors.secondary
+                                      .withValues(alpha: 0.5),
                                 ),
                               ),
                             ),

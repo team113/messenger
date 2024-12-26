@@ -461,10 +461,6 @@ class _ImageCropperState extends State<ImageCropper> {
           bottom = (point.dy * widget.size.height).clamp(minY, maxY);
         }
         break;
-
-      default:
-        // No-op, as shouldn't be invoked.
-        break;
     }
 
     final double height = bottom - top;
@@ -478,10 +474,6 @@ class _ImageCropperState extends State<ImageCropper> {
       case CropHandle.topRight:
       case CropHandle.bottomRight:
         right = left + height * _ratio;
-        break;
-
-      default:
-        // No-op, as shouldn't be invoked.
         break;
     }
 

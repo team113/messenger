@@ -65,27 +65,31 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
   /// Returns the [DtoChatMember] stored in the database by the provided
   /// [chatId] and [userId], if any.
   Future<DtoChatMember?> read(ChatId chatId, UserId userId) async {
-    return await safe<DtoChatMember?>((db) async {
-      final stmt = db.select(db.chatMembers).join([
-        innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),
-      ]);
+    return await safe<DtoChatMember?>(
+      (db) async {
+        final stmt = db.select(db.chatMembers).join([
+          innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),
+        ]);
 
-      stmt.where(
-        db.chatMembers.chatId.equals(chatId.val) &
-            db.chatMembers.userId.equals(userId.val),
-      );
+        stmt.where(
+          db.chatMembers.chatId.equals(chatId.val) &
+              db.chatMembers.userId.equals(userId.val),
+        );
 
-      final row = await stmt.getSingleOrNull();
+        final row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _ChatMemberDb.fromDb(
-        row.readTable(db.chatMembers),
-        row.readTable(db.users),
-      );
-    }, tag: 'chat_member.read($chatId, $userId)');
+        return _ChatMemberDb.fromDb(
+          row.readTable(db.chatMembers),
+          row.readTable(db.users),
+        );
+      },
+      tag: 'chat_member.read($chatId, $userId)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoChatItem] identified by the provided [chatId] and [userId]
@@ -109,30 +113,34 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [DtoChatMember]s of the provided [chatId].
   Future<List<DtoChatMember>> members(ChatId chatId, {int? limit}) async {
-    final result = await safe((db) async {
-      final stmt = db.select(db.chatMembers).join([
-        innerJoin(
-          db.users,
-          db.users.id.equalsExp(db.chatMembers.userId),
-        ),
-      ]);
+    final result = await safe(
+      (db) async {
+        final stmt = db.select(db.chatMembers).join([
+          innerJoin(
+            db.users,
+            db.users.id.equalsExp(db.chatMembers.userId),
+          ),
+        ]);
 
-      stmt.where(db.chatMembers.chatId.equals(chatId.val));
-      stmt.orderBy([OrderingTerm.desc(db.chatMembers.joinedAt)]);
+        stmt.where(db.chatMembers.chatId.equals(chatId.val));
+        stmt.orderBy([OrderingTerm.desc(db.chatMembers.joinedAt)]);
 
-      if (limit != null) {
-        stmt.limit(limit);
-      }
+        if (limit != null) {
+          stmt.limit(limit);
+        }
 
-      return (await stmt.get())
-          .map(
-            (rows) => _ChatMemberDb.fromDb(
-              rows.readTable(db.chatMembers),
-              rows.readTableOrNull(db.users),
-            ),
-          )
-          .toList();
-    }, tag: 'chat_member.members($chatId, limit: $limit)');
+        return (await stmt.get())
+            .map(
+              (rows) => _ChatMemberDb.fromDb(
+                rows.readTable(db.chatMembers),
+                rows.readTableOrNull(db.users),
+              ),
+            )
+            .toList();
+      },
+      tag: 'chat_member.members($chatId, limit: $limit)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }

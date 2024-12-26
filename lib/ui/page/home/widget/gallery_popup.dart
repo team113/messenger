@@ -479,8 +479,8 @@ class _GalleryPopupState extends State<GalleryPopup>
             AnimatedBuilder(
               animation: _fading,
               builder: (context, child) => Container(
-                color: style.colors.onBackground.withOpacity(
-                  0.9 * _fading.value,
+                color: style.colors.onBackground.withValues(
+                  alpha: 0.9 * _fading.value,
                 ),
               ),
             ),
@@ -590,9 +590,6 @@ class _GalleryPopupState extends State<GalleryPopup>
 
                   case PhotoViewScaleState.zoomedIn:
                   case PhotoViewScaleState.zoomedOut:
-                    return PhotoViewScaleState.initial;
-
-                  default:
                     return PhotoViewScaleState.initial;
                 }
               },

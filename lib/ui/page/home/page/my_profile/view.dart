@@ -563,7 +563,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         final emails = [
           ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
           c.myUser.value?.emails.unconfirmed,
-        ].whereNotNull();
+        ].nonNulls;
 
         final email = ReactiveTextField(
           key: const Key('Email'),

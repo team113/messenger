@@ -1,7 +1,3 @@
-- Added swipe to reply trackpad gesture on macOS.
-- Added messages searching on chat page.
-- Added device being offline label to chats tab.
-- Updated file sizes to be displayed in B, KB, MB, GB and PB.
-- Fixed invalid diagonal window resize cursors on macOS.
-- Fixed deleted chats still displaying in list after mass clearing.
-- Fixed invalid camera, microphone and output device names in Firefox.
+- Added avatar cropping to profile page.
+- Added images and files pasting from clipboard in chat.
+- Added images and files drag-n-drop in chats tab.

@@ -84,16 +84,20 @@ class WindowRectDriftProvider extends DriftProviderBase {
       return _prefs;
     }
 
-    return await safe<WindowPreferences?>((db) async {
-      final stmt = db.select(db.windowRectangles)..where((u) => u.id.equals(0));
-      final WindowRectangleRow? row = await stmt.getSingleOrNull();
+    return await safe<WindowPreferences?>(
+      (db) async {
+        final stmt = db.select(db.windowRectangles)
+          ..where((u) => u.id.equals(0));
+        final WindowRectangleRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _prefs = _WindowPreferencesDb.fromDb(row);
-    });
+        return _prefs = _WindowPreferencesDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the stored [WindowPreferences] from the database.

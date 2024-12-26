@@ -182,7 +182,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           builder(),
           Positioned.fill(
             child: ColoredBox(
-              color: style.cardColor.darken(0.03).withOpacity(0.4),
+              color: style.cardColor.darken(0.03).withValues(alpha: 0.4),
             ),
           ),
         ],

@@ -752,14 +752,14 @@ class RxChatImpl extends RxChat {
                 );
               }
             })
-            .whereNotNull()
+            .nonNulls
             .toList();
 
         if (existingId == null) {
           final List<Future> reads = attachments
               .whereType<LocalAttachment>()
               .map((e) => e.read.value?.future)
-              .whereNotNull()
+              .nonNulls
               .toList();
           if (reads.isNotEmpty) {
             await Future.wait(reads);

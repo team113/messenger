@@ -600,6 +600,8 @@ abstract class DriftProviderBase extends DisposableInterface {
 
     try {
       await db?.transaction(action);
+    } on StateError {
+      // No-op.
     } on CouldNotRollBackException {
       // No-op.
     }
@@ -611,6 +613,7 @@ abstract class DriftProviderBase extends DisposableInterface {
   /// [CommonDatabase] may be closed, for example, between E2E tests.
   Future<T?> safe<T>(
     Future<T> Function(CommonDatabase db) callback, {
+    bool exclusive = true,
     String? tag,
   }) async {
     if (isClosed || db == null) {
@@ -656,6 +659,8 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
             try {
               return await db.transaction(action);
+            } on StateError {
+              // No-op.
             } on CouldNotRollBackException {
               // No-op.
             }
@@ -674,6 +679,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   Future<T?> safe<T>(
     Future<T> Function(ScopedDatabase db) callback, {
     String? tag,
+    bool exclusive = true,
     bool force = false,
   }) async {
     if (PlatformUtils.isWeb && !force) {
@@ -681,6 +687,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
       // API: https://github.com/simolus3/sqlite3.dart/issues/200
       return await WebUtils.protect(
         tag: '${_scoped.db?.userId}',
+        exclusive: exclusive,
         () async => await _scoped.wrapped(callback),
       );
     }
