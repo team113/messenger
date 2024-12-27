@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.1] · 2024-??-??
+[0.3.1]: /../../tree/v0.3.1
+
+[Diff](/../../compare/v0.3.0...v0.3.1) | [Milestone](/../../milestone/32)
+
+### Fixed
+
+- UI:
+    - User page:
+        - Too large away badge being displayed on avatar. ([#1157])
+    - Profile page:
+        - Inability to crop SVG avatar images. ([#1157])
+
+[#1157]: /../../pull/1157
+
+
+
+
 ## [0.3.0] · 2024-12-25
 [0.3.0]: /../../tree/v0.3.0
 

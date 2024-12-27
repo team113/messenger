@@ -248,7 +248,8 @@ class ChatInfoController extends GetxController {
   /// image, if any.
   Future<void> pickAvatar() async {
     final FilePickerResult? result = await PlatformUtils.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: NativeFile.images,
       allowMultiple: false,
       withData: true,
       lockParentWindow: true,

@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
@@ -34,6 +35,7 @@ class ImageCropper extends StatefulWidget {
     super.key,
     required this.image,
     required this.size,
+    this.svg,
     this.rotation = CropRotation.up,
     this.onCropped,
   });
@@ -43,6 +45,9 @@ class ImageCropper extends StatefulWidget {
 
   /// [Size] of the [image].
   final Size size;
+
+  /// [PictureInfo] of the SVG [image] to display.
+  final PictureInfo? svg;
 
   /// [CropRotation] of the image.
   final CropRotation rotation;
@@ -91,12 +96,20 @@ class _ImageCropperState extends State<ImageCropper> {
             alignment: Alignment.center,
             children: <Widget>[
               // Image itself.
-              Image.memory(
-                widget.image,
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                fit: BoxFit.fill,
-              ),
+              if (widget.svg != null)
+                SvgPicture.memory(
+                  widget.image,
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  fit: BoxFit.fill,
+                )
+              else
+                Image.memory(
+                  widget.image,
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  fit: BoxFit.fill,
+                ),
 
               // Grid painter.
               Positioned.fill(

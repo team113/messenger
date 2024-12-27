@@ -73,6 +73,7 @@ class CropAvatarView extends StatelessWidget {
                   return ImageCropper(
                     image: image,
                     size: c.size,
+                    svg: c.svg,
                     rotation: c.rotation.value,
                     onCropped: (crop) => c.crop.value = crop,
                   );

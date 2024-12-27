@@ -18,6 +18,7 @@
 import 'dart:typed_data';
 import 'dart:ui';
 
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 
 import 'widget/image_cropper/enums.dart';
@@ -42,6 +43,9 @@ class CropController extends GetxController {
 
   /// [Size] of the [image].
   final Rx<Size> dimensions = Rx(const Size(0, 0));
+
+  /// [PictureInfo] of the [image] being an SVG.
+  PictureInfo? svg;
 
   /// Returns the aspect ratio of [image].
   double get aspect => dimensions.value.aspectRatio;
@@ -74,11 +78,27 @@ class CropController extends GetxController {
 
   /// Resolves image and initializes [dimensions].
   void _initializeBitmap() async {
-    final Codec decoded = await instantiateImageCodec(image);
-    final FrameInfo frame = await decoded.getNextFrame();
-    dimensions.value = Size(
-      frame.image.width.toDouble(),
-      frame.image.height.toDouble(),
-    );
+    try {
+      final Codec decoded = await instantiateImageCodec(image);
+      final FrameInfo frame = await decoded.getNextFrame();
+      dimensions.value = Size(
+        frame.image.width.toDouble(),
+        frame.image.height.toDouble(),
+      );
+    } catch (e) {
+      if (e.toString().contains('Invalid image data') ||
+          e.toString().contains('The source image cannot be decoded')) {
+        svg = await vg.loadPicture(
+          SvgStringLoader(String.fromCharCodes(image)),
+          null,
+        );
+
+        if (svg != null) {
+          dimensions.value = svg!.size;
+        }
+      } else {
+        rethrow;
+      }
+    }
   }
 }

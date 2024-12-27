@@ -264,6 +264,8 @@ class RouterState extends ChangeNotifier {
   /// If [routes] contain only one record, then removes segments of that record
   /// by `/` if any, otherwise replaces it with [Routes.home].
   void pop([String? page]) {
+    print('======= pop($page) with: $routes');
+
     if (_accounted.remove(page ?? routes.lastOrNull)) {
       return;
     }
@@ -318,7 +320,9 @@ class RouterState extends ChangeNotifier {
 
   /// Replaces the provided [from] with the specified [to] in the [routes].
   void replace(String from, String to) {
+    print('======= replace(from: $from, to: $to) were: $routes');
     routes.value = routes.map((e) => e.replaceAll(from, to)).toList();
+    print('======= replace(from: $from, to: $to) became: $routes');
   }
 
   /// Returns guarded route based on [_auth] status.
@@ -922,6 +926,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onDidRemovePage: (Page<Object?> page) {
+              print('======= onDidRemovePage1($page)');
+
               final bool success = page.canPop;
               if (success) {
                 _state.pop(page.name);
