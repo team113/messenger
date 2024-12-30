@@ -922,8 +922,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
             observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
             pages: _pages,
             onDidRemovePage: (Page<Object?> page) {
-              print('======= onDidRemovePage1($page)');
-
               final bool success = page.canPop;
               if (success) {
                 _state.pop(page.name);
