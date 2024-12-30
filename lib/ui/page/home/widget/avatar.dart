@@ -447,7 +447,7 @@ class AvatarWidget extends StatelessWidget {
         child: WithBadge(
           size: maxWidth,
           online: isOnline,
-          away: isAway,
+          away: isOnline && isAway,
           child: Stack(
             children: [
               if (avatar == null) defaultAvatar,

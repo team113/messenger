@@ -148,10 +148,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       pages: _pages,
       observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-      onDidRemovePage: (page) {
-        print('======= onDidRemovePage2($page)');
-        _state.pop(page.name);
-      },
+      onDidRemovePage: (page) => _state.pop(page.name),
     );
   }
 
