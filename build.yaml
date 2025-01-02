@@ -345,10 +345,6 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
-        # generate_for:
-        #   include:
-        #     - lib/api/backend/graphql/**
-        #     - schema.graphql
       drift_dev:
         generate_for:
           include:

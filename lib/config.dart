@@ -172,7 +172,7 @@ class Config {
 
     String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
         ? const String.fromEnvironment('SOCAPP_WS_URL')
-        : (document['server']?['ws']?['url'] ?? ws);
+        : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
     int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
         ? const int.fromEnvironment('SOCAPP_WS_PORT')
