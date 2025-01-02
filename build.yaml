@@ -345,10 +345,20 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
+        generate_for:
+          include:
+            - lib/api/graphql/**
       drift_dev:
         generate_for:
           include:
             - lib/provider/drift/**.dart
+      json_serializable:
+        generate_for:
+          exclude:
+            - lib/provider/drift/**.dart
+          include:
+            - lib/domain/model/**
+            - lib/store/model/**
       messenger|pubspec_builder:
         enabled: true
 
