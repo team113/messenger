@@ -347,7 +347,7 @@ targets:
                   - "package:messenger/domain/model/session.dart"
         generate_for:
           include:
-            - lib/api/graphql/**
+            - lib/api/backend/graphql/**
       drift_dev:
         generate_for:
           include:
@@ -357,6 +357,7 @@ targets:
           exclude:
             - lib/provider/drift/**.dart
           include:
+            - lib/api/backend/**.dart
             - lib/domain/model/**
             - lib/store/model/**
       messenger|pubspec_builder:
