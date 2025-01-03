@@ -441,7 +441,7 @@ class UserView extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         AnimatedButton(
-          onPressed: () => router.chat(c.user!.user.value.dialog),
+          onPressed: () => router.chat(ChatId.local(c.user!.user.value.id)),
           child: const SvgIcon(SvgIcons.chat),
         ),
         const SizedBox(width: 28),

@@ -329,7 +329,7 @@ class ChatsTabController extends GetxController {
     RxChat? chat,
   }) async {
     if (chat != null) {
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
     } else {
       user ??= contact?.user.value;
 
@@ -337,7 +337,7 @@ class ChatsTabController extends GetxController {
         if (user.id == me) {
           router.chat(_chatService.monolog, push: true);
         } else {
-          router.chat(user.user.value.dialog);
+          router.chat(ChatId.local(user.user.value.id));
         }
       }
     }
@@ -646,7 +646,7 @@ class ChatsTabController extends GetxController {
         name: ChatName.tryParse(groupName.text),
       );
 
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {

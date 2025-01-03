@@ -260,7 +260,7 @@ class UserController extends GetxController {
     if (user?.id == me) {
       router.chat(_chatService.monolog, push: true);
     } else {
-      router.chat(user!.user.value.dialog, push: true);
+      router.chat(ChatId.local(user!.user.value.id), push: true);
     }
   }
 

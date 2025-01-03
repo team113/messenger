@@ -327,7 +327,7 @@ class RecentChatTile extends StatelessWidget {
             selected: inverted,
             avatarBuilder: avatarBuilder,
             enableContextMenu: enableContextMenu,
-            onTap: onTap ?? () => router.chat(chat.id),
+            onTap: onTap ?? () => router.dialog(chat, me),
             onForbidden: rxChat.updateAvatar,
           ),
         ),

@@ -1013,6 +1013,39 @@ extension RouteLinks on RouterState {
     };
   }
 
+  /// Changes router location to the [Routes.chats] page respecting the possible
+  /// [chat] being a dialog.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void dialog(
+    Chat chat,
+    UserId? me, {
+    bool push = false,
+    ChatItemId? itemId,
+    ChatDirectLinkSlug? link,
+
+    // TODO: Remove when backend supports welcome messages.
+    ChatMessageText? welcome,
+  }) {
+    ChatId chatId = chat.id;
+
+    if (chat.isDialog) {
+      final ChatMember? member =
+          chat.members.firstWhereOrNull((e) => e.user.id != me);
+      if (member != null) {
+        chatId = ChatId.local(member.user.id);
+      }
+    }
+
+    router.chat(
+      chatId,
+      push: push,
+      itemId: itemId,
+      link: link,
+      welcome: welcome,
+    );
+  }
+
   /// Changes router location to the [Routes.chatInfo] page.
   void chatInfo(ChatId id, {bool push = false}) =>
       (push ? this.push : go)('${Routes.chats}/$id${Routes.chatInfo}');
