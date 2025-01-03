@@ -337,7 +337,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Opens the [User.dialog] chat.
   static _defaultOnUserPressed(User user) =>
-      router.chat(user.dialog, push: true);
+      router.chat(ChatId.local(user.id), push: true);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and

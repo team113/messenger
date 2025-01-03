@@ -97,7 +97,6 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'forward/controller.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
@@ -342,9 +341,6 @@ class ChatController extends GetxController {
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
-
-  /// Worker capturing any [RxChat.chat] changes.
-  Worker? _chatWorker;
 
   /// Worker clearing [selected] on the [selected] changes.
   Worker? _selectingWorker;
@@ -596,7 +592,6 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
-    _chatWorker?.dispose();
     _selectingWorker?.dispose();
     _obscuredWorker?.dispose();
     _typingSubscription?.cancel();
@@ -814,6 +809,15 @@ class ChatController extends GetxController {
 
       status.value = RxStatus.loading();
 
+      if (id.isLocal) {
+        final UserId userId = id.userId;
+        final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+        final RxUser? user =
+            userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+
+        id = user?.user.value.dialog ?? id;
+      }
+
       final FutureOr<RxChat?> fetched = _chatService.get(id);
       chat = fetched is RxChat? ? fetched : await fetched;
 
@@ -845,12 +849,7 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-        _chatWorker = ever(chat!.chat, (Chat e) {
-          if (e.id != id) {
-            WebUtils.replaceState(id.val, e.id.val);
-            id = e.id;
-          }
-        });
+       
 
         listController.sliverController.onPaintItemPositionsCallback =
             (height, positions) {

@@ -1004,8 +1004,8 @@ class ChatView extends StatelessWidget {
                     c.selected.add(element);
                   },
                   onUserPressed: (user) {
-                    ChatId chatId = user.dialog;
-                    if (chatId.isLocalWith(c.me)) {
+                    ChatId chatId = ChatId.local(user.id);
+                    if (user.dialog.isLocalWith(c.me)) {
                       chatId = c.monolog;
                     }
 

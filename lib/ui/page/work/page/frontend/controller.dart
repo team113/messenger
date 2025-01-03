@@ -60,8 +60,9 @@ class FrontendWorkController extends GetxController {
         router.home(signedUp: signedUp);
       }
 
-      router.chat(
+      router.dialog(
         await _authService.useChatDirectLink(_link),
+        _authService.userId,
         welcome: _welcome,
       );
 
