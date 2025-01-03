@@ -624,6 +624,7 @@ class PlatformUtilsImpl {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    List<String>? allowedExtensions,
   }) async {
     try {
       return await FilePicker.platform.pickFiles(
@@ -634,6 +635,7 @@ class PlatformUtilsImpl {
         withData: withData,
         withReadStream: withReadStream,
         lockParentWindow: lockParentWindow,
+        allowedExtensions: allowedExtensions,
       );
     } on PlatformException catch (e) {
       if (e.code == 'already_active') {

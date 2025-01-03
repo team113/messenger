@@ -112,17 +112,17 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - instrumentisto-libwebrtc-bin (130.0.6723.69)
+  - instrumentisto-libwebrtc-bin (131.0.6778.139)
   - integration_test (0.0.1):
     - Flutter
   - irondash_engine_context (0.0.1):
     - Flutter
   - just_audio (0.0.1):
     - Flutter
-  - medea_flutter_webrtc (0.11.2):
+  - medea_flutter_webrtc (0.12.0):
     - Flutter
-    - instrumentisto-libwebrtc-bin (= 130.0.6723.69)
-  - medea_jason (0.7.0):
+    - instrumentisto-libwebrtc-bin (= 131.0.6778.139)
+  - medea_jason (0.7.1):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
     - Flutter
@@ -151,7 +151,7 @@ PODS:
     - SDWebImage/Core (= 5.20.0)
   - SDWebImage/Core (5.20.0)
   - Sentry/HybridSDK (8.40.1)
-  - sentry_flutter (8.10.0):
+  - sentry_flutter (8.10.1):
     - Flutter
     - FlutterMacOS
     - Sentry/HybridSDK (= 8.40.1)
@@ -348,12 +348,12 @@ SPEC CHECKSUMS:
   GoogleUtilities: 26a3abef001b6533cf678d3eb38fd3f614b7872d
   image_gallery_saver: cb43cc43141711190510e92c460eb1655cd343cb
   image_picker_ios: c560581cceedb403a6ff17f2f816d7fea1421fc1
-  instrumentisto-libwebrtc-bin: 769972c5c8a2b370ab2d6b242180e0bba64bd5c3
+  instrumentisto-libwebrtc-bin: 3723ba1d34da2e573a8a18f7608415b5d885abaf
   integration_test: 252f60fa39af5e17c3aa9899d35d908a0721b573
   irondash_engine_context: 3458bf979b90d616ffb8ae03a150bafe2e860cc9
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  medea_flutter_webrtc: 2edd16f21de79901c91cd7dc3e132b3bf5af3b3a
-  medea_jason: dd2579ca796f0bff007212896cc27e333d6b4c9c
+  medea_flutter_webrtc: 4884e6472ec0a950588aa479b6c2dc57e3808a26
+  medea_jason: 1799fe0087e1335b32a61b78bb9eef72d1fe7518
   media_kit_libs_ios_video: a5fe24bc7875ccd6378a0978c13185e1344651c1
   media_kit_native_event_loop: e6b2ab20cf0746eb1c33be961fcf79667304fa2a
   media_kit_video: 5da63f157170e5bf303bf85453b7ef6971218a2e
@@ -366,7 +366,7 @@ SPEC CHECKSUMS:
   screen_brightness_ios: 715ca807df953bf676d339f11464e438143ee625
   SDWebImage: 73c6079366fea25fa4bb9640d5fb58f0893facd8
   Sentry: e9215d7b17f7902692b4f8700e061e4f853e3521
-  sentry_flutter: bf40d5e34dffa1769ae980d273b93511c0fbd45e
+  sentry_flutter: 927eed60d66951d1b0f1db37fe94ff5cb7c80231
   share_plus: 8b6f8b3447e494cca5317c8c3073de39b3600d1f
   shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   SQLite.swift: 8d054987f02728cc912b0eb5a9659650573a65a2
