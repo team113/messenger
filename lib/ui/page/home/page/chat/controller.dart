@@ -849,8 +849,6 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-       
-
         listController.sliverController.onPaintItemPositionsCallback =
             (height, positions) {
           if (positions.isNotEmpty) {
