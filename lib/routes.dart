@@ -1000,17 +1000,41 @@ extension RouteLinks on RouterState {
     bool push = false,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
-
-    // TODO: Remove when backend supports welcome messages.
-    ChatMessageText? welcome,
   }) {
     (push ? this.push : go)('${Routes.chats}/$id');
 
-    arguments = {
-      'itemId': itemId,
-      'welcome': welcome,
-      'link': link,
-    };
+    arguments = {'itemId': itemId, 'link': link};
+  }
+
+  /// Changes router location to the [Routes.chats] page respecting the possible
+  /// [chat] being a dialog.
+  ///
+  /// If [push] is `true`, then location is pushed to the router location stack.
+  void dialog(
+    Chat chat,
+    UserId? me, {
+    bool push = false,
+    ChatItemId? itemId,
+    ChatDirectLinkSlug? link,
+  }) {
+    ChatId chatId = chat.id;
+
+    if (chat.isDialog || chat.isMonolog) {
+      ChatMember? member =
+          chat.members.firstWhereOrNull((e) => e.user.id != me);
+      member ??= chat.members.firstOrNull;
+
+      if (member != null) {
+        chatId = ChatId.local(member.user.id);
+      }
+    }
+
+    router.chat(
+      chatId,
+      push: push,
+      itemId: itemId,
+      link: link,
+    );
   }
 
   /// Changes router location to the [Routes.chatInfo] page.

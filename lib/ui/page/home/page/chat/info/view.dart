@@ -377,8 +377,10 @@ class ChatInfoView extends StatelessWidget {
                         child = MemberTile(
                           user: member,
                           inCall: hasCall ? inCall : null,
-                          onTap: () =>
-                              router.chat(member.user.value.dialog, push: true),
+                          onTap: () => router.chat(
+                            ChatId.local(member.user.value.id),
+                            push: true,
+                          ),
                           onCall: inCall
                               ? () => c.removeChatCallMember(member.id)
                               : () => c.redialChatCallMember(member.id),
@@ -597,12 +599,10 @@ class ChatInfoView extends StatelessWidget {
 
     return Row(
       children: [
-        Expanded(
-          child: title,
-        ),
+        Expanded(child: title),
         const SizedBox(width: 8),
         AnimatedButton(
-          onPressed: () => router.chat(id),
+          onPressed: () => router.dialog(c.chat!.chat.value, c.me),
           child: const SvgIcon(SvgIcons.chat),
         ),
         const SizedBox(width: 28),

@@ -366,8 +366,11 @@ class CallRepository extends DisposableInterface
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', '$runtimeType');
 
-    await _graphQlProvider.declineChatCall(chatId);
-    calls.remove(chatId);
+    try {
+      await _graphQlProvider.declineChatCall(chatId);
+    } finally {
+      calls.remove(chatId);
+    }
   }
 
   @override

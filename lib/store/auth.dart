@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
@@ -261,11 +262,11 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
-    var response = await _graphQlProvider.useChatDirectLink(slug);
-    return response.chat.id;
+    final response = await _graphQlProvider.useChatDirectLink(slug);
+    return response.chat.toModel();
   }
 
   @override

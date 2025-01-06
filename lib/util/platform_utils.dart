@@ -595,8 +595,9 @@ class PlatformUtilsImpl {
   }
 
   /// Stores the provided [text] on the [Clipboard].
-  void copy({required String text}) =>
-      Clipboard.setData(ClipboardData(text: text));
+  Future<void> copy({required String text}) async {
+    await Clipboard.setData(ClipboardData(text: text));
+  }
 
   /// Keeps the [_isActive] status as [active].
   void keepActive([bool active = true]) {

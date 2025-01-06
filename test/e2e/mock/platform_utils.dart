@@ -58,7 +58,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   }
 
   @override
-  void copy({String? text}) => clipboard = text;
+  Future<void> copy({String? text}) => Future.sync(() => clipboard = text);
 
   @override
   void keepActive([bool active = true]) {

@@ -97,7 +97,6 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 import 'forward/controller.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
@@ -116,7 +115,6 @@ class ChatController extends GetxController {
     this._settingsRepository,
     this._contactService, {
     this.itemId,
-    this.welcome,
     this.onContext,
   });
 
@@ -128,10 +126,6 @@ class ChatController extends GetxController {
 
   /// ID of the [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -342,9 +336,6 @@ class ChatController extends GetxController {
   /// Worker performing a jump to the last read message on a successful
   /// [RxChat.status].
   Worker? _messageInitializedWorker;
-
-  /// Worker capturing any [RxChat.chat] changes.
-  Worker? _chatWorker;
 
   /// Worker clearing [selected] on the [selected] changes.
   Worker? _selectingWorker;
@@ -596,7 +587,6 @@ class ChatController extends GetxController {
   void onClose() {
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
-    _chatWorker?.dispose();
     _selectingWorker?.dispose();
     _obscuredWorker?.dispose();
     _typingSubscription?.cancel();
@@ -814,6 +804,15 @@ class ChatController extends GetxController {
 
       status.value = RxStatus.loading();
 
+      if (id.isLocal) {
+        final UserId userId = id.userId;
+        final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
+        final RxUser? user =
+            userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+
+        id = user?.user.value.dialog ?? id;
+      }
+
       final FutureOr<RxChat?> fetched = _chatService.get(id);
       chat = fetched is RxChat? ? fetched : await fetched;
 
@@ -844,13 +843,6 @@ class ChatController extends GetxController {
         for (Attachment e in draft?.attachments ?? []) {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
-
-        _chatWorker = ever(chat!.chat, (Chat e) {
-          if (e.id != id) {
-            WebUtils.replaceState(id.val, e.id.val);
-            id = e.id;
-          }
-        });
 
         listController.sliverController.onPaintItemPositionsCallback =
             (height, positions) {
@@ -988,10 +980,6 @@ class ChatController extends GetxController {
 
         span.finish();
         span = _ready.startChild('end');
-
-        if (welcome != null) {
-          chat!.addMessage(welcome!);
-        }
 
         status.value = RxStatus.success();
 

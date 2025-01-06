@@ -817,9 +817,12 @@ class ChatsTabView extends StatelessWidget {
                                 selected: c.selecting.value ? selected : null,
                                 getUser: c.getUser,
                                 avatarBuilder: c.selecting.value
-                                    ? (c) => WidgetButton(
-                                          onPressed: () => router.chat(e.id),
-                                          child: c,
+                                    ? (child) => WidgetButton(
+                                          onPressed: () => router.dialog(
+                                            e.chat.value,
+                                            c.me,
+                                          ),
+                                          child: child,
                                         )
                                     : avatarBuilder,
                                 onJoin: () => c.joinCall(e.id),
