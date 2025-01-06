@@ -1019,9 +1019,11 @@ extension RouteLinks on RouterState {
   }) {
     ChatId chatId = chat.id;
 
-    if (chat.isDialog) {
-      final ChatMember? member =
+    if (chat.isDialog || chat.isMonolog) {
+      ChatMember? member =
           chat.members.firstWhereOrNull((e) => e.user.id != me);
+      member ??= chat.members.firstOrNull;
+
       if (member != null) {
         chatId = ChatId.local(member.user.id);
       }
