@@ -939,31 +939,6 @@ class RxChatImpl extends RxChat {
     }
   }
 
-  // TODO: Remove when backend supports welcome messages.
-  @override
-  Future<void> addMessage(ChatMessageText text) async {
-    Log.debug('addMessage($text)', '$runtimeType($id)');
-
-    await put(
-      DtoChatMessage(
-        ChatMessage(
-          ChatItemId.local(),
-          id,
-          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
-              User(
-                const UserId('a0960769-d44a-46e9-ba43-cb41e045318a'),
-                UserNum('1234123412341234'),
-              ),
-          PreciseDateTime.now(),
-          text: text,
-        ),
-        null,
-        ChatItemVersion('0'),
-        null,
-      ),
-    );
-  }
-
   /// Updates the [avatar] of the [chat].
   ///
   /// Intended to be used to update the [StorageFile.relativeRef] links.

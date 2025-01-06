@@ -17,10 +17,8 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -43,11 +41,6 @@ class FrontendWorkController extends GetxController {
   static const ChatDirectLinkSlug _link =
       ChatDirectLinkSlug.unchecked('HR-Gapopa');
 
-  // TODO: Remove when backend supports it out of the box.
-  /// Welcome message of the [Chat] in the [_link].
-  static final ChatMessageText _welcome =
-      ChatMessageText('label_welcome_message_vacancy_24_hours'.l10n);
-
   /// Returns the authorization [RxStatus].
   Rx<RxStatus> get status => _authService.status;
 
@@ -63,7 +56,6 @@ class FrontendWorkController extends GetxController {
       router.dialog(
         await _authService.useChatDirectLink(_link),
         _authService.userId,
-        welcome: _welcome,
       );
 
       linkStatus.value = RxStatus.empty();

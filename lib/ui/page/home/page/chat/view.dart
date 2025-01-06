@@ -76,17 +76,13 @@ import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
-  const ChatView(this.id, {super.key, this.itemId, this.welcome});
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +99,6 @@ class ChatView extends StatelessWidget {
         Get.find(),
         Get.find(),
         itemId: itemId,
-        welcome: welcome,
         onContext: () => context,
       ),
       tag: id.val,

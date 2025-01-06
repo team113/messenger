@@ -17,10 +17,8 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -58,11 +56,6 @@ class FreelanceWorkController extends GetxController {
   static const ChatDirectLinkSlug _link =
       ChatDirectLinkSlug.unchecked('freelance');
 
-  // TODO: Remove when backend supports it out of the box.
-  /// Welcome message of the [Chat] in the [_link].
-  static final ChatMessageText _welcome =
-      ChatMessageText('label_welcome_message_freelance'.l10n);
-
   /// URL to fetch the [Issue]s from.
   ///
   /// Supposed to be a GitHub issues endpoint, however may be any meeting the
@@ -95,7 +88,6 @@ class FreelanceWorkController extends GetxController {
       router.dialog(
         await _authService.useChatDirectLink(_link),
         _authService.userId,
-        welcome: _welcome,
       );
 
       linkStatus.value = RxStatus.empty();

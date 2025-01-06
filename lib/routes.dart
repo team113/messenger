@@ -1000,17 +1000,10 @@ extension RouteLinks on RouterState {
     bool push = false,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
-
-    // TODO: Remove when backend supports welcome messages.
-    ChatMessageText? welcome,
   }) {
     (push ? this.push : go)('${Routes.chats}/$id');
 
-    arguments = {
-      'itemId': itemId,
-      'welcome': welcome,
-      'link': link,
-    };
+    arguments = {'itemId': itemId, 'link': link};
   }
 
   /// Changes router location to the [Routes.chats] page respecting the possible
@@ -1023,9 +1016,6 @@ extension RouteLinks on RouterState {
     bool push = false,
     ChatItemId? itemId,
     ChatDirectLinkSlug? link,
-
-    // TODO: Remove when backend supports welcome messages.
-    ChatMessageText? welcome,
   }) {
     ChatId chatId = chat.id;
 
@@ -1042,7 +1032,6 @@ extension RouteLinks on RouterState {
       push: push,
       itemId: itemId,
       link: link,
-      welcome: welcome,
     );
   }
 

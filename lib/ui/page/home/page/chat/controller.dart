@@ -115,7 +115,6 @@ class ChatController extends GetxController {
     this._settingsRepository,
     this._contactService, {
     this.itemId,
-    this.welcome,
     this.onContext,
   });
 
@@ -127,10 +126,6 @@ class ChatController extends GetxController {
 
   /// ID of the [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   /// Indicator whether the down FAB should be visible.
   final RxBool canGoDown = RxBool(false);
@@ -985,10 +980,6 @@ class ChatController extends GetxController {
 
         span.finish();
         span = _ready.startChild('end');
-
-        if (welcome != null) {
-          chat!.addMessage(welcome!);
-        }
 
         status.value = RxStatus.success();
 
