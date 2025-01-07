@@ -594,6 +594,7 @@ jobs:
                      libgtk-3-dev
                      libpulse-dev
                      libmpv-dev
+                     libcurl4-openssl-dev
                      mpv
                      jq
                      curl
