@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -490,7 +490,8 @@ class MyProfileController extends GetxController {
   Future<void> uploadAvatar() async {
     try {
       final FilePickerResult? result = await PlatformUtils.pickFiles(
-        type: FileType.image,
+        type: FileType.custom,
+        allowedExtensions: NativeFile.images,
         allowMultiple: false,
         withData: true,
         lockParentWindow: true,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -595,8 +595,9 @@ class PlatformUtilsImpl {
   }
 
   /// Stores the provided [text] on the [Clipboard].
-  void copy({required String text}) =>
-      Clipboard.setData(ClipboardData(text: text));
+  Future<void> copy({required String text}) async {
+    await Clipboard.setData(ClipboardData(text: text));
+  }
 
   /// Keeps the [_isActive] status as [active].
   void keepActive([bool active = true]) {
@@ -624,6 +625,7 @@ class PlatformUtilsImpl {
     bool withData = false,
     bool withReadStream = false,
     bool lockParentWindow = false,
+    List<String>? allowedExtensions,
   }) async {
     try {
       return await FilePicker.platform.pickFiles(
@@ -634,6 +636,7 @@ class PlatformUtilsImpl {
         withData: withData,
         withReadStream: withReadStream,
         lockParentWindow: lockParentWindow,
+        allowedExtensions: allowedExtensions,
       );
     } on PlatformException catch (e) {
       if (e.code == 'already_active') {

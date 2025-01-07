@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,17 +76,13 @@ import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
-  const ChatView(this.id, {super.key, this.itemId, this.welcome});
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +99,6 @@ class ChatView extends StatelessWidget {
         Get.find(),
         Get.find(),
         itemId: itemId,
-        welcome: welcome,
         onContext: () => context,
       ),
       tag: id.val,
@@ -1004,8 +999,8 @@ class ChatView extends StatelessWidget {
                     c.selected.add(element);
                   },
                   onUserPressed: (user) {
-                    ChatId chatId = user.dialog;
-                    if (chatId.isLocalWith(c.me)) {
+                    ChatId chatId = ChatId.local(user.id);
+                    if (user.dialog.isLocalWith(c.me)) {
                       chatId = c.monolog;
                     }
 

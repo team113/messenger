@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -937,31 +937,6 @@ class RxChatImpl extends RxChat {
     if (chat.value.isGroup) {
       await members.clear();
     }
-  }
-
-  // TODO: Remove when backend supports welcome messages.
-  @override
-  Future<void> addMessage(ChatMessageText text) async {
-    Log.debug('addMessage($text)', '$runtimeType($id)');
-
-    await put(
-      DtoChatMessage(
-        ChatMessage(
-          ChatItemId.local(),
-          id,
-          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
-              User(
-                const UserId('a0960769-d44a-46e9-ba43-cb41e045318a'),
-                UserNum('1234123412341234'),
-              ),
-          PreciseDateTime.now(),
-          text: text,
-        ),
-        null,
-        ChatItemVersion('0'),
-        null,
-      ),
-    );
   }
 
   /// Updates the [avatar] of the [chat].

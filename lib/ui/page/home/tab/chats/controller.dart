@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -329,7 +329,7 @@ class ChatsTabController extends GetxController {
     RxChat? chat,
   }) async {
     if (chat != null) {
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
     } else {
       user ??= contact?.user.value;
 
@@ -337,7 +337,7 @@ class ChatsTabController extends GetxController {
         if (user.id == me) {
           router.chat(_chatService.monolog, push: true);
         } else {
-          router.chat(user.user.value.dialog);
+          router.chat(ChatId.local(user.user.value.id));
         }
       }
     }
@@ -646,7 +646,7 @@ class ChatsTabController extends GetxController {
         name: ChatName.tryParse(groupName.text),
       );
 
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {

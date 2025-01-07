@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -366,8 +366,11 @@ class CallRepository extends DisposableInterface
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', '$runtimeType');
 
-    await _graphQlProvider.declineChatCall(chatId);
-    calls.remove(chatId);
+    try {
+      await _graphQlProvider.declineChatCall(chatId);
+    } finally {
+      calls.remove(chatId);
+    }
   }
 
   @override

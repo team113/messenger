@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -1193,12 +1193,6 @@ label_welcome_message_freelance =
     - номер PR (Pull Request);
     - предполагаемый срок выполнения задачи (дедлайн);
     - предполагаемый способ решения задачи.
-label_welcome_message_vacancy =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF.
-label_welcome_message_vacancy_24_hours =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.
 label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -441,7 +441,7 @@ class UserView extends StatelessWidget {
         ),
         const SizedBox(width: 8),
         AnimatedButton(
-          onPressed: () => router.chat(c.user!.user.value.dialog),
+          onPressed: () => router.chat(ChatId.local(c.user!.user.value.id)),
           child: const SvgIcon(SvgIcons.chat),
         ),
         const SizedBox(width: 28),

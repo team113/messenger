@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -172,7 +172,7 @@ class Config {
 
     String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
         ? const String.fromEnvironment('SOCAPP_WS_URL')
-        : (document['server']?['ws']?['url'] ?? ws);
+        : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
     int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
         ? const int.fromEnvironment('SOCAPP_WS_PORT')

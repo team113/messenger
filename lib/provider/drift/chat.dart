@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -192,8 +192,10 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
       (db) async {
         final stmt = db.select(db.chats);
 
-        stmt.where(
-            (u) => u.isHidden.equals(false) & u.id.like('local_%').not());
+        stmt.where((u) =>
+            u.isHidden.equals(false) &
+            u.id.like('local_%').not() &
+            u.id.like('d_%').not());
         stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
         if (limit != null) {
@@ -219,7 +221,8 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
           (u) =>
               u.isHidden.equals(false) &
               u.favoritePosition.isNotNull() &
-              u.id.like('local_%').not(),
+              u.id.like('local_%').not() &
+              u.id.like('d_%').not(),
         );
         stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
 
@@ -273,6 +276,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
             u.favoritePosition.isNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
@@ -294,6 +298,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
             u.favoritePosition.isNotNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);

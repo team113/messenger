@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -429,17 +429,17 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
 
   /// Constructs a local [ChatId] from the [id] of the [User] with whom the
   /// local [Chat] is created.
-  factory ChatId.local(UserId id) => ChatId('local_${id.val}');
+  factory ChatId.local(UserId id) => ChatId('d_${id.val}');
 
   /// Constructs a [ChatId] from the provided [val].
   factory ChatId.fromJson(String val) = ChatId;
 
   /// Indicates whether this [ChatId] is a dummy ID.
-  bool get isLocal => val.startsWith('local_');
+  bool get isLocal => val.startsWith('d_');
 
   /// Returns [UserId] part of this [ChatId] if [isLocal].
   UserId get userId => isLocal
-      ? UserId(val.replaceFirst('local_', ''))
+      ? UserId(val.replaceFirst('d_', ''))
       : throw Exception('ChatId is not local');
 
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
