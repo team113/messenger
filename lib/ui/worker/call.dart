@@ -71,6 +71,8 @@ class CallWorker extends DisposableService {
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
 
+  /// [AuthService] for retrieving the current [Credentials] in
+  /// [FlutterCallkitIncoming] events handling.
   final AuthService _authService;
 
   /// Subscription to [CallService.calls] map.
