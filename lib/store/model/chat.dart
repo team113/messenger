@@ -57,7 +57,7 @@ class DtoChat {
 
   @override
   String toString() =>
-      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor)';
+      '$runtimeType($value, $ver, $lastItemCursor, $lastReadItemCursor, $recentCursor, $favoriteCursor) !!! membersCount -> ${value.membersCount}';
 
   @override
   bool operator ==(Object other) {

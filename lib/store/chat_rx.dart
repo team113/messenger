@@ -1897,6 +1897,11 @@ class RxChatImpl extends RxChat {
 
         bool shouldPutChat = subscribed && versioned.ver >= dto.ver;
 
+        // Version ending with zeros mean it was received and persisted via
+        // remote pagination.
+        bool versionAccounted = versioned.ver > (ver ?? dto.ver) &&
+            (ver ?? dto.ver).val.endsWith('000000000');
+
         ver = versioned.ver;
         if (dto.ver < versioned.ver) {
           dto.ver = versioned.ver;
@@ -2132,8 +2137,10 @@ class RxChatImpl extends RxChat {
                 }
               }
 
-              write((chat) => chat.value.updatedAt =
-                  event.lastItem?.value.at ?? dto.value.updatedAt);
+              write(
+                (chat) => chat.value.updatedAt =
+                    event.lastItem?.value.at ?? dto.value.updatedAt,
+              );
               if (event.lastItem != null) {
                 itemsToPut.add(event.lastItem!);
               }
@@ -2218,14 +2225,14 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
 
-                    dto.value.membersCount++;
+                    if (!versionAccounted) {
+                      dto.value.membersCount++;
 
-                    // Store the first 3 [ChatMember]s in the [Chat.members]
-                    // to display default [Chat]s name.
-                    if (dto.value.members.length < 3) {
-                      dto.value.members.add(
-                        ChatMember(action.user, msg.at),
-                      );
+                      // Store the first 3 [ChatMember]s in the [Chat.members]
+                      // to display the default [Chat] name.
+                      if (dto.value.members.length < 3) {
+                        dto.value.members.add(ChatMember(action.user, msg.at));
+                      }
                     }
 
                     _putMember(DtoChatMember(action.user, msg.at, null));
@@ -2235,12 +2242,14 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberRemoved:
                     final action = msg.action as ChatInfoActionMemberRemoved;
 
-                    dto.value.membersCount--;
+                    if (!versionAccounted) {
+                      dto.value.membersCount--;
+                      dto.value.members.removeWhere(
+                        (e) => e.user.id == action.user.id,
+                      );
+                    }
 
                     await members.remove(action.user.id);
-
-                    dto.value.members
-                        .removeWhere((e) => e.user.id == action.user.id);
 
                     if (dto.value.members.length < 3) {
                       if (members.rawLength < 3) {

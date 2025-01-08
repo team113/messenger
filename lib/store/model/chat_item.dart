@@ -68,7 +68,7 @@ abstract class DtoChatItem {
   }
 
   @override
-  String toString() => '$runtimeType($value, $cursor, $ver)';
+  String toString() => '$runtimeType($value, $cursor, $ver) ';
 
   /// Returns a [Map] representing this [DtoChatItem].
   Map<String, dynamic> toJson() => switch (runtimeType) {
