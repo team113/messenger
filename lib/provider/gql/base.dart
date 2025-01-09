@@ -536,6 +536,7 @@ class GraphQlClient {
         ),
       ),
       link: link,
+      queryRequestTimeout: const Duration(seconds: 60),
     );
   }
 

@@ -37,6 +37,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
+import '/provider/gql/exceptions.dart' show DeclineChatCallException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
@@ -368,6 +369,16 @@ class CallRepository extends DisposableInterface
 
     try {
       await _graphQlProvider.declineChatCall(chatId);
+    } on DeclineChatCallException catch (e) {
+      switch (e.code) {
+        case DeclineChatCallErrorCode.alreadyJoined:
+          // No-op, as this can be expected.
+          break;
+
+        case DeclineChatCallErrorCode.unknownChat:
+        case DeclineChatCallErrorCode.artemisUnknown:
+          rethrow;
+      }
     } finally {
       calls.remove(chatId);
     }

@@ -21,7 +21,7 @@ dependencies:
   device_info_plus: ^11.1.0
   dio: ^5.1.2
   dough: ^2.0.0
-  drift: ^2.19.1+1
+  drift: ^2.23.1
   email_validator: ^3.0.0
   ffi: ^2.0.2
   file_picker: 8.1.4
@@ -122,7 +122,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.11
   dartdoc: 8.3.0
-  drift_dev: ^2.19.1
+  drift_dev: ^2.23.1
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
