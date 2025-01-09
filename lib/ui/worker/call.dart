@@ -295,7 +295,7 @@ class CallWorker extends DisposableService {
                   stop();
                 }
 
-                if (callId != null) {
+                if (_isCallKit && callId != null) {
                   await FlutterCallkitIncoming.setCallConnected(callId.val);
                 }
                 break;
@@ -306,7 +306,7 @@ class CallWorker extends DisposableService {
                   stop();
                 }
 
-                if (callId != null) {
+                if (_isCallKit && callId != null) {
                   await FlutterCallkitIncoming.endCall(callId.val);
                 }
                 break;
