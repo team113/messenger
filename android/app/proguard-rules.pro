@@ -58,3 +58,9 @@
 -dontwarn androidx.compose.ui.text.TextLayoutResult
 -dontwarn androidx.compose.ui.text.TextStyle
 -dontwarn androidx.compose.ui.unit.IntSize
+
+-dontwarn java.beans.ConstructorProperties
+-dontwarn java.beans.Transient
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.OpenSSLProvider
+-dontwarn org.w3c.dom.bootstrap.DOMImplementationRegistry
