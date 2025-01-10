@@ -17,18 +17,14 @@
  * <https://www.gnu.org/licenses/agpl-3.0.html>.
  */
 
-import AVFAudio
-import CallKit
+import Flutter
 import Firebase
 import FirebaseMessaging
-import Flutter
-import flutter_callkit_incoming
 import MachO
-import PushKit
 import UIKit
 
 @main
-@objc class AppDelegate: FlutterAppDelegate, PKPushRegistryDelegate {
+@objc class AppDelegate: FlutterAppDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -62,18 +58,12 @@ import UIKit
 
     FirebaseApp.configure()
     if #available(iOS 10.0, *) {
-      UNUserNotificationCenter.current().delegate = self as UNUserNotificationCenterDelegate
+      UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
 
     GeneratedPluginRegistrant.register(with: self)
     application.registerForRemoteNotifications()
     UIApplication.shared.registerForRemoteNotifications()
-
-    // Setup VOIP.
-    let mainQueue = DispatchQueue.main
-    let voipRegistry: PKPushRegistry = PKPushRegistry(queue: mainQueue)
-    voipRegistry.delegate = self
-    voipRegistry.desiredPushTypes = [PKPushType.voIP]
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -86,51 +76,6 @@ import UIKit
     super.application(
       application, didReceiveRemoteNotification: userInfo, fetchCompletionHandler: completionHandler
     )
-  }
-
-  // Handles updated VoIP push credentials.
-  func pushRegistry(_ registry: PKPushRegistry, didUpdate credentials: PKPushCredentials, for type: PKPushType) {
-    let deviceToken = credentials.token.map { String(format: "%02x", $0) }.joined()
-    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.setDevicePushTokenVoIP(deviceToken)
-  }
-
-  // Handles outdated VoIP push credentials.
-  func pushRegistry(_ registry: PKPushRegistry, didInvalidatePushTokenFor type: PKPushType) {
-    SwiftFlutterCallkitIncomingPlugin.sharedInstance?.setDevicePushTokenVoIP("")
-  }
-
-  // Handles incoming VoIP pushes.
-  func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
-    guard type == .voIP else { return }
-
-    let id = payload.dictionaryPayload["id"] as? String ?? ""
-    let nameCaller = payload.dictionaryPayload["nameCaller"] as? String ?? ""
-    let handle = payload.dictionaryPayload["handle"] as? String ?? ""
-    let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
-    let endedAt = payload.dictionaryPayload["endedAt"] as? String ?? ""
-
-    let data = flutter_callkit_incoming.Data(
-      id: id,
-      nameCaller: nameCaller,
-      handle: handle,
-      type: isVideo ? 1 : 0
-    );
-
-    data.supportsHolding = false;
-    data.supportsDTMF = false;
-    data.supportsGrouping = false;
-    data.supportsUngrouping = false;
-    data.extra = payload.dictionaryPayload["extra"] as? NSDictionary ?? [:];
-
-    if (endedAt != "") {
-      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.endCall(data)
-    } else {
-      SwiftFlutterCallkitIncomingPlugin.sharedInstance?.showCallkitIncoming(data, fromPushKit: true)
-    }
-
-    DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-        completion()
-    }
   }
 
   /// Return the architecture of this device.

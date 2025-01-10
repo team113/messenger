@@ -2141,6 +2141,7 @@ class RxChatImpl extends RxChat {
                 (chat) => chat.value.updatedAt =
                     event.lastItem?.value.at ?? dto.value.updatedAt,
               );
+
               if (event.lastItem != null) {
                 itemsToPut.add(event.lastItem!);
               }

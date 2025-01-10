@@ -23,7 +23,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
@@ -54,11 +53,8 @@ class NotificationService extends DisposableService {
   /// Language to receive Firebase Cloud Messaging notifications on.
   String? _language;
 
-  /// [DeviceToken] used to subscribe to push notifications.
+  /// Firebase Cloud Messaging token used to subscribe to push notifications.
   String? _token;
-
-  String? _apns;
-  String? _voip;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
@@ -522,79 +518,48 @@ class NotificationService extends DisposableService {
         }
       });
 
-      if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
-        _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
-        _apns = await FirebaseMessaging.instance.getAPNSToken();
-      }
+      _token =
+          await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
 
-      if (_apns == null) {
-        _token = await FirebaseMessaging.instance
-            .getToken(vapidKey: Config.vapidKey);
-
-        _onTokenRefresh =
-            FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-          await _unregisterPushDevice();
-          _token = token;
-          await _registerPushDevice();
-        });
-      }
+      _onTokenRefresh =
+          FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+        await _unregisterPushDevice();
+        _token = token;
+        await _registerPushDevice();
+      });
 
       await _registerPushDevice();
     }
   }
 
-  /// Registers a device (Android, iOS, or Web) for receiving notifications.
+  /// Registers a device (Android, iOS, or Web) for receiving notifications via
+  /// Firebase Cloud Messaging.
   Future<void> _registerPushDevice() async {
     Log.debug('_registerPushDevice()', '$runtimeType');
 
     _pushNotifications = false;
 
-    print('==========================');
-    print('===== _registerPushDevice -> _token: $_token');
-    print('===== _registerPushDevice -> _apns: $_apns');
-    print('===== _registerPushDevice -> _voip: $_voip');
-    print('==========================');
+    if (_token != null) {
+      await _graphQlProvider.registerPushDevice(
+        PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+        _language,
+      );
 
-    await Future.wait([
-      if (_token != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
-          _language,
-        ),
-      if (_apns != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
-          _language,
-        ),
-      if (_voip != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-          _language,
-        ),
-    ]);
-
-    _pushNotifications = true;
+      _pushNotifications = true;
+    }
   }
 
-  /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
+  /// via Firebase Cloud Messaging.
   Future<void> _unregisterPushDevice() async {
     Log.debug('_unregisterPushDevice()', '$runtimeType');
 
-    await Future.wait([
-      if (_token != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
-        ),
-      if (_apns != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
-        ),
-      if (_voip != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-        ),
-    ]);
+    if (_token != null) {
+      await _graphQlProvider.unregisterPushDevice(
+        PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+      );
 
-    _pushNotifications = false;
+      _pushNotifications = false;
+    }
   }
 }
