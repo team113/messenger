@@ -57,6 +57,7 @@
 -dontwarn androidx.window.sidecar.SidecarInterface$SidecarCallback
 -dontwarn androidx.window.sidecar.SidecarProvider
 -dontwarn androidx.window.sidecar.SidecarWindowLayoutInfo
+
 -dontwarn java.beans.ConstructorProperties
 -dontwarn java.beans.Transient
 -dontwarn org.conscrypt.Conscrypt

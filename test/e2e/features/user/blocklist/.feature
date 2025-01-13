@@ -25,6 +25,7 @@ Feature: Blocklist
 
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
+    And I pause for 2 seconds
     And I tap `Block` button
     And I tap `Proceed` button
     Then Bob sends message to me and receives blocked exception
