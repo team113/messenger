@@ -372,8 +372,8 @@ class _ImageCropperState extends State<ImageCropper> {
 
     double left = crop.left.clamp(0, crop.right - _minimum);
     double top = crop.top.clamp(0, crop.bottom - _minimum);
-    double width = crop.width.clamp(_minimum, widget.size.width - _minimum);
-    double height = crop.height.clamp(_minimum, widget.size.height - _minimum);
+    double width = crop.width.clamp(_minimum, widget.size.width);
+    double height = crop.height.clamp(_minimum, widget.size.height);
 
     if (width / height > _ratio) {
       width = height * _ratio;

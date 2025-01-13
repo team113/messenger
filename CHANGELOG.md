@@ -18,8 +18,10 @@ All user visible changes to this project will be documented in this file. This p
         - Too large away badge being displayed on avatar. ([#1157])
     - Profile page:
         - Inability to crop SVG avatar images. ([#1157])
+        - Initial cropping area being smaller than image's size. ([#1159])
     - Chat page:
         - Inability to close chat page when writing to it the first time. ([#1158])
+        - Members count being bigger than actual members number. ([#1159])
 
 [#1157]: /../../pull/1157
 [#1158]: /../../pull/1158

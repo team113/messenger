@@ -21,7 +21,7 @@ dependencies:
   device_info_plus: ^11.1.0
   dio: ^5.1.2
   dough: ^2.0.0
-  drift: ^2.19.1+1
+  drift: ^2.23.1
   email_validator: ^3.0.0
   ffi: ^2.0.2
   file_picker: 8.1.4
@@ -32,10 +32,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_callkit_incoming:
-    git:
-      url: https://github.com/SleepySquash/flutter_callkit_incoming_android
-      ref: 150d74be19c808c08941cc92afdd13c99abaf0e5
+  flutter_callkit_incoming: ^2.0.4+2
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
@@ -92,7 +89,7 @@ dependencies:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
   screen_brightness: any
-  sentry_flutter: ^8.10.1
+  sentry_flutter: ^8.12.0
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
@@ -125,7 +122,7 @@ dev_dependencies:
   build: ^2.4.1
   build_runner: ^2.4.11
   dartdoc: 8.3.0
-  drift_dev: ^2.19.1
+  drift_dev: ^2.23.1
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -141,7 +138,7 @@ dev_dependencies:
   gherkin: ^2.0.8
   json_serializable: ^6.6.2
   mockito: ^5.4.2
-  sentry_dart_plugin: ^1.2.0
+  sentry_dart_plugin: ^2.2.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.

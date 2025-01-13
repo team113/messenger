@@ -397,7 +397,11 @@ final class CommonDriftProvider extends DisposableInterface {
         }
 
         subscription = executor(db!).listen(
-          controller?.add,
+          (e) {
+            if (controller?.isClosed != true) {
+              controller?.add(e);
+            }
+          },
           onError: controller?.addError,
           onDone: () => controller?.close(),
         );

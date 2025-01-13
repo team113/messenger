@@ -211,7 +211,7 @@ extension _MyUserDb on DtoMyUser {
             ? null
             : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
         unreadChatsCount: e.unreadChatsCount,
-        status: e.status == null ? null : UserTextStatus(e.status!),
+        status: e.status == null ? null : UserTextStatus.tryParse(e.status!),
         avatar: e.avatar == null
             ? null
             : UserAvatar.fromJson(jsonDecode(e.avatar!)),
@@ -248,7 +248,7 @@ extension _MyUserDb on DtoMyUser {
           ? null
           : jsonEncode(value.chatDirectLink?.toJson()),
       unreadChatsCount: value.unreadChatsCount,
-      status: value.status == null ? null : jsonEncode(value.status?.toJson()),
+      status: value.status?.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
       callCover: value.callCover == null
           ? null

@@ -435,7 +435,7 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
   factory ChatId.fromJson(String val) = ChatId;
 
   /// Indicates whether this [ChatId] is a dummy ID.
-  bool get isLocal => val.startsWith('d_');
+  bool get isLocal => val.startsWith('d_') || val.startsWith('local_');
 
   /// Returns [UserId] part of this [ChatId] if [isLocal].
   UserId get userId => isLocal
