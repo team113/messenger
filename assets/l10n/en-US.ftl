@@ -371,7 +371,7 @@ err_password_empty = Please, enter the password
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match.
 err_phone_occupied = Phone number is already occupied
-err_popup_call_cant_be_closed = It seems like an unexpected error has occured and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
+err_popup_call_cant_be_closed = It seems like an unexpected error has occurred and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
 err_quoted_message = Message was quoted
 err_size_too_big = File size exceeds 15 MB.
 err_stale_version = Provided version is too stale
@@ -438,13 +438,13 @@ fcm_group_title =
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-               *[other] {$user2Num}
+               *[other] , {$user2Num}
             }
        *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-               *[other] {$user3Num}
+               *[other] , {$user3Num}
             }
        *[other] , {$user3Name}
     } {$moreMembers ->

@@ -305,12 +305,12 @@ class NotificationService extends DisposableService {
   /// Sets the provided [language] as a preferred localization of the push
   /// notifications.
   Future<void> setLanguage(String? language) async {
-    Log.debug('setLanguage($language)', '$runtimeType');
+    Log.debug('setLanguage($language) from $_language', '$runtimeType');
 
     if (_language != language) {
       _language = language;
 
-      if (_token != null) {
+      if (_token != null || _apns != null || _voip != null) {
         await _unregisterPushDevice();
         await _registerPushDevice();
       }
@@ -566,11 +566,11 @@ class NotificationService extends DisposableService {
           PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
           _language,
         ),
-      if (_voip != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-          _language,
-        ),
+      // if (_voip != null)
+      //   _graphQlProvider.registerPushDevice(
+      //     PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+      //     _language,
+      //   ),
     ]);
 
     _pushNotifications = true;

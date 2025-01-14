@@ -18,11 +18,14 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:base_x/base_x.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
@@ -271,7 +274,7 @@ class CallWorker extends DisposableService {
 
                 if (callId != null) {
                   await FlutterCallkitIncoming.muteCall(
-                    callId.val,
+                    callId.val.base62ToUuid(),
                     isMuted: !state.isEnabled,
                   );
                 }
@@ -296,7 +299,9 @@ class CallWorker extends DisposableService {
                 }
 
                 if (_isCallKit && callId != null) {
-                  await FlutterCallkitIncoming.setCallConnected(callId.val);
+                  await FlutterCallkitIncoming.setCallConnected(
+                    callId.val.base62ToUuid(),
+                  );
                 }
                 break;
 
@@ -307,7 +312,9 @@ class CallWorker extends DisposableService {
                 }
 
                 if (_isCallKit && callId != null) {
-                  await FlutterCallkitIncoming.endCall(callId.val);
+                  await FlutterCallkitIncoming.endCall(
+                    callId.val.base62ToUuid(),
+                  );
                 }
                 break;
             }
@@ -319,7 +326,7 @@ class CallWorker extends DisposableService {
             await FlutterCallkitIncoming.startCall(
               CallKitParams(
                 nameCaller: chat?.title ?? 'Call',
-                id: c.call.value?.id.val ?? c.chatId.value.val,
+                id: (c.call.value?.id.val ?? c.chatId.value.val).base62ToUuid(),
                 handle: c.chatId.value.val,
                 extra: {'chatId': c.chatId.value.val},
               ),
@@ -350,16 +357,22 @@ class CallWorker extends DisposableService {
             if (_isCallKit) {
               final ChatItemId? callId = call.call.value?.id;
               if (callId != null) {
-                await FlutterCallkitIncoming.endCall(callId.val);
+                await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
               }
 
-              await FlutterCallkitIncoming.endCall(call.chatId.value.val);
+              await FlutterCallkitIncoming.endCall(
+                call.chatId.value.val.base62ToUuid(),
+              );
             }
           }
 
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
-            await AudioUtils.setDefaultSpeaker();
+            try {
+              await AudioUtils.setDefaultSpeaker();
+            } on PlatformException {
+              // No-op.
+            }
 
             if (_isCallKit) {
               await FlutterCallkitIncoming.endAllCalls();
@@ -451,7 +464,9 @@ class CallWorker extends DisposableService {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                       if (node.userId == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(node.callId.val);
+                        await FlutterCallkitIncoming.endCall(
+                          node.callId.val.base62ToUuid(),
+                        );
                       }
                     }
                   }
@@ -581,5 +596,17 @@ class CallWorker extends DisposableService {
         }
       }
     });
+  }
+}
+
+/// Extension adding ability for [String] to be converted from base62-encoded
+/// to [Uuid].
+extension on String {
+  /// Decodes this base62-encoded [String] to a UUID.
+  String base62ToUuid() {
+    final BaseXCodec codec = BaseXCodec(
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+    final Uint8List bytes = codec.decode(this);
+    return UuidValue.fromByteList(bytes).toString();
   }
 }
