@@ -775,6 +775,11 @@ enum RefreshSessionErrorCode {
 "Possible error codes of performing `Mutation.registerPushDevice`."
 enum RegisterPushDeviceErrorCode {
   """
+  Provided `PushDeviceToken` is occupied already by another push device of the authenticated `MyUser`.
+
+  Status code: 409 Conflict.
+  """ OCCUPIED
+  """
   Push notifications service provider is temporary unavailable. Retry later.
 
   Status code: 503 Service Unavailable.
