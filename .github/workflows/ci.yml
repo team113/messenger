@@ -852,6 +852,7 @@ jobs:
   test-unit:
     name: test (unit)
     runs-on: ubuntu-latest
+    container: debian:bullseye
     steps:
       - uses: actions/checkout@v4
         with:
