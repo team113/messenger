@@ -852,19 +852,19 @@ jobs:
   test-unit:
     name: test (unit)
     runs-on: ubuntu-latest
-    container: debian:bullseye
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
+
+      - run: apt-get update -y
+      - run: apt-get install -y sqlite3
+
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
-
-      - run: apt-get update -y
-      - run: apt-get install -y sqlite3
 
       - run: make flutter.pub
 
