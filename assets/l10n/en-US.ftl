@@ -372,6 +372,7 @@ err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match.
 err_phone_occupied = Phone number is already occupied
 err_popup_call_cant_be_closed = It seems like an unexpected error has occurred and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
+err_push_device_occupied = This device is already registered to receive push notifications.
 err_quoted_message = Message was quoted
 err_size_too_big = File size exceeds 15 MB.
 err_stale_version = Provided version is too stale
