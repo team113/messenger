@@ -862,6 +862,9 @@ jobs:
           channel: stable
           cache: true
 
+      - run: apt-get update -y
+      - run: apt-get install -y sqlite3
+
       - run: make flutter.pub
 
       - run: make test.unit
