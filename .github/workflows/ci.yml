@@ -851,6 +851,8 @@ jobs:
 
   test-unit:
     name: test (unit)
+    # TODO: Use `ubuntu-latest` when actions/runner-images#11279 is fixed:
+    #       https://github.com/actions/runner-images/issues/11279
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
