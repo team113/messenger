@@ -851,14 +851,14 @@ jobs:
 
   test-unit:
     name: test (unit)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0  # for correct versioning via `git describe --tags`
 
-      - run: apt-get update -y
-      - run: apt-get install -y sqlite3
+      # - run: apt-get update -y
+      # - run: apt-get install -y sqlite3
 
       - uses: subosito/flutter-action@v2
         with:
