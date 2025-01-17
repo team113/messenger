@@ -33,7 +33,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_callkit_incoming: ^2.0.4+2
+  flutter_callkit_incoming: ^2.5.0
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git

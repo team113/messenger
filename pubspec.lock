@@ -578,10 +578,10 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_callkit_incoming
-      sha256: "516f188bffb849a552701d08c7a5af99f60c1747f7cd0992840974bc6eea922c"
+      sha256: c1e90252b45d84ec5b0792f77aaf3c07222ceade3698307d1a890e514690f7fc
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.4+2"
+    version: "2.5.0"
   flutter_custom_cursor:
     dependency: "direct main"
     description:

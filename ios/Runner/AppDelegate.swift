@@ -109,6 +109,10 @@ import UIKit
     let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
     let endedAt = payload.dictionaryPayload["endedAt"] as? String ?? ""
 
+    if (id == "") {
+      return;
+    }
+
     let data = flutter_callkit_incoming.Data(
       id: id,
       nameCaller: nameCaller,

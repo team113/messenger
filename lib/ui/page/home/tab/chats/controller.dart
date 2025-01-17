@@ -177,6 +177,10 @@ class ChatsTabController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
+  /// [ChatService.paginated] length fetched during [ChatService.next] invoke
+  /// used to guard against the method spamming again and again.
+  int? _chatsInitiallyFetched;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -891,8 +895,16 @@ class ChatsTabController extends GetxController {
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
+          final int amount = _chatService.paginated.length;
+
           await _chatService.next();
-          _ensureScrollable();
+
+          _chatsInitiallyFetched = _chatService.paginated.length;
+
+          // Don't spam this method again and again if no chats were fetched.
+          if (_chatsInitiallyFetched != amount) {
+            _ensureScrollable();
+          }
         }
       });
     }

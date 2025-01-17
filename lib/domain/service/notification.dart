@@ -555,46 +555,61 @@ class NotificationService extends DisposableService {
     print('===== _registerPushDevice -> _voip: $_voip');
     print('==========================');
 
-    await Future.wait([
-      if (_token != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
-          _language,
-        ),
-      if (_apns != null)
-        _graphQlProvider.registerPushDevice(
-          PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
-          _language,
-        ),
-      // if (_voip != null)
-      //   _graphQlProvider.registerPushDevice(
-      //     PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-      //     _language,
-      //   ),
-    ]);
+    final List<Future> futures = [];
 
-    _pushNotifications = true;
+    if (_token != null) {
+      futures.add(
+        _graphQlProvider
+            .registerPushDevice(
+              PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+              _language,
+            )
+            .then((_) => _pushNotifications = true),
+      );
+    }
+
+    if (_apns != null) {
+      futures.add(
+        _graphQlProvider
+            .registerPushDevice(
+              PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
+              _language,
+            )
+            .then((_) => _pushNotifications = true),
+      );
+    }
+
+    if (_voip != null) {
+      futures.add(_graphQlProvider.registerPushDevice(
+        PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+        _language,
+      ));
+    }
+
+    await Future.wait(futures);
   }
 
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
   Future<void> _unregisterPushDevice() async {
     Log.debug('_unregisterPushDevice()', '$runtimeType');
 
-    await Future.wait([
-      if (_token != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
-        ),
-      if (_apns != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
-        ),
-      if (_voip != null)
-        _graphQlProvider.unregisterPushDevice(
-          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-        ),
-    ]);
-
-    _pushNotifications = false;
+    try {
+      await Future.wait([
+        if (_token != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+          ),
+        if (_apns != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
+          ),
+        if (_voip != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+          ),
+      ]);
+    } finally {
+      _pushNotifications = false;
+    }
   }
 }
