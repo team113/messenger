@@ -94,7 +94,7 @@ dependencies:
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
-  sqlite3_flutter_libs: ^0.5.24
+  sqlite3_flutter_libs: ^0.5.28
   sqlite3: ^2.4.4
   stdlibc: ^0.1.4
   super_clipboard: ^0.9.0-dev.3
