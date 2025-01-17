@@ -1423,6 +1423,8 @@ class RegisterPushDeviceException
         return 'err_unknown_registration_token'.l10n;
       case RegisterPushDeviceErrorCode.unavailable:
         return 'err_fcm_unavailable'.l10n;
+      case RegisterPushDeviceErrorCode.occupied:
+        return 'err_push_device_occupied'.l10n;
       case RegisterPushDeviceErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
