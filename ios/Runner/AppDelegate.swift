@@ -103,14 +103,14 @@ import UIKit
   func pushRegistry(_ registry: PKPushRegistry, didReceiveIncomingPushWith payload: PKPushPayload, for type: PKPushType, completion: @escaping () -> Void) {
     guard type == .voIP else { return }
 
-    let id = payload.dictionaryPayload["id"] as? String ?? ""
-    let nameCaller = payload.dictionaryPayload["nameCaller"] as? String ?? ""
+    var id = payload.dictionaryPayload["id"] as? String ?? ""
+    let nameCaller = payload.dictionaryPayload["callerName"] as? String ?? ""
     let handle = payload.dictionaryPayload["handle"] as? String ?? ""
     let isVideo = payload.dictionaryPayload["isVideo"] as? Bool ?? false
     let endedAt = payload.dictionaryPayload["endedAt"] as? String ?? ""
 
     if (id == "") {
-      return;
+      id = UUID().uuidString;
     }
 
     let data = flutter_callkit_incoming.Data(
