@@ -446,7 +446,9 @@ class CallWorker extends DisposableService {
                     if (e.$$typename == 'EventChatCallFinished') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-                      await FlutterCallkitIncoming.endCall(node.call.id.val);
+                      await FlutterCallkitIncoming.endCall(
+                        node.call.id.val.base62ToUuid(),
+                      );
                     } else if (e.$$typename == 'EventChatCallMemberJoined') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
@@ -457,7 +459,9 @@ class CallWorker extends DisposableService {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                       if (node.user.id == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(node.call.id.val);
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val..base62ToUuid(),
+                        );
                       }
                     } else if (e.$$typename ==
                         'EventChatCallAnswerTimeoutPassed') {
@@ -601,11 +605,13 @@ class CallWorker extends DisposableService {
 
 /// Extension adding ability for [String] to be converted from base62-encoded
 /// to [Uuid].
-extension on String {
+extension Base62ToUuid on String {
   /// Decodes this base62-encoded [String] to a UUID.
   String base62ToUuid() {
     final BaseXCodec codec = BaseXCodec(
-        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz');
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+    );
+
     final Uint8List bytes = codec.decode(this);
     return UuidValue.fromByteList(bytes).toString();
   }

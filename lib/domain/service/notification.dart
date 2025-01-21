@@ -54,10 +54,13 @@ class NotificationService extends DisposableService {
   /// Language to receive Firebase Cloud Messaging notifications on.
   String? _language;
 
-  /// [DeviceToken] used to subscribe to push notifications.
+  /// [FcmRegistrationToken] used to subscribe to FCM push notifications.
   String? _token;
 
+  /// [ApnsDeviceToken] used to subscribe to APNs push notifications.
   String? _apns;
+
+  /// [ApnsVoipDeviceToken] used to subscribe to APNs VoIP push notifications.
   String? _voip;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
@@ -549,11 +552,9 @@ class NotificationService extends DisposableService {
 
     _pushNotifications = false;
 
-    print('==========================');
-    print('===== _registerPushDevice -> _token: $_token');
-    print('===== _registerPushDevice -> _apns: $_apns');
-    print('===== _registerPushDevice -> _voip: $_voip');
-    print('==========================');
+    Log.debug('_registerPushDevice() -> _token: $_token', '$runtimeType');
+    Log.debug('_registerPushDevice() -> _apns: $_apns', '$runtimeType');
+    Log.debug('_registerPushDevice() -> _voip: $_voip', '$runtimeType');
 
     final List<Future> futures = [];
 
