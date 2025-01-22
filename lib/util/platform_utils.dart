@@ -328,6 +328,8 @@ class PlatformUtilsImpl {
       } else {
         return _libraryDirectory ??= await getLibraryDirectory();
       }
+    } on UnimplementedError {
+      return _libraryDirectory ??= await cacheDirectory;
     } on MissingPlatformDirectoryException {
       return _libraryDirectory ??= await cacheDirectory;
     } on MissingPluginException {
