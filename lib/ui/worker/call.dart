@@ -452,15 +452,20 @@ class CallWorker extends DisposableService {
                     } else if (e.$$typename == 'EventChatCallMemberJoined') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                      if (node.user.id == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(node.call.id.val);
+                      final call = _callService.calls[chatId];
+
+                      if (node.user.id == credentials.userId &&
+                          call?.value.connected != true) {
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
                       }
                     } else if (e.$$typename == 'EventChatCallDeclined') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                       if (node.user.id == credentials.userId) {
                         await FlutterCallkitIncoming.endCall(
-                          node.call.id.val..base62ToUuid(),
+                          node.call.id.val.base62ToUuid(),
                         );
                       }
                     } else if (e.$$typename ==
