@@ -316,25 +316,34 @@ class PlatformUtilsImpl {
   }
 
   /// Returns a path to the cache directory.
-  FutureOr<Directory?> get libraryDirectory async {
+  FutureOr<Directory> get libraryDirectory async {
     if (_libraryDirectory != null) {
-      return _libraryDirectory;
+      return _libraryDirectory!;
     }
+
+    Directory? directory;
 
     try {
       if (isLinux) {
-        _libraryDirectory ??= dataHome;
-        return _libraryDirectory!;
+        directory ??= dataHome;
       } else {
-        return _libraryDirectory ??= await getLibraryDirectory();
+        directory = await getLibraryDirectory();
       }
     } on UnimplementedError {
-      return _libraryDirectory ??= await cacheDirectory;
+      directory =
+          await cacheDirectory ?? await getApplicationDocumentsDirectory();
     } on MissingPlatformDirectoryException {
-      return _libraryDirectory ??= await cacheDirectory;
+      directory ??= await cacheDirectory;
     } on MissingPluginException {
-      return null;
+      directory = Directory('');
     }
+
+    // Windows already contains both product name and company name in the path.
+    if (PlatformUtils.isWindows) {
+      return directory!;
+    }
+
+    return Directory('${directory?.path}/${Config.userAgentProduct}');
   }
 
   /// Indicates whether the application is in active state.
