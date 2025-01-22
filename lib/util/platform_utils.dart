@@ -32,6 +32,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
 import '/routes.dart';
@@ -61,6 +62,9 @@ class PlatformUtilsImpl {
 
   /// Temporary directory.
   Directory? _temporaryDirectory;
+
+  /// Library directory.
+  Directory? _libraryDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
@@ -309,6 +313,26 @@ class PlatformUtilsImpl {
     _temporaryDirectory =
         Directory('${(await getTemporaryDirectory()).path}${Config.downloads}');
     return _temporaryDirectory!;
+  }
+
+  /// Returns a path to the cache directory.
+  FutureOr<Directory?> get libraryDirectory async {
+    if (_libraryDirectory != null) {
+      return _libraryDirectory;
+    }
+
+    try {
+      if (isLinux) {
+        _libraryDirectory ??= dataHome;
+        return _libraryDirectory!;
+      } else {
+        return _libraryDirectory ??= await getLibraryDirectory();
+      }
+    } on MissingPlatformDirectoryException {
+      return _libraryDirectory ??= await cacheDirectory;
+    } on MissingPluginException {
+      return null;
+    }
   }
 
   /// Indicates whether the application is in active state.

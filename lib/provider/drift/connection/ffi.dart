@@ -24,6 +24,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
 import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 
+import '/config.dart';
 import '/domain/model/user.dart';
 import '/util/ios_utils.dart';
 import '/util/platform_utils.dart';
@@ -36,7 +37,11 @@ QueryExecutor connect([UserId? userId]) {
     if (PlatformUtils.isIOS) {
       dbFolder = Directory(await IosUtils.getSharedDirectory());
     } else {
-      dbFolder = await getApplicationDocumentsDirectory();
+      dbFolder = Directory(
+        '${(await getLibraryDirectory()).path}/${Config.userAgentProduct}/',
+      );
+
+      print('================ dbFolder -> $dbFolder');
     }
 
     final File file = File(
