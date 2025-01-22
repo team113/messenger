@@ -37,9 +37,9 @@ QueryExecutor connect([UserId? userId]) {
     if (PlatformUtils.isIOS) {
       dbFolder = Directory(await IosUtils.getSharedDirectory());
     } else {
-      dbFolder = Directory(
-        '${(await getLibraryDirectory()).path}/${Config.userAgentProduct}/',
-      );
+      final directory = await PlatformUtils.libraryDirectory ??
+          await getApplicationDocumentsDirectory();
+      dbFolder = Directory('${directory.path}/${Config.userAgentProduct}/');
 
       print('================ dbFolder -> $dbFolder');
     }
