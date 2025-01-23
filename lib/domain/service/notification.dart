@@ -526,7 +526,11 @@ class NotificationService extends DisposableService {
       });
 
       if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
-        _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
+        // CallKit should not be used in China due to restrictions.
+        if (!Platform.localeName.contains('CN')) {
+          _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
+        }
+
         _apns = await FirebaseMessaging.instance.getAPNSToken();
       }
 
