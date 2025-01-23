@@ -32,8 +32,10 @@ import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
+import '/domain/model/native_file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/log.dart';
@@ -61,6 +63,9 @@ class PlatformUtilsImpl {
 
   /// Temporary directory.
   Directory? _temporaryDirectory;
+
+  /// Library directory.
+  Directory? _libraryDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
@@ -309,6 +314,39 @@ class PlatformUtilsImpl {
     _temporaryDirectory =
         Directory('${(await getTemporaryDirectory()).path}${Config.downloads}');
     return _temporaryDirectory!;
+  }
+
+  /// Returns a path to the library directory.
+  ///
+  /// Should be used to put local storage files and caches that aren't temporal.
+  FutureOr<Directory> get libraryDirectory async {
+    if (_libraryDirectory != null) {
+      return _libraryDirectory!;
+    }
+
+    Directory? directory;
+
+    try {
+      if (isLinux) {
+        directory ??= dataHome;
+      } else {
+        directory ??= await getLibraryDirectory();
+      }
+    } on MissingPluginException {
+      directory = Directory('');
+    } catch (_) {
+      directory ??= await cacheDirectory;
+      directory ??= await getApplicationDocumentsDirectory();
+    }
+
+    // Windows already contains both product name and company name in the path.
+    //
+    // Android already contains the bundle identifier in the path.
+    if (PlatformUtils.isWindows || PlatformUtils.isAndroid) {
+      return directory;
+    }
+
+    return Directory('${directory.path}/${Config.userAgentProduct}');
   }
 
   /// Indicates whether the application is in active state.
@@ -628,15 +666,24 @@ class PlatformUtilsImpl {
     List<String>? allowedExtensions,
   }) async {
     try {
+      FileType accounted = type;
+      if (type == FileType.custom && isMobile) {
+        if (allowedExtensions == NativeFile.images) {
+          accounted = FileType.image;
+          allowedExtensions = null;
+        }
+      }
+
       return await FilePicker.platform.pickFiles(
-        type: type,
+        type: accounted,
         allowCompression: allowCompression,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
         withData: withData,
         withReadStream: withReadStream,
         lockParentWindow: lockParentWindow,
-        allowedExtensions: allowedExtensions,
+        allowedExtensions:
+            accounted == FileType.custom ? allowedExtensions : null,
       );
     } on PlatformException catch (e) {
       if (e.code == 'already_active') {
