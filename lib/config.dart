@@ -232,7 +232,7 @@ class Config {
           ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
           : e.name == document['log']?['level'],
       orElse: () =>
-          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
+          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.debug,
     );
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')

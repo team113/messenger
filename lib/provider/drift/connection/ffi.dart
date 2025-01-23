@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:log_me/log_me.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
@@ -37,8 +38,9 @@ QueryExecutor connect([UserId? userId]) {
       dbFolder = Directory(await IosUtils.getSharedDirectory());
     } else {
       dbFolder = await PlatformUtils.libraryDirectory;
-      print('================ dbFolder -> $dbFolder');
     }
+
+    Log.debug('connect() -> `drift` will place its files to `$dbFolder`.');
 
     final File file = File(
       p.join(dbFolder.path, '${userId?.val ?? 'common'}.sqlite'),

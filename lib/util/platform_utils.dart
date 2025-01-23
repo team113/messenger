@@ -315,7 +315,9 @@ class PlatformUtilsImpl {
     return _temporaryDirectory!;
   }
 
-  /// Returns a path to the cache directory.
+  /// Returns a path to the library directory.
+  ///
+  /// Should be used to put local storage files and caches that aren't temporal.
   FutureOr<Directory> get libraryDirectory async {
     if (_libraryDirectory != null) {
       return _libraryDirectory!;
