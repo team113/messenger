@@ -40,7 +40,9 @@ QueryExecutor connect([UserId? userId]) {
       dbFolder = await PlatformUtils.libraryDirectory;
     }
 
-    Log.debug('connect() -> `drift` will place its files to `$dbFolder`.');
+    Log.debug(
+      'connect() -> `drift` will place its files to `${dbFolder.path}`.',
+    );
 
     final File file = File(
       p.join(dbFolder.path, '${userId?.val ?? 'common'}.sqlite'),

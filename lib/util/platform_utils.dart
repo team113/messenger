@@ -329,23 +329,23 @@ class PlatformUtilsImpl {
       if (isLinux) {
         directory ??= dataHome;
       } else {
-        directory = await getLibraryDirectory();
+        directory ??= await getLibraryDirectory();
       }
-    } on UnimplementedError {
-      directory =
-          await cacheDirectory ?? await getApplicationDocumentsDirectory();
-    } on MissingPlatformDirectoryException {
-      directory ??= await cacheDirectory;
     } on MissingPluginException {
       directory = Directory('');
+    } catch (_) {
+      directory ??= await cacheDirectory;
+      directory ??= await getApplicationDocumentsDirectory();
     }
 
     // Windows already contains both product name and company name in the path.
-    if (PlatformUtils.isWindows) {
-      return directory!;
+    //
+    // Android already contains the bundle identifier in the path.
+    if (PlatformUtils.isWindows || PlatformUtils.isAndroid) {
+      return directory;
     }
 
-    return Directory('${directory?.path}/${Config.userAgentProduct}');
+    return Directory('${directory.path}/${Config.userAgentProduct}');
   }
 
   /// Indicates whether the application is in active state.
