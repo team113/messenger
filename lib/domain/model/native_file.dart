@@ -125,8 +125,15 @@ class NativeFile {
   Stream<List<int>>? _mergedStream;
 
   /// Returns the extensions of files considered to be images.
-  static List<String> get images =>
-      ['jpg', 'jpeg', 'png', 'gif', 'jfif', 'svg', 'webp'];
+  static const List<String> images = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'jfif',
+    'svg',
+    'webp'
+  ];
 
   /// Returns an extension of this file.
   String get extension => name.split('.').last;

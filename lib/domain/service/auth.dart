@@ -94,6 +94,13 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  /// Initial [Duration] to set [_refreshRetryDelay] to.
+  static const Duration _initialRetryDelay = Duration(seconds: 2);
+
+  /// Delay between [refreshSession] invokes used to backoff it when failing
+  /// over and over again.
+  Duration _refreshRetryDelay = _initialRetryDelay;
+
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
 
@@ -636,7 +643,8 @@ class AuthService extends DisposableService {
             'refreshSession($userId): `userId` is `null`, unable to proceed',
             '$runtimeType',
           );
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (oldCreds != null) {
@@ -662,7 +670,8 @@ class AuthService extends DisposableService {
             // [Credentials] of another account were refreshed.
             _putCredentials(oldCreds);
           }
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (isLocked) {
@@ -673,7 +682,7 @@ class AuthService extends DisposableService {
 
           if (!_shouldRefresh(oldCreds)) {
             // [Credentials] are fresh.
-            return;
+            return _refreshRetryDelay = _initialRetryDelay;
           }
         } else {
           Log.debug(
@@ -688,7 +697,8 @@ class AuthService extends DisposableService {
           if (areCurrent) {
             router.go(_unauthorized());
           }
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         try {
@@ -708,6 +718,8 @@ class AuthService extends DisposableService {
             await _credentialsProvider.upsert(data);
             _putCredentials(data);
           }
+
+          _refreshRetryDelay = _initialRetryDelay;
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
           Log.debug(
@@ -723,11 +735,13 @@ class AuthService extends DisposableService {
             await _credentialsProvider.delete(oldCreds.userId);
           }
 
+          _refreshRetryDelay = _initialRetryDelay;
           rethrow;
         }
       });
     } on RefreshSessionException catch (_) {
       // No-op, already handled in the callback passed to [WebUtils.protect].
+      _refreshRetryDelay = _initialRetryDelay;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
@@ -735,7 +749,11 @@ class AuthService extends DisposableService {
       );
 
       // If any unexpected exception happens, just retry the mutation.
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(_refreshRetryDelay);
+      if (_refreshRetryDelay.inSeconds < 12) {
+        _refreshRetryDelay = _refreshRetryDelay * 2;
+      }
+
       await refreshSession(userId: userId);
     }
   }

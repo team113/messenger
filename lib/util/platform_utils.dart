@@ -35,6 +35,7 @@ import 'package:window_manager/window_manager.dart';
 import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
+import '/domain/model/native_file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/log.dart';
@@ -665,15 +666,24 @@ class PlatformUtilsImpl {
     List<String>? allowedExtensions,
   }) async {
     try {
+      FileType accounted = type;
+      if (type == FileType.custom && isMobile) {
+        if (allowedExtensions == NativeFile.images) {
+          accounted = FileType.image;
+          allowedExtensions = null;
+        }
+      }
+
       return await FilePicker.platform.pickFiles(
-        type: type,
+        type: accounted,
         allowCompression: allowCompression,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
         withData: withData,
         withReadStream: withReadStream,
         lockParentWindow: lockParentWindow,
-        allowedExtensions: allowedExtensions,
+        allowedExtensions:
+            accounted == FileType.custom ? allowedExtensions : null,
       );
     } on PlatformException catch (e) {
       if (e.code == 'already_active') {
