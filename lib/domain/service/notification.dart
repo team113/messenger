@@ -526,11 +526,7 @@ class NotificationService extends DisposableService {
       });
 
       if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
-        // CallKit should not be used in China due to restrictions.
-        if (!Platform.localeName.contains('CN')) {
-          _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
-        }
-
+        _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
         _apns = await FirebaseMessaging.instance.getAPNSToken();
       }
 
@@ -584,11 +580,14 @@ class NotificationService extends DisposableService {
       );
     }
 
-    if (_voip != null) {
-      futures.add(_graphQlProvider.registerPushDevice(
-        PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-        _language,
-      ));
+    // CallKit should not be used in China due to restrictions.
+    if (!Platform.localeName.contains('CN')) {
+      if (_voip != null) {
+        futures.add(_graphQlProvider.registerPushDevice(
+          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+          _language,
+        ));
+      }
     }
 
     await Future.wait(futures);
