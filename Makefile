@@ -242,6 +242,19 @@ else
 endif
 
 
+# Renames Flutter project bundle IDs.
+#
+# Usage:
+#	make flutter.rename to=<bundle-id>
+#	                    [ios=(yes|no)] [android=(yes|no)]
+#	                    [dockerized=(no|yes)]
+
+flutter.rename:
+	dart run change_app_package_name:main $(to) \
+	$(if $(call eq,$(ios),no),,--ios) \
+	$(if $(call eq,$(android),no),,--android)
+
+
 # Run built project on an attached device or in an emulator.
 #
 # Usage:
@@ -945,7 +958,7 @@ sentry.upload:
         docs.dart \
         fcm.conf \
         flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.pub flutter.run \
+        flutter.pub flutter.rename flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \

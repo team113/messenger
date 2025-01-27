@@ -280,6 +280,9 @@ jobs:
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
 
+      - run: make flutter.rename to=${{ secrets.FCM_BUNDLE_ID }} android=no
+        if: ${{ contains('apk appbundle ipa', matrix.platform) }}
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin  # Temurin is cached on GitHub Actions Runners.
