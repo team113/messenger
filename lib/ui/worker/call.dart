@@ -119,6 +119,8 @@ class CallWorker extends DisposableService {
   /// interface events.
   StreamSubscription? _callKitSubscription;
 
+  /// [GraphQlProvider.chatEvents] subscriptions for each ongoing
+  /// [FlutterCallkitIncoming] call to be notified about their endings.
   final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
 
   /// [Duration] indicating the time after which the push notification should be
