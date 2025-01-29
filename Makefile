@@ -251,8 +251,8 @@ endif
 
 flutter.rename:
 	dart run change_app_package_name:main $(to) \
-	$(if $(call eq,$(ios),no),,--ios) \
-	$(if $(call eq,$(android),no),,--android)
+		$(if $(call eq,$(ios),no),,--ios) \
+		$(if $(call eq,$(android),no),,--android)
 
 
 # Run built project on an attached device or in an emulator.
