@@ -1260,8 +1260,10 @@ mixin UserGraphQlMixin {
       ),
       operationName: query.operationName,
       onException: (data) => RegisterPushDeviceException(
-        RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
-            as RegisterPushDeviceErrorCode,
+        data['registerPushDevice'] == null
+            ? null
+            : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
+                as RegisterPushDeviceErrorCode,
       ),
     );
   }

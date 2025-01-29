@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.3.0...v0.3.1) | [Milestone](/../../milestone/32)
 
+### Added
+
+- iOS:
+    - [VoIP] [CallKit] notifications. ([#1142])
+
 ### Fixed
 
 - UI:
@@ -23,6 +28,7 @@ All user visible changes to this project will be documented in this file. This p
         - Inability to close chat page when writing to it the first time. ([#1158])
         - Members count being bigger than actual members number. ([#1159])
 
+[#1142]: /../../pull/1142
 [#1157]: /../../pull/1157
 [#1158]: /../../pull/1158
 
@@ -1436,7 +1442,9 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+[CallKit]: https://developer.apple.com/documentation/callkit/
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
 [Helm]: https://helm.sh
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
+[VoIP]: https://wikipedia.org/wiki/Voice_over_IP
