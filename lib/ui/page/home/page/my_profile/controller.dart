@@ -490,7 +490,7 @@ class MyProfileController extends GetxController {
   Future<void> uploadAvatar() async {
     try {
       final FilePickerResult? result = await PlatformUtils.pickFiles(
-        type: FileType.custom,
+        type: FileType.image,
         allowedExtensions: NativeFile.images,
         allowMultiple: false,
         withData: true,

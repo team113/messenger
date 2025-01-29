@@ -1411,7 +1411,7 @@ class RegisterPushDeviceException
   const RegisterPushDeviceException(this.code);
 
   /// Reason of why the mutation has failed.
-  final RegisterPushDeviceErrorCode code;
+  final RegisterPushDeviceErrorCode? code;
 
   @override
   String toString() => 'RegisterPushDeviceException($code)';
@@ -1426,6 +1426,8 @@ class RegisterPushDeviceException
       case RegisterPushDeviceErrorCode.occupied:
         return 'err_push_device_occupied'.l10n;
       case RegisterPushDeviceErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case null:
         return 'err_unknown'.l10n;
     }
   }
