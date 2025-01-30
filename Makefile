@@ -246,13 +246,16 @@ endif
 #
 # Usage:
 #	make flutter.rename to=<bundle-id>
+#	                    [from=($(FCM_BUNDLE)|<bundle-id>)]
 #	                    [ios=(yes|no)] [android=(yes|no)]
 #	                    [dockerized=(no|yes)]
 
+rename_from = $(shell echo $(FCM_BUNDLE) | sed "s/\./\\\./g")
+rename_to = $(shell echo $(to) | sed "s/\./\\\./g")
+
 flutter.rename:
-	dart run change_app_package_name:main $(to) \
-		$(if $(call eq,$(ios),no),,--ios) \
-		$(if $(call eq,$(android),no),,--android)
+	rg -l "$(FCM_BUNDLE)" | xargs -I {} \
+		sed -i '' 's/$(rename_from)/$(rename_to)/g' "{}"
 
 
 # Run built project on an attached device or in an emulator.
