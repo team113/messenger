@@ -280,8 +280,9 @@ jobs:
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
 
-      - run: ${{ (runner.os == 'macOS' && 'brew install ripgrep')
-              ||                          'apt-get install ripgrep' }}
+      - run: ${{ (runner.os == 'macOS'
+                  && 'brew install ripgrep')
+              ||     'apt-get update && apt-get install -y ripgrep' }}
         if: ${{ contains('apk appbundle ipa', matrix.platform) }}
       - run: make flutter.rename to=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ipa', matrix.platform) }}
