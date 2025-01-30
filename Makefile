@@ -247,8 +247,6 @@ endif
 # Usage:
 #	make flutter.rename to=<bundle-id>
 #	                    [from=($(FCM_BUNDLE)|<bundle-id>)]
-#	                    [ios=(yes|no)] [android=(yes|no)]
-#	                    [dockerized=(no|yes)]
 
 rename_from = $(shell echo $(FCM_BUNDLE) | sed "s/\./\\\./g")
 rename_to = $(shell echo $(to) | sed "s/\./\\\./g")
