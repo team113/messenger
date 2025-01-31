@@ -55,6 +55,7 @@ class SearchField extends StatelessWidget {
         return CustomAppBar(
           margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
           top: false,
+          borderRadius: style.cardRadius,
           border: state.isFocused.value || !state.isEmpty.value
               ? Border.all(color: style.colors.primary, width: 2)
               : null,

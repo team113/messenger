@@ -95,7 +95,7 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
     final style = Theme.of(context).style;
 
     return Container(
-      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
+      margin: const EdgeInsets.fromLTRB(0, 0, 0, 0),
       decoration: BoxDecoration(
         boxShadow: [
           CustomBoxShadow(
@@ -104,7 +104,6 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
             blurStyle: BlurStyle.outer.workaround,
           ),
         ],
-        borderRadius: style.cardRadius,
         border: style.cardBorder,
       ),
       child: Column(
@@ -112,16 +111,12 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
         children: [
           ConditionalBackdropFilter(
             condition: style.cardBlur > 0,
-            borderRadius: style.cardRadius,
             filter: ImageFilter.blur(
               sigmaX: style.cardBlur,
               sigmaY: style.cardBlur,
             ),
             child: Container(
-              decoration: BoxDecoration(
-                color: style.cardColor,
-                borderRadius: style.cardRadius,
-              ),
+              decoration: BoxDecoration(color: style.cardColor),
               height: CustomNavigationBar.height,
               child: Padding(
                 padding:

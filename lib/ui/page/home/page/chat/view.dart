@@ -45,7 +45,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -137,10 +136,7 @@ class ChatView extends StatelessWidget {
                 leading: [StyledBackButton()],
               ),
               body: const Center(child: CustomProgressIndicator.primary()),
-              bottomNavigationBar: Padding(
-                padding: Insets.dense.copyWith(top: 0),
-                child: _bottomBar(c, context),
-              ),
+              bottomNavigationBar: _bottomBar(c, context),
             );
           }
 
@@ -809,10 +805,7 @@ class ChatView extends StatelessWidget {
                         ),
                       );
                     }),
-                    bottomNavigationBar: Padding(
-                      padding: Insets.dense.copyWith(top: 0),
-                      child: _bottomBar(c, context),
-                    ),
+                    bottomNavigationBar: _bottomBar(c, context),
                   ),
                   IgnorePointer(
                     child: SafeAnimatedSwitcher(

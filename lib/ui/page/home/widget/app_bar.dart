@@ -31,8 +31,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.actions = const [],
     this.padding,
     this.border,
-    this.margin = const EdgeInsets.fromLTRB(8, 4, 8, 0),
+    this.margin = EdgeInsets.zero,
     this.top = true,
+    this.borderRadius,
   });
 
   /// Primary centered [Widget] of this [CustomAppBar].
@@ -56,6 +57,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Indicator whether [SafeArea.top] padding should be applied.
   final bool top;
 
+  final BorderRadius? borderRadius;
+
   /// Height of the [CustomAppBar].
   static const double height = 60;
 
@@ -71,65 +74,50 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       topPadding = MediaQuery.of(context).padding.top;
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (topPadding != 0)
-          Container(
-            height: topPadding,
-            width: double.infinity,
-            color: style.colors.transparent,
+    return Padding(
+      padding: margin.add(EdgeInsets.only(top: topPadding)),
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          boxShadow: [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: style.colors.onBackgroundOpacity13,
+              blurStyle: BlurStyle.outer.workaround,
+            ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
           ),
-        Expanded(
-          child: Padding(
-            padding: margin,
-            child: Container(
-              height: height,
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                    blurStyle: BlurStyle.outer.workaround,
-                  ),
-                ],
-              ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
-                ),
-                borderRadius: style.cardRadius,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  decoration: BoxDecoration(
-                    borderRadius: style.cardRadius,
-                    border: border ?? style.cardBorder,
-                    color: style.cardColor,
-                  ),
-                  padding: padding,
-                  child: Row(
-                    children: [
-                      ...leading,
-                      Expanded(
-                        child: DefaultTextStyle.merge(
-                          style: style.fonts.large.regular.onBackground,
-                          child: Center(
-                            child: title ?? const SizedBox.shrink(),
-                          ),
-                        ),
-                      ),
-                      ...actions,
-                    ],
+          borderRadius: borderRadius,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            decoration: BoxDecoration(
+              borderRadius: borderRadius,
+              border: border ?? style.cardBorder,
+              color: style.cardColor,
+            ),
+            padding: padding,
+            child: Row(
+              children: [
+                ...leading,
+                Expanded(
+                  child: DefaultTextStyle.merge(
+                    style: style.fonts.large.regular.onBackground,
+                    child: Center(child: title ?? const SizedBox.shrink()),
                   ),
                 ),
-              ),
+                ...actions,
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 }

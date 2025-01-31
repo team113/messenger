@@ -277,27 +277,27 @@ class Themes {
         floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.primary),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
       ),

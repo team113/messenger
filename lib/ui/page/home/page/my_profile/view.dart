@@ -1090,13 +1090,19 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                   ),
                   editOrDelete,
                 ],
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                  child: WelcomeFieldView(
-                    key: c.welcomeFieldKey,
-                    fieldKey: const Key('WelcomeMessageField'),
-                    sendKey: const Key('PostWelcomeMessage'),
-                    controller: c.welcome,
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(13),
+                    bottomRight: Radius.circular(13),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: WelcomeFieldView(
+                      key: c.welcomeFieldKey,
+                      fieldKey: const Key('WelcomeMessageField'),
+                      sendKey: const Key('PostWelcomeMessage'),
+                      controller: c.welcome,
+                    ),
                   ),
                 ),
               ],
