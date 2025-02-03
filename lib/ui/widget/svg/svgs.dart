@@ -1880,4 +1880,16 @@ class SvgIcons {
     width: 32.04,
     height: 33.5,
   );
+
+  static const SvgData notesSmall = SvgData(
+    'assets/icons/notes_small.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData notesSmallWhite = SvgData(
+    'assets/icons/notes_small_white.svg',
+    width: 19,
+    height: 19,
+  );
 }

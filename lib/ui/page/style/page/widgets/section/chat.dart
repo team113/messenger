@@ -36,6 +36,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_forward.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/page/chat/widget/time_label.dart';
 import '/ui/page/home/page/chat/widget/unread_label.dart';
 
@@ -474,6 +475,11 @@ class ChatSection {
             const SizedBox(height: 32),
           ],
         ),
+      ),
+      Headline(
+        headline: 'NotesBlock',
+        background: style.colors.onBackgroundOpacity7,
+        child: const Column(children: [NotesBlock()]),
       ),
     ];
   }

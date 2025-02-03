@@ -123,28 +123,20 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.groupCreating.value) {
-                      child = Theme(
-                        data: MessageFieldView.theme(context),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Transform.translate(
-                            offset: const Offset(0, 1),
-                            child: ReactiveTextField(
-                              state: c.groupName,
-                              hint: 'label_group_name'.l10n,
-                              maxLines: 1,
-                              filled: false,
-                              dense: true,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.fonts.medium.regular.onBackground,
-                            ),
-                          ),
+                      child = Align(
+                        key: const Key('4'),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'btn_create_group'.l10n,
                         ),
                       );
                     } else if (c.selecting.value) {
-                      child = Text(
-                        'btn_select_and_delete'.l10n,
+                      child = Align(
                         key: const Key('3'),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'btn_select_and_delete'.l10n,
+                        ),
                       );
                     } else {
                       final Widget synchronization;
@@ -286,142 +278,130 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
-                      Widget? child;
-
-                      if (c.searching.value) {
-                        if (c.search.value?.search.isEmpty.value == false) {
-                          child = const SvgIcon(
-                            SvgIcons.clearSearch,
-                            key: Key('CloseSearch'),
-                          );
-                        } else {
-                          child = const SvgIcon(
-                            SvgIcons.closePrimary,
-                            key: Key('CloseSearch'),
-                          );
-                        }
-                      } else {
-                        if (c.groupCreating.value || c.selecting.value) {
-                          child = const SvgIcon(
-                            SvgIcons.closePrimary,
-                            key: Key('CloseGroupSearching'),
-                          );
-                        }
-                      }
-
-                      if (child != null) {
-                        return AnimatedButton(
-                          key: c.searching.value
-                              ? const Key('CloseSearchButton')
-                              : c.selecting.value
-                                  ? const Key('CloseSelectingButton')
-                                  : null,
-                          onPressed: () {
-                            if (c.searching.value) {
-                              if (c.search.value?.search.isEmpty.value ==
-                                  false) {
-                                c.search.value?.search.clear();
-                                c.search.value?.query.value = '';
-                                c.search.value?.search.focus.requestFocus();
-                              } else {
-                                c.closeSearch();
-                              }
-                            } else if (c.selecting.value) {
-                              c.toggleSelecting();
-                            } else if (c.groupCreating.value) {
-                              c.closeGroupCreating();
-                            }
-                          },
+                      final Widget moreButton = ContextMenuRegion(
+                        key: const Key('ChatsMenu'),
+                        selector: c.moreKey,
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        enableSecondaryTap: false,
+                        enableLongTap: false,
+                        margin: const EdgeInsets.only(bottom: 4, right: 0),
+                        actions: [
+                          ContextMenuButton(
+                            key: const Key('SelectChatsButton'),
+                            label: 'btn_select_and_delete'.l10n,
+                            onPressed: c.toggleSelecting,
+                            trailing: const SvgIcon(SvgIcons.select),
+                            inverted: const SvgIcon(SvgIcons.selectWhite),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_create_group'.l10n,
+                            onPressed: c.startGroupCreating,
+                            trailing: const SvgIcon(SvgIcons.group),
+                            inverted: const SvgIcon(SvgIcons.groupWhite),
+                          ),
+                          ContextMenuDivider(),
+                          ContextMenuButton(
+                            label: 'label_chat_monolog'.l10n,
+                            onPressed: () => router.chat(c.monolog),
+                            trailing: const SvgIcon(SvgIcons.notesSmall),
+                            inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+                          ),
+                        ],
+                        child: AnimatedButton(
                           decorator: (child) {
                             return Container(
-                              padding:
-                                  const EdgeInsets.only(left: 12, right: 16),
+                              key: c.moreKey,
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 18,
+                              ),
                               height: double.infinity,
-                              child: child,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  10,
+                                  0,
+                                  10,
+                                  0,
+                                ),
+                                child: child,
+                              ),
                             );
                           },
-                          child: SizedBox(
-                            width: 29.17,
-                            child: SafeAnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            ),
+                          child: const SvgIcon(SvgIcons.more),
+                        ),
+                      );
+
+                      final Widget closeSearch = AnimatedButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : c.selecting.value
+                                ? const Key('CloseSelectingButton')
+                                : null,
+                        onPressed: () {
+                          if (c.searching.value) {
+                            if (c.search.value?.search.isEmpty.value == false) {
+                              c.search.value?.search.clear();
+                              c.search.value?.query.value = '';
+                              c.search.value?.search.focus.requestFocus();
+                            } else {
+                              c.closeSearch();
+                            }
+                          } else if (c.selecting.value) {
+                            c.toggleSelecting();
+                          } else if (c.groupCreating.value) {
+                            c.closeGroupCreating();
+                          }
+                        },
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 9, right: 16),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
+                        child: SizedBox(
+                          width: 29.17,
+                          child: SafeAnimatedSwitcher(
+                            duration: 250.milliseconds,
+                            child: c.search.value?.search.isEmpty.value == false
+                                ? const SvgIcon(
+                                    SvgIcons.clearSearch,
+                                    key: Key('ClearSearch'),
+                                  )
+                                : const SvgIcon(
+                                    SvgIcons.closePrimary,
+                                    key: Key('CloseSearch'),
+                                  ),
                           ),
-                        );
-                      }
+                        ),
+                      );
+
+                      final Widget searchButton = AnimatedButton(
+                        key: const Key('SearchButton'),
+                        onPressed: () => c.startSearch(),
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
+                        child: const SvgIcon(SvgIcons.search),
+                      );
 
                       return Row(
                         children: [
-                          // TODO: Uncomment, when contacts are implemented.
-                          // AnimatedButton(
-                          //   key: const Key('ContactsButton'),
-                          //   onPressed: () => router.tab = HomeTab.contacts,
-                          //   decorator: (child) {
-                          //     return Container(
-                          //       padding:
-                          //           const EdgeInsets.only(left: 20, right: 12),
-                          //       height: double.infinity,
-                          //       child: child,
-                          //     );
-                          //   },
-                          //   child: const SvgIcon(SvgIcons.contactsSwitch),
-                          // ),
-
-                          AnimatedButton(
-                            key: const Key('SearchButton'),
-                            onPressed: () => c.startSearch(),
-                            decorator: (child) {
-                              return Container(
-                                padding:
-                                    const EdgeInsets.only(left: 20, right: 12),
-                                height: double.infinity,
-                                child: child,
-                              );
-                            },
-                            child: const SvgIcon(SvgIcons.search),
-                          ),
-                          ContextMenuRegion(
-                            key: const Key('ChatsMenu'),
-                            selector: c.moreKey,
-                            alignment: Alignment.topRight,
-                            enablePrimaryTap: true,
-                            enableSecondaryTap: false,
-                            enableLongTap: false,
-                            margin: const EdgeInsets.only(bottom: 4, right: 0),
-                            actions: [
-                              ContextMenuButton(
-                                label: 'btn_create_group'.l10n,
-                                onPressed: c.startGroupCreating,
-                                trailing: const SvgIcon(SvgIcons.group),
-                                inverted: const SvgIcon(SvgIcons.groupWhite),
-                              ),
-                              ContextMenuButton(
-                                key: const Key('SelectChatsButton'),
-                                label: 'btn_select_and_delete'.l10n,
-                                onPressed: c.toggleSelecting,
-                                trailing: const SvgIcon(SvgIcons.select),
-                                inverted: const SvgIcon(SvgIcons.selectWhite),
-                              ),
-                            ],
-                            child: AnimatedButton(
-                              decorator: (child) {
-                                return Container(
-                                  key: c.moreKey,
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 18,
-                                  ),
-                                  height: double.infinity,
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: const SvgIcon(SvgIcons.more),
-                            ),
-                          ),
+                          if (c.selecting.value) ...[
+                            if (!c.searching.value) searchButton,
+                            closeSearch,
+                          ] else if (c.groupCreating.value) ...[
+                            if (!c.searching.value) searchButton,
+                            closeSearch,
+                          ] else ...[
+                            if (!c.searching.value) searchButton,
+                            if (c.searching.value) closeSearch else moreButton,
+                          ],
                         ],
                       );
                     }),

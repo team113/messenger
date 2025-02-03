@@ -68,7 +68,6 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -124,9 +123,6 @@ class ChatsTabController extends GetxController {
   ///
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
-
-  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
-  final TextFieldState groupName = TextFieldState();
 
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
@@ -195,6 +191,10 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether the current device is connected to any network.
   RxBool get connected => _sessionService.connected;
+
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatService.monolog;
 
   @override
   void onInit() {
@@ -629,7 +629,6 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
-    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -647,7 +646,6 @@ class ChatsTabController extends GetxController {
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: ChatName.tryParse(groupName.text),
       );
 
       router.dialog(chat.chat.value, me);

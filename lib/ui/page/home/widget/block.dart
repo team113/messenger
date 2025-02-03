@@ -26,6 +26,7 @@ class Block extends StatelessWidget {
   const Block({
     super.key,
     this.title,
+    this.titleStyle,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.expanded,
@@ -39,6 +40,8 @@ class Block extends StatelessWidget {
 
   /// Optional header of this [Block].
   final String? title;
+
+  final TextStyle? titleStyle;
 
   /// Optional headline of this [Block].
   final String? headline;
@@ -129,7 +132,8 @@ class Block extends StatelessWidget {
                               child: Text(
                                 title!,
                                 textAlign: TextAlign.center,
-                                style: style.fonts.big.regular.onBackground,
+                                style: titleStyle ??
+                                    style.fonts.big.regular.onBackground,
                               ),
                             ),
                           ),
