@@ -273,9 +273,9 @@ jobs:
           cache: true
       - run: brew install ripgrep
         if: ${{ matrix.platform == 'ipa' }}
-      - run: apt-get update
+      - run: sudo apt-get update
         if: ${{ contains('apk appbundle', matrix.platform) }}
-      - run: apt-get install -y ripgrep
+      - run: sudo apt-get install -y ripgrep
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
       - run: make flutter.pub
