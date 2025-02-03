@@ -25,6 +25,7 @@ class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     this.title = '',
+    this.style,
     this.onPressed,
   });
 
@@ -33,6 +34,8 @@ class PrimaryButton extends StatelessWidget {
 
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
+
+  final TextStyle? style;
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +49,10 @@ class PrimaryButton extends StatelessWidget {
         title,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        style: onPressed == null
-            ? style.fonts.medium.regular.onBackground
-            : style.fonts.medium.regular.onPrimary,
+        style: this.style ??
+            (onPressed == null
+                ? style.fonts.medium.regular.onBackground
+                : style.fonts.medium.regular.onPrimary),
       ),
     );
   }

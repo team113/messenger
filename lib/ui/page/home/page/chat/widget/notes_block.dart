@@ -5,9 +5,10 @@ import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 
 class NotesBlock extends StatelessWidget {
-  const NotesBlock({super.key, this.title});
+  const NotesBlock({super.key, this.info = false});
+  const NotesBlock.info({super.key}) : info = true;
 
-  final String? title;
+  final bool info;
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class NotesBlock extends StatelessWidget {
     return Block(
       crossAxisAlignment: CrossAxisAlignment.start,
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-      title: title ?? 'label_chat_monolog'.l10n,
+      title: info ? 'label_info'.l10n : 'label_chat_monolog'.l10n,
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
         Text(

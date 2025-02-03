@@ -33,6 +33,7 @@ class Block extends StatelessWidget {
     this.padding = defaultPadding,
     this.margin = defaultMargin,
     this.children = const [],
+    this.overlay = const [],
     this.background,
     this.headline,
     this.maxWidth = 400,
@@ -66,6 +67,8 @@ class Block extends StatelessWidget {
 
   /// [Widget]s to display.
   final List<Widget> children;
+
+  final List<Widget> overlay;
 
   /// Optional background [Color] of this [Block].
   final Color? background;
@@ -149,6 +152,7 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(headline!, style: _headlineStyle(context)),
                   ),
+                ...overlay,
               ],
             ),
           ),
