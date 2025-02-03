@@ -102,6 +102,9 @@ class NotificationService extends DisposableService {
   /// successfully configured.
   bool get pushNotifications => _pushNotifications;
 
+  /// Indicator whether this device's [Locale] contains a China country code.
+  bool get _isChina => !Platform.localeName.contains('CN');
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
@@ -581,7 +584,7 @@ class NotificationService extends DisposableService {
     }
 
     // CallKit should not be used in China due to restrictions.
-    if (!Platform.localeName.contains('CN')) {
+    if (_isChina) {
       if (_voip != null) {
         futures.add(_graphQlProvider.registerPushDevice(
           PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),

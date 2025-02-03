@@ -35,7 +35,6 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/chat/widget/chat_subtitle.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -521,8 +520,6 @@ class ChatInfoView extends StatelessWidget {
   /// Returns information about the [Chat] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     // [SvgIcons.more] buttons with its [ContextMenuRegion].
     final Widget moreButton = Obx(key: const Key('MoreButton'), () {
       final bool favorite = c.chat?.chat.value.favoritePosition != null;
@@ -605,55 +602,9 @@ class ChatInfoView extends StatelessWidget {
       );
     });
 
-    final Widget title = Row(
-      children: [
-        const StyledBackButton(),
-        AvatarWidget.fromRxChat(c.chat, radius: AvatarRadius.medium),
-        const SizedBox(width: 10),
-        Flexible(
-          child: DefaultTextStyle.merge(
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Obx(() {
-                  return Row(
-                    children: [
-                      Flexible(
-                        child: Text(
-                          c.chat!.title,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                          style: style.fonts.big.regular.onBackground,
-                        ),
-                      ),
-                      Obx(() {
-                        if (c.chat?.chat.value.muted == null) {
-                          return const SizedBox();
-                        }
-
-                        return const Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: SvgIcon(SvgIcons.muted),
-                        );
-                      }),
-                    ],
-                  );
-                }),
-                ChatSubtitle(c.chat!, c.me),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(width: 10),
-      ],
-    );
-
     return Row(
       children: [
-        Expanded(child: title),
+        Expanded(child: const StyledBackButton(withLabel: true)),
         const SizedBox(width: 8),
         AnimatedButton(
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),

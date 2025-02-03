@@ -17,6 +17,7 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:base_x/base_x.dart';
 import 'package:flutter/services.dart';
@@ -140,8 +141,12 @@ class CallWorker extends DisposableService {
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
 
+  /// Indicator whether this device's [Locale] contains a China country code.
+  bool get _isChina => !Platform.localeName.contains('CN');
+
   /// Indicates whether [FlutterCallkitIncoming] should be considered active.
-  bool get _isCallKit => PlatformUtils.isIOS && !PlatformUtils.isWeb;
+  bool get _isCallKit =>
+      PlatformUtils.isIOS && !PlatformUtils.isWeb && !_isChina;
 
   @override
   void onInit() {
