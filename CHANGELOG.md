@@ -6,7 +6,7 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.3.1] · 2024-??-??
+## [0.3.1] · 2025-02-03
 [0.3.1]: /../../tree/v0.3.1
 
 [Diff](/../../compare/v0.3.0...v0.3.1) | [Milestone](/../../milestone/32)
@@ -31,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1142]: /../../pull/1142
 [#1157]: /../../pull/1157
 [#1158]: /../../pull/1158
+[#1159]: /../../pull/1159
 
 
 
