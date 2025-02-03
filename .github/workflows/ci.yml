@@ -271,6 +271,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+      - run: brew install ripgrep
+        if: ${{ matrix.platform == 'ipa' }}
+      - run: apt-get update
+        if: ${{ contains('apk appbundle', matrix.platform) }}
+      - run: apt-get install -y ripgrep
+        if: ${{ contains('apk appbundle', matrix.platform) }}
 
       - run: make flutter.pub
 
@@ -280,11 +286,7 @@ jobs:
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
 
-      - run: ${{ (runner.os == 'macOS'
-                  && 'brew install ripgrep')
-              ||     'sudo apt-get update && sudo apt-get install -y ripgrep' }}
-        if: ${{ contains('apk appbundle ipa', matrix.platform) }}
-      - run: make flutter.rename to=${{ secrets.FCM_BUNDLE_ID }}
+      - run: make flutter.bundle.rename to=${{ secrets.FCM_BUNDLE_ID }}
         if: ${{ contains('apk appbundle ipa', matrix.platform) }}
 
       - uses: actions/setup-java@v4
