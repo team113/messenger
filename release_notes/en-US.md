@@ -1,3 +1,5 @@
-- Added avatar cropping to profile page.
-- Added images and files pasting from clipboard in chat.
-- Added images and files drag-n-drop in chats tab.
+- Fixed away badges being displayed on avatars with invalid sizes.
+- Fixed inability to crop SVG images in avatar cropping modal.
+- Fixed initial cropping area being smaller than image's size.
+- Fixed inability to close chat page when writing to it the first time.
+- Fixed members count being bigger than actual members number.
