@@ -39,6 +39,7 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  /// Callback, called when this [child] is pressed up with the [TapUpDetails].
   final void Function(TapUpDetails)? onPressedWithDetails;
 
   /// Callback, called when the [child] is long-pressed.

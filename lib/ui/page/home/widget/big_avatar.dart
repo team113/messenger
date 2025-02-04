@@ -99,11 +99,13 @@ class BigAvatarWidget extends StatefulWidget {
   /// Callback, called when edit of [Avatar] is required.
   final void Function()? onEdit;
 
+  /// Builder building the [AvatarWidget] itself.
   final Widget Function(Widget) builder;
 
   /// [_BigAvatarMode] of this [BigAvatarWidget].
   final _BigAvatarMode _mode;
 
+  /// Returns the [child].
   static Widget _defaultBuilder(Widget child) => child;
 
   @override

@@ -38,6 +38,7 @@ class RectangleButton extends StatelessWidget {
   /// Label of this [RectangleButton].
   final String? label;
 
+  /// [Widget] to display inside this [RectangleButton] instead of the [label].
   final Widget? child;
 
   /// Indicator whether this [RectangleButton] is selected, meaning an

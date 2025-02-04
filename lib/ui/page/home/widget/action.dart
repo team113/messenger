@@ -40,6 +40,8 @@ class ActionButton extends StatelessWidget {
   /// Callback, called when this [ActionButton] is pressed.
   final void Function()? onPressed;
 
+  /// Indicator whether this [ActionButton] should be displayed in a danger
+  /// (destructive) style.
   final bool danger;
 
   @override

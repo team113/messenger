@@ -853,6 +853,7 @@ class Palette {
   /// Used as the muted indicator background in calls.
   final Color secondaryOpacity40;
 
+  /// Lighter variation of the [secondary] color.
   final Color secondaryLight;
 
   /// Background [Color] of the [secondary] elements.

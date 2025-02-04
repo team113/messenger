@@ -102,6 +102,8 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool nameEditing = RxBool(false);
 
+  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
+  /// enabled.
   final RxBool profileEditing = RxBool(false);
 
   /// [Chat.name] field state.
@@ -120,8 +122,16 @@ class ChatInfoController extends GetxController {
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
 
+  /// [CropAreaInput] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
   final Rx<CropAreaInput?> avatarCrop = Rx(null);
+
+  /// [NativeFile] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
   final Rx<NativeFile?> avatarImage = Rx(null);
+
+  /// Indicator whether the currently edited [ChatAvatar] should be deleted in
+  /// [submitAvatar].
   final RxBool avatarDeleted = RxBool(false);
 
   /// [Chat]s service used to get the [chat] value.
@@ -181,6 +191,7 @@ class ChatInfoController extends GetxController {
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
 
+  /// Indicates whether the [Chat.avatar] and [Chat.name] can be edited.
   bool get canEdit => !isMonolog;
 
   @override
@@ -495,6 +506,8 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Uploads the current edits ([avatarCrop], [avatarImage] and
+  /// [avatarDeleted]).
   Future<void> submitAvatar() async {
     if (avatarCrop.value != null ||
         avatarImage.value != null ||
@@ -544,6 +557,7 @@ class ChatInfoController extends GetxController {
     avatarDeleted.value = false;
   }
 
+  /// Exits the [profileEditing].
   void closeEditing() {
     profileEditing.value = false;
     avatarCrop.value = null;

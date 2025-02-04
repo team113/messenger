@@ -17,8 +17,8 @@
 
 import 'package:flutter/material.dart';
 
-import '../page/home/widget/field_button.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Primary styled [OutlinedRoundedButton].
@@ -37,8 +37,11 @@ class PrimaryButton extends StatelessWidget {
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
 
+  /// [TextStyle] of the [title] of this [PrimaryButton].
   final TextStyle? style;
 
+  /// Indicator whether this [PrimaryButton] should be displayed in a danger
+  /// (destructive) style.
   final bool danger;
 
   @override

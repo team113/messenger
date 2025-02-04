@@ -22,8 +22,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../controller.dart';
-import '../widget/notes_block.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -33,8 +31,10 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
+import '/ui/page/home/page/chat//controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -130,6 +130,7 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
+  /// Builds the profile [Block] with editing functionality.
   Widget _profile(ChatInfoController c, BuildContext context) {
     final style = Theme.of(context).style;
 

@@ -50,6 +50,7 @@ class FloatingSnackBar extends StatefulWidget {
   /// Bottom margin to apply to this [FloatingSnackBar].
   final double bottom;
 
+  /// [Offset] to display this [FloatingSnackBar] at.
   final Offset? at;
 
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].

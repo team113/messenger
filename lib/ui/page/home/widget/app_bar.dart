@@ -57,6 +57,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   /// Indicator whether [SafeArea.top] padding should be applied.
   final bool top;
 
+  /// [BorderRadius] to display the borders of this [CustomAppBar] with.
   final BorderRadius? borderRadius;
 
   /// Height of the [CustomAppBar].

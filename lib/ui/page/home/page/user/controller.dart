@@ -601,6 +601,7 @@ extension UserViewExt on User {
     }
   }
 
+  /// Returns the string representation of this [User] to display as a subtitle.
   String? getSubtitle([PreciseDateTime? lastSeen]) {
     switch (presence) {
       case Presence.present:

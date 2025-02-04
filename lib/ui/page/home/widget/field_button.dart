@@ -43,6 +43,7 @@ class FieldButton extends StatefulWidget {
   /// Optional label of this [FieldButton].
   final String? text;
 
+  /// [Widget] to display inside this [FieldButton] instead of [text].
   final Widget? child;
 
   /// [TextAlign] of the [text].
@@ -77,6 +78,8 @@ class FieldButton extends StatefulWidget {
   /// Indicator whether the [text] should have danger color.
   final bool danger;
 
+  /// [BorderSide] to display around this [FieldButton] instead of the
+  /// dynamically determined one.
   final BorderSide? border;
 
   @override

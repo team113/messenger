@@ -1129,9 +1129,6 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
         key: const Key('ShowBlocklist'),
         text: 'label_users_count'.l10nfmt({'count': count}),
         onPressed: count == 0 ? null : () => BlocklistView.show(context),
-        // style: count == 0
-        //     ? style.fonts.normal.regular.onBackground
-        //     : style.fonts.normal.regular.primary,
       ),
     );
   });

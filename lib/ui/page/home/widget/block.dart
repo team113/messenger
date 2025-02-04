@@ -42,6 +42,7 @@ class Block extends StatelessWidget {
   /// Optional header of this [Block].
   final String? title;
 
+  /// Optional [TextStyle] to display the [title] with.
   final TextStyle? titleStyle;
 
   /// Optional headline of this [Block].
@@ -68,6 +69,9 @@ class Block extends StatelessWidget {
   /// [Widget]s to display.
   final List<Widget> children;
 
+  /// [Widget]s to display in a [Stack] with this [Block].
+  ///
+  /// [Positioned] may safely be used in the list.
   final List<Widget> overlay;
 
   /// Optional background [Color] of this [Block].
