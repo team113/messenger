@@ -173,6 +173,21 @@ else
 endif
 
 
+# Renames Flutter project bundle IDs.
+#
+# Usage:
+#	make flutter.bundle.rename to=<bundle-id>
+#	                           [from=($(FCM_BUNDLE)|<bundle-id>)]
+
+flutter-bundle-rename-from = $(shell echo $(FCM_BUNDLE) | sed "s/\./\\\./g")
+flutter-bundle-rename-to = $(shell echo $(to) | sed "s/\./\\\./g")
+
+flutter.bundle.rename:
+	rg -l "$(FCM_BUNDLE)" \
+	| xargs -I {} sed -i '' \
+		's/$(flutter-bundle-rename-from)/$(flutter-bundle-rename-to)/g' "{}"
+
+
 # Clean all Flutter dependencies and generated files.
 #
 # Usage:
@@ -944,8 +959,8 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.pub flutter.run \
+        flutter.analyze flutter.build flutter.bundle.rename flutter.clean \
+        flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \
