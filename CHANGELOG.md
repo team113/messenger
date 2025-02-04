@@ -16,7 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Home page:
         - Updated app bar and navigation panel to be of rectangular shape. ([#1164])
+        - Updated group creating and chats selecting UX. ([#1164])
     - Updated chat info page editing and overall design. ([#1164])
+    - Updated user page design. ([#1164])
+    - Chat page:
+        - Updated monolog chat description. ([#1164])
 
 [#1164]: /../../pull/1164
 

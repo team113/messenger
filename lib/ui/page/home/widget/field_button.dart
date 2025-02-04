@@ -98,7 +98,7 @@ class _FieldButtonState extends State<FieldButton> {
               : widget.warning
                   ? style.colors.primary
                   : style.colors.onPrimary,
-          disabled: style.colors.onPrimary,
+          disabled: style.colors.secondaryHighlight,
           onPressed: widget.onPressed,
           style: widget.style ??
               style.fonts.normal.regular.onBackground.copyWith(

@@ -32,6 +32,7 @@ class FloatingSnackBar extends StatefulWidget {
     this.onEnd,
     this.onPressed,
     this.bottom = 16,
+    this.at,
   });
 
   /// Content to display in this [FloatingSnackBar].
@@ -49,12 +50,15 @@ class FloatingSnackBar extends StatefulWidget {
   /// Bottom margin to apply to this [FloatingSnackBar].
   final double bottom;
 
+  final Offset? at;
+
   /// Displays a [FloatingSnackBar] in a [Overlay] with the provided [title].
   static void show(
     String title, {
     double bottom = 16,
     Duration duration = const Duration(seconds: 2),
     void Function()? onPressed,
+    Offset? at,
   }) {
     final style = Theme.of(router.context!).style;
 
@@ -71,6 +75,7 @@ class FloatingSnackBar extends StatefulWidget {
           entry = null;
         },
         bottom: bottom,
+        at: at,
         child: Text(
           title,
           style: onPressed == null
@@ -113,12 +118,19 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
   Widget build(BuildContext context) {
     final style = Theme.of(router.context!).style;
 
+    Offset? at = widget.at;
+    if (at == null) {
+      final Size size = MediaQuery.of(context).size;
+      at = Offset(size.width / 2, size.height - 32 - widget.bottom * 2);
+    }
+
     return Stack(
       children: [
         Positioned(
-          bottom: widget.bottom,
-          width: MediaQuery.of(context).size.width,
-          child: Center(
+          left: at.dx,
+          top: at.dy + widget.bottom,
+          child: FractionalTranslation(
+            translation: const Offset(-0.5, 0),
             child: GestureDetector(
               onTap: () {
                 widget.onPressed?.call();

@@ -28,14 +28,17 @@ class RectangleButton extends StatelessWidget {
     super.key,
     this.selected = false,
     this.onPressed,
-    required this.label,
+    this.label,
+    this.child,
     this.trailingColor,
     this.radio = false,
     this.toggleable = false,
   });
 
   /// Label of this [RectangleButton].
-  final String label;
+  final String? label;
+
+  final Widget? child;
 
   /// Indicator whether this [RectangleButton] is selected, meaning an
   /// [Icons.check] should be displayed in a trailing.
@@ -70,13 +73,13 @@ class RectangleButton extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  label,
+                child: DefaultTextStyle(
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: selected && !radio
                       ? style.fonts.normal.regular.onPrimary
                       : style.fonts.normal.regular.onBackground,
+                  child: child ?? Text(label ?? ''),
                 ),
               ),
               const SizedBox(width: 12),

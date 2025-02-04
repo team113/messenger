@@ -1121,8 +1121,6 @@ Widget _language(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.blocklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Obx(() {
     final int count = c.myUser.value?.blocklistCount ?? 0;
 
@@ -1131,9 +1129,9 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
         key: const Key('ShowBlocklist'),
         text: 'label_users_count'.l10nfmt({'count': count}),
         onPressed: count == 0 ? null : () => BlocklistView.show(context),
-        style: count == 0
-            ? style.fonts.normal.regular.onBackground
-            : style.fonts.normal.regular.primary,
+        // style: count == 0
+        //     ? style.fonts.normal.regular.onBackground
+        //     : style.fonts.normal.regular.primary,
       ),
     );
   });
@@ -1465,83 +1463,81 @@ Widget _legal(BuildContext context, MyProfileController c) {
 Widget _bar(MyProfileController c, BuildContext context) {
   final style = Theme.of(context).style;
 
-  return Obx(() {
-    final Widget title;
+  final Widget title;
 
-    if (c.displayName.value && context.isNarrow) {
-      title = Row(
-        children: [
-          const SizedBox(width: 4),
-          const StyledBackButton(),
-          Center(
+  if (context.isNarrow) {
+    title = Row(
+      children: [
+        const SizedBox(width: 4),
+        const StyledBackButton(),
+        Center(
+          child: Obx(() {
+            return AvatarWidget.fromMyUser(
+              c.myUser.value,
+              radius: AvatarRadius.medium,
+            );
+          }),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             child: Obx(() {
-              return AvatarWidget.fromMyUser(
-                c.myUser.value,
-                radius: AvatarRadius.medium,
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    c.myUser.value?.name?.val ??
+                        c.myUser.value?.num.toString() ??
+                        'dot'.l10n * 3,
+                    style: style.fonts.big.regular.onBackground,
+                  ),
+                  Text(
+                    'label_online'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
               );
             }),
           ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: Obx(() {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      c.myUser.value?.name?.val ??
-                          c.myUser.value?.num.toString() ??
-                          'dot'.l10n * 3,
-                      style: style.fonts.big.regular.onBackground,
-                    ),
-                    Text(
-                      'label_online'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      );
-    } else {
-      title = Row(
-        key: const Key('Profile'),
-        children: [
-          const SizedBox(width: 4),
-          const StyledBackButton(),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(
-                child: Text(
-                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
-                ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  } else {
+    title = Row(
+      key: const Key('Profile'),
+      children: [
+        const SizedBox(width: 4),
+        const StyledBackButton(),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+            child: Center(
+              child: Text(
+                router.profileSection.value?.l10n ?? 'label_profile'.l10n,
               ),
             ),
           ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        Expanded(
-          child: SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: title,
-          ),
         ),
-        const SizedBox(width: 52),
       ],
     );
-  });
+  }
+
+  return Row(
+    children: [
+      Expanded(
+        child: SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: title,
+        ),
+      ),
+      const SizedBox(width: 52),
+    ],
+  );
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

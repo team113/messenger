@@ -432,6 +432,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.7"
+  expandable_text:
+    dependency: "direct main"
+    description:
+      name: expandable_text
+      sha256: "7d03ea48af6987b20ece232678b744862aa3250d4a71e2aaf1e4af90015d76b1"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.3.0"
   fake_async:
     dependency: transitive
     description:
@@ -1273,10 +1281,10 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: "2ba1d60cd7b5f43d6263c91e5782a7bc94ca866ce66ddfdc9be42b2b85d001b7"
+      sha256: a438e92b204738d6eaa53eeab67aeba28b1e88c61d66e4c25fb3f1486daf5593
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.1"
+    version: "0.12.2"
   medea_jason:
     dependency: "direct main"
     description:

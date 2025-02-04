@@ -1479,6 +1479,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData blockSmallRed = SvgData(
+    'assets/icons/block_red.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,

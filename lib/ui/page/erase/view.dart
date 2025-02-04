@@ -25,7 +25,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/block.dart';
-import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/paddings.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
@@ -33,6 +32,7 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/get.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'confirm_delete/view.dart';
 import 'controller.dart';
 
@@ -47,28 +47,48 @@ class EraseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       key: const Key('EraseView'),
       init: EraseController(Get.find(), Get.findOrNull<MyUserService>()),
       builder: (EraseController c) {
-        return Scaffold(
-          appBar: CustomAppBar(
-            leading: const [StyledBackButton()],
-            title: Text('label_personal_data_deletion'.l10n),
-            actions: const [SizedBox(width: 32)],
-          ),
-          body: ListView(
-            key: const Key('EraseScrollable'),
-            children: [
-              Block(
-                title: 'label_description'.l10n,
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            // For web, background color is displayed in `index.html` file.
+            if (!PlatformUtils.isWeb)
+              IgnorePointer(
+                child: ColoredBox(color: style.colors.background),
+              ),
+            const IgnorePointer(
+              child: SvgImage.asset(
+                'assets/images/background_light.svg',
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+              ),
+            ),
+            Scaffold(
+              appBar: CustomAppBar(
+                leading: const [StyledBackButton()],
+                title: Text('label_personal_data_deletion'.l10n),
+                actions: const [SizedBox(width: 32)],
+              ),
+              body: ListView(
+                key: const Key('EraseScrollable'),
                 children: [
-                  Text('label_personal_data_deletion_description'.l10n),
+                  Block(
+                    title: 'label_description'.l10n,
+                    children: [
+                      Text('label_personal_data_deletion_description'.l10n),
+                    ],
+                  ),
+                  _deletion(context, c),
                 ],
               ),
-              _deletion(context, c),
-            ],
-          ),
+            ),
+          ],
         );
       },
     );
@@ -76,8 +96,6 @@ class EraseView extends StatelessWidget {
 
   /// Returns the [Block] containing the delete account button.
   Widget _deletion(BuildContext context, EraseController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       final List<Widget> children;
 
@@ -122,12 +140,11 @@ class EraseView extends StatelessWidget {
       } else {
         children = [
           Paddings.dense(
-            FieldButton(
+            PrimaryButton(
               key: const Key('ConfirmDelete'),
-              text: 'btn_delete_account'.l10n,
+              title: 'btn_delete_account'.l10n,
               onPressed: () => _deleteAccount(context, c),
               danger: true,
-              style: style.fonts.normal.regular.danger,
             ),
           ),
         ];
