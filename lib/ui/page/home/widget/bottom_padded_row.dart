@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/routes.dart';
+import '/themes.dart';
 import '/util/platform_utils.dart';
 
 /// [Row] padded to be at the bottom of the screen expanding its [children].
@@ -37,20 +38,32 @@ class BottomPaddedRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     final List<Widget> widgets = [];
 
     for (int i = 0; i < children.length; ++i) {
       widgets.add(Expanded(child: children[i]));
 
-      if (i != children.length) {
+      if (i < children.length - 1) {
         widgets.add(SizedBox(width: spacing));
       }
     }
 
-    return Padding(
+    return Container(
+      decoration: BoxDecoration(
+        color: style.colors.onPrimary,
+        boxShadow: [
+          CustomBoxShadow(
+            blurRadius: 8,
+            color: style.colors.onBackgroundOpacity13,
+            blurStyle: BlurStyle.outer.workaround,
+          ),
+        ],
+      ),
       padding: EdgeInsets.fromLTRB(
         8,
-        7,
+        12,
         8,
         PlatformUtils.isMobile && !PlatformUtils.isWeb
             ? router.context!.mediaQuery.padding.bottom + 7

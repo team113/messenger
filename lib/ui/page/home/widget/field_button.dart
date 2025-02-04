@@ -26,6 +26,7 @@ class FieldButton extends StatefulWidget {
   const FieldButton({
     super.key,
     this.text,
+    this.child,
     this.textAlign = TextAlign.start,
     this.maxLines = 1,
     this.onPressed,
@@ -41,6 +42,8 @@ class FieldButton extends StatefulWidget {
 
   /// Optional label of this [FieldButton].
   final String? text;
+
+  final Widget? child;
 
   /// [TextAlign] of the [text].
   final TextAlign textAlign;
@@ -90,20 +93,21 @@ class _FieldButtonState extends State<FieldButton> {
       children: [
         OutlinedRoundedButton(
           maxWidth: double.infinity,
-          color: widget.warning ? style.colors.primary : style.colors.onPrimary,
+          color: widget.danger
+              ? style.colors.danger
+              : widget.warning
+                  ? style.colors.primary
+                  : style.colors.onPrimary,
           disabled: style.colors.onPrimary,
           onPressed: widget.onPressed,
           style: widget.style ??
               style.fonts.normal.regular.onBackground.copyWith(
                 // Exception, as [widget.style] may vary.
                 color: widget.onPressed == null
-                    // ? style.colors.onBackgroundOpacity40
                     ? style.colors.onBackground
-                    : widget.warning
+                    : widget.warning || widget.danger
                         ? style.colors.onPrimary
-                        : widget.danger
-                            ? style.colors.danger
-                            : style.colors.onBackground,
+                        : style.colors.onBackground,
               ),
           height: 46,
           leading: Transform.translate(
@@ -121,7 +125,11 @@ class _FieldButtonState extends State<FieldButton> {
                         width: 0.5,
                         color: style.colors.secondary,
                       ),
-          child: Text(widget.text ?? '', maxLines: widget.maxLines),
+          child: widget.child ??
+              Text(
+                widget.text ?? '',
+                maxLines: widget.maxLines,
+              ),
         ),
         if (widget.subtitle != null)
           Align(

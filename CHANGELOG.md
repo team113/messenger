@@ -6,6 +6,23 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.2] · 2025-??-??
+[0.3.2]: /../../tree/v0.3.2
+
+[Diff](/../../compare/v0.3.1...v0.3.2) | [Milestone](/../../milestone/33)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Updated app bar and navigation panel to be of rectangular shape. ([#1164])
+    - Updated chat info page editing and overall design. ([#1164])
+
+[#1164]: /../../pull/1164
+
+
+
+
 ## [0.3.1] · 2025-02-03
 [0.3.1]: /../../tree/v0.3.1
 

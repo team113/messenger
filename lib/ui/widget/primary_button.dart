@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../page/home/widget/field_button.dart';
 import '/themes.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
@@ -27,6 +28,7 @@ class PrimaryButton extends StatelessWidget {
     this.title = '',
     this.style,
     this.onPressed,
+    this.danger = false,
   });
 
   /// Text to display.
@@ -37,22 +39,26 @@ class PrimaryButton extends StatelessWidget {
 
   final TextStyle? style;
 
+  final bool danger;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return OutlinedRoundedButton(
-      maxWidth: double.infinity,
+    return FieldButton(
       onPressed: onPressed,
-      color: style.colors.primary,
+      warning: true,
+      danger: danger,
       child: Text(
         title,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
         style: this.style ??
             (onPressed == null
-                ? style.fonts.medium.regular.onBackground
-                : style.fonts.medium.regular.onPrimary),
+                ? style.fonts.normal.regular.onBackground.copyWith(
+                    color: style.colors.secondaryOpacity87,
+                  )
+                : style.fonts.normal.regular.onPrimary),
       ),
     );
   }

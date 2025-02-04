@@ -22,12 +22,12 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../../../domain/model/crop_area.dart';
 import '../controller.dart';
 import '../widget/notes_block.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/crop_area.dart';
 import '/domain/model/my_user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
@@ -43,8 +43,6 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/member_tile.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -52,7 +50,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatInfo] page.
@@ -99,10 +96,10 @@ class ChatInfoView extends StatelessWidget {
               _profile(c, context),
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
+              SelectionContainer.disabled(
+                child: Block(children: [_actions(c, context)]),
+              ),
             ],
-            SelectionContainer.disabled(
-              child: Block(children: [_actions(c, context)]),
-            ),
             const SizedBox(height: 8),
           ];
 
@@ -176,6 +173,7 @@ class ChatInfoView extends StatelessWidget {
             Stack(
               children: [
                 PrimaryButton(
+                  key: Key('SaveEditingButton'),
                   title: 'btn_save'.l10n,
                   onPressed: () {
                     c.profileEditing.toggle();
@@ -218,12 +216,15 @@ class ChatInfoView extends StatelessWidget {
                     duration: const Duration(milliseconds: 200),
                     child: c.profileEditing.value
                         ? SvgIcon(
-                            key: Key('1'),
+                            key: Key('CloseEditingButton'),
                             SvgIcons.closePrimary,
                             width: 12,
                             height: 12,
                           )
-                        : SvgIcon(key: Key('2'), SvgIcons.edit),
+                        : SvgIcon(
+                            key: Key('EditProfileButton'),
+                            SvgIcons.edit,
+                          ),
                   ),
                 ),
               ),
@@ -500,19 +501,17 @@ class ChatInfoView extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        if (!c.isMonolog)
-          ActionButton(
-            onPressed: () => _reportChat(c, context),
-            text: 'btn_report'.l10n,
-            trailing: const SvgIcon(SvgIcons.report),
-          ),
-        if (!c.isMonolog)
-          ActionButton(
-            onPressed: () => _leaveGroup(c, context),
-            text: 'btn_leave_group'.l10n,
-            danger: true,
-            trailing: const SvgIcon(SvgIcons.leaveGroupRed),
-          ),
+        ActionButton(
+          onPressed: () => _reportChat(c, context),
+          text: 'btn_report'.l10n,
+          trailing: const SvgIcon(SvgIcons.report),
+        ),
+        ActionButton(
+          onPressed: () => _leaveGroup(c, context),
+          text: 'btn_leave_group'.l10n,
+          danger: true,
+          trailing: const SvgIcon(SvgIcons.leaveGroupRed),
+        ),
       ],
     );
   }
@@ -520,91 +519,14 @@ class ChatInfoView extends StatelessWidget {
   /// Returns information about the [Chat] and related to it action buttons in
   /// the [CustomAppBar].
   Widget _bar(ChatInfoController c, BuildContext context) {
-    // [SvgIcons.more] buttons with its [ContextMenuRegion].
-    final Widget moreButton = Obx(key: const Key('MoreButton'), () {
-      final bool favorite = c.chat?.chat.value.favoritePosition != null;
-      final bool muted = c.chat?.chat.value.muted != null;
-
-      return AnimatedButton(
-        child: ContextMenuRegion(
-          key: c.moreKey,
-          selector: c.moreKey,
-          alignment: Alignment.topRight,
-          enablePrimaryTap: true,
-          margin: const EdgeInsets.only(bottom: 4, left: 6),
-          actions: [
-            ContextMenuButton(
-              label: favorite
-                  ? 'btn_delete_from_favorites'.l10n
-                  : 'btn_add_to_favorites'.l10n,
-              onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-              trailing: SvgIcon(
-                favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
-              ),
-              inverted: SvgIcon(
-                favorite
-                    ? SvgIcons.favoriteSmallWhite
-                    : SvgIcons.unfavoriteSmallWhite,
-              ),
-            ),
-            if (!c.isMonolog) ...[
-              ContextMenuButton(
-                key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
-                label: muted
-                    ? PlatformUtils.isMobile
-                        ? 'btn_unmute'.l10n
-                        : 'btn_unmute_chat'.l10n
-                    : PlatformUtils.isMobile
-                        ? 'btn_mute'.l10n
-                        : 'btn_mute_chat'.l10n,
-                trailing: SvgIcon(
-                  muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-                ),
-                inverted: SvgIcon(
-                  muted ? SvgIcons.unmuteSmallWhite : SvgIcons.muteSmallWhite,
-                ),
-                onPressed: muted ? c.unmuteChat : c.muteChat,
-              ),
-              ContextMenuButton(
-                onPressed: () => _reportChat(c, context),
-                label: 'btn_report'.l10n,
-                trailing: const SvgIcon(SvgIcons.report),
-                inverted: const SvgIcon(SvgIcons.reportWhite),
-              ),
-            ],
-            ContextMenuButton(
-              onPressed: () => _clearChat(c, context),
-              label: 'btn_clear_history'.l10n,
-              trailing: const SvgIcon(SvgIcons.cleanHistory),
-              inverted: const SvgIcon(SvgIcons.cleanHistoryWhite),
-            ),
-            ContextMenuButton(
-              key: const Key('HideChatButton'),
-              onPressed: () => _hideChat(c, context),
-              label: 'btn_delete_chat'.l10n,
-              trailing: const SvgIcon(SvgIcons.delete19),
-              inverted: const SvgIcon(SvgIcons.delete19White),
-            ),
-            if (!c.isMonolog)
-              ContextMenuButton(
-                onPressed: () => _leaveGroup(c, context),
-                label: 'btn_leave_group'.l10n,
-                trailing: const SvgIcon(SvgIcons.leaveGroup),
-                inverted: const SvgIcon(SvgIcons.leaveGroupWhite),
-              ),
-          ],
-          child: Container(
-            padding: const EdgeInsets.only(left: 28, right: 21),
-            height: double.infinity,
-            child: const SvgIcon(SvgIcons.more),
-          ),
-        ),
-      );
-    });
-
     return Row(
       children: [
-        Expanded(child: const StyledBackButton(withLabel: true)),
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerLeft,
+            child: const StyledBackButton(withLabel: true),
+          ),
+        ),
         const SizedBox(width: 8),
         AnimatedButton(
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),
@@ -621,7 +543,7 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => c.call(false),
           child: const SvgIcon(SvgIcons.chatAudioCall),
         ),
-        moreButton,
+        const SizedBox(width: 20),
       ],
     );
   }
@@ -635,48 +557,6 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.removeChatMember(c.me!);
-    }
-  }
-
-  /// Opens a confirmation popup hiding this [Chat].
-  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.hideChat();
-    }
-  }
-
-  /// Opens a confirmation popup clearing this [Chat].
-  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.clearChat();
     }
   }
 
