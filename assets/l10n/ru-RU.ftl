@@ -423,14 +423,14 @@ fcm_group_avatar_changed = {$userName ->
        *[other] {$userName}
     } {$operation ->
           [update] обновил аватар
-         *[delete] удалил аватар
+         *[remove] удалил аватар
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
           [update] переименовал чат на {$groupName}
-         *[delete] удалил имя
+         *[remove] удалил имя
       }
 fcm_group_title =
     {$user1Name ->
