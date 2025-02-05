@@ -372,7 +372,11 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    final editLink = find.byKey(const Key('CreateLinkButton'));
+    final editLink = find.byKey(
+      const Key('DirectLinkField'),
+      skipOffstage: false,
+    );
+
     await tester.dragUntilVisible(
       editLink,
       find.byKey(const Key('ChatInfoScrollable')),

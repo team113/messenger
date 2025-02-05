@@ -24,9 +24,7 @@ Feature: Clear chat
     And I am in chat with Bob
     And I see some messages in chat
 
-    When I open chat's info
-    And I scroll `ChatInfoScrollable` until `ClearHistoryButton` is present
+    When I tap `MoreButton` button
     And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
-    And I return to previous page
     Then I see no messages in chat

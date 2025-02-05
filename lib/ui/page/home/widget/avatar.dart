@@ -238,7 +238,7 @@ class AvatarWidget extends StatelessWidget {
           },
         ),
         avatar: chat?.avatar,
-        color: chat?.colorDiscriminant(me).sum(),
+        color: 0,
         radius: radius,
         opacity: opacity,
         shape: shape,
@@ -387,8 +387,12 @@ class AvatarWidget extends StatelessWidget {
       final Color gradient;
 
       if (color != null) {
-        gradient =
-            style.colors.userColors[color! % style.colors.userColors.length];
+        if (color == 0) {
+          gradient = style.colors.background;
+        } else {
+          gradient =
+              style.colors.userColors[color! % style.colors.userColors.length];
+        }
       } else if (title != null) {
         gradient = style.colors
             .userColors[(title!.hashCode) % style.colors.userColors.length];

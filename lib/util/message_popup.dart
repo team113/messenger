@@ -110,12 +110,14 @@ class MessagePopup {
     double bottom = 16,
     Duration duration = const Duration(seconds: 2),
     void Function()? onPressed,
+    Offset? at,
   }) =>
       FloatingSnackBar.show(
         title,
         bottom: bottom,
         duration: duration,
         onPressed: onPressed,
+        at: at,
       );
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].

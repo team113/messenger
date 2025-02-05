@@ -28,6 +28,7 @@ class ActionButton extends StatelessWidget {
     this.text = '',
     this.onPressed,
     this.trailing,
+    this.danger = false,
   });
 
   /// Text to display in this [ActionButton].
@@ -39,6 +40,10 @@ class ActionButton extends StatelessWidget {
   /// Callback, called when this [ActionButton] is pressed.
   final void Function()? onPressed;
 
+  /// Indicator whether this [ActionButton] should be displayed in a danger
+  /// (destructive) style.
+  final bool danger;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -48,7 +53,9 @@ class ActionButton extends StatelessWidget {
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        style: style.fonts.normal.regular.primary,
+        border:
+            danger ? BorderSide(color: style.colors.danger, width: 0.5) : null,
+        style: danger ? style.fonts.normal.regular.danger : null,
         trailing: trailing,
       ),
     );

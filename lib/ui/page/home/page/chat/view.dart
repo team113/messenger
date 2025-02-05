@@ -45,7 +45,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -70,6 +69,7 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
+import 'widget/notes_block.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 import 'widget/with_global_key.dart';
@@ -137,10 +137,7 @@ class ChatView extends StatelessWidget {
                 leading: [StyledBackButton()],
               ),
               body: const Center(child: CustomProgressIndicator.primary()),
-              bottomNavigationBar: Padding(
-                padding: Insets.dense.copyWith(top: 0),
-                child: _bottomBar(c, context),
-              ),
+              bottomNavigationBar: _bottomBar(c, context),
             );
           }
 
@@ -732,12 +729,17 @@ class ChatView extends StatelessWidget {
                               );
                             }
 
+                            if (isMonolog) {
+                              return Center(
+                                key: const Key('NoMessages'),
+                                child: NotesBlock(),
+                              );
+                            }
+
                             return Center(
                               child: SystemInfoPrompt(
                                 key: const Key('NoMessages'),
-                                isMonolog
-                                    ? 'label_chat_monolog_description'.l10n
-                                    : 'label_no_messages'.l10n,
+                                'label_no_messages'.l10n,
                               ),
                             );
                           }
@@ -809,10 +811,7 @@ class ChatView extends StatelessWidget {
                         ),
                       );
                     }),
-                    bottomNavigationBar: Padding(
-                      padding: Insets.dense.copyWith(top: 0),
-                      child: _bottomBar(c, context),
-                    ),
+                    bottomNavigationBar: _bottomBar(c, context),
                   ),
                   IgnorePointer(
                     child: SafeAnimatedSwitcher(

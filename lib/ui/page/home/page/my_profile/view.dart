@@ -628,8 +628,6 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
 /// Returns the buttons changing or setting the password of the currently
 /// authenticated [MyUser].
 Widget _password(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -643,7 +641,6 @@ Widget _password(BuildContext context, MyProfileController c) {
               : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
           warning: c.myUser.value?.hasPassword != true,
-          style: style.fonts.normal.regular.primary,
           trailing: c.myUser.value?.hasPassword == true
               ? const SvgIcon(SvgIcons.passwordSmall)
               : const SvgIcon(SvgIcons.passwordSmallWhite),
@@ -690,7 +687,6 @@ Widget _chats(BuildContext context, MyProfileController c) {
             },
             maxLines: null,
             onPressed: () => CallButtonsSwitchView.show(context),
-            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -700,8 +696,6 @@ Widget _chats(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.calls] section.
 Widget _call(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -713,7 +707,6 @@ Widget _call(BuildContext context, MyProfileController c) {
                 : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
-            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -723,8 +716,6 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -748,7 +739,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -773,7 +763,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
-            style: style.fonts.normal.regular.primary,
           );
         }),
       ),
@@ -803,7 +792,6 @@ Widget _media(BuildContext context, MyProfileController c) {
                   c.devices.value = await MediaUtils.enumerateDevices();
                 }
               },
-              style: style.fonts.normal.regular.primary,
             );
           }),
         ),
@@ -1090,13 +1078,19 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                   ),
                   editOrDelete,
                 ],
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(8, 4, 8, 4),
-                  child: WelcomeFieldView(
-                    key: c.welcomeFieldKey,
-                    fieldKey: const Key('WelcomeMessageField'),
-                    sendKey: const Key('PostWelcomeMessage'),
-                    controller: c.welcome,
+                ClipRRect(
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(13),
+                    bottomRight: Radius.circular(13),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(1),
+                    child: WelcomeFieldView(
+                      key: c.welcomeFieldKey,
+                      fieldKey: const Key('WelcomeMessageField'),
+                      sendKey: const Key('PostWelcomeMessage'),
+                      controller: c.welcome,
+                    ),
                   ),
                 ),
               ],
@@ -1110,8 +1104,6 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.language] section.
 Widget _language(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Paddings.dense(
     FieldButton(
       key: const Key('ChangeLanguage'),
@@ -1123,15 +1115,12 @@ Widget _language(BuildContext context, MyProfileController c) {
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
       }),
-      style: style.fonts.normal.regular.primary,
     ),
   );
 }
 
 /// Returns the contents of a [ProfileTab.blocklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Obx(() {
     final int count = c.myUser.value?.blocklistCount ?? 0;
 
@@ -1140,9 +1129,6 @@ Widget _blockedUsers(BuildContext context, MyProfileController c) {
         key: const Key('ShowBlocklist'),
         text: 'label_users_count'.l10nfmt({'count': count}),
         onPressed: count == 0 ? null : () => BlocklistView.show(context),
-        style: count == 0
-            ? style.fonts.normal.regular.onBackground
-            : style.fonts.normal.regular.primary,
       ),
     );
   });
@@ -1273,8 +1259,6 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.danger] section.
 Widget _danger(BuildContext context, MyProfileController c) {
-  final style = Theme.of(context).style;
-
   return Column(
     children: [
       Paddings.dense(
@@ -1283,7 +1267,6 @@ Widget _danger(BuildContext context, MyProfileController c) {
           text: 'btn_delete_account'.l10n,
           onPressed: () => _deleteAccount(c, context),
           danger: true,
-          style: style.fonts.normal.regular.danger,
         ),
       ),
     ],
@@ -1442,7 +1425,6 @@ Widget _storage(BuildContext context, MyProfileController c) {
         FieldButton(
           onPressed: c.clearCache,
           text: 'btn_clear_cache'.l10n,
-          style: style.fonts.normal.regular.primary,
         ),
       ],
     ),
@@ -1478,83 +1460,81 @@ Widget _legal(BuildContext context, MyProfileController c) {
 Widget _bar(MyProfileController c, BuildContext context) {
   final style = Theme.of(context).style;
 
-  return Obx(() {
-    final Widget title;
+  final Widget title;
 
-    if (c.displayName.value && context.isNarrow) {
-      title = Row(
-        children: [
-          const SizedBox(width: 4),
-          const StyledBackButton(),
-          Center(
+  if (context.isNarrow) {
+    title = Row(
+      children: [
+        const SizedBox(width: 4),
+        const StyledBackButton(),
+        Center(
+          child: Obx(() {
+            return AvatarWidget.fromMyUser(
+              c.myUser.value,
+              radius: AvatarRadius.medium,
+            );
+          }),
+        ),
+        const SizedBox(width: 10),
+        Flexible(
+          child: DefaultTextStyle.merge(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             child: Obx(() {
-              return AvatarWidget.fromMyUser(
-                c.myUser.value,
-                radius: AvatarRadius.medium,
+              return Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    c.myUser.value?.name?.val ??
+                        c.myUser.value?.num.toString() ??
+                        'dot'.l10n * 3,
+                    style: style.fonts.big.regular.onBackground,
+                  ),
+                  Text(
+                    'label_online'.l10n,
+                    style: style.fonts.small.regular.secondary,
+                  ),
+                ],
               );
             }),
           ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: DefaultTextStyle.merge(
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              child: Obx(() {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      c.myUser.value?.name?.val ??
-                          c.myUser.value?.num.toString() ??
-                          'dot'.l10n * 3,
-                      style: style.fonts.big.regular.onBackground,
-                    ),
-                    Text(
-                      'label_online'.l10n,
-                      style: style.fonts.small.regular.secondary,
-                    ),
-                  ],
-                );
-              }),
-            ),
-          ),
-          const SizedBox(width: 10),
-        ],
-      );
-    } else {
-      title = Row(
-        key: const Key('Profile'),
-        children: [
-          const SizedBox(width: 4),
-          const StyledBackButton(),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
-              child: Center(
-                child: Text(
-                  router.profileSection.value?.l10n ?? 'label_profile'.l10n,
-                ),
+        ),
+        const SizedBox(width: 10),
+      ],
+    );
+  } else {
+    title = Row(
+      key: const Key('Profile'),
+      children: [
+        const SizedBox(width: 4),
+        const StyledBackButton(),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(32, 0, 32, 0),
+            child: Center(
+              child: Text(
+                router.profileSection.value?.l10n ?? 'label_profile'.l10n,
               ),
             ),
           ),
-        ],
-      );
-    }
-
-    return Row(
-      children: [
-        Expanded(
-          child: SafeAnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
-            child: title,
-          ),
         ),
-        const SizedBox(width: 52),
       ],
     );
-  });
+  }
+
+  return Row(
+    children: [
+      Expanded(
+        child: SafeAnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          child: title,
+        ),
+      ),
+      const SizedBox(width: 52),
+    ],
+  );
 }
 
 /// Opens a confirmation popup deleting the provided [email] from the

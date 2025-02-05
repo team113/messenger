@@ -94,63 +94,59 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      decoration: BoxDecoration(
-        boxShadow: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer.workaround,
-          ),
-        ],
-        borderRadius: style.cardRadius,
-        border: style.cardBorder,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            borderRadius: style.cardRadius,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
+    return ClipRect(
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: style.colors.onBackgroundOpacity13,
+              blurStyle: BlurStyle.outer.workaround,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: style.cardColor,
-                borderRadius: style.cardRadius,
+          ],
+          border: style.cardBorder,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
               ),
-              height: CustomNavigationBar.height,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: widget.items.mapIndexed((i, b) {
-                    final bool selected = widget.currentIndex == i;
+              child: Container(
+                decoration: BoxDecoration(color: style.cardColor),
+                height: CustomNavigationBar.height,
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: widget.items.mapIndexed((i, b) {
+                      final bool selected = widget.currentIndex == i;
 
-                    return AnimatedScale(
-                      key: _keys[i],
-                      duration: const Duration(milliseconds: 150),
-                      curve: Curves.bounceInOut,
-                      scale: selected ? 1.1 : 1,
-                      child: AnimatedOpacity(
+                      return AnimatedScale(
+                        key: _keys[i],
                         duration: const Duration(milliseconds: 150),
-                        opacity: selected ? 1 : 0.7,
-                        child: AnimatedButton(
-                          onPressed: () => widget.onTap?.call(i),
-                          child: b,
+                        curve: Curves.bounceInOut,
+                        scale: selected ? 1.1 : 1,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 150),
+                          opacity: selected ? 1 : 0.7,
+                          child: AnimatedButton(
+                            onPressed: () => widget.onTap?.call(i),
+                            child: b,
+                          ),
                         ),
-                      ),
-                    );
-                  }).toList(),
+                      );
+                    }).toList(),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

@@ -60,6 +60,7 @@ import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'model/chat_member.dart';
+import 'model/page_info.dart';
 import 'paginated.dart';
 import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
@@ -1008,6 +1009,10 @@ class RxChatImpl extends RxChat {
             graphQlProvider: GraphQlPageProvider(
               reversed: true,
               fetch: ({after, before, first, last}) async {
+                if (id.isLocal) {
+                  return Page([], PageInfo());
+                }
+
                 final Page<DtoChatItem, ChatItemsCursor> reversed =
                     await _chatRepository.messages(
                   chat.value.id,
@@ -1088,6 +1093,10 @@ class RxChatImpl extends RxChat {
         graphQlProvider: GraphQlPageProvider(
           reversed: true,
           fetch: ({after, before, first, last}) async {
+            if (id.isLocal) {
+              return Page([], PageInfo());
+            }
+
             final Page<DtoChatItem, ChatItemsCursor> reversed =
                 await _chatRepository.messages(
               chat.value.id,
@@ -1255,6 +1264,10 @@ class RxChatImpl extends RxChat {
           graphQlProvider:
               GraphQlPageProvider<DtoChatMember, ChatMembersCursor, UserId>(
             fetch: ({after, before, first, last}) async {
+              if (id.isLocal) {
+                return Page([], PageInfo());
+              }
+
               return _chatRepository.members(
                 chat.value.id,
                 after: after,
@@ -1371,6 +1384,10 @@ class RxChatImpl extends RxChat {
           provider: GraphQlPageProvider(
             reversed: true,
             fetch: ({after, before, first, last}) async {
+              if (id.isLocal) {
+                return Page([], PageInfo());
+              }
+
               final Page<DtoChatItem, ChatItemsCursor> reversed =
                   await _chatRepository.messages(
                 chat.value.id,
@@ -1444,6 +1461,10 @@ class RxChatImpl extends RxChat {
             graphQlProvider: GraphQlPageProvider(
               reversed: true,
               fetch: ({after, before, first, last}) async {
+                if (id.isLocal) {
+                  return Page([], PageInfo());
+                }
+
                 final Page<DtoChatItem, ChatItemsCursor> reversed =
                     await _chatRepository.messages(
                   chat.value.id,

@@ -600,6 +600,39 @@ extension UserViewExt on User {
         return null;
     }
   }
+
+  /// Returns the string representation of this [User] to display as a subtitle.
+  String? getSubtitle([PreciseDateTime? lastSeen]) {
+    switch (presence) {
+      case Presence.present:
+        if (online) {
+          return 'label_online'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case Presence.away:
+        if (online) {
+          return 'label_away'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case null:
+        return 'label_hidden'.l10n;
+
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
 }
 
 /// Extension adding an ability to get text represented indication of how long

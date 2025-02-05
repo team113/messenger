@@ -93,6 +93,7 @@ class Themes {
       primaryAuxiliary: const Color(0xFF165084),
       onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
+      secondaryLight: const Color(0xFFCCCCCC),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
       secondaryHighlightDarkest: const Color(0xFFC4C4C4),
@@ -277,27 +278,27 @@ class Themes {
         floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.primary),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
       ),
@@ -655,6 +656,7 @@ class Palette {
     Color? onPrimaryOpacity50,
     Color? onPrimaryOpacity95,
     required this.secondary,
+    required this.secondaryLight,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
     required this.secondaryBackgroundLightest,
@@ -850,6 +852,9 @@ class Palette {
   ///
   /// Used as the muted indicator background in calls.
   final Color secondaryOpacity40;
+
+  /// Lighter variation of the [secondary] color.
+  final Color secondaryLight;
 
   /// Background [Color] of the [secondary] elements.
   ///
@@ -1055,6 +1060,8 @@ class Palette {
       onPrimaryOpacity95:
           Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
+      secondaryLight:
+          Color.lerp(color.secondaryLight, other.secondaryLight, t)!,
       secondaryOpacity87:
           Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
       secondaryHighlight:
