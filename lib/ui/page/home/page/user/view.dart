@@ -187,6 +187,7 @@ class UserView extends StatelessWidget {
               spacing: 6,
               children: [
                 WidgetButton(
+                  key: const Key('NumCopyable'),
                   onPressed: () {},
                   onPressedWithDetails: (u) {
                     PlatformUtils.copy(text: '${c.user?.user.value.num}');

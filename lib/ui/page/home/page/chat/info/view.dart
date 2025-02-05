@@ -349,6 +349,7 @@ class ChatInfoView extends StatelessWidget {
               ),
               DirectLinkField(
                 c.chat?.chat.value.directLink,
+                key: Key('DirectLinkField'),
                 onSubmit: (s) async {
                   if (s == null) {
                     await c.deleteChatDirectLink();
