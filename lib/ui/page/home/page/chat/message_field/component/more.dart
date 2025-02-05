@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controller.dart';
+import '../widget/more_button.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/page/home/page/chat/message_field/widget/more_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/platform_utils.dart';
 
