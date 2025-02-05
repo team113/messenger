@@ -22,6 +22,12 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Updated monolog chat description. ([#1164])
 
+### Fixed
+
+- UI:
+    - Mobile:
+        - Auto-capitalization setting being ignored in text fields. ([#1164])
+
 [#1164]: /../../pull/1164
 
 

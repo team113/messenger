@@ -390,6 +390,7 @@ class ReactiveTextField extends StatelessWidget {
               minLines: minLines,
               maxLines: maxLines,
               textInputAction: textInputAction,
+              textCapitalization: TextCapitalization.sentences,
               maxLength: maxLength,
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;
