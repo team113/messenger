@@ -1,5 +1,6 @@
-- Fixed away badges being displayed on avatars with invalid sizes.
-- Fixed inability to crop SVG images in avatar cropping modal.
-- Fixed initial cropping area being smaller than image's size.
-- Fixed inability to close chat page when writing to it the first time.
-- Fixed members count being bigger than actual members number.
+- Updated app bar and navigation panel to be of rectangular shape.
+- Updated group creating and chats selecting UX.
+- Updated chat info page editing and overall design.
+- Updated user page design.
+- Updated monolog chat description.
+- Fixed auto-capitalization setting being ignored in text fields.
