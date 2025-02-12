@@ -1176,6 +1176,7 @@ label_waiting_for_connection = Ожидание подключения...
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
+label_was_at = был(а) {$at}
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
