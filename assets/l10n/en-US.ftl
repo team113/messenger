@@ -1148,6 +1148,7 @@ label_waiting_for_connection = Waiting for connection...
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link
+label_was_at = last seen {$at}
 label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
