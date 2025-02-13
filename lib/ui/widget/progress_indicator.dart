@@ -351,7 +351,7 @@ class _CircularProgressIndicatorState
           tailValue: tailValue,
           offsetValue: offsetValue,
           rotationValue: rotationValue,
-          strokeWidth: widget.strokeWidth,
+          strokeWidth: widget.strokeWidth ?? 2,
         ),
       ),
     );
