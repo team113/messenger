@@ -37,9 +37,9 @@ class ScrollableColumn extends StatelessWidget {
       slivers: [
         SliverList(
           delegate: SliverChildListDelegate([
-            Column(crossAxisAlignment: crossAxisAlignment, children: children)
+            Column(crossAxisAlignment: crossAxisAlignment, children: children),
           ]),
-        )
+        ),
       ],
     );
   }

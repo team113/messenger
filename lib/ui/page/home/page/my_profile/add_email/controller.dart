@@ -151,17 +151,14 @@ class AddEmailController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();

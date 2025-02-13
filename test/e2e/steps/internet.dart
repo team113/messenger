@@ -40,12 +40,13 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
 
-    PlatformUtils.client?.interceptors
-        .removeWhere((e) => e is DelayedInterceptor);
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
 
-    (await PlatformUtils.dio)
-        .interceptors
-        .add(DelayedInterceptor(Duration(seconds: delay)));
+    (await PlatformUtils.dio).interceptors.add(
+      DelayedInterceptor(Duration(seconds: delay)),
+    );
   },
 );
 
@@ -62,9 +63,9 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.throwException = false;
     }
 
-    (await PlatformUtils.dio)
-        .interceptors
-        .removeWhere((e) => e is DelayedInterceptor);
+    (await PlatformUtils.dio).interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
   },
 );
 

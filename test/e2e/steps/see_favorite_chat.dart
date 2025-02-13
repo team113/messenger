@@ -30,28 +30,28 @@ import '../world/custom_world.dart';
 /// - Then I see "Example" chat as unfavorite
 final StepDefinitionGeneric seeChatAsFavorite =
     then2<String, FavoriteStatus, CustomWorld>(
-  'I see {string} chat as {favorite}',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} chat as {favorite}',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
+          final ChatId chatId = context.world.groups[name]!;
 
-        switch (status) {
-          case FavoriteStatus.favorite:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
-            );
+          switch (status) {
+            case FavoriteStatus.favorite:
+              return await context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage(
+                  'FavoriteIndicator_$chatId',
+                ),
+              );
 
-          case FavoriteStatus.unfavorite:
-            return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$chatId'),
-            );
-        }
+            case FavoriteStatus.unfavorite:
+              return await context.world.appDriver.isAbsent(
+                context.world.appDriver.findByKeySkipOffstage(
+                  'FavoriteIndicator_$chatId',
+                ),
+              );
+          }
+        });
       },
     );
-  },
-);

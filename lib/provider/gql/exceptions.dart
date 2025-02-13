@@ -40,16 +40,20 @@ import '/util/localized_exception.dart';
 /// All expected exceptions are mixins of [LocalizedExceptionMixin].
 class GraphQlProviderExceptions {
   /// [parse]s exceptions of the given [result] and throws if any.
-  static void fire(QueryResult result,
-      [Exception Function(Map<String, dynamic>)? handleException]) {
+  static void fire(
+    QueryResult result, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) {
     Object? exception = parse(result, handleException);
     if (exception != null) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
   /// has the specified error code or `null` if no exception was found.
-  static Object? parse(QueryResult result,
-      [Exception Function(Map<String, dynamic>)? handleException]) {
+  static Object? parse(
+    QueryResult result, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) {
     if (result.hasException) {
       if (result.exception == null) {
         return Exception('err_unknown'.l10n);
@@ -60,23 +64,28 @@ class GraphQlProviderExceptions {
         // If `GraphQlException` contains `NOT_CHAT_MEMBER` code, then it's a
         // specific `NotChatMemberException`.
         if (result.exception!.graphqlErrors.firstWhereOrNull(
-                (e) => e.extensions?['code'] == 'NOT_CHAT_MEMBER') !=
+              (e) => e.extensions?['code'] == 'NOT_CHAT_MEMBER',
+            ) !=
             null) {
           return NotChatMemberException(result.exception!.graphqlErrors);
         } else if (result.exception!.graphqlErrors.firstWhereOrNull(
-                (e) => e.extensions?['code'] == 'STALE_VERSION') !=
+              (e) => e.extensions?['code'] == 'STALE_VERSION',
+            ) !=
             null) {
           // If `GraphQlException` contains `STALE_VERSION` code, then it's a
           // specific `StaleVersionException`.
           return StaleVersionException(result.exception!.graphqlErrors);
-        } else if (result.exception!.graphqlErrors.firstWhereOrNull((e) =>
-                e.extensions?['code'] == 'SESSION_EXPIRED' ||
-                e.extensions?['code'] == 'AUTHENTICATION_REQUIRED' ||
-                e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
+        } else if (result.exception!.graphqlErrors.firstWhereOrNull(
+              (e) =>
+                  e.extensions?['code'] == 'SESSION_EXPIRED' ||
+                  e.extensions?['code'] == 'AUTHENTICATION_REQUIRED' ||
+                  e.extensions?['code'] == 'AUTHENTICATION_FAILED',
+            ) !=
             null) {
           return const AuthorizationException();
         } else if (result.exception!.graphqlErrors.any(
-            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          (e) => e.message.contains('Expected input scalar `UserPhone`'),
+        )) {
           return const InvalidScalarException<UserPhone>();
         }
 
@@ -103,7 +112,8 @@ class GraphQlProviderExceptions {
         // It might be an internal error, bad request or request error.
         if (e.parsedResponse?.errors != null) {
           var found = e.parsedResponse!.errors!.firstWhereOrNull(
-              (v) => v.extensions != null && (v.extensions!['status'] == 401));
+            (v) => v.extensions != null && (v.extensions!['status'] == 401),
+          );
           if (found != null) throw const AuthorizationException();
           return GraphQlException(e.parsedResponse!.errors!);
         }
@@ -132,7 +142,7 @@ class GraphQlProviderExceptions {
 /// etc).
 class GraphQlException with LocalizedExceptionMixin implements Exception {
   GraphQlException([Iterable<GraphQLError> graphqlErrors = const []])
-      : graphqlErrors = graphqlErrors.toList();
+    : graphqlErrors = graphqlErrors.toList();
 
   /// Any GraphQL errors returned from the operation.
   final List<GraphQLError> graphqlErrors;

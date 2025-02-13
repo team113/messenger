@@ -82,9 +82,7 @@ class VolumeOverlay extends StatelessWidget {
                         child: RotatedBox(
                           quarterTurns: 3,
                           child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 10,
-                            ),
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
                             child: MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: VideoVolumeBar(
@@ -94,10 +92,12 @@ class VolumeOverlay extends StatelessWidget {
                                 colors: ProgressBarColors(
                                   played: style.colors.primary,
                                   handle: style.colors.primary,
-                                  buffered: style.colors.background
-                                      .withValues(alpha: 0.5),
-                                  background: style.colors.secondary
-                                      .withValues(alpha: 0.5),
+                                  buffered: style.colors.background.withValues(
+                                    alpha: 0.5,
+                                  ),
+                                  background: style.colors.secondary.withValues(
+                                    alpha: 0.5,
+                                  ),
                                 ),
                               ),
                             ),

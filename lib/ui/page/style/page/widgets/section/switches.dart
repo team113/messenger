@@ -29,16 +29,13 @@ class SwitchesSection {
     return [
       Headline(
         headline: 'SwitchField',
-        child: ObxValue(
-          (value) {
-            return SwitchField(
-              text: 'Label',
-              value: value.value,
-              onChanged: (b) => value.value = b,
-            );
-          },
-          false.obs,
-        ),
+        child: ObxValue((value) {
+          return SwitchField(
+            text: 'Label',
+            value: value.value,
+            onChanged: (b) => value.value = b,
+          );
+        }, false.obs),
       ),
     ];
   }

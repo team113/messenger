@@ -82,18 +82,17 @@ Widget svgFromBytes(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _BytesSvgLoader(bytes),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => _BrowserSvg(
+  key: key,
+  loader: _BytesSvgLoader(bytes),
+  alignment: alignment,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  placeholderBuilder: placeholderBuilder,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -111,18 +110,17 @@ Widget svgFromFile(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _FileSvgLoader(file),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => _BrowserSvg(
+  key: key,
+  loader: _FileSvgLoader(file),
+  alignment: alignment,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  placeholderBuilder: placeholderBuilder,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// SVG picture loader.
 abstract class _SvgLoader {

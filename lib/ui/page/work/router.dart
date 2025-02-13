@@ -52,15 +52,18 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
 
       if (route.startsWith('${Routes.work}/')) {
         final String? last = route.split('/').lastOrNull;
-        final WorkTab? work =
-            WorkTab.values.firstWhereOrNull((e) => e.name == last);
+        final WorkTab? work = WorkTab.values.firstWhereOrNull(
+          (e) => e.name == last,
+        );
 
         if (work != null) {
-          pages.add(CustomPage(
-            key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
-            name: Routes.me,
-            child: VacancyWorkView(work),
-          ));
+          pages.add(
+            CustomPage(
+              key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
+              name: Routes.me,
+              child: VacancyWorkView(work),
+            ),
+          );
         }
       }
     }

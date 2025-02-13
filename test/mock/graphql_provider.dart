@@ -49,7 +49,7 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
             'incomingChatCallsTopEvents': {
               '__typename': 'SubscriptionInitialized',
               'ok': true,
-            }
+            },
           },
           parserFn: (_) => null,
         ),
@@ -108,18 +108,17 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     RecentChatsCursor? before,
     bool noFavorite = false,
     bool? withOngoingCalls,
-  }) async =>
-      RecentChats$Query.fromJson({
-        'recentChats': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          }
-        }
-      });
+  }) async => RecentChats$Query.fromJson({
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+    },
+  });
 
   @override
   Future<FavoriteChats$Query> favoriteChats({
@@ -127,35 +126,31 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     FavoriteChatsCursor? after,
     int? last,
     FavoriteChatsCursor? before,
-  }) async =>
-      FavoriteChats$Query.fromJson({
-        'favoriteChats': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          },
-          'ver': '0'
-        }
-      });
+  }) async => FavoriteChats$Query.fromJson({
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    },
+  });
 
   @override
   Future<Stream<QueryResult>> myUserEvents(
     Future<MyUserVersion?> Function()? getVer,
-  ) async =>
-      const Stream.empty();
+  ) async => const Stream.empty();
 
   @override
   Stream<QueryResult> contactsEvents(
     ChatContactsListVersion? Function()? getVer,
-  ) =>
-      const Stream.empty();
+  ) => const Stream.empty();
 
   @override
   Stream<QueryResult> favoriteChatsEvents(
     FavoriteChatsListVersion? Function()? getVer,
-  ) =>
-      const Stream.empty();
+  ) => const Stream.empty();
 }

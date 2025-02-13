@@ -244,153 +244,156 @@ class ReorderableFit<T extends Object> extends StatelessWidget {
         maxWidth: MediaQuery.of(context).size.width,
         maxHeight: MediaQuery.of(context).size.height,
       ),
-      child: LayoutBuilder(builder: (context, constraints) {
-        double rWidth = width ?? constraints.maxWidth;
-        double rHeight = height ?? constraints.maxHeight;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          double rWidth = width ?? constraints.maxWidth;
+          double rHeight = height ?? constraints.maxHeight;
 
-        double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
-        bool fitView = useFitView(
-          maxSize: wrapMaxSize,
-          constraints: Size(rWidth, rHeight),
-          length: children.length,
-          axis: axis,
-        );
-
-        // Number of columns.
-        int mColumns = 0;
-
-        double? wrapSize;
-
-        if (fitView) {
-          // Minimal diagonal of a square.
-          double min = double.infinity;
-
-          // To find the [mColumns], iterate through every possible number of
-          // columns and pick the arrangement with [min]imal diagonal.
-          for (int columns = 1; columns <= children.length; ++columns) {
-            int rows = (children.length / columns).ceil();
-
-            // Current diagonal of a single square.
-            double diagonal =
-                (pow(rWidth / columns, 2) + pow(rHeight / rows, 2)).toDouble();
-
-            // If there's any [children] left outside, then their diagonal will
-            // always be bigger, so we need to recalculate.
-            int outside = children.length % columns;
-            if (outside != 0) {
-              // Diagonal of an outside [children] is calculated with some
-              // coefficient to force the algorithm to pick non-standard
-              // arrangement.
-              double coef = 1;
-
-              // Coefficient is hard-coded for some cases in order to [FitView] to
-              // look better.
-              if (children.length == 3) {
-                coef = rWidth > rHeight ? 0.5 : 0.87;
-              } else if (children.length == 5) {
-                if (rWidth > rHeight) {
-                  coef = 0.8;
-                } else {
-                  coef = outside == 1 ? 0.8 : 1.5;
-                }
-              } else if (children.length == 10) {
-                if (rWidth > rHeight) {
-                  coef = outside == 2 ? 0.65 : 0.8;
-                } else {
-                  coef = 0.8;
-                }
-              } else if (children.length == 9) {
-                if (rWidth > rHeight) {
-                  coef = 0.9;
-                } else {
-                  coef = 0.5;
-                }
-              } else if (children.length == 8) {
-                if (rWidth > rHeight) {
-                  coef = outside == 2 ? 0.59 : 0.8;
-                } else {
-                  coef = 0.8;
-                }
-              } else if (children.length == 7) {
-                if (rWidth > rHeight) {
-                  coef = rWidth / rHeight >= 3 ? 0.7 : 0.4;
-                } else {
-                  coef = 0.4;
-                }
-              } else if (children.length == 6) {
-                if (rWidth > rHeight) {
-                  coef = (rWidth / rHeight > 3) ? 0.57 : 0.7;
-                } else {
-                  coef = 0.7;
-                }
-              } else {
-                if (rWidth > rHeight) {
-                  coef = outside == 2 ? 0.59 : 0.77;
-                } else {
-                  coef = 0.6;
-                }
-              }
-
-              diagonal =
-                  (pow(rWidth / outside * coef, 2) + pow(rHeight / rows, 2))
-                      .toDouble();
-            }
-            // Tweak of a standard arrangement.
-            else if (children.length == 4) {
-              mColumns = rWidth / rHeight < 0.56 ? 1 : mColumns;
-            }
-
-            if (diagonal < min && min - diagonal > 1) {
-              mColumns = columns;
-              min = diagonal;
-            }
-          }
-        }
-
-        if (axis != null) {
-          wrapSize = calculateSize(
+          double wrapMaxSize = axis == Axis.horizontal ? rWidth : rHeight;
+          bool fitView = useFitView(
             maxSize: wrapMaxSize,
             constraints: Size(rWidth, rHeight),
             length: children.length,
-            axis: axis!,
+            axis: axis,
           );
-        }
 
-        return _ReorderableFit<T>(
-          key: key,
-          children: children,
-          itemBuilder: itemBuilder,
-          decoratorBuilder: decoratorBuilder,
-          overlayBuilder: overlayBuilder,
-          mColumns: mColumns,
-          wrapSize: wrapSize,
-          dividerColor: dividerColor,
-          dividerSize: dividerSize,
-          onReorder: onReorder,
-          onAdded: onAdded,
-          onDoughBreak: onDoughBreak,
-          onDragCompleted: onDragCompleted,
-          onDragEnd: onDragEnd,
-          onDragStarted: onDragStarted,
-          onDraggableCanceled: onDraggableCanceled,
-          hoverColor: hoverColor,
-          useWrap: !fitView,
-          axis: axis,
-          left: left,
-          right: right,
-          top: top,
-          bottom: bottom,
-          width: width,
-          height: height,
-          onLeave: onLeave,
-          onWillAccept: onWillAccept,
-          onOffset: onOffset,
-          useLongPress: useLongPress,
-          allowDraggingLast: allowDraggingLast,
-          itemConstraints: itemConstraints,
-          borderRadius: borderRadius,
-        );
-      }),
+          // Number of columns.
+          int mColumns = 0;
+
+          double? wrapSize;
+
+          if (fitView) {
+            // Minimal diagonal of a square.
+            double min = double.infinity;
+
+            // To find the [mColumns], iterate through every possible number of
+            // columns and pick the arrangement with [min]imal diagonal.
+            for (int columns = 1; columns <= children.length; ++columns) {
+              int rows = (children.length / columns).ceil();
+
+              // Current diagonal of a single square.
+              double diagonal =
+                  (pow(rWidth / columns, 2) + pow(rHeight / rows, 2))
+                      .toDouble();
+
+              // If there's any [children] left outside, then their diagonal will
+              // always be bigger, so we need to recalculate.
+              int outside = children.length % columns;
+              if (outside != 0) {
+                // Diagonal of an outside [children] is calculated with some
+                // coefficient to force the algorithm to pick non-standard
+                // arrangement.
+                double coef = 1;
+
+                // Coefficient is hard-coded for some cases in order to [FitView] to
+                // look better.
+                if (children.length == 3) {
+                  coef = rWidth > rHeight ? 0.5 : 0.87;
+                } else if (children.length == 5) {
+                  if (rWidth > rHeight) {
+                    coef = 0.8;
+                  } else {
+                    coef = outside == 1 ? 0.8 : 1.5;
+                  }
+                } else if (children.length == 10) {
+                  if (rWidth > rHeight) {
+                    coef = outside == 2 ? 0.65 : 0.8;
+                  } else {
+                    coef = 0.8;
+                  }
+                } else if (children.length == 9) {
+                  if (rWidth > rHeight) {
+                    coef = 0.9;
+                  } else {
+                    coef = 0.5;
+                  }
+                } else if (children.length == 8) {
+                  if (rWidth > rHeight) {
+                    coef = outside == 2 ? 0.59 : 0.8;
+                  } else {
+                    coef = 0.8;
+                  }
+                } else if (children.length == 7) {
+                  if (rWidth > rHeight) {
+                    coef = rWidth / rHeight >= 3 ? 0.7 : 0.4;
+                  } else {
+                    coef = 0.4;
+                  }
+                } else if (children.length == 6) {
+                  if (rWidth > rHeight) {
+                    coef = (rWidth / rHeight > 3) ? 0.57 : 0.7;
+                  } else {
+                    coef = 0.7;
+                  }
+                } else {
+                  if (rWidth > rHeight) {
+                    coef = outside == 2 ? 0.59 : 0.77;
+                  } else {
+                    coef = 0.6;
+                  }
+                }
+
+                diagonal =
+                    (pow(rWidth / outside * coef, 2) + pow(rHeight / rows, 2))
+                        .toDouble();
+              }
+              // Tweak of a standard arrangement.
+              else if (children.length == 4) {
+                mColumns = rWidth / rHeight < 0.56 ? 1 : mColumns;
+              }
+
+              if (diagonal < min && min - diagonal > 1) {
+                mColumns = columns;
+                min = diagonal;
+              }
+            }
+          }
+
+          if (axis != null) {
+            wrapSize = calculateSize(
+              maxSize: wrapMaxSize,
+              constraints: Size(rWidth, rHeight),
+              length: children.length,
+              axis: axis!,
+            );
+          }
+
+          return _ReorderableFit<T>(
+            key: key,
+            children: children,
+            itemBuilder: itemBuilder,
+            decoratorBuilder: decoratorBuilder,
+            overlayBuilder: overlayBuilder,
+            mColumns: mColumns,
+            wrapSize: wrapSize,
+            dividerColor: dividerColor,
+            dividerSize: dividerSize,
+            onReorder: onReorder,
+            onAdded: onAdded,
+            onDoughBreak: onDoughBreak,
+            onDragCompleted: onDragCompleted,
+            onDragEnd: onDragEnd,
+            onDragStarted: onDragStarted,
+            onDraggableCanceled: onDraggableCanceled,
+            hoverColor: hoverColor,
+            useWrap: !fitView,
+            axis: axis,
+            left: left,
+            right: right,
+            top: top,
+            bottom: bottom,
+            width: width,
+            height: height,
+            onLeave: onLeave,
+            onWillAccept: onWillAccept,
+            onOffset: onOffset,
+            useLongPress: useLongPress,
+            allowDraggingLast: allowDraggingLast,
+            itemConstraints: itemConstraints,
+            borderRadius: borderRadius,
+          );
+        },
+      ),
     );
   }
 }
@@ -592,49 +595,49 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             widget.decoratorBuilder!.call(item.item),
           KeyedSubtree(
             key: item.cellKey,
-            child: item.entry != null
-                ? SizedBox(
-                    width: widget.wrapSize,
-                    height: widget.wrapSize,
-                  )
-                : _ReorderableDraggable<T>(
-                    item: item.item,
-                    itemBuilder: (o) => KeyedSubtree(
-                      key: item.itemKey,
-                      child: widget.itemBuilder(o),
+            child:
+                item.entry != null
+                    ? SizedBox(width: widget.wrapSize, height: widget.wrapSize)
+                    : _ReorderableDraggable<T>(
+                      item: item.item,
+                      itemBuilder:
+                          (o) => KeyedSubtree(
+                            key: item.itemKey,
+                            child: widget.itemBuilder(o),
+                          ),
+                      itemConstraints: widget.itemConstraints,
+                      useLongPress: widget.useLongPress,
+                      cellKey: item.cellKey,
+                      sharedKey: item.sharedKey,
+                      enabled:
+                          _items.map((e) => e.entry).nonNulls.isEmpty &&
+                          (widget.allowDraggingLast || _items.length != 1),
+                      onDragEnd: (d) {
+                        widget.onDragEnd?.call(item.item);
+                        if (_doughDragged != null) {
+                          _animateReturn(item, d);
+                          _doughDragged = null;
+                        }
+                      },
+                      onDragStarted: () {
+                        item.dragStartedRect = item.cellKey.globalPaintBounds;
+                        widget.onDragStarted?.call(item.item);
+                      },
+                      onDragCompleted:
+                          () => widget.onDragCompleted?.call(item.item),
+                      onDraggableCanceled: (d) {
+                        widget.onDraggableCanceled?.call(item.item);
+                        if (_doughDragged != null) {
+                          _animateReturn(item, d);
+                          _doughDragged = null;
+                        }
+                      },
+                      onDoughBreak: () {
+                        _doughDragged = item;
+                        widget.onDoughBreak?.call(item.item);
+                        AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
+                      },
                     ),
-                    itemConstraints: widget.itemConstraints,
-                    useLongPress: widget.useLongPress,
-                    cellKey: item.cellKey,
-                    sharedKey: item.sharedKey,
-                    enabled: _items.map((e) => e.entry).nonNulls.isEmpty &&
-                        (widget.allowDraggingLast || _items.length != 1),
-                    onDragEnd: (d) {
-                      widget.onDragEnd?.call(item.item);
-                      if (_doughDragged != null) {
-                        _animateReturn(item, d);
-                        _doughDragged = null;
-                      }
-                    },
-                    onDragStarted: () {
-                      item.dragStartedRect = item.cellKey.globalPaintBounds;
-                      widget.onDragStarted?.call(item.item);
-                    },
-                    onDragCompleted: () =>
-                        widget.onDragCompleted?.call(item.item),
-                    onDraggableCanceled: (d) {
-                      widget.onDraggableCanceled?.call(item.item);
-                      if (_doughDragged != null) {
-                        _animateReturn(item, d);
-                        _doughDragged = null;
-                      }
-                    },
-                    onDoughBreak: () {
-                      _doughDragged = item;
-                      widget.onDoughBreak?.call(item.item);
-                      AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
-                    },
-                  ),
           ),
           Row(
             children: [
@@ -643,9 +646,10 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   builder: (context, candidates, rejected) {
                     return IgnorePointer(
                       child: Container(
-                        color: candidates.isEmpty
-                            ? style.colors.transparent
-                            : widget.hoverColor ?? style.colors.transparent,
+                        color:
+                            candidates.isEmpty
+                                ? style.colors.transparent
+                                : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -688,9 +692,10 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   builder: (context, candidates, rejected) {
                     return IgnorePointer(
                       child: Container(
-                        color: candidates.isEmpty
-                            ? style.colors.transparent
-                            : widget.hoverColor ?? style.colors.transparent,
+                        color:
+                            candidates.isEmpty
+                                ? style.colors.transparent
+                                : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -725,8 +730,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
                     return false;
                   },
-                  onAcceptWithDetails: (o) =>
-                      _onAccept(o.data, index, index + 1),
+                  onAcceptWithDetails:
+                      (o) => _onAccept(o.data, index, index + 1),
                 ),
               ),
             ],
@@ -748,13 +753,15 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
           if (widget.dividerColor != null &&
               columnIndex < widget.mColumns - 1 &&
               cellIndex < _items.length - 1) {
-            column.add(IgnorePointer(
-              child: Container(
-                width: widget.dividerSize,
-                height: double.infinity,
-                color: widget.dividerColor,
+            column.add(
+              IgnorePointer(
+                child: Container(
+                  width: widget.dividerSize,
+                  height: double.infinity,
+                  color: widget.dividerColor,
+                ),
               ),
-            ));
+            );
           }
         }
       }
@@ -771,13 +778,15 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
         final List<Widget> column = createColumn(rowIndex, builder);
         rows.add(Expanded(child: Row(children: column)));
         if (widget.dividerColor != null && rowIndex < rowCount - 1) {
-          rows.add(IgnorePointer(
-            child: Container(
-              height: widget.dividerSize,
-              width: double.infinity,
-              color: widget.dividerColor,
+          rows.add(
+            IgnorePointer(
+              child: Container(
+                height: widget.dividerSize,
+                width: double.infinity,
+                color: widget.dividerColor,
+              ),
             ),
-          ));
+          );
         }
       }
 
@@ -800,22 +809,25 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               right: widget.right,
               bottom: widget.bottom,
               child: DragTarget<T>(
-                onAcceptWithDetails: (o) =>
-                    _onAccept(o.data, _items.length, _items.length),
+                onAcceptWithDetails:
+                    (o) => _onAccept(o.data, _items.length, _items.length),
                 onLeave: widget.onLeave,
-                onWillAcceptWithDetails: (o) =>
-                    !_items.contains(o.data) &&
-                    (widget.onWillAccept?.call(o.data) ?? true),
+                onWillAcceptWithDetails:
+                    (o) =>
+                        !_items.contains(o.data) &&
+                        (widget.onWillAccept?.call(o.data) ?? true),
                 builder: (context, candidates, rejected) {
                   return IgnorePointer(
                     ignoring: candidates.isNotEmpty && rejected.isEmpty,
                     child: SizedBox(
-                      width: widget.axis == Axis.horizontal
-                          ? widget.wrapSize
-                          : MediaQuery.of(context).size.width,
-                      height: widget.axis == Axis.horizontal
-                          ? MediaQuery.of(context).size.height
-                          : widget.wrapSize,
+                      width:
+                          widget.axis == Axis.horizontal
+                              ? widget.wrapSize
+                              : MediaQuery.of(context).size.width,
+                      height:
+                          widget.axis == Axis.horizontal
+                              ? MediaQuery.of(context).size.height
+                              : widget.wrapSize,
                     ),
                   );
                 },
@@ -832,24 +844,26 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,
-                child: widget.useWrap
-                    ? Wrap(
-                        direction: widget.axis ?? Axis.horizontal,
-                        alignment: WrapAlignment.start,
-                        runAlignment: WrapAlignment.start,
-                        spacing: 0,
-                        runSpacing: 0,
-                        children: _items
-                            .mapIndexed(
-                              (i, e) => SizedBox(
-                                width: widget.wrapSize,
-                                height: widget.wrapSize,
-                                child: cell(i, false),
-                              ),
-                            )
-                            .toList(),
-                      )
-                    : Column(children: createRows((i) => cell(i, false))),
+                child:
+                    widget.useWrap
+                        ? Wrap(
+                          direction: widget.axis ?? Axis.horizontal,
+                          alignment: WrapAlignment.start,
+                          runAlignment: WrapAlignment.start,
+                          spacing: 0,
+                          runSpacing: 0,
+                          children:
+                              _items
+                                  .mapIndexed(
+                                    (i, e) => SizedBox(
+                                      width: widget.wrapSize,
+                                      height: widget.wrapSize,
+                                      child: cell(i, false),
+                                    ),
+                                  )
+                                  .toList(),
+                        )
+                        : Column(children: createRows((i) => cell(i, false))),
               ),
             ),
           ),
@@ -865,33 +879,38 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,
-                child: widget.useWrap
-                    ? Wrap(
-                        direction: widget.axis ?? Axis.horizontal,
-                        alignment: WrapAlignment.start,
-                        runAlignment: WrapAlignment.start,
-                        spacing: 0,
-                        runSpacing: 0,
-                        children: _items
-                            .map(
-                              (e) => SizedBox(
-                                width: widget.wrapSize,
-                                height: widget.wrapSize,
-                                child: widget.overlayBuilder!(e.item),
-                              ),
-                            )
-                            .toList(),
-                      )
-                    : Column(
-                        children: createRows(
-                          (i) => widget.overlayBuilder!(_items[i].item),
+                child:
+                    widget.useWrap
+                        ? Wrap(
+                          direction: widget.axis ?? Axis.horizontal,
+                          alignment: WrapAlignment.start,
+                          runAlignment: WrapAlignment.start,
+                          spacing: 0,
+                          runSpacing: 0,
+                          children:
+                              _items
+                                  .map(
+                                    (e) => SizedBox(
+                                      width: widget.wrapSize,
+                                      height: widget.wrapSize,
+                                      child: widget.overlayBuilder!(e.item),
+                                    ),
+                                  )
+                                  .toList(),
+                        )
+                        : Column(
+                          children: createRows(
+                            (i) => widget.overlayBuilder!(_items[i].item),
+                          ),
                         ),
-                      ),
               ),
             ),
 
           // Pseudo-[Overlay].
-          ..._items.map((e) => e.entry).nonNulls.map(
+          ..._items
+              .map((e) => e.entry)
+              .nonNulls
+              .map(
                 (e) => IgnorePointer(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,
@@ -927,15 +946,17 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       if (start.entry != null && start.entryKey.currentState != null) {
         start.entryKey.currentState?.rect = endRect;
       } else {
-        start.entry = OverlayEntry(builder: (context) {
-          return AnimatedTransition(
-            key: start.entryKey,
-            beginRect: beginRect,
-            endRect: endRect,
-            onEnd: () => setState(() => start.entry = null),
-            child: widget.itemBuilder(start.item),
-          );
-        });
+        start.entry = OverlayEntry(
+          builder: (context) {
+            return AnimatedTransition(
+              key: start.entryKey,
+              beginRect: beginRect,
+              endRect: endRect,
+              onEnd: () => setState(() => start.entry = null),
+              child: widget.itemBuilder(start.item),
+            );
+          },
+        );
       }
     }
 
@@ -951,7 +972,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
   void _animateReturn(_ReorderableItem<T> to, Offset d) {
     if (to.dragStartedRect == null) return;
 
-    Rect beginRect = to.itemKey.globalPaintBounds ??
+    Rect beginRect =
+        to.itemKey.globalPaintBounds ??
         to.dragStartedRect ??
         to.cellKey.globalPaintBounds!;
     Rect endRect = to.cellKey.globalPaintBounds!;
@@ -964,16 +986,18 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
       if (to.entry != null && to.entryKey.currentState != null) {
         to.entryKey.currentState?.rect = endRect;
       } else {
-        to.entry = OverlayEntry(builder: (context) {
-          return AnimatedTransition(
-            key: to.entryKey,
-            curve: Curves.linearToEaseOut,
-            beginRect: beginRect,
-            endRect: endRect,
-            onEnd: () => setState(() => to.entry = null),
-            child: widget.itemBuilder(to.item),
-          );
-        });
+        to.entry = OverlayEntry(
+          builder: (context) {
+            return AnimatedTransition(
+              key: to.entryKey,
+              curve: Curves.linearToEaseOut,
+              beginRect: beginRect,
+              endRect: endRect,
+              onEnd: () => setState(() => to.entry = null),
+              child: widget.itemBuilder(to.item),
+            );
+          },
+        );
       }
 
       setState(() {});
@@ -1113,13 +1137,14 @@ class _ReorderableDraggableState<T extends Object>
               if (widget.enabled && _isDragged) {
                 widget.onDoughBreak?.call();
 
-                final BoxConstraints? itemConstraints =
-                    widget.itemConstraints?.call(widget.item);
+                final BoxConstraints? itemConstraints = widget.itemConstraints
+                    ?.call(widget.item);
 
                 if (itemConstraints != null &&
                     itemConstraints.biggest.longestSide <
                         constraints.biggest.longestSide) {
-                  final double coefficient = constraints.biggest.longestSide /
+                  final double coefficient =
+                      constraints.biggest.longestSide /
                       itemConstraints.biggest.longestSide;
 
                   _constraints.value = BoxConstraints(
@@ -1149,10 +1174,7 @@ class _ReorderableDraggableState<T extends Object>
                 color: style.colors.transparent,
               ),
             ),
-            child: KeyedSubtree(
-              key: widget.sharedKey,
-              child: child,
-            ),
+            child: KeyedSubtree(key: widget.sharedKey, child: child),
           );
         },
       ),

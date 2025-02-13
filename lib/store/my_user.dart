@@ -239,8 +239,9 @@ class MyUserRepository extends DisposableInterface
       current: () => myUser.value?.presence,
       saved: () async => (await _active)?.value.presence,
       value: presence,
-      mutation: (s, _) async =>
-          await _graphQlProvider.updateUserPresence(s ?? presence),
+      mutation:
+          (s, _) async =>
+              await _graphQlProvider.updateUserPresence(s ?? presence),
       update: (v, _) => myUser.update((u) => u?.presence = v ?? presence),
     );
   }
@@ -261,56 +262,63 @@ class MyUserRepository extends DisposableInterface
     final WelcomeMessage? previous = myUser.value?.welcomeMessage;
 
     myUser.update(
-      (u) => u
-        ?..welcomeMessage = reset
-            ? null
-            : WelcomeMessage(
-                text: text,
-                attachments: attachments ?? [],
-                at: PreciseDateTime.now(),
-              ),
+      (u) =>
+          u
+            ?..welcomeMessage =
+                reset
+                    ? null
+                    : WelcomeMessage(
+                      text: text,
+                      attachments: attachments ?? [],
+                      at: PreciseDateTime.now(),
+                    ),
     );
 
     try {
-      final List<Future>? uploads = attachments
-          ?.mapIndexed((i, e) {
-            if (e is LocalAttachment) {
-              return e.upload.value?.future.then(
-                (a) {
-                  attachments[i] = a;
-                },
-                onError: (_) {
-                  // No-op, as failed upload attempts are handled below.
-                },
-              );
-            }
-          })
-          .nonNulls
-          .toList();
+      final List<Future>? uploads =
+          attachments
+              ?.mapIndexed((i, e) {
+                if (e is LocalAttachment) {
+                  return e.upload.value?.future.then(
+                    (a) {
+                      attachments[i] = a;
+                    },
+                    onError: (_) {
+                      // No-op, as failed upload attempts are handled below.
+                    },
+                  );
+                }
+              })
+              .nonNulls
+              .toList();
 
       await Future.wait(uploads ?? []);
 
       if (attachments?.whereType<LocalAttachment>().isNotEmpty == true) {
-        throw const ConnectionException(UpdateWelcomeMessageException(
-          UpdateWelcomeMessageErrorCode.unknownAttachment,
-        ));
+        throw const ConnectionException(
+          UpdateWelcomeMessageException(
+            UpdateWelcomeMessageErrorCode.unknownAttachment,
+          ),
+        );
       }
 
       await _graphQlProvider.updateWelcomeMessage(
         reset
             ? null
             : WelcomeMessageInput(
-                text: text == null
-                    ? null
-                    : ChatMessageTextInput(
+              text:
+                  text == null
+                      ? null
+                      : ChatMessageTextInput(
                         kw$new: text.val.isEmpty ? null : text,
                       ),
-                attachments: attachments == null
-                    ? null
-                    : ChatMessageAttachmentsInput(
+              attachments:
+                  attachments == null
+                      ? null
+                      : ChatMessageAttachmentsInput(
                         kw$new: attachments.map((e) => e.id).toList(),
                       ),
-              ),
+            ),
       );
     } catch (_) {
       myUser.update((u) => u?..welcomeMessage = previous);
@@ -334,9 +342,10 @@ class MyUserRepository extends DisposableInterface
 
     try {
       await _graphQlProvider.updateUserPassword(
-        confirmation: oldPassword == null
-            ? null
-            : MyUserCredentials(password: oldPassword),
+        confirmation:
+            oldPassword == null
+                ? null
+                : MyUserCredentials(password: oldPassword),
         newPassword: newPassword,
       );
     } catch (_) {
@@ -359,9 +368,10 @@ class MyUserRepository extends DisposableInterface
     );
 
     await _graphQlProvider.deleteMyUser(
-      confirmation: confirmation == null && password == null
-          ? null
-          : MyUserCredentials(code: confirmation, password: password),
+      confirmation:
+          confirmation == null && password == null
+              ? null
+              : MyUserCredentials(code: confirmation, password: password),
     );
   }
 
@@ -386,9 +396,13 @@ class MyUserRepository extends DisposableInterface
           if (previous != null) {
             return await _graphQlProvider.deleteUserEmail(
               previous,
-              confirmation: confirmation == null && password == null
-                  ? null
-                  : MyUserCredentials(code: confirmation, password: password),
+              confirmation:
+                  confirmation == null && password == null
+                      ? null
+                      : MyUserCredentials(
+                        code: confirmation,
+                        password: password,
+                      ),
             );
           } else if (value != null) {
             return await _graphQlProvider.addUserEmail(
@@ -399,11 +413,13 @@ class MyUserRepository extends DisposableInterface
 
           return null;
         },
-        update: (v, p) => myUser.update(
-          (u) => p != null
-              ? u?.emails.unconfirmed = null
-              : u?.emails.unconfirmed = v,
-        ),
+        update:
+            (v, p) => myUser.update(
+              (u) =>
+                  p != null
+                      ? u?.emails.unconfirmed = null
+                      : u?.emails.unconfirmed = v,
+            ),
       );
     } else {
       int i = myUser.value?.emails.confirmed.indexOf(email) ?? -1;
@@ -415,9 +431,10 @@ class MyUserRepository extends DisposableInterface
       try {
         await _graphQlProvider.deleteUserEmail(
           email,
-          confirmation: confirmation == null && password == null
-              ? null
-              : MyUserCredentials(code: confirmation, password: password),
+          confirmation:
+              confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
         );
       } catch (_) {
         if (i != -1) {
@@ -450,9 +467,13 @@ class MyUserRepository extends DisposableInterface
           if (previous != null) {
             return await _graphQlProvider.deleteUserPhone(
               previous,
-              confirmation: confirmation == null && password == null
-                  ? null
-                  : MyUserCredentials(code: confirmation, password: password),
+              confirmation:
+                  confirmation == null && password == null
+                      ? null
+                      : MyUserCredentials(
+                        code: confirmation,
+                        password: password,
+                      ),
             );
           } else if (value != null) {
             return await _graphQlProvider.addUserPhone(
@@ -463,11 +484,13 @@ class MyUserRepository extends DisposableInterface
 
           return null;
         },
-        update: (v, p) => myUser.update(
-          (u) => p != null
-              ? u?.phones.unconfirmed = null
-              : u?.phones.unconfirmed = v,
-        ),
+        update:
+            (v, p) => myUser.update(
+              (u) =>
+                  p != null
+                      ? u?.phones.unconfirmed = null
+                      : u?.phones.unconfirmed = v,
+            ),
       );
     } else {
       int i = myUser.value?.phones.confirmed.indexOf(phone) ?? -1;
@@ -479,9 +502,10 @@ class MyUserRepository extends DisposableInterface
       try {
         await _graphQlProvider.deleteUserPhone(
           phone,
-          confirmation: confirmation == null && password == null
-              ? null
-              : MyUserCredentials(code: confirmation, password: password),
+          confirmation:
+              confirmation == null && password == null
+                  ? null
+                  : MyUserCredentials(code: confirmation, password: password),
         );
       } catch (_) {
         if (i != -1) {
@@ -552,9 +576,10 @@ class MyUserRepository extends DisposableInterface
         if (previous != null) {
           return await _graphQlProvider.deleteUserPhone(
             previous,
-            confirmation: confirmation == null
-                ? null
-                : MyUserCredentials(code: confirmation),
+            confirmation:
+                confirmation == null
+                    ? null
+                    : MyUserCredentials(code: confirmation),
           );
         } else if (value != null) {
           return await _graphQlProvider.addUserPhone(
@@ -566,11 +591,13 @@ class MyUserRepository extends DisposableInterface
 
         return null;
       },
-      update: (v, p) => myUser.update(
-        (u) => p != null
-            ? u?.phones.unconfirmed = null
-            : u?.phones.unconfirmed = v,
-      ),
+      update:
+          (v, p) => myUser.update(
+            (u) =>
+                p != null
+                    ? u?.phones.unconfirmed = null
+                    : u?.phones.unconfirmed = v,
+          ),
     );
   }
 
@@ -583,10 +610,11 @@ class MyUserRepository extends DisposableInterface
     await _graphQlProvider.createUserDirectLink(slug);
 
     myUser.update(
-      (u) => u?.chatDirectLink = ChatDirectLink(
-        slug: slug,
-        createdAt: PreciseDateTime.now(),
-      ),
+      (u) =>
+          u?.chatDirectLink = ChatDirectLink(
+            slug: slug,
+            createdAt: PreciseDateTime.now(),
+          ),
     );
   }
 
@@ -681,8 +709,8 @@ class MyUserRepository extends DisposableInterface
           duration == null
               ? null
               : Muting(
-                  duration: duration.forever == true ? null : duration.until,
-                ),
+                duration: duration.forever == true ? null : duration.until,
+              ),
         );
       },
       update: (v, _) => myUser.update((u) => u?.muted = v),
@@ -791,8 +819,9 @@ class MyUserRepository extends DisposableInterface
       return;
     }
 
-    _localSubscription =
-        _driftMyUser.watchSingle(id).listen((e) => _applyMyUser(id, e));
+    _localSubscription = _driftMyUser
+        .watchSingle(id)
+        .listen((e) => _applyMyUser(id, e));
   }
 
   /// Initializes [_myUserRemoteEvents] subscription.
@@ -805,31 +834,28 @@ class MyUserRepository extends DisposableInterface
 
     _remoteSubscription?.close(immediate: true);
 
-    await WebUtils.protect(
-      () async {
-        _remoteSubscription = StreamQueue(
-          await _myUserRemoteEvents(() async {
-            // Ask for initial [MyUser] event, if the stored
-            // [MyUser.blocklistCount] is `null`, to retrieve it.
-            if ((await _active)?.value.blocklistCount == null) {
-              return null;
-            }
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _myUserRemoteEvents(() async {
+          // Ask for initial [MyUser] event, if the stored
+          // [MyUser.blocklistCount] is `null`, to retrieve it.
+          if ((await _active)?.value.blocklistCount == null) {
+            return null;
+          }
 
-            return (await _active)?.ver;
-          }),
-        );
+          return (await _active)?.ver;
+        }),
+      );
 
-        await _remoteSubscription!.execute(
-          _myUserRemoteEvent,
-          onError: (e) async {
-            if (e is StaleVersionException) {
-              await _blocklistRepository.reset();
-            }
-          },
-        );
-      },
-      tag: 'myUserEvents',
-    );
+      await _remoteSubscription!.execute(
+        _myUserRemoteEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await _blocklistRepository.reset();
+          }
+        },
+      );
+    }, tag: 'myUserEvents');
   }
 
   /// Initializes the [GraphQlProvider.keepOnline] subscription.
@@ -838,17 +864,12 @@ class MyUserRepository extends DisposableInterface
 
     _keepOnlineSubscription?.cancel(immediate: true);
 
-    await WebUtils.protect(
-      () async {
-        _keepOnlineSubscription = StreamQueue(_graphQlProvider.keepOnline());
-        await _keepOnlineSubscription!.execute(
-          (_) {
-            // No-op.
-          },
-        );
-      },
-      tag: 'keepOnline',
-    );
+    await WebUtils.protect(() async {
+      _keepOnlineSubscription = StreamQueue(_graphQlProvider.keepOnline());
+      await _keepOnlineSubscription!.execute((_) {
+        // No-op.
+      });
+    }, tag: 'keepOnline');
   }
 
   /// Saves the provided [user] to the local storage.
@@ -922,7 +943,6 @@ class MyUserRepository extends DisposableInterface
         myUser.value = value;
         profiles[e.id]?.value = value;
       }
-
       // This event is not of the currently active [MyUser], so just update the
       // [profiles].
       else {
@@ -969,8 +989,9 @@ class MyUserRepository extends DisposableInterface
     for (final MyUserEvent event in versioned.events) {
       // Updates a [User] associated with this [MyUserEvent.userId].
       void put(User Function(User u) convertor) {
-        final FutureOr<RxUser?> userOrFuture =
-            _userRepository.get(event.userId);
+        final FutureOr<RxUser?> userOrFuture = _userRepository.get(
+          event.userId,
+        );
 
         if (userOrFuture is RxUser?) {
           if (userOrFuture != null) {
@@ -1082,8 +1103,9 @@ class MyUserRepository extends DisposableInterface
           if (userEntity.value.emails.unconfirmed == event.email) {
             userEntity.value.emails.unconfirmed = null;
           }
-          userEntity.value.emails.confirmed
-              .removeWhere((element) => element == event.email);
+          userEntity.value.emails.confirmed.removeWhere(
+            (element) => element == event.email,
+          );
           break;
 
         case MyUserEventKind.phoneAdded:
@@ -1106,8 +1128,9 @@ class MyUserRepository extends DisposableInterface
           if (userEntity.value.phones.unconfirmed == event.phone) {
             userEntity.value.phones.unconfirmed = null;
           }
-          userEntity.value.phones.confirmed
-              .removeWhere((element) => element == event.phone);
+          userEntity.value.phones.confirmed.removeWhere(
+            (element) => element == event.phone,
+          );
           break;
 
         case MyUserEventKind.passwordUpdated:
@@ -1139,9 +1162,10 @@ class MyUserRepository extends DisposableInterface
           event as EventUserCameOffline;
           userEntity.value.online = false;
           put(
-            (u) => u
-              ..online = false
-              ..lastSeenAt = event.at,
+            (u) =>
+                u
+                  ..online = false
+                  ..lastSeenAt = event.at,
           );
           break;
 
@@ -1182,8 +1206,10 @@ class MyUserRepository extends DisposableInterface
         case MyUserEventKind.blocklistRecordRemoved:
           event as EventBlocklistRecordRemoved;
           if (userEntity.value.blocklistCount != null) {
-            userEntity.value.blocklistCount =
-                max(userEntity.value.blocklistCount! - 1, 0);
+            userEntity.value.blocklistCount = max(
+              userEntity.value.blocklistCount! - 1,
+              0,
+            );
           }
           _blocklistRepository.remove(event.user.value.id);
           break;
@@ -1198,12 +1224,14 @@ class MyUserRepository extends DisposableInterface
           event as EventUserWelcomeMessageUpdated;
 
           final message = WelcomeMessage(
-            text: event.text == null
-                ? userEntity.value.welcomeMessage?.text
-                : event.text?.changed,
-            attachments: event.attachments == null
-                ? userEntity.value.welcomeMessage?.attachments ?? []
-                : event.attachments?.attachments ?? [],
+            text:
+                event.text == null
+                    ? userEntity.value.welcomeMessage?.text
+                    : event.text?.changed,
+            attachments:
+                event.attachments == null
+                    ? userEntity.value.welcomeMessage?.attachments ?? []
+                    : event.attachments?.attachments ?? [],
             at: event.at,
           );
 
@@ -1222,8 +1250,9 @@ class MyUserRepository extends DisposableInterface
   ) async {
     Log.debug('_myUserRemoteEvents(ver)', '$runtimeType');
 
-    return (await _graphQlProvider.myUserEvents(ver))
-        .asyncExpand((event) async* {
+    return (await _graphQlProvider.myUserEvents(ver)).asyncExpand((
+      event,
+    ) async* {
       Log.trace('_myUserRemoteEvents(ver): ${event.data}', '$runtimeType');
 
       var events = MyUserEvents$Subscription.fromJson(event.data!).myUserEvents;
@@ -1325,16 +1354,18 @@ class MyUserRepository extends DisposableInterface
         node.userId,
         node.until.$$typename == 'MuteForeverDuration'
             ? MuteDuration.forever()
-            : MuteDuration.until((node.until
-                    as MyUserEventsVersionedMixin$Events$EventUserMuted$Until$MuteUntilDuration)
-                .until),
+            : MuteDuration.until(
+              (node.until
+                      as MyUserEventsVersionedMixin$Events$EventUserMuted$Until$MuteUntilDuration)
+                  .until,
+            ),
       );
     } else if (e.$$typename == 'EventUserCameOffline') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserCameOffline;
       return EventUserCameOffline(node.userId, node.at);
     } else if (e.$$typename == 'EventUserUnreadChatsCountUpdated') {
-      final node = e
-          as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
+      final node =
+          e as MyUserEventsVersionedMixin$Events$EventUserUnreadChatsCountUpdated;
       return EventUserUnreadChatsCountUpdated(node.userId, node.count);
     } else if (e.$$typename == 'EventUserDirectLinkUpdated') {
       final node =
@@ -1374,8 +1405,8 @@ class MyUserRepository extends DisposableInterface
         node.attachments == null
             ? null
             : ChangedChatMessageAttachments(
-                node.attachments!.changed.map((e) => e.toModel()).toList(),
-              ),
+              node.attachments!.changed.map((e) => e.toModel()).toList(),
+            ),
       );
     } else {
       throw UnimplementedError('Unknown MyUserEvent: ${e.$$typename}');
@@ -1391,7 +1422,7 @@ class MyUserRepository extends DisposableInterface
     T? value,
     required void Function(T? value, T? previous) update,
     required Future<MyUserEventsVersionedMixin?> Function(T? value, T? previous)
-        mutation,
+    mutation,
   }) async {
     Log.debug(
       '_debounce($field, current, saved, $value, update, mutation)',
@@ -1406,8 +1437,10 @@ class MyUserRepository extends DisposableInterface
       field,
       () async {
         try {
-          final MyUserEventsVersionedMixin? response =
-              await mutation(value, previous);
+          final MyUserEventsVersionedMixin? response = await mutation(
+            value,
+            previous,
+          );
 
           if (response != null) {
             final event = MyUserEventsVersioned(
@@ -1444,12 +1477,4 @@ class MyUserRepository extends DisposableInterface
 /// [MyUser] fields being updated via [MyUserEvent]s.
 ///
 /// Used to update [MyUser] according to the [EventPool].
-enum MyUserField {
-  muted,
-  name,
-  status,
-  bio,
-  presence,
-  email,
-  phone,
-}
+enum MyUserField { muted, name, status, bio, presence, email, phone }

@@ -30,19 +30,16 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
   'I see {int} chats',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<ChatsTabController>();
-        if (controller.chats.where((e) => !e.id.isLocal).length == count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<ChatsTabController>();
+      if (controller.chats.where((e) => !e.id.isLocal).length == count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );
 
@@ -54,21 +51,18 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
 final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
   'I see {int} favorite chats',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<ChatsTabController>();
-        if (controller.chats
-                .where((e) => e.chat.value.favoritePosition != null)
-                .length ==
-            count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<ChatsTabController>();
+      if (controller.chats
+              .where((e) => e.chat.value.favoritePosition != null)
+              .length ==
+          count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );

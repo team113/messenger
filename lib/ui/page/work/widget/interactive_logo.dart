@@ -69,17 +69,14 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
   void _animate() {
     _frame = 1;
     _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 45),
-      (t) {
-        ++_frame;
-        if (_frame >= 9) t.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 45), (t) {
+      ++_frame;
+      if (_frame >= 9) t.cancel();
 
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     if (mounted) {
       setState(() {});

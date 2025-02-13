@@ -89,222 +89,216 @@ class _ImageCropperState extends State<ImageCropper> {
       quarterTurns: widget.rotation.index,
       child: AspectRatio(
         aspectRatio: widget.size.aspectRatio,
-        child: LayoutBuilder(builder: (context, constraints) {
-          final Rect real = _calculate(constraints);
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final Rect real = _calculate(constraints);
 
-          return Stack(
-            alignment: Alignment.center,
-            children: <Widget>[
-              // Image itself.
-              if (widget.svg != null)
-                SvgPicture.memory(
-                  widget.image,
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  fit: BoxFit.fill,
-                )
-              else
-                Image.memory(
-                  widget.image,
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  fit: BoxFit.fill,
-                ),
+            return Stack(
+              alignment: Alignment.center,
+              children: <Widget>[
+                // Image itself.
+                if (widget.svg != null)
+                  SvgPicture.memory(
+                    widget.image,
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    fit: BoxFit.fill,
+                  )
+                else
+                  Image.memory(
+                    widget.image,
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    fit: BoxFit.fill,
+                  ),
 
-              // Grid painter.
-              Positioned.fill(
-                child: MouseRegion(
-                  hitTestBehavior: HitTestBehavior.translucent,
-                  cursor: SystemMouseCursors.grab,
-                  child: GestureDetector(
-                    onPanUpdate: (d) {
-                      final Rect real = _calculate(constraints);
+                // Grid painter.
+                Positioned.fill(
+                  child: MouseRegion(
+                    hitTestBehavior: HitTestBehavior.translucent,
+                    cursor: SystemMouseCursors.grab,
+                    child: GestureDetector(
+                      onPanUpdate: (d) {
+                        final Rect real = _calculate(constraints);
 
-                      _move(
-                        Offset(
-                          (real.left + d.delta.dx) / constraints.maxWidth,
-                          (real.top + d.delta.dy) / constraints.maxHeight,
+                        _move(
+                          Offset(
+                            (real.left + d.delta.dx) / constraints.maxWidth,
+                            (real.top + d.delta.dy) / constraints.maxHeight,
+                          ),
+                        );
+                      },
+                      child: CustomPaint(
+                        foregroundPainter: CropGridPainter(
+                          crop: _crop,
+                          scrimColor: style.barrierColor,
+                          gridColor: style.colors.onPrimary,
+                          grid: _handle != null,
                         ),
-                      );
-                    },
-                    child: CustomPaint(
-                      foregroundPainter: CropGridPainter(
-                        crop: _crop,
-                        scrimColor: style.barrierColor,
-                        gridColor: style.colors.onPrimary,
-                        grid: _handle != null,
                       ),
                     ),
                   ),
                 ),
-              ),
 
-              // Top left.
-              Positioned(
-                top: real.top - Scaler.size / 2,
-                left: real.left - Scaler.size / 2,
-                child: _scaler(
-                  cursor: switch (widget.rotation) {
-                    CropRotation.up ||
-                    CropRotation.down =>
-                      CustomMouseCursors.resizeUpLeftDownRight,
-                    CropRotation.right ||
-                    CropRotation.left =>
-                      CustomMouseCursors.resizeUpRightDownLeft,
-                  },
-                  width: Scaler.size * 2,
-                  height: Scaler.size * 2,
-                  onDrag: (dx, dy) {
-                    dx = switch (widget.rotation) {
-                      CropRotation.right => -dx,
-                      CropRotation.left => dx,
-                      (_) => dx,
-                    };
+                // Top left.
+                Positioned(
+                  top: real.top - Scaler.size / 2,
+                  left: real.left - Scaler.size / 2,
+                  child: _scaler(
+                    cursor: switch (widget.rotation) {
+                      CropRotation.up || CropRotation.down =>
+                        CustomMouseCursors.resizeUpLeftDownRight,
+                      CropRotation.right || CropRotation.left =>
+                        CustomMouseCursors.resizeUpRightDownLeft,
+                    },
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) {
+                      dx = switch (widget.rotation) {
+                        CropRotation.right => -dx,
+                        CropRotation.left => dx,
+                        (_) => dx,
+                      };
 
-                    dy = switch (widget.rotation) {
-                      CropRotation.right => dy,
-                      CropRotation.left => -dy,
-                      (_) => dy,
-                    };
+                      dy = switch (widget.rotation) {
+                        CropRotation.right => dy,
+                        CropRotation.left => -dy,
+                        (_) => dy,
+                      };
 
-                    final Rect real = _calculate(constraints);
+                      final Rect real = _calculate(constraints);
 
-                    _resize(
-                      CropHandle.topLeft,
-                      Offset(
-                        (real.left + dx) / constraints.maxWidth,
-                        (real.top + dy) / constraints.maxHeight,
-                      ),
-                    );
-                  },
+                      _resize(
+                        CropHandle.topLeft,
+                        Offset(
+                          (real.left + dx) / constraints.maxWidth,
+                          (real.top + dy) / constraints.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // Top right.
-              Positioned(
-                top: real.top - Scaler.size / 2,
-                left: real.left + real.width - 3 * Scaler.size / 2,
-                child: _scaler(
-                  cursor: switch (widget.rotation) {
-                    CropRotation.up ||
-                    CropRotation.down =>
-                      CustomMouseCursors.resizeUpRightDownLeft,
-                    CropRotation.right ||
-                    CropRotation.left =>
-                      CustomMouseCursors.resizeUpLeftDownRight,
-                  },
-                  width: Scaler.size * 2,
-                  height: Scaler.size * 2,
-                  onDrag: (dx, dy) {
-                    dx = switch (widget.rotation) {
-                      CropRotation.right => dx,
-                      CropRotation.left => -dx,
-                      (_) => dx,
-                    };
+                // Top right.
+                Positioned(
+                  top: real.top - Scaler.size / 2,
+                  left: real.left + real.width - 3 * Scaler.size / 2,
+                  child: _scaler(
+                    cursor: switch (widget.rotation) {
+                      CropRotation.up || CropRotation.down =>
+                        CustomMouseCursors.resizeUpRightDownLeft,
+                      CropRotation.right || CropRotation.left =>
+                        CustomMouseCursors.resizeUpLeftDownRight,
+                    },
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) {
+                      dx = switch (widget.rotation) {
+                        CropRotation.right => dx,
+                        CropRotation.left => -dx,
+                        (_) => dx,
+                      };
 
-                    dy = switch (widget.rotation) {
-                      CropRotation.right => -dy,
-                      CropRotation.left => dy,
-                      (_) => dy,
-                    };
+                      dy = switch (widget.rotation) {
+                        CropRotation.right => -dy,
+                        CropRotation.left => dy,
+                        (_) => dy,
+                      };
 
-                    final Rect real = _calculate(constraints);
+                      final Rect real = _calculate(constraints);
 
-                    _resize(
-                      CropHandle.topRight,
-                      Offset(
-                        (real.right + dx) / constraints.maxWidth,
-                        (real.top + dy) / constraints.maxHeight,
-                      ),
-                    );
-                  },
+                      _resize(
+                        CropHandle.topRight,
+                        Offset(
+                          (real.right + dx) / constraints.maxWidth,
+                          (real.top + dy) / constraints.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // Bottom left.
-              Positioned(
-                top: real.top + real.height - 3 * Scaler.size / 2,
-                left: real.left - Scaler.size / 2,
-                child: _scaler(
-                  cursor: switch (widget.rotation) {
-                    CropRotation.up ||
-                    CropRotation.down =>
-                      CustomMouseCursors.resizeUpRightDownLeft,
-                    CropRotation.right ||
-                    CropRotation.left =>
-                      CustomMouseCursors.resizeUpLeftDownRight,
-                  },
-                  width: Scaler.size * 2,
-                  height: Scaler.size * 2,
-                  onDrag: (dx, dy) {
-                    dx = switch (widget.rotation) {
-                      CropRotation.right => dx,
-                      CropRotation.left => -dx,
-                      (_) => dx,
-                    };
+                // Bottom left.
+                Positioned(
+                  top: real.top + real.height - 3 * Scaler.size / 2,
+                  left: real.left - Scaler.size / 2,
+                  child: _scaler(
+                    cursor: switch (widget.rotation) {
+                      CropRotation.up || CropRotation.down =>
+                        CustomMouseCursors.resizeUpRightDownLeft,
+                      CropRotation.right || CropRotation.left =>
+                        CustomMouseCursors.resizeUpLeftDownRight,
+                    },
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) {
+                      dx = switch (widget.rotation) {
+                        CropRotation.right => dx,
+                        CropRotation.left => -dx,
+                        (_) => dx,
+                      };
 
-                    dy = switch (widget.rotation) {
-                      CropRotation.right => -dy,
-                      CropRotation.left => dy,
-                      (_) => dy,
-                    };
+                      dy = switch (widget.rotation) {
+                        CropRotation.right => -dy,
+                        CropRotation.left => dy,
+                        (_) => dy,
+                      };
 
-                    final Rect real = _calculate(constraints);
+                      final Rect real = _calculate(constraints);
 
-                    _resize(
-                      CropHandle.bottomLeft,
-                      Offset(
-                        (real.left + dx) / constraints.maxWidth,
-                        (real.bottom + dy) / constraints.maxHeight,
-                      ),
-                    );
-                  },
+                      _resize(
+                        CropHandle.bottomLeft,
+                        Offset(
+                          (real.left + dx) / constraints.maxWidth,
+                          (real.bottom + dy) / constraints.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // Bottom right.
-              Positioned(
-                top: real.top + real.height - 3 * Scaler.size / 2,
-                left: real.left + real.width - 3 * Scaler.size / 2,
-                child: _scaler(
-                  cursor: switch (widget.rotation) {
-                    CropRotation.up ||
-                    CropRotation.down =>
-                      CustomMouseCursors.resizeUpLeftDownRight,
-                    CropRotation.right ||
-                    CropRotation.left =>
-                      CustomMouseCursors.resizeUpRightDownLeft,
-                  },
-                  width: Scaler.size * 2,
-                  height: Scaler.size * 2,
-                  onDrag: (dx, dy) {
-                    dx = switch (widget.rotation) {
-                      CropRotation.right => -dx,
-                      CropRotation.left => dx,
-                      (_) => dx,
-                    };
+                // Bottom right.
+                Positioned(
+                  top: real.top + real.height - 3 * Scaler.size / 2,
+                  left: real.left + real.width - 3 * Scaler.size / 2,
+                  child: _scaler(
+                    cursor: switch (widget.rotation) {
+                      CropRotation.up || CropRotation.down =>
+                        CustomMouseCursors.resizeUpLeftDownRight,
+                      CropRotation.right || CropRotation.left =>
+                        CustomMouseCursors.resizeUpRightDownLeft,
+                    },
+                    width: Scaler.size * 2,
+                    height: Scaler.size * 2,
+                    onDrag: (dx, dy) {
+                      dx = switch (widget.rotation) {
+                        CropRotation.right => -dx,
+                        CropRotation.left => dx,
+                        (_) => dx,
+                      };
 
-                    dy = switch (widget.rotation) {
-                      CropRotation.right => dy,
-                      CropRotation.left => -dy,
-                      (_) => dy,
-                    };
+                      dy = switch (widget.rotation) {
+                        CropRotation.right => dy,
+                        CropRotation.left => -dy,
+                        (_) => dy,
+                      };
 
-                    final Rect real = _calculate(constraints);
+                      final Rect real = _calculate(constraints);
 
-                    _resize(
-                      CropHandle.bottomRight,
-                      Offset(
-                        (real.right + dx) / constraints.maxWidth,
-                        (real.bottom + dy) / constraints.maxHeight,
-                      ),
-                    );
-                  },
+                      _resize(
+                        CropHandle.bottomRight,
+                        Offset(
+                          (real.right + dx) / constraints.maxWidth,
+                          (real.bottom + dy) / constraints.maxHeight,
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
-          );
-        }),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -323,8 +317,14 @@ class _ImageCropperState extends State<ImageCropper> {
         key: key,
         onDragUpdate: (dx, dy) {
           onDrag?.call(
-            switch (widget.rotation) { CropRotation.down => -dx, (_) => dx },
-            switch (widget.rotation) { CropRotation.down => -dy, (_) => dy },
+            switch (widget.rotation) {
+              CropRotation.down => -dx,
+              (_) => dx,
+            },
+            switch (widget.rotation) {
+              CropRotation.down => -dy,
+              (_) => dy,
+            },
           );
         },
         width: width ?? Scaler.size,

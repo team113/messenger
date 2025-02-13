@@ -116,8 +116,10 @@ class UpgradeWorker extends DisposableService {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
-          final Release release =
-              Release.fromXml(items.first, language: L10n.chosen.value);
+          final Release release = Release.fromXml(
+            items.first,
+            language: L10n.chosen.value,
+          );
 
           // If the latest fetched [Release] is the same as this one, then don't
           // even try to compare it.
@@ -149,9 +151,10 @@ class UpgradeWorker extends DisposableService {
             }
 
             // Shouldn't prompt user with versions lower than current.
-            final bool lower = ours != null && their != null
-                ? ours < their
-                : Pubspec.ref.compareTo(release.name) == -1;
+            final bool lower =
+                ours != null && their != null
+                    ? ours < their
+                    : Pubspec.ref.compareTo(release.name) == -1;
             Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
@@ -251,7 +254,8 @@ class Release {
       title = title.substring(1);
     }
 
-    final String? description = xml
+    final String? description =
+        xml
             .findElements('description')
             .firstWhereOrNull(
               (e) => e.attributes.any(
@@ -264,10 +268,11 @@ class Release {
         xml.findElements('description').firstOrNull?.innerText;
 
     final String date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseArtifact> assets = xml
-        .findElements('enclosure')
-        .map((e) => ReleaseArtifact.fromXml(e))
-        .toList();
+    final List<ReleaseArtifact> assets =
+        xml
+            .findElements('enclosure')
+            .map((e) => ReleaseArtifact.fromXml(e))
+            .toList();
 
     return Release(
       name: title,
@@ -566,11 +571,12 @@ extension VersionExtension on Version {
       parsed.major,
       parsed.minor,
       parsed.patch,
-      pre: parsed.preRelease.isEmpty
-          ? null
-          : parsed.preRelease
-              .map((e) => e is String ? e.replaceAll('-', '.') : e)
-              .join('.'),
+      pre:
+          parsed.preRelease.isEmpty
+              ? null
+              : parsed.preRelease
+                  .map((e) => e is String ? e.replaceAll('-', '.') : e)
+                  .join('.'),
       build: parsed.build.isEmpty ? null : parsed.build.join('.'),
     );
   }

@@ -166,12 +166,18 @@ class WebUtils {
           'webkitfullscreenchange',
           fullscreenListener.toJS,
         );
-        web.document
-            .addEventListener('mozfullscreenchange', fullscreenListener.toJS);
-        web.document
-            .addEventListener('fullscreenchange', fullscreenListener.toJS);
-        web.document
-            .addEventListener('MSFullscreenChange', fullscreenListener.toJS);
+        web.document.addEventListener(
+          'mozfullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.addEventListener(
+          'fullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.addEventListener(
+          'MSFullscreenChange',
+          fullscreenListener.toJS,
+        );
       },
       onCancel: () {
         web.document.removeEventListener(
@@ -182,10 +188,14 @@ class WebUtils {
           'mozfullscreenchange',
           fullscreenListener.toJS,
         );
-        web.document
-            .removeEventListener('fullscreenchange', fullscreenListener.toJS);
-        web.document
-            .removeEventListener('MSFullscreenChange', fullscreenListener.toJS);
+        web.document.removeEventListener(
+          'fullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.removeEventListener(
+          'MSFullscreenChange',
+          fullscreenListener.toJS,
+        );
       },
     );
 
@@ -209,10 +219,10 @@ class WebUtils {
     }
 
     controller = StreamController(
-      onListen: () =>
-          web.window.addEventListener('storage', storageListener.toJS),
-      onCancel: () =>
-          web.window.removeEventListener('storage', storageListener.toJS),
+      onListen:
+          () => web.window.addEventListener('storage', storageListener.toJS),
+      onCancel:
+          () => web.window.removeEventListener('storage', storageListener.toJS),
     );
 
     return controller.stream;
@@ -298,7 +308,8 @@ class WebUtils {
 
     try {
       final locks = (await _getLocks().toDart) as JSArray;
-      held = locks.toDart
+      held =
+          locks.toDart
               .map((e) => e?.dartify() as Map?)
               .any((e) => e?['name'] == 'mutex') ==
           true;
@@ -359,10 +370,8 @@ class WebUtils {
         return callback()
             .then((val) => completer.complete(val))
             .onError(
-              (e, stackTrace) => completer.completeError(
-                e ?? Exception(),
-                stackTrace,
-              ),
+              (e, stackTrace) =>
+                  completer.completeError(e ?? Exception(), stackTrace),
             )
             .toJS;
       }
@@ -463,10 +472,13 @@ class WebUtils {
     final notification = web.Notification(title, options);
 
     void fn(web.Event _) {
-      onSelectNotification?.call(NotificationResponse(
-        notificationResponseType: NotificationResponseType.selectedNotification,
-        payload: notification.lang,
-      ));
+      onSelectNotification?.call(
+        NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          payload: notification.lang,
+        ),
+      );
       notification.close();
     }
 
@@ -615,8 +627,9 @@ class WebUtils {
 
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallRect(ChatId chatId, Rect prefs) =>
-      web.window.localStorage['prefs_call_$chatId'] =
-          json.encode(prefs.toJson());
+      web.window.localStorage['prefs_call_$chatId'] = json.encode(
+        prefs.toJson(),
+      );
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) {
@@ -635,8 +648,8 @@ class WebUtils {
       throw Exception('Cannot download file');
     }
 
-    final web.HTMLAnchorElement anchorElement = web.HTMLAnchorElement()
-      ..href = url;
+    final web.HTMLAnchorElement anchorElement =
+        web.HTMLAnchorElement()..href = url;
     anchorElement.download = name;
     anchorElement.click();
   }
@@ -653,23 +666,27 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission = await web.window.navigator.permissions
-          .query({'name': 'camera'}.jsify() as JSObject)
-          .toDart;
+      final permission =
+          await web.window.navigator.permissions
+              .query({'name': 'camera'}.jsify() as JSObject)
+              .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream = await web.window.navigator.mediaDevices
-          .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
-          .toDart;
+      final web.MediaStream stream =
+          await web.window.navigator.mediaDevices
+              .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
+              .toDart;
 
       if (isFirefox) {
-        final StreamController controller = StreamController(onCancel: () {
-          for (var e in stream.getTracks().toDart) {
-            e.stop();
-          }
-        });
+        final StreamController controller = StreamController(
+          onCancel: () {
+            for (var e in stream.getTracks().toDart) {
+              e.stop();
+            }
+          },
+        );
 
         return controller.stream.listen((_) {});
       } else {
@@ -690,23 +707,27 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission = await web.window.navigator.permissions
-          .query({'name': 'microphone'}.jsify() as JSObject)
-          .toDart;
+      final permission =
+          await web.window.navigator.permissions
+              .query({'name': 'microphone'}.jsify() as JSObject)
+              .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream = await web.window.navigator.mediaDevices
-          .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
-          .toDart;
+      final web.MediaStream stream =
+          await web.window.navigator.mediaDevices
+              .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
+              .toDart;
 
       if (isFirefox) {
-        final StreamController controller = StreamController(onCancel: () {
-          for (var e in stream.getTracks().toDart) {
-            e.stop();
-          }
-        });
+        final StreamController controller = StreamController(
+          onCancel: () {
+            for (var e in stream.getTracks().toDart) {
+              e.stop();
+            }
+          },
+        );
 
         return controller.stream.listen((_) {});
       } else {
@@ -813,17 +834,13 @@ class WebUtils {
 extension _RectExtension on Rect {
   /// Returns a [Map] containing parameters of this [Rect].
   Map<String, dynamic> toJson() => {
-        'width': width,
-        'height': height,
-        'left': left,
-        'top': top,
-      };
+    'width': width,
+    'height': height,
+    'left': left,
+    'top': top,
+  };
 
   /// Constructs a [Rect] from the provided [data].
-  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
-        data['left'],
-        data['top'],
-        data['width'],
-        data['height'],
-      );
+  static Rect fromJson(Map<dynamic, dynamic> data) =>
+      Rect.fromLTWH(data['left'], data['top'], data['width'], data['height']);
 }

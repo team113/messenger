@@ -23,12 +23,12 @@ enum PositionStatus { first, last }
 /// [CustomParameter] representing a [PositionStatus].
 class PositionStatusParameter extends CustomParameter<PositionStatus> {
   PositionStatusParameter()
-      : super(
-          'position',
-          RegExp(
-            '(${PositionStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => PositionStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'position',
+        RegExp(
+          '(${PositionStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => PositionStatus.values.firstWhere((e) => e.name == c),
+      );
 }

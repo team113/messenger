@@ -39,11 +39,7 @@ import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
 class CallService extends DisposableService {
-  CallService(
-    this._authService,
-    this._chatService,
-    this._callsRepo,
-  );
+  CallService(this._authService, this._chatService, this._callsRepo);
 
   /// Unmodifiable map of the currently displayed [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;

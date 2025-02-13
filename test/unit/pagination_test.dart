@@ -60,10 +60,20 @@ void main() async {
 
     await pagination.previous();
     expect(pagination.items.length, 12);
-    expect(
-      pagination.items.values,
-      [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25],
-    );
+    expect(pagination.items.values, [
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+    ]);
     expect(pagination.hasPrevious.value, true);
     expect(pagination.hasNext.value, true);
   });
@@ -105,133 +115,152 @@ void main() async {
               'isBlocked': {
                 'record': null,
                 'ver':
-                    '0311693284050424812357956900349787974580001690984416675657'
+                    '0311693284050424812357956900349787974580001690984416675657',
               },
               'ver':
-                  '0311693284050424812357956900349787974580000000000000000000'
+                  '0311693284050424812357956900349787974580000000000000000000',
             },
             'at': at.toIso8601String(),
             'ver': '31170824792200248681521974534461104046',
             'repliesTo': [],
             'text': text,
             'editedAt': null,
-            'attachments': []
+            'attachments': [],
           },
           'cursor': text,
         };
       }
 
-      final items = List.generate(100, (i) => message('$i'))
-          .skip(after ?? 0)
-          .take(first ?? 100)
-          .toList();
+      final items =
+          List.generate(
+            100,
+            (i) => message('$i'),
+          ).skip(after ?? 0).take(first ?? 100).toList();
 
       return Future.value(
-        GetMessages$Query.fromJson(
-          {
-            'chat': {
-              'items': {
-                'edges': items,
-                'pageInfo': {
-                  '__typename': 'PageInfo',
-                  'endCursor': '${(first ?? 0) + (after ?? 0)}',
-                  'hasNextPage': (first ?? 0) + (after ?? 0) < 100,
-                  'startCursor': '${after ?? 0}',
-                  'hasPreviousPage': false
-                }
-              }
-            }
+        GetMessages$Query.fromJson({
+          'chat': {
+            'items': {
+              'edges': items,
+              'pageInfo': {
+                '__typename': 'PageInfo',
+                'endCursor': '${(first ?? 0) + (after ?? 0)}',
+                'hasNextPage': (first ?? 0) + (after ?? 0) < 100,
+                'startCursor': '${after ?? 0}',
+                'hasPreviousPage': false,
+              },
+            },
           },
-        ),
+        }),
       );
     }
 
-    when(graphQlProvider.chatItems(chatId, first: 10))
-        .thenAnswer((_) => chatItems(first: 10));
+    when(
+      graphQlProvider.chatItems(chatId, first: 10),
+    ).thenAnswer((_) => chatItems(first: 10));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('10'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 10));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('10'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 10));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('20'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 20));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('20'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 20));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('30'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 30));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('30'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 30));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('40'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 40));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('40'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 40));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('50'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 50));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('50'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 50));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('60'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 60));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('60'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 60));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('70'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 70));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('70'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 70));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('80'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 80));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('80'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 80));
 
-    when(graphQlProvider.chatItems(
-      chatId,
-      first: 10,
-      after: const ChatItemsCursor('90'),
-    )).thenAnswer((_) => chatItems(first: 10, after: 90));
+    when(
+      graphQlProvider.chatItems(
+        chatId,
+        first: 10,
+        after: const ChatItemsCursor('90'),
+      ),
+    ).thenAnswer((_) => chatItems(first: 10, after: 90));
 
     final Pagination<DtoChatItem, ChatItemsCursor, ChatItemKey> pagination =
         Pagination(
-      perPage: 10,
-      onKey: (i) => i.value.key,
-      provider: GraphQlPageProvider<DtoChatItem, ChatItemsCursor, ChatItemKey>(
-        fetch: ({after, before, first, last}) async {
-          final q = await graphQlProvider.chatItems(
-            chatId,
-            first: first,
-            after: after,
-            last: last,
-            before: before,
-          );
+          perPage: 10,
+          onKey: (i) => i.value.key,
+          provider:
+              GraphQlPageProvider<DtoChatItem, ChatItemsCursor, ChatItemKey>(
+                fetch: ({after, before, first, last}) async {
+                  final q = await graphQlProvider.chatItems(
+                    chatId,
+                    first: first,
+                    after: after,
+                    last: last,
+                    before: before,
+                  );
 
-          final PageInfo<ChatItemsCursor> info =
-              q.chat!.items.pageInfo.toModel((c) => ChatItemsCursor(c));
-          return Page(
-            RxList(q.chat!.items.edges.map((e) => e.toDto()).toList()),
-            PageInfo<ChatItemsCursor>(
-              hasNext: info.hasNext,
-              hasPrevious: info.hasPrevious,
-              startCursor: info.startCursor,
-              endCursor: info.endCursor,
-            ),
-          );
-        },
-      ),
-      compare: (a, b) => a.value.key.compareTo(b.value.key),
-    );
+                  final PageInfo<ChatItemsCursor> info = q.chat!.items.pageInfo
+                      .toModel((c) => ChatItemsCursor(c));
+                  return Page(
+                    RxList(q.chat!.items.edges.map((e) => e.toDto()).toList()),
+                    PageInfo<ChatItemsCursor>(
+                      hasNext: info.hasNext,
+                      hasPrevious: info.hasPrevious,
+                      startCursor: info.startCursor,
+                      endCursor: info.endCursor,
+                    ),
+                  );
+                },
+              ),
+          compare: (a, b) => a.value.key.compareTo(b.value.key),
+        );
 
     await pagination.around();
     expect(pagination.items.length, 10);

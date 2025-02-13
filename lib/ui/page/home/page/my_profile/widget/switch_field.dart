@@ -22,12 +22,7 @@ import '/ui/widget/text_field.dart';
 
 /// Custom-styled [ReactiveTextField] with [Switch.adaptive].
 class SwitchField extends StatelessWidget {
-  const SwitchField({
-    super.key,
-    this.text,
-    this.value = false,
-    this.onChanged,
-  });
+  const SwitchField({super.key, this.text, this.value = false, this.onChanged});
 
   /// Text of the [ReactiveTextField].
   final String? text;

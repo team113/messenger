@@ -42,13 +42,11 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
 
   @override
   void initState() {
-    rootBundle.loadString('assets/privacy.html').then(
-      (value) {
-        if (mounted) {
-          setState(() => _text = value);
-        }
-      },
-    );
+    rootBundle.loadString('assets/privacy.html').then((value) {
+      if (mounted) {
+        setState(() => _text = value);
+      }
+    });
 
     super.initState();
   }
@@ -64,9 +62,9 @@ class _PrivacyPolicyState extends State<PrivacyPolicy> {
         const ModalPopupHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: ModalPopup.padding(context).add(
-              const EdgeInsets.only(bottom: 16),
-            ),
+            padding: ModalPopup.padding(
+              context,
+            ).add(const EdgeInsets.only(bottom: 16)),
             child: HtmlWidget(
               _text!,
               onTapUrl: launchUrlString,

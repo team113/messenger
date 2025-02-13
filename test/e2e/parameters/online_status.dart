@@ -23,12 +23,12 @@ enum OnlineStatus { online, offline }
 /// [CustomParameter] representing an [User.online] status.
 class OnlineStatusParameter extends CustomParameter<OnlineStatus> {
   OnlineStatusParameter()
-      : super(
-          'status',
-          RegExp(
-            '(${OnlineStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => OnlineStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'status',
+        RegExp(
+          '(${OnlineStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => OnlineStatus.values.firstWhere((e) => e.name == c),
+      );
 }

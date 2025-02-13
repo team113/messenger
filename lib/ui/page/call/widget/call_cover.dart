@@ -60,52 +60,56 @@ class CallCoverWidget extends StatelessWidget {
             fit: BoxFit.cover,
           ),
         if (user != null || chat != null)
-          LayoutBuilder(builder: (context, constraints) {
-            final String? title = chat?.title.initials() ?? user?.title;
-            final int? color =
-                chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
-                    user?.user.value.num.val.sum();
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final String? title = chat?.title.initials() ?? user?.title;
+              final int? color =
+                  chat?.chat.value.colorDiscriminant(chat?.me).sum() ??
+                  user?.user.value.num.val.sum();
 
-            final Color gradient;
+              final Color gradient;
 
-            if (color != null) {
-              gradient = style
-                  .colors.userColors[color % style.colors.userColors.length];
-            } else if (title != null) {
-              gradient = style.colors.userColors[
-                  (title.hashCode) % style.colors.userColors.length];
-            } else {
-              gradient = style.colors.secondaryBackgroundLightest;
-            }
+              if (color != null) {
+                gradient =
+                    style.colors.userColors[color %
+                        style.colors.userColors.length];
+              } else if (title != null) {
+                gradient =
+                    style.colors.userColors[(title.hashCode) %
+                        style.colors.userColors.length];
+              } else {
+                gradient = style.colors.secondaryBackgroundLightest;
+              }
 
-            return Container(
-              margin: const EdgeInsets.all(0.5),
-              width: double.infinity,
-              height: double.infinity,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [gradient.lighten(), gradient],
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  title ?? '??',
-                  textAlign: TextAlign.center,
-                  style: style.fonts.normal.bold.onPrimary.copyWith(
-                    fontSize: (style.fonts.normal.bold.onPrimary.fontSize! *
-                            constraints.biggest.shortestSide /
-                            100)
-                        .clamp(15, 108),
+              return Container(
+                margin: const EdgeInsets.all(0.5),
+                width: double.infinity,
+                height: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [gradient.lighten(), gradient],
                   ),
-
-                  // Disable the accessibility size settings for this [Text].
-                  textScaler: const TextScaler.linear(1),
                 ),
-              ),
-            );
-          }),
+                child: Center(
+                  child: Text(
+                    title ?? '??',
+                    textAlign: TextAlign.center,
+                    style: style.fonts.normal.bold.onPrimary.copyWith(
+                      fontSize: (style.fonts.normal.bold.onPrimary.fontSize! *
+                              constraints.biggest.shortestSide /
+                              100)
+                          .clamp(15, 108),
+                    ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaler: const TextScaler.linear(1),
+                  ),
+                ),
+              );
+            },
+          ),
         if (cover != null)
           RetryImage(
             cover.full.url,

@@ -71,9 +71,10 @@ class CallWindowSwitchView extends StatelessWidget {
                       }
 
                       return RectangleButton(
-                        label: i == 0
-                            ? 'label_open_calls_in_window'.l10n
-                            : 'label_open_calls_in_app'.l10n,
+                        label:
+                            i == 0
+                                ? 'label_open_calls_in_window'.l10n
+                                : 'label_open_calls_in_app'.l10n,
                         selected: selected,
                         onPressed: () => c.setPopupsEnabled(i == 0),
                       );

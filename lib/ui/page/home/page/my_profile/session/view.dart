@@ -90,9 +90,10 @@ class DeleteSessionView extends StatelessWidget {
                     Obx(() {
                       return PrimaryButton(
                         key: const Key('ProceedButton'),
-                        onPressed: c.password.isEmpty.isTrue
-                            ? null
-                            : c.password.submit,
+                        onPressed:
+                            c.password.isEmpty.isTrue
+                                ? null
+                                : c.password.submit,
                         title: 'btn_proceed'.l10n,
                       );
                     }),

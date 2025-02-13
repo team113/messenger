@@ -32,36 +32,38 @@ import '../world/custom_world.dart';
 /// - Then I see "Bob" contact as favorite
 final StepDefinitionGeneric seeContactAsFavorite =
     then2<String, FavoriteStatus, CustomWorld>(
-  'I see {string} contact as {favorite}',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} contact as {favorite}',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final contactRepository = Get.find<AbstractContactRepository>();
+          final contactRepository = Get.find<AbstractContactRepository>();
 
-        final ChatContactId? contactId = contactRepository.contacts.values
-            .firstWhereOrNull((e) => e.contact.value.name.val == name)
-            ?.id;
+          final ChatContactId? contactId =
+              contactRepository.contacts.values
+                  .firstWhereOrNull((e) => e.contact.value.name.val == name)
+                  ?.id;
 
-        switch (status) {
-          case FavoriteStatus.favorite:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
-            );
+          switch (status) {
+            case FavoriteStatus.favorite:
+              return await context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage(
+                  'FavoriteIndicator_$contactId',
+                ),
+              );
 
-          case FavoriteStatus.unfavorite:
-            return await context.world.appDriver.isPresent(
-                  context.world.appDriver
-                      .findByKeySkipOffstage('Contact_$contactId'),
-                ) &&
-                await context.world.appDriver.isAbsent(
-                  context.world.appDriver
-                      .findByKeySkipOffstage('FavoriteIndicator_$contactId'),
-                );
-        }
+            case FavoriteStatus.unfavorite:
+              return await context.world.appDriver.isPresent(
+                    context.world.appDriver.findByKeySkipOffstage(
+                      'Contact_$contactId',
+                    ),
+                  ) &&
+                  await context.world.appDriver.isAbsent(
+                    context.world.appDriver.findByKeySkipOffstage(
+                      'FavoriteIndicator_$contactId',
+                    ),
+                  );
+          }
+        });
       },
     );
-  },
-);

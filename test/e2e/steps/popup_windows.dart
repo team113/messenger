@@ -32,8 +32,9 @@ final StepDefinitionGeneric popupWindows = given1<EnabledStatus, CustomWorld>(
   (enabled, context) async {
     await context.world.appDriver.waitUntil(() async {
       try {
-        await Get.find<AbstractSettingsRepository>()
-            .setPopupsEnabled(enabled == EnabledStatus.enabled);
+        await Get.find<AbstractSettingsRepository>().setPopupsEnabled(
+          enabled == EnabledStatus.enabled,
+        );
         return true;
       } catch (_) {
         return false;

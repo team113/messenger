@@ -44,8 +44,7 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
     Iterable iterable, {
     K Function(dynamic element)? key,
     V Function(dynamic element)? value,
-  }) =>
-      ObsMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
+  }) => ObsMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
 
   /// Creates a map associating the given [keys] to the given [values].
   factory ObsMap.fromIterables(Iterable<K> keys, Iterable<V> values) =>
@@ -56,8 +55,9 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
       ObsMap(Map<K, V>.fromEntries(entries));
 
   /// [StreamController] of record of changes of this [ObsMap].
-  final _changes =
-      StreamController<MapChangeNotification<K, V>>.broadcast(sync: true);
+  final _changes = StreamController<MapChangeNotification<K, V>>.broadcast(
+    sync: true,
+  );
 
   /// Returns stream of record of changes of this [ObsMap].
   Stream<MapChangeNotification<K, V>> get changes => _changes.stream;
@@ -86,12 +86,18 @@ class ObsMap<K, V> extends DelegatingMap<K, V> implements Map<K, V> {
     for (var element in entries) {
       if (super.containsKey(element.key)) {
         super[element.key] = element.value;
-        _changes.add(MapChangeNotification<K, V>.updated(
-            element.key, element.key, element.value));
+        _changes.add(
+          MapChangeNotification<K, V>.updated(
+            element.key,
+            element.key,
+            element.value,
+          ),
+        );
       } else {
         super[element.key] = element.value;
-        _changes
-            .add(MapChangeNotification<K, V>.added(element.key, element.value));
+        _changes.add(
+          MapChangeNotification<K, V>.added(element.key, element.value),
+        );
       }
     }
   }
@@ -139,17 +145,17 @@ class MapChangeNotification<K, V> {
 
   /// Returns notification with [OperationKind.added] operation.
   MapChangeNotification.added(this.key, this.value)
-      : op = OperationKind.added,
-        oldKey = null;
+    : op = OperationKind.added,
+      oldKey = null;
 
   /// Returns notification with [OperationKind.updated] operation.
   MapChangeNotification.updated(this.key, this.oldKey, this.value)
-      : op = OperationKind.updated;
+    : op = OperationKind.updated;
 
   /// Returns notification with [OperationKind.removed] operation.
   MapChangeNotification.removed(this.key, this.value)
-      : op = OperationKind.removed,
-        oldKey = null;
+    : op = OperationKind.removed,
+      oldKey = null;
 
   /// Key of the changed element.
   final K? key;

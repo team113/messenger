@@ -133,8 +133,9 @@ class NotificationService extends DisposableService {
     _language = language ?? _language;
 
     PlatformUtils.isActive.then((value) => _active = value);
-    _onActivityChanged =
-        PlatformUtils.onActivityChanged.listen((v) => _active = v);
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen(
+      (v) => _active = v,
+    );
 
     AudioUtils.ensureInitialized();
 
@@ -229,16 +230,17 @@ class NotificationService extends DisposableService {
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {
-        file = (await CacheWorker.instance.get(
-          url: icon.url,
-          checksum: icon.checksum,
-          responseType: CacheResponseType.file,
-        ))
-            .file;
+        file =
+            (await CacheWorker.instance.get(
+              url: icon.url,
+              checksum: icon.checksum,
+              responseType: CacheResponseType.file,
+            )).file;
       }
 
       await WinToast.instance().showCustomToast(
-        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+        xml:
+            '<?xml version="1.0" encoding="UTF-8"?>'
             '<toast activationType="Foreground" launch="${payload ?? ''}">'
             '  <visual addImageQuery="true">'
             '      <binding template="ToastGeneric">'
@@ -259,8 +261,12 @@ class NotificationService extends DisposableService {
         try {
           final String name =
               'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg';
-          final File? file =
-              await PlatformUtils.download(image, name, null, temporary: true);
+          final File? file = await PlatformUtils.download(
+            image,
+            name,
+            null,
+            temporary: true,
+          );
 
           imagePath = file?.path;
         } catch (_) {
@@ -282,9 +288,12 @@ class NotificationService extends DisposableService {
             'default',
             'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
-            styleInformation: imagePath == null
-                ? null
-                : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
+            styleInformation:
+                imagePath == null
+                    ? null
+                    : BigPictureStyleInformation(
+                      FilePathAndroidBitmap(imagePath),
+                    ),
             tag: tag,
           ),
           linux: LinuxNotificationDetails(
@@ -293,13 +302,13 @@ class NotificationService extends DisposableService {
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
-              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+              if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
           ),
           macOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
-              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+              if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
           ),
         ),
@@ -339,11 +348,12 @@ class NotificationService extends DisposableService {
       await WinToast.instance().initialize(
         aumId: 'team113.messenger',
         displayName: 'Gapopa',
-        iconPath: kDebugMode
-            ? File(r'assets\icons\app_icon.ico').absolute.path
-            : File(r'data\flutter_assets\assets\icons\app_icon.ico')
-                .absolute
-                .path,
+        iconPath:
+            kDebugMode
+                ? File(r'assets\icons\app_icon.ico').absolute.path
+                : File(
+                  r'data\flutter_assets\assets\icons\app_icon.ico',
+                ).absolute.path,
         clsid: Config.clsid,
       );
 
@@ -426,8 +436,9 @@ class NotificationService extends DisposableService {
 
     // Display a local notification, if there's any push notifications received
     // while application is in foreground.
-    _foregroundSubscription =
-        FirebaseMessaging.onMessage.listen((message) async {
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen((
+      message,
+    ) async {
       Log.debug('_foregroundSubscription(${message.toMap()})', '$runtimeType');
 
       // If message contains no notification (it's a background notification),
@@ -458,16 +469,19 @@ class NotificationService extends DisposableService {
         await show(
           message.notification!.title!,
           body: message.notification?.body,
-          payload: message.data['chatId'] != null
-              ? '${Routes.chats}/${message.data['chatId']}'
-              : null,
-          image: message.notification?.android?.imageUrl ??
+          payload:
+              message.data['chatId'] != null
+                  ? '${Routes.chats}/${message.data['chatId']}'
+                  : null,
+          image:
+              message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
-          tag: message.data['chatId'] != null &&
-                  message.data['chatItemId'] != null
-              ? '${message.data['chatId']}_${message.data['chatItemId']}'
-              : null,
+          tag:
+              message.data['chatId'] != null &&
+                      message.data['chatItemId'] != null
+                  ? '${message.data['chatId']}_${message.data['chatItemId']}'
+                  : null,
         );
       }
     });
@@ -503,9 +517,10 @@ class NotificationService extends DisposableService {
         final String? chatId = message['data']?['chatId'];
         final String? chatItemId = message['data']?['chatItemId'];
 
-        final String? tag = (chatId != null && chatItemId != null)
-            ? '${chatId}_$chatItemId'
-            : null;
+        final String? tag =
+            (chatId != null && chatItemId != null)
+                ? '${chatId}_$chatItemId'
+                : null;
 
         // Keep track of the shown notifications' [tag]s to prevent duplication.
         //
@@ -534,11 +549,13 @@ class NotificationService extends DisposableService {
       }
 
       if (_apns == null) {
-        _token = await FirebaseMessaging.instance
-            .getToken(vapidKey: Config.vapidKey);
+        _token = await FirebaseMessaging.instance.getToken(
+          vapidKey: Config.vapidKey,
+        );
 
-        _onTokenRefresh =
-            FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
+        _onTokenRefresh = FirebaseMessaging.instance.onTokenRefresh.listen((
+          token,
+        ) async {
           await _unregisterPushDevice();
           _token = token;
           await _registerPushDevice();
@@ -586,10 +603,12 @@ class NotificationService extends DisposableService {
     // CallKit should not be used in China due to restrictions.
     if (!_isChina) {
       if (_voip != null) {
-        futures.add(_graphQlProvider.registerPushDevice(
-          PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
-          _language,
-        ));
+        futures.add(
+          _graphQlProvider.registerPushDevice(
+            PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+            _language,
+          ),
+        );
       }
     }
 

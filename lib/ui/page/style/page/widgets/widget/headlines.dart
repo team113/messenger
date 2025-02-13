@@ -23,11 +23,7 @@ import '/ui/page/home/widget/block.dart';
 
 /// Custom [Block] with the headlines.
 class Headlines extends StatelessWidget {
-  const Headlines({
-    super.key,
-    required this.children,
-    this.color,
-  });
+  const Headlines({super.key, required this.children, this.color});
 
   /// [Widget]s to display.
   final List<({String headline, Widget widget})> children;

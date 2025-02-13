@@ -52,8 +52,9 @@ class FontFamily extends StatelessWidget {
           'G, The quick brown fox jumps over the lazy dog${', the quick brown fox jumps over the lazy dog' * 10}',
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
-          style: style.fonts.largest.regular.onBackground
-              .copyWith(fontWeight: weight),
+          style: style.fonts.largest.regular.onBackground.copyWith(
+            fontWeight: weight,
+          ),
         ),
         const SizedBox(height: 4),
         WidgetButton(

@@ -30,40 +30,44 @@ import 'user.dart';
 extension MyUserConversion on MyUserMixin {
   /// Constructs a new [MyUser] from this [MyUserMixin].
   MyUser toModel() => MyUser(
-        id: id,
-        num: this.num,
-        online: online.$$typename == 'UserOnline',
-        login: login,
-        name: name,
-        bio: bio,
-        hasPassword: hasPassword,
-        unreadChatsCount: unreadChatsCount,
-        chatDirectLink: chatDirectLink != null
+    id: id,
+    num: this.num,
+    online: online.$$typename == 'UserOnline',
+    login: login,
+    name: name,
+    bio: bio,
+    hasPassword: hasPassword,
+    unreadChatsCount: unreadChatsCount,
+    chatDirectLink:
+        chatDirectLink != null
             ? ChatDirectLink(
-                slug: chatDirectLink!.slug,
-                usageCount: chatDirectLink!.usageCount,
-                createdAt: chatDirectLink!.createdAt,
-              )
+              slug: chatDirectLink!.slug,
+              usageCount: chatDirectLink!.usageCount,
+              createdAt: chatDirectLink!.createdAt,
+            )
             : null,
-        avatar: avatar?.toModel(),
-        status: status,
-        presenceIndex: presence.index,
-        emails: MyUserEmails(
-          confirmed: emails.confirmed,
-          unconfirmed: emails.unconfirmed,
-        ),
-        phones: MyUserPhones(confirmed: []),
-        muted: muted != null
+    avatar: avatar?.toModel(),
+    status: status,
+    presenceIndex: presence.index,
+    emails: MyUserEmails(
+      confirmed: emails.confirmed,
+      unconfirmed: emails.unconfirmed,
+    ),
+    phones: MyUserPhones(confirmed: []),
+    muted:
+        muted != null
             ? muted!.$$typename == 'MuteForeverDuration'
                 ? MuteDuration.forever()
                 : MuteDuration.until(
-                    (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
+                  (muted! as MyUserMixin$Muted$MuteUntilDuration).until,
+                )
             : null,
-        lastSeenAt: online.$$typename == 'UserOffline'
+    lastSeenAt:
+        online.$$typename == 'UserOffline'
             ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
             : null,
-        welcomeMessage: welcomeMessage?.toModel(),
-      );
+    welcomeMessage: welcomeMessage?.toModel(),
+  );
 
   /// Constructs a new [DtoMyUser] from this [MyUserMixin].
   DtoMyUser toDto() => DtoMyUser(toModel(), ver);
@@ -82,11 +86,8 @@ extension MyUserEventsMyUserConversion
 /// Extension adding models construction from a [BlocklistRecordMixin].
 extension BlocklistRecordConversion on BlocklistRecordMixin {
   /// Constructs a new [BlocklistRecord] from this [BlocklistRecordMixin].
-  BlocklistRecord toModel() => BlocklistRecord(
-        userId: user.id,
-        reason: reason,
-        at: at,
-      );
+  BlocklistRecord toModel() =>
+      BlocklistRecord(userId: user.id, reason: reason, at: at);
 
   /// Constructs a new [DtoBlocklistRecord] from this [BlocklistRecordMixin].
   DtoBlocklistRecord toDto({BlocklistCursor? cursor}) =>

@@ -76,30 +76,23 @@ class NavigationSection {
       ),
       Headline(
         headline: 'CustomNavigationBar',
-        child: ObxValue(
-          (p) {
-            return CustomNavigationBar(
-              currentIndex: p.value,
-              onTap: (t) => p.value = t,
-              items: [
-                const CustomNavigationBarItem.link(),
-                const CustomNavigationBarItem.work(),
-                const CustomNavigationBarItem.contacts(),
-                CustomNavigationBarItem.chats(),
-                CustomNavigationBarItem.menu(),
-              ],
-            );
-          },
-          RxInt(0),
-        ),
+        child: ObxValue((p) {
+          return CustomNavigationBar(
+            currentIndex: p.value,
+            onTap: (t) => p.value = t,
+            items: [
+              const CustomNavigationBarItem.link(),
+              const CustomNavigationBarItem.work(),
+              const CustomNavigationBarItem.contacts(),
+              CustomNavigationBarItem.chats(),
+              CustomNavigationBarItem.menu(),
+            ],
+          );
+        }, RxInt(0)),
       ),
       const Headline(child: BackgroundPreview(null)),
       Headline(
-        child: BigAvatarWidget.myUser(
-          null,
-          onDelete: () {},
-          onUpload: () {},
-        ),
+        child: BigAvatarWidget.myUser(null, onDelete: () {}, onUpload: () {}),
       ),
     ];
   }

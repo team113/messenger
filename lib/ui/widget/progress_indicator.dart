@@ -27,43 +27,43 @@ import '/ui/page/call/widget/conditional_backdrop.dart';
 /// busy.
 class CustomProgressIndicator extends StatelessWidget {
   const CustomProgressIndicator({super.key, this.value})
-      : size = 32,
-        padding = const EdgeInsets.all(6),
-        blur = true,
-        backgroundColor = null,
-        valueColor = null,
-        primary = false,
-        strokeWidth = 2.0;
+    : size = 32,
+      padding = const EdgeInsets.all(6),
+      blur = true,
+      backgroundColor = null,
+      valueColor = null,
+      primary = false,
+      strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
   const CustomProgressIndicator.primary({super.key, this.value})
-      : size = 40,
-        padding = const EdgeInsets.all(4),
-        blur = false,
-        backgroundColor = null,
-        valueColor = null,
-        primary = true,
-        strokeWidth = 2;
+    : size = 40,
+      padding = const EdgeInsets.all(4),
+      blur = false,
+      backgroundColor = null,
+      valueColor = null,
+      primary = true,
+      strokeWidth = 2;
 
   /// Constructs a [CustomProgressIndicator] with a `big` style.
   const CustomProgressIndicator.big({super.key, this.value})
-      : size = 64,
-        padding = const EdgeInsets.all(6),
-        blur = true,
-        backgroundColor = null,
-        valueColor = null,
-        primary = false,
-        strokeWidth = 2.0;
+    : size = 64,
+      padding = const EdgeInsets.all(6),
+      blur = true,
+      backgroundColor = null,
+      valueColor = null,
+      primary = false,
+      strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `small` style.
   const CustomProgressIndicator.small({super.key, this.value})
-      : size = 32,
-        padding = const EdgeInsets.all(6),
-        blur = true,
-        backgroundColor = null,
-        valueColor = null,
-        primary = true,
-        strokeWidth = 2.0;
+    : size = 32,
+      padding = const EdgeInsets.all(6),
+      blur = true,
+      backgroundColor = null,
+      valueColor = null,
+      primary = true,
+      strokeWidth = 2.0;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;
@@ -104,9 +104,10 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color: primary
-              ? style.colors.primary
-              : style.colors.secondaryHighlightDarkest,
+          color:
+              primary
+                  ? style.colors.primary
+                  : style.colors.secondaryHighlightDarkest,
           backgroundColor:
               backgroundColor ?? style.colors.secondaryHighlightDark,
           valueColor: valueColor,
@@ -134,18 +135,20 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
     required this.offsetValue,
     required this.rotationValue,
     required this.strokeWidth,
-  })  : arcStart = value != null
-            ? _startAngle
-            : _startAngle +
-                tailValue * 3 / 2 * math.pi +
-                rotationValue * math.pi * 2.0 +
-                offsetValue * 0.5 * math.pi,
-        arcSweep = value != null
-            ? clampDouble(value, 0.0, 1.0) * _sweep
-            : math.max(
-                headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi,
-                _epsilon,
-              );
+  }) : arcStart =
+           value != null
+               ? _startAngle
+               : _startAngle +
+                   tailValue * 3 / 2 * math.pi +
+                   rotationValue * math.pi * 2.0 +
+                   offsetValue * 0.5 * math.pi,
+       arcSweep =
+           value != null
+               ? clampDouble(value, 0.0, 1.0) * _sweep
+               : math.max(
+                 headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi,
+                 _epsilon,
+               );
 
   /// Background circle's color.
   final Color? backgroundColor;
@@ -191,15 +194,17 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint = Paint()
-      ..color = valueColor
-      ..strokeWidth = strokeWidth
-      ..style = PaintingStyle.stroke;
+    final Paint paint =
+        Paint()
+          ..color = valueColor
+          ..strokeWidth = strokeWidth
+          ..style = PaintingStyle.stroke;
     if (backgroundColor != null) {
-      final Paint backgroundPaint = Paint()
-        ..color = backgroundColor!
-        ..strokeWidth = strokeWidth
-        ..style = PaintingStyle.stroke;
+      final Paint backgroundPaint =
+          Paint()
+            ..color = backgroundColor!
+            ..strokeWidth = strokeWidth
+            ..style = PaintingStyle.stroke;
 
       canvas.drawArc(Offset.zero & size, 0, _sweep, false, backgroundPaint);
     }
@@ -262,12 +267,14 @@ class _CircularProgressIndicatorState
   ).chain(CurveTween(curve: const SawTooth(_pathCount)));
 
   /// [Animatable] producing the progress arc offset value.
-  static final Animatable<double> _offsetTween =
-      CurveTween(curve: const SawTooth(_pathCount));
+  static final Animatable<double> _offsetTween = CurveTween(
+    curve: const SawTooth(_pathCount),
+  );
 
   /// [Animatable] producing the progress arc rotation value.
-  static final Animatable<double> _rotationTween =
-      CurveTween(curve: const SawTooth(_rotationCount));
+  static final Animatable<double> _rotationTween = CurveTween(
+    curve: const SawTooth(_rotationCount),
+  );
 
   /// [AnimationController] controlling the progress indicator animation.
   late AnimationController _controller;
@@ -331,7 +338,8 @@ class _CircularProgressIndicatorState
   ) {
     final style = Theme.of(context).style;
 
-    final Color? trackColor = widget.backgroundColor ??
+    final Color? trackColor =
+        widget.backgroundColor ??
         ProgressIndicatorTheme.of(context).circularTrackColor;
 
     return Container(

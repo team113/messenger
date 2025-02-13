@@ -62,79 +62,100 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       }
 
       if (route == Routes.me) {
-        pages.add(const CustomPage(
-          key: ValueKey('MyProfilePage'),
-          name: Routes.me,
-          child: MyProfileView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('MyProfilePage'),
+            name: Routes.me,
+            child: MyProfileView(),
+          ),
+        );
       } else if (route.startsWith('${Routes.chats}/') &&
           route.endsWith(Routes.chatInfo)) {
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatInfoPage$id'),
-          name: '${Routes.chats}/$id${Routes.chatInfo}',
-          child: ChatInfoView(ChatId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatInfoPage$id'),
+            name: '${Routes.chats}/$id${Routes.chatInfo}',
+            child: ChatInfoView(ChatId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.chats}/')) {
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatPage$id'),
-          name: '${Routes.chats}/$id',
-          child: ChatView(
-            ChatId(id),
-            itemId: router.arguments?['itemId'] as ChatItemId?,
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatPage$id'),
+            name: '${Routes.chats}/$id',
+            child: ChatView(
+              ChatId(id),
+              itemId: router.arguments?['itemId'] as ChatItemId?,
+            ),
           ),
-        ));
+        );
       } else if (route.startsWith('${Routes.contacts}/')) {
         final id = route.replaceFirst('${Routes.contacts}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('ContactPage$id'),
-          name: '${Routes.contacts}/$id',
-          child: ContactView(ChatContactId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('ContactPage$id'),
+            name: '${Routes.contacts}/$id',
+            child: ContactView(ChatContactId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('UserPage$id'),
-          name: '${Routes.user}/$id',
-          child: UserView(UserId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('UserPage$id'),
+            name: '${Routes.user}/$id',
+            child: UserView(UserId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.work}/')) {
         final String? last = route.split('/').lastOrNull;
-        final WorkTab? work =
-            WorkTab.values.firstWhereOrNull((e) => e.name == last);
+        final WorkTab? work = WorkTab.values.firstWhereOrNull(
+          (e) => e.name == last,
+        );
 
         if (work != null) {
-          pages.add(CustomPage(
-            key: ValueKey('${work.name}WorkPage'),
-            name: Routes.me,
-            child: VacancyWorkView(work),
-          ));
+          pages.add(
+            CustomPage(
+              key: ValueKey('${work.name}WorkPage'),
+              name: Routes.me,
+              child: VacancyWorkView(work),
+            ),
+          );
         }
       } else if (route.startsWith(Routes.erase)) {
-        pages.add(const CustomPage(
-          key: ValueKey('ErasePage'),
-          name: Routes.erase,
-          child: EraseView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('ErasePage'),
+            name: Routes.erase,
+            child: EraseView(),
+          ),
+        );
       } else if (route.startsWith(Routes.support)) {
-        pages.add(const CustomPage(
-          key: ValueKey('SupportPage'),
-          name: Routes.support,
-          child: SupportView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('SupportPage'),
+            name: Routes.support,
+            child: SupportView(),
+          ),
+        );
       } else if (route.startsWith('${Routes.chatDirectLink}/')) {
-        final String slug =
-            _state.route.replaceFirst('${Routes.chatDirectLink}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatDirectLinkPage$slug'),
-          name: Routes.chatDirectLink,
-          child: ChatDirectLinkView(slug),
-        ));
+        final String slug = _state.route.replaceFirst(
+          '${Routes.chatDirectLink}/',
+          '',
+        );
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatDirectLinkPage$slug'),
+            name: Routes.chatDirectLink,
+            child: ChatDirectLinkView(slug),
+          ),
+        );
       }
     }
 

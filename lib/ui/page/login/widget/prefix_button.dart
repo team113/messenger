@@ -93,7 +93,7 @@ class PrefixButton extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                           style: styles.fonts.small.regular.secondary,
-                        )
+                        ),
                     ],
                   ),
                 ),

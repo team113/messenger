@@ -42,8 +42,9 @@ class AuthController extends GetxController {
   final RxInt logoFrame = RxInt(0);
 
   /// Current [AuthScreen] of this controller.
-  late final Rx<AuthScreen> screen =
-      Rx(profiles.isEmpty ? AuthScreen.signIn : AuthScreen.accounts);
+  late final Rx<AuthScreen> screen = Rx(
+    profiles.isEmpty ? AuthScreen.signIn : AuthScreen.accounts,
+  );
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -125,12 +126,9 @@ class AuthController extends GetxController {
   void animate() {
     logoFrame.value = 1;
     _animationTimer?.cancel();
-    _animationTimer = Timer.periodic(
-      const Duration(milliseconds: 45),
-      (t) {
-        ++logoFrame.value;
-        if (logoFrame >= 9) t.cancel();
-      },
-    );
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 45), (t) {
+      ++logoFrame.value;
+      if (logoFrame >= 9) t.cancel();
+    });
   }
 }

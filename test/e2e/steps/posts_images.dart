@@ -36,38 +36,44 @@ import '../world/custom_world.dart';
 /// - Then Alice posts 15 image attachments to "Gallery" group
 final StepDefinitionGeneric postsNAttachmentsToGroup =
     and4<TestUser, int, AttachmentType, String, CustomWorld>(
-  '{user} posts {int} {attachment} attachments to {string} group',
-  (TestUser user, int count, AttachmentType type, String group, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} posts {int} {attachment} attachments to {string} group',
+      (
+        TestUser user,
+        int count,
+        AttachmentType type,
+        String group,
+        context,
+      ) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    final response = await provider.uploadAttachment(
-      dio.MultipartFile.fromBytes(
-        switch (type) {
-          AttachmentType.image => CatImage.bytes,
-          AttachmentType.file => Uint8List.fromList([1, 1]),
-        },
-        filename: switch (type) {
-          AttachmentType.image => 'image.jpg',
-          AttachmentType.file => 'file.bin',
-        },
-        contentType: switch (type) {
-          AttachmentType.image => MediaType('image', 'jpeg'),
-          AttachmentType.file => MediaType('application', 'octet-stream'),
-        },
-      ),
+        final response = await provider.uploadAttachment(
+          dio.MultipartFile.fromBytes(
+            switch (type) {
+              AttachmentType.image => CatImage.bytes,
+              AttachmentType.file => Uint8List.fromList([1, 1]),
+            },
+            filename: switch (type) {
+              AttachmentType.image => 'image.jpg',
+              AttachmentType.file => 'file.bin',
+            },
+            contentType: switch (type) {
+              AttachmentType.image => MediaType('image', 'jpeg'),
+              AttachmentType.file => MediaType('application', 'octet-stream'),
+            },
+          ),
+        );
+
+        for (int i = 0; i < count; ++i) {
+          await provider.postChatMessage(
+            context.world.groups[group]!,
+            text: ChatMessageText('$i'),
+            attachments: [response.attachment.toModel().id],
+          );
+        }
+
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
     );
-
-    for (int i = 0; i < count; ++i) {
-      await provider.postChatMessage(
-        context.world.groups[group]!,
-        text: ChatMessageText('$i'),
-        attachments: [response.attachment.toModel().id],
-      );
-    }
-
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);

@@ -34,48 +34,50 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I attach "test.txt" file
 /// - Then I attach "test.png" image
-final StepDefinitionGeneric attachFile =
-    then2<String, AttachmentType, CustomWorld>(
-  'I attach {string} {attachment}',
-  (name, attachmentType, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric attachFile = then2<
+  String,
+  AttachmentType,
+  CustomWorld
+>('I attach {string} {attachment}', (name, attachmentType, context) async {
+  await context.world.appDriver.waitForAppToSettle();
 
-    switch (attachmentType) {
-      case AttachmentType.file:
-        final PlatformFile file = PlatformFile(
-          name: name,
-          size: 2,
-          bytes: Uint8List.fromList([1, 1]),
+  switch (attachmentType) {
+    case AttachmentType.file:
+      final PlatformFile file = PlatformFile(
+        name: name,
+        size: 2,
+        bytes: Uint8List.fromList([1, 1]),
+      );
+
+      if (Get.isRegistered<ChatForwardController>()) {
+        final controller = Get.find<ChatForwardController>();
+        controller.send.addPlatformAttachment(file);
+      } else {
+        final controller = Get.find<ChatController>(
+          tag: router.route.split('/').last,
         );
+        controller.send.addPlatformAttachment(file);
+      }
+      break;
 
-        if (Get.isRegistered<ChatForwardController>()) {
-          final controller = Get.find<ChatForwardController>();
-          controller.send.addPlatformAttachment(file);
-        } else {
-          final controller =
-              Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.send.addPlatformAttachment(file);
-        }
-        break;
+    case AttachmentType.image:
+      final PlatformFile image = PlatformFile(
+        name: name,
+        size: 2,
+        bytes: base64Decode(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        ),
+      );
 
-      case AttachmentType.image:
-        final PlatformFile image = PlatformFile(
-          name: name,
-          size: 2,
-          bytes: base64Decode(
-            'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-          ),
+      if (Get.isRegistered<ChatForwardController>()) {
+        final controller = Get.find<ChatForwardController>();
+        controller.send.addPlatformAttachment(image);
+      } else {
+        final controller = Get.find<ChatController>(
+          tag: router.route.split('/').last,
         );
-
-        if (Get.isRegistered<ChatForwardController>()) {
-          final controller = Get.find<ChatForwardController>();
-          controller.send.addPlatformAttachment(image);
-        } else {
-          final controller =
-              Get.find<ChatController>(tag: router.route.split('/').last);
-          controller.send.addPlatformAttachment(image);
-        }
-        break;
-    }
-  },
-);
+        controller.send.addPlatformAttachment(image);
+      }
+      break;
+  }
+});

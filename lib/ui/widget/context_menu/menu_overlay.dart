@@ -77,40 +77,42 @@ class _ContextMenuOverlayState extends State<ContextMenuOverlay>
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (_, constraints) {
-      double qx = 1, qy = 1;
-      if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
-      if (widget.position.dy > (constraints.maxHeight) / 2) qy = -1;
-      final Alignment alignment = Alignment(qx, qy);
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        double qx = 1, qy = 1;
+        if (widget.position.dx > (constraints.maxWidth) / 2) qx = -1;
+        if (widget.position.dy > (constraints.maxHeight) / 2) qy = -1;
+        final Alignment alignment = Alignment(qx, qy);
 
-      return Listener(
-        onPointerUp: (_) async {
-          await _controller?.reverse();
-          widget.onDismissed?.call();
-        },
-        child: FadeTransition(
-          opacity: _animation,
-          child: Container(
-            color: style.colors.transparent,
-            child: Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned(
-                  left: widget.position.dx,
-                  top: widget.position.dy,
-                  child: FractionalTranslation(
-                    translation: Offset(
-                      alignment.x > 0 ? 0 : -1,
-                      alignment.y > 0 ? 0 : -1,
+        return Listener(
+          onPointerUp: (_) async {
+            await _controller?.reverse();
+            widget.onDismissed?.call();
+          },
+          child: FadeTransition(
+            opacity: _animation,
+            child: Container(
+              color: style.colors.transparent,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Positioned(
+                    left: widget.position.dx,
+                    top: widget.position.dy,
+                    child: FractionalTranslation(
+                      translation: Offset(
+                        alignment.x > 0 ? 0 : -1,
+                        alignment.y > 0 ? 0 : -1,
+                      ),
+                      child: ContextMenu(actions: widget.actions),
                     ),
-                    child: ContextMenu(actions: widget.actions),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

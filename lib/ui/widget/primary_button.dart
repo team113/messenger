@@ -56,11 +56,12 @@ class PrimaryButton extends StatelessWidget {
         title,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        style: this.style ??
+        style:
+            this.style ??
             (onPressed == null
                 ? style.fonts.normal.regular.onBackground.copyWith(
-                    color: style.colors.secondaryOpacity87,
-                  )
+                  color: style.colors.secondaryOpacity87,
+                )
                 : style.fonts.normal.regular.onPrimary),
       ),
     );

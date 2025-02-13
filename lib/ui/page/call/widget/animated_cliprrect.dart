@@ -47,11 +47,13 @@ class _AnimatedClipRRectState
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
-    _borderRadius = visitor(
-      _borderRadius,
-      widget.borderRadius,
-      (value) => Tween<BorderRadius>(begin: value as BorderRadius),
-    ) as Tween<BorderRadius>?;
+    _borderRadius =
+        visitor(
+              _borderRadius,
+              widget.borderRadius,
+              (value) => Tween<BorderRadius>(begin: value as BorderRadius),
+            )
+            as Tween<BorderRadius>?;
   }
 
   @override

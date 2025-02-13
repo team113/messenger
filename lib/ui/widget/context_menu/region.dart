@@ -203,18 +203,20 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           unconstrained: widget.unconstrained,
           onOpened: () => _displayed = true,
           onClosed: () => _displayed = false,
-          child: widget.builder == null
-              ? child
-              // Wrap [widget.builder] with [Builder] to trigger
-              // [ContextMenuRegion.builder] on [setState].
-              : Builder(builder: (_) => widget.builder!(_displayed)),
+          child:
+              widget.builder == null
+                  ? child
+                  // Wrap [widget.builder] with [Builder] to trigger
+                  // [ContextMenuRegion.builder] on [setState].
+                  : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {
         menu = GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onLongPressStart: widget.enableLongTap
-              ? (d) => _show(context, d.globalPosition)
-              : null,
+          onLongPressStart:
+              widget.enableLongTap
+                  ? (d) => _show(context, d.globalPosition)
+                  : null,
           child: widget.builder == null ? child : widget.builder!(_displayed),
         );
 
@@ -302,9 +304,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
-        onPointerUp: widget.selectorClosable
-            ? (context) => Navigator.of(context).pop()
-            : null,
+        onPointerUp:
+            widget.selectorClosable
+                ? (context) => Navigator.of(context).pop()
+                : null,
       );
 
       _displayed = false;
@@ -315,24 +318,26 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         setState(() {});
       }
     } else {
-      _entry = OverlayEntry(builder: (_) {
-        return Listener(
-          onPointerUp: (d) {
-            _displayed = false;
-            if (widget.indicateOpenedMenu) {
-              _darkened = false;
-            }
-            if (mounted) {
-              setState(() {});
-            }
-          },
-          child: ContextMenuOverlay(
-            position: position,
-            actions: widget.actions,
-            onDismissed: _entry?.remove,
-          ),
-        );
-      });
+      _entry = OverlayEntry(
+        builder: (_) {
+          return Listener(
+            onPointerUp: (d) {
+              _displayed = false;
+              if (widget.indicateOpenedMenu) {
+                _darkened = false;
+              }
+              if (mounted) {
+                setState(() {});
+              }
+            },
+            child: ContextMenuOverlay(
+              position: position,
+              actions: widget.actions,
+              onDismissed: _entry?.remove,
+            ),
+          );
+        },
+      );
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
     }

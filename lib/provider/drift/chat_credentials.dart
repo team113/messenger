@@ -46,7 +46,9 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
     _cache[id] = credentials;
 
     await safe((db) async {
-      await db.into(db.chatCredentials).insertReturning(
+      await db
+          .into(db.chatCredentials)
+          .insertReturning(
             credentials.toDb(id),
             mode: InsertMode.insertOrReplace,
           );
@@ -63,20 +65,17 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>(
-      (db) async {
-        final stmt = db.select(db.chatCredentials)
-          ..where((u) => u.chatId.equals(id.val));
-        final ChatCredentialsRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatCallCredentials?>((db) async {
+      final stmt = db.select(db.chatCredentials)
+        ..where((u) => u.chatId.equals(id.val));
+      final ChatCredentialsRow? row = await stmt.getSingleOrNull();
 
-        if (row == null) {
-          return null;
-        }
+      if (row == null) {
+        return null;
+      }
 
-        return _CallCredentialsDb.fromDb(row);
-      },
-      exclusive: false,
-    );
+      return _CallCredentialsDb.fromDb(row);
+    }, exclusive: false);
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.

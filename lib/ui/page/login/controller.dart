@@ -61,8 +61,8 @@ class LoginController extends GetxController {
     LoginViewStage initial = LoginViewStage.signUp,
     MyUser? myUser,
     this.onSuccess,
-  })  : stage = Rx(initial),
-        _myUser = myUser;
+  }) : stage = Rx(initial),
+       _myUser = myUser;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -373,7 +373,8 @@ class LoginController extends GetxController {
     login.error.value = null;
     password.error.value = null;
 
-    final bool noCredentials = userLogin == null &&
+    final bool noCredentials =
+        userLogin == null &&
         userNum == null &&
         userEmail == null &&
         userPhone == null;
@@ -440,10 +441,7 @@ class LoginController extends GetxController {
   }
 
   /// Creates a new one-time account right away.
-  Future<void> register({
-    UserPassword? password,
-    UserLogin? login,
-  }) async {
+  Future<void> register({UserPassword? password, UserLogin? login}) async {
     try {
       await _authService.register(password: password, login: login);
       (onSuccess ?? router.home)();
@@ -665,18 +663,15 @@ class LoginController extends GetxController {
     if (enabled) {
       password.submittable.value = false;
       signInTimeout.value = 30;
-      _signInTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          signInTimeout.value--;
-          if (signInTimeout.value <= 0) {
-            password.submittable.value = true;
-            signInTimeout.value = 0;
-            _signInTimer?.cancel();
-            _signInTimer = null;
-          }
-        },
-      );
+      _signInTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        signInTimeout.value--;
+        if (signInTimeout.value <= 0) {
+          password.submittable.value = true;
+          signInTimeout.value = 0;
+          _signInTimer?.cancel();
+          _signInTimer = null;
+        }
+      });
     } else {
       password.submittable.value = true;
       signInTimeout.value = 0;
@@ -689,17 +684,14 @@ class LoginController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();
@@ -712,18 +704,15 @@ class LoginController extends GetxController {
     if (enabled) {
       emailCode.submittable.value = false;
       codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          codeTimeout.value--;
-          if (codeTimeout.value <= 0) {
-            emailCode.submittable.value = true;
-            codeTimeout.value = 0;
-            _codeTimer?.cancel();
-            _codeTimer = null;
-          }
-        },
-      );
+      _codeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        codeTimeout.value--;
+        if (codeTimeout.value <= 0) {
+          emailCode.submittable.value = true;
+          codeTimeout.value = 0;
+          _codeTimer?.cancel();
+          _codeTimer = null;
+        }
+      });
     } else {
       emailCode.submittable.value = true;
       codeTimeout.value = 0;

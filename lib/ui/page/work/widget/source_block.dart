@@ -47,9 +47,8 @@ class SourceCodeBlock extends StatelessWidget {
       children: [
         button(
           label: '- GitHub repository',
-          onPressed: () => launchUrlString(
-            'https://github.com/team113/messenger',
-          ),
+          onPressed:
+              () => launchUrlString('https://github.com/team113/messenger'),
         ),
         Row(
           children: [
@@ -61,18 +60,18 @@ class SourceCodeBlock extends StatelessWidget {
             Text('(', style: style.fonts.normal.regular.onBackground),
             button(
               label: 'btn_open_separately'.l10n,
-              onPressed: () => launchUrlString(
-                '${Config.origin}${Routes.style}',
-              ),
+              onPressed:
+                  () => launchUrlString('${Config.origin}${Routes.style}'),
             ),
             Text(')', style: style.fonts.normal.regular.onBackground),
           ],
         ),
         button(
           label: '- GraphQL API',
-          onPressed: () => launchUrlString(
-            'https://messenger.soc.stg.t11913.org/api/graphql/playground',
-          ),
+          onPressed:
+              () => launchUrlString(
+                'https://messenger.soc.stg.t11913.org/api/graphql/playground',
+              ),
         ),
       ],
     );

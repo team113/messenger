@@ -123,79 +123,89 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
   Widget _buildHeader(WelcomeFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Obx(() {
-        final bool grab = c.attachments.isNotEmpty
-            ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-            : false;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Obx(() {
+          final bool grab =
+              c.attachments.isNotEmpty
+                  ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+                  : false;
 
-        return ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-          borderRadius: BorderRadius.only(
-            topLeft: style.cardRadius.topLeft,
-            topRight: style.cardRadius.topRight,
-          ),
-          child: Container(
-            color: style.colors.onPrimaryOpacity50,
-            child: AnimatedSize(
-              duration: 400.milliseconds,
-              alignment: Alignment.bottomCenter,
-              curve: Curves.ease,
-              child: Container(
-                width: double.infinity,
-                padding: c.attachments.isNotEmpty || c.edited.value != null
-                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                    : EdgeInsets.zero,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (c.edited.value != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: _buildPreview(
-                          context,
-                          c,
-                          onClose: () => c.edited.value = null,
+          return ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            borderRadius: BorderRadius.only(
+              topLeft: style.cardRadius.topLeft,
+              topRight: style.cardRadius.topRight,
+            ),
+            child: Container(
+              color: style.colors.onPrimaryOpacity50,
+              child: AnimatedSize(
+                duration: 400.milliseconds,
+                alignment: Alignment.bottomCenter,
+                curve: Curves.ease,
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      c.attachments.isNotEmpty || c.edited.value != null
+                          ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                          : EdgeInsets.zero,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (c.edited.value != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: _buildPreview(
+                            context,
+                            c,
+                            onClose: () => c.edited.value = null,
+                          ),
                         ),
-                      ),
-                    if (c.attachments.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: MouseRegion(
-                          cursor: grab
-                              ? CustomMouseCursors.grab
-                              : MouseCursor.defer,
-                          opaque: false,
-                          child: ScrollConfiguration(
-                            behavior: CustomScrollBehavior(),
-                            child: SingleChildScrollView(
-                              clipBehavior: Clip.none,
-                              physics: grab
-                                  ? null
-                                  : const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: c.attachments
-                                    .map((e) => _buildAttachment(context, e, c))
-                                    .toList(),
+                      if (c.attachments.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: MouseRegion(
+                            cursor:
+                                grab
+                                    ? CustomMouseCursors.grab
+                                    : MouseCursor.defer,
+                            opaque: false,
+                            child: ScrollConfiguration(
+                              behavior: CustomScrollBehavior(),
+                              child: SingleChildScrollView(
+                                clipBehavior: Clip.none,
+                                physics:
+                                    grab
+                                        ? null
+                                        : const NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children:
+                                      c.attachments
+                                          .map(
+                                            (e) =>
+                                                _buildAttachment(context, e, c),
+                                          )
+                                          .toList(),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ]
-                  ],
+                      ],
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-        );
-      });
-    });
+          );
+        });
+      },
+    );
   }
 
   /// Builds a visual representation of the send field itself along with its
@@ -275,7 +285,8 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
 
     final bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    final bool isVideo = (e is FileAttachment && e.isVideo) ||
+    final bool isVideo =
+        (e is FileAttachment && e.isVideo) ||
         (e is LocalAttachment && e.file.isVideo);
 
     const double size = 125;
@@ -293,79 +304,86 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
           fit: BoxFit.cover,
         );
 
-        final List<Attachment> attachments = c.attachments
-            .where((e) {
-              final Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
+        final List<Attachment> attachments =
+            c.attachments
+                .where((e) {
+                  final Attachment a = e.value;
+                  return a is ImageAttachment ||
+                      (a is FileAttachment && a.isVideo) ||
+                      (a is LocalAttachment &&
+                          (a.file.isImage || a.file.isVideo));
+                })
+                .map((e) => e.value)
+                .toList();
 
         return WidgetButton(
           key: key,
-          onPressed: e is LocalAttachment
-              ? null
-              : () {
-                  final int index =
-                      c.attachments.indexWhere((m) => m.value == e);
-                  if (index != -1) {
-                    GalleryPopup.show(
-                      context: context,
-                      gallery: GalleryPopup(
-                        initial: index,
-                        initialKey: key,
-                        onTrashPressed: (int i) {
-                          c.attachments
-                              .removeWhere((o) => o.value == attachments[i]);
-                        },
-                        children: attachments.map((o) {
-                          if (o is ImageAttachment) {
-                            return GalleryItem.image(
-                              o.original.url,
-                              o.filename,
-                              size: o.original.size,
-                              width: (o.original as ImageFile).width,
-                              height: (o.original as ImageFile).height,
-                              checksum: o.original.checksum,
-                              thumbhash: o.big.thumbhash,
-                            );
-                          }
-                          return GalleryItem.video(
-                            o.original.url,
-                            o.filename,
-                            size: o.original.size,
-                            checksum: o.original.checksum,
-                          );
-                        }).toList(),
-                      ),
+          onPressed:
+              e is LocalAttachment
+                  ? null
+                  : () {
+                    final int index = c.attachments.indexWhere(
+                      (m) => m.value == e,
                     );
-                  }
-                },
-          child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: style.colors.onBackgroundOpacity50,
+                    if (index != -1) {
+                      GalleryPopup.show(
+                        context: context,
+                        gallery: GalleryPopup(
+                          initial: index,
+                          initialKey: key,
+                          onTrashPressed: (int i) {
+                            c.attachments.removeWhere(
+                              (o) => o.value == attachments[i],
+                            );
+                          },
+                          children:
+                              attachments.map((o) {
+                                if (o is ImageAttachment) {
+                                  return GalleryItem.image(
+                                    o.original.url,
+                                    o.filename,
+                                    size: o.original.size,
+                                    width: (o.original as ImageFile).width,
+                                    height: (o.original as ImageFile).height,
+                                    checksum: o.original.checksum,
+                                    thumbhash: o.big.thumbhash,
+                                  );
+                                }
+                                return GalleryItem.video(
+                                  o.original.url,
+                                  o.filename,
+                                  size: o.original.size,
+                                  checksum: o.original.checksum,
+                                );
+                              }).toList(),
                         ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: style.colors.onPrimary,
-                          size: 48,
+                      );
+                    }
+                  },
+          child:
+              isVideo
+                  ? IgnorePointer(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        child,
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: style.colors.onBackgroundOpacity50,
+                          ),
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: style.colors.onPrimary,
+                            size: 48,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              : child,
+                      ],
+                    ),
+                  )
+                  : child,
         );
       }
 
@@ -393,7 +411,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                   Text(
                     p.extension(e.filename),
                     style: style.fonts.small.regular.onBackground,
-                  )
+                  ),
                 ],
               ),
             ),
@@ -440,22 +458,23 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                 child: SizedBox.square(
                   dimension: 30,
                   child: ElasticAnimatedSwitcher(
-                    child: e is LocalAttachment
-                        ? e.status.value == SendingStatus.error
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: style.colors.onPrimary,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: style.colors.danger,
+                    child:
+                        e is LocalAttachment
+                            ? e.status.value == SendingStatus.error
+                                ? Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: style.colors.onPrimary,
                                   ),
-                                ),
-                              )
-                            : const SizedBox()
-                        : const SizedBox(),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.error,
+                                      color: style.colors.danger,
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox()
+                            : const SizedBox(),
                   ),
                 ),
               ),
@@ -467,14 +486,17 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                     child: Obx(() {
                       return AnimatedOpacity(
                         duration: 200.milliseconds,
-                        opacity: c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile
-                            ? 1
-                            : 0,
+                        opacity:
+                            c.hoveredAttachment.value == e ||
+                                    PlatformUtils.isMobile
+                                ? 1
+                                : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed:
+                              () => c.attachments.removeWhere(
+                                (a) => a.value == e,
+                              ),
                         ),
                       );
                     }),
@@ -486,21 +508,18 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
       );
     }
 
-    return ObxValue(
-      (p) {
-        return Opacity(
-          opacity: 1 - p.value,
-          child: Dismissible(
-            key: Key(e.id.val),
-            direction: DismissDirection.up,
-            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-            onUpdate: (d) => p.value = d.progress,
-            child: attachment(),
-          ),
-        );
-      },
-      RxDouble(0),
-    );
+    return ObxValue((p) {
+      return Opacity(
+        opacity: 1 - p.value,
+        child: Dismissible(
+          key: Key(e.id.val),
+          direction: DismissDirection.up,
+          onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+          onUpdate: (d) => p.value = d.progress,
+          child: attachment(),
+        ),
+      );
+    }, RxDouble(0));
   }
 
   /// Builds the editing mode preview.
@@ -531,7 +550,7 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
               'btn_cancel'.l10n,
               style: style.fonts.small.regular.primary,
             ),
-          )
+          ),
         ],
       ),
     );

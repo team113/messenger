@@ -100,9 +100,10 @@ class IssueWidget extends StatelessWidget {
           child: DefaultTextStyle.merge(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: expanded
-                ? style.fonts.small.regular.onPrimary
-                : style.fonts.small.regular.onBackground,
+            style:
+                expanded
+                    ? style.fonts.small.regular.onPrimary
+                    : style.fonts.small.regular.onBackground,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius.copyWith(

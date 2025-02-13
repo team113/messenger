@@ -28,21 +28,18 @@ import '../configuration.dart';
 /// - Then I wait until text "Dummy" is present
 final StepDefinitionGeneric untilTextExists =
     then2<String, Existence, FlutterWorld>(
-  'I wait until text {string} is {existence}',
-  (text, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I wait until text {string} is {existence}',
+      (text, existence, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(
+          return existence == Existence.absent
+              ? context.world.appDriver.isAbsent(
                 context.world.appDriver.findByTextSkipOffstage(text),
               )
-            : context.world.appDriver.isPresent(
+              : context.world.appDriver.isPresent(
                 context.world.appDriver.findByTextSkipOffstage(text),
               );
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

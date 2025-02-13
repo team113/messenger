@@ -47,10 +47,7 @@ class BlocklistRecordWidget extends StatelessWidget {
         if (record.reason != null) ...[
           const SizedBox(height: 8),
           Paddings.basic(
-            InfoTile(
-              title: 'label_reason'.l10n,
-              content: record.reason!.val,
-            ),
+            InfoTile(title: 'label_reason'.l10n, content: record.reason!.val),
           ),
         ],
         if (onUnblock != null) ...[

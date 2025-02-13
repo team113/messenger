@@ -110,9 +110,10 @@ class TakePhotoButton extends ChatButton {
       PlatformUtils.isAndroid ? SvgIcons.takePhoto : SvgIcons.takeVideo;
 
   @override
-  SvgData get assetMini => PlatformUtils.isAndroid
-      ? SvgIcons.takePhotoSmall
-      : SvgIcons.takeVideoSmall;
+  SvgData get assetMini =>
+      PlatformUtils.isAndroid
+          ? SvgIcons.takePhotoSmall
+          : SvgIcons.takeVideoSmall;
 }
 
 /// [ChatButton] taking a video.

@@ -32,12 +32,12 @@ class DummyRxUser extends RxUser {
 
   @override
   Rx<User> get user => Rx(
-        User(
-          const UserId('me'),
-          UserNum('1234123412341234'),
-          name: UserName('Participant'),
-        ),
-      );
+    User(
+      const UserId('me'),
+      UserNum('1234123412341234'),
+      name: UserName('Participant'),
+    ),
+  );
 
   @override
   Rx<PreciseDateTime?> get lastSeen => Rx(PreciseDateTime.now());

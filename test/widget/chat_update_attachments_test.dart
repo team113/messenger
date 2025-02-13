@@ -90,29 +90,23 @@ void main() async {
   final dioAdapter = DioAdapter(dio: dio);
   PlatformUtils.client = dio;
 
-  dioAdapter.onGet(
-    'oldRef.png',
-    (server) {
-      server.reply(
-        200,
-        base64Decode(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-        ),
-      );
-    },
-  );
+  dioAdapter.onGet('oldRef.png', (server) {
+    server.reply(
+      200,
+      base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+      ),
+    );
+  });
 
-  dioAdapter.onGet(
-    'updatedRef.png',
-    (server) {
-      server.reply(
-        200,
-        base64Decode(
-          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-        ),
-      );
-    },
-  );
+  dioAdapter.onGet('updatedRef.png', (server) {
+    server.reply(
+      200,
+      base64Decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+      ),
+    );
+  });
 
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -134,95 +128,103 @@ void main() async {
         data: {
           'recentChatsTopEvents': {
             '__typename': 'SubscriptionInitialized',
-            'ok': true
-          }
+            'ok': true,
+          },
         },
         parserFn: (_) => null,
       ),
     ),
   );
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getChat(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  )).thenAnswer(
-    (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
-  );
+  when(
+    graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    ),
+  ).thenAnswer((_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.readChat(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0'),
-  )).thenAnswer((_) => Future.value(null));
+  when(
+    graphQlProvider.readChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      const ChatItemId('6d1c8e23-8583-4e3d-9ebb-413c95c786b0'),
+    ),
+  ).thenAnswer((_) => Future.value(null));
 
-  when(graphQlProvider.chatItems(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    last: 50,
-  )).thenAnswer(
-    (_) => Future.value(GetMessages$Query.fromJson({
-      'chat': {
-        'items': {
-          'edges': [
-            {
-              'node': {
-                '__typename': 'ChatMessage',
-                'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
-                'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-                'author': {
-                  'id': 'me',
-                  'num': '1234567890123456',
-                  'mutualContactsCount': 0,
-                  'contacts': [],
-                  'isDeleted': false,
-                  'isBlocked': {'ver': '0'},
-                  'presence': 'AWAY',
-                  'ver': '0',
+  when(
+    graphQlProvider.chatItems(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      last: 50,
+    ),
+  ).thenAnswer(
+    (_) => Future.value(
+      GetMessages$Query.fromJson({
+        'chat': {
+          'items': {
+            'edges': [
+              {
+                'node': {
+                  '__typename': 'ChatMessage',
+                  'id': '6d1c8e23-8583-4e3d-9ebb-413c95c786b0',
+                  'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                  'author': {
+                    'id': 'me',
+                    'num': '1234567890123456',
+                    'mutualContactsCount': 0,
+                    'contacts': [],
+                    'isDeleted': false,
+                    'isBlocked': {'ver': '0'},
+                    'presence': 'AWAY',
+                    'ver': '0',
+                  },
+                  'at': '2022-02-01T09:32:52.246988+00:00',
+                  'ver': '10',
+                  'repliesTo': [],
+                  'text': null,
+                  'editedAt': null,
+                  'attachments': [
+                    {
+                      '__typename': 'ImageAttachment',
+                      'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
+                      'filename': 'filename.png',
+                      'original': {
+                        'relativeRef': 'oldRef.png',
+                        'checksum': 'oldChecksum1',
+                      },
+                      'big': {
+                        'relativeRef': 'oldRef.png',
+                        'checksum': 'oldChecksum2',
+                      },
+                      'medium': {
+                        'relativeRef': 'oldRef.png',
+                        'checksum': 'oldChecksum3',
+                      },
+                      'small': {
+                        'relativeRef': 'oldRef.png',
+                        'checksum': 'oldChecksum4',
+                      },
+                    },
+                  ],
                 },
-                'at': '2022-02-01T09:32:52.246988+00:00',
-                'ver': '10',
-                'repliesTo': [],
-                'text': null,
-                'editedAt': null,
-                'attachments': [
-                  {
-                    '__typename': 'ImageAttachment',
-                    'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-                    'filename': 'filename.png',
-                    'original': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum1',
-                    },
-                    'big': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum2',
-                    },
-                    'medium': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum3',
-                    },
-                    'small': {
-                      'relativeRef': 'oldRef.png',
-                      'checksum': 'oldChecksum4',
-                    },
-                  }
-                ]
+                'cursor': '123',
               },
-              'cursor': '123'
-            }
-          ],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          }
-        }
-      }
-    })),
+            ],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            },
+          },
+        },
+      }),
+    ),
   );
 
   when(graphQlProvider.chatItem(any)).thenAnswer(
@@ -230,74 +232,84 @@ void main() async {
   );
 
   when(graphQlProvider.attachments(any)).thenAnswer(
-    (_) => Future.value(GetAttachments$Query.fromJson({
-      'chatItem': {
-        'node': {
-          '__typename': 'ChatMessage',
-          'repliesTo': [],
-          'attachments': [
-            {
-              '__typename': 'ImageAttachment',
-              'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
-              'filename': 'filename.png',
-              'original': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum1',
+    (_) => Future.value(
+      GetAttachments$Query.fromJson({
+        'chatItem': {
+          'node': {
+            '__typename': 'ChatMessage',
+            'repliesTo': [],
+            'attachments': [
+              {
+                '__typename': 'ImageAttachment',
+                'id': 'c7f4b137-28b2-40aa-824f-891387e3c0b5',
+                'filename': 'filename.png',
+                'original': {
+                  'relativeRef': 'updatedRef.png',
+                  'checksum': 'updatedChecksum1',
+                },
+                'big': {
+                  'relativeRef': 'updatedRef.png',
+                  'checksum': 'updatedChecksum2',
+                },
+                'medium': {
+                  'relativeRef': 'updatedRef.png',
+                  'checksum': 'updatedChecksum3',
+                },
+                'small': {
+                  'relativeRef': 'updatedRef.png',
+                  'checksum': 'updatedChecksum4',
+                },
               },
-              'big': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum2',
-              },
-              'medium': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum3',
-              },
-              'small': {
-                'relativeRef': 'updatedRef.png',
-                'checksum': 'updatedChecksum4',
-              }
-            }
-          ]
-        }
-      }
-    })),
+            ],
+          },
+        },
+      }),
+    ),
   );
 
-  when(graphQlProvider.recentChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-    noFavorite: anyNamed('noFavorite'),
-    withOngoingCalls: anyNamed('withOngoingCalls'),
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+  when(
+    graphQlProvider.recentChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
+    ),
+  ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-  when(graphQlProvider.favoriteChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
+  when(
+    graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
     (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
   );
 
-  when(graphQlProvider.chatMembers(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    first: anyNamed('first'),
-  )).thenAnswer(
-    (_) => Future.value(GetMembers$Query.fromJson({
-      'chat': {
-        'members': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          }
-        }
-      }
-    })),
+  when(
+    graphQlProvider.chatMembers(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      first: anyNamed('first'),
+    ),
+  ).thenAnswer(
+    (_) => Future.value(
+      GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            },
+          },
+        },
+      }),
+    ),
   );
 
   when(graphQlProvider.incomingCalls()).thenAnswer(
@@ -305,26 +317,33 @@ void main() async {
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []}),
     ),
   );
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((_) async => const Stream.empty());
-  when(graphQlProvider.sessionsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.myUserEvents(any),
+  ).thenAnswer((_) async => const Stream.empty());
+  when(
+    graphQlProvider.sessionsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.getBlocklist(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
+  when(
+    graphQlProvider.getBlocklist(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
     (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
   );
 
@@ -356,10 +375,12 @@ void main() async {
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
   final cacheProvider = CacheDriftProvider(common);
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
@@ -377,8 +398,9 @@ void main() async {
     );
   }
 
-  testWidgets('ChatView successfully refreshes image attachments',
-      (WidgetTester tester) async {
+  testWidgets('ChatView successfully refreshes image attachments', (
+    WidgetTester tester,
+  ) async {
     final StreamController<QueryResult> contactEvents = StreamController();
     when(
       graphQlProvider.contactsEvents(any),
@@ -386,11 +408,9 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),
@@ -400,8 +420,9 @@ void main() async {
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
@@ -477,9 +498,11 @@ void main() async {
 
     Get.put(ContactService(contactRepository));
 
-    await tester.pumpWidget(createWidgetForTesting(
-      child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
-    ));
+    await tester.pumpWidget(
+      createWidgetForTesting(
+        child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
+      ),
+    );
 
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
@@ -495,10 +518,13 @@ void main() async {
 
     await tester.runAsync(() => Future.delayed(1.seconds));
 
-    final RxChat chat = chatRepository
-        .chats[const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')]!;
-    await tester
-        .runAsync(() => chat.updateAttachments(chat.messages.first.value));
+    final RxChat chat =
+        chatRepository.chats[const ChatId(
+          '0d72d245-8425-467a-9ebd-082d4f47850b',
+        )]!;
+    await tester.runAsync(
+      () => chat.updateAttachments(chat.messages.first.value),
+    );
 
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
@@ -545,24 +571,21 @@ final chatData = {
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
-  'ver': '0'
+  'ver': '0',
 };
 
 final recentChats = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteChats = {
@@ -574,8 +597,8 @@ final favoriteChats = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };
 
 final chatContacts = {
@@ -588,7 +611,7 @@ final chatContacts = {
       'hasPreviousPage': false,
     },
     'ver': '0',
-  }
+  },
 };
 
 final favoriteChatContacts = {
@@ -601,7 +624,7 @@ final favoriteChatContacts = {
       'hasPreviousPage': false,
     },
     'ver': '0',
-  }
+  },
 };
 
 final blacklist = {
@@ -611,5 +634,5 @@ final blacklist = {
     'hasNextPage': false,
     'startCursor': 'startCursor',
     'hasPreviousPage': false,
-  }
+  },
 };

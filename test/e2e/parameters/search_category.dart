@@ -21,12 +21,12 @@ import 'package:messenger/ui/page/call/search/controller.dart';
 /// [CustomParameter] representing a [SearchCategory].
 class SearchCategoryParameter extends CustomParameter<SearchCategory> {
   SearchCategoryParameter()
-      : super(
-          'search_category',
-          RegExp(
-            '(${SearchCategory.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => SearchCategory.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'search_category',
+        RegExp(
+          '(${SearchCategory.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => SearchCategory.values.firstWhere((e) => e.name == c),
+      );
 }

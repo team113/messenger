@@ -103,16 +103,20 @@ void main() async {
   var graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -133,33 +137,36 @@ void main() async {
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(
-      theme: Themes.light(),
-      home: Scaffold(body: child),
-    );
+    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
   }
 
-  testWidgets('ChatView successfully changes chat name',
-      (WidgetTester tester) async {
-    when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => const Stream.empty());
+  testWidgets('ChatView successfully changes chat name', (
+    WidgetTester tester,
+  ) async {
+    when(
+      graphQlProvider.recentChatsTopEvents(3),
+    ).thenAnswer((_) => const Stream.empty());
 
     final StreamController<QueryResult> chatEvents = StreamController();
-    when(graphQlProvider.chatEvents(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      any,
-      any,
-    )).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.chatEvents(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        any,
+        any,
+      ),
+    ).thenAnswer((_) => const Stream.empty());
 
     when(
       graphQlProvider.getChat(
@@ -169,46 +176,60 @@ void main() async {
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
     );
 
-    when(graphQlProvider.chatItems(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      last: 50,
-    )).thenAnswer(
-      (_) => Future.value(GetMessages$Query.fromJson({
-        'chat': {
-          'items': {'edges': []}
-        }
-      })),
+    when(
+      graphQlProvider.chatItems(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        last: 50,
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        GetMessages$Query.fromJson({
+          'chat': {
+            'items': {'edges': []},
+          },
+        }),
+      ),
     );
 
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+    when(
+      graphQlProvider.recentChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+        noFavorite: anyNamed('noFavorite'),
+        withOngoingCalls: anyNamed('withOngoingCalls'),
+      ),
+    ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.favoriteChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
     );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
-        IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
-    when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => const Stream.empty());
+    when(graphQlProvider.incomingCalls()).thenAnswer(
+      (_) => Future.value(
+        IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []}),
+      ),
+    );
+    when(
+      graphQlProvider.incomingCallsTopEvents(3),
+    ).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.renameChat(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatName('newname'),
-    )).thenAnswer((_) {
+    when(
+      graphQlProvider.renameChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ChatName('newname'),
+      ),
+    ).thenAnswer((_) {
       var event = {
         '__typename': 'ChatEventsVersioned',
         'events': [
@@ -236,61 +257,70 @@ void main() async {
               'isBlocked': {'ver': '0'},
             },
             'at': DateTime.now().toString(),
-          }
+          },
         ],
-        'ver': '1'
+        'ver': '1',
       };
 
-      chatEvents.add(QueryResult.internal(
-        data: {'chatEvents': event},
-        parserFn: (_) => null,
-        source: null,
-      ));
+      chatEvents.add(
+        QueryResult.internal(
+          data: {'chatEvents': event},
+          parserFn: (_) => null,
+          source: null,
+        ),
+      );
 
-      return Future.value(RenameChat$Mutation.fromJson({'renameChat': event})
-          .renameChat as RenameChat$Mutation$RenameChat$ChatEventsVersioned);
+      return Future.value(
+        RenameChat$Mutation.fromJson({'renameChat': event}).renameChat
+            as RenameChat$Mutation$RenameChat$ChatEventsVersioned,
+      );
     });
 
-    when(graphQlProvider.chatMembers(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      first: anyNamed('first'),
-    )).thenAnswer(
-      (_) => Future.value(GetMembers$Query.fromJson({
-        'chat': {
-          'members': {
-            'edges': [],
-            'pageInfo': {
-              'endCursor': 'endCursor',
-              'hasNextPage': false,
-              'startCursor': 'startCursor',
-              'hasPreviousPage': false,
-            }
-          }
-        }
-      })),
+    when(
+      graphQlProvider.chatMembers(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        first: anyNamed('first'),
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        GetMembers$Query.fromJson({
+          'chat': {
+            'members': {
+              'edges': [],
+              'pageInfo': {
+                'endCursor': 'endCursor',
+                'hasNextPage': false,
+                'startCursor': 'startCursor',
+                'hasPreviousPage': false,
+              },
+            },
+          },
+        }),
+      ),
     );
 
-    when(graphQlProvider.myUserEvents(any))
-        .thenAnswer((_) async => const Stream.empty());
+    when(
+      graphQlProvider.myUserEvents(any),
+    ).thenAnswer((_) async => const Stream.empty());
 
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.sessionsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),
     );
     authService.init();
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
@@ -346,17 +376,22 @@ void main() async {
     );
     Get.put(MyUserService(authService, myUserRepository));
 
-    await tester.pumpWidget(createWidgetForTesting(
-      child: const ChatInfoView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
-    ));
+    await tester.pumpWidget(
+      createWidgetForTesting(
+        child: const ChatInfoView(
+          ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      ),
+    );
 
     for (int i = 0; i < 20; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
     }
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester
-        .tap(find.byKey(const Key('EditProfileButton'), skipOffstage: false));
+    await tester.tap(
+      find.byKey(const Key('EditProfileButton'), skipOffstage: false),
+    );
     await tester.pumpAndSettle();
 
     var field = find.byKey(const Key('RenameChatField'));
@@ -368,8 +403,9 @@ void main() async {
     await tester.enterText(field, 'newname');
     await tester.pumpAndSettle();
 
-    await tester
-        .tap(find.byKey(const Key('SaveEditingButton'), skipOffstage: false));
+    await tester.tap(
+      find.byKey(const Key('SaveEditingButton'), skipOffstage: false),
+    );
     await tester.pumpAndSettle();
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
@@ -378,10 +414,12 @@ void main() async {
     await tester.pumpAndSettle(const Duration(seconds: 2));
     expect(find.byIcon(Icons.check), findsNothing);
 
-    verify(graphQlProvider.renameChat(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatName('newname'),
-    ));
+    verify(
+      graphQlProvider.renameChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ChatName('newname'),
+      ),
+    );
 
     expect(find.text('newname'), findsNWidgets(1));
 
@@ -411,24 +449,21 @@ final chatData = {
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
-  'ver': '0'
+  'ver': '0',
 };
 
 final recentChats = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteChats = {
@@ -440,6 +475,6 @@ final favoriteChats = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };

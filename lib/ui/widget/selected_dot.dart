@@ -56,42 +56,49 @@ class SelectedDot extends StatelessWidget {
       width: 30,
       child: SafeAnimatedSwitcher(
         duration: const Duration(milliseconds: 200),
-        child: selected
-            ? CircleAvatar(
-                key: const Key('Selected'),
-                backgroundColor:
-                    inverted ? style.colors.onPrimary : style.colors.primary,
-                radius: size / 2,
-                child: Icon(
-                  Icons.check,
-                  color:
-                      inverted ? style.colors.primary : style.colors.onPrimary,
-                  size: 14,
-                ),
-              )
-            : Container(
-                key: const Key('Unselected'),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: outlined
-                        ? style.colors.primary
-                        : style.colors.secondaryHighlightDark.darken(darken),
-                    width: 1.5,
+        child:
+            selected
+                ? CircleAvatar(
+                  key: const Key('Selected'),
+                  backgroundColor:
+                      inverted ? style.colors.onPrimary : style.colors.primary,
+                  radius: size / 2,
+                  child: Icon(
+                    Icons.check,
+                    color:
+                        inverted
+                            ? style.colors.primary
+                            : style.colors.onPrimary,
+                    size: 14,
                   ),
+                )
+                : Container(
+                  key: const Key('Unselected'),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color:
+                          outlined
+                              ? style.colors.primary
+                              : style.colors.secondaryHighlightDark.darken(
+                                darken,
+                              ),
+                      width: 1.5,
+                    ),
+                  ),
+                  width: size,
+                  height: size,
+                  child:
+                      outlined
+                          ? Center(
+                            child: Icon(
+                              Icons.check,
+                              color: style.colors.primary,
+                              size: 14,
+                            ),
+                          )
+                          : null,
                 ),
-                width: size,
-                height: size,
-                child: outlined
-                    ? Center(
-                        child: Icon(
-                          Icons.check,
-                          color: style.colors.primary,
-                          size: 14,
-                        ),
-                      )
-                    : null,
-              ),
       ),
     );
   }

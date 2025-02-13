@@ -47,16 +47,15 @@ class SettingsWorker extends DisposableService {
       await L10n.set(Language.fromTag(locale));
     }
 
-    _worker = ever(
-      _settingsRepository.applicationSettings,
-      (ApplicationSettings? settings) {
-        if (locale != settings?.locale) {
-          locale = settings?.locale;
-          L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
-          onChanged?.call(locale);
-        }
-      },
-    );
+    _worker = ever(_settingsRepository.applicationSettings, (
+      ApplicationSettings? settings,
+    ) {
+      if (locale != settings?.locale) {
+        locale = settings?.locale;
+        L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
+        onChanged?.call(locale);
+      }
+    });
   }
 
   @override

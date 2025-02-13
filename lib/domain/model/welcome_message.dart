@@ -26,11 +26,7 @@ part 'welcome_message.g.dart';
 /// Welcome message of a [User] to be posted in new [Chat]-dialogs with him.
 @JsonSerializable()
 class WelcomeMessage {
-  const WelcomeMessage({
-    this.text,
-    this.attachments = const [],
-    this.at,
-  });
+  const WelcomeMessage({this.text, this.attachments = const [], this.at});
 
   /// Constructs a [WelcomeMessage] from the provided [json].
   factory WelcomeMessage.fromJson(Map<String, dynamic> json) =>

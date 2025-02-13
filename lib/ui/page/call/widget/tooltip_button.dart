@@ -56,16 +56,16 @@ class TooltipButton extends StatelessWidget {
     return hint == null
         ? button
         : Tooltip(
-            verticalOffset: verticalOffset,
-            message: hint!,
-            textStyle: style.fonts.small.regular.onPrimary.copyWith(
-              shadows: [
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
-              ],
-            ),
-            decoration: const BoxDecoration(),
-            child: button,
-          );
+          verticalOffset: verticalOffset,
+          message: hint!,
+          textStyle: style.fonts.small.regular.onPrimary.copyWith(
+            shadows: [
+              Shadow(blurRadius: 6, color: style.colors.onBackground),
+              Shadow(blurRadius: 6, color: style.colors.onBackground),
+            ],
+          ),
+          decoration: const BoxDecoration(),
+          child: button,
+        );
   }
 }

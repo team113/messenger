@@ -65,9 +65,10 @@ class UserView extends StatelessWidget {
                 leading: [StyledBackButton()],
               ),
               body: Center(
-                child: c.status.value.isEmpty
-                    ? Text('err_unknown_user'.l10n)
-                    : const CustomProgressIndicator(),
+                child:
+                    c.status.value.isEmpty
+                        ? Text('err_unknown_user'.l10n)
+                        : const CustomProgressIndicator(),
               ),
             );
           }
@@ -78,10 +79,7 @@ class UserView extends StatelessWidget {
               Block(
                 title: 'label_user_is_blocked'.l10n,
                 children: [
-                  BlocklistRecordWidget(
-                    c.isBlocked!,
-                    onUnblock: c.unblock,
-                  ),
+                  BlocklistRecordWidget(c.isBlocked!, onUnblock: c.unblock),
                 ],
               ),
             _name(c, context, index: c.isBlocked != null ? 2 : 1),
@@ -100,12 +98,13 @@ class UserView extends StatelessWidget {
                 child: ScrollablePositionedList.builder(
                   key: const Key('UserScrollable'),
                   itemCount: blocks.length,
-                  itemBuilder: (_, i) => Obx(() {
-                    return HighlightedContainer(
-                      highlight: c.highlighted.value == i,
-                      child: blocks[i],
-                    );
-                  }),
+                  itemBuilder:
+                      (_, i) => Obx(() {
+                        return HighlightedContainer(
+                          highlight: c.highlighted.value == i,
+                          child: blocks[i],
+                        );
+                      }),
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
@@ -119,11 +118,7 @@ class UserView extends StatelessWidget {
   }
 
   /// Returns the [User.name] visual representation.
-  Widget _name(
-    UserController c,
-    BuildContext context, {
-    required int index,
-  }) {
+  Widget _name(UserController c, BuildContext context, {required int index}) {
     final style = Theme.of(context).style;
 
     final UserBio? bio = c.user?.user.value.bio;
@@ -171,7 +166,7 @@ class UserView extends StatelessWidget {
                   ),
                 ),
               ),
-            ]
+            ],
           ];
 
           return Column(
@@ -243,9 +238,10 @@ class UserView extends StatelessWidget {
                       offset: Offset(0, 0.5),
                       child: Container(
                         decoration: BoxDecoration(
-                          color: isAway
-                              ? style.colors.warning
-                              : style.colors.acceptAuxiliary,
+                          color:
+                              isAway
+                                  ? style.colors.warning
+                                  : style.colors.acceptAuxiliary,
                           shape: BoxShape.circle,
                         ),
                         width: 10,
@@ -279,10 +275,7 @@ class UserView extends StatelessWidget {
             children: [
               // const SizedBox(height: 12),
               const SizedBox(height: 6),
-              Text(
-                subtitle!,
-                style: style.fonts.small.regular.secondary,
-              ),
+              Text(subtitle!, style: style.fonts.small.regular.secondary),
               const SizedBox(height: 4),
             ],
           );
@@ -381,7 +374,6 @@ class UserView extends StatelessWidget {
         //     favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
         //   ),
         // ),
-
         ActionButton(
           text: 'btn_report'.l10n,
           trailing: const SvgIcon(SvgIcons.report16),
@@ -451,9 +443,10 @@ class UserView extends StatelessWidget {
         return Obx(() {
           return PrimaryButton(
             title: 'btn_proceed'.l10n,
-            onPressed: c.reporting.isEmpty.value
-                ? null
-                : () => Navigator.of(context).pop(true),
+            onPressed:
+                c.reporting.isEmpty.value
+                    ? null
+                    : () => Navigator.of(context).pop(true),
           );
         });
       },

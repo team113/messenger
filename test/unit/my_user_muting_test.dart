@@ -74,53 +74,57 @@ void main() async {
           data: {
             'myUserEvents': {'__typename': 'MyUser', ...myUserData},
           },
-        )
+        ),
       ]),
     );
 
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
-      (_) => const Stream.empty(),
-    );
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.favoriteChatsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.sessionsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
-      (_) => Future.value(ToggleMyUserMute$Mutation.fromJson({
-        'toggleMyUserMute': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {'__typename': 'EventUserUnmuted', 'userId': '12345'}
-          ],
-          'myUser': myUserData,
-          'ver': '2'
-        }
-      }).toggleMyUserMute
-          as ToggleMyUserMute$Mutation$ToggleMyUserMute$MyUserEventsVersioned),
+      (_) => Future.value(
+        ToggleMyUserMute$Mutation.fromJson({
+              'toggleMyUserMute': {
+                '__typename': 'MyUserEventsVersioned',
+                'events': [
+                  {'__typename': 'EventUserUnmuted', 'userId': '12345'},
+                ],
+                'myUser': myUserData,
+                'ver': '2',
+              },
+            }).toggleMyUserMute
+            as ToggleMyUserMute$Mutation$ToggleMyUserMute$MyUserEventsVersioned,
+      ),
     );
 
-    when(graphQlProvider.getBlocklist(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.getBlocklist(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blacklist)),
     );
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),
     );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -150,68 +154,75 @@ void main() async {
     verify(graphQlProvider.toggleMyUserMute(null));
   });
 
-  test('MyUserService throws ToggleMyUserMuteException when muting MyUser',
-      () async {
-    when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) async => Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
-          },
+  test(
+    'MyUserService throws ToggleMyUserMuteException when muting MyUser',
+    () async {
+      when(graphQlProvider.myUserEvents(any)).thenAnswer(
+        (_) async => Stream.fromIterable([
+          QueryResult.internal(
+            parserFn: (_) => null,
+            source: null,
+            data: {
+              'myUserEvents': {'__typename': 'MyUser', ...myUserData},
+            },
+          ),
+        ]),
+      );
+      when(
+        graphQlProvider.sessionsEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
+
+      when(graphQlProvider.toggleMyUserMute(null)).thenThrow(
+        const ToggleMyUserMuteException(
+          ToggleMyUserMuteErrorCode.artemisUnknown,
         ),
-      ]),
-    );
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+      );
 
-    when(graphQlProvider.toggleMyUserMute(null)).thenThrow(
-      const ToggleMyUserMuteException(ToggleMyUserMuteErrorCode.artemisUnknown),
-    );
-
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
+      AuthService authService = Get.put(
+        AuthService(
+          Get.put<AbstractAuthRepository>(
+            AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+          ),
           credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+          accountProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
 
-    BlocklistRepository blocklistRepository = Get.put(
-      BlocklistRepository(
+      BlocklistRepository blocklistRepository = Get.put(
+        BlocklistRepository(
+          graphQlProvider,
+          blocklistProvider,
+          userRepository,
+          versionProvider,
+          myUserProvider,
+          me: const UserId('me'),
+        ),
+      );
+
+      AbstractMyUserRepository myUserRepository = MyUserRepository(
         graphQlProvider,
-        blocklistProvider,
-        userRepository,
-        versionProvider,
         myUserProvider,
-        me: const UserId('me'),
-      ),
-    );
+        blocklistRepository,
+        userRepository,
+        accountProvider,
+      );
+      myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+      MyUserService myUserService = MyUserService(
+        authService,
+        myUserRepository,
+      );
 
-    AbstractMyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blocklistRepository,
-      userRepository,
-      accountProvider,
-    );
-    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
-    MyUserService myUserService = MyUserService(authService, myUserRepository);
+      await expectLater(
+        () async => await myUserService.toggleMute(null),
+        throwsA(isA<ToggleMyUserMuteException>()),
+      );
 
-    await expectLater(
-      () async => await myUserService.toggleMute(null),
-      throwsA(isA<ToggleMyUserMuteException>()),
-    );
-
-    verify(graphQlProvider.toggleMyUserMute(null));
-  });
+      verify(graphQlProvider.toggleMyUserMute(null));
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
@@ -238,5 +249,5 @@ final blacklist = {
     'hasNextPage': false,
     'startCursor': 'startCursor',
     'hasPreviousPage': false,
-  }
+  },
 };

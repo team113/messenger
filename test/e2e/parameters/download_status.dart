@@ -21,22 +21,22 @@ import 'package:messenger/ui/worker/cache.dart';
 /// [CustomParameter] representing a [DownloadStatus].
 class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
   DownloadStatusParameter()
-      : super(
-          'downloadStatus',
-          RegExp('(not downloaded|downloading|downloaded)'),
-          (c) {
-            switch (c) {
-              case 'not downloaded':
-                return DownloadStatus.notStarted;
+    : super(
+        'downloadStatus',
+        RegExp('(not downloaded|downloading|downloaded)'),
+        (c) {
+          switch (c) {
+            case 'not downloaded':
+              return DownloadStatus.notStarted;
 
-              case 'downloading':
-                return DownloadStatus.inProgress;
+            case 'downloading':
+              return DownloadStatus.inProgress;
 
-              case 'downloaded':
-                return DownloadStatus.isFinished;
-            }
+            case 'downloaded':
+              return DownloadStatus.isFinished;
+          }
 
-            throw ArgumentError.value(c);
-          },
-        );
+          throw ArgumentError.value(c);
+        },
+      );
 }

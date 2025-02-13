@@ -54,7 +54,9 @@ class GeoLocationDriftProvider extends DriftProviderBase {
     data[(ip, language)] = DtoIpGeoLocation(geo, PreciseDateTime.now());
 
     await safe<DtoIpGeoLocation?>((db) async {
-      final result = await db.into(db.geoLocations).insertReturning(
+      final result = await db
+          .into(db.geoLocations)
+          .insertReturning(
             geo.toDb(ip, language: language),
             onConflict: DoUpdate((_) => geo.toDb(ip, language: language)),
           );

@@ -186,8 +186,9 @@ class MyProfileController extends GetxController {
   void onInit() {
     if (!PlatformUtils.isMobile) {
       try {
-        _devicesSubscription =
-            MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+        _devicesSubscription = MediaUtils.onDeviceChange.listen(
+          (e) => devices.value = e,
+        );
         MediaUtils.enumerateDevices().then((e) => devices.value = e);
       } catch (_) {
         // No-op, shouldn't break the view.
@@ -199,29 +200,30 @@ class MyProfileController extends GetxController {
     bool ignoreWorker = false;
     bool ignorePositions = false;
 
-    _profileWorker = ever(
-      router.profileSection,
-      (ProfileTab? tab) async {
-        if (ignoreWorker) {
-          ignoreWorker = false;
-        } else {
-          ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-          Future.delayed(Duration.zero, () => ignorePositions = false);
+    _profileWorker = ever(router.profileSection, (ProfileTab? tab) async {
+      if (ignoreWorker) {
+        ignoreWorker = false;
+      } else {
+        ignorePositions = true;
+        await itemScrollController.scrollTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+        Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          highlight(tab);
-        }
-      },
-    );
+        highlight(tab);
+      }
+    });
 
     positionsListener.itemPositions.addListener(() {
       if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
+        final ProfileTab tab =
+            ProfileTab.values[positionsListener
+                .itemPositions
+                .value
+                .first
+                .index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
@@ -259,29 +261,24 @@ class MyProfileController extends GetxController {
         bool modalVisible = true;
 
         _myUserService
-            .addUserPhone(
-          phone,
-          locale: L10n.chosen.value?.toString(),
-        )
-            .onError(
-          (e, __) {
-            s.unchecked = phone.val;
+            .addUserPhone(phone, locale: L10n.chosen.value?.toString())
+            .onError((e, __) {
+              s.unchecked = phone.val;
 
-            if (e is AddUserPhoneException) {
-              s.error.value = e.toMessage();
-              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
-            } else {
-              s.error.value = 'err_data_transfer'.l10n;
-              s.resubmitOnError.value = true;
-            }
+              if (e is AddUserPhoneException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-            s.unsubmit();
+              s.unsubmit();
 
-            if (modalVisible) {
-              Navigator.of(router.context!).pop();
-            }
-          },
-        );
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddPhoneView.show(
           router.context!,
@@ -320,27 +317,24 @@ class MyProfileController extends GetxController {
         bool modalVisible = true;
 
         _myUserService
-            .addUserEmail(
-          email,
-          locale: L10n.chosen.value?.toString(),
-        )
+            .addUserEmail(email, locale: L10n.chosen.value?.toString())
             .onError((e, __) {
-          s.unchecked = email.val;
+              s.unchecked = email.val;
 
-          if (e is AddUserEmailException) {
-            s.error.value = e.toMessage();
-            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
-          } else {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.resubmitOnError.value = true;
-          }
+              if (e is AddUserEmailException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-          s.unsubmit();
+              s.unsubmit();
 
-          if (modalVisible) {
-            Navigator.of(router.context!).pop();
-          }
-        });
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddEmailView.show(
           router.context!,
@@ -466,8 +460,10 @@ class MyProfileController extends GetxController {
       );
 
       if (cache.bytes != null) {
-        final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, cache.bytes!);
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          cache.bytes!,
+        );
 
         if (crop != null) {
           await _updateAvatar(
@@ -501,8 +497,10 @@ class MyProfileController extends GetxController {
         avatarUpload.value = RxStatus.loading();
 
         final PlatformFile file = result!.files.first;
-        final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, file.bytes!);
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          file.bytes!,
+        );
         if (crop == null) {
           return;
         }
@@ -615,7 +613,7 @@ class MyProfileController extends GetxController {
     try {
       await Future.wait([
         _myUserService.updateAvatar(file, crop: crop),
-        _myUserService.updateCallCover(file)
+        _myUserService.updateCallCover(file),
       ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);

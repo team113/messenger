@@ -154,17 +154,14 @@ class AddPhoneController extends GetxController {
   void _setResendPhoneTimer([bool enabled = true]) {
     if (enabled) {
       resendPhoneTimeout.value = 30;
-      _resendPhoneTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendPhoneTimeout.value--;
-          if (resendPhoneTimeout.value <= 0) {
-            resendPhoneTimeout.value = 0;
-            _resendPhoneTimer?.cancel();
-            _resendPhoneTimer = null;
-          }
-        },
-      );
+      _resendPhoneTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendPhoneTimeout.value--;
+        if (resendPhoneTimeout.value <= 0) {
+          resendPhoneTimeout.value = 0;
+          _resendPhoneTimer?.cancel();
+          _resendPhoneTimer = null;
+        }
+      });
     } else {
       resendPhoneTimeout.value = 0;
       _resendPhoneTimer?.cancel();

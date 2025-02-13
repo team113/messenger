@@ -169,15 +169,15 @@ extension UserAgentExtension on UserAgent {
 
       return system;
     }
-
     // Otherwise it may be a browser's `User-Agent` header.
     else {
       // Header values are separated by spaces.
       final List<String> parts = val.split(' ');
 
       // Browser's `User-Agent` may contain the `Version` tag.
-      final String? versionPart =
-          parts.firstWhereOrNull((e) => e.startsWith('Version/'));
+      final String? versionPart = parts.firstWhereOrNull(
+        (e) => e.startsWith('Version/'),
+      );
 
       for (final BrowserRule e in _rules) {
         // Lookup the part that is identifiable by any [BrowserRule] out there.
@@ -212,11 +212,8 @@ extension UserAgentExtension on UserAgent {
 
 /// Data for parsing a browser from a [UserAgent].
 class BrowserRule {
-  const BrowserRule({
-    required this.rule,
-    String? name,
-    this.versionDepth,
-  }) : _name = name;
+  const BrowserRule({required this.rule, String? name, this.versionDepth})
+    : _name = name;
 
   /// [Pattern] of the browser.
   final Pattern rule;

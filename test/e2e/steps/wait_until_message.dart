@@ -36,27 +36,27 @@ import '../configuration.dart';
 /// - Then I wait until "Dummy" message is present
 final StepDefinitionGeneric untilMessageExists =
     then2<String, Existence, FlutterWorld>(
-  'I wait until {string} message is {existence}',
-  (text, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I wait until {string} message is {existence}',
+      (text, existence, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        final ChatMessage? message = chat!.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .firstWhereOrNull((e) => e.text?.val == text);
+          final RxChat? chat =
+              Get.find<ChatService>().chats[ChatId(
+                router.route.split('/').last,
+              )];
+          final ChatMessage? message = chat!.messages
+              .map((e) => e.value)
+              .whereType<ChatMessage>()
+              .firstWhereOrNull((e) => e.text?.val == text);
 
-        final Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('Message_${message?.id}');
+          final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+            'Message_${message?.id}',
+          );
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
+          return existence == Existence.absent
+              ? context.world.appDriver.isAbsent(finder)
+              : context.world.appDriver.isPresent(finder);
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

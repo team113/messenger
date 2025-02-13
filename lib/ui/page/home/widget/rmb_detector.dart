@@ -22,11 +22,7 @@ import '/ui/widget/menu_interceptor/menu_interceptor.dart';
 
 /// Secondary button detector.
 class RmbDetector extends StatefulWidget {
-  const RmbDetector({
-    super.key,
-    required this.child,
-    this.onPressed,
-  });
+  const RmbDetector({super.key, required this.child, this.onPressed});
 
   /// [Widget] to wrap this [RmbDetector] over.
   final Widget child;
@@ -53,8 +49,10 @@ class _RmbDetectorState extends State<RmbDetector> {
             widget.onPressed?.call();
           }
         },
-        child:
-            GestureDetector(onLongPress: widget.onPressed, child: widget.child),
+        child: GestureDetector(
+          onLongPress: widget.onPressed,
+          child: widget.child,
+        ),
       ),
     );
   }

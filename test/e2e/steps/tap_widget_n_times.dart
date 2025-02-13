@@ -31,8 +31,8 @@ import '../parameters/keys.dart';
 /// - When I tap `WidgetKey` field 10 times
 /// - When I tap `WidgetKey` text 10 times
 /// - When I tap `WidgetKey` widget 10 times
-final StepDefinitionGeneric tapWidgetNTimes =
-    when2<WidgetKey, int, FlutterWorld>(
+final StepDefinitionGeneric
+tapWidgetNTimes = when2<WidgetKey, int, FlutterWorld>(
   RegExp(
     r'I tap {key} (?:button|element|label|icon|field|text|widget) {int} times$',
   ),
@@ -61,6 +61,6 @@ final StepDefinitionGeneric tapWidgetNTimes =
       }, timeout: const Duration(seconds: 30));
     }
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

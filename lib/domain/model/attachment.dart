@@ -45,7 +45,7 @@ abstract class Attachment {
         'ImageAttachment' => ImageAttachment.fromJson(json),
         'FileAttachment' => FileAttachment.fromJson(json),
         'LocalAttachment' => LocalAttachment.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Unique ID of this [Attachment].
@@ -70,11 +70,11 @@ abstract class Attachment {
 
   /// Returns a [Map] representing this [Attachment].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (ImageAttachment) => (this as ImageAttachment).toJson(),
-        const (FileAttachment) => (this as FileAttachment).toJson(),
-        const (LocalAttachment) => (this as LocalAttachment).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (ImageAttachment) => (this as ImageAttachment).toJson(),
+    const (FileAttachment) => (this as FileAttachment).toJson(),
+    const (LocalAttachment) => (this as LocalAttachment).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Image [Attachment].
@@ -157,14 +157,15 @@ class FileAttachment extends Attachment {
   }
 
   /// Downloads this [FileAttachment].
-  Future<File?>? download() => CacheWorker.instance
-      .download(
-        original.url,
-        filename,
-        original.size,
-        checksum: original.checksum,
-      )
-      .future;
+  Future<File?>? download() =>
+      CacheWorker.instance
+          .download(
+            original.url,
+            filename,
+            original.size,
+            checksum: original.checksum,
+          )
+          .future;
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
   Future<bool> open() =>
@@ -197,17 +198,17 @@ class AttachmentId extends NewType<String> {
 @JsonSerializable()
 class LocalAttachment extends Attachment {
   LocalAttachment(this.file, {SendingStatus status = SendingStatus.error})
-      : status = Rx(status),
-        super(
-          id: AttachmentId.local(),
-          original: ImageFile(
-            relativeRef: '',
-            size: file.size,
-            width: file.dimensions.value?.width.round(),
-            height: file.dimensions.value?.height.round(),
-          ),
-          filename: file.name,
-        );
+    : status = Rx(status),
+      super(
+        id: AttachmentId.local(),
+        original: ImageFile(
+          relativeRef: '',
+          size: file.size,
+          width: file.dimensions.value?.width.round(),
+          height: file.dimensions.value?.height.round(),
+        ),
+        filename: file.name,
+      );
 
   /// Constructs a [LocalAttachment] from the provided [json].
   factory LocalAttachment.fromJson(Map<String, dynamic> json) =>

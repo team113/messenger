@@ -39,15 +39,12 @@ class AndroidUtils {
     required String sound,
     String description = '',
   }) async {
-    await platform.invokeMethod(
-      'createNotificationChannel',
-      {
-        'id': id,
-        'name': name,
-        'sound': sound,
-        'description': description,
-      },
-    );
+    await platform.invokeMethod('createNotificationChannel', {
+      'id': id,
+      'name': name,
+      'sound': sound,
+      'description': description,
+    });
   }
 
   /// Removes the delivered notification with the provided [tag].
@@ -57,7 +54,8 @@ class AndroidUtils {
 
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {
-    return await platform
-        .invokeMethod('cancelNotificationsContaining', {'thread': thread});
+    return await platform.invokeMethod('cancelNotificationsContaining', {
+      'thread': thread,
+    });
   }
 }

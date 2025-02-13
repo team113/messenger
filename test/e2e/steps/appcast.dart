@@ -36,31 +36,32 @@ import '../world/custom_world.dart';
 /// - Given appcast is with critical available
 final StepDefinitionGeneric appcastIsAvailable =
     given1<AppcastVersion, CustomWorld>(
-  'appcast with {version} version is available',
-  (version, context) async {
-    Config.appcast = 'http://localhost/appcast.xml';
+      'appcast with {version} version is available',
+      (version, context) async {
+        Config.appcast = 'http://localhost/appcast.xml';
 
-    PlatformUtils.client?.interceptors
-        .removeWhere((e) => e is InterceptorsWrapper);
+        PlatformUtils.client?.interceptors.removeWhere(
+          (e) => e is InterceptorsWrapper,
+        );
 
-    (await PlatformUtils.dio).interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          if (options.path == 'http://localhost/appcast.xml') {
-            return handler.resolve(
-              Response(
-                requestOptions: options,
-                statusCode: 200,
-                data: '''
+        (await PlatformUtils.dio).interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              if (options.path == 'http://localhost/appcast.xml') {
+                return handler.resolve(
+                  Response(
+                    requestOptions: options,
+                    statusCode: 200,
+                    data: '''
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
     <item>
       <title>v${switch (version) {
-                  AppcastVersion.current => Pubspec.ref,
-                  AppcastVersion.newer => '${Pubspec.ref}+1',
-                  AppcastVersion.critical => '999.0.0',
-                }}</title>
+                      AppcastVersion.current => Pubspec.ref,
+                      AppcastVersion.newer => '${Pubspec.ref}+1',
+                      AppcastVersion.critical => '999.0.0',
+                    }}</title>
       <description>Description</description>
       <pubDate>Fri, 26 Apr 2024 09:43:16 +0000</pubDate>
       <enclosure sparkle:os="macos" url="messenger-macos.zip" />
@@ -72,17 +73,17 @@ final StepDefinitionGeneric appcastIsAvailable =
   </channel>
 </rss>
 ''',
-              ),
-            );
-          }
+                  ),
+                );
+              }
 
-          return handler.next(options);
-        },
-      ),
+              return handler.next(options);
+            },
+          ),
+        );
+
+        // Force [UpgradeWorker] to check for updates.
+        final worker = Get.findOrNull<UpgradeWorker>();
+        await worker?.fetchUpdates();
+      },
     );
-
-    // Force [UpgradeWorker] to check for updates.
-    final worker = Get.findOrNull<UpgradeWorker>();
-    await worker?.fetchUpdates();
-  },
-);

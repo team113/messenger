@@ -24,12 +24,12 @@ enum MutedStatus { muted, unmuted }
 /// [CustomParameter] representing a [Chat.muted] status.
 class MutedStatusParameter extends CustomParameter<MutedStatus> {
   MutedStatusParameter()
-      : super(
-          'muted',
-          RegExp(
-            '(${MutedStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => MutedStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'muted',
+        RegExp(
+          '(${MutedStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => MutedStatus.values.firstWhere((e) => e.name == c),
+      );
 }

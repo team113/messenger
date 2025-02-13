@@ -161,10 +161,10 @@ class MediaUtilsImpl {
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack>? local =
-          await (await _mediaManager)?.initLocalTracks(
-        _mediaStreamSettings(audio: audio, video: video, screen: screen),
-      );
+      final List<LocalMediaTrack>? local = await (await _mediaManager)
+          ?.initLocalTracks(
+            _mediaStreamSettings(audio: audio, video: video, screen: screen),
+          );
 
       if (local != null) {
         tracks.addAll(local);
@@ -176,9 +176,7 @@ class MediaUtilsImpl {
 
   /// Returns the [DeviceDetails] currently available with the provided
   /// [kind], if specified.
-  Future<List<DeviceDetails>> enumerateDevices([
-    MediaDeviceKind? kind,
-  ]) async {
+  Future<List<DeviceDetails>> enumerateDevices([MediaDeviceKind? kind]) async {
     final List<DeviceDetails> devices =
         (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
@@ -191,12 +189,15 @@ class MediaUtilsImpl {
     //
     // Browsers and mobiles already may include their own default devices.
     if (kind == null || kind == MediaDeviceKind.audioInput) {
-      final DeviceDetails? hasDefault = devices.firstWhereOrNull((d) =>
-          d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default');
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull(
+        (d) =>
+            d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default',
+      );
 
       if (hasDefault == null) {
-        final DeviceDetails? device = devices
-            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
+        final DeviceDetails? device = devices.firstWhereOrNull(
+          (e) => e.kind() == MediaDeviceKind.audioInput,
+        );
         if (device != null) {
           devices.insert(0, DefaultDeviceDetails(device));
         }
@@ -211,12 +212,16 @@ class MediaUtilsImpl {
     }
 
     if (kind == null || kind == MediaDeviceKind.audioOutput) {
-      final bool hasDefault = devices.any((d) =>
-          d.kind() == MediaDeviceKind.audioOutput && d.deviceId() == 'default');
+      final bool hasDefault = devices.any(
+        (d) =>
+            d.kind() == MediaDeviceKind.audioOutput &&
+            d.deviceId() == 'default',
+      );
 
       if (!hasDefault) {
-        final DeviceDetails? device = devices
-            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
+        final DeviceDetails? device = devices.firstWhereOrNull(
+          (e) => e.kind() == MediaDeviceKind.audioOutput,
+        );
         if (device != null) {
           devices.insert(0, DefaultDeviceDetails(device));
         }
@@ -348,18 +353,14 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
   AudioSpeakerKind get speaker => switch (deviceId()) {
-        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-        (_) => AudioSpeakerKind.headphones,
-      };
+    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+    (_) => AudioSpeakerKind.headphones,
+  };
 }
 
 /// Possible kind of an audio output device.
-enum AudioSpeakerKind {
-  headphones,
-  earpiece,
-  speaker,
-}
+enum AudioSpeakerKind { headphones, earpiece, speaker }
 
 /// Wrapper around a [MediaDeviceDetails] with [id] method.
 ///
@@ -409,7 +410,6 @@ class DeviceDetails extends MediaDeviceDetails {
         id() == other.id() &&
         deviceId() == other.deviceId() &&
         label() == other.label() &&
-
         // On Web `default` devices aren't equal.
         (!PlatformUtils.isWeb || deviceId() != 'default');
   }

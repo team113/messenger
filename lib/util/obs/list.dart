@@ -60,8 +60,7 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
     int length,
     E Function(int index) generator, {
     bool growable = true,
-  }) =>
-      ObsList(List<E>.generate(length, generator, growable: growable));
+  }) => ObsList(List<E>.generate(length, generator, growable: growable));
 
   /// Creates an unmodifiable list containing all the provided [elements].
   ///
@@ -74,8 +73,9 @@ class ObsList<E> extends DelegatingList<E> implements List<E> {
       ObsList(List<E>.unmodifiable(elements));
 
   /// [StreamController] of changes of this list.
-  final _changes =
-      StreamController<ListChangeNotification<E>>.broadcast(sync: true);
+  final _changes = StreamController<ListChangeNotification<E>>.broadcast(
+    sync: true,
+  );
 
   /// Returns stream of changes of this list.
   Stream<ListChangeNotification<E>> get changes => _changes.stream;
@@ -178,15 +178,15 @@ class ListChangeNotification<E> {
 
   /// Returns notification with [OperationKind.added] operation.
   ListChangeNotification.added(this.element, this.pos)
-      : op = OperationKind.added;
+    : op = OperationKind.added;
 
   /// Returns notification with [OperationKind.updated] operation.
   ListChangeNotification.updated(this.element, this.pos)
-      : op = OperationKind.updated;
+    : op = OperationKind.updated;
 
   /// Returns notification with [OperationKind.removed] operation.
   ListChangeNotification.removed(this.element, this.pos)
-      : op = OperationKind.removed;
+    : op = OperationKind.removed;
 
   /// Element being changed.
   final E element;

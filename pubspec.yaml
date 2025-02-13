@@ -1,10 +1,10 @@
 name: messenger
-version: 0.3.2
+version: 0.3.3
 publish_to: none
 
 environment:
-  flutter: ">=3.27.0"
-  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.29.0"
+  sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
   all_sensors:
