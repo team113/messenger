@@ -142,11 +142,12 @@ class CallWorker extends DisposableService {
   String get _endCall => 'end_call.wav';
 
   /// Indicator whether this device's [Locale] contains a China country code.
-  bool get _isChina => !Platform.localeName.contains('CN');
+  bool get _isChina => Platform.localeName.contains('CN');
 
   /// Indicates whether [FlutterCallkitIncoming] should be considered active.
   bool get _isCallKit =>
-      PlatformUtils.isIOS && !PlatformUtils.isWeb && !_isChina;
+      !PlatformUtils.isWeb &&
+      ((PlatformUtils.isIOS && !_isChina) || PlatformUtils.isAndroid);
 
   @override
   void onInit() {
@@ -161,10 +162,12 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _lifecycleWorker = ever(router.lifecycle, (e) async {
         if (e.inForeground) {
-          try {
-            await FlutterCallkitIncoming.endAllCalls();
-          } catch (_) {
-            // No-op.
+          if (_isCallKit) {
+            try {
+              await FlutterCallkitIncoming.endAllCalls();
+            } catch (_) {
+              // No-op.
+            }
           }
 
           _callService.calls.forEach((id, call) {
@@ -392,7 +395,7 @@ class CallWorker extends DisposableService {
       }
     });
 
-    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
+    if (_isCallKit) {
       _callKitSubscription =
           FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
         Log.debug('FlutterCallkitIncoming.onEvent -> $event', '$runtimeType');
@@ -453,9 +456,12 @@ class CallWorker extends DisposableService {
                     if (e.$$typename == 'EventChatCallFinished') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-                      await FlutterCallkitIncoming.endCall(
-                        node.call.id.val.base62ToUuid(),
-                      );
+
+                      if (_isCallKit) {
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
+                      }
                     } else if (e.$$typename == 'EventChatCallMemberJoined') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
@@ -463,26 +469,32 @@ class CallWorker extends DisposableService {
 
                       if (node.user.id == credentials.userId &&
                           call?.value.connected != true) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
                       }
                     } else if (e.$$typename == 'EventChatCallDeclined') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                       if (node.user.id == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
                       }
                     } else if (e.$$typename ==
                         'EventChatCallAnswerTimeoutPassed') {
                       final node = e
                           as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                       if (node.userId == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.callId.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.callId.val.base62ToUuid(),
+                          );
+                        }
                       }
                     }
                   }
