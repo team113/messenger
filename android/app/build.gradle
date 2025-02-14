@@ -31,7 +31,7 @@ android {
     namespace 'com.team113.messenger'
 
     ndkVersion "27.0.12077973"
-    compileSdkVersion 34
+    compileSdkVersion 35
 
     compileOptions {
         // TODO: Remove when MaikuB/flutter_local_notifications#2389 is fixed:

@@ -27,7 +27,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "3602ea3459c274e043d9cf3e25486db2e3a5f664"
+      resolved-ref: a6515555db88e1abef44a62b06c1243603ba39aa
       url: "https://github.com/SleepySquash/all_sensors"
     source: git
     version: "0.4.2"
@@ -1018,8 +1018,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "71b76be903b657ca08d524f003af7ba2a6741e38"
-      resolved-ref: "71b76be903b657ca08d524f003af7ba2a6741e38"
+      ref: "30bfe2d373da611879bffc36365b8d26e3d2e065"
+      resolved-ref: "30bfe2d373da611879bffc36365b8d26e3d2e065"
       url: "https://github.com/SleepySquash/image_gallery_saver"
     source: git
     version: "2.0.3"
@@ -2350,18 +2350,18 @@ packages:
     dependency: "direct main"
     description:
       name: vibration
-      sha256: "06588a845a4ebc73ab7ff7da555c2b3dbcd9676164b5856a38bf0b2287f1045d"
+      sha256: "1610296b8b97b3bc65cb745ffb7c9ffa2ad3ef4bb18e95ab13b0881458330126"
       url: "https://pub.dev"
     source: hosted
-    version: "1.9.0"
+    version: "3.1.2"
   vibration_platform_interface:
     dependency: transitive
     description:
       name: vibration_platform_interface
-      sha256: "6ffeee63547562a6fef53c05a41d4fdcae2c0595b83ef59a4813b0612cd2bc36"
+      sha256: "03e9deaa4df48a1a6212e281bfee5f610d62e9247929dd2f26f4efd4fa5e225c"
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.1.0"
   vm_service:
     dependency: transitive
     description:
