@@ -198,6 +198,8 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
+  print('===== _fillField($key) -> started...');
+
   await context.world.appDriver.waitUntil(() async {
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
     print(
@@ -207,10 +209,10 @@ Future<void> _fillField(
     if (await context.world.appDriver.isPresent(finder) &&
         finder.tryEvaluate()) {
       print('===== _fillField($key) -> if...');
-      await context.world.appDriver.waitForAppToSettle();
+      // await context.world.appDriver.waitForAppToSettle();
 
-      await context.world.appDriver.waitForAppToSettle();
-      print('===== _fillField($key) -> awaited 1-2 waitForAppToSettle()');
+      // await context.world.appDriver.waitForAppToSettle();
+      // print('===== _fillField($key) -> awaited 1-2 waitForAppToSettle()');
 
       await context.world.appDriver.tap(
         finder,
