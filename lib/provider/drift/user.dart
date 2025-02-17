@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -98,16 +98,20 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<DtoUser?>((db) async {
-      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
-      final UserRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoUser?>(
+      (db) async {
+        final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
+        final UserRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return UserDb.fromDb(row);
-    }, tag: 'user.read($id)');
+        return UserDb.fromDb(row);
+      },
+      tag: 'user.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoUser] identified by the provided [id] from the database.

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -337,7 +337,7 @@ class ChatItemWidget extends StatefulWidget {
 
   /// Opens the [User.dialog] chat.
   static _defaultOnUserPressed(User user) =>
-      router.chat(user.dialog, push: true);
+      router.chat(ChatId.local(user.id), push: true);
 }
 
 /// State of a [ChatItemWidget] maintaining the [GlobalKey]s for gallery and

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ class WidgetButton extends StatelessWidget {
     required this.child,
     this.behavior,
     this.onPressed,
+    this.onPressedWithDetails,
     this.onLongPress,
   });
 
@@ -38,6 +39,9 @@ class WidgetButton extends StatelessWidget {
   /// Callback, called when the [child] is pressed.
   final void Function()? onPressed;
 
+  /// Callback, called when this [child] is pressed up with the [TapUpDetails].
+  final void Function(TapUpDetails)? onPressedWithDetails;
+
   /// Callback, called when the [child] is long-pressed.
   final void Function()? onLongPress;
 
@@ -49,6 +53,7 @@ class WidgetButton extends StatelessWidget {
       cursor: onPressed == null ? MouseCursor.defer : SystemMouseCursors.click,
       child: GestureDetector(
         onTap: onPressed,
+        onTapUp: onPressedWithDetails,
         onLongPress: onLongPress,
         behavior: behavior,
         child: Container(

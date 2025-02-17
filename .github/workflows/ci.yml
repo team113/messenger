@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.24"
+  FLUTTER_VER: "3.27"
 
 jobs:
 
@@ -271,6 +271,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+      - run: brew install ripgrep
+        if: ${{ matrix.platform == 'ipa' }}
+      - run: sudo apt-get update
+        if: ${{ contains('apk appbundle', matrix.platform) }}
+      - run: sudo apt-get install -y ripgrep
+        if: ${{ contains('apk appbundle', matrix.platform) }}
 
       - run: make flutter.pub
 
@@ -279,6 +285,9 @@ jobs:
       # `-dirty` part, that may happen during FCM configuration.
       - run: make flutter.gen overwrite=true
         if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
+
+      - run: make flutter.bundle.rename to=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ contains('apk appbundle ipa', matrix.platform) }}
 
       - uses: actions/setup-java@v4
         with:
@@ -594,6 +603,7 @@ jobs:
                      libgtk-3-dev
                      libpulse-dev
                      libmpv-dev
+                     libcurl4-openssl-dev
                      mpv
                      jq
                      curl
@@ -811,7 +821,11 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
+          envkey_COMPOSE_PUSH_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
+          envkey_COMPOSE_PUSH_APNS_TEAM_ID: ${{ secrets.E2E_APNS_TEAM_ID }}
+          envkey_COMPOSE_PUSH_APNS_KEY_ID: ${{ secrets.E2E_APNS_KEY_ID }}
+          envkey_COMPOSE_PUSH_APNS_TOPIC: ${{ secrets.E2E_APNS_TOPIC }}
+          envkey_COMPOSE_PUSH_APNS_PRIVATE_KEY: ${{ secrets.E2E_APNS_PRIVATE_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
@@ -835,7 +849,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(58541\\)] ",
+              ":INFO:CONSOLE\\(53103\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]
@@ -846,7 +860,9 @@ jobs:
 
   test-unit:
     name: test (unit)
-    runs-on: ubuntu-latest
+    # TODO: Use `ubuntu-latest` when actions/runner-images#11279 is fixed:
+    #       https://github.com/actions/runner-images/issues/11279
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
         with:

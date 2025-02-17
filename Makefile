@@ -161,7 +161,7 @@ else
 	flutter build $(or $(platform),apk) \
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
-		$(if $(call eq,$(platform),web),--web-renderer html --source-maps,) \
+		$(if $(call eq,$(platform),web),--source-maps,) \
 		$(if $(call eq,$(split-debug-info),yes),--split-debug-info=debug,) \
 		$(if $(call eq,$(or $(platform),apk),apk),\
 			$(if $(call eq,$(split-per-abi),yes),--split-per-abi,),) \
@@ -171,6 +171,21 @@ else
 			$(if $(call eq,$(export-options),),,\
 				--export-options-plist=$(export-options)),)
 endif
+
+
+# Renames Flutter project bundle IDs.
+#
+# Usage:
+#	make flutter.bundle.rename to=<bundle-id>
+#	                           [from=($(FCM_BUNDLE)|<bundle-id>)]
+
+flutter-bundle-rename-from = $(shell echo $(FCM_BUNDLE) | sed "s/\./\\\./g")
+flutter-bundle-rename-to = $(shell echo $(to) | sed "s/\./\\\./g")
+
+flutter.bundle.rename:
+	rg -l "$(FCM_BUNDLE)" \
+	| xargs -I {} sed -i '' \
+		's/$(flutter-bundle-rename-from)/$(flutter-bundle-rename-to)/g' "{}"
 
 
 # Clean all Flutter dependencies and generated files.
@@ -944,8 +959,8 @@ sentry.upload:
         docker.untar docker.up \
         docs.dart \
         fcm.conf \
-        flutter.analyze flutter.clean flutter.build flutter.fmt flutter.gen \
-        flutter.pub flutter.run \
+        flutter.analyze flutter.build flutter.bundle.rename flutter.clean \
+        flutter.fmt flutter.gen flutter.pub flutter.run \
         git.release \
         helm.discover.sftp \
         helm.down helm.lint helm.package helm.release helm.up \

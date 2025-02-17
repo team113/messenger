@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -124,6 +124,17 @@ class NativeFile {
   /// Merged stream of [bytes] and [_readStream] representing the whole file.
   Stream<List<int>>? _mergedStream;
 
+  /// Returns the extensions of files considered to be images.
+  static const List<String> images = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'jfif',
+    'svg',
+    'webp'
+  ];
+
   /// Returns an extension of this file.
   String get extension => name.split('.').last;
 
@@ -131,15 +142,7 @@ class NativeFile {
   bool get isImage {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return [
-        'jpg',
-        'jpeg',
-        'png',
-        'gif',
-        'jfif',
-        'svg',
-        'webp',
-      ].contains(extension.toLowerCase());
+      return images.contains(extension.toLowerCase());
     }
 
     return mime?.type == 'image';

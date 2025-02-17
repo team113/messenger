@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 import 'crop_area.dart';
 import 'file.dart';
+import 'native_file.dart';
 
 part 'avatar.g.dart';
 
@@ -97,4 +98,21 @@ class ChatAvatar extends Avatar {
 
   /// Returns a [Map] representing this [ChatAvatar].
   Map<String, dynamic> toJson() => _$ChatAvatarToJson(this);
+}
+
+/// [Avatar] from the [file].
+class LocalAvatar extends Avatar {
+  LocalAvatar({
+    super.crop,
+    required this.file,
+  }) : super(
+          full: ImageFile(relativeRef: ''),
+          big: ImageFile(relativeRef: ''),
+          medium: ImageFile(relativeRef: ''),
+          small: ImageFile(relativeRef: ''),
+          original: ImageFile(relativeRef: ''),
+        );
+
+  /// [NativeFile] this avatar should be rendered from.
+  final NativeFile file;
 }

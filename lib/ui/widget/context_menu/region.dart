@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -182,7 +182,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           builder(),
           Positioned.fill(
             child: ColoredBox(
-              color: style.cardColor.darken(0.03).withOpacity(0.4),
+              color: style.cardColor.darken(0.03).withValues(alpha: 0.4),
             ),
           ),
         ],

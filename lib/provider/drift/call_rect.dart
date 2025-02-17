@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -114,13 +114,16 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns all the [Rect] stored in the database.
   Future<List<(ChatId, Rect)>> _all() async {
-    final result = await safe<List<(ChatId, Rect)>?>((db) async {
-      final result = await db.select(db.callRectangles).get();
-      return result
-          .map(
-              (e) => (ChatId(e.chatId), _RectJson.fromJson(jsonDecode(e.rect))))
-          .toList();
-    });
+    final result = await safe<List<(ChatId, Rect)>?>(
+      (db) async {
+        final result = await db.select(db.callRectangles).get();
+        return result
+            .map((e) =>
+                (ChatId(e.chatId), _RectJson.fromJson(jsonDecode(e.rect))))
+            .toList();
+      },
+      exclusive: false,
+    );
 
     return result ?? [];
   }

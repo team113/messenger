@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -155,7 +155,6 @@ class MessageFieldView extends StatelessWidget {
               child: Container(
                 key: const Key('SendField'),
                 decoration: BoxDecoration(
-                  borderRadius: style.cardRadius,
                   boxShadow: [
                     CustomBoxShadow(
                       blurRadius: 8,
@@ -169,7 +168,6 @@ class MessageFieldView extends StatelessWidget {
                     sigmaX: style.cardBlur,
                     sigmaY: style.cardBlur,
                   ),
-                  borderRadius: style.cardRadius,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -355,10 +353,6 @@ class MessageFieldView extends StatelessWidget {
         return ConditionalBackdropFilter(
           condition: style.cardBlur > 0,
           filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-          borderRadius: BorderRadius.only(
-            topLeft: style.cardRadius.topLeft,
-            topRight: style.cardRadius.topRight,
-          ),
           child: Container(
             color: style.colors.onPrimaryOpacity50,
             child: AnimatedSize(

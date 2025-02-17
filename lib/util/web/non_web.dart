@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -104,6 +104,7 @@ class WebUtils {
   /// code block at the same time.
   static Future<T> protect<T>(
     Future<T> Function() callback, {
+    bool exclusive = true,
     String tag = 'mutex',
   }) {
     Mutex? mutex = _guards[tag];

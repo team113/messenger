@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -86,17 +86,20 @@ class SettingsDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoSettings?>((db) async {
-      final stmt = db.select(db.settings)
-        ..where((u) => u.userId.equals(id.val));
-      final SettingsRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoSettings?>(
+      (db) async {
+        final stmt = db.select(db.settings)
+          ..where((u) => u.userId.equals(id.val));
+        final SettingsRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _SettingsDb.fromDb(row);
-    });
+        return _SettingsDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoSettings] identified by the provided [id] from the

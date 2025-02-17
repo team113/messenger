@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -28,5 +28,7 @@ Feature: Chat avatar
     When I update chat avatar with "test.jpg"
     Then I see chat avatar as "test.jpg"
 
-    When I tap `DeleteAvatar` button
+    When I tap `EditProfileButton` button
+    And I tap `DeleteAvatar` button
+    And I tap `SaveEditingButton` button
     Then I see chat avatar as none

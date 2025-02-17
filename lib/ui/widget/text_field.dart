@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -184,20 +184,20 @@ class ReactiveTextField extends StatelessWidget {
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
           contentPadding = isDense
-              ? const EdgeInsets.fromLTRB(20, 8, 20, 8)
-              : const EdgeInsets.fromLTRB(12, 12, 12, 12);
+              ? const EdgeInsets.fromLTRB(20, 8, 20, 8) * 0.9
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12) * 0.9;
         } else {
           contentPadding = isDense
-              ? const EdgeInsets.fromLTRB(8, 8, 8, 8)
-              : const EdgeInsets.fromLTRB(0, 12, 0, 12);
+              ? const EdgeInsets.fromLTRB(8, 8, 8, 8) * 0.9
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12) * 0.9;
         }
       } else {
         contentPadding = isDense
-            ? const EdgeInsets.fromLTRB(12, 20, 12, 12)
-            : const EdgeInsets.fromLTRB(12, 24, 12, 16);
+            ? const EdgeInsets.fromLTRB(12, 20, 12, 12) * 0.9
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16) * 0.9;
       }
 
-      contentPadding = contentPadding + const EdgeInsets.only(left: 10);
+      contentPadding = contentPadding + const EdgeInsets.only(left: 10) * 0.5;
     }
 
     // Builds the suffix depending on the provided states.
@@ -390,6 +390,7 @@ class ReactiveTextField extends StatelessWidget {
               minLines: minLines,
               maxLines: maxLines,
               textInputAction: textInputAction,
+              textCapitalization: TextCapitalization.sentences,
               maxLength: maxLength,
               contextMenuBuilder: (_, field) {
                 final double dx = field.contextMenuAnchors.primaryAnchor.dx;

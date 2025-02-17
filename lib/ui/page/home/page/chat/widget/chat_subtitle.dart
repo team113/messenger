@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -196,9 +196,8 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               return const SizedBox();
             }
 
-            final String subtitle = [presence, bio]
-                .whereNotNull()
-                .join('space_vertical_space'.l10n);
+            final String subtitle =
+                [presence, bio].nonNulls.join('space_vertical_space'.l10n);
 
             return Text(subtitle, style: style.fonts.small.regular.secondary);
           });

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -65,6 +65,7 @@ import 'store/auth.dart';
 import 'store/model/window_preferences.dart';
 import 'themes.dart';
 import 'ui/worker/cache.dart';
+import 'ui/worker/call.dart';
 import 'ui/worker/upgrade.dart';
 import 'ui/worker/window.dart';
 import 'util/backoff.dart';
@@ -281,8 +282,11 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
   Log.debug('handlePushNotification($message)', 'main');
 
-  if (message.notification?.android?.tag?.endsWith('_call') == true &&
-      message.data['chatId'] != null) {
+  final String? tag = message.notification?.android?.tag;
+  final bool isCall =
+      tag?.endsWith('_call') == true || tag?.endsWith('-call') == true;
+
+  if (isCall && message.data['chatId'] != null) {
     SharedPreferences? prefs;
     CredentialsDriftProvider? credentialsProvider;
     AccountDriftProvider? accountProvider;
@@ -374,18 +378,24 @@ Future<void> handlePushNotification(RemoteMessage message) async {
 
             for (var e in mixin.events) {
               if (e.$$typename == 'EventChatCallFinished') {
-                await FlutterCallkitIncoming.endCall(message.data['chatId']);
+                await FlutterCallkitIncoming.endCall(
+                  (message.data['chatId'] as String).base62ToUuid(),
+                );
               } else if (e.$$typename == 'EventChatCallMemberJoined') {
                 var node = e
                     as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
                 if (node.user.id == credentials.userId) {
-                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
+                  await FlutterCallkitIncoming.endCall(
+                    (message.data['chatId'] as String).base62ToUuid(),
+                  );
                 }
               } else if (e.$$typename == 'EventChatCallDeclined') {
                 var node =
                     e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                 if (node.user.id == credentials.userId) {
-                  await FlutterCallkitIncoming.endCall(message.data['chatId']);
+                  await FlutterCallkitIncoming.endCall(
+                    (message.data['chatId'] as String).base62ToUuid(),
+                  );
                 }
               }
             }
@@ -400,11 +410,15 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       // time for a better UX.
       await Future.delayed(30.seconds);
 
-      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+      await FlutterCallkitIncoming.endCall(
+        (message.data['chatId'] as String).base62ToUuid(),
+      );
     } catch (_) {
       provider?.disconnect();
       subscription?.cancel();
-      await FlutterCallkitIncoming.endCall(message.data['chatId']);
+      await FlutterCallkitIncoming.endCall(
+        (message.data['chatId'] as String).base62ToUuid(),
+      );
     }
   } else {
     // If message contains no notification (it's a background notification),

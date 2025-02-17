@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,21 +76,25 @@ class MyUserDriftProvider extends DriftProviderBase {
   Future<DtoMyUser> upsert(DtoMyUser user) async {
     _cache[user.id] = user;
 
-    final result = await safe((db) async {
-      try {
-        final DtoMyUser stored = _MyUserDb.fromDb(
-          await db
-              .into(db.myUsers)
-              .insertReturning(user.toDb(), mode: InsertMode.insertOrReplace),
-        );
+    final result = await safe(
+      (db) async {
+        try {
+          final DtoMyUser stored = _MyUserDb.fromDb(
+            await db
+                .into(db.myUsers)
+                .insertReturning(user.toDb(), mode: InsertMode.insertOrReplace),
+          );
 
-        _controllers[stored.id]?.add(stored);
+          _controllers[stored.id]?.add(stored);
 
-        return stored;
-      } on DriftRemoteException {
-        // No-op, might be thrown after E2E tests completion.
-      }
-    }, tag: 'my_user.upsert(user)');
+          return stored;
+        } on DriftRemoteException {
+          // No-op, might be thrown after E2E tests completion.
+        }
+      },
+      tag: 'my_user.upsert(user)',
+      exclusive: false,
+    );
 
     return result ?? user;
   }
@@ -103,16 +107,20 @@ class MyUserDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoMyUser?>((db) async {
-      final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
-      final MyUserRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoMyUser?>(
+      (db) async {
+        final stmt = db.select(db.myUsers)..where((u) => u.id.equals(id.val));
+        final MyUserRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _MyUserDb.fromDb(row);
-    }, tag: 'my_user.read($id)');
+        return _MyUserDb.fromDb(row);
+      },
+      tag: 'my_user.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoMyUser] identified by the provided [id] from the database.
@@ -203,7 +211,7 @@ extension _MyUserDb on DtoMyUser {
             ? null
             : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
         unreadChatsCount: e.unreadChatsCount,
-        status: e.status == null ? null : UserTextStatus(e.status!),
+        status: e.status == null ? null : UserTextStatus.tryParse(e.status!),
         avatar: e.avatar == null
             ? null
             : UserAvatar.fromJson(jsonDecode(e.avatar!)),
@@ -240,7 +248,7 @@ extension _MyUserDb on DtoMyUser {
           ? null
           : jsonEncode(value.chatDirectLink?.toJson()),
       unreadChatsCount: value.unreadChatsCount,
-      status: value.status == null ? null : jsonEncode(value.status?.toJson()),
+      status: value.status?.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
       callCover: value.callCover == null
           ? null

@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -374,6 +374,7 @@ err_password_incorrect =
 err_passwords_mismatch = Пароли не совпадают.
 err_phone_occupied = Телефон уже привязан к другому аккаунту
 err_popup_call_cant_be_closed = Произошла неожиданная ошибка, однако данное окно не может быть закрыто автоматически из-за ограничений браузера. Пожалуйста, закройте данное окно.
+err_push_device_occupied = Данное устройство уже зарегистрировано для получения пуш уведомлений.
 err_quoted_message = Сообщение было процитировано
 err_size_too_big = Размер файла превышает 15 МБ.
 err_stale_version = Указанная версия слишком старая
@@ -422,14 +423,14 @@ fcm_group_avatar_changed = {$userName ->
        *[other] {$userName}
     } {$operation ->
           [update] обновил аватар
-         *[delete] удалил аватар
+         *[remove] удалил аватар
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
           [update] переименовал чат на {$groupName}
-         *[delete] удалил имя
+         *[remove] удалил имя
       }
 fcm_group_title =
     {$user1Name ->
@@ -441,20 +442,30 @@ fcm_group_title =
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-               *[other] {$user2Num}
+               *[other] , {$user2Num}
             }
        *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-               *[other] {$user3Num}
+               *[other] , {$user3Num}
             }
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
-fcm_incoming_call = Входящий звонок
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } начинает
+        *[dialog] Входящий
+    } { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -494,6 +505,17 @@ fcm_message =
             [0] {$text}
             *[other] {" "}{$text}
         }
+    }
+fcm_missed_call =
+    Пропущенный { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок{ $type ->
+        [group] {" от "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->
@@ -671,8 +693,8 @@ label_chat_call_missed = Пропущенный звонок
 label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
-label_chat_monolog = Заметки
-label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
+label_chat_monolog = Ваши заметки
+label_chat_monolog_description = Отображаются только Вам. Могут содержать любое количество сообщений. Могут содержать любой контент.
 label_chat_name_hint = Название чата
 label_chats = Чаты
 label_chats_section_hint = Кнопки аудио и видео звонка
@@ -1154,6 +1176,7 @@ label_waiting_for_connection = Ожидание подключения...
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
+label_was_at = был(а) {$at}
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
@@ -1172,12 +1195,6 @@ label_welcome_message_freelance =
     - номер PR (Pull Request);
     - предполагаемый срок выполнения задачи (дедлайн);
     - предполагаемый способ решения задачи.
-label_welcome_message_vacancy =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF.
-label_welcome_message_vacancy_24_hours =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.
 label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =

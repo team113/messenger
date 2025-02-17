@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -348,10 +348,6 @@ abstract class RxChat implements Comparable<RxChat> {
 
   /// Ensures the [draft] is initialized.
   Future<void> ensureDraft();
-
-  // TODO: Remove when backend supports welcome messages.
-  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
-  Future<void> addMessage(ChatMessageText text);
 
   /// Returns the [Paginated] of [ChatItem]s having any [Attachment]s posted in
   /// this [chat] around the provided [item], if any.

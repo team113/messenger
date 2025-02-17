@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -386,11 +386,11 @@ mixin ChatGraphQlMixin {
         document: PostChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => PostChatMessageException((PostChatMessage$Mutation
-                      .fromJson(data)
-                  .postChatMessage
-              as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
-          .code),
+      onException: (data) => PostChatMessageException(
+        (PostChatMessage$Mutation.fromJson(data).postChatMessage
+                as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
+            .code,
+      ),
     );
     return PostChatMessage$Mutation.fromJson(result.data!).postChatMessage
         as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned;

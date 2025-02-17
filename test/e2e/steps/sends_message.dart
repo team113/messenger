@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -129,12 +129,9 @@ final StepDefinitionGeneric sendsCountMessages =
     provider.token = context.world.sessions[user.name]?.token;
 
     final ChatId chatId = context.world.groups[name]!;
-    final List<Future> futures = List.generate(
-      count,
-      (i) => provider.postChatMessage(chatId, text: ChatMessageText('$i')),
-    );
-
-    await Future.wait(futures);
+    for (var i = 0; i < count; ++i) {
+      await provider.postChatMessage(chatId, text: ChatMessageText('$i'));
+    }
 
     provider.disconnect();
   },

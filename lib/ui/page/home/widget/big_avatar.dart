@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -45,7 +44,8 @@ class BigAvatarWidget extends StatefulWidget {
     this.error,
   })  : _mode = _BigAvatarMode.myUser,
         user = null,
-        chat = null;
+        chat = null,
+        builder = _defaultBuilder;
 
   /// Builds a [BigAvatarWidget] of the provided [chat].
   const BigAvatarWidget.chat(
@@ -56,6 +56,7 @@ class BigAvatarWidget extends StatefulWidget {
     this.onEdit,
     this.loading = false,
     this.error,
+    this.builder = _defaultBuilder,
   })  : _mode = _BigAvatarMode.chat,
         myUser = null,
         user = null;
@@ -71,10 +72,8 @@ class BigAvatarWidget extends StatefulWidget {
     this.error,
   })  : _mode = _BigAvatarMode.user,
         myUser = null,
-        chat = null;
-
-  /// [_BigAvatarMode] of this [BigAvatarWidget].
-  final _BigAvatarMode _mode;
+        chat = null,
+        builder = _defaultBuilder;
 
   /// [MyUser] to display an [Avatar] of.
   final MyUser? myUser;
@@ -100,6 +99,15 @@ class BigAvatarWidget extends StatefulWidget {
   /// Callback, called when edit of [Avatar] is required.
   final void Function()? onEdit;
 
+  /// Builder building the [AvatarWidget] itself.
+  final Widget Function(Widget) builder;
+
+  /// [_BigAvatarMode] of this [BigAvatarWidget].
+  final _BigAvatarMode _mode;
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(Widget child) => child;
+
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
 }
@@ -117,7 +125,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       widget.onUpload,
       widget.onEdit,
       widget.onDelete,
-    ].whereNotNull();
+    ].nonNulls;
 
     return Column(
       children: [
@@ -225,33 +233,39 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       switch (widget._mode) {
         case _BigAvatarMode.myUser:
           avatar = widget.myUser?.avatar;
-          child = AvatarWidget.fromMyUser(
-            widget.myUser,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            badge: false,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromMyUser(
+              widget.myUser,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              badge: false,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
 
         case _BigAvatarMode.user:
           avatar = widget.user?.user.value.avatar;
-          child = AvatarWidget.fromRxUser(
-            widget.user,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            badge: false,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromRxUser(
+              widget.user,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              badge: false,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
 
         case _BigAvatarMode.chat:
           avatar = widget.chat?.avatar.value;
-          child = AvatarWidget.fromRxChat(
-            widget.chat,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromRxChat(
+              widget.chat,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
       }

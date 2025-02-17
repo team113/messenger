@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
+import 'package:log_me/log_me.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:sqlite3/sqlite3.dart';
@@ -36,8 +37,12 @@ QueryExecutor connect([UserId? userId]) {
     if (PlatformUtils.isIOS) {
       dbFolder = Directory(await IosUtils.getSharedDirectory());
     } else {
-      dbFolder = await getApplicationDocumentsDirectory();
+      dbFolder = await PlatformUtils.libraryDirectory;
     }
+
+    Log.debug(
+      'connect() -> `drift` will place its files to `${dbFolder.path}`.',
+    );
 
     final File file = File(
       p.join(dbFolder.path, '${userId?.val ?? 'common'}.sqlite'),

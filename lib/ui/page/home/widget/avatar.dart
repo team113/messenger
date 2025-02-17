@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -129,7 +129,8 @@ class AvatarWidget extends StatelessWidget {
         isOnline: badge &&
             contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
-        isAway: contact.user.value?.user.value.presence == Presence.away,
+        isAway:
+            badge && contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
         color: contact.user.value == null
@@ -154,7 +155,7 @@ class AvatarWidget extends StatelessWidget {
       AvatarWidget(
         key: key,
         isOnline: badge && myUser?.online == true,
-        isAway: myUser?.presence == Presence.away,
+        isAway: badge && myUser?.presence == Presence.away,
         avatar: myUser?.avatar,
         title: myUser?.name?.val ?? myUser?.num.toString(),
         color: myUser?.num.val.sum(),
@@ -205,7 +206,7 @@ class AvatarWidget extends StatelessWidget {
       () => AvatarWidget(
         key: key,
         isOnline: badge && user.user.value.online == true,
-        isAway: user.user.value.presence == Presence.away,
+        isAway: badge && user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.title,
         color: user.user.value.num.val.sum(),
@@ -237,7 +238,7 @@ class AvatarWidget extends StatelessWidget {
           },
         ),
         avatar: chat?.avatar,
-        color: chat?.colorDiscriminant(me).sum(),
+        color: 0,
         radius: radius,
         opacity: opacity,
         shape: shape,
@@ -296,7 +297,8 @@ class AvatarWidget extends StatelessWidget {
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
-        isAway: user?.user.value.presence == Presence.away,
+        isAway: chat.chat.value.isDialog &&
+            user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
         title: chat.title,
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -385,8 +387,12 @@ class AvatarWidget extends StatelessWidget {
       final Color gradient;
 
       if (color != null) {
-        gradient =
-            style.colors.userColors[color! % style.colors.userColors.length];
+        if (color == 0) {
+          gradient = style.colors.background;
+        } else {
+          gradient =
+              style.colors.userColors[color! % style.colors.userColors.length];
+        }
       } else if (title != null) {
         gradient = style.colors
             .userColors[(title!.hashCode) % style.colors.userColors.length];
@@ -445,7 +451,7 @@ class AvatarWidget extends StatelessWidget {
         child: WithBadge(
           size: maxWidth,
           online: isOnline,
-          away: isAway,
+          away: isOnline && isAway,
           child: Stack(
             children: [
               if (avatar == null) defaultAvatar,

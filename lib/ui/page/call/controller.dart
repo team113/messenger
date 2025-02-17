@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -741,7 +741,7 @@ class CallController extends GetxController {
                 return RemoteAudioButton(this);
             }
           })
-          .whereNotNull()
+          .nonNulls
           .toList();
 
       // Add default [CallButton]s, if none are persisted.
@@ -1857,9 +1857,6 @@ class CallController extends GetxController {
         sizeAxis = secondaryHeight;
         applyAxisSize = _applySHeight;
         break;
-
-      default:
-        return;
     }
 
     final double previousSize = sizeAxis.value;

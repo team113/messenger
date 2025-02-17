@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,6 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
 import '../animated_transition.dart';
@@ -258,8 +257,7 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       );
     });
 
-    Overlay.of(context)
-        .insertAll([paneled.entry, primary.entry].whereNotNull());
+    Overlay.of(context).insertAll([paneled.entry, primary.entry].nonNulls);
 
     _paneled = primary;
     _primary = paneled;

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -86,7 +86,7 @@ class MessageFieldController extends GetxController {
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
         replied.value = item.repliesTo
             .map((e) => e.original)
-            .whereNotNull()
+            .nonNulls
             .map((e) => Rx(e))
             .toList();
       } else {
@@ -442,19 +442,36 @@ class MessageFieldController extends GetxController {
         '$runtimeType',
       );
 
-      final SimpleFileFormat? file =
-          formats.whereType<SimpleFileFormat>().lastOrNull;
+      // Tries reading the [ClipboardDataReader] as a file.
+      Future<bool> handleAsFile([bool force = false]) async {
+        final SimpleFileFormat? file =
+            formats.whereType<SimpleFileFormat>().lastOrNull;
 
-      if (file != null) {
-        final String? name = await e.getSuggestedName();
+        if (file != null) {
+          final String? name = await e.getSuggestedName();
 
-        Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
+          Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
 
-        if (name != null) {
-          e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
-          handled = true;
+          if (name != null) {
+            final bool isMacOS = PlatformUtils.isMacOS && !PlatformUtils.isWeb;
+
+            if (force || !isMacOS || formats.length > 3) {
+              e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
+              handled = true;
+              return true;
+            } else {
+              Log.debug(
+                '_pasteItem() -> `formats.length` is no bigger than 3, thus by heuristic this is considered to be text',
+                '$runtimeType',
+              );
+            }
+          }
         }
+
+        return false;
       }
+
+      await handleAsFile();
 
       if (!handled) {
         final SimpleValueFormat<String>? text =
@@ -480,10 +497,12 @@ class MessageFieldController extends GetxController {
             );
           }
         } else {
-          Log.warning(
-            '_pasteItem() -> cannot provide a handler for the $e',
-            '$runtimeType',
-          );
+          if (!await handleAsFile(true)) {
+            Log.warning(
+              '_pasteItem() -> cannot provide a handler for the $e',
+              '$runtimeType',
+            );
+          }
         }
       }
     }
@@ -581,7 +600,7 @@ class MessageFieldController extends GetxController {
         ?.map(
           (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
         )
-        .whereNotNull()
+        .nonNulls
         .toList();
 
     return persisted ?? [];

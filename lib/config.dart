@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -232,7 +232,7 @@ class Config {
           ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
           : e.name == document['log']?['level'],
       orElse: () =>
-          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.info,
+          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.debug,
     );
 
     appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,12 +20,13 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/extension/chat.dart';
 import '/api/backend/extension/credentials.dart';
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -171,16 +172,18 @@ class AuthRepository extends DisposableInterface
   Future<void> deleteSession({
     SessionId? id,
     UserPassword? password,
-    FcmRegistrationToken? fcmToken,
+    DeviceToken? token,
     AccessTokenSecret? accessToken,
   }) async {
     Log.debug(
-      'deleteSession(id: $id, password: ${password?.obscured}, fcmToken: $fcmToken, accessToken: $accessToken)',
+      'deleteSession(id: $id, password: ${password?.obscured}, token: $token, accessToken: $accessToken)',
       '$runtimeType',
     );
 
-    if (fcmToken != null) {
-      await _graphQlProvider.unregisterFcmDevice(fcmToken);
+    if (token != null) {
+      await _graphQlProvider.unregisterPushDevice(
+        PushDeviceToken(apns: token.apns, apnsVoip: token.voip, fcm: token.fcm),
+      );
     }
 
     await _graphQlProvider.deleteSession(
@@ -259,11 +262,11 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
-    var response = await _graphQlProvider.useChatDirectLink(slug);
-    return response.chat.id;
+    final response = await _graphQlProvider.useChatDirectLink(slug);
+    return response.chat.toModel();
   }
 
   @override

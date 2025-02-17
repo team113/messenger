@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,7 +25,6 @@ import '../base.dart';
 import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -341,14 +340,14 @@ mixin UserGraphQlMixin {
   /// Additionally, always uses the provided ConfirmationCode, disallowing to use it again.
   Future<MyUserEventsVersionedMixin?> updateUserPassword({
     MyUserIdentifier? identifier,
-    required UserPassword newPassword,
+    UserPassword? newPassword,
     MyUserCredentials? confirmation,
   }) async {
     Log.debug('updateUserPassword(***, ***)', '$runtimeType');
 
     final variables = UpdateUserPasswordArguments(
       ident: identifier,
-      kw$new: newPassword,
+      password: newPassword,
       confirmation: confirmation,
     );
     QueryResult res = await client.mutate(
@@ -1217,8 +1216,8 @@ mixin UserGraphQlMixin {
   /// best match of the supported locales.
   ///
   /// In order to change the locale of the device, you should re-register it
-  /// supplying the desired locale (use [unregisterFcmDevice], and then
-  /// [registerFcmDevice] once again).
+  /// supplying the desired locale (use [unregisterPushDevice], and then
+  /// [registerPushDevice] once again).
   ///
   /// ### Authentication
   ///
@@ -1231,16 +1230,16 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is registered already.
-  Future<void> registerFcmDevice(
-    FcmRegistrationToken token,
+  Future<void> registerPushDevice(
+    PushDeviceToken token,
     String? locale,
   ) async {
-    Log.debug('registerFcmDevice($token, $locale)', '$runtimeType');
+    Log.debug('registerPushDevice($token, $locale)', '$runtimeType');
 
-    final variables = RegisterFcmDeviceArguments(token: token);
+    final variables = RegisterPushDeviceArguments(token: token);
     final query = MutationOptions(
-      operationName: 'RegisterFcmDevice',
-      document: RegisterFcmDeviceMutation(variables: variables).document,
+      operationName: 'RegisterPushDevice',
+      document: RegisterPushDeviceMutation(variables: variables).document,
       variables: variables.toJson(),
     );
 
@@ -1260,17 +1259,12 @@ mixin UserGraphQlMixin {
         },
       ),
       operationName: query.operationName,
-      onException: (data) {
-        if (data.isNotEmpty) {
-          final response =
-              RegisterFcmDevice$Mutation.fromJson(data).registerFcmDevice;
-          if (response is RegisterFcmDeviceErrorCode) {
-            return RegisterFcmDeviceException(response);
-          }
-        }
-
-        return Exception('Unknown: $data');
-      },
+      onException: (data) => RegisterPushDeviceException(
+        data['registerPushDevice'] == null
+            ? null
+            : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
+                as RegisterPushDeviceErrorCode,
+      ),
     );
   }
 
@@ -1288,14 +1282,14 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is not registered already.
-  Future<void> unregisterFcmDevice(FcmRegistrationToken token) async {
-    Log.debug('unregisterFcmDevice($token)', '$runtimeType');
+  Future<void> unregisterPushDevice(PushDeviceToken token) async {
+    Log.debug('unregisterPushDevice($token)', '$runtimeType');
 
-    final variables = UnregisterFcmDeviceArguments(token: token);
+    final variables = UnregisterPushDeviceArguments(token: token);
     await client.mutate(
       MutationOptions(
-        operationName: 'UnregisterFcmDevice',
-        document: UnregisterFcmDeviceMutation(variables: variables).document,
+        operationName: 'UnregisterPushDevice',
+        document: UnregisterPushDeviceMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
     );

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -260,7 +260,7 @@ class UserController extends GetxController {
     if (user?.id == me) {
       router.chat(_chatService.monolog, push: true);
     } else {
-      router.chat(user!.user.value.dialog, push: true);
+      router.chat(ChatId.local(user!.user.value.id), push: true);
     }
   }
 
@@ -589,6 +589,39 @@ extension UserViewExt on User {
           return 'label_away'.l10n;
         } else if (lastSeenAt != null) {
           return (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo();
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case null:
+        return 'label_hidden'.l10n;
+
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
+
+  /// Returns the string representation of this [User] to display as a subtitle.
+  String? getSubtitle([PreciseDateTime? lastSeen]) {
+    switch (presence) {
+      case Presence.present:
+        if (online) {
+          return 'label_online'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case Presence.away:
+        if (online) {
+          return 'label_away'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
         } else {
           return 'label_offline'.l10n;
         }

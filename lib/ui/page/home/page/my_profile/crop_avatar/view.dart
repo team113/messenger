@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -73,6 +73,7 @@ class CropAvatarView extends StatelessWidget {
                   return ImageCropper(
                     image: image,
                     size: c.size,
+                    svg: c.svg,
                     rotation: c.rotation.value,
                     onCropped: (crop) => c.crop.value = crop,
                   );

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,10 +33,10 @@ import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/view.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/bottom_padded_row.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/navigation_bar.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/safe_scrollbar.dart';
-import '/ui/page/home/widget/shadowed_rounded_button.dart';
 import '/ui/widget/allow_overflow.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_delayed_switcher.dart';
@@ -44,6 +44,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/selected_dot.dart';
 import '/ui/widget/selected_tile.dart';
@@ -84,7 +85,7 @@ class ChatsTabView extends StatelessWidget {
                 duration: 200.milliseconds,
                 color: c.search.value != null || c.searching.value
                     ? style.colors.secondaryHighlight
-                    : style.colors.secondaryHighlight.withOpacity(0),
+                    : style.colors.secondaryHighlight.withValues(alpha: 0),
               );
             }),
             Obx(() {
@@ -123,28 +124,18 @@ class ChatsTabView extends StatelessWidget {
                         ),
                       );
                     } else if (c.groupCreating.value) {
-                      child = Theme(
-                        data: MessageFieldView.theme(context),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Transform.translate(
-                            offset: const Offset(0, 1),
-                            child: ReactiveTextField(
-                              state: c.groupName,
-                              hint: 'label_group_name'.l10n,
-                              maxLines: 1,
-                              filled: false,
-                              dense: true,
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              style: style.fonts.medium.regular.onBackground,
-                            ),
-                          ),
-                        ),
+                      child = Align(
+                        key: const Key('4'),
+                        alignment: Alignment.centerLeft,
+                        child: Text('label_create_group'.l10n),
                       );
                     } else if (c.selecting.value) {
-                      child = Text(
-                        'btn_select_and_delete'.l10n,
+                      child = Align(
                         key: const Key('3'),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'btn_select_and_delete'.l10n,
+                        ),
                       );
                     } else {
                       final Widget synchronization;
@@ -204,59 +195,7 @@ class ChatsTabView extends StatelessWidget {
                   }),
                   leading: [
                     Obx(() {
-                      if (c.selecting.value) {
-                        final bool selected = c.chats.isNotEmpty &&
-                            c.chats.where((e) {
-                              return (!e.id.isLocal ||
-                                      e.messages.isNotEmpty ||
-                                      e.chat.value.isMonolog) &&
-                                  !e.chat.value.isHidden;
-                            }).every(
-                              (e) => c.selectedChats.any((m) => m == e.id),
-                            );
-
-                        return AnimatedButton(
-                          onPressed: () {
-                            if (selected) {
-                              c.selectedChats.clear();
-                            } else {
-                              final List<RxChat> chats = [];
-
-                              for (var e in c.chats) {
-                                if ((!e.id.isLocal ||
-                                        e.messages.isNotEmpty ||
-                                        e.chat.value.isMonolog) &&
-                                    !e.chat.value.isHidden &&
-                                    !e.hidden.value) {
-                                  chats.add(e.rx);
-                                }
-                              }
-
-                              for (var e in chats) {
-                                if (!c.selectedChats.contains(e.id)) {
-                                  c.selectChat(e);
-                                }
-                              }
-                            }
-                          },
-                          decorator: (child) {
-                            return Container(
-                              padding:
-                                  const EdgeInsets.only(left: 20, right: 6),
-                              height: double.infinity,
-                              child: child,
-                            );
-                          },
-                          child: SelectedDot(
-                            selected: selected,
-                            inverted: false,
-                            outlined: !selected,
-                            size: 21,
-                          ),
-                        );
-                      }
-
-                      if (c.searching.value || c.groupCreating.value) {
+                      if (c.searching.value) {
                         return AnimatedButton(
                           key: c.searching.value
                               ? const Key('CloseSearchButton')
@@ -266,18 +205,16 @@ class ChatsTabView extends StatelessWidget {
                               : () => c.startSearch(),
                           decorator: (child) {
                             return Container(
-                              padding:
-                                  const EdgeInsets.only(left: 20, right: 6),
+                              padding: const EdgeInsets.only(
+                                left: 20,
+                                right: 6,
+                              ),
                               width: 46,
                               height: double.infinity,
                               child: child,
                             );
                           },
-                          child: Center(
-                            child: c.groupCreating.value && c.searching.value
-                                ? const SvgIcon(SvgIcons.back)
-                                : const SvgIcon(SvgIcons.search),
-                          ),
+                          child: const Center(child: SvgIcon(SvgIcons.search)),
                         );
                       }
 
@@ -286,142 +223,130 @@ class ChatsTabView extends StatelessWidget {
                   ],
                   actions: [
                     Obx(() {
-                      Widget? child;
-
-                      if (c.searching.value) {
-                        if (c.search.value?.search.isEmpty.value == false) {
-                          child = const SvgIcon(
-                            SvgIcons.clearSearch,
-                            key: Key('CloseSearch'),
-                          );
-                        } else {
-                          child = const SvgIcon(
-                            SvgIcons.closePrimary,
-                            key: Key('CloseSearch'),
-                          );
-                        }
-                      } else {
-                        if (c.groupCreating.value || c.selecting.value) {
-                          child = const SvgIcon(
-                            SvgIcons.closePrimary,
-                            key: Key('CloseGroupSearching'),
-                          );
-                        }
-                      }
-
-                      if (child != null) {
-                        return AnimatedButton(
-                          key: c.searching.value
-                              ? const Key('CloseSearchButton')
-                              : c.selecting.value
-                                  ? const Key('CloseSelectingButton')
-                                  : null,
-                          onPressed: () {
-                            if (c.searching.value) {
-                              if (c.search.value?.search.isEmpty.value ==
-                                  false) {
-                                c.search.value?.search.clear();
-                                c.search.value?.query.value = '';
-                                c.search.value?.search.focus.requestFocus();
-                              } else {
-                                c.closeSearch();
-                              }
-                            } else if (c.selecting.value) {
-                              c.toggleSelecting();
-                            } else if (c.groupCreating.value) {
-                              c.closeGroupCreating();
-                            }
-                          },
+                      final Widget moreButton = ContextMenuRegion(
+                        key: const Key('ChatsMenu'),
+                        selector: c.moreKey,
+                        alignment: Alignment.topRight,
+                        enablePrimaryTap: true,
+                        enableSecondaryTap: false,
+                        enableLongTap: false,
+                        margin: const EdgeInsets.only(bottom: 4, right: 0),
+                        actions: [
+                          ContextMenuButton(
+                            key: const Key('SelectChatsButton'),
+                            label: 'btn_select_and_delete'.l10n,
+                            onPressed: c.toggleSelecting,
+                            trailing: const SvgIcon(SvgIcons.select),
+                            inverted: const SvgIcon(SvgIcons.selectWhite),
+                          ),
+                          ContextMenuButton(
+                            label: 'btn_create_group'.l10n,
+                            onPressed: c.startGroupCreating,
+                            trailing: const SvgIcon(SvgIcons.group),
+                            inverted: const SvgIcon(SvgIcons.groupWhite),
+                          ),
+                          ContextMenuDivider(),
+                          ContextMenuButton(
+                            label: 'label_chat_monolog'.l10n,
+                            onPressed: () => router.chat(c.monolog),
+                            trailing: const SvgIcon(SvgIcons.notesSmall),
+                            inverted: const SvgIcon(SvgIcons.notesSmallWhite),
+                          ),
+                        ],
+                        child: AnimatedButton(
                           decorator: (child) {
                             return Container(
-                              padding:
-                                  const EdgeInsets.only(left: 12, right: 16),
+                              key: c.moreKey,
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 18,
+                              ),
                               height: double.infinity,
-                              child: child,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  10,
+                                  0,
+                                  10,
+                                  0,
+                                ),
+                                child: child,
+                              ),
                             );
                           },
-                          child: SizedBox(
-                            width: 29.17,
-                            child: SafeAnimatedSwitcher(
-                              duration: 250.milliseconds,
-                              child: child,
-                            ),
+                          child: const SvgIcon(SvgIcons.more),
+                        ),
+                      );
+
+                      final Widget closeSearch = AnimatedButton(
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : c.selecting.value
+                                ? const Key('CloseSelectingButton')
+                                : null,
+                        onPressed: () {
+                          if (c.searching.value) {
+                            if (c.search.value?.search.isEmpty.value == false) {
+                              c.search.value?.search.clear();
+                              c.search.value?.query.value = '';
+                              c.search.value?.search.focus.requestFocus();
+                            } else {
+                              c.closeSearch();
+                            }
+                          } else if (c.selecting.value) {
+                            c.toggleSelecting();
+                          } else if (c.groupCreating.value) {
+                            c.closeGroupCreating();
+                          }
+                        },
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 9, right: 16),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
+                        child: SizedBox(
+                          width: 29.17,
+                          child: SafeAnimatedSwitcher(
+                            duration: 250.milliseconds,
+                            child: c.search.value?.search.isEmpty.value == false
+                                ? const SvgIcon(
+                                    SvgIcons.clearSearch,
+                                    key: Key('ClearSearch'),
+                                  )
+                                : const SvgIcon(
+                                    SvgIcons.closePrimary,
+                                    key: Key('CloseSearch'),
+                                  ),
                           ),
-                        );
-                      }
+                        ),
+                      );
+
+                      final Widget searchButton = AnimatedButton(
+                        key: const Key('SearchButton'),
+                        onPressed: () => c.startSearch(),
+                        decorator: (child) {
+                          return Container(
+                            padding: const EdgeInsets.only(left: 20, right: 12),
+                            height: double.infinity,
+                            child: child,
+                          );
+                        },
+                        child: const SvgIcon(SvgIcons.search),
+                      );
 
                       return Row(
                         children: [
-                          // TODO: Uncomment, when contacts are implemented.
-                          // AnimatedButton(
-                          //   key: const Key('ContactsButton'),
-                          //   onPressed: () => router.tab = HomeTab.contacts,
-                          //   decorator: (child) {
-                          //     return Container(
-                          //       padding:
-                          //           const EdgeInsets.only(left: 20, right: 12),
-                          //       height: double.infinity,
-                          //       child: child,
-                          //     );
-                          //   },
-                          //   child: const SvgIcon(SvgIcons.contactsSwitch),
-                          // ),
-
-                          AnimatedButton(
-                            key: const Key('SearchButton'),
-                            onPressed: () => c.startSearch(),
-                            decorator: (child) {
-                              return Container(
-                                padding:
-                                    const EdgeInsets.only(left: 20, right: 12),
-                                height: double.infinity,
-                                child: child,
-                              );
-                            },
-                            child: const SvgIcon(SvgIcons.search),
-                          ),
-                          ContextMenuRegion(
-                            key: const Key('ChatsMenu'),
-                            selector: c.moreKey,
-                            alignment: Alignment.topRight,
-                            enablePrimaryTap: true,
-                            enableSecondaryTap: false,
-                            enableLongTap: false,
-                            margin: const EdgeInsets.only(bottom: 4, right: 0),
-                            actions: [
-                              ContextMenuButton(
-                                label: 'btn_create_group'.l10n,
-                                onPressed: c.startGroupCreating,
-                                trailing: const SvgIcon(SvgIcons.group),
-                                inverted: const SvgIcon(SvgIcons.groupWhite),
-                              ),
-                              ContextMenuButton(
-                                key: const Key('SelectChatsButton'),
-                                label: 'btn_select_and_delete'.l10n,
-                                onPressed: c.toggleSelecting,
-                                trailing: const SvgIcon(SvgIcons.select),
-                                inverted: const SvgIcon(SvgIcons.selectWhite),
-                              ),
-                            ],
-                            child: AnimatedButton(
-                              decorator: (child) {
-                                return Container(
-                                  key: c.moreKey,
-                                  padding: const EdgeInsets.only(
-                                    left: 12,
-                                    right: 18,
-                                  ),
-                                  height: double.infinity,
-                                  child: Padding(
-                                    padding:
-                                        const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                                    child: child,
-                                  ),
-                                );
-                              },
-                              child: const SvgIcon(SvgIcons.more),
-                            ),
-                          ),
+                          if (c.selecting.value) ...[
+                            if (!c.searching.value) searchButton,
+                            closeSearch,
+                          ] else if (c.groupCreating.value) ...[
+                            if (!c.searching.value) searchButton,
+                            closeSearch,
+                          ] else ...[
+                            if (!c.searching.value) searchButton,
+                            if (c.searching.value) closeSearch else moreButton,
+                          ],
                         ],
                       );
                     }),
@@ -817,9 +742,12 @@ class ChatsTabView extends StatelessWidget {
                                 selected: c.selecting.value ? selected : null,
                                 getUser: c.getUser,
                                 avatarBuilder: c.selecting.value
-                                    ? (c) => WidgetButton(
-                                          onPressed: () => router.chat(e.id),
-                                          child: c,
+                                    ? (child) => WidgetButton(
+                                          onPressed: () => router.dialog(
+                                            e.chat.value,
+                                            c.me,
+                                          ),
+                                          child: child,
                                         )
                                     : avatarBuilder,
                                 onJoin: () => c.joinCall(e.id),
@@ -1087,56 +1015,38 @@ class ChatsTabView extends StatelessWidget {
                       if (c.groupCreating.value) {
                         return BottomPaddedRow(
                           children: [
-                            ShadowedRoundedButton(
+                            FieldButton(
                               onPressed: c.closeGroupCreating,
-                              color: style.colors.onPrimary,
                               child: Text(
                                 'btn_cancel'.l10n,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.fonts.medium.regular.onBackground,
                               ),
                             ),
-                            ShadowedRoundedButton(
+                            PrimaryButton(
                               onPressed: c.createGroup,
-                              color: style.colors.primary,
-                              child: Text(
-                                'btn_create_group'.l10n,
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: style.fonts.medium.regular.onPrimary,
-                              ),
+                              title: 'btn_create'.l10n,
                             ),
                           ],
                         );
                       } else if (c.selecting.value) {
                         return BottomPaddedRow(
                           children: [
-                            ShadowedRoundedButton(
+                            FieldButton(
                               onPressed: c.toggleSelecting,
                               child: Text(
                                 'btn_cancel'.l10n,
                                 overflow: TextOverflow.ellipsis,
                                 maxLines: 1,
-                                style: style.fonts.medium.regular.onBackground,
                               ),
                             ),
-                            ShadowedRoundedButton(
+                            PrimaryButton(
                               key: const Key('DeleteChats'),
                               onPressed: c.selectedChats.isEmpty
                                   ? null
                                   : () => _hideChats(context, c),
-                              color: style.colors.primary,
-                              child: Text(
-                                'btn_delete_count'.l10nfmt({
-                                  'count': c.selectedChats.length,
-                                }),
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 1,
-                                style: c.selectedChats.isEmpty
-                                    ? style.fonts.medium.regular.onBackground
-                                    : style.fonts.medium.regular.onPrimary,
-                              ),
+                              danger: true,
+                              title: 'btn_delete'.l10n,
                             ),
                           ],
                         );
@@ -1174,7 +1084,7 @@ class ChatsTabView extends StatelessWidget {
                         key: Key('${action.chat.id}'),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: style.colors.primary.withOpacity(0.9),
+                          color: style.colors.primary.withValues(alpha: .9),
                           boxShadow: [
                             CustomBoxShadow(
                               blurRadius: 8,

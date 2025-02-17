@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -161,6 +161,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         return _ChatDb.fromDb(row);
       },
       tag: 'chat.read($id)',
+      exclusive: false,
       force: force,
     );
   }
@@ -187,41 +188,53 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the recent [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> recent({int? limit}) async {
-    final result = await safe((db) async {
-      final stmt = db.select(db.chats);
+    final result = await safe(
+      (db) async {
+        final stmt = db.select(db.chats);
 
-      stmt.where((u) => u.isHidden.equals(false) & u.id.like('local_%').not());
-      stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
+        stmt.where((u) =>
+            u.isHidden.equals(false) &
+            u.id.like('local_%').not() &
+            u.id.like('d_%').not());
+        stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
 
-      if (limit != null) {
-        stmt.limit(limit);
-      }
+        if (limit != null) {
+          stmt.limit(limit);
+        }
 
-      return (await stmt.get()).map(_ChatDb.fromDb).toList();
-    }, tag: 'chat.recent(limit: $limit)');
+        return (await stmt.get()).map(_ChatDb.fromDb).toList();
+      },
+      tag: 'chat.recent(limit: $limit)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }
 
   /// Returns the favorite [DtoChat]s being in a historical view order.
   Future<List<DtoChat>> favorite({int? limit}) async {
-    final result = await safe((db) async {
-      final stmt = db.select(db.chats);
+    final result = await safe(
+      (db) async {
+        final stmt = db.select(db.chats);
 
-      stmt.where(
-        (u) =>
-            u.isHidden.equals(false) &
-            u.favoritePosition.isNotNull() &
-            u.id.like('local_%').not(),
-      );
-      stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
+        stmt.where(
+          (u) =>
+              u.isHidden.equals(false) &
+              u.favoritePosition.isNotNull() &
+              u.id.like('local_%').not() &
+              u.id.like('d_%').not(),
+        );
+        stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);
 
-      if (limit != null) {
-        stmt.limit(limit);
-      }
+        if (limit != null) {
+          stmt.limit(limit);
+        }
 
-      return (await stmt.get()).map(_ChatDb.fromDb).toList();
-    }, tag: 'chat.favorite(limit: $limit)');
+        return (await stmt.get()).map(_ChatDb.fromDb).toList();
+      },
+      tag: 'chat.favorite(limit: $limit)',
+      exclusive: false,
+    );
 
     return result ?? [];
   }
@@ -263,6 +276,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
             u.favoritePosition.isNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.updatedAt)]);
@@ -284,6 +298,7 @@ class ChatDriftProvider extends DriftProviderBaseWithScope {
         (u) =>
             u.isHidden.equals(false) &
             u.id.like('local_%').not() &
+            u.id.like('d_%').not() &
             u.favoritePosition.isNotNull(),
       );
       stmt.orderBy([(u) => OrderingTerm.desc(u.favoritePosition)]);

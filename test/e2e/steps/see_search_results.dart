@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -165,13 +165,24 @@ final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
   (context) async {
     await context.world.appDriver.waitUntil(
       () async {
-        await context.world.appDriver.waitForAppToSettle();
+        final ChatService chatService = Get.find<ChatService>();
+        final ChatId chatId = chatService.monolog;
+        final ChatId monologId = ChatId.local(chatService.me!);
 
-        final ChatId chatId = Get.find<ChatService>().monolog;
-
-        return context.world.appDriver.isPresent(
+        final bool isPresent = await context.world.appDriver.isPresent(
           context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
         );
+
+        if (!isPresent) {
+          return await context.world.appDriver.isPresent(
+            context.world.appDriver.findBy(
+              'SearchChat_$monologId',
+              FindType.key,
+            ),
+          );
+        }
+
+        return isPresent;
       },
       timeout: const Duration(seconds: 30),
     );

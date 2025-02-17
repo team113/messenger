@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -607,9 +607,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                     useLongPress: widget.useLongPress,
                     cellKey: item.cellKey,
                     sharedKey: item.sharedKey,
-                    enabled:
-                        _items.map((e) => e.entry).whereNotNull().isEmpty &&
-                            (widget.allowDraggingLast || _items.length != 1),
+                    enabled: _items.map((e) => e.entry).nonNulls.isEmpty &&
+                        (widget.allowDraggingLast || _items.length != 1),
                     onDragEnd: (d) {
                       widget.onDragEnd?.call(item.item);
                       if (_doughDragged != null) {
@@ -892,7 +891,7 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             ),
 
           // Pseudo-[Overlay].
-          ..._items.map((e) => e.entry).whereNotNull().map(
+          ..._items.map((e) => e.entry).nonNulls.map(
                 (e) => IgnorePointer(
                   child: SizedBox(
                     width: MediaQuery.of(context).size.width,

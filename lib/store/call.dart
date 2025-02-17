@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -37,6 +37,7 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
+import '/provider/gql/exceptions.dart' show DeclineChatCallException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
@@ -366,8 +367,21 @@ class CallRepository extends DisposableInterface
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', '$runtimeType');
 
-    await _graphQlProvider.declineChatCall(chatId);
-    calls.remove(chatId);
+    try {
+      await _graphQlProvider.declineChatCall(chatId);
+    } on DeclineChatCallException catch (e) {
+      switch (e.code) {
+        case DeclineChatCallErrorCode.alreadyJoined:
+          // No-op, as this can be expected.
+          break;
+
+        case DeclineChatCallErrorCode.unknownChat:
+        case DeclineChatCallErrorCode.artemisUnknown:
+          rethrow;
+      }
+    } finally {
+      calls.remove(chatId);
+    }
   }
 
   @override

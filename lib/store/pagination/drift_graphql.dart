@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -61,7 +61,10 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
     final Page<T, C> remote = await graphQlProvider.around(key, cursor, count);
     Log.debug('after() -> ${remote.edges.length}');
 
-    await driftProvider.put(remote.edges);
+    // Await is omitted as it doesn't really form the page returned, it just
+    // stores the data fetched to the drift, which might be happening in
+    // parallel.
+    driftProvider.put(remote.edges);
 
     return remote;
   }
@@ -76,7 +79,10 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.after(key, cursor, count);
 
-    await driftProvider.put(remote.edges);
+    // Await is omitted as it doesn't really form the page returned, it just
+    // stores the data fetched to the drift, which might be happening in
+    // parallel.
+    driftProvider.put(remote.edges);
 
     return remote;
   }
@@ -91,7 +97,10 @@ class DriftGraphQlPageProvider<T extends Object, C, K>
 
     final Page<T, C> remote = await graphQlProvider.before(key, cursor, count);
 
-    await driftProvider.put(remote.edges);
+    // Await is omitted as it doesn't really form the page returned, it just
+    // stores the data fetched to the drift, which might be happening in
+    // parallel.
+    driftProvider.put(remote.edges);
 
     return remote;
   }

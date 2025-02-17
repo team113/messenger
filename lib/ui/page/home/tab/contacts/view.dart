@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -640,7 +640,7 @@ class ContactsTabView extends StatelessWidget {
                     duration: 200.milliseconds,
                     color: c.search.value != null
                         ? style.colors.secondaryHighlight
-                        : style.colors.secondaryHighlight.withOpacity(0),
+                        : style.colors.secondaryHighlight.withValues(alpha: 0),
                   );
                 }),
                 ContextMenuInterceptor(
@@ -679,7 +679,7 @@ class ContactsTabView extends StatelessWidget {
                         key: Key('${action.contact.id}'),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
-                          color: style.colors.primary.withOpacity(0.9),
+                          color: style.colors.primary.withValues(alpha: .9),
                           boxShadow: [
                             CustomBoxShadow(
                               blurRadius: 8,

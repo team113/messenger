@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -24,9 +24,7 @@ Feature: Clear chat
     And I am in chat with Bob
     And I see some messages in chat
 
-    When I open chat's info
-    And I scroll `ChatInfoScrollable` until `ClearHistoryButton` is present
+    When I tap `MoreButton` button
     And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
-    And I return to previous page
     Then I see no messages in chat

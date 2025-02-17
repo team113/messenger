@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -68,7 +68,6 @@ import '/provider/gql/exceptions.dart'
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/widget/text_field.dart';
 import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
@@ -125,9 +124,6 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
-  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
-  final TextFieldState groupName = TextFieldState();
-
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
@@ -177,6 +173,10 @@ class ChatsTabController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
+  /// [ChatService.paginated] length fetched during [ChatService.next] invoke
+  /// used to guard against the method spamming again and again.
+  int? _chatsInitiallyFetched;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -191,6 +191,10 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether the current device is connected to any network.
   RxBool get connected => _sessionService.connected;
+
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatService.monolog;
 
   @override
   void onInit() {
@@ -329,7 +333,7 @@ class ChatsTabController extends GetxController {
     RxChat? chat,
   }) async {
     if (chat != null) {
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
     } else {
       user ??= contact?.user.value;
 
@@ -337,7 +341,7 @@ class ChatsTabController extends GetxController {
         if (user.id == me) {
           router.chat(_chatService.monolog, push: true);
         } else {
-          router.chat(user.user.value.dialog);
+          router.chat(ChatId.local(user.user.value.id));
         }
       }
     }
@@ -625,7 +629,6 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
-    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -643,10 +646,9 @@ class ChatsTabController extends GetxController {
               .expand((e) => e.contact.value.users.map((u) => u.id)),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: ChatName.tryParse(groupName.text),
       );
 
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -891,8 +893,16 @@ class ChatsTabController extends GetxController {
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
+          final int amount = _chatService.paginated.length;
+
           await _chatService.next();
-          _ensureScrollable();
+
+          _chatsInitiallyFetched = _chatService.paginated.length;
+
+          // Don't spam this method again and again if no chats were fetched.
+          if (_chatsInitiallyFetched != amount) {
+            _ensureScrollable();
+          }
         }
       });
     }

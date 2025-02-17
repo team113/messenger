@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -63,17 +63,20 @@ class ChatCredentialsDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatCallCredentials?>((db) async {
-      final stmt = db.select(db.chatCredentials)
-        ..where((u) => u.chatId.equals(id.val));
-      final ChatCredentialsRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatCallCredentials?>(
+      (db) async {
+        final stmt = db.select(db.chatCredentials)
+          ..where((u) => u.chatId.equals(id.val));
+        final ChatCredentialsRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _CallCredentialsDb.fromDb(row);
-    });
+        return _CallCredentialsDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [ChatCallCredentials] identified by the provided [id] from the database.

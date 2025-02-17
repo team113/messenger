@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -73,17 +73,20 @@ class BackgroundDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoBackground?>((db) async {
-      final stmt = db.select(db.background)
-        ..where((u) => u.userId.equals(id.val));
-      final BackgroundRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoBackground?>(
+      (db) async {
+        final stmt = db.select(db.background)
+          ..where((u) => u.userId.equals(id.val));
+        final BackgroundRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _BackgroundDb.fromDb(row);
-    });
+        return _BackgroundDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [DtoBackground] identified by the provided [id] from the

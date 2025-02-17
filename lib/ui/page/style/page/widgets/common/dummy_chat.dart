@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -118,9 +118,6 @@ class DummyRxChat extends RxChat {
 
   @override
   Future<void> remove(ChatItemId itemId) async {}
-
-  @override
-  Future<void> addMessage(ChatMessageText text) async {}
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({

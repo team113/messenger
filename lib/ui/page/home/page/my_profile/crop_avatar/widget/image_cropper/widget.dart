@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,6 +19,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 import '/themes.dart';
 import '/ui/page/call/widget/scaler.dart';
@@ -34,6 +35,7 @@ class ImageCropper extends StatefulWidget {
     super.key,
     required this.image,
     required this.size,
+    this.svg,
     this.rotation = CropRotation.up,
     this.onCropped,
   });
@@ -43,6 +45,9 @@ class ImageCropper extends StatefulWidget {
 
   /// [Size] of the [image].
   final Size size;
+
+  /// [PictureInfo] of the SVG [image] to display.
+  final PictureInfo? svg;
 
   /// [CropRotation] of the image.
   final CropRotation rotation;
@@ -91,12 +96,20 @@ class _ImageCropperState extends State<ImageCropper> {
             alignment: Alignment.center,
             children: <Widget>[
               // Image itself.
-              Image.memory(
-                widget.image,
-                width: constraints.maxWidth,
-                height: constraints.maxHeight,
-                fit: BoxFit.fill,
-              ),
+              if (widget.svg != null)
+                SvgPicture.memory(
+                  widget.image,
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  fit: BoxFit.fill,
+                )
+              else
+                Image.memory(
+                  widget.image,
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  fit: BoxFit.fill,
+                ),
 
               // Grid painter.
               Positioned.fill(
@@ -359,8 +372,8 @@ class _ImageCropperState extends State<ImageCropper> {
 
     double left = crop.left.clamp(0, crop.right - _minimum);
     double top = crop.top.clamp(0, crop.bottom - _minimum);
-    double width = crop.width.clamp(_minimum, widget.size.width - _minimum);
-    double height = crop.height.clamp(_minimum, widget.size.height - _minimum);
+    double width = crop.width.clamp(_minimum, widget.size.width);
+    double height = crop.height.clamp(_minimum, widget.size.height);
 
     if (width / height > _ratio) {
       width = height * _ratio;
@@ -461,10 +474,6 @@ class _ImageCropperState extends State<ImageCropper> {
           bottom = (point.dy * widget.size.height).clamp(minY, maxY);
         }
         break;
-
-      default:
-        // No-op, as shouldn't be invoked.
-        break;
     }
 
     final double height = bottom - top;
@@ -478,10 +487,6 @@ class _ImageCropperState extends State<ImageCropper> {
       case CropHandle.topRight:
       case CropHandle.bottomRight:
         right = left + height * _ratio;
-        break;
-
-      default:
-        // No-op, as shouldn't be invoked.
         break;
     }
 

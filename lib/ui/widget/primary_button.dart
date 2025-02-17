@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 
 /// Primary styled [OutlinedRoundedButton].
@@ -25,7 +26,9 @@ class PrimaryButton extends StatelessWidget {
   const PrimaryButton({
     super.key,
     this.title = '',
+    this.style,
     this.onPressed,
+    this.danger = false,
   });
 
   /// Text to display.
@@ -34,21 +37,31 @@ class PrimaryButton extends StatelessWidget {
   /// Callback, called when this button is tapped or activated other way.
   final void Function()? onPressed;
 
+  /// [TextStyle] of the [title] of this [PrimaryButton].
+  final TextStyle? style;
+
+  /// Indicator whether this [PrimaryButton] should be displayed in a danger
+  /// (destructive) style.
+  final bool danger;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return OutlinedRoundedButton(
-      maxWidth: double.infinity,
+    return FieldButton(
       onPressed: onPressed,
-      color: style.colors.primary,
+      warning: true,
+      danger: danger,
       child: Text(
         title,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
-        style: onPressed == null
-            ? style.fonts.medium.regular.onBackground
-            : style.fonts.medium.regular.onPrimary,
+        style: this.style ??
+            (onPressed == null
+                ? style.fonts.normal.regular.onBackground.copyWith(
+                    color: style.colors.secondaryOpacity87,
+                  )
+                : style.fonts.normal.regular.onPrimary),
       ),
     );
   }

@@ -1,10 +1,10 @@
 name: messenger
-version: 0.2.3
+version: 0.3.2
 publish_to: none
 
 environment:
-  flutter: ">=3.24.4"
-  sdk: ">=3.5.4 <4.0.0"
+  flutter: ">=3.27.0"
+  sdk: ">=3.6.0 <4.0.0"
 
 dependencies:
   all_sensors:
@@ -15,16 +15,18 @@ dependencies:
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
+  base_x: ^2.0.1
   collection: ^1.18.0
   connectivity_plus: ^6.1.0
   crypto: ^3.0.3
   device_info_plus: ^11.1.0
   dio: ^5.1.2
   dough: ^2.0.0
-  drift: ^2.19.1+1
+  drift: ^2.23.1
   email_validator: ^3.0.0
+  expandable_text: ^2.3.0
   ffi: ^2.0.2
-  file_picker: ^8.0.3
+  file_picker: 8.1.4
   firebase_core: ^3.6.0
   firebase_messaging: ^15.1.3
   fluent:
@@ -32,10 +34,7 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_callkit_incoming:
-    git:
-      url: https://github.com/SleepySquash/flutter_callkit_incoming_android
-      ref: 150d74be19c808c08941cc92afdd13c99abaf0e5
+  flutter_callkit_incoming: ^2.0.4+2
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
@@ -49,7 +48,7 @@ dependencies:
   flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
-  flutter_widget_from_html_core: ^0.14.12
+  flutter_widget_from_html_core: ^0.15.2
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.7
@@ -66,8 +65,8 @@ dependencies:
   log_me: ^0.1.2
   macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.11.2
-  medea_jason: 0.7.0
+  medea_flutter_webrtc: 0.12.2
+  medea_jason: 0.7.1
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -92,12 +91,12 @@ dependencies:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
   screen_brightness: any
-  sentry_flutter: ^8.4.0
+  sentry_flutter: ^8.12.0
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
-  sqlite3_flutter_libs: ^0.5.24
+  sqlite3_flutter_libs: ^0.5.28
   sqlite3: ^2.4.4
   stdlibc: ^0.1.4
   super_clipboard: ^0.9.0-dev.3
@@ -116,6 +115,7 @@ dependencies:
   win32_registry: ^1.1.3
   window_manager: ^0.4.3
   windows_taskbar: ^1.1.1
+  xdg_directories: ^1.1.0
   xml: ^6.5.0
   yaml: ^3.1.2
 
@@ -124,8 +124,9 @@ dev_dependencies:
     git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
   build_runner: ^2.4.11
-  dartdoc: 8.1.0
-  drift_dev: ^2.19.1
+  change_app_package_name: ^1.4.0
+  dartdoc: 8.3.0
+  drift_dev: ^2.23.1
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
@@ -141,7 +142,7 @@ dev_dependencies:
   gherkin: ^2.0.8
   json_serializable: ^6.6.2
   mockito: ^5.4.2
-  sentry_dart_plugin: ^1.2.0
+  sentry_dart_plugin: ^2.2.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.

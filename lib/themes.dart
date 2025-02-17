@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -93,6 +93,7 @@ class Themes {
       primaryAuxiliary: const Color(0xFF165084),
       onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
+      secondaryLight: const Color(0xFFCCCCCC),
       secondaryHighlight: const Color(0xFFEFEFEF),
       secondaryHighlightDark: const Color(0xFFDEDEDE),
       secondaryHighlightDarkest: const Color(0xFFC4C4C4),
@@ -277,27 +278,27 @@ class Themes {
         floatingLabelStyle: fonts.big.regular.secondary,
         errorMaxLines: 5,
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.primary),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         disabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.secondaryHighlightDarkest),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
         focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(25),
+          borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide(color: colors.danger),
         ),
       ),
@@ -648,13 +649,14 @@ class Palette {
     Color? primaryDarkOpacity90,
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity90,
+    Color? primaryAuxiliaryOpacity55,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity50,
     Color? onPrimaryOpacity95,
     required this.secondary,
+    required this.secondaryLight,
     required this.secondaryBackground,
     required this.secondaryBackgroundLight,
     required this.secondaryBackgroundLightest,
@@ -695,45 +697,53 @@ class Palette {
     required this.danger,
     required this.warning,
     required this.userColors,
-  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withOpacity(0.20),
+  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withValues(alpha: 0.20),
         primaryDarkOpacity70 =
-            primaryDarkOpacity70 ?? primaryDark.withOpacity(0.70),
+            primaryDarkOpacity70 ?? primaryDark.withValues(alpha: 0.70),
         primaryDarkOpacity90 =
-            primaryDarkOpacity90 ?? primaryDark.withOpacity(0.90),
-        primaryAuxiliaryOpacity25 =
-            primaryAuxiliaryOpacity25 ?? primaryAuxiliary.withOpacity(0.25),
-        onPrimaryOpacity7 = onPrimaryOpacity7 ?? onPrimary.withOpacity(0.07),
-        onPrimaryOpacity25 = onPrimaryOpacity25 ?? onPrimary.withOpacity(0.25),
-        onPrimaryOpacity50 = onPrimaryOpacity50 ?? onPrimary.withOpacity(0.50),
-        onPrimaryOpacity95 = onPrimaryOpacity95 ?? onPrimary.withOpacity(0.95),
-        secondaryOpacity87 = secondaryOpacity87 ?? secondary.withOpacity(0.87),
-        secondaryOpacity40 = secondaryOpacity40 ?? secondary.withOpacity(0.40),
+            primaryDarkOpacity90 ?? primaryDark.withValues(alpha: 0.90),
+        primaryAuxiliaryOpacity25 = primaryAuxiliaryOpacity25 ??
+            primaryAuxiliary.withValues(alpha: 0.25),
+        primaryAuxiliaryOpacity55 = primaryAuxiliaryOpacity55 ??
+            primaryAuxiliary.withValues(alpha: 0.55),
+        onPrimaryOpacity7 =
+            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
+        onPrimaryOpacity25 =
+            onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
+        onPrimaryOpacity50 =
+            onPrimaryOpacity50 ?? onPrimary.withValues(alpha: 0.50),
+        onPrimaryOpacity95 =
+            onPrimaryOpacity95 ?? onPrimary.withValues(alpha: 0.95),
+        secondaryOpacity87 =
+            secondaryOpacity87 ?? secondary.withValues(alpha: 0.87),
+        secondaryOpacity40 =
+            secondaryOpacity40 ?? secondary.withValues(alpha: 0.40),
         onSecondaryOpacity20 =
-            onSecondaryOpacity20 ?? onSecondary.withOpacity(0.20),
+            onSecondaryOpacity20 ?? onSecondary.withValues(alpha: 0.20),
         onSecondaryOpacity50 =
-            onSecondaryOpacity50 ?? onSecondary.withOpacity(0.50),
+            onSecondaryOpacity50 ?? onSecondary.withValues(alpha: 0.50),
         onSecondaryOpacity60 =
-            onSecondaryOpacity60 ?? onSecondary.withOpacity(0.60),
+            onSecondaryOpacity60 ?? onSecondary.withValues(alpha: 0.60),
         onSecondaryOpacity88 =
-            onSecondaryOpacity88 ?? onSecondary.withOpacity(0.88),
+            onSecondaryOpacity88 ?? onSecondary.withValues(alpha: 0.88),
         onBackgroundOpacity2 =
-            onBackgroundOpacity2 ?? onBackground.withOpacity(0.02),
+            onBackgroundOpacity2 ?? onBackground.withValues(alpha: 0.02),
         onBackgroundOpacity7 =
-            onBackgroundOpacity7 ?? onBackground.withOpacity(0.07),
+            onBackgroundOpacity7 ?? onBackground.withValues(alpha: 0.07),
         onBackgroundOpacity13 =
-            onBackgroundOpacity13 ?? onBackground.withOpacity(0.13),
+            onBackgroundOpacity13 ?? onBackground.withValues(alpha: 0.13),
         onBackgroundOpacity20 =
-            onBackgroundOpacity20 ?? onBackground.withOpacity(0.20),
+            onBackgroundOpacity20 ?? onBackground.withValues(alpha: 0.20),
         onBackgroundOpacity27 =
-            onBackgroundOpacity27 ?? onBackground.withOpacity(0.27),
+            onBackgroundOpacity27 ?? onBackground.withValues(alpha: 0.27),
         onBackgroundOpacity40 =
-            onBackgroundOpacity40 ?? onBackground.withOpacity(0.40),
+            onBackgroundOpacity40 ?? onBackground.withValues(alpha: 0.40),
         onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withOpacity(0.50),
+            onBackgroundOpacity50 ?? onBackground.withValues(alpha: 0.50),
         onBackgroundOpacity70 =
-            onBackgroundOpacity70 ?? onBackground.withOpacity(0.70),
-        declineOpacity50 = declineOpacity50 ?? decline.withOpacity(0.50),
-        declineOpacity88 = declineOpacity88 ?? decline.withOpacity(0.88);
+            onBackgroundOpacity70 ?? onBackground.withValues(alpha: 0.70),
+        declineOpacity50 = declineOpacity50 ?? decline.withValues(alpha: 0.50),
+        declineOpacity88 = declineOpacity88 ?? decline.withValues(alpha: 0.88);
 
   /// Primary [Color] of the application.
   ///
@@ -800,6 +810,9 @@ class Palette {
   /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
+  /// 55% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity55;
+
   /// [Color] for elements to put above the [primary] color.
   ///
   /// Used for texts on [primary] buttons and icons.
@@ -839,6 +852,9 @@ class Palette {
   ///
   /// Used as the muted indicator background in calls.
   final Color secondaryOpacity40;
+
+  /// Lighter variation of the [secondary] color.
+  final Color secondaryLight;
 
   /// Background [Color] of the [secondary] elements.
   ///
@@ -1044,6 +1060,8 @@ class Palette {
       onPrimaryOpacity95:
           Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
+      secondaryLight:
+          Color.lerp(color.secondaryLight, other.secondaryLight, t)!,
       secondaryOpacity87:
           Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
       secondaryHighlight:
@@ -1124,10 +1142,10 @@ extension ThemeStylesExtension on ThemeData {
 extension HexColor on Color {
   /// Returns a HEX string value of this color.
   String toHex({bool withAlpha = true}) => '#'
-      '${(withAlpha ? alpha.toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
-      '${red.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${green.toRadixString(16).toUpperCase().padLeft(2, '0')}'
-      '${blue.toRadixString(16).toUpperCase().padLeft(2, '0')}';
+      '${(withAlpha ? (a * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
+      '${(r * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${(g * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'
+      '${(b * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}';
 }
 
 // TODO: Remove, when flutter/flutter#132839 is fixed:

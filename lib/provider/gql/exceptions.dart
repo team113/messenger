@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -1404,26 +1404,30 @@ class RemoveChatCallMemberException
   }
 }
 
-/// Exception of `Mutation.registerFcmDevice` described in the [code].
-class RegisterFcmDeviceException
+/// Exception of `Mutation.registerPushDevice` described in the [code].
+class RegisterPushDeviceException
     with LocalizedExceptionMixin
     implements Exception {
-  const RegisterFcmDeviceException(this.code);
+  const RegisterPushDeviceException(this.code);
 
   /// Reason of why the mutation has failed.
-  final RegisterFcmDeviceErrorCode code;
+  final RegisterPushDeviceErrorCode? code;
 
   @override
-  String toString() => 'RegisterFcmDeviceException($code)';
+  String toString() => 'RegisterPushDeviceException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case RegisterFcmDeviceErrorCode.unknownRegistrationToken:
+      case RegisterPushDeviceErrorCode.unknownDeviceToken:
         return 'err_unknown_registration_token'.l10n;
-      case RegisterFcmDeviceErrorCode.fcmUnavailable:
+      case RegisterPushDeviceErrorCode.unavailable:
         return 'err_fcm_unavailable'.l10n;
-      case RegisterFcmDeviceErrorCode.artemisUnknown:
+      case RegisterPushDeviceErrorCode.occupied:
+        return 'err_push_device_occupied'.l10n;
+      case RegisterPushDeviceErrorCode.artemisUnknown:
+        return 'err_unknown'.l10n;
+      case null:
         return 'err_unknown'.l10n;
     }
   }

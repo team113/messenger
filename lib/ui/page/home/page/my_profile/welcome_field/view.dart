@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -95,7 +95,6 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
         child: Container(
           key: const Key('SendField'),
           decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
             boxShadow: [
               CustomBoxShadow(
                 blurRadius: 8,
@@ -109,7 +108,6 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
               sigmaX: style.cardBlur,
               sigmaY: style.cardBlur,
             ),
-            borderRadius: style.cardRadius,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [_buildHeader(c, context), _buildField(c, context)],

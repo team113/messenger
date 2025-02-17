@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ class FieldButton extends StatefulWidget {
   const FieldButton({
     super.key,
     this.text,
+    this.child,
     this.textAlign = TextAlign.start,
     this.maxLines = 1,
     this.onPressed,
@@ -36,10 +37,14 @@ class FieldButton extends StatefulWidget {
     this.headline,
     this.warning = false,
     this.danger = false,
+    this.border,
   });
 
   /// Optional label of this [FieldButton].
   final String? text;
+
+  /// [Widget] to display inside this [FieldButton] instead of [text].
+  final Widget? child;
 
   /// [TextAlign] of the [text].
   final TextAlign textAlign;
@@ -73,6 +78,10 @@ class FieldButton extends StatefulWidget {
   /// Indicator whether the [text] should have danger color.
   final bool danger;
 
+  /// [BorderSide] to display around this [FieldButton] instead of the
+  /// dynamically determined one.
+  final BorderSide? border;
+
   @override
   State<FieldButton> createState() => _FieldButtonState();
 }
@@ -87,20 +96,22 @@ class _FieldButtonState extends State<FieldButton> {
       children: [
         OutlinedRoundedButton(
           maxWidth: double.infinity,
-          color: widget.warning ? style.colors.primary : style.colors.onPrimary,
-          disabled: style.colors.onPrimary,
+          color: widget.danger
+              ? style.colors.danger
+              : widget.warning
+                  ? style.colors.primary
+                  : style.colors.onPrimary,
+          disabled: style.colors.secondaryHighlight,
           onPressed: widget.onPressed,
-          style: (widget.style ?? style.fonts.medium.regular.onBackground)
-              .copyWith(
-            // Exception, as [widget.style] may vary.
-            color: widget.onPressed == null
-                ? style.colors.onBackgroundOpacity40
-                : widget.warning
-                    ? style.colors.onPrimary
-                    : widget.danger
-                        ? style.colors.danger
+          style: widget.style ??
+              style.fonts.normal.regular.onBackground.copyWith(
+                // Exception, as [widget.style] may vary.
+                color: widget.onPressed == null
+                    ? style.colors.onBackground
+                    : widget.warning || widget.danger
+                        ? style.colors.onPrimary
                         : style.colors.onBackground,
-          ),
+              ),
           height: 46,
           leading: Transform.translate(
             offset: const Offset(0, 1),
@@ -108,8 +119,20 @@ class _FieldButtonState extends State<FieldButton> {
           ),
           headline: widget.headline,
           maxHeight: double.infinity,
-          border: BorderSide(width: 0.5, color: style.colors.secondary),
-          child: Text(widget.text ?? '', maxLines: widget.maxLines),
+          border: widget.onPressed == null
+              ? BorderSide(width: 0.5, color: style.colors.secondaryLight)
+              : widget.warning
+                  ? null
+                  : widget.border ??
+                      BorderSide(
+                        width: 0.5,
+                        color: style.colors.secondary,
+                      ),
+          child: widget.child ??
+              Text(
+                widget.text ?? '',
+                maxLines: widget.maxLines,
+              ),
         ),
         if (widget.subtitle != null)
           Align(

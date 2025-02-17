@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -114,6 +114,7 @@ external bool _hasFocus();
 @JS('navigator.locks.request')
 external JSPromise<JSAny?> _requestLock(
   String resource,
+  JSObject options,
   JSExportedDartFunction callback,
 );
 
@@ -337,9 +338,10 @@ class WebUtils {
   /// code block at the same time.
   static Future<T> protect<T>(
     Future<T> Function() callback, {
+    bool exclusive = true,
     String tag = 'mutex',
   }) async {
-    Mutex? mutex = _guards[tag];
+    Mutex? mutex = exclusive ? _guards[tag] : Mutex();
     if (mutex == null) {
       mutex = Mutex();
       _guards[tag] = mutex;
@@ -366,7 +368,11 @@ class WebUtils {
       }
 
       try {
-        await _requestLock(tag, function.toJS).toDart;
+        await _requestLock(
+          tag,
+          {'mode': exclusive ? 'exclusive' : 'shared'}.jsify() as JSObject,
+          function.toJS,
+        ).toDart;
       } catch (e) {
         // If completer is completed, then the exception is already handled.
         if (!completer.isCompleted) {

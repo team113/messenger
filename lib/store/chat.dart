@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -504,8 +504,7 @@ class ChatRepository extends DisposableInterface
         existingDateTime: item.at,
         text: item.text,
         attachments: item.attachments,
-        repliesTo:
-            item.repliesTo.map((e) => e.original).whereNotNull().toList(),
+        repliesTo: item.repliesTo.map((e) => e.original).nonNulls.toList(),
       );
     }
   }
@@ -673,7 +672,7 @@ class ChatRepository extends DisposableInterface
                     (a) => a.original?.id == e,
                   ),
                 )
-                .whereNotNull()
+                .nonNulls
                 .toList() ??
             previousReplies!;
       });
@@ -693,7 +692,7 @@ class ChatRepository extends DisposableInterface
             );
           }
         })
-        .whereNotNull()
+        .nonNulls
         .toList();
 
     await Future.wait(uploads ?? []);
@@ -2413,8 +2412,7 @@ class ChatRepository extends DisposableInterface
       DtoChat(
         Chat(
           chatId,
-          members: users
-              .whereNotNull()
+          members: users.nonNulls
               .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
               .toList(),
           kindIndex: ChatKind.values

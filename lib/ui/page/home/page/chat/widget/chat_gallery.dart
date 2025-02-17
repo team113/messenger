@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -194,10 +193,8 @@ class _ChatGalleryState extends State<ChatGallery> {
     _items.add(
       _GalleryItem(
         item: item,
-        gallery: attachments
-            .map((e) => _parse(e, item: item))
-            .whereNotNull()
-            .toList(),
+        gallery:
+            attachments.map((e) => _parse(e, item: item)).nonNulls.toList(),
       ),
     );
 

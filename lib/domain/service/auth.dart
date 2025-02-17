@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,9 +25,9 @@ import 'package:get/get.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -93,6 +93,13 @@ class AuthService extends DisposableService {
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
   StreamSubscription? _storageSubscription;
+
+  /// Initial [Duration] to set [_refreshRetryDelay] to.
+  static const Duration _initialRetryDelay = Duration(seconds: 2);
+
+  /// Delay between [refreshSession] invokes used to backoff it when failing
+  /// over and over again.
+  Duration _refreshRetryDelay = _initialRetryDelay;
 
   /// Returns the currently authorized [Credentials.userId].
   UserId? get userId => credentials.value?.userId;
@@ -475,7 +482,7 @@ class AuthService extends DisposableService {
           }
         }
 
-        await _authRepository.deleteSession(fcmToken: fcmToken);
+        await _authRepository.deleteSession(token: DeviceToken(fcm: fcmToken));
       } catch (e) {
         printError(info: e.toString());
       }
@@ -636,7 +643,8 @@ class AuthService extends DisposableService {
             'refreshSession($userId): `userId` is `null`, unable to proceed',
             '$runtimeType',
           );
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (oldCreds != null) {
@@ -662,7 +670,8 @@ class AuthService extends DisposableService {
             // [Credentials] of another account were refreshed.
             _putCredentials(oldCreds);
           }
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (isLocked) {
@@ -673,7 +682,7 @@ class AuthService extends DisposableService {
 
           if (!_shouldRefresh(oldCreds)) {
             // [Credentials] are fresh.
-            return;
+            return _refreshRetryDelay = _initialRetryDelay;
           }
         } else {
           Log.debug(
@@ -688,7 +697,8 @@ class AuthService extends DisposableService {
           if (areCurrent) {
             router.go(_unauthorized());
           }
-          return;
+
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         try {
@@ -708,6 +718,8 @@ class AuthService extends DisposableService {
             await _credentialsProvider.upsert(data);
             _putCredentials(data);
           }
+
+          _refreshRetryDelay = _initialRetryDelay;
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
           Log.debug(
@@ -723,11 +735,13 @@ class AuthService extends DisposableService {
             await _credentialsProvider.delete(oldCreds.userId);
           }
 
+          _refreshRetryDelay = _initialRetryDelay;
           rethrow;
         }
       });
     } on RefreshSessionException catch (_) {
       // No-op, already handled in the callback passed to [WebUtils.protect].
+      _refreshRetryDelay = _initialRetryDelay;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
@@ -735,14 +749,18 @@ class AuthService extends DisposableService {
       );
 
       // If any unexpected exception happens, just retry the mutation.
-      await Future.delayed(const Duration(seconds: 2));
+      await Future.delayed(_refreshRetryDelay);
+      if (_refreshRetryDelay.inSeconds < 12) {
+        _refreshRetryDelay = _refreshRetryDelay * 2;
+      }
+
       await refreshSession(userId: userId);
     }
   }
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
   /// a new [Chat]-dialog or joining an existing [Chat]-group.
-  Future<ChatId> useChatDirectLink(ChatDirectLinkSlug slug) async {
+  Future<Chat> useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
     return await _authRepository.useChatDirectLink(slug);
   }

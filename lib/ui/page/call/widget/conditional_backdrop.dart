@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,8 @@
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+
+import '/util/platform_utils.dart';
 
 /// Wrapper around a [child] with or without [BackdropFilter] based on a
 /// [condition].
@@ -55,10 +57,20 @@ class ConditionalBackdropFilter extends StatelessWidget {
   /// otherwise.
   final BorderRadius? borderRadius;
 
+  /// Indicates whether the [BackdropFilter] is supported and enabled.
+  static bool get enabled => !PlatformUtils.isWeb;
+
   @override
   Widget build(BuildContext context) {
     if (condition) {
       if (borderRadius != null) {
+        if (!enabled) {
+          return ClipRRect(
+            borderRadius: borderRadius ?? BorderRadius.zero,
+            child: child,
+          );
+        }
+
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
           child: BackdropFilter(
@@ -67,6 +79,10 @@ class ConditionalBackdropFilter extends StatelessWidget {
             child: child,
           ),
         );
+      }
+
+      if (!enabled) {
+        return child;
       }
 
       return ClipRect(

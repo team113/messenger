@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,7 +45,6 @@ import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -70,23 +69,20 @@ import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
 import 'widget/circle_button.dart';
 import 'widget/custom_drop_target.dart';
+import 'widget/notes_block.dart';
 import 'widget/time_label.dart';
 import 'widget/unread_label.dart';
 import 'widget/with_global_key.dart';
 
 /// View of the [Routes.chats] page.
 class ChatView extends StatelessWidget {
-  const ChatView(this.id, {super.key, this.itemId, this.welcome});
+  const ChatView(this.id, {super.key, this.itemId});
 
   /// ID of this [Chat].
   final ChatId id;
 
   /// ID of a [ChatItem] to scroll to initially in this [ChatView].
   final ChatItemId? itemId;
-
-  // TODO: Remove when backend supports it out of the box.
-  /// [ChatMessageText] serving as a welcome message to display in this [Chat].
-  final ChatMessageText? welcome;
 
   @override
   Widget build(BuildContext context) {
@@ -103,7 +99,6 @@ class ChatView extends StatelessWidget {
         Get.find(),
         Get.find(),
         itemId: itemId,
-        welcome: welcome,
         onContext: () => context,
       ),
       tag: id.val,
@@ -142,10 +137,7 @@ class ChatView extends StatelessWidget {
                 leading: [StyledBackButton()],
               ),
               body: const Center(child: CustomProgressIndicator.primary()),
-              bottomNavigationBar: Padding(
-                padding: Insets.dense.copyWith(top: 0),
-                child: _bottomBar(c, context),
-              ),
+              bottomNavigationBar: _bottomBar(c, context),
             );
           }
 
@@ -737,12 +729,17 @@ class ChatView extends StatelessWidget {
                               );
                             }
 
+                            if (isMonolog) {
+                              return Center(
+                                key: const Key('NoMessages'),
+                                child: NotesBlock(),
+                              );
+                            }
+
                             return Center(
                               child: SystemInfoPrompt(
                                 key: const Key('NoMessages'),
-                                isMonolog
-                                    ? 'label_chat_monolog_description'.l10n
-                                    : 'label_no_messages'.l10n,
+                                'label_no_messages'.l10n,
                               ),
                             );
                           }
@@ -814,10 +811,7 @@ class ChatView extends StatelessWidget {
                         ),
                       );
                     }),
-                    bottomNavigationBar: Padding(
-                      padding: Insets.dense.copyWith(top: 0),
-                      child: _bottomBar(c, context),
-                    ),
+                    bottomNavigationBar: _bottomBar(c, context),
                   ),
                   IgnorePointer(
                     child: SafeAnimatedSwitcher(
@@ -1004,8 +998,8 @@ class ChatView extends StatelessWidget {
                     c.selected.add(element);
                   },
                   onUserPressed: (user) {
-                    ChatId chatId = user.dialog;
-                    if (chatId.isLocalWith(c.me)) {
+                    ChatId chatId = ChatId.local(user.id);
+                    if (user.dialog.isLocalWith(c.me)) {
                       chatId = c.monolog;
                     }
 
@@ -1142,7 +1136,7 @@ class ChatView extends StatelessWidget {
                     for (ChatItem item in [
                       element.note.value?.value,
                       ...element.forwards.map((e) => e.value),
-                    ].whereNotNull()) {
+                    ].nonNulls) {
                       await c.chat?.updateAttachments(item);
                     }
 

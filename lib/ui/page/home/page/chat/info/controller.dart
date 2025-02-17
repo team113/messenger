@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,7 +26,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '/api/backend/schema.dart' show CropAreaInput;
+import '/api/backend/schema.dart' show CropAreaInput, PointInput;
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/file.dart';
@@ -102,6 +102,10 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool nameEditing = RxBool(false);
 
+  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
+  /// enabled.
+  final RxBool profileEditing = RxBool(false);
+
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -117,6 +121,18 @@ class ChatInfoController extends GetxController {
   /// Index of an item from the page's [ScrollablePositionedList] that should
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
+
+  /// [CropAreaInput] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
+  final Rx<CropAreaInput?> avatarCrop = Rx(null);
+
+  /// [NativeFile] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
+  final Rx<NativeFile?> avatarImage = Rx(null);
+
+  /// Indicator whether the currently edited [ChatAvatar] should be deleted in
+  /// [submitAvatar].
+  final RxBool avatarDeleted = RxBool(false);
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -174,6 +190,9 @@ class ChatInfoController extends GetxController {
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
+
+  /// Indicates whether the [Chat.avatar] and [Chat.name] can be edited.
+  bool get canEdit => !isMonolog;
 
   @override
   void onInit() {
@@ -248,7 +267,8 @@ class ChatInfoController extends GetxController {
   /// image, if any.
   Future<void> pickAvatar() async {
     final FilePickerResult? result = await PlatformUtils.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: NativeFile.images,
       allowMultiple: false,
       withData: true,
       lockParentWindow: true,
@@ -263,7 +283,7 @@ class ChatInfoController extends GetxController {
         return;
       }
 
-      await updateChatAvatar(file);
+      await updateChatAvatar(file, crop: crop);
     }
   }
 
@@ -484,6 +504,66 @@ class ChatInfoController extends GetxController {
         name.editable.value = true;
       }
     }
+  }
+
+  /// Uploads the current edits ([avatarCrop], [avatarImage] and
+  /// [avatarDeleted]).
+  Future<void> submitAvatar() async {
+    if (avatarCrop.value != null ||
+        avatarImage.value != null ||
+        avatarDeleted.value) {
+      if (avatarCrop.value == null && chat?.chat.value.avatar?.crop != null) {
+        avatarCrop.value = CropAreaInput(
+          bottomRight: PointInput(
+            x: chat!.chat.value.avatar!.crop!.bottomRight.x,
+            y: chat!.chat.value.avatar!.crop!.bottomRight.y,
+          ),
+          topLeft: PointInput(
+            x: chat!.chat.value.avatar!.crop!.topLeft.x,
+            y: chat!.chat.value.avatar!.crop!.topLeft.y,
+          ),
+          angle: chat?.chat.value.avatar?.crop?.angle,
+        );
+      }
+
+      if (avatarImage.value == null && !avatarDeleted.value) {
+        final ImageFile? file = chat?.chat.value.avatar?.original;
+
+        if (file != null) {
+          final CacheEntry cache = await CacheWorker.instance.get(
+            url: file.url,
+            checksum: file.checksum,
+          );
+
+          avatarImage.value = NativeFile(
+            name: file.name,
+            size: cache.bytes!.lengthInBytes,
+            bytes: cache.bytes,
+          );
+        }
+      }
+
+      if (avatarImage.value != null || avatarDeleted.value) {
+        await _chatService.updateChatAvatar(
+          chatId,
+          file: avatarImage.value,
+          crop: avatarCrop.value,
+        );
+      }
+    }
+
+    avatarImage.value = null;
+    avatarCrop.value = null;
+    avatarDeleted.value = false;
+  }
+
+  /// Exits the [profileEditing].
+  void closeEditing() {
+    profileEditing.value = false;
+    avatarCrop.value = null;
+    avatarImage.value = null;
+    avatarDeleted.value = false;
+    name.clear();
   }
 
   /// Highlights the item with the provided [index].

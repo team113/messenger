@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -433,7 +433,7 @@ class _ChatWatchData {
         return 'fcm_group_avatar_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
           'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
-          'operation': action.avatar == null ? 'delete' : 'update',
+          'operation': action.avatar == null ? 'remove' : 'update',
         });
 
       case ChatInfoActionKind.nameUpdated:
@@ -442,7 +442,7 @@ class _ChatWatchData {
         return 'fcm_group_name_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
           'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
-          'operation': action.name == null ? 'delete' : 'update',
+          'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',
         });
     }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -67,16 +67,21 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
       return existing;
     }
 
-    return await safe<ChatMessage?>((db) async {
-      final stmt = db.select(db.drafts)..where((u) => u.chatId.equals(id.val));
-      final DraftRow? row = await stmt.getSingleOrNull();
+    return await safe<ChatMessage?>(
+      (db) async {
+        final stmt = db.select(db.drafts)
+          ..where((u) => u.chatId.equals(id.val));
+        final DraftRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _DraftDb.fromDb(row);
-    }, tag: 'draft.read($id)');
+        return _DraftDb.fromDb(row);
+      },
+      tag: 'draft.read($id)',
+      exclusive: false,
+    );
   }
 
   /// Deletes the [ChatMessage] identified by the provided [id] from the

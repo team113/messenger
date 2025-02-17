@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -496,7 +496,7 @@ class SearchController extends GetxController {
         final String? login = myUser.login?.val;
         final String num = myUser.num.val;
 
-        for (final param in [title, login, name].whereNotNull()) {
+        for (final param in [title, login, name].nonNulls) {
           if (param.toLowerCase().contains(lowercase)) {
             chats.value = {monologId: monolog, ...chats};
             return;
@@ -562,7 +562,7 @@ class SearchController extends GetxController {
           .whereNot(hidden)
           .sorted()
           .map(toUser)
-          .whereNotNull()
+          .nonNulls
           .whereNot(isMember)
           .take(3)
           .where(matchesQuery);
@@ -647,7 +647,7 @@ class SearchController extends GetxController {
           .where(hasRemoteDialog)
           .whereNot(inChats)
           .map(toChat)
-          .whereNotNull()
+          .nonNulls
           .whereNot(hidden);
 
       if (globalDialogs.isNotEmpty &&
@@ -670,7 +670,7 @@ class SearchController extends GetxController {
           .whereNot(hidden)
           .sorted()
           .map(toUser)
-          .whereNotNull()
+          .nonNulls
           .where(matchesQuery);
 
       final Iterable<RxUser> selectedGlobals =
@@ -813,7 +813,7 @@ class SearchController extends GetxController {
               user.contact.value?.contact.value.name.val;
         }
 
-        for (final param in [title, name, contactName].whereNotNull()) {
+        for (final param in [title, name, contactName].nonNulls) {
           if (param.toLowerCase().contains(queryString)) {
             return true;
           }

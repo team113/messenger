@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,10 +76,13 @@ class CredentialsDriftProvider extends DriftProviderBase {
 
   /// Returns all the [Credentials] stored in the database.
   Future<List<Credentials>> all() async {
-    final result = await safe((db) async {
-      final stmt = await db.select(db.tokens).get();
-      return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
-    });
+    final result = await safe(
+      (db) async {
+        final stmt = await db.select(db.tokens).get();
+        return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
+      },
+      exclusive: false,
+    );
 
     return result ?? [];
   }
@@ -110,16 +113,20 @@ class CredentialsDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    final result = await safe<Credentials?>((db) async {
-      final stmt = db.select(db.tokens)..where((u) => u.userId.equals(id.val));
-      final TokenRow? row = await stmt.getSingleOrNull();
+    final result = await safe<Credentials?>(
+      (db) async {
+        final stmt = db.select(db.tokens)
+          ..where((u) => u.userId.equals(id.val));
+        final TokenRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _CredentialsDb.fromDb(row);
-    });
+        return _CredentialsDb.fromDb(row);
+      },
+      exclusive: false,
+    );
 
     if (result == null) {
       return null;

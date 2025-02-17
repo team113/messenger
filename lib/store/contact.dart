@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -521,7 +521,7 @@ class ContactRepository extends DisposableInterface
 
     // final List<RxChatContact> contacts =
     //     (await Future.wait(result.map((e) async => await get(e.value.id))))
-    //         .whereNotNull()
+    //         .nonNulls
     //         .toList();
 
     // return Page(

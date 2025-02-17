@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -66,16 +66,19 @@ class SessionDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns the [Session] stored in the database by the provided [id], if any.
   Future<Session?> read(SessionId id) async {
-    return await safe<Session?>((db) async {
-      final stmt = db.select(db.sessions)..where((u) => u.id.equals(id.val));
-      final SessionRow? row = await stmt.getSingleOrNull();
+    return await safe<Session?>(
+      (db) async {
+        final stmt = db.select(db.sessions)..where((u) => u.id.equals(id.val));
+        final SessionRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _SessionDb.fromDb(row);
-    });
+        return _SessionDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [Session] identified by the provided [id] from the database.

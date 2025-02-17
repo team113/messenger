@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -1479,6 +1479,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData blockSmallRed = SvgData(
+    'assets/icons/block_red.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
@@ -1737,6 +1743,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData leaveGroupRed = SvgData(
+    'assets/icons/leave_group_red.svg',
+    width: 16.28,
+    height: 19,
+  );
+
   static const SvgData leaveGroupWhite = SvgData(
     'assets/icons/leave_group_white.svg',
     width: 16.28,
@@ -1879,5 +1891,17 @@ class SvgIcons {
     'assets/icons/direct_link.svg',
     width: 32.04,
     height: 33.5,
+  );
+
+  static const SvgData notesSmall = SvgData(
+    'assets/icons/notes_small.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData notesSmallWhite = SvgData(
+    'assets/icons/notes_small_white.svg',
+    width: 19,
+    height: 19,
   );
 }

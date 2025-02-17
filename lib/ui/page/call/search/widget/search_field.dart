@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -55,6 +55,7 @@ class SearchField extends StatelessWidget {
         return CustomAppBar(
           margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
           top: false,
+          borderRadius: style.cardRadius,
           border: state.isFocused.value || !state.isEmpty.value
               ? Border.all(color: style.colors.primary, width: 2)
               : null,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -60,6 +60,7 @@ import '/util/web/web_utils.dart';
 import 'chat.dart';
 import 'event/chat.dart';
 import 'model/chat_member.dart';
+import 'model/page_info.dart';
 import 'paginated.dart';
 import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
@@ -752,14 +753,14 @@ class RxChatImpl extends RxChat {
                 );
               }
             })
-            .whereNotNull()
+            .nonNulls
             .toList();
 
         if (existingId == null) {
           final List<Future> reads = attachments
               .whereType<LocalAttachment>()
               .map((e) => e.read.value?.future)
-              .whereNotNull()
+              .nonNulls
               .toList();
           if (reads.isNotEmpty) {
             await Future.wait(reads);
@@ -939,31 +940,6 @@ class RxChatImpl extends RxChat {
     }
   }
 
-  // TODO: Remove when backend supports welcome messages.
-  @override
-  Future<void> addMessage(ChatMessageText text) async {
-    Log.debug('addMessage($text)', '$runtimeType($id)');
-
-    await put(
-      DtoChatMessage(
-        ChatMessage(
-          ChatItemId.local(),
-          id,
-          chat.value.members.firstWhereOrNull((e) => e.user.id != me)?.user ??
-              User(
-                const UserId('a0960769-d44a-46e9-ba43-cb41e045318a'),
-                UserNum('1234123412341234'),
-              ),
-          PreciseDateTime.now(),
-          text: text,
-        ),
-        null,
-        ChatItemVersion('0'),
-        null,
-      ),
-    );
-  }
-
   /// Updates the [avatar] of the [chat].
   ///
   /// Intended to be used to update the [StorageFile.relativeRef] links.
@@ -1033,6 +1009,10 @@ class RxChatImpl extends RxChat {
             graphQlProvider: GraphQlPageProvider(
               reversed: true,
               fetch: ({after, before, first, last}) async {
+                if (id.isLocal) {
+                  return Page([], PageInfo());
+                }
+
                 final Page<DtoChatItem, ChatItemsCursor> reversed =
                     await _chatRepository.messages(
                   chat.value.id,
@@ -1113,6 +1093,10 @@ class RxChatImpl extends RxChat {
         graphQlProvider: GraphQlPageProvider(
           reversed: true,
           fetch: ({after, before, first, last}) async {
+            if (id.isLocal) {
+              return Page([], PageInfo());
+            }
+
             final Page<DtoChatItem, ChatItemsCursor> reversed =
                 await _chatRepository.messages(
               chat.value.id,
@@ -1280,6 +1264,10 @@ class RxChatImpl extends RxChat {
           graphQlProvider:
               GraphQlPageProvider<DtoChatMember, ChatMembersCursor, UserId>(
             fetch: ({after, before, first, last}) async {
+              if (id.isLocal) {
+                return Page([], PageInfo());
+              }
+
               return _chatRepository.members(
                 chat.value.id,
                 after: after,
@@ -1396,6 +1384,10 @@ class RxChatImpl extends RxChat {
           provider: GraphQlPageProvider(
             reversed: true,
             fetch: ({after, before, first, last}) async {
+              if (id.isLocal) {
+                return Page([], PageInfo());
+              }
+
               final Page<DtoChatItem, ChatItemsCursor> reversed =
                   await _chatRepository.messages(
                 chat.value.id,
@@ -1469,6 +1461,10 @@ class RxChatImpl extends RxChat {
             graphQlProvider: GraphQlPageProvider(
               reversed: true,
               fetch: ({after, before, first, last}) async {
+                if (id.isLocal) {
+                  return Page([], PageInfo());
+                }
+
                 final Page<DtoChatItem, ChatItemsCursor> reversed =
                     await _chatRepository.messages(
                   chat.value.id,
@@ -1795,6 +1791,7 @@ class RxChatImpl extends RxChat {
 
       chat.value = e.value.copyWith();
       chat.value.firstItem = first ?? chat.value.firstItem;
+      _lastReadItemCursor = e.lastReadItemCursor ?? _lastReadItemCursor;
       ver = e.ver;
 
       if (positionChanged) {
@@ -1920,6 +1917,11 @@ class RxChatImpl extends RxChat {
         );
 
         bool shouldPutChat = subscribed && versioned.ver >= dto.ver;
+
+        // Version ending with zeros mean it was received and persisted via
+        // remote pagination.
+        bool versionAccounted = versioned.ver > (ver ?? dto.ver) &&
+            (ver ?? dto.ver).val.endsWith('000000000');
 
         ver = versioned.ver;
         if (dto.ver < versioned.ver) {
@@ -2156,8 +2158,10 @@ class RxChatImpl extends RxChat {
                 }
               }
 
-              write((chat) => chat.value.updatedAt =
-                  event.lastItem?.value.at ?? dto.value.updatedAt);
+              write(
+                (chat) => chat.value.updatedAt =
+                    event.lastItem?.value.at ?? dto.value.updatedAt,
+              );
               if (event.lastItem != null) {
                 itemsToPut.add(event.lastItem!);
               }
@@ -2242,14 +2246,14 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberAdded:
                     final action = msg.action as ChatInfoActionMemberAdded;
 
-                    dto.value.membersCount++;
+                    if (!versionAccounted) {
+                      dto.value.membersCount++;
 
-                    // Store the first 3 [ChatMember]s in the [Chat.members]
-                    // to display default [Chat]s name.
-                    if (dto.value.members.length < 3) {
-                      dto.value.members.add(
-                        ChatMember(action.user, msg.at),
-                      );
+                      // Store the first 3 [ChatMember]s in the [Chat.members]
+                      // to display the default [Chat] name.
+                      if (dto.value.members.length < 3) {
+                        dto.value.members.add(ChatMember(action.user, msg.at));
+                      }
                     }
 
                     _putMember(DtoChatMember(action.user, msg.at, null));
@@ -2259,12 +2263,14 @@ class RxChatImpl extends RxChat {
                   case ChatInfoActionKind.memberRemoved:
                     final action = msg.action as ChatInfoActionMemberRemoved;
 
-                    dto.value.membersCount--;
+                    if (!versionAccounted) {
+                      dto.value.membersCount--;
+                      dto.value.members.removeWhere(
+                        (e) => e.user.id == action.user.id,
+                      );
+                    }
 
                     await members.remove(action.user.id);
-
-                    dto.value.members
-                        .removeWhere((e) => e.user.id == action.user.id);
 
                     if (dto.value.members.length < 3) {
                       if (members.rawLength < 3) {

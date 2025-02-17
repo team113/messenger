@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -372,7 +372,11 @@ void main() async {
     }
     await tester.pumpAndSettle(const Duration(seconds: 20));
 
-    final editLink = find.byKey(const Key('CreateLinkButton'));
+    final editLink = find.byKey(
+      const Key('DirectLinkField'),
+      skipOffstage: false,
+    );
+
     await tester.dragUntilVisible(
       editLink,
       find.byKey(const Key('ChatInfoScrollable')),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -74,12 +74,15 @@ class VersionDriftProvider extends DriftProviderBase {
         return;
       }
 
-      final result = await safe((db) async {
-        final stmt = await db.select(db.versions).get();
-        return stmt
-            .map((e) => (UserId(e.userId), _SessionDataDb.fromDb(e)))
-            .toList();
-      });
+      final result = await safe(
+        (db) async {
+          final stmt = await db.select(db.versions).get();
+          return stmt
+              .map((e) => (UserId(e.userId), _SessionDataDb.fromDb(e)))
+              .toList();
+        },
+        exclusive: false,
+      );
 
       for (var e in result ?? <(UserId, SessionData)>[]) {
         data[e.$1] = e.$2;
@@ -122,17 +125,20 @@ class VersionDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<SessionData?>((db) async {
-      final stmt = db.select(db.versions)
-        ..where((u) => u.userId.equals(id.val));
-      final VersionRow? row = await stmt.getSingleOrNull();
+    return await safe<SessionData?>(
+      (db) async {
+        final stmt = db.select(db.versions)
+          ..where((u) => u.userId.equals(id.val));
+        final VersionRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
-        return null;
-      }
+        if (row == null) {
+          return null;
+        }
 
-      return _SessionDataDb.fromDb(row);
-    });
+        return _SessionDataDb.fromDb(row);
+      },
+      exclusive: false,
+    );
   }
 
   /// Deletes the [SessionData] identified by the provided [id] from the

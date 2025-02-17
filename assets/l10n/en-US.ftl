@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -371,7 +371,8 @@ err_password_empty = Please, enter the password
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match.
 err_phone_occupied = Phone number is already occupied
-err_popup_call_cant_be_closed = It seems like an unexpected error has occured and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
+err_popup_call_cant_be_closed = It seems like an unexpected error has occurred and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
+err_push_device_occupied = This device is already registered to receive push notifications.
 err_quoted_message = Message was quoted
 err_size_too_big = File size exceeds 15 MB.
 err_stale_version = Provided version is too stale
@@ -419,14 +420,14 @@ fcm_group_avatar_changed = {$userName ->
        *[other] {$userName}
     } {$operation ->
           [update] updated avatar
-         *[delete] removed avatar
+         *[remove] removed avatar
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
           [update] renamed chat to {$groupName}
-         *[delete] removed name
+         *[remove] removed name
       }
 fcm_group_title =
     {$user1Name ->
@@ -438,20 +439,33 @@ fcm_group_title =
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-               *[other] {$user2Num}
+               *[other] , {$user2Num}
             }
        *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-               *[other] {$user3Num}
+               *[other] , {$user3Num}
             }
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
-fcm_incoming_call = Incoming call
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } started { $isVideo ->
+            [yes] a
+            *[other] an
+        }
+        *[dialog] Incoming
+    } { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -483,6 +497,17 @@ fcm_message =
             [0] {$text}
             *[other] {" "}{$text}
         }
+    }
+fcm_missed_call =
+    Missed { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call{ $type ->
+        [group] {" from "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->
@@ -647,8 +672,8 @@ label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
-label_chat_monolog = Notes
-label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
+label_chat_monolog = Your notes
+label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
 label_chat_name_hint = Chat name
 label_chats = Chats
 label_chats_section_hint = Audio and video call buttons
@@ -1123,6 +1148,7 @@ label_waiting_for_connection = Waiting for connection...
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link
+label_was_at = last seen {$at}
 label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
@@ -1142,12 +1168,6 @@ label_welcome_message_freelance =
     - PR number (Pull Request);
     - estimated time for completing the task (deadline);
     - the proposed method for solving the problem.
-label_welcome_message_vacancy =
-    Good afternoon.
-    Please upload your resume in PDF format.
-label_welcome_message_vacancy_24_hours =
-    Good afternoon.
-    Please upload your resume in PDF format. Within 24 hours you will be sent the date and time of the interview.
 label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
 label_work_with_us_desc =

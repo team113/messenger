@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -447,7 +447,7 @@ class UserRepository extends DisposableInterface
       }
     }
 
-    users.addAll((await Future.wait(futures)).whereNotNull());
+    users.addAll((await Future.wait(futures)).nonNulls);
 
     return Page(RxList(users), pageInfo);
   }
