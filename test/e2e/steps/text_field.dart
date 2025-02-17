@@ -214,6 +214,7 @@ Future<void> _fillField(
       // await context.world.appDriver.waitForAppToSettle();
       // print('===== _fillField($key) -> awaited 1-2 waitForAppToSettle()');
 
+      print('===== _fillField($key) -> awaiting tap()...');
       await context.world.appDriver.tap(
         finder,
         timeout: const Duration(seconds: 30),
