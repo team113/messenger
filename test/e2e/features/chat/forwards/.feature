@@ -69,6 +69,7 @@ Feature: Chat items are forwarded correctly
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "!!"
+    And I pause for 5 seconds
     And I tap on chat with Charlie
     And I tap on chat with Dave
     And I tap `SendForward` button
