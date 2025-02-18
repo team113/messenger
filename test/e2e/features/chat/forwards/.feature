@@ -63,13 +63,13 @@ Feature: Chat items are forwarded correctly
     When I fill `MessageField` field with "Important info"
     And I tap `Send` button
     Then I wait until status of "Important info" message is sent
+    And I pause for 5 seconds
 
     When I long press "Important info" message
     And I tap `ForwardButton` button
     Then I wait until `ChatForwardView` is present
 
     When I fill `ForwardField` field with "!!"
-    And I pause for 5 seconds
     And I tap on chat with Charlie
     And I tap on chat with Dave
     And I tap `SendForward` button
