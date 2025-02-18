@@ -36,7 +36,7 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
               .findByKeySkipOffstage(
                 'Chat_${context.world.sessions[user.name]!.dialog!.val}',
               )
-              .last;
+              .first;
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);
