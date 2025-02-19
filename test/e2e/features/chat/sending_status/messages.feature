@@ -66,8 +66,10 @@ Feature: Chat messages have correct sending status
     When I fill `MessageField` field with "123"
     And I tap `Send` button
     Then I wait until status of "123" message is error
+    And I pause for 5 seconds
 
     Given I have Internet with delay of 4 seconds
     When I restart app
+    And I pause for 5 seconds
     And I am in chat with Bob
     Then I wait until status of "123" message is error
