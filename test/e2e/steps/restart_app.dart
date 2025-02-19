@@ -67,7 +67,8 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
   print('======2 restartApp main() awaiting... done');
 
   print('======2 restartApp waitForAppToSettle1 awaiting...');
-  await context.world.appDriver.waitForAppToSettle();
+  await Future.delayed(Duration(seconds: 10));
+  // await context.world.appDriver.waitForAppToSettle();
   print('======2 restartApp waitForAppToSettle1 awaiting... done');
 
   print('======2 restartApp done');
