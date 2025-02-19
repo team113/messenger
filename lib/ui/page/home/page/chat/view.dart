@@ -1717,7 +1717,11 @@ class ChatView extends StatelessWidget {
               children: [
                 Expanded(
                   child:
-                      c.selecting.value ? IgnorePointer(child: child) : child,
+                      c.selecting.value
+                          ? SelectionContainer.disabled(
+                            child: IgnorePointer(child: child),
+                          )
+                          : child,
                 ),
                 if (!overlay)
                   AnimatedSize(
