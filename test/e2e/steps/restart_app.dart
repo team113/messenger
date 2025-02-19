@@ -33,17 +33,26 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
   context,
 ) async {
+  print('======2 restartApp started...');
+
   // Going to [Routes.restart] page ensures all [GetxController]s are properly
   // released since they depend on the [router].
   router.go(Routes.restart);
+
+  print('======2 restartApp waitForAppToSettle0 awaiting...');
   await context.world.appDriver.waitForAppToSettle();
+  print('======2 restartApp waitForAppToSettle0 awaiting... done');
 
   final MockGraphQlProvider provider =
       Get.find<GraphQlProvider>() as MockGraphQlProvider;
 
+  print('======2 restartApp Get.deleteAll awaiting...');
   await Get.deleteAll();
+  print('======2 restartApp Get.deleteAll awaiting... done');
 
+  print('======2 restartApp Future.delayed awaiting...');
   await Future.delayed(const Duration(seconds: 1));
+  print('======2 restartApp Future.delayed awaiting... done');
 
   Get.put<GraphQlProvider>(
     MockGraphQlProvider()
@@ -53,6 +62,13 @@ final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
 
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
 
+  print('======2 restartApp main() awaiting...');
   await main();
+  print('======2 restartApp main() awaiting... done');
+
+  print('======2 restartApp waitForAppToSettle1 awaiting...');
   await context.world.appDriver.waitForAppToSettle();
+  print('======2 restartApp waitForAppToSettle1 awaiting... done');
+
+  print('======2 restartApp done');
 });
