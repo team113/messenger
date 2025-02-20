@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Mobile:
         - Context menus having meaningless dividers. ([#1170])
+    - Chats tab:
+        - Inability to paste clipboard into search field when chat is open. ([#1170])
 
 [#1170]: /../../pull/1170
 

@@ -69,7 +69,19 @@ class MessageFieldController extends GetxController {
        ) {
     field = TextFieldState(
       text: text,
-      onFocus: (_) => onChanged?.call(),
+      onFocus: (s) {
+        onChanged?.call();
+
+        ClipboardEvents.instance?.unregisterPasteEventListener(
+          _pasteEventListener,
+        );
+
+        if (s.focus.hasFocus) {
+          ClipboardEvents.instance?.registerPasteEventListener(
+            _pasteEventListener,
+          );
+        }
+      },
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
@@ -315,7 +327,6 @@ class MessageFieldController extends GetxController {
 
   @override
   Future<void> onReady() async {
-    ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
     await CustomMouseCursors.ensureInitialized();
     super.onReady();
   }
