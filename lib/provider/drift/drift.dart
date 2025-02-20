@@ -336,7 +336,14 @@ final class CommonDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-    await db?.create();
+
+    try {
+      await db?.create();
+    } on StateError {
+      // No-op.
+    } on CouldNotRollBackException {
+      // No-op.
+    }
   }
 
   @override
@@ -352,13 +359,28 @@ final class CommonDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await _completeAllOperations((db) async => await db?.close());
+    await _completeAllOperations((db) async {
+      try {
+        await db?.close();
+      } on StateError {
+        // No-op.
+      } on CouldNotRollBackException {
+        // No-op.
+      }
+    });
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      await db?.reset();
+      try {
+        await db?.reset();
+      } on StateError {
+        // No-op.
+      } on CouldNotRollBackException {
+        // No-op.
+      }
+
       this.db = db;
     });
   }
@@ -374,6 +396,10 @@ final class CommonDriftProvider extends DisposableInterface {
 
     try {
       return await action(db!);
+    } on StateError {
+      return null;
+    } on CouldNotRollBackException {
+      return null;
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -406,7 +432,11 @@ final class CommonDriftProvider extends DisposableInterface {
               controller?.add(e);
             }
           },
-          onError: controller?.addError,
+          onError: (e) {
+            if (e is! StateError && e is! CouldNotRollBackException) {
+              controller?.addError(e);
+            }
+          },
           onDone: () => controller?.close(),
         );
 
@@ -476,7 +506,13 @@ final class ScopedDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-    await db?.create();
+    try {
+      await db?.create();
+    } on StateError {
+      // No-op.
+    } on CouldNotRollBackException {
+      // No-op.
+    }
   }
 
   @override
@@ -492,13 +528,28 @@ final class ScopedDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await _completeAllOperations((db) async => await db?.close());
+    await _completeAllOperations((db) async {
+      try {
+        await db?.close();
+      } on StateError {
+        // No-op.
+      } on CouldNotRollBackException {
+        // No-op.
+      }
+    });
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      await db?.reset();
+      try {
+        await db?.reset();
+      } on StateError {
+        // No-op.
+      } on CouldNotRollBackException {
+        // No-op.
+      }
+
       this.db = db;
     });
   }
@@ -514,6 +565,10 @@ final class ScopedDriftProvider extends DisposableInterface {
 
     try {
       return await action(db!);
+    } on StateError {
+      return null;
+    } on CouldNotRollBackException {
+      return null;
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -542,7 +597,11 @@ final class ScopedDriftProvider extends DisposableInterface {
 
         subscription = executor(db!).listen(
           controller?.add,
-          onError: controller?.addError,
+          onError: (e) {
+            if (e is! StateError && e is! CouldNotRollBackException) {
+              controller?.addError(e);
+            }
+          },
           onDone: () {
             controller?.close();
             subscription?.cancel();
