@@ -28,7 +28,9 @@ Feature: Chat item searching
     When I sign in as Alice
     And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
+    And I pause for 5 seconds
     And I am in "Thoughts" group
+    And I pause for 5 seconds
     And I tap `MoreButton` button
     And I tap `SearchItemsButton` button
     And I fill `SearchField` field with "vacation"
