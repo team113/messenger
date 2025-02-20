@@ -752,6 +752,7 @@ class ChatView extends StatelessWidget {
                               }
 
                               return SelectionArea(
+                                key: Key('${c.selecting.value}'),
                                 onSelectionChanged:
                                     (a) => c.selection.value = a,
                                 contextMenuBuilder: (_, __) => const SizedBox(),
@@ -1462,10 +1463,7 @@ class ChatView extends StatelessWidget {
             ),
             child: Container(
               constraints: const BoxConstraints(minHeight: 57),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                color: style.cardColor,
-              ),
+              decoration: BoxDecoration(color: style.cardColor),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
