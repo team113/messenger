@@ -336,14 +336,7 @@ final class CommonDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-
-    try {
-      await db?.create();
-    } on StateError {
-      // No-op.
-    } on CouldNotRollBackException {
-      // No-op.
-    }
+    await _caught(db?.create());
   }
 
   @override
@@ -360,27 +353,14 @@ final class CommonDriftProvider extends DisposableInterface {
   Future<void> close() async {
     db?._closed = true;
     await _completeAllOperations((db) async {
-      try {
-        await db?.close();
-      } on StateError {
-        // No-op.
-      } on CouldNotRollBackException {
-        // No-op.
-      }
+      await _caught(db?.close());
     });
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      try {
-        await db?.reset();
-      } on StateError {
-        // No-op.
-      } on CouldNotRollBackException {
-        // No-op.
-      }
-
+      await _caught(db?.reset());
       this.db = db;
     });
   }
@@ -395,11 +375,7 @@ final class CommonDriftProvider extends DisposableInterface {
     _completers.add(completer);
 
     try {
-      return await action(db!);
-    } on StateError {
-      return null;
-    } on CouldNotRollBackException {
-      return null;
+      return await _caught(action(db!));
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -506,13 +482,7 @@ final class ScopedDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-    try {
-      await db?.create();
-    } on StateError {
-      // No-op.
-    } on CouldNotRollBackException {
-      // No-op.
-    }
+    await _caught(db?.create());
   }
 
   @override
@@ -529,27 +499,14 @@ final class ScopedDriftProvider extends DisposableInterface {
   Future<void> close() async {
     db?._closed = true;
     await _completeAllOperations((db) async {
-      try {
-        await db?.close();
-      } on StateError {
-        // No-op.
-      } on CouldNotRollBackException {
-        // No-op.
-      }
+      await _caught(db?.close());
     });
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      try {
-        await db?.reset();
-      } on StateError {
-        // No-op.
-      } on CouldNotRollBackException {
-        // No-op.
-      }
-
+      await _caught(db?.reset());
       this.db = db;
     });
   }
@@ -564,11 +521,7 @@ final class ScopedDriftProvider extends DisposableInterface {
     _completers.add(completer);
 
     try {
-      return await action(db!);
-    } on StateError {
-      return null;
-    } on CouldNotRollBackException {
-      return null;
+      return await _caught(action(db!));
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -665,13 +618,7 @@ abstract class DriftProviderBase extends DisposableInterface {
       return;
     }
 
-    try {
-      await db?.transaction(action);
-    } on StateError {
-      // No-op.
-    } on CouldNotRollBackException {
-      // No-op.
-    }
+    await _caught(db?.transaction(action));
   }
 
   /// Runs the [callback] through a non-closed [CommonDatabase], or returns
@@ -722,13 +669,7 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
             return null;
           }
 
-          try {
-            return await db.transaction(action);
-          } on StateError {
-            // No-op.
-          } on CouldNotRollBackException {
-            // No-op.
-          }
+          return await _caught(db.transaction(action));
         });
       });
     } on CouldNotRollBackException {
@@ -765,4 +706,22 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
     return _scoped.stream(executor);
   }
+}
+
+/// Returns the [function] awaited with [StateError] and
+/// [CouldNotRollBackException] exceptions handled.
+Future<T?> _caught<T>(Future<T?>? function) async {
+  try {
+    return await function;
+  } on StateError {
+    // No-op.
+  } on CouldNotRollBackException {
+    // No-op.
+  } catch (e) {
+    if (!e.toString().contains('ConnectionClosedException')) {
+      rethrow;
+    }
+  }
+
+  return null;
 }

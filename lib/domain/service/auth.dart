@@ -745,8 +745,8 @@ class AuthService extends DisposableService {
         }
       });
     } on RefreshSessionException catch (_) {
-      // No-op, already handled in the callback passed to [WebUtils.protect].
       _refreshRetryDelay = _initialRetryDelay;
+      rethrow;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
