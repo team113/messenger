@@ -28,30 +28,60 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I see "Example" chat as favorite
 /// - Then I see "Example" chat as unfavorite
-final StepDefinitionGeneric seeChatAsFavorite =
-    then2<String, FavoriteStatus, CustomWorld>(
-      'I see {string} chat as {favorite}',
-      (name, status, context) async {
-        await context.world.appDriver.waitUntil(() async {
-          await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric seeChatAsFavorite = then2<
+  String,
+  FavoriteStatus,
+  CustomWorld
+>('I see {string} chat as {favorite}', (name, status, context) async {
+  print('===== seeChatAsFavorite($name, ${status.name}) -> started');
 
-          final ChatId chatId = context.world.groups[name]!;
-
-          switch (status) {
-            case FavoriteStatus.favorite:
-              return await context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(
-                  'FavoriteIndicator_$chatId',
-                ),
-              );
-
-            case FavoriteStatus.unfavorite:
-              return await context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(
-                  'FavoriteIndicator_$chatId',
-                ),
-              );
-          }
-        });
-      },
+  await context.world.appDriver.waitUntil(() async {
+    print(
+      '===== seeChatAsFavorite($name, ${status.name}) -> waitForAppToSettle()...',
     );
+    await context.world.appDriver.waitForAppToSettle();
+    print(
+      '===== seeChatAsFavorite($name, ${status.name}) -> waitForAppToSettle()... done',
+    );
+
+    final ChatId chatId = context.world.groups[name]!;
+
+    switch (status) {
+      case FavoriteStatus.favorite:
+        print(
+          '===== seeChatAsFavorite($name, ${status.name}) -> isPresent(FavoriteIndicator_$chatId)... finder: ${context.world.appDriver.findByKeySkipOffstage('FavoriteIndicator_$chatId')}',
+        );
+
+        final isPresent = await context.world.appDriver.isPresent(
+          context.world.appDriver.findByKeySkipOffstage(
+            'FavoriteIndicator_$chatId',
+          ),
+        );
+
+        print(
+          '===== seeChatAsFavorite($name, ${status.name}) -> isPresent -> $isPresent',
+        );
+
+        return isPresent;
+
+      case FavoriteStatus.unfavorite:
+        print(
+          '===== seeChatAsFavorite($name, ${status.name}) -> isPresent(FavoriteIndicator_$chatId)... finder: ${context.world.appDriver.findByKeySkipOffstage('FavoriteIndicator_$chatId')}',
+        );
+
+        final isPresent = await context.world.appDriver.isAbsent(
+          context.world.appDriver.findByKeySkipOffstage(
+            'FavoriteIndicator_$chatId',
+          ),
+        );
+
+        print(
+          '===== seeChatAsFavorite($name, ${status.name}) -> isPresent -> $isPresent',
+        );
+
+        return isPresent;
+    }
+  });
+
+  print('===== seeChatAsFavorite($name, ${status.name}) -> done');
+});
