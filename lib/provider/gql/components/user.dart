@@ -17,7 +17,8 @@
 
 import 'dart:convert';
 
-import 'package:dio/dio.dart' as dio
+import 'package:dio/dio.dart'
+    as dio
     show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -29,6 +30,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
 import '/store/model/session.dart';
 import '/store/model/user.dart';
@@ -66,11 +68,13 @@ mixin UserGraphQlMixin {
     Log.debug('getUser($id)', '$runtimeType');
 
     final variables = GetUserArguments(id: id);
-    QueryResult res = await client.query(QueryOptions(
-      operationName: 'GetUser',
-      document: GetUserQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetUser',
+        document: GetUserQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return GetUser$Query.fromJson(res.data!);
   }
 
@@ -133,11 +137,13 @@ mixin UserGraphQlMixin {
       last: last,
       before: before,
     );
-    QueryResult res = await client.query(QueryOptions(
-      operationName: 'SearchUsers',
-      document: SearchUsersQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'SearchUsers',
+        document: SearchUsersQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return SearchUsers$Query.fromJson(res.data!);
   }
 
@@ -259,11 +265,12 @@ mixin UserGraphQlMixin {
         document: UpdateUserLoginMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateUserLoginException((UpdateUserLogin$Mutation
-                      .fromJson(data)
-                  .updateUserLogin
-              as UpdateUserLogin$Mutation$UpdateUserLogin$UpdateUserLoginError)
-          .code),
+      onException:
+          (data) => UpdateUserLoginException(
+            (UpdateUserLogin$Mutation.fromJson(data).updateUserLogin
+                    as UpdateUserLogin$Mutation$UpdateUserLogin$UpdateUserLoginError)
+                .code,
+          ),
     );
     return UpdateUserLogin$Mutation.fromJson(res.data!).updateUserLogin
         as MyUserEventsVersionedMixin?;
@@ -356,11 +363,12 @@ mixin UserGraphQlMixin {
         document: UpdateUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateUserPasswordException(
-        (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
-                as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
-            .code,
-      ),
+      onException:
+          (data) => UpdateUserPasswordException(
+            (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
+                    as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
+                .code,
+          ),
       raw: RawClientOptions(token),
     );
     return UpdateUserPassword$Mutation.fromJson(res.data!).updateUserPassword
@@ -397,11 +405,12 @@ mixin UserGraphQlMixin {
         document: DeleteMyUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteMyUserException(
-        (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
-                as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
-            .code,
-      ),
+      onException:
+          (data) => DeleteMyUserException(
+            (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
+                    as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
+                .code,
+          ),
     );
     return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser
         as DeleteMyUser$Mutation$DeleteMyUser$MyUserEventsVersioned;
@@ -468,6 +477,57 @@ mixin UserGraphQlMixin {
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
+  }
+
+  /// Subscribes to BlocklistEvents of the authenticated MyUser.
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits SubscriptionInitialized.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing this subscription (while not being completed), it should be considered as an unexpected server error. This fact can be used on a client side to decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If ver argument is not specified (or is null) an initial state of the Blocklist will be emitted after SubscriptionInitialized and before any other BlocklistEvents (and won't be emitted ever again until this subscription completes). This allows to skip calling Query.blocklist before establishing this subscription.
+  ///
+  /// If the specified ver is not fresh (was queried quite a time ago), it may become stale, so this subscription will return STALE_VERSION error on initialization. In such case:
+  /// - either a fresh version should be obtained via Query.blocklist;
+  /// - or a re-subscription should be done without specifying a ver argument (so the fresh ver may be obtained in the emitted initial state of the Blocklist).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  ///
+  /// Authenticated Session expires (SESSION_EXPIRED error is emitted).
+  ///
+  /// An error occurs on the server (error is emitted).
+  ///
+  /// The server is shutting down or becoming unreachable (unexpectedly completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event which have already been applied to the state of some BlocklistRecord, so a client side is expected to handle all the events idempotently considering the BlocklistRecord.ver.
+  Future<Stream<QueryResult>> blocklistEvents(
+    BlocklistVersion? Function() ver,
+  ) async {
+    Log.debug('blocklistEvents(ver)', '$runtimeType');
+
+    final variables = BlocklistEventsArguments(ver: ver());
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'BlocklistEvents',
+        document: BlocklistEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
       ver: ver,
@@ -570,19 +630,22 @@ mixin UserGraphQlMixin {
       '$runtimeType',
     );
 
-    final variables =
-        DeleteUserEmailArguments(email: email, confirmation: confirmation);
+    final variables = DeleteUserEmailArguments(
+      email: email,
+      confirmation: confirmation,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'DeleteUserEmail',
         document: DeleteUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteUserEmailException(
-        (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
-                as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
-            .code,
-      ),
+      onException:
+          (data) => DeleteUserEmailException(
+            (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
+                    as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
+                .code,
+          ),
     );
     return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail
         as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
@@ -663,8 +726,10 @@ mixin UserGraphQlMixin {
       '$runtimeType',
     );
 
-    final variables =
-        AddUserEmailArguments(email: email, confirmation: confirmation);
+    final variables = AddUserEmailArguments(
+      email: email,
+      confirmation: confirmation,
+    );
     final query = MutationOptions(
       operationName: 'AddUserEmail',
       document: AddUserEmailMutation(variables: variables).document,
@@ -682,21 +747,19 @@ mixin UserGraphQlMixin {
         'token': raw?.token ?? token,
       }),
       options: dio.Options(
-        headers: {
-          if (locale != null) 'Accept-Language': locale,
-        },
+        headers: {if (locale != null) 'Accept-Language': locale},
       ),
       operationName: query.operationName,
-      onException: (data) => AddUserEmailException(
-          (AddUserEmail$Mutation.fromJson(data).addUserEmail
-                  as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
-              .code),
+      onException:
+          (data) => AddUserEmailException(
+            (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                    as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+                .code,
+          ),
     );
 
     if (response.data['data'] == null) {
-      throw GraphQlException(
-        [GraphQLError(message: response.data.toString())],
-      );
+      throw GraphQlException([GraphQLError(message: response.data.toString())]);
     }
 
     return (AddUserEmail$Mutation.fromJson(response.data['data']).addUserEmail
@@ -793,13 +856,17 @@ mixin UserGraphQlMixin {
         document: CreateUserDirectLinkMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => CreateChatDirectLinkException(
-          (CreateUserDirectLink$Mutation.fromJson(data).createChatDirectLink
-                  as CreateUserDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
-              .code),
+      onException:
+          (data) => CreateChatDirectLinkException(
+            (CreateUserDirectLink$Mutation.fromJson(data).createChatDirectLink
+                    as CreateUserDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
+                .code,
+          ),
     );
-    return CreateUserDirectLink$Mutation.fromJson(result.data!)
-        .createChatDirectLink as MyUserEventsVersionedMixin?;
+    return CreateUserDirectLink$Mutation.fromJson(
+          result.data!,
+        ).createChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
@@ -825,12 +892,16 @@ mixin UserGraphQlMixin {
         operationName: 'DeleteUserDirectLink',
         document: DeleteUserDirectLinkMutation().document,
       ),
-      onException: (data) => DeleteChatDirectLinkException(
-          DeleteUserDirectLink$Mutation.fromJson(data).deleteChatDirectLink
-              as DeleteChatDirectLinkErrorCode),
+      onException:
+          (data) => DeleteChatDirectLinkException(
+            DeleteUserDirectLink$Mutation.fromJson(data).deleteChatDirectLink
+                as DeleteChatDirectLinkErrorCode,
+          ),
     );
-    return DeleteUserDirectLink$Mutation.fromJson(result.data!)
-        .deleteChatDirectLink as MyUserEventsVersionedMixin?;
+    return DeleteUserDirectLink$Mutation.fromJson(
+          result.data!,
+        ).deleteChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
@@ -860,10 +931,7 @@ mixin UserGraphQlMixin {
     CropAreaInput? crop, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug(
-      'updateUserAvatar($file, $crop, onSendProgress)',
-      '$runtimeType',
-    );
+    Log.debug('updateUserAvatar($file, $crop, onSendProgress)', '$runtimeType');
 
     final variables = UpdateUserAvatarArguments(file: null, crop: crop);
     final query = MutationOptions(
@@ -881,30 +949,34 @@ mixin UserGraphQlMixin {
         file == null
             ? encodedBody
             : dio.FormData.fromMap({
-                'operations': encodedBody,
-                'map': '{ "file": ["variables.upload"] }',
-                'file': file,
-              }),
-        options: file == null
-            ? null
-            : dio.Options(contentType: 'multipart/form-data'),
+              'operations': encodedBody,
+              'map': '{ "file": ["variables.upload"] }',
+              'file': file,
+            }),
+        options:
+            file == null
+                ? null
+                : dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateUserAvatarException(
-          (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
-                  as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateUserAvatarException(
+              (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
+                      as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
+                  .code,
+            ),
       );
 
       if (response.data['data'] == null) {
-        throw GraphQlException(
-          [GraphQLError(message: response.data.toString())],
-        );
+        throw GraphQlException([
+          GraphQLError(message: response.data.toString()),
+        ]);
       }
 
-      return (UpdateUserAvatar$Mutation.fromJson(response.data['data'])
-          .updateUserAvatar as MyUserEventsVersionedMixin?);
+      return (UpdateUserAvatar$Mutation.fromJson(
+            response.data['data'],
+          ).updateUserAvatar
+          as MyUserEventsVersionedMixin?);
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserAvatarException(
@@ -964,30 +1036,34 @@ mixin UserGraphQlMixin {
         file == null
             ? encodedBody
             : dio.FormData.fromMap({
-                'operations': encodedBody,
-                'map': '{ "file": ["variables.upload"] }',
-                'file': file,
-              }),
-        options: file == null
-            ? null
-            : dio.Options(contentType: 'multipart/form-data'),
+              'operations': encodedBody,
+              'map': '{ "file": ["variables.upload"] }',
+              'file': file,
+            }),
+        options:
+            file == null
+                ? null
+                : dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateUserCallCoverException(
-          (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-                  as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateUserCallCoverException(
+              (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+                      as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
+                  .code,
+            ),
       );
 
       if (response.data['data'] == null) {
-        throw GraphQlException(
-          [GraphQLError(message: response.data.toString())],
-        );
+        throw GraphQlException([
+          GraphQLError(message: response.data.toString()),
+        ]);
       }
 
-      return (UpdateUserCallCover$Mutation.fromJson(response.data['data'])
-          .updateUserCallCover as MyUserEventsVersionedMixin?);
+      return (UpdateUserCallCover$Mutation.fromJson(
+            response.data['data'],
+          ).updateUserCallCover
+          as MyUserEventsVersionedMixin?);
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserCallCoverException(
@@ -1035,9 +1111,11 @@ mixin UserGraphQlMixin {
         document: ToggleMyUserMuteMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ToggleMyUserMuteException(
-          ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
-              as ToggleMyUserMuteErrorCode),
+      onException:
+          (data) => ToggleMyUserMuteException(
+            ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+                as ToggleMyUserMuteErrorCode,
+          ),
     );
     return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
         as MyUserEventsVersionedMixin?);
@@ -1117,9 +1195,10 @@ mixin UserGraphQlMixin {
         document: BlockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => BlockUserException(
-        BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
-      ),
+      onException:
+          (data) => BlockUserException(
+            BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
+          ),
     );
     return BlockUser$Mutation.fromJson(result.data!).blockUser
         as BlocklistEventsVersionedMixin?;
@@ -1153,9 +1232,11 @@ mixin UserGraphQlMixin {
         document: UnblockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnblockUserException(
-        UnblockUser$Mutation.fromJson(data).unblockUser as UnblockUserErrorCode,
-      ),
+      onException:
+          (data) => UnblockUserException(
+            UnblockUser$Mutation.fromJson(data).unblockUser
+                as UnblockUserErrorCode,
+          ),
     );
     return UnblockUser$Mutation.fromJson(result.data!).unblockUser
         as BlocklistEventsVersionedMixin?;
@@ -1185,10 +1266,7 @@ mixin UserGraphQlMixin {
     int? last,
     BlocklistCursor? before,
   }) async {
-    Log.debug(
-      'getBlocklist($first, $after, $last, $before)',
-      '$runtimeType',
-    );
+    Log.debug('getBlocklist($first, $after, $last, $before)', '$runtimeType');
 
     final variables = GetBlocklistArguments(
       first: first,
@@ -1230,10 +1308,7 @@ mixin UserGraphQlMixin {
   /// ### Idempotent
   ///
   /// Succeeds if the specified [token] is registered already.
-  Future<void> registerPushDevice(
-    PushDeviceToken token,
-    String? locale,
-  ) async {
+  Future<void> registerPushDevice(PushDeviceToken token, String? locale) async {
     Log.debug('registerPushDevice($token, $locale)', '$runtimeType');
 
     final variables = RegisterPushDeviceArguments(token: token);
@@ -1254,17 +1329,16 @@ mixin UserGraphQlMixin {
         'token': token,
       }),
       options: dio.Options(
-        headers: {
-          if (locale != null) 'Accept-Language': locale,
-        },
+        headers: {if (locale != null) 'Accept-Language': locale},
       ),
       operationName: query.operationName,
-      onException: (data) => RegisterPushDeviceException(
-        data['registerPushDevice'] == null
-            ? null
-            : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
-                as RegisterPushDeviceErrorCode,
-      ),
+      onException:
+          (data) => RegisterPushDeviceException(
+            data['registerPushDevice'] == null
+                ? null
+                : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
+                    as RegisterPushDeviceErrorCode,
+          ),
     );
   }
 
@@ -1420,13 +1494,16 @@ mixin UserGraphQlMixin {
         document: UpdateWelcomeMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateWelcomeMessageException(
-        (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
-                as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
-            .code,
-      ),
+      onException:
+          (data) => UpdateWelcomeMessageException(
+            (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
+                    as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
+                .code,
+          ),
     );
-    return DeleteUserDirectLink$Mutation.fromJson(result.data!)
-        .deleteChatDirectLink as MyUserEventsVersionedMixin?;
+    return DeleteUserDirectLink$Mutation.fromJson(
+          result.data!,
+        ).deleteChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 }

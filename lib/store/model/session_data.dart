@@ -18,6 +18,7 @@
 import '/domain/model/chat.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
+import 'blocklist.dart';
 import 'session.dart';
 
 /// [Session] relative preferences.
@@ -30,6 +31,7 @@ class SessionData {
     this.contactsSynchronized,
     this.blocklistSynchronized,
     this.sessionsListVersion,
+    this.blocklistVersion,
   });
 
   /// Persisted [FavoriteChatsListVersion] data.
@@ -57,6 +59,9 @@ class SessionData {
   /// Persisted [SessionsListVersion] data.
   SessionsListVersion? sessionsListVersion;
 
+  /// Persisted [BlocklistVersion] data.
+  BlocklistVersion? blocklistVersion;
+
   /// Returns a copy of this [SessionData] from the [other].
   SessionData copyFrom(SessionData other) {
     return copyWith(
@@ -67,6 +72,7 @@ class SessionData {
       contactsSynchronized: other.contactsSynchronized,
       blocklistSynchronized: other.blocklistSynchronized,
       sessionsListVersion: other.sessionsListVersion,
+      blocklistVersion: other.blocklistVersion,
     );
   }
 
@@ -79,6 +85,7 @@ class SessionData {
     bool? contactsSynchronized,
     bool? blocklistSynchronized,
     SessionsListVersion? sessionsListVersion,
+    BlocklistVersion? blocklistVersion,
   }) {
     return SessionData(
       favoriteChatsListVersion:
@@ -93,6 +100,7 @@ class SessionData {
       blocklistSynchronized:
           this.blocklistSynchronized ?? blocklistSynchronized,
       sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
+      blocklistVersion: this.blocklistVersion ?? blocklistVersion,
     );
   }
 }

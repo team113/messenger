@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.3] · 2025-??-??
+[0.3.3]: /../../tree/v0.3.3
+
+[Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
+
+### Fixed
+
+- UI:
+    - Profile page:
+        - Blocklist counter not being updated in real time. ([#1171])
+
+[#1171]: /../../pull/1171
+
+
+
+
 ## [0.3.2] · 2025-02-07
 [0.3.2]: /../../tree/v0.3.2
 

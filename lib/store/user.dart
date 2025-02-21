@@ -42,19 +42,15 @@ import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import 'event/blocklist.dart';
 import 'event/changed.dart';
-import 'event/my_user.dart'
-    show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
 import 'model/page_info.dart';
 import 'paginated.dart';
 
 /// Implementation of an [AbstractUserRepository].
 class UserRepository extends DisposableInterface
     implements AbstractUserRepository {
-  UserRepository(
-    this._graphQlProvider,
-    this._userLocal,
-  );
+  UserRepository(this._graphQlProvider, this._userLocal);
 
   @override
   final RxMap<UserId, RxUserImpl> users = RxMap();
@@ -114,17 +110,18 @@ class UserRepository extends DisposableInterface
       );
     }
 
-    final List<RxUser> users = this
-        .users
-        .values
-        .where((u) =>
-            (num != null && u.user.value.num == num) ||
-            (name != null &&
-                u.user.value.name?.val
-                        .toLowerCase()
-                        .contains(name.val.toLowerCase()) ==
-                    true))
-        .toList();
+    final List<RxUser> users =
+        this.users.values
+            .where(
+              (u) =>
+                  (num != null && u.user.value.num == num) ||
+                  (name != null &&
+                      u.user.value.name?.val.toLowerCase().contains(
+                            name.val.toLowerCase(),
+                          ) ==
+                          true),
+            )
+            .toList();
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
@@ -283,8 +280,7 @@ class UserRepository extends DisposableInterface
     UserName name, {
     UsersCursor? after,
     int? first,
-  }) =>
-      _search(name: name, after: after, first: first);
+  }) => _search(name: name, after: after, first: first);
 
   /// Adds the provided [ChatContactId] to the [User.contacts] with the
   /// specified [UserId].
@@ -296,8 +292,9 @@ class UserRepository extends DisposableInterface
 
     final DtoUser? dto = await _userLocal.read(userId);
     if (dto != null) {
-      final NestedChatContact? existing =
-          dto.value.contacts.firstWhereOrNull((e) => e.id == contact.id);
+      final NestedChatContact? existing = dto.value.contacts.firstWhereOrNull(
+        (e) => e.id == contact.id,
+      );
 
       if (existing == null) {
         dto.value.contacts.add(NestedChatContact.from(contact));
@@ -319,8 +316,9 @@ class UserRepository extends DisposableInterface
 
     final DtoUser? dto = await _userLocal.read(userId);
     if (dto != null) {
-      final NestedChatContact? existing =
-          dto.value.contacts.firstWhereOrNull((e) => e.id == contactId);
+      final NestedChatContact? existing = dto.value.contacts.firstWhereOrNull(
+        (e) => e.id == contactId,
+      );
 
       if (existing != null) {
         dto.value.contacts.remove(existing);
@@ -349,26 +347,30 @@ class UserRepository extends DisposableInterface
         yield UserEventsUser(mixin.toDto());
       } else if (events.$$typename == 'UserEventsVersioned') {
         final mixin = events as UserEventsVersionedMixin;
-        yield UserEventsEvent(UserEventsVersioned(
-          mixin.events.map((e) => _userEvent(e)).toList(),
-          mixin.ver,
-        ));
+        yield UserEventsEvent(
+          UserEventsVersioned(
+            mixin.events.map((e) => _userEvent(e)).toList(),
+            mixin.ver,
+          ),
+        );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
         final mixin = events as BlocklistEventsVersionedMixin;
-        yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
-          mixin.events.map((e) => _blocklistEvent(e)).toList(),
-          mixin.myVer,
-        ));
+        yield UserEventsBlocklistEventsEvent(
+          BlocklistEventsVersioned(
+            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.ver,
+          ),
+        );
       } else if (events.$$typename == 'isBlocked') {
         final node = events as UserEvents$Subscription$UserEvents$IsBlocked;
         yield UserEventsIsBlocked(
           node.record == null
               ? null
               : BlocklistRecord(
-                  userId: id,
-                  reason: node.record!.reason,
-                  at: node.record!.at,
-                ),
+                userId: id,
+                reason: node.record!.reason,
+                at: node.record!.at,
+              ),
           node.myVer,
         );
       }
@@ -523,8 +525,8 @@ class UserRepository extends DisposableInterface
         node.attachments == null
             ? null
             : ChangedChatMessageAttachments(
-                node.attachments!.changed.map((e) => e.toModel()).toList(),
-              ),
+              node.attachments!.changed.map((e) => e.toModel()).toList(),
+            ),
       );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');

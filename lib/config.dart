@@ -128,7 +128,7 @@ class Config {
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int commonVersion = 3;
+  static int commonVersion = 4;
 
   /// Schema version of the [ScopedDatabase].
   ///
@@ -155,113 +155,140 @@ class Config {
     WidgetsFlutterBinding.ensureInitialized();
 
     final Map<String, dynamic> document =
-        TomlDocument.parse(await rootBundle.loadString('assets/conf.toml'))
-            .toMap();
+        TomlDocument.parse(
+          await rootBundle.loadString('assets/conf.toml'),
+        ).toMap();
 
-    graphql = const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
-        ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
-        : (document['server']?['http']?['graphql'] ?? graphql);
+    graphql =
+        const bool.hasEnvironment('SOCAPP_HTTP_GRAPHQL')
+            ? const String.fromEnvironment('SOCAPP_HTTP_GRAPHQL')
+            : (document['server']?['http']?['graphql'] ?? graphql);
 
-    port = const bool.hasEnvironment('SOCAPP_HTTP_PORT')
-        ? const int.fromEnvironment('SOCAPP_HTTP_PORT')
-        : (document['server']?['http']?['port'] ?? port);
+    port =
+        const bool.hasEnvironment('SOCAPP_HTTP_PORT')
+            ? const int.fromEnvironment('SOCAPP_HTTP_PORT')
+            : (document['server']?['http']?['port'] ?? port);
 
-    url = const bool.hasEnvironment('SOCAPP_HTTP_URL')
-        ? const String.fromEnvironment('SOCAPP_HTTP_URL')
-        : (document['server']?['http']?['url'] ?? url);
+    url =
+        const bool.hasEnvironment('SOCAPP_HTTP_URL')
+            ? const String.fromEnvironment('SOCAPP_HTTP_URL')
+            : (document['server']?['http']?['url'] ?? url);
 
-    String wsUrl = const bool.hasEnvironment('SOCAPP_WS_URL')
-        ? const String.fromEnvironment('SOCAPP_WS_URL')
-        : (document['server']?['ws']?['url'] ?? 'ws://localhost');
+    String wsUrl =
+        const bool.hasEnvironment('SOCAPP_WS_URL')
+            ? const String.fromEnvironment('SOCAPP_WS_URL')
+            : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
-    int wsPort = const bool.hasEnvironment('SOCAPP_WS_PORT')
-        ? const int.fromEnvironment('SOCAPP_WS_PORT')
-        : (document['server']?['ws']?['port'] ?? 80);
+    int wsPort =
+        const bool.hasEnvironment('SOCAPP_WS_PORT')
+            ? const int.fromEnvironment('SOCAPP_WS_PORT')
+            : (document['server']?['ws']?['port'] ?? 80);
 
-    files = const bool.hasEnvironment('SOCAPP_FILES_URL')
-        ? const String.fromEnvironment('SOCAPP_FILES_URL')
-        : (document['files']?['url'] ?? files);
+    files =
+        const bool.hasEnvironment('SOCAPP_FILES_URL')
+            ? const String.fromEnvironment('SOCAPP_FILES_URL')
+            : (document['files']?['url'] ?? files);
 
-    sentryDsn = const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
-        ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
-        : (document['sentry']?['dsn'] ?? sentryDsn);
+    sentryDsn =
+        const bool.hasEnvironment('SOCAPP_SENTRY_DSN')
+            ? const String.fromEnvironment('SOCAPP_SENTRY_DSN')
+            : (document['sentry']?['dsn'] ?? sentryDsn);
 
-    downloads = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
-        : (document['downloads']?['directory'] ?? downloads);
+    downloads =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+            ? const String.fromEnvironment('SOCAPP_DOWNLOADS_DIRECTORY')
+            : (document['downloads']?['directory'] ?? downloads);
 
-    downloadable = const bool.hasEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
-        ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
-        : (document['downloads']?['downloadable'] ?? downloadable);
+    downloadable =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+            ? const bool.fromEnvironment('SOCAPP_DOWNLOADS_DOWNLOADABLE')
+            : (document['downloads']?['downloadable'] ?? downloadable);
 
-    appStoreUrl = const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
-        ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
-        : (document['downloads']?['app_store_url'] ?? appStoreUrl);
+    appStoreUrl =
+        const bool.hasEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+            ? const String.fromEnvironment('SOCAPP_DOWNLOADS_APP_STORE_URL')
+            : (document['downloads']?['app_store_url'] ?? appStoreUrl);
 
     googlePlayUrl =
         const bool.hasEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
             ? const String.fromEnvironment('SOCAPP_DOWNLOADS_GOOGLE_PLAY_URL')
             : (document['downloads']?['google_play_url'] ?? googlePlayUrl);
 
-    userAgentProduct = const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
-        ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
-        : (document['user']?['agent']?['product'] ?? userAgentProduct);
+    userAgentProduct =
+        const bool.hasEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+            ? const String.fromEnvironment('SOCAPP_USER_AGENT_PRODUCT')
+            : (document['user']?['agent']?['product'] ?? userAgentProduct);
 
-    String version = const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
-        ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
-        : (document['user']?['agent']?['version'] ?? '');
+    String version =
+        const bool.hasEnvironment('SOCAPP_USER_AGENT_VERSION')
+            ? const String.fromEnvironment('SOCAPP_USER_AGENT_VERSION')
+            : (document['user']?['agent']?['version'] ?? '');
 
     userAgentVersion = version.isNotEmpty ? version : Pubspec.ref;
 
-    clsid = const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
-        ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
-        : (document['windows']?['clsid'] ?? clsid);
+    clsid =
+        const bool.hasEnvironment('SOCAPP_WINDOWS_CLSID')
+            ? const String.fromEnvironment('SOCAPP_WINDOWS_CLSID')
+            : (document['windows']?['clsid'] ?? clsid);
 
-    vapidKey = const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
-        ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
-        : (document['fcm']?['vapidKey'] ?? vapidKey);
+    vapidKey =
+        const bool.hasEnvironment('SOCAPP_FCM_VAPID_KEY')
+            ? const String.fromEnvironment('SOCAPP_FCM_VAPID_KEY')
+            : (document['fcm']?['vapidKey'] ?? vapidKey);
 
     origin = url;
 
-    link = const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
-        ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
-        : (document['link']?['prefix'] ?? link);
+    link =
+        const bool.hasEnvironment('SOCAPP_LINK_PREFIX')
+            ? const String.fromEnvironment('SOCAPP_LINK_PREFIX')
+            : (document['link']?['prefix'] ?? link);
 
     logLevel = me.LogLevel.values.firstWhere(
-      (e) => const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
-          ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
-          : e.name == document['log']?['level'],
-      orElse: () =>
-          kDebugMode || kProfileMode ? me.LogLevel.debug : me.LogLevel.debug,
+      (e) =>
+          const bool.hasEnvironment('SOCAPP_LOG_LEVEL')
+              ? e.name == const String.fromEnvironment('SOCAPP_LOG_LEVEL')
+              : e.name == document['log']?['level'],
+      orElse:
+          () =>
+              kDebugMode || kProfileMode
+                  ? me.LogLevel.debug
+                  : me.LogLevel.debug,
     );
 
-    appcast = const bool.hasEnvironment('SOCAPP_APPCAST_URL')
-        ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
-        : (document['appcast']?['url'] ?? appcast);
+    appcast =
+        const bool.hasEnvironment('SOCAPP_APPCAST_URL')
+            ? const String.fromEnvironment('SOCAPP_APPCAST_URL')
+            : (document['appcast']?['url'] ?? appcast);
 
-    copyright = const bool.hasEnvironment('SOCAPP_LEGAL_COPYRIGHT')
-        ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
-        : (document['legal']?['copyright'] ?? copyright);
+    copyright =
+        const bool.hasEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+            ? const String.fromEnvironment('SOCAPP_LEGAL_COPYRIGHT')
+            : (document['legal']?['copyright'] ?? copyright);
 
-    support = const bool.hasEnvironment('SOCAPP_LEGAL_SUPPORT')
-        ? const String.fromEnvironment('SOCAPP_LEGAL_SUPPORT')
-        : (document['legal']?['support'] ?? support);
+    support =
+        const bool.hasEnvironment('SOCAPP_LEGAL_SUPPORT')
+            ? const String.fromEnvironment('SOCAPP_LEGAL_SUPPORT')
+            : (document['legal']?['support'] ?? support);
 
-    repository = const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
-        ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
-        : (document['legal']?['repository'] ?? repository);
+    repository =
+        const bool.hasEnvironment('SOCAPP_LEGAL_REPOSITORY')
+            ? const String.fromEnvironment('SOCAPP_LEGAL_REPOSITORY')
+            : (document['legal']?['repository'] ?? repository);
 
-    scheme = const bool.hasEnvironment('SOCAPP_LINK_SCHEME')
-        ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
-        : (document['link']?['scheme'] ?? scheme);
+    scheme =
+        const bool.hasEnvironment('SOCAPP_LINK_SCHEME')
+            ? const String.fromEnvironment('SOCAPP_LINK_SCHEME')
+            : (document['link']?['scheme'] ?? scheme);
 
-    geoEndpoint = const bool.hasEnvironment('SOCAPP_GEO_ENDPOINT')
-        ? const String.fromEnvironment('SOCAPP_GEO_ENDPOINT')
-        : (document['geo']?['endpoint'] ?? geoEndpoint);
+    geoEndpoint =
+        const bool.hasEnvironment('SOCAPP_GEO_ENDPOINT')
+            ? const String.fromEnvironment('SOCAPP_GEO_ENDPOINT')
+            : (document['geo']?['endpoint'] ?? geoEndpoint);
 
-    ipEndpoint = const bool.hasEnvironment('SOCAPP_IP_ENDPOINT')
-        ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
-        : (document['ip']?['endpoint'] ?? ipEndpoint);
+    ipEndpoint =
+        const bool.hasEnvironment('SOCAPP_IP_ENDPOINT')
+            ? const String.fromEnvironment('SOCAPP_IP_ENDPOINT')
+            : (document['ip']?['endpoint'] ?? ipEndpoint);
 
     // Change default values to browser's location on web platform.
     if (PlatformUtils.isWeb) {
@@ -292,16 +319,18 @@ class Config {
       files = '$url/files';
     }
 
-    bool confRemote = const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
-        ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
-        : (document['conf']?['remote'] ?? true);
+    bool confRemote =
+        const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
+            ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
+            : (document['conf']?['remote'] ?? true);
 
     // If [confRemote], then try to fetch and merge the remotely available
     // configuration.
     if (confRemote) {
       try {
-        final response = await (await PlatformUtils.dio)
-            .fetch(RequestOptions(path: '$url:$port/conf'));
+        final response = await (await PlatformUtils.dio).fetch(
+          RequestOptions(path: '$url:$port/conf'),
+        );
         if (response.statusCode == 200) {
           dynamic remote;
 
@@ -328,7 +357,8 @@ class Config {
             vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
             link = remote['link']?['prefix'] ?? link;
             appcast = remote['appcast']?['url'] ?? appcast;
-            copyright = remote['legal']?[Uri.base.host]?['copyright'] ??
+            copyright =
+                remote['legal']?[Uri.base.host]?['copyright'] ??
                 remote['legal']?['copyright'] ??
                 copyright;
             support = remote['legal']?['support'] ?? support;

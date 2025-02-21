@@ -21,10 +21,9 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user_call_cover.dart';
 import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
-import '/store/model/my_user.dart';
 import '/store/model/user.dart';
+import 'blocklist.dart';
 import 'changed.dart';
-import 'my_user.dart' show BlocklistEvent;
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {
@@ -47,19 +46,10 @@ enum UserEventKind {
 }
 
 /// Tag representing a [UserEvents] kind.
-enum UserEventsKind {
-  blocklistEvent,
-  initialized,
-  isBlocked,
-  user,
-  event,
-}
+enum UserEventsKind { blocklistEvent, initialized, isBlocked, user, event }
 
 /// Tag representing a [BlocklistEvent] kind.
-enum BlocklistEventsKind {
-  recordAdded,
-  recordRemoved,
-}
+enum BlocklistEventsKind { recordAdded, recordRemoved }
 
 /// [User] event union.
 abstract class UserEvents {
@@ -107,21 +97,6 @@ class UserEventsIsBlocked extends UserEvents {
 
   @override
   UserEventsKind get kind => UserEventsKind.isBlocked;
-}
-
-/// [BlocklistEventsVersioned] along with the corresponding [MyUserVersion].
-class BlocklistEventsVersioned extends UserEvents {
-  BlocklistEventsVersioned(this.events, this.ver);
-
-  /// [BlocklistEvent]s themselves.
-  final List<BlocklistEvent> events;
-
-  /// Version of the [MyUser]'s state updated by these
-  /// [BlocklistEventsVersioned].
-  final BlocklistVersion ver;
-
-  @override
-  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
 class UserEventsBlocklistEventsEvent extends UserEvents {
