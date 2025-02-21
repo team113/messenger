@@ -39,7 +39,8 @@ final StepDefinitionGeneric seeChatAsFavorite = then2<
     print(
       '===== seeChatAsFavorite($name, ${status.name}) -> waitForAppToSettle()...',
     );
-    await context.world.appDriver.waitForAppToSettle();
+    // await context.world.appDriver.waitForAppToSettle();
+    await Future.delayed(Duration(seconds: 10));
     print(
       '===== seeChatAsFavorite($name, ${status.name}) -> waitForAppToSettle()... done',
     );
