@@ -82,7 +82,7 @@ final StepDefinitionGeneric seeChatAsFavorite = then2<
 
         return isPresent;
     }
-  });
+  }, timeout: const Duration(seconds: 30));
 
   print('===== seeChatAsFavorite($name, ${status.name}) -> done');
 });
