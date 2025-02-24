@@ -171,14 +171,7 @@ class BlocklistRepository extends DisposableInterface
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.upsert(
-      me,
-      SessionData(
-        blocklistSynchronized: false,
-        blocklistVersion: null,
-        blocklistCount: null,
-      ),
-    );
+
     await blocklist.clear();
     await blocklist.around();
   }

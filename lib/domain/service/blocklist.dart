@@ -54,9 +54,11 @@ class BlocklistService extends DisposableService {
   int get perPage => _blocklistRepo.blocklist.perPage;
 
   /// Fetches the initial [blocklist].
-  Future<void> around() {
+  Future<void> around() async {
     Log.debug('around()', '$runtimeType');
-    return _blocklistRepo.blocklist.around();
+
+    await _blocklistRepo.blocklist.clear();
+    await _blocklistRepo.blocklist.around();
   }
 
   /// Fetches the next [blocklist] page.

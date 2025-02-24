@@ -93,6 +93,9 @@ abstract class Paginated<K, T> {
     await ensureInitialized();
   }
 
+  /// Clears the [Paginated].
+  Future<void> clear();
+
   /// Fetches next page of the [items].
   Future<void> next();
 
@@ -125,6 +128,9 @@ class SingleItemPaginated<K, T> extends Paginated<K, T> {
   Future<void> ensureInitialized() async {
     // No-op.
   }
+
+  @override
+  Future<void> clear() async {}
 
   @override
   Future<void> next() async {
