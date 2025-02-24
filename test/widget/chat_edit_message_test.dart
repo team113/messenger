@@ -230,10 +230,10 @@ void main() async {
 
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
-
+  when(graphQlProvider.blocklistEvents(any))
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) async => const Stream.empty());
-
   when(graphQlProvider.sessionsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 

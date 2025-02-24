@@ -527,9 +527,7 @@ mixin UserGraphQlMixin {
   /// which have already been applied to the state of some [BlocklistRecord], so
   /// a client side is expected to handle all the events idempotently
   /// considering the [ver].
-  Future<Stream<QueryResult>> blocklistEvents(
-    BlocklistVersion? Function() ver,
-  ) async {
+  Stream<QueryResult> blocklistEvents(BlocklistVersion? Function() ver) {
     Log.debug('blocklistEvents(ver)', '$runtimeType');
 
     final variables = BlocklistEventsArguments(ver: ver());

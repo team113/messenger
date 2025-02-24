@@ -279,13 +279,12 @@ void main() async {
       IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
-
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
-
+  when(graphQlProvider.blocklistEvents(any))
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.myUserEvents(any))
       .thenAnswer((_) async => const Stream.empty());
-
   when(graphQlProvider.sessionsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 

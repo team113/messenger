@@ -107,7 +107,8 @@ void main() async {
       .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.incomingCallsTopEvents(3))
       .thenAnswer((_) => const Stream.empty());
-
+  when(graphQlProvider.blocklistEvents(any))
+      .thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.favoriteChatsEvents(any))
       .thenAnswer((_) => const Stream.empty());
 
