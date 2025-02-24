@@ -171,7 +171,14 @@ class BlocklistRepository extends DisposableInterface
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.upsert(me, SessionData(blocklistSynchronized: false));
+    await _sessionLocal.upsert(
+      me,
+      SessionData(
+        blocklistSynchronized: false,
+        blocklistVersion: null,
+        blocklistCount: null,
+      ),
+    );
     await blocklist.clear();
     await blocklist.around();
   }
@@ -271,6 +278,7 @@ class BlocklistRepository extends DisposableInterface
               )
               .toList(),
           list.blocklist.totalCount,
+          list.blocklist.ver,
         );
       } else if (events.$$typename == 'BlocklistEventsVersioned') {
         var mixin = events as BlocklistEventsVersionedMixin;
@@ -306,6 +314,13 @@ class BlocklistRepository extends DisposableInterface
       case BlocklistEventsKind.blocklist:
         final blocklist = events as BlocklistEventsBlocklist;
         count.value = blocklist.totalCount;
+        await _sessionLocal.upsert(
+          me,
+          SessionData(
+            blocklistCount: blocklist.totalCount,
+            blocklistVersion: blocklist.ver,
+          ),
+        );
         break;
 
       case BlocklistEventsKind.event:

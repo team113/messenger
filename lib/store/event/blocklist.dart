@@ -33,13 +33,16 @@ abstract class BlocklistEvents {
 
 /// List of [BlocklistRecord]s.
 class BlocklistEventsBlocklist extends BlocklistEvents {
-  const BlocklistEventsBlocklist(this.records, this.totalCount);
+  const BlocklistEventsBlocklist(this.records, this.totalCount, this.ver);
 
   /// List of [DtoBlocklistRecord] edges.
   final List<DtoBlocklistRecord> records;
 
   /// Total count of [BlocklistRecord]s.
   final int totalCount;
+
+  /// Version of this [BlocklistRecord]s list.
+  final BlocklistVersion ver;
 
   @override
   BlocklistEventsKind get kind => BlocklistEventsKind.blocklist;
