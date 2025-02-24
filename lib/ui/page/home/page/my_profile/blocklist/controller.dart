@@ -76,6 +76,10 @@ class BlocklistController extends GetxController {
   /// Indicates whether the [blocklist] have a next page.
   RxBool get hasNext => _blocklistService.hasNext;
 
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count => _blocklistService.count;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);

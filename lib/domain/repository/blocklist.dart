@@ -27,5 +27,7 @@ abstract class AbstractBlocklistRepository {
   /// Returns [Paginated] of [User]s blocked by the authenticated [MyUser].
   Paginated<UserId, RxUser> get blocklist;
 
-  RxInt get totalCount;
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count;
 }

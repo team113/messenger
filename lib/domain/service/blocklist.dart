@@ -37,7 +37,9 @@ class BlocklistService extends DisposableService {
   /// Returns [User]s blocked by the authenticated [MyUser].
   Paginated<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
 
-  RxInt get totalCount => _blocklistRepo.totalCount;
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count => _blocklistRepo.count;
 
   /// Returns the [RxStatus] of the [blocklist] fetching.
   Rx<RxStatus> get status => _blocklistRepo.blocklist.status;

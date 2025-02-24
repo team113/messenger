@@ -15,9 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Profile page:
-        - Blocklist counter not being updated in real time. ([#1171])
+        - Blocklist count not being updated in real time. ([#1175])
 
-[#1171]: /../../pull/1171
+[#1175]: /../../pull/1175
 
 
 

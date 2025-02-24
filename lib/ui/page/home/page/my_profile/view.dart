@@ -103,6 +103,7 @@ class MyProfileView extends StatelessWidget {
         Get.find(),
         Get.find(),
         Get.find(),
+        Get.find(),
       ),
       global: !Get.isRegistered<MyProfileController>(),
       builder: (MyProfileController c) {
@@ -1122,7 +1123,7 @@ Widget _language(BuildContext context, MyProfileController c) {
 /// Returns the contents of a [ProfileTab.blocklist] section.
 Widget _blockedUsers(BuildContext context, MyProfileController c) {
   return Obx(() {
-    final int count = c.myUser.value?.blocklistCount ?? 0;
+    final int count = c.blocklistCount.value;
 
     return Paddings.dense(
       FieldButton(

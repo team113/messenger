@@ -40,6 +40,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/blocklist.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
@@ -68,6 +69,7 @@ class MyProfileController extends GetxController {
     this._settingsRepo,
     this._authService,
     this._chatService,
+    this._blocklistService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -143,6 +145,9 @@ class MyProfileController extends GetxController {
   /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
   final ChatService _chatService;
 
+  /// [BlocklistService] for retrieving the [BlocklistService.count].
+  final BlocklistService _blocklistService;
+
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
@@ -181,6 +186,10 @@ class MyProfileController extends GetxController {
 
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;
+
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get blocklistCount => _blocklistService.count;
 
   @override
   void onInit() {

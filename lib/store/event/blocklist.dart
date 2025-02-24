@@ -20,8 +20,10 @@ import '/domain/model/user.dart';
 import '/store/model/blocklist.dart';
 import '/store/model/user.dart';
 
+/// Tag representing a [BlocklistEvents] kind.
 enum BlocklistEventsKind { blocklist, event }
 
+/// Event emitted by `Subscription.blocklistEvents`.
 abstract class BlocklistEvents {
   const BlocklistEvents();
 
@@ -29,19 +31,25 @@ abstract class BlocklistEvents {
   BlocklistEventsKind get kind;
 }
 
+/// List of [BlocklistRecord]s.
 class BlocklistEventsBlocklist extends BlocklistEvents {
   const BlocklistEventsBlocklist(this.records, this.totalCount);
 
+  /// List of [DtoBlocklistRecord] edges.
   final List<DtoBlocklistRecord> records;
+
+  /// Total count of [BlocklistRecord]s.
   final int totalCount;
 
   @override
   BlocklistEventsKind get kind => BlocklistEventsKind.blocklist;
 }
 
+/// [BlocklistEventsVersioned] type of [BlocklistEvents] event.
 class BlocklistEventsEvent extends BlocklistEvents {
   const BlocklistEventsEvent(this.event);
 
+  /// [BlocklistEventsVersioned] themselves.
   final BlocklistEventsVersioned event;
 
   @override
@@ -58,22 +66,30 @@ class BlocklistEventsVersioned {
   /// [BlocklistEvent]s themselves.
   final List<BlocklistEvent> events;
 
+  /// Version of the [BlocklistRecord]s list state updated by these [events].
   final BlocklistVersion ver;
 }
 
+/// Event of a [User] being added or removed to/from [BlocklistRecord]s.
 abstract class BlocklistEvent {
   const BlocklistEvent(this.user, this.at);
 
+  /// [DtoUser] this [BlocklistEvent] is about.
   final DtoUser user;
+
+  /// [PreciseDateTime] when this [BlocklistEvent] happened.
   final PreciseDateTime at;
 
   /// Returns [BlocklistEventKind] of this [BlocklistEvent].
   BlocklistEventKind get kind;
 }
 
+/// Event of a [BlocklistRecord] being added to blocklist of the authenticated
+/// [MyUser].
 class EventBlocklistRecordAdded extends BlocklistEvent {
   const EventBlocklistRecordAdded(super.user, super.at, this.reason);
 
+  /// Reason of why the [User] was blocked.
   final BlocklistReason? reason;
 
   @override
@@ -90,6 +106,8 @@ class EventBlocklistRecordAdded extends BlocklistEvent {
   int get hashCode => kind.hashCode;
 }
 
+/// Event of a [BlocklistRecord] being removed from blocklist of the
+/// authenticated [MyUser].
 class EventBlocklistRecordRemoved extends BlocklistEvent {
   const EventBlocklistRecordRemoved(super.user, super.at);
 

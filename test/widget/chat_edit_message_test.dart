@@ -353,7 +353,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );

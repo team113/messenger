@@ -223,7 +223,6 @@ extension _MyUserDb on DtoMyUser {
         muted: e.muted == null
             ? null
             : MuteDuration.fromJson(jsonDecode(e.muted!)),
-        blocklistCount: e.blocklistCount,
         lastSeenAt: e.lastSeenAt,
         welcomeMessage: e.welcomeMessage == null
             ? null
@@ -256,7 +255,6 @@ extension _MyUserDb on DtoMyUser {
       presenceIndex: value.presenceIndex,
       online: value.online,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
-      blocklistCount: value.blocklistCount,
       lastSeenAt: value.lastSeenAt,
       ver: ver.val,
       welcomeMessage: value.welcomeMessage == null

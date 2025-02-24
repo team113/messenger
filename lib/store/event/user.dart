@@ -48,9 +48,6 @@ enum UserEventKind {
 /// Tag representing a [UserEvents] kind.
 enum UserEventsKind { blocklistEvent, initialized, isBlocked, user, event }
 
-/// Tag representing a [BlocklistEvent] kind.
-enum BlocklistEventsKind { recordAdded, recordRemoved }
-
 /// [User] event union.
 abstract class UserEvents {
   const UserEvents();

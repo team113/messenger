@@ -32,6 +32,7 @@ class SessionData {
     this.blocklistSynchronized,
     this.sessionsListVersion,
     this.blocklistVersion,
+    this.blocklistCount,
   });
 
   /// Persisted [FavoriteChatsListVersion] data.
@@ -62,6 +63,9 @@ class SessionData {
   /// Persisted [BlocklistVersion] data.
   BlocklistVersion? blocklistVersion;
 
+  /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
+  int? blocklistCount;
+
   /// Returns a copy of this [SessionData] from the [other].
   SessionData copyFrom(SessionData other) {
     return copyWith(
@@ -73,6 +77,7 @@ class SessionData {
       blocklistSynchronized: other.blocklistSynchronized,
       sessionsListVersion: other.sessionsListVersion,
       blocklistVersion: other.blocklistVersion,
+      blocklistCount: other.blocklistCount,
     );
   }
 
@@ -86,6 +91,7 @@ class SessionData {
     bool? blocklistSynchronized,
     SessionsListVersion? sessionsListVersion,
     BlocklistVersion? blocklistVersion,
+    int? blocklistCount,
   }) {
     return SessionData(
       favoriteChatsListVersion:
@@ -101,6 +107,7 @@ class SessionData {
           this.blocklistSynchronized ?? blocklistSynchronized,
       sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
       blocklistVersion: this.blocklistVersion ?? blocklistVersion,
+      blocklistCount: this.blocklistCount ?? blocklistCount,
     );
   }
 }
