@@ -35,12 +35,11 @@ Feature: Chat members
   @problem
   Scenario: User adds a member
     Given Charlie has dialog with me
-    And Charlie has his login set up
     When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
     And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
 
-    When I fill `SearchTextField` field with Charlie's login
+    When I fill `SearchTextField` field with Charlie's num
     And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     Then I wait until text "Charlie" is present
