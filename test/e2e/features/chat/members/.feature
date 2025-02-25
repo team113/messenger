@@ -35,6 +35,7 @@ Feature: Chat members
   @problem
   Scenario: User adds a member
     Given Charlie has dialog with me
+    And Charlie has his login set up
     When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
     And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
