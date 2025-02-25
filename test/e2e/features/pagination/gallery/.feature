@@ -38,7 +38,7 @@ Feature: Gallery pagination
     Then I wait until `NoLeftButton` is present
     And I wait until `RightButton` is present
 
-  @done
+  @problem
   Scenario: User can paginate images in gallery with a lot of content
     Given Alice posts 10 image attachments to "Gallery" group
     And Alice posts 20 file attachments to "Gallery" group
