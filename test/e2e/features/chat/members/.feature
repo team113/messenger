@@ -39,7 +39,7 @@ Feature: Chat members
     And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
 
-    When I fill `SearchTextField` field with "Charlie"
+    When I fill `SearchTextField` field with Charlie's login
     And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     Then I wait until text "Charlie" is present
