@@ -43,7 +43,7 @@ final StepDefinitionGeneric seeChatMessages = then1<
     print(
       '===== seeChatMessages -> context.world.appDriver.waitForAppToSettle...',
     );
-    await context.world.appDriver.waitForAppToSettle();
+    await Future.delayed(Duration(seconds: 5));
 
     switch (status) {
       case IterableAmount.no:
