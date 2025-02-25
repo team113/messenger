@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: Searching deleted monolog
 
   Scenario: User searches deleted monolog and sees it
@@ -38,8 +39,8 @@ Feature: Searching deleted monolog
     When I fill `SearchField` field with my num
     Then I see monolog in search results
 
-    # When I fill `SearchField` field with my login
-    # Then I see monolog in search results
+# When I fill `SearchField` field with my login
+# Then I see monolog in search results
 
-    # When I fill `SearchField` field with my direct link
-    # Then I see monolog in search results
+# When I fill `SearchField` field with my direct link
+# Then I see monolog in search results

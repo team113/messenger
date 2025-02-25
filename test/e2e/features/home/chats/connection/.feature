@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: Connection status
 
   Scenario: Connection status is properly displayed

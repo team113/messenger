@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: User subscription
 
   Scenario: User sees Bob changing his name

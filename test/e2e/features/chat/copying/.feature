@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: Text messages selection and copying
 
   Scenario: User copies text of a message

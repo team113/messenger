@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: MyUser's online status is correctly updated
 
   Scenario: Bob sees Alice changing her online status

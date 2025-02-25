@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: Upgrade popup
 
   Scenario: Versions prompted in upgrade popups can be skipped

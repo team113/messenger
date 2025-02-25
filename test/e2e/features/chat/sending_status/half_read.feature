@@ -15,6 +15,7 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+@done
 Feature: Half read status of messages in group chats
 
   Background: User is in group chat with Bob and Charlie

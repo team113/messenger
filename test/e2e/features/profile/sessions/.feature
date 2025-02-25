@@ -15,20 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
- Feature: User sessions
+@done
+Feature: User sessions
 
-   Scenario: User deletes session
-     Given I am Alice
-     And Alice has another active session
+  Scenario: User deletes session
+    Given I am Alice
+    And Alice has another active session
 
-     When I tap `MenuButton` button
-     And I scroll `MenuListView` until `Devices` is present
-     And I tap `Devices` button
-     Then I see 2 active sessions
+    When I tap `MenuButton` button
+    And I scroll `MenuListView` until `Devices` is present
+    And I tap `Devices` button
+    Then I see 2 active sessions
 
-     When I tap `DeleteSessionButton` button
-     Then I wait until `PasswordField` is present
+    When I tap `DeleteSessionButton` button
+    Then I wait until `PasswordField` is present
 
-     When I fill `PasswordField` field with "123"
-     And I tap `ProceedButton` button
-     Then I see 1 active session
+    When I fill `PasswordField` field with "123"
+    And I tap `ProceedButton` button
+    Then I see 1 active session
