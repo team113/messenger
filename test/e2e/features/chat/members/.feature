@@ -32,6 +32,7 @@ Feature: Chat members
     And I tap `Proceed` button
     Then I wait until text "Bob" is absent
 
+  @problem
   Scenario: User adds a member
     Given Charlie has dialog with me
     When I scroll `ChatInfoScrollable` until `AddMemberButton` is present

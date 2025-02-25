@@ -350,6 +350,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
+      ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
