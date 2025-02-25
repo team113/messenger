@@ -76,7 +76,7 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent = then2<
     }
 
     print(
-      '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible...',
+      '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible... with finder: ${context.world.appDriver.findByKeySkipOffstage(key.name)}',
     );
 
     await context.world.appDriver.scrollIntoVisible(
