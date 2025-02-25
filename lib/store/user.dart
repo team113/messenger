@@ -356,7 +356,7 @@ class UserRepository extends DisposableInterface
         final mixin = events as BlocklistEventsVersionedMixin;
         yield UserEventsBlocklistEventsEvent(BlocklistEventsVersioned(
           mixin.events.map((e) => _blocklistEvent(e)).toList(),
-          mixin.ver,
+          mixin.blocklistVer,
         ));
       } else if (events.$$typename == 'isBlocked') {
         final node = events as UserEvents$Subscription$UserEvents$IsBlocked;

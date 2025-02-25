@@ -278,7 +278,7 @@ class BlocklistRepository extends DisposableInterface
         yield BlocklistEventsEvent(
           BlocklistEventsVersioned(
             mixin.events.map((e) => _blocklistEvent(e)).toList(),
-            mixin.ver,
+            mixin.blocklistVer,
           ),
         );
       }

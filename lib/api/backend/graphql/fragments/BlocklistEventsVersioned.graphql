@@ -27,5 +27,5 @@ fragment BlocklistEventsVersioned on BlocklistEventsVersioned {
             reason
         }
     }
-    ver
+    blocklistVer: ver
 }
