@@ -34,106 +34,151 @@ import 'scroll_until.dart';
 /// Examples:
 /// - Then I tap user Bob in search results
 /// - Then I tap contact Charlie in search results
-final StepDefinitionGeneric tapUserInSearchResults =
-    then2<SearchCategory, TestUser, CustomWorld>(
-      'I tap {search_category} {user} in search results',
-      (SearchCategory category, TestUser user, context) async {
-        await context.world.appDriver.waitUntil(() async {
+final StepDefinitionGeneric tapUserInSearchResults = then2<
+  SearchCategory,
+  TestUser,
+  CustomWorld
+>('I tap {search_category} {user} in search results', (
+  SearchCategory category,
+  TestUser user,
+  context,
+) async {
+  print('===== tapUserInSearchResults -> start');
+
+  await context.world.appDriver.waitUntil(() async {
+    await context.world.appDriver.waitForAppToSettle();
+
+    switch (category) {
+      case SearchCategory.contact:
+        final ContactService contactService = Get.find<ContactService>();
+        final ChatContactId id =
+            contactService.paginated.values
+                .firstWhere((e) => e.contact.value.name.val == user.name)
+                .id;
+
+        final finder = context.world.appDriver.findByKeySkipOffstage(
+          'SearchContact_$id',
+        );
+
+        final scrollable = find.descendant(
+          of: find.byKey(const Key('SearchScrollable')),
+          matching: find.byWidgetPredicate((widget) {
+            // TODO: Find a proper way to differentiate [Scrollable]s from
+            //       [TextField]s:
+            //       https://github.com/flutter/flutter/issues/76981
+            if (widget is Scrollable) {
+              return widget.restorationId == null;
+            }
+            return false;
+          }),
+        );
+
+        if (!await context.world.appDriver.isPresent(scrollable)) {
+          return false;
+        }
+
+        await context.world.appDriver.scrollIntoVisible(
+          finder,
+          scrollable,
+          dy: 100,
+        );
+
+        if (await context.world.appDriver.isPresent(finder)) {
+          await context.world.appDriver.scrollIntoView(finder);
+          await context.world.appDriver.tap(
+            finder,
+            timeout: context.configuration.timeout,
+          );
+          await context.world.appDriver.waitForAppToSettle();
+          return true;
+        }
+
+        return false;
+
+      case SearchCategory.user:
+        final UserId userId = context.world.sessions[user.name]!.userId;
+
+        final finder = context.world.appDriver.findByKeySkipOffstage(
+          'SearchUser_$userId',
+        );
+
+        print(
+          '===== tapUserInSearchResults -> finder -> $finder -> tryEvaluate (${finder.tryEvaluate()})',
+        );
+
+        final scrollable = find.descendant(
+          of: find.byKey(const Key('SearchScrollable')),
+          matching: find.byWidgetPredicate((widget) {
+            // TODO: Find a proper way to differentiate [Scrollable]s from
+            //       [TextField]s:
+            //       https://github.com/flutter/flutter/issues/76981
+            if (widget is Scrollable) {
+              return widget.restorationId == null;
+            }
+            return false;
+          }),
+        );
+
+        print(
+          '===== tapUserInSearchResults -> scrollable -> $scrollable -> tryEvaluate (${scrollable.tryEvaluate()})',
+        );
+
+        if (!await context.world.appDriver.isPresent(scrollable)) {
+          print(
+            '===== tapUserInSearchResults -> !await context.world.appDriver.isPresent(scrollable) -> return false',
+          );
+          return false;
+        }
+
+        print(
+          '===== tapUserInSearchResults -> await context.world.appDriver.scrollIntoVisible ...',
+        );
+        await context.world.appDriver.scrollIntoVisible(
+          finder,
+          scrollable,
+          dy: 100,
+        );
+
+        print(
+          '===== tapUserInSearchResults -> await context.world.appDriver.scrollIntoVisible ... done',
+        );
+
+        if (await context.world.appDriver.isPresent(finder)) {
+          print(
+            '===== tapUserInSearchResults -> await context.world.appDriver.isPresent(finder) -> true',
+          );
+
+          await context.world.appDriver.scrollIntoView(finder);
+          print(
+            '===== tapUserInSearchResults -> await context.world.appDriver.scrollIntoView(finder)... done',
+          );
+
+          await context.world.appDriver.tap(
+            finder,
+            timeout: context.configuration.timeout,
+          );
+
+          print(
+            '===== tapUserInSearchResults -> await context.world.appDriver.tap... done',
+          );
+
           await context.world.appDriver.waitForAppToSettle();
 
-          switch (category) {
-            case SearchCategory.contact:
-              final ContactService contactService = Get.find<ContactService>();
-              final ChatContactId id =
-                  contactService.paginated.values
-                      .firstWhere((e) => e.contact.value.name.val == user.name)
-                      .id;
+          print('===== tapUserInSearchResults -> return true');
+          return true;
+        } else {
+          print(
+            '===== tapUserInSearchResults -> await context.world.appDriver.isPresent(finder) -> false',
+          );
+        }
 
-              final finder = context.world.appDriver.findByKeySkipOffstage(
-                'SearchContact_$id',
-              );
+        return false;
 
-              final scrollable = find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              );
+      case SearchCategory.recent:
+      case SearchCategory.chat:
+        throw Exception('Chat or recent cannot be a TestUser.');
+    }
+  }, timeout: const Duration(seconds: 30));
 
-              if (!await context.world.appDriver.isPresent(scrollable)) {
-                return false;
-              }
-
-              await context.world.appDriver.scrollIntoVisible(
-                finder,
-                scrollable,
-                dy: 100,
-              );
-
-              if (await context.world.appDriver.isPresent(finder)) {
-                await context.world.appDriver.scrollIntoView(finder);
-                await context.world.appDriver.tap(
-                  finder,
-                  timeout: context.configuration.timeout,
-                );
-                await context.world.appDriver.waitForAppToSettle();
-                return true;
-              }
-
-              return false;
-
-            case SearchCategory.user:
-              final UserId userId = context.world.sessions[user.name]!.userId;
-
-              final finder = context.world.appDriver.findByKeySkipOffstage(
-                'SearchUser_$userId',
-              );
-
-              final scrollable = find.descendant(
-                of: find.byKey(const Key('SearchScrollable')),
-                matching: find.byWidgetPredicate((widget) {
-                  // TODO: Find a proper way to differentiate [Scrollable]s from
-                  //       [TextField]s:
-                  //       https://github.com/flutter/flutter/issues/76981
-                  if (widget is Scrollable) {
-                    return widget.restorationId == null;
-                  }
-                  return false;
-                }),
-              );
-
-              if (!await context.world.appDriver.isPresent(scrollable)) {
-                return false;
-              }
-
-              await context.world.appDriver.scrollIntoVisible(
-                finder,
-                scrollable,
-                dy: 100,
-              );
-
-              if (await context.world.appDriver.isPresent(finder)) {
-                await context.world.appDriver.scrollIntoView(finder);
-                await context.world.appDriver.tap(
-                  finder,
-                  timeout: context.configuration.timeout,
-                );
-                await context.world.appDriver.waitForAppToSettle();
-                return true;
-              }
-
-              return false;
-
-            case SearchCategory.recent:
-            case SearchCategory.chat:
-              throw Exception('Chat or recent cannot be a TestUser.');
-          }
-        }, timeout: const Duration(seconds: 30));
-      },
-    );
+  print('===== tapUserInSearchResults -> end');
+});
