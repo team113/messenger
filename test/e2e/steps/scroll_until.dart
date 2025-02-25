@@ -32,44 +32,68 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I scroll `Menu` until `LogoutButton` is present
-final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
-    then2<WidgetKey, WidgetKey, CustomWorld>(
-      RegExp(r'I scroll {key} until {key} is present'),
-      (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
-        await context.world.appDriver.waitUntil(() async {
-          await context.world.appDriver.waitForAppToSettle(
-            timeout: const Duration(seconds: 1),
-          );
-
-          final scrollable = find.descendant(
-            of: find.byKey(Key(list.name)),
-            matching: find.byWidgetPredicate((widget) {
-              // TODO: Find a proper way to differentiate [Scrollable]s from
-              //       [TextField]s:
-              //       https://github.com/flutter/flutter/issues/76981
-              if (widget is Scrollable) {
-                return widget.restorationId == null;
-              }
-              return false;
-            }),
-          );
-
-          if (scrollable.evaluate().isEmpty) {
-            return false;
-          }
-
-          await context.world.appDriver.scrollIntoVisible(
-            context.world.appDriver.findByKeySkipOffstage(key.name),
-            scrollable.first,
-            dy: 50,
-          );
-
-          return true;
-        }, timeout: const Duration(seconds: 30));
-
-        await context.world.appDriver.waitForAppToSettle();
-      },
+final StepDefinitionGeneric<CustomWorld> scrollUntilPresent = then2<
+  WidgetKey,
+  WidgetKey,
+  CustomWorld
+>(RegExp(r'I scroll {key} until {key} is present'), (
+  WidgetKey list,
+  WidgetKey key,
+  StepContext<CustomWorld> context,
+) async {
+  await context.world.appDriver.waitUntil(() async {
+    print(
+      '===== scrollUntilPresent -> await context.world.appDriver.waitForAppToSettle...',
     );
+
+    await context.world.appDriver.waitForAppToSettle(
+      timeout: const Duration(seconds: 1),
+    );
+
+    print(
+      '===== scrollUntilPresent -> await context.world.appDriver.waitForAppToSettle... done',
+    );
+
+    final scrollable = find.descendant(
+      of: find.byKey(Key(list.name)),
+      matching: find.byWidgetPredicate((widget) {
+        // TODO: Find a proper way to differentiate [Scrollable]s from
+        //       [TextField]s:
+        //       https://github.com/flutter/flutter/issues/76981
+        if (widget is Scrollable) {
+          return widget.restorationId == null;
+        }
+        return false;
+      }),
+    );
+
+    print(
+      '===== scrollUntilPresent -> scrollable.evaluate(): ${scrollable.evaluate()}',
+    );
+
+    if (scrollable.evaluate().isEmpty) {
+      return false;
+    }
+
+    print(
+      '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible...',
+    );
+
+    await context.world.appDriver.scrollIntoVisible(
+      context.world.appDriver.findByKeySkipOffstage(key.name),
+      scrollable.first,
+      dy: 50,
+    );
+
+    print(
+      '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible... done -> true',
+    );
+
+    return true;
+  }, timeout: const Duration(seconds: 30));
+
+  await context.world.appDriver.waitForAppToSettle();
+});
 
 /// Scrolls the provided [Scrollable] to the bottom.
 ///

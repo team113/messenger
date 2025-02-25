@@ -17,7 +17,6 @@
 
 Feature: Clear chat
 
-  @problem
   Scenario: User clears chat
     Given I am Alice
     And user Bob
