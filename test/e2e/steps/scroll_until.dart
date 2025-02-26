@@ -80,9 +80,9 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent = then2<
     );
 
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
-    if (finder.hasFound) {
+    if (finder.evaluate().isNotEmpty) {
       await context.world.appDriver.scrollIntoVisible(
-        context.world.appDriver.findByKeySkipOffstage(key.name),
+        finder.first,
         scrollable.first,
         dy: 50,
       );
