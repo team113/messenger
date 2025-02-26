@@ -26,7 +26,7 @@ Feature: Favorite chats
     And I wait until "Alice and Charlie" chat is present
     And I pause for 5 seconds
 
-  @problem
+  # @problem
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
