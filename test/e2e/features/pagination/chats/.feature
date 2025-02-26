@@ -38,6 +38,7 @@ Feature: Chats pagination
     Given I am Alice
     And Alice has 16 groups
     And I see 16 chats
+    And I pause for 5 seconds
     And chats fetched are indeed remote
     And I do not have Internet
     And I pause for 2 seconds

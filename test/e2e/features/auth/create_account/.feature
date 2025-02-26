@@ -55,7 +55,7 @@ Feature: Account creation
     Then I wait until `AuthView` is present
     And I pause for 1 second
 
-  @problem
+  @done
   Scenario: User creates a new account with login and password
     When I tap `RegisterButton` button
     Then I wait until `LoginView` is present
