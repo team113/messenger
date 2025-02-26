@@ -114,6 +114,7 @@ enum WidgetKey {
   LoginAndPassword,
   LoginButton,
   LoginField,
+  LoginTile,
   LoginView,
   LogoutButton,
   MembersLoading,

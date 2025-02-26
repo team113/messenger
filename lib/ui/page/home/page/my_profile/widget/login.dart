@@ -131,6 +131,7 @@ class _UserLoginFieldState extends State<UserLoginField> {
     } else {
       child = Paddings.basic(
         InfoTile(
+          key: Key('LoginTile'),
           title: 'label_login'.l10n,
           content: '@${_state.text}',
           trailing: AnimatedButton(
