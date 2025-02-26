@@ -79,11 +79,17 @@ final StepDefinitionGeneric<CustomWorld> scrollUntilPresent = then2<
       '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible... with finder: ${context.world.appDriver.findByKeySkipOffstage(key.name)}',
     );
 
-    await context.world.appDriver.scrollIntoVisible(
-      context.world.appDriver.findByKeySkipOffstage(key.name),
-      scrollable.first,
-      dy: 50,
-    );
+    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+    if (finder.hasFound) {
+      await context.world.appDriver.scrollIntoVisible(
+        context.world.appDriver.findByKeySkipOffstage(key.name),
+        scrollable.first,
+        dy: 50,
+      );
+    } else {
+      context.world.appDriver.scroll(scrollable.first, dy: 300);
+      return false;
+    }
 
     print(
       '===== scrollUntilPresent -> context.world.appDriver.scrollIntoVisible... done -> true',
