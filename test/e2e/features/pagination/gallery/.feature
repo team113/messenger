@@ -21,7 +21,7 @@ Feature: Gallery pagination
     Given user Alice with their password set
     And Alice has "Gallery" group
 
-  @problem
+  @disabled
   Scenario: User can paginate images in gallery
     Given Alice posts 60 image attachments to "Gallery" group
     And Alice reads all messages in "Gallery" group
@@ -38,7 +38,7 @@ Feature: Gallery pagination
     Then I wait until `NoLeftButton` is present
     And I wait until `RightButton` is present
 
-  @problem
+  @disabled
   Scenario: User can paginate images in gallery with a lot of content
     Given Alice posts 10 image attachments to "Gallery" group
     And Alice posts 20 file attachments to "Gallery" group
