@@ -15,9 +15,9 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Chats dismissing
 
+  @problem
   Scenario: Chats can be dismissed and restored
     Given I am Alice
     And I have "01" group

@@ -33,7 +33,7 @@ Feature: Chats pagination
     Then I wait until `ChatsLoading` is absent
     And I see 16 chats
 
-  @problem
+  # @problem
   Scenario: Chats pagination migrates from local to remote
     Given I am Alice
     And Alice has 16 groups

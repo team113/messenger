@@ -709,7 +709,7 @@ class CallController extends GetxController {
 
     // Constructs a list of [CallButton]s from the provided [list] of [String]s.
     List<CallButton> toButtons(List<String>? list) {
-      List<CallButton>? persisted =
+      Set<CallButton>? persisted =
           list
               ?.map((e) {
                 switch (e) {
@@ -745,17 +745,17 @@ class CallController extends GetxController {
                 }
               })
               .nonNulls
-              .toList();
+              .toSet();
 
       // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
-        persisted = [
+        persisted = {
           ScreenButton(this),
           VideoButton(this),
           EndCallButton(this),
           AudioButton(this),
           MoreButton(this),
-        ];
+        };
       }
 
       // Ensure [EndCallButton] is always in the list.
@@ -768,7 +768,7 @@ class CallController extends GetxController {
         persisted.add(MoreButton(this));
       }
 
-      return persisted;
+      return persisted.toList();
     }
 
     buttons = RxList(
