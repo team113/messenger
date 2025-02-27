@@ -65,7 +65,7 @@ final StepDefinitionGeneric seeNoChatsDismissed = then<
     print('=== seeNoChatsDismissed -> isPresent: $isPresent');
 
     return isPresent;
-  });
+  }, timeout: Duration(seconds: 30));
 
   print('=== seeNoChatsDismissed -> end');
 });
