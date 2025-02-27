@@ -728,8 +728,11 @@ Future<T?> _caught<T>(Future<T?>? function) async {
   return null;
 }
 
-/// Extension adding
+/// Extension adding ability to check whether this error is a `drift` race
+/// related one.
 extension on Object {
+  /// Indicates  whether this error is a `drift` race related one.
   bool get isConnectionClosedException =>
-      toString().contains('ConnectionClosedException');
+      toString().contains('ConnectionClosedException') ||
+      toString().contains('Channel was closed before receiving a response');
 }
