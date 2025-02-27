@@ -44,14 +44,28 @@ final StepDefinitionGeneric seeChatAsDismissed = then1<String, CustomWorld>(
 ///
 /// Examples:
 /// - Then I see no chats dismissed
-final StepDefinitionGeneric seeNoChatsDismissed = then<CustomWorld>(
-  'I see no chats dismissed',
-  (context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver.waitForAppToSettle();
-      return await context.world.appDriver.isPresent(
-        context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
-      );
-    });
-  },
-);
+final StepDefinitionGeneric seeNoChatsDismissed = then<
+  CustomWorld
+>('I see no chats dismissed', (context) async {
+  print('=== seeNoChatsDismissed -> begin');
+
+  await context.world.appDriver.waitUntil(() async {
+    print('=== seeNoChatsDismissed -> waitForAppToSettle()...');
+    await context.world.appDriver.waitForAppToSettle();
+    print('=== seeNoChatsDismissed -> waitForAppToSettle()... done');
+
+    print(
+      '=== seeNoChatsDismissed -> find(`NoDismissed`): ${context.world.appDriver.findByKeySkipOffstage('NoDismissed')}',
+    );
+
+    final isPresent = await context.world.appDriver.isPresent(
+      context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
+    );
+
+    print('=== seeNoChatsDismissed -> isPresent: $isPresent');
+
+    return isPresent;
+  });
+
+  print('=== seeNoChatsDismissed -> end');
+});

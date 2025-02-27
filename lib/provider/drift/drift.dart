@@ -728,6 +728,7 @@ Future<T?> _caught<T>(Future<T?>? function) async {
   return null;
 }
 
+/// Extension adding
 extension on Object {
   bool get isConnectionClosedException =>
       toString().contains('ConnectionClosedException');
