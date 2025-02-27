@@ -15,7 +15,6 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Chats tab is correctly updated
 
   Scenario: Alice sees chats and messages from Bob and Charlie

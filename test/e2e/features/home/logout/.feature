@@ -15,7 +15,6 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Logout confirmation
 
   Scenario: Confirmation is displayed when password isn't set

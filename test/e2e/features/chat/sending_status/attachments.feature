@@ -15,7 +15,6 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Chat attachments have correct sending status
 
   Background: User is in dialog with Bob

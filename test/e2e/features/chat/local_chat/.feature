@@ -15,7 +15,6 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Local chats
 
   Background: User is in local dialog with Bob

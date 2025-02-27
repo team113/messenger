@@ -198,31 +198,17 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  print('===== _fillField($key) -> started...');
-
   await context.world.appDriver.waitUntil(() async {
     final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
-    print(
-      '===== _fillField($key) -> finder is $finder with: ${finder.tryEvaluate()}',
-    );
 
     if (await context.world.appDriver.isPresent(finder) &&
         finder.tryEvaluate()) {
-      print('===== _fillField($key) -> if...');
-      // await context.world.appDriver.waitForAppToSettle();
-
-      // await context.world.appDriver.waitForAppToSettle();
-      // print('===== _fillField($key) -> awaited 1-2 waitForAppToSettle()');
-
-      print('===== _fillField($key) -> awaiting tap()...');
       await context.world.appDriver.tap(
         finder,
         timeout: const Duration(seconds: 30),
       );
-      print('===== _fillField($key) -> awaited tap()');
 
       await context.world.appDriver.waitForAppToSettle();
-      print('===== _fillField($key) -> awaited 3 waitForAppToSettle()');
 
       await context.world.appDriver.enterText(
         finder,
@@ -233,18 +219,14 @@ Future<void> _fillField(
           (_) => text,
         },
       );
-      print('===== _fillField($key) -> awaited enterText()');
 
       await context.world.appDriver.waitForAppToSettle();
-      print('===== _fillField($key) -> awaited 4 waitForAppToSettle()');
 
       FocusManager.instance.primaryFocus?.unfocus();
 
-      print('===== _fillField($key) -> return true');
       return true;
     }
 
-    print('===== _fillField($key) -> return false');
     return false;
   }, timeout: const Duration(seconds: 30));
 }

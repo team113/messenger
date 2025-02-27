@@ -27,37 +27,22 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I see 30 chats
-final StepDefinitionGeneric seeCountChats = then1<
-  int,
-  CustomWorld
->('I see {int} chats', (count, context) async {
-  print('===== seeCountChats -> start');
+final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
+  'I see {int} chats',
+  (count, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-  await context.world.appDriver.waitUntil(() async {
-    print(
-      '===== seeCountChats -> await context.world.appDriver.waitForAppToSettle...',
-    );
+      final controller = Get.find<ChatsTabController>();
 
-    await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
-
-    print(
-      '===== seeCountChats -> await context.world.appDriver.waitForAppToSettle... done',
-    );
-
-    final controller = Get.find<ChatsTabController>();
-    print(
-      '===== seeCountChats -> controller.chats.where((e) => !e.id.isLocal).length -> ${controller.chats.where((e) => !e.id.isLocal).length}',
-    );
-
-    if (controller.chats.where((e) => !e.id.isLocal).length == count) {
-      return true;
-    } else {
-      return false;
-    }
-  }, timeout: const Duration(seconds: 60));
-
-  print('===== seeCountChats -> end');
-});
+      if (controller.chats.where((e) => !e.id.isLocal).length == count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 60));
+  },
+);
 
 /// Indicates whether the provided count of favorite [Chat]s are present within
 /// [ChatsTabView].

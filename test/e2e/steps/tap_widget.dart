@@ -34,42 +34,28 @@ import '../parameters/keys.dart';
 final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
   RegExp(r'I tap {key} (?:button|element|label|icon|field|text|widget)$'),
   (key, context) async {
-    print('======0 tapWidget(${key.name}) -> started');
-
     await context.world.appDriver.waitUntil(() async {
-      print('======0 tapWidget(${key.name}) -> waitForAppToSettle0...');
       await context.world.appDriver.waitForAppToSettle();
-      print('======0 tapWidget(${key.name}) -> waitForAppToSettle0... done');
 
       try {
         final finder =
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
-        print('======0 tapWidget(${key.name}) -> finder: $finder');
 
         await context.world.appDriver.waitForAppToSettle();
-        print('======0 tapWidget(${key.name}) -> waitForAppToSettle1... done');
 
-        print('======0 tapWidget(${key.name}) -> tap...');
         await context.world.appDriver.tap(
           finder,
           timeout: context.configuration.timeout,
         );
-        print('======0 tapWidget(${key.name}) -> tap... done');
 
         await context.world.appDriver.waitForAppToSettle();
-        print('======0 tapWidget(${key.name}) -> waitForAppToSettle2... done');
 
-        print('======0 tapWidget(${key.name}) -> return true');
         return true;
       } catch (e) {
-        print('======0 tapWidget(${key.name}) -> caught $e');
         // No-op.
       }
 
-      print('======0 tapWidget(${key.name}) -> return false');
       return false;
     }, timeout: const Duration(seconds: 30));
-
-    print('======0 tapWidget(${key.name}) -> ended');
   },
 );

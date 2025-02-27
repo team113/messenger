@@ -120,10 +120,6 @@ class SearchView extends StatelessWidget {
                 child: Obx(() {
                   final RxStatus status = c.searchStatus.value;
 
-                  print(
-                    'SearchView.build() -> recent(${c.recent}), contacts(${c.contacts}), users(${c.users}), chats(${c.chats})',
-                  );
-
                   if (c.recent.isEmpty &&
                       c.contacts.isEmpty &&
                       c.users.isEmpty &&

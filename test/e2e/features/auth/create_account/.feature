@@ -17,7 +17,6 @@
 
 Feature: Account creation
 
-  @done
   Scenario: User creates a new account
     When I tap `StartButton` button
     And I wait until `IntroductionView` is present
@@ -55,7 +54,6 @@ Feature: Account creation
     Then I wait until `AuthView` is present
     And I pause for 1 second
 
-  @done
   Scenario: User creates a new account with login and password
     When I tap `RegisterButton` button
     Then I wait until `LoginView` is present

@@ -15,7 +15,6 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-@done
 Feature: Searching deleted monolog
 
   Scenario: User searches deleted monolog and sees it

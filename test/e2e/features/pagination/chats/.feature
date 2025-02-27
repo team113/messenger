@@ -17,7 +17,6 @@
 
 Feature: Chats pagination
 
-  @done
   Scenario: Chats pagination works correctly
     Given user Alice
     And Alice has 16 groups
@@ -33,7 +32,6 @@ Feature: Chats pagination
     Then I wait until `ChatsLoading` is absent
     And I see 16 chats
 
-  # @problem
   Scenario: Chats pagination migrates from local to remote
     Given I am Alice
     And Alice has 16 groups
@@ -55,7 +53,6 @@ Feature: Chats pagination
     Then chats fetched are indeed remote
     And I pause for 2 seconds
 
-  @done
   Scenario: Favorite chats pagination works correctly
     Given user Alice
     And Alice has 16 favorite groups

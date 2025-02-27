@@ -17,7 +17,6 @@
 
 Feature: Chats dismissing
 
-  @problem
   Scenario: Chats can be dismissed and restored
     Given I am Alice
     And I have "01" group

@@ -33,39 +33,27 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then I see some messages in chat
 /// - Then I see no messages in chat
-final StepDefinitionGeneric seeChatMessages = then1<
-  IterableAmount,
-  CustomWorld
->('I see {iterable_amount} messages in chat', (status, context) async {
-  print('===== seeChatMessages -> begin');
+final StepDefinitionGeneric seeChatMessages =
+    then1<IterableAmount, CustomWorld>(
+      'I see {iterable_amount} messages in chat',
+      (status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await Future.delayed(Duration(seconds: 5));
 
-  await context.world.appDriver.waitUntil(() async {
-    print(
-      '===== seeChatMessages -> context.world.appDriver.waitForAppToSettle...',
+          switch (status) {
+            case IterableAmount.no:
+              return await context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+              );
+
+            case IterableAmount.some:
+              return await context.world.appDriver.isAbsent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+              );
+          }
+        });
+      },
     );
-    await Future.delayed(Duration(seconds: 5));
-
-    switch (status) {
-      case IterableAmount.no:
-        print(
-          '===== seeChatMessages -> no -> ${context.world.appDriver.findByKeySkipOffstage('NoMessages')}',
-        );
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver.findByKeySkipOffstage('NoMessages'),
-        );
-
-      case IterableAmount.some:
-        print(
-          '===== seeChatMessages -> some -> ${context.world.appDriver.findByKeySkipOffstage('NoMessages')}',
-        );
-        return await context.world.appDriver.isAbsent(
-          context.world.appDriver.findByKeySkipOffstage('NoMessages'),
-        );
-    }
-  });
-
-  print('===== seeChatMessages -> end');
-});
 
 /// Indicates whether a [ChatItem] with the provided text is visible in the
 /// opened [Chat].
