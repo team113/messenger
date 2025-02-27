@@ -173,7 +173,8 @@ class CommonDatabase extends _$CommonDatabase {
     Users,
   ],
   queries: {
-    'chatItemsAround': ''
+    'chatItemsAround':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -186,7 +187,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
-    'chatItemsAroundBottomless': ''
+    'chatItemsAroundBottomless':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -199,7 +201,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC) as b '
         'ORDER BY at ASC;',
-    'chatItemsAroundTopless': ''
+    'chatItemsAroundTopless':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -212,7 +215,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
-    'attachmentsAround': ''
+    'attachmentsAround':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -456,7 +460,7 @@ final class CommonDriftProvider extends DisposableInterface {
 final class ScopedDriftProvider extends DisposableInterface {
   /// Constructs a [ScopedDriftProvider] with the in-memory database.
   ScopedDriftProvider.memory()
-      : db = ScopedDatabase(const UserId('me'), inMemory());
+    : db = ScopedDatabase(const UserId('me'), inMemory());
 
   /// Constructs a [ScopedDriftProvider] with the provided [db].
   ScopedDriftProvider.from(this.db);
