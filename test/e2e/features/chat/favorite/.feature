@@ -26,7 +26,6 @@ Feature: Favorite chats
     And I wait until "Alice and Charlie" chat is present
     And I pause for 5 seconds
 
-  # @problem
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
     And I tap `FavoriteChatButton` button
@@ -38,7 +37,6 @@ Feature: Favorite chats
     Then I see "Alice and Charlie" chat as favorite
     And I see "Alice and Charlie" chat first in favorites list
 
-  @done
   Scenario: User removes chat from favorites
     Given "Alice and Bob" chat is favorite
     And I see "Alice and Bob" chat as favorite
@@ -47,7 +45,6 @@ Feature: Favorite chats
     And I tap `UnfavoriteChatButton` button
     Then I see "Alice and Bob" chat as unfavorited
 
-  @done
   Scenario: User reorders favorite chats
     Given "Alice and Bob" chat is favorite
     And I see "Alice and Bob" chat as favorite
@@ -60,7 +57,7 @@ Feature: Favorite chats
     When I drag "Alice and Charlie" chat 200 pixels down
     Then I see "Alice and Charlie" chat last in favorites list
 
-  @problem
+  @disabled
   Scenario: Favorite chats receive update events when user signs in
     When I logout
     And Alice favorites "Alice and Bob" group
