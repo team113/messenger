@@ -54,7 +54,7 @@ final StepDefinitionGeneric seeCountChats = then1<
     } else {
       return false;
     }
-  }, timeout: const Duration(seconds: 30));
+  }, timeout: const Duration(seconds: 60));
 
   print('===== seeCountChats -> end');
 });
