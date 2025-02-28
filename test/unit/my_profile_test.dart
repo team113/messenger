@@ -56,18 +56,17 @@ void main() async {
 
     final graphQlProvider = FakeGraphQlProvider();
 
-    Get.put(AuthService(
-      AuthRepository(
-        graphQlProvider,
-        myUserProvider,
+    Get.put(
+      AuthService(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
         credentialsProvider,
+        accountProvider,
       ),
-      credentialsProvider,
-      accountProvider,
-    ));
+    );
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -127,7 +126,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
   };
 
   @override
@@ -141,7 +140,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
         data: {
           'myUserEvents': {'__typename': 'MyUser', ...userData},
         },
-      )
+      ),
     ]);
   }
 

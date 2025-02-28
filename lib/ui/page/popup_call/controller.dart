@@ -72,15 +72,12 @@ class PopupCallController extends GetxController {
       withScreen: router.arguments?['screen'] == 'true',
     );
 
-    _stateWorker = ever(
-      call!.value.state,
-      (OngoingCallState state) {
-        WebUtils.setCall(call!.value.toStored());
-        if (state == OngoingCallState.ended) {
-          WebUtils.closeWindow();
-        }
-      },
-    );
+    _stateWorker = ever(call!.value.state, (OngoingCallState state) {
+      WebUtils.setCall(call!.value.toStored());
+      if (state == OngoingCallState.ended) {
+        WebUtils.closeWindow();
+      }
+    });
 
     _storageSubscription = WebUtils.onStorageChange.listen((e) {
       Log.debug(

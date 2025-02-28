@@ -38,7 +38,8 @@ import '/util/rate_limiter.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
-    if (dart.library.js_interop) 'websocket/web.dart' as websocket;
+    if (dart.library.js_interop) 'websocket/web.dart'
+    as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {
@@ -216,16 +217,18 @@ class GraphQlClient {
   }) async {
     if (raw != null) {
       return await _transaction(options.operationName, () async {
-        final QueryResult result =
-            await (await _newClient(raw)).mutate(options).timeout(timeout);
+        final QueryResult result = await (await _newClient(
+          raw,
+        )).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
     } else {
       return await _middleware(() async {
         return await _transaction(options.operationName, () async {
-          final QueryResult result =
-              await (await client).mutate(options).timeout(timeout);
+          final QueryResult result = await (await client)
+              .mutate(options)
+              .timeout(timeout);
           GraphQlProviderExceptions.fire(result, onException);
           return result;
         });
@@ -427,34 +430,34 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          var socket = websocket
-              .connect(
-                uri,
-                protocols: protocols,
-                customClient: PlatformUtils.isWeb
-                    ? null
-                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
-              )
-              .forGraphQL();
+          var socket =
+              websocket
+                  .connect(
+                    uri,
+                    protocols: protocols,
+                    customClient:
+                        PlatformUtils.isWeb
+                            ? null
+                            : (HttpClient()
+                              ..userAgent = await PlatformUtils.userAgent),
+                  )
+                  .forGraphQL();
 
           socket.stream = socket.stream.handleError((_, __) => false);
 
-          _channelSubscription = socket.stream.listen(
-            (_) {
-              if (!_wsConnected) {
-                Log.info('Connected', 'WebSocket');
-                _checkConnectionTimer?.cancel();
-                _backoffTimer?.cancel();
-                _wsConnected = true;
+          _channelSubscription = socket.stream.listen((_) {
+            if (!_wsConnected) {
+              Log.info('Connected', 'WebSocket');
+              _checkConnectionTimer?.cancel();
+              _backoffTimer?.cancel();
+              _wsConnected = true;
 
-                if (_errored) {
-                  _reportException(null);
-                  _errored = false;
-                }
+              if (_errored) {
+                _reportException(null);
+                _errored = false;
               }
-            },
-            onDone: _reconnect,
-          );
+            }
+          }, onDone: _reconnect);
 
           return socket;
         },

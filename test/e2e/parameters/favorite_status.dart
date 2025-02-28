@@ -25,12 +25,12 @@ enum FavoriteStatus { favorite, unfavorite }
 /// [CustomParameter] representing a [FavoriteStatusParameter].
 class FavoriteStatusParameter extends CustomParameter<FavoriteStatus> {
   FavoriteStatusParameter()
-      : super(
-          'favorite',
-          RegExp(
-            '(${FavoriteStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => FavoriteStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'favorite',
+        RegExp(
+          '(${FavoriteStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => FavoriteStatus.values.firstWhere((e) => e.name == c),
+      );
 }

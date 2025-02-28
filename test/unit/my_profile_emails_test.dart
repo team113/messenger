@@ -68,239 +68,258 @@ void main() async {
   Get.put(credentialsProvider);
 
   test(
-      'MyUserService successfully adds, removes, confirms email and resends confirmation code',
-      () async {
-    when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) async => Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
-          },
+    'MyUserService successfully adds, removes, confirms email and resends confirmation code',
+    () async {
+      when(graphQlProvider.myUserEvents(any)).thenAnswer(
+        (_) async => Stream.fromIterable([
+          QueryResult.internal(
+            parserFn: (_) => null,
+            source: null,
+            data: {
+              'myUserEvents': {'__typename': 'MyUser', ...myUserData},
+            },
+          ),
+        ]),
+      );
+
+      when(
+        graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+      ).thenAnswer(
+        (_) async =>
+            AddUserEmail$Mutation.fromJson({
+                  'addUserEmail': {
+                    '__typename': 'MyUserEventsVersioned',
+                    'events': [
+                      {
+                        '__typename': 'EventUserEmailAdded',
+                        'userId': 'id',
+                        'email': 'test@dummy.com',
+                        'confirmed': false,
+                        'at': DateTime.now().toString(),
+                      },
+                    ],
+                    'myUser': myUserData,
+                    'ver': '${((await myUserProvider.accounts()).first.ver)}',
+                  },
+                }).addUserEmail
+                as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
+      );
+
+      when(
+        graphQlProvider.addUserEmail(
+          UserEmail('test@dummy.com'),
+          confirmation: ConfirmationCode('1234'),
         ),
-      ]),
-    );
+      ).thenAnswer(
+        (_) async =>
+            AddUserEmail$Mutation.fromJson({
+                  'addUserEmail': {
+                    '__typename': 'MyUserEventsVersioned',
+                    'events': [
+                      {
+                        '__typename': 'EventUserEmailAdded',
+                        'userId': 'id',
+                        'email': 'test@dummy.com',
+                        'confirmed': true,
+                        'at': DateTime.now().toString(),
+                      },
+                    ],
+                    'myUser': myUserData,
+                    'ver':
+                        '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
+                  },
+                }).addUserEmail
+                as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
+      );
 
-    when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com'))).thenAnswer(
-      (_) async => AddUserEmail$Mutation.fromJson({
-        'addUserEmail': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventUserEmailAdded',
-              'userId': 'id',
-              'email': 'test@dummy.com',
-              'confirmed': false,
-              'at': DateTime.now().toString(),
-            }
-          ],
-          'myUser': myUserData,
-          'ver': '${((await myUserProvider.accounts()).first.ver)}',
-        }
-      }).addUserEmail
-          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
-    );
+      when(
+        graphQlProvider.keepOnline(),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.sessionsEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.blocklistEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
 
-    when(
-      graphQlProvider.addUserEmail(
-        UserEmail('test@dummy.com'),
-        confirmation: ConfirmationCode('1234'),
-      ),
-    ).thenAnswer(
-      (_) async => AddUserEmail$Mutation.fromJson({
-        'addUserEmail': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventUserEmailAdded',
-              'userId': 'id',
-              'email': 'test@dummy.com',
-              'confirmed': true,
-              'at': DateTime.now().toString(),
-            }
-          ],
-          'myUser': myUserData,
-          'ver':
-              '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
-        }
-      }).addUserEmail
-          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned,
-    );
+      when(
+        graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')),
+      ).thenAnswer(
+        (_) async =>
+            DeleteUserEmail$Mutation.fromJson({
+                  'deleteUserEmail': {
+                    '__typename': 'MyUserEventsVersioned',
+                    'events': [
+                      {
+                        '__typename': 'EventUserEmailDeleted',
+                        'userId': 'id',
+                        'email': 'test@dummy.com',
+                        'at': DateTime.now().toString(),
+                      },
+                    ],
+                    'myUser': myUserData,
+                    'ver':
+                        '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
+                  },
+                }).deleteUserEmail
+                as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned,
+      );
 
-    when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.blocklistEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.keepOnline(),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.sessionsEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.blocklistEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')))
-        .thenAnswer(
-      (_) async => DeleteUserEmail$Mutation.fromJson({
-        'deleteUserEmail': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventUserEmailDeleted',
-              'userId': 'id',
-              'email': 'test@dummy.com',
-              'at': DateTime.now().toString(),
-            }
-          ],
-          'myUser': myUserData,
-          'ver':
-              '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
-        }
-      }).deleteUserEmail
-          as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned,
-    );
-
-    when(graphQlProvider.getBlocklist(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
-      (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
-    );
-
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
+      AuthService authService = Get.put(
+        AuthService(
+          Get.put<AbstractAuthRepository>(
+            AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+          ),
           credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+          accountProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
 
-    BlocklistRepository blocklistRepository = Get.put(
-      BlocklistRepository(
+      BlocklistRepository blocklistRepository = Get.put(
+        BlocklistRepository(
+          graphQlProvider,
+          blocklistProvider,
+          userRepository,
+          versionProvider,
+          me: const UserId('me'),
+        ),
+      );
+
+      AbstractMyUserRepository myUserRepository = MyUserRepository(
         graphQlProvider,
-        blocklistProvider,
+        myUserProvider,
+        blocklistRepository,
         userRepository,
-        versionProvider,
-        me: const UserId('me'),
-      ),
-    );
+        accountProvider,
+      );
+      myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+      await Future.delayed(Duration.zero);
 
-    AbstractMyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blocklistRepository,
-      userRepository,
-      accountProvider,
-    );
-    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
-    await Future.delayed(Duration.zero);
+      MyUserService myUserService = MyUserService(
+        authService,
+        myUserRepository,
+      );
 
-    MyUserService myUserService = MyUserService(authService, myUserRepository);
-
-    await myUserService.addUserEmail(UserEmail('test@dummy.com'));
-    await myUserService.addUserEmail(
-      UserEmail('test@dummy.com'),
-      confirmation: ConfirmationCode('1234'),
-    );
-    await myUserService.deleteUserEmail(UserEmail('test@dummy.com'));
-
-    verifyInOrder([
-      graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
-      graphQlProvider.addUserEmail(
+      await myUserService.addUserEmail(UserEmail('test@dummy.com'));
+      await myUserService.addUserEmail(
         UserEmail('test@dummy.com'),
         confirmation: ConfirmationCode('1234'),
-      ),
-      graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com'))
-    ]);
-  });
+      );
+      await myUserService.deleteUserEmail(UserEmail('test@dummy.com'));
+
+      verifyInOrder([
+        graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+        graphQlProvider.addUserEmail(
+          UserEmail('test@dummy.com'),
+          confirmation: ConfirmationCode('1234'),
+        ),
+        graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')),
+      ]);
+    },
+  );
 
   test(
-      'MyUserService throws AddUserEmailException, ResendUserEmailConfirmationException, ConfirmUserEmailException',
-      () async {
-    when(graphQlProvider.myUserEvents(any)).thenAnswer(
-      (_) async => Stream.fromIterable([
-        QueryResult.internal(
-          parserFn: (_) => null,
-          source: null,
-          data: {
-            'myUserEvents': {'__typename': 'MyUser', ...myUserData},
-          },
+    'MyUserService throws AddUserEmailException, ResendUserEmailConfirmationException, ConfirmUserEmailException',
+    () async {
+      when(graphQlProvider.myUserEvents(any)).thenAnswer(
+        (_) async => Stream.fromIterable([
+          QueryResult.internal(
+            parserFn: (_) => null,
+            source: null,
+            data: {
+              'myUserEvents': {'__typename': 'MyUser', ...myUserData},
+            },
+          ),
+        ]),
+      );
+      when(
+        graphQlProvider.sessionsEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
+
+      when(
+        graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+      ).thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));
+
+      when(
+        graphQlProvider.addUserEmail(
+          UserEmail('test@dummy.com'),
+          confirmation: ConfirmationCode('1234'),
         ),
-      ]),
-    );
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+      ).thenThrow(const AddUserEmailException(AddUserEmailErrorCode.wrongCode));
 
-    when(graphQlProvider.addUserEmail(UserEmail('test@dummy.com')))
-        .thenThrow(const AddUserEmailException(AddUserEmailErrorCode.tooMany));
-
-    when(graphQlProvider.addUserEmail(
-      UserEmail('test@dummy.com'),
-      confirmation: ConfirmationCode('1234'),
-    )).thenThrow(const AddUserEmailException(AddUserEmailErrorCode.wrongCode));
-
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
+      AuthService authService = Get.put(
+        AuthService(
+          Get.put<AbstractAuthRepository>(
+            AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+          ),
           credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+          accountProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
 
-    BlocklistRepository blocklistRepository = Get.put(
-      BlocklistRepository(
+      BlocklistRepository blocklistRepository = Get.put(
+        BlocklistRepository(
+          graphQlProvider,
+          blocklistProvider,
+          userRepository,
+          versionProvider,
+          me: const UserId('me'),
+        ),
+      );
+
+      final AbstractMyUserRepository myUserRepository = MyUserRepository(
         graphQlProvider,
-        blocklistProvider,
+        myUserProvider,
+        blocklistRepository,
         userRepository,
-        versionProvider,
-        me: const UserId('me'),
-      ),
-    );
+        accountProvider,
+      );
+      myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
+      final MyUserService myUserService = MyUserService(
+        authService,
+        myUserRepository,
+      );
+      await Future.delayed(Duration.zero);
 
-    final AbstractMyUserRepository myUserRepository = MyUserRepository(
-      graphQlProvider,
-      myUserProvider,
-      blocklistRepository,
-      userRepository,
-      accountProvider,
-    );
-    myUserRepository.init(onUserDeleted: () {}, onPasswordUpdated: () {});
-    final MyUserService myUserService = MyUserService(
-      authService,
-      myUserRepository,
-    );
-    await Future.delayed(Duration.zero);
+      await expectLater(
+        () async =>
+            await myUserService.addUserEmail(UserEmail('test@dummy.com')),
+        throwsA(isA<AddUserEmailException>()),
+      );
 
-    await expectLater(
-      () async => await myUserService.addUserEmail(UserEmail('test@dummy.com')),
-      throwsA(isA<AddUserEmailException>()),
-    );
+      await expectLater(
+        () async => await myUserService.addUserEmail(
+          UserEmail('test@dummy.com'),
+          confirmation: ConfirmationCode('1234'),
+        ),
+        throwsA(isA<AddUserEmailException>()),
+      );
 
-    await expectLater(
-      () async => await myUserService.addUserEmail(
-        UserEmail('test@dummy.com'),
-        confirmation: ConfirmationCode('1234'),
-      ),
-      throwsA(isA<AddUserEmailException>()),
-    );
-
-    verifyInOrder([
-      graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
-      graphQlProvider.addUserEmail(
-        UserEmail('test@dummy.com'),
-        confirmation: ConfirmationCode('1234'),
-      ),
-    ]);
-  });
+      verifyInOrder([
+        graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
+        graphQlProvider.addUserEmail(
+          UserEmail('test@dummy.com'),
+          confirmation: ConfirmationCode('1234'),
+        ),
+      ]);
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
@@ -327,5 +346,5 @@ final blocklist = {
     'hasNextPage': false,
     'startCursor': 'startCursor',
     'hasPreviousPage': false,
-  }
+  },
 };

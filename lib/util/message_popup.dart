@@ -33,16 +33,17 @@ class MessagePopup {
 
     await showDialog(
       context: router.context!,
-      builder: (context) => AlertDialog(
-        title: Text('label_error'.l10n),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.l10n),
-          )
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text('label_error'.l10n),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(router.context!).pop(),
+                child: Text('btn_ok'.l10n),
+              ),
+            ],
+          ),
     );
   }
 
@@ -111,14 +112,13 @@ class MessagePopup {
     Duration duration = const Duration(seconds: 2),
     void Function()? onPressed,
     Offset? at,
-  }) =>
-      FloatingSnackBar.show(
-        title,
-        bottom: bottom,
-        duration: duration,
-        onPressed: onPressed,
-        at: at,
-      );
+  }) => FloatingSnackBar.show(
+    title,
+    bottom: bottom,
+    duration: duration,
+    onPressed: onPressed,
+    at: at,
+  );
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

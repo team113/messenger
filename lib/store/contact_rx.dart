@@ -29,8 +29,8 @@ import '/util/log.dart';
 /// [RxChatContact] implementation backed by local storage.
 class RxChatContactImpl extends RxChatContact {
   RxChatContactImpl(this._userRepository, DtoChatContact dto)
-      : contact = Rx<ChatContact>(dto.value),
-        ver = dto.ver;
+    : contact = Rx<ChatContact>(dto.value),
+      ver = dto.ver;
 
   @override
   final Rx<ChatContact> contact;

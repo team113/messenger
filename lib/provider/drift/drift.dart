@@ -179,7 +179,8 @@ class CommonDatabase extends _$CommonDatabase {
     Users,
   ],
   queries: {
-    'chatItemsAround': ''
+    'chatItemsAround':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -192,7 +193,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
-    'chatItemsAroundBottomless': ''
+    'chatItemsAroundBottomless':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -205,7 +207,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC) as b '
         'ORDER BY at ASC;',
-    'chatItemsAroundTopless': ''
+    'chatItemsAroundTopless':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -218,7 +221,8 @@ class CommonDatabase extends _$CommonDatabase {
         'WHERE chat_item_views.chat_id = :chat_id AND at > :at '
         'ORDER BY at ASC LIMIT :after) as b '
         'ORDER BY at ASC;',
-    'attachmentsAround': ''
+    'attachmentsAround':
+        ''
         'SELECT * FROM '
         '(SELECT * FROM chat_item_views '
         'INNER JOIN chat_items ON chat_items.id = chat_item_views.chat_item_id '
@@ -338,7 +342,7 @@ final class CommonDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-    await db?.create();
+    await _caught(db?.create());
   }
 
   @override
@@ -354,13 +358,15 @@ final class CommonDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await _completeAllOperations((db) async => await db?.close());
+    await _completeAllOperations((db) async {
+      await _caught(db?.close());
+    });
   }
 
   /// Resets the [CommonDatabase] and closes this [CommonDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      await db?.reset();
+      await _caught(db?.reset());
       this.db = db;
     });
   }
@@ -375,7 +381,7 @@ final class CommonDriftProvider extends DisposableInterface {
     _completers.add(completer);
 
     try {
-      return await action(db!);
+      return await _caught(action(db!));
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -408,7 +414,13 @@ final class CommonDriftProvider extends DisposableInterface {
               controller?.add(e);
             }
           },
-          onError: controller?.addError,
+          onError: (e) {
+            if (e is! StateError &&
+                e is! CouldNotRollBackException &&
+                !e.isConnectionClosedException) {
+              controller?.addError(e);
+            }
+          },
           onDone: () => controller?.close(),
         );
 
@@ -454,7 +466,7 @@ final class CommonDriftProvider extends DisposableInterface {
 final class ScopedDriftProvider extends DisposableInterface {
   /// Constructs a [ScopedDriftProvider] with the in-memory database.
   ScopedDriftProvider.memory()
-      : db = ScopedDatabase(const UserId('me'), inMemory());
+    : db = ScopedDatabase(const UserId('me'), inMemory());
 
   /// Constructs a [ScopedDriftProvider] with the provided [db].
   ScopedDriftProvider.from(this.db);
@@ -478,7 +490,7 @@ final class ScopedDriftProvider extends DisposableInterface {
     super.onInit();
 
     Log.debug('onInit()', '$runtimeType');
-    await db?.create();
+    await _caught(db?.create());
   }
 
   @override
@@ -494,13 +506,15 @@ final class ScopedDriftProvider extends DisposableInterface {
   @visibleForTesting
   Future<void> close() async {
     db?._closed = true;
-    await _completeAllOperations((db) async => await db?.close());
+    await _completeAllOperations((db) async {
+      await _caught(db?.close());
+    });
   }
 
   /// Resets the [ScopedDatabase] and closes this [ScopedDriftProvider].
   Future<void> reset() async {
     await _completeAllOperations((db) async {
-      await db?.reset();
+      await _caught(db?.reset());
       this.db = db;
     });
   }
@@ -515,7 +529,7 @@ final class ScopedDriftProvider extends DisposableInterface {
     _completers.add(completer);
 
     try {
-      return await action(db!);
+      return await _caught(action(db!));
     } finally {
       completer.complete();
       _completers.remove(completer);
@@ -544,7 +558,13 @@ final class ScopedDriftProvider extends DisposableInterface {
 
         subscription = executor(db!).listen(
           controller?.add,
-          onError: controller?.addError,
+          onError: (e) {
+            if (e is! StateError &&
+                e is! CouldNotRollBackException &&
+                !e.isConnectionClosedException) {
+              controller?.addError(e);
+            }
+          },
           onDone: () {
             controller?.close();
             subscription?.cancel();
@@ -608,13 +628,7 @@ abstract class DriftProviderBase extends DisposableInterface {
       return;
     }
 
-    try {
-      await db?.transaction(action);
-    } on StateError {
-      // No-op.
-    } on CouldNotRollBackException {
-      // No-op.
-    }
+    await _caught(db?.transaction(action));
   }
 
   /// Runs the [callback] through a non-closed [CommonDatabase], or returns
@@ -658,25 +672,17 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
 
   /// Completes the provided [action] as a [ScopedDriftProvider] transaction.
   Future<void> txn<T>(Future<T> Function() action) async {
-    try {
-      await _scoped.wrapped((db) async {
+    await _caught(
+      _scoped.wrapped((db) async {
         return await WebUtils.protect(tag: '${_scoped.db?.userId}', () async {
           if (isClosed || _scoped.isClosed) {
             return null;
           }
 
-          try {
-            return await db.transaction(action);
-          } on StateError {
-            // No-op.
-          } on CouldNotRollBackException {
-            // No-op.
-          }
+          return await _caught(db.transaction(action));
         });
-      });
-    } on CouldNotRollBackException {
-      // No-op.
-    }
+      }),
+    );
   }
 
   /// Runs the [callback] through a non-closed [ScopedDatabase], or returns
@@ -708,4 +714,31 @@ abstract class DriftProviderBaseWithScope extends DisposableInterface {
   Stream<T> stream<T>(Stream<T> Function(ScopedDatabase db) executor) {
     return _scoped.stream(executor);
   }
+}
+
+/// Returns the [function] awaited with [StateError] and
+/// [CouldNotRollBackException] exceptions handled.
+Future<T?> _caught<T>(Future<T?>? function) async {
+  try {
+    return await function;
+  } on StateError {
+    // No-op.
+  } on CouldNotRollBackException {
+    // No-op.
+  } catch (e) {
+    if (!e.isConnectionClosedException) {
+      rethrow;
+    }
+  }
+
+  return null;
+}
+
+/// Extension adding ability to check whether this error is a `drift` race
+/// related one.
+extension on Object {
+  /// Indicates  whether this error is a `drift` race related one.
+  bool get isConnectionClosedException =>
+      toString().contains('ConnectionClosedException') ||
+      toString().contains('Channel was closed before receiving a response');
 }

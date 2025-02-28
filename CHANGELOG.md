@@ -14,9 +14,14 @@ All user visible changes to this project will be documented in this file. This p
 ### Fixed
 
 - UI:
+    - Mobile:
+        - Context menus having meaningless dividers. ([#1170])
+    - Chats tab:
+        - Inability to paste clipboard into search field when chat is open. ([#1170])
     - Profile page:
         - Blocklist count not being updated in real time. ([#1175])
 
+[#1170]: /../../pull/1170
 [#1175]: /../../pull/1175
 
 

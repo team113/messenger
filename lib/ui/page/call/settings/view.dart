@@ -56,11 +56,7 @@ class CallSettingsView extends StatelessWidget {
     );
 
     return GetBuilder(
-      init: CallSettingsController(
-        _call,
-        Get.find(),
-        pop: context.popModal,
-      ),
+      init: CallSettingsController(_call, Get.find(), pop: context.popModal),
       builder: (CallSettingsController c) {
         return Stack(
           children: [
@@ -74,13 +70,15 @@ class CallSettingsView extends StatelessWidget {
                   Padding(
                     padding: padding,
                     child: Obx(() {
-                      final selected = c.devices.video().firstWhereOrNull(
-                                (e) => e.id() == c.camera.value?.id(),
-                              ) ??
+                      final selected =
+                          c.devices.video().firstWhereOrNull(
+                            (e) => e.id() == c.camera.value?.id(),
+                          ) ??
                           c.devices.video().firstOrNull;
 
                       return FieldButton(
-                        text: selected?.label() ??
+                        text:
+                            selected?.label() ??
                             'label_media_no_device_available'.l10n,
                         headline: Text('label_media_camera'.l10n),
                         style: style.fonts.normal.regular.primary,
@@ -102,13 +100,15 @@ class CallSettingsView extends StatelessWidget {
                   Padding(
                     padding: padding,
                     child: Obx(() {
-                      final selected = c.devices.audio().firstWhereOrNull(
-                                (e) => e.id() == c.mic.value?.id(),
-                              ) ??
+                      final selected =
+                          c.devices.audio().firstWhereOrNull(
+                            (e) => e.id() == c.mic.value?.id(),
+                          ) ??
                           c.devices.audio().firstOrNull;
 
                       return FieldButton(
-                        text: selected?.label() ??
+                        text:
+                            selected?.label() ??
                             'label_media_no_device_available'.l10n,
                         headline: Text('label_media_microphone'.l10n),
                         style: style.fonts.normal.regular.primary,
@@ -135,13 +135,15 @@ class CallSettingsView extends StatelessWidget {
                     Padding(
                       padding: padding,
                       child: Obx(() {
-                        final selected = c.devices.output().firstWhereOrNull(
-                                  (e) => e.id() == c.output.value?.id(),
-                                ) ??
+                        final selected =
+                            c.devices.output().firstWhereOrNull(
+                              (e) => e.id() == c.output.value?.id(),
+                            ) ??
                             c.devices.output().firstOrNull;
 
                         return FieldButton(
-                          text: selected?.label() ??
+                          text:
+                              selected?.label() ??
                               'label_media_no_device_available'.l10n,
                           headline: Text('label_media_output'.l10n),
                           style: style.fonts.normal.regular.primary,

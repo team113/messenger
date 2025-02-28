@@ -29,19 +29,20 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I update chat avatar with "file.jpg"
-final StepDefinitionGeneric changeChatAvatar = then1<String, CustomWorld>(
-  'I update chat avatar with {string}',
-  (fileName, context) async {
-    final PlatformFile image = PlatformFile(
-      name: fileName,
-      size: 2,
-      bytes: base64Decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
-      ),
-    );
+final StepDefinitionGeneric changeChatAvatar = then1<
+  String,
+  CustomWorld
+>('I update chat avatar with {string}', (fileName, context) async {
+  final PlatformFile image = PlatformFile(
+    name: fileName,
+    size: 2,
+    bytes: base64Decode(
+      'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+    ),
+  );
 
-    final controller =
-        Get.find<ChatInfoController>(tag: router.route.split('/')[2]);
-    await controller.updateChatAvatar(image);
-  },
-);
+  final controller = Get.find<ChatInfoController>(
+    tag: router.route.split('/')[2],
+  );
+  await controller.updateChatAvatar(image);
+});

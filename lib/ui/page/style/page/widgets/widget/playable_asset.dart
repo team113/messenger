@@ -68,10 +68,7 @@ class _PlayableAssetState extends State<PlayableAsset> {
                 shape: BoxShape.circle,
                 color:
                     _hovered ? style.colors.backgroundAuxiliaryLighter : null,
-                border: Border.all(
-                  width: 2,
-                  color: style.colors.primary,
-                ),
+                border: Border.all(width: 2, color: style.colors.primary),
               ),
               child: Center(
                 child: Icon(

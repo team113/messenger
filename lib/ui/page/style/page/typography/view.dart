@@ -27,11 +27,7 @@ import 'widget/row.dart';
 
 /// View of the [StyleTab.typography] page.
 class TypographyView extends StatelessWidget {
-  const TypographyView({
-    super.key,
-    this.inverted = false,
-    this.dense = false,
-  });
+  const TypographyView({super.key, this.inverted = false, this.dense = false});
 
   /// Indicator whether this view should have its colors inverted.
   final bool inverted;
@@ -54,28 +50,30 @@ class TypographyView extends StatelessWidget {
         Block(
           title: 'Font families',
           expanded: true,
-          children: families
-              .map((e) => FontFamily(weight: e.$1, name: e.$2, asset: e.$3))
-              .toList(),
+          children:
+              families
+                  .map((e) => FontFamily(weight: e.$1, name: e.$2, asset: e.$3))
+                  .toList(),
         ),
         ...style.fonts.schema.entries.map((size) {
           return Block(
             title:
                 '${size.key.capitalizeFirst} (${size.value.values.first.values.first.fontSize} pt)',
             expanded: true,
-            children: size.value.entries
-                .map((weight) {
-                  return weight.value.entries.map((color) {
-                    return FontRow(
-                      font: color.value,
-                      size: size.key,
-                      weight: weight.key,
-                      color: color.key,
-                    );
-                  });
-                })
-                .expand((e) => e)
-                .toList(),
+            children:
+                size.value.entries
+                    .map((weight) {
+                      return weight.value.entries.map((color) {
+                        return FontRow(
+                          font: color.value,
+                          size: size.key,
+                          weight: weight.key,
+                          color: color.key,
+                        );
+                      });
+                    })
+                    .expand((e) => e)
+                    .toList(),
           );
         }),
         const SizedBox(height: 16),

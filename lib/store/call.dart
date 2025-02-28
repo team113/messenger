@@ -142,9 +142,9 @@ class CallRepository extends DisposableInterface
     if (call.dialed == null) {
       return null;
     } else if (call.dialed is ChatMembersDialedConcrete) {
-      if ((call.dialed as ChatMembersDialedConcrete)
-          .members
-          .none((e) => e.user.id == me)) {
+      if ((call.dialed as ChatMembersDialedConcrete).members.none(
+        (e) => e.user.id == me,
+      )) {
         return null;
       }
     }
@@ -399,8 +399,12 @@ class CallRepository extends DisposableInterface
 
     if (ongoing != null) {
       if (ongoing.value.members.keys.none((e) => e.userId == memberId)) {
-        ongoing.value.members[id] =
-            CallMember(id, null, isConnected: false, isDialing: true);
+        ongoing.value.members[id] = CallMember(
+          id,
+          null,
+          isConnected: false,
+          isDialing: true,
+        );
       }
     }
 
@@ -453,8 +457,9 @@ class CallRepository extends DisposableInterface
   Future<void> transferCredentials(ChatId chatId, ChatItemId callId) async {
     Log.debug('transferCredentials($chatId, $callId)', '$runtimeType');
 
-    final ChatCallCredentials? creds =
-        await _chatCredentialsProvider.read(chatId);
+    final ChatCallCredentials? creds = await _chatCredentialsProvider.read(
+      chatId,
+    );
     if (creds != null) {
       _callCredentialsProvider.upsert(callId, creds.copyWith());
     }
@@ -485,10 +490,12 @@ class CallRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final ChatCallCredentials? chatCreds =
-        await _chatCredentialsProvider.read(chatId);
-    final ChatCallCredentials? callCreds =
-        await _callCredentialsProvider.read(callId);
+    final ChatCallCredentials? chatCreds = await _chatCredentialsProvider.read(
+      chatId,
+    );
+    final ChatCallCredentials? callCreds = await _callCredentialsProvider.read(
+      callId,
+    );
 
     if (chatCreds != null) {
       _chatCredentialsProvider.delete(chatId);
@@ -510,15 +517,12 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Stream<ChatCallEvents> heartbeat(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  ) {
+  Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId) {
     Log.debug('heartbeat($id, $deviceId)', '$runtimeType');
 
-    return _graphQlProvider
-        .callEvents(id, deviceId)
-        .asyncExpand((event) async* {
+    return _graphQlProvider.callEvents(id, deviceId).asyncExpand((
+      event,
+    ) async* {
       Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
 
       final events =
@@ -548,33 +552,38 @@ class CallRepository extends DisposableInterface
   Stream<IncomingChatCallsTopEvent> _incomingEvents(int count) {
     Log.debug('_incomingEvents($count)', '$runtimeType');
 
-    return _graphQlProvider
-        .incomingCallsTopEvents(count)
-        .asyncExpand((event) async* {
+    return _graphQlProvider.incomingCallsTopEvents(count).asyncExpand((
+      event,
+    ) async* {
       Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
 
-      final events = IncomingCallsTopEvents$Subscription.fromJson(event.data!)
-          .incomingChatCallsTopEvents;
+      final events =
+          IncomingCallsTopEvents$Subscription.fromJson(
+            event.data!,
+          ).incomingChatCallsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const IncomingChatCallsTopInitialized();
       } else if (events.$$typename == 'IncomingChatCallsTop') {
-        final list = (events
-                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
-            .list;
+        final list =
+            (events
+                    as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$IncomingChatCallsTop)
+                .list;
         for (final u in list.map((e) => e.members).expand((e) => e)) {
           _userRepo.put(u.user.toDto());
         }
         yield IncomingChatCallsTop(list.map((e) => e.toModel()).toList());
       } else if (events.$$typename ==
           'EventIncomingChatCallsTopChatCallAdded') {
-        final data = events
-            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
+        final data =
+            events
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallAdded;
         yield EventIncomingChatCallsTopChatCallAdded(data.call.toModel());
       } else if (events.$$typename ==
           'EventIncomingChatCallsTopChatCallRemoved') {
-        final data = events
-            as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
+        final data =
+            events
+                as IncomingCallsTopEvents$Subscription$IncomingChatCallsTopEvents$EventIncomingChatCallsTopChatCallRemoved;
         yield EventIncomingChatCallsTopChatCallRemoved(data.call.toModel());
       }
     });
@@ -659,8 +668,8 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallAnswerTimeoutPassed') {
-      final node = e
-          as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
@@ -730,8 +739,8 @@ class CallRepository extends DisposableInterface
         node.user.toModel(),
       );
     } else if (e.$$typename == 'EventChatCallConversationStarted') {
-      final node = e
-          as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
+      final node =
+          e as ChatCallEventsVersionedMixin$Events$EventChatCallConversationStarted;
       for (final m in node.call.members) {
         _userRepo.put(m.user.toDto());
       }
@@ -781,13 +790,10 @@ class CallRepository extends DisposableInterface
 
     _remoteSubscription?.cancel(immediate: true);
 
-    await WebUtils.protect(
-      () async {
-        _remoteSubscription = StreamQueue(_incomingEvents(count));
-        await _remoteSubscription!.execute(_incomingChatCallsTopEvent);
-      },
-      tag: 'incomingCalls',
-    );
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(_incomingEvents(count));
+      await _remoteSubscription!.execute(_incomingChatCallsTopEvent);
+    }, tag: 'incomingCalls');
   }
 
   /// Handles [IncomingChatCallsTopEvent] from the [_subscribe] subscription.

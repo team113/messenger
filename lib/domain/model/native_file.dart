@@ -44,9 +44,9 @@ class NativeFile {
     Stream<List<int>>? stream,
     this.mime,
     Size? dimensions,
-  })  : bytes = Rx(bytes),
-        dimensions = Rx(dimensions),
-        _readStream = stream {
+  }) : bytes = Rx(bytes),
+       dimensions = Rx(dimensions),
+       _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
       if (path != null) {
@@ -69,20 +69,20 @@ class NativeFile {
 
   /// Constructs a [NativeFile] from a [PlatformFile].
   factory NativeFile.fromPlatformFile(PlatformFile file) => NativeFile(
-        name: file.name,
-        size: file.size,
-        path: PlatformUtils.isWeb ? null : file.path,
-        bytes: file.bytes,
-        stream: file.readStream?.asBroadcastStream(),
-      );
+    name: file.name,
+    size: file.size,
+    path: PlatformUtils.isWeb ? null : file.path,
+    bytes: file.bytes,
+    stream: file.readStream?.asBroadcastStream(),
+  );
 
   /// Constructs a [NativeFile] from an [XFile].
   factory NativeFile.fromXFile(XFile file, int size) => NativeFile(
-        name: file.name,
-        size: size,
-        path: PlatformUtils.isWeb ? null : file.path,
-        stream: file.openRead().asBroadcastStream(),
-      );
+    name: file.name,
+    size: size,
+    path: PlatformUtils.isWeb ? null : file.path,
+    stream: file.openRead().asBroadcastStream(),
+  );
 
   /// Constructs a [NativeFile] from the provided [json].
   factory NativeFile.fromJson(Map<String, dynamic> json) =>
@@ -132,7 +132,7 @@ class NativeFile {
     'gif',
     'jfif',
     'svg',
-    'webp'
+    'webp',
   ];
 
   /// Returns an extension of this file.
@@ -191,9 +191,10 @@ class NativeFile {
   }
 
   /// Returns a [Map] representing this [NativeFile].
-  Map<String, dynamic> toJson() => _$NativeFileToJson(this)
-    ..['dimensions'] = dimensions.value?.toJson()
-    ..['bytes'] = bytes.value?.toJson();
+  Map<String, dynamic> toJson() =>
+      _$NativeFileToJson(this)
+        ..['dimensions'] = dimensions.value?.toJson()
+        ..['bytes'] = bytes.value?.toJson();
 
   /// Ensures [mime] is correctly assigned.
   ///
@@ -203,8 +204,10 @@ class NativeFile {
       if (_readStream != null) {
         return Future(() async {
           bytes.value = Uint8List.fromList(await _readStream!.first);
-          var type =
-              MimeResolver.lookup(path ?? name, headerBytes: bytes.value);
+          var type = MimeResolver.lookup(
+            path ?? name,
+            headerBytes: bytes.value,
+          );
           if (type != null) {
             mime = MediaType.parse(type);
           }

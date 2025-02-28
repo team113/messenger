@@ -77,7 +77,9 @@ class AccountDriftProvider extends DriftProviderBase {
     _userId = userId;
 
     await safe((db) async {
-      await db.into(db.accounts).insert(
+      await db
+          .into(db.accounts)
+          .insert(
             AccountRow(id: 0, userId: userId.val),
             mode: InsertMode.insertOrReplace,
           );

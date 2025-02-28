@@ -63,8 +63,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     CancelToken? cancelToken,
     bool temporary = false,
     int retries = 5,
-  }) async =>
-      File('test/path');
+  }) async => File('test/path');
 
   @override
   void keepActive([bool active = true]) {

@@ -65,9 +65,10 @@ class InfoTile extends StatelessWidget {
               if (title != null)
                 DefaultTextStyle(
                   overflow: TextOverflow.ellipsis,
-                  style: danger
-                      ? style.fonts.small.regular.danger
-                      : style.fonts.small.regular.secondary,
+                  style:
+                      danger
+                          ? style.fonts.small.regular.danger
+                          : style.fonts.small.regular.secondary,
                   child: Text(title!),
                 ),
               DefaultTextStyle.merge(

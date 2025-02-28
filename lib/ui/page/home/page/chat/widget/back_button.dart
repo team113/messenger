@@ -24,11 +24,7 @@ import '/ui/widget/svg/svg.dart';
 
 /// Custom styled [BackButton].
 class StyledBackButton extends StatelessWidget {
-  const StyledBackButton({
-    super.key,
-    this.onPressed,
-    this.withLabel = false,
-  });
+  const StyledBackButton({super.key, this.onPressed, this.withLabel = false});
 
   /// Callback, called when this button is pressed.
   ///

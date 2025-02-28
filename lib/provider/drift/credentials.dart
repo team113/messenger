@@ -76,13 +76,10 @@ class CredentialsDriftProvider extends DriftProviderBase {
 
   /// Returns all the [Credentials] stored in the database.
   Future<List<Credentials>> all() async {
-    final result = await safe(
-      (db) async {
-        final stmt = await db.select(db.tokens).get();
-        return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
-      },
-      exclusive: false,
-    );
+    final result = await safe((db) async {
+      final stmt = await db.select(db.tokens).get();
+      return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
+    }, exclusive: false);
 
     return result ?? [];
   }
@@ -93,7 +90,9 @@ class CredentialsDriftProvider extends DriftProviderBase {
 
     final result = await safe<Credentials?>((db) async {
       final Credentials stored = _CredentialsDb.fromDb(
-        await db.into(db.tokens).insertReturning(
+        await db
+            .into(db.tokens)
+            .insertReturning(
               creds.toDb(),
               onConflict: DoUpdate((_) => creds.toDb()),
             ),
@@ -113,20 +112,16 @@ class CredentialsDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    final result = await safe<Credentials?>(
-      (db) async {
-        final stmt = db.select(db.tokens)
-          ..where((u) => u.userId.equals(id.val));
-        final TokenRow? row = await stmt.getSingleOrNull();
+    final result = await safe<Credentials?>((db) async {
+      final stmt = db.select(db.tokens)..where((u) => u.userId.equals(id.val));
+      final TokenRow? row = await stmt.getSingleOrNull();
 
-        if (row == null) {
-          return null;
-        }
+      if (row == null) {
+        return null;
+      }
 
-        return _CredentialsDb.fromDb(row);
-      },
-      exclusive: false,
-    );
+      return _CredentialsDb.fromDb(row);
+    }, exclusive: false);
 
     if (result == null) {
       return null;

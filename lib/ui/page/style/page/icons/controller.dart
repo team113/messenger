@@ -33,18 +33,12 @@ class IconsController extends GetxController {
 
 /// [SvgData] or its path representing a single icon.
 class IconDetails {
-  IconDetails(
-    String asset, {
-    this.invert = false,
-    this.download,
-  })  : data = null,
-        asset = asset.replaceFirst('assets/icons/', '');
+  IconDetails(String asset, {this.invert = false, this.download})
+    : data = null,
+      asset = asset.replaceFirst('assets/icons/', '');
 
-  IconDetails.svg(
-    this.data, {
-    this.invert = false,
-    this.download,
-  }) : asset = null;
+  IconDetails.svg(this.data, {this.invert = false, this.download})
+    : asset = null;
 
   /// Path to the asset these details represent.
   final String? asset;

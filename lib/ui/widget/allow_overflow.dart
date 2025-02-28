@@ -83,8 +83,9 @@ class RenderAllowOverflow extends RenderConstraintsTransformBox {
 
   @override
   Size computeDryLayout(BoxConstraints constraints) {
-    final Size? childSize =
-        child?.getDryLayout(_constraintsTransform(constraints));
+    final Size? childSize = child?.getDryLayout(
+      _constraintsTransform(constraints),
+    );
     return childSize == null
         ? constraints.smallest
         : constraints.constrain(childSize);
@@ -95,8 +96,9 @@ class RenderAllowOverflow extends RenderConstraintsTransformBox {
     final BoxConstraints constraints = this.constraints;
     final RenderBox? child = this.child;
     if (child != null) {
-      final BoxConstraints childConstraints =
-          _constraintsTransform(constraints);
+      final BoxConstraints childConstraints = _constraintsTransform(
+        constraints,
+      );
 
       assert(
         childConstraints.isNormalized,

@@ -33,5 +33,5 @@ Feature: Chats tab is correctly updated
     Given Charlie has dialog with me
     And Charlie sends "I am Charlie" message to me
     Then I wait until text "Charlie" is present
-    # TODO: Uncomment when backend new version is released.
-    # And I wait until text "I am Charlie" is present
+# TODO: Uncomment when backend new version is released.
+# And I wait until text "I am Charlie" is present

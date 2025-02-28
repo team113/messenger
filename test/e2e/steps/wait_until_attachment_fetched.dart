@@ -36,39 +36,41 @@ import '../parameters/fetch_status.dart';
 /// - Then I wait until "test.jpg" attachment is fetched
 final StepDefinitionGeneric untilAttachmentFetched =
     then2<String, ImageFetchStatus, FlutterWorld>(
-  'I wait until {string} attachment is {fetch_status}',
-  (filename, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      'I wait until {string} attachment is {fetch_status}',
+      (filename, status, context) async {
+        await context.world.appDriver.waitUntil(
+          () async {
+            final RxChat? chat =
+                Get.find<ChatService>().chats[ChatId(
+                  router.route.split('/').last,
+                )];
 
-        final Attachment? attachment = chat?.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .expand((e) => e.attachments)
-            .firstWhereOrNull((a) => a.filename == filename);
+            final Attachment? attachment = chat?.messages
+                .map((e) => e.value)
+                .whereType<ChatMessage>()
+                .expand((e) => e.attachments)
+                .firstWhereOrNull((a) => a.filename == filename);
 
-        if (attachment == null) {
-          return false;
-        }
+            if (attachment == null) {
+              return false;
+            }
 
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findByDescendant(
-            context.world.appDriver.findByKeySkipOffstage(
-              'Image_${(attachment as ImageAttachment).big.url}',
-            ),
-            context.world.appDriver.findByKeySkipOffstage(
-              status == ImageFetchStatus.fetching ? 'Loading' : 'Loaded',
-            ),
-            firstMatchOnly: true,
-          ),
+            return context.world.appDriver.isPresent(
+              context.world.appDriver.findByDescendant(
+                context.world.appDriver.findByKeySkipOffstage(
+                  'Image_${(attachment as ImageAttachment).big.url}',
+                ),
+                context.world.appDriver.findByKeySkipOffstage(
+                  status == ImageFetchStatus.fetching ? 'Loading' : 'Loaded',
+                ),
+                firstMatchOnly: true,
+              ),
+            );
+          },
+          pollInterval: const Duration(milliseconds: 1),
+          timeout: const Duration(seconds: 60),
         );
       },
-      pollInterval: const Duration(milliseconds: 1),
-      timeout: const Duration(seconds: 60),
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(seconds: 60),
     );
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 60),
-);

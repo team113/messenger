@@ -72,10 +72,7 @@ class ImagesSection {
             MessagePopup.success('$asset downloaded');
           }
         },
-        child: Text(
-          'Download',
-          style: style.fonts.smaller.regular.primary,
-        ),
+        child: Text('Download', style: style.fonts.smaller.regular.primary),
       ),
     );
   }

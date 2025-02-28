@@ -102,16 +102,14 @@ class ChatAvatar extends Avatar {
 
 /// [Avatar] from the [file].
 class LocalAvatar extends Avatar {
-  LocalAvatar({
-    super.crop,
-    required this.file,
-  }) : super(
-          full: ImageFile(relativeRef: ''),
-          big: ImageFile(relativeRef: ''),
-          medium: ImageFile(relativeRef: ''),
-          small: ImageFile(relativeRef: ''),
-          original: ImageFile(relativeRef: ''),
-        );
+  LocalAvatar({super.crop, required this.file})
+    : super(
+        full: ImageFile(relativeRef: ''),
+        big: ImageFile(relativeRef: ''),
+        medium: ImageFile(relativeRef: ''),
+        small: ImageFile(relativeRef: ''),
+        original: ImageFile(relativeRef: ''),
+      );
 
   /// [NativeFile] this avatar should be rendered from.
   final NativeFile file;

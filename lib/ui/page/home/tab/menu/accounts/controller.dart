@@ -284,7 +284,8 @@ class AccountsController extends GetxController {
     login.error.value = null;
     password.error.value = null;
 
-    final bool noCredentials = userLogin == null &&
+    final bool noCredentials =
+        userLogin == null &&
         userNum == null &&
         userEmail == null &&
         userPhone == null;
@@ -407,17 +408,14 @@ class AccountsController extends GetxController {
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
       signInTimeout.value = 30;
-      _signInTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          signInTimeout.value--;
-          if (signInTimeout.value <= 0) {
-            signInTimeout.value = 0;
-            _signInTimer?.cancel();
-            _signInTimer = null;
-          }
-        },
-      );
+      _signInTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        signInTimeout.value--;
+        if (signInTimeout.value <= 0) {
+          signInTimeout.value = 0;
+          _signInTimer?.cancel();
+          _signInTimer = null;
+        }
+      });
     } else {
       signInTimeout.value = 0;
       _signInTimer?.cancel();
@@ -429,17 +427,14 @@ class AccountsController extends GetxController {
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
       codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          codeTimeout.value--;
-          if (codeTimeout.value <= 0) {
-            codeTimeout.value = 0;
-            _codeTimer?.cancel();
-            _codeTimer = null;
-          }
-        },
-      );
+      _codeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        codeTimeout.value--;
+        if (codeTimeout.value <= 0) {
+          codeTimeout.value = 0;
+          _codeTimer?.cancel();
+          _codeTimer = null;
+        }
+      });
     } else {
       codeTimeout.value = 0;
       _codeTimer?.cancel();
@@ -451,17 +446,14 @@ class AccountsController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();

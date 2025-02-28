@@ -80,54 +80,67 @@ void main() async {
     when(graphQlProvider.disconnect()).thenAnswer((_) => Future.value);
     when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.favoriteChatsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.favoriteChatsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.getBlocklist(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.getBlocklist(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
     );
 
-    when(graphQlProvider.recentChatsTopEvents(3))
-        .thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.incomingCallsTopEvents(3))
-        .thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.sessionsEvents(any))
-        .thenAnswer((_) => const Stream.empty());
-    when(graphQlProvider.blocklistEvents(any))
-        .thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.recentChatsTopEvents(3),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.incomingCallsTopEvents(3),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.sessionsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.blocklistEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.chatEvents(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      any,
-      any,
-    )).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.chatEvents(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        any,
+        any,
+      ),
+    ).thenAnswer((_) => const Stream.empty());
 
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+    when(
+      graphQlProvider.recentChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+        noFavorite: anyNamed('noFavorite'),
+        withOngoingCalls: anyNamed('withOngoingCalls'),
+      ),
+    ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.favoriteChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
     );
 
-    when(graphQlProvider.getUser(any)).thenAnswer(
-      (_) => Future.value(GetUser$Query.fromJson({'user': null})),
-    );
+    when(
+      graphQlProvider.getUser(any),
+    ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
     when(graphQlProvider.getMonolog()).thenAnswer(
       (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
     );
@@ -145,10 +158,12 @@ void main() async {
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
     final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-    final callCredentialsProvider =
-        Get.put(CallCredentialsDriftProvider(common, scoped));
-    final chatCredentialsProvider =
-        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callCredentialsProvider = Get.put(
+      CallCredentialsDriftProvider(common, scoped),
+    );
+    final chatCredentialsProvider = Get.put(
+      ChatCredentialsDriftProvider(common, scoped),
+    );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
@@ -156,19 +171,18 @@ void main() async {
 
     final AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          graphQlProvider,
-          myUserProvider,
-          Get.find(),
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(graphQlProvider, myUserProvider, Get.find()),
+        ),
         credentialsProvider,
         accountProvider,
       ),
     );
     authService.init();
 
-    final UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    final UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     final BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -211,99 +225,110 @@ void main() async {
     );
     final AbstractChatRepository chatRepository =
         Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        Get.find(),
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            Get.find(),
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
 
     Get.put(ChatService(chatRepository, Get.find()));
   });
 
-  test('ChatService and UserService successfully create ChatDirectLink',
-      () async {
-    final GraphQlProvider graphQlProvider = Get.find();
-    final ChatService chatService = Get.find();
-    final MyUserService myUserService = Get.find();
+  test(
+    'ChatService and UserService successfully create ChatDirectLink',
+    () async {
+      final GraphQlProvider graphQlProvider = Get.find();
+      final ChatService chatService = Get.find();
+      final MyUserService myUserService = Get.find();
 
-    when(graphQlProvider.createChatDirectLink(
-      ChatDirectLinkSlug('link'),
-      groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer(
-      (_) => Future.value(CreateChatDirectLink$Mutation.fromJson({
-        'createChatDirectLink': {
-          '__typename': 'ChatEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventChatDirectLinkUpdated',
-              'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'directLink': {
-                'slug': 'link',
-                'usageCount': 0,
-                'createdAt': DateTime.now().toString(),
-              },
-            }
-          ],
-          'ver': '0',
-        }
-      }).createChatDirectLink as ChatEventsVersionedMixin?),
-    );
+      when(
+        graphQlProvider.createChatDirectLink(
+          ChatDirectLinkSlug('link'),
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      ).thenAnswer(
+        (_) => Future.value(
+          CreateChatDirectLink$Mutation.fromJson({
+                'createChatDirectLink': {
+                  '__typename': 'ChatEventsVersioned',
+                  'events': [
+                    {
+                      '__typename': 'EventChatDirectLinkUpdated',
+                      'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                      'directLink': {
+                        'slug': 'link',
+                        'usageCount': 0,
+                        'createdAt': DateTime.now().toString(),
+                      },
+                    },
+                  ],
+                  'ver': '0',
+                },
+              }).createChatDirectLink
+              as ChatEventsVersionedMixin?,
+        ),
+      );
 
-    when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
-        .thenAnswer(
-      (_) => Future.value(CreateUserDirectLink$Mutation.fromJson({
-        'createChatDirectLink': {
-          '__typename': 'MyUserEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventUserDirectLinkUpdated',
-              'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
-              'directLink': {
-                'slug': 'link',
-                'usageCount': 0,
-                'createdAt': DateTime.now().toString(),
-              },
-            }
-          ],
-          'myUser': myUserData,
-          'ver': '0',
-        },
-      }).createChatDirectLink as MyUserEventsVersionedMixin?),
-    );
+      when(
+        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+      ).thenAnswer(
+        (_) => Future.value(
+          CreateUserDirectLink$Mutation.fromJson({
+                'createChatDirectLink': {
+                  '__typename': 'MyUserEventsVersioned',
+                  'events': [
+                    {
+                      '__typename': 'EventUserDirectLinkUpdated',
+                      'userId': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                      'directLink': {
+                        'slug': 'link',
+                        'usageCount': 0,
+                        'createdAt': DateTime.now().toString(),
+                      },
+                    },
+                  ],
+                  'myUser': myUserData,
+                  'ver': '0',
+                },
+              }).createChatDirectLink
+              as MyUserEventsVersionedMixin?,
+        ),
+      );
 
-    await chatService.createChatDirectLink(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ChatDirectLinkSlug('link'),
-    );
-
-    await myUserService.createChatDirectLink(ChatDirectLinkSlug('link'));
-
-    verifyInOrder([
-      graphQlProvider.createChatDirectLink(
+      await chatService.createChatDirectLink(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         ChatDirectLinkSlug('link'),
-        groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-      graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
-    ]);
-  });
+      );
+
+      await myUserService.createChatDirectLink(ChatDirectLinkSlug('link'));
+
+      verifyInOrder([
+        graphQlProvider.createChatDirectLink(
+          ChatDirectLinkSlug('link'),
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+      ]);
+    },
+  );
 
   test('ChatService successfully deletes ChatDirectLink', () async {
     final GraphQlProvider graphQlProvider = Get.find();
     final ChatService chatService = Get.find();
 
-    when(graphQlProvider.deleteChatDirectLink(
-      groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer(
-      (_) => Future.value(),
-    );
+    when(
+      graphQlProvider.deleteChatDirectLink(
+        groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ),
+    ).thenAnswer((_) => Future.value());
 
     await chatService.deleteChatDirectLink(
       const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
@@ -320,141 +345,148 @@ void main() async {
     final GraphQlProvider graphQlProvider = Get.find();
     final AuthService authService = Get.find();
 
-    when(graphQlProvider.useChatDirectLink(
-      ChatDirectLinkSlug('link'),
-    )).thenAnswer(
-      (_) => Future.value(UseChatDirectLink$Mutation.fromJson({
-        'useChatDirectLink': {
-          '__typename': 'UseChatDirectLinkOk',
-          'chat': {
-            'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
-            'name': 'null',
-            'members': {'nodes': [], 'totalCount': 0},
-            'kind': 'GROUP',
-            'isHidden': false,
-            'muted': null,
-            'directLink': null,
-            'createdAt': '2021-12-15T15:11:18.316846+00:00',
-            'updatedAt': '2021-12-15T15:11:18.316846+00:00',
-            'lastReads': [],
-            'lastDelivery': '1970-01-01T00:00:00+00:00',
-            'lastItem': null,
-            'lastReadItem': null,
-            'unreadCount': 0,
-            'totalCount': 0,
-            'ongoingCall': null,
-            'ver': '0'
-          },
-          'event': null
-        }
-      }).useChatDirectLink
-          as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk),
+    when(
+      graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
+    ).thenAnswer(
+      (_) => Future.value(
+        UseChatDirectLink$Mutation.fromJson({
+              'useChatDirectLink': {
+                '__typename': 'UseChatDirectLinkOk',
+                'chat': {
+                  'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
+                  'name': 'null',
+                  'members': {'nodes': [], 'totalCount': 0},
+                  'kind': 'GROUP',
+                  'isHidden': false,
+                  'muted': null,
+                  'directLink': null,
+                  'createdAt': '2021-12-15T15:11:18.316846+00:00',
+                  'updatedAt': '2021-12-15T15:11:18.316846+00:00',
+                  'lastReads': [],
+                  'lastDelivery': '1970-01-01T00:00:00+00:00',
+                  'lastItem': null,
+                  'lastReadItem': null,
+                  'unreadCount': 0,
+                  'totalCount': 0,
+                  'ongoingCall': null,
+                  'ver': '0',
+                },
+                'event': null,
+              },
+            }).useChatDirectLink
+            as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk,
+      ),
     );
 
     await authService.useChatDirectLink(ChatDirectLinkSlug('link'));
 
-    verify(
-      graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
-    );
-  });
-
-  test(
-      'ChatService and UserService throw CreateChatDirectLinkException on ChatDirectLink creation',
-      () async {
-    final GraphQlProvider graphQlProvider = Get.find();
-    final ChatService chatService = Get.find();
-    final MyUserService myUserService = Get.find();
-
-    when(graphQlProvider.createChatDirectLink(
-      ChatDirectLinkSlug('link'),
-      groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenThrow(
-      const CreateChatDirectLinkException(
-        CreateChatDirectLinkErrorCode.unknownChat,
-      ),
-    );
-
-    when(graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')))
-        .thenThrow(
-      const CreateChatDirectLinkException(
-        CreateChatDirectLinkErrorCode.unknownChat,
-      ),
-    );
-
-    await expectLater(
-      () async => await chatService.createChatDirectLink(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-        ChatDirectLinkSlug('link'),
-      ),
-      throwsA(isA<CreateChatDirectLinkException>()),
-    );
-
-    await expectLater(
-      () async =>
-          await myUserService.createChatDirectLink(ChatDirectLinkSlug('link')),
-      throwsA(isA<CreateChatDirectLinkException>()),
-    );
-
-    verifyInOrder([
-      graphQlProvider.createChatDirectLink(
-        ChatDirectLinkSlug('link'),
-        groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-      graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
-    ]);
-  });
-
-  test(
-      'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
-      () async {
-    final GraphQlProvider graphQlProvider = Get.find();
-    final ChatService chatService = Get.find();
-
-    when(
-      graphQlProvider.deleteChatDirectLink(
-        groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-    ).thenThrow(
-      const DeleteChatDirectLinkException(
-        DeleteChatDirectLinkErrorCode.unknownChat,
-      ),
-    );
-
-    expect(
-      () async => await chatService.deleteChatDirectLink(
-        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-      throwsA(isA<DeleteChatDirectLinkException>()),
-    );
-
-    verify(
-      graphQlProvider.deleteChatDirectLink(
-        groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      ),
-    );
-  });
-
-  test(
-      'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
-      () async {
-    final GraphQlProvider graphQlProvider = Get.find();
-    final AuthService authService = Get.find();
-
-    when(
-      graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
-    ).thenThrow(
-      const UseChatDirectLinkException(
-        UseChatDirectLinkErrorCode.unknownDirectLink,
-      ),
-    );
-
-    expect(
-      () => authService.useChatDirectLink(ChatDirectLinkSlug('link')),
-      throwsA(isA<UseChatDirectLinkException>()),
-    );
-
     verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
   });
+
+  test(
+    'ChatService and UserService throw CreateChatDirectLinkException on ChatDirectLink creation',
+    () async {
+      final GraphQlProvider graphQlProvider = Get.find();
+      final ChatService chatService = Get.find();
+      final MyUserService myUserService = Get.find();
+
+      when(
+        graphQlProvider.createChatDirectLink(
+          ChatDirectLinkSlug('link'),
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      ).thenThrow(
+        const CreateChatDirectLinkException(
+          CreateChatDirectLinkErrorCode.unknownChat,
+        ),
+      );
+
+      when(
+        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+      ).thenThrow(
+        const CreateChatDirectLinkException(
+          CreateChatDirectLinkErrorCode.unknownChat,
+        ),
+      );
+
+      await expectLater(
+        () async => await chatService.createChatDirectLink(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          ChatDirectLinkSlug('link'),
+        ),
+        throwsA(isA<CreateChatDirectLinkException>()),
+      );
+
+      await expectLater(
+        () async => await myUserService.createChatDirectLink(
+          ChatDirectLinkSlug('link'),
+        ),
+        throwsA(isA<CreateChatDirectLinkException>()),
+      );
+
+      verifyInOrder([
+        graphQlProvider.createChatDirectLink(
+          ChatDirectLinkSlug('link'),
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        graphQlProvider.createUserDirectLink(ChatDirectLinkSlug('link')),
+      ]);
+    },
+  );
+
+  test(
+    'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
+    () async {
+      final GraphQlProvider graphQlProvider = Get.find();
+      final ChatService chatService = Get.find();
+
+      when(
+        graphQlProvider.deleteChatDirectLink(
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      ).thenThrow(
+        const DeleteChatDirectLinkException(
+          DeleteChatDirectLinkErrorCode.unknownChat,
+        ),
+      );
+
+      expect(
+        () async => await chatService.deleteChatDirectLink(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+        throwsA(isA<DeleteChatDirectLinkException>()),
+      );
+
+      verify(
+        graphQlProvider.deleteChatDirectLink(
+          groupId: const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        ),
+      );
+    },
+  );
+
+  test(
+    'ChatService throws DeleteChatDirectLinkException on ChatDirectLink deletion',
+    () async {
+      final GraphQlProvider graphQlProvider = Get.find();
+      final AuthService authService = Get.find();
+
+      when(
+        graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')),
+      ).thenThrow(
+        const UseChatDirectLinkException(
+          UseChatDirectLinkErrorCode.unknownDirectLink,
+        ),
+      );
+
+      expect(
+        () => authService.useChatDirectLink(ChatDirectLinkSlug('link')),
+        throwsA(isA<UseChatDirectLinkException>()),
+      );
+
+      verify(graphQlProvider.useChatDirectLink(ChatDirectLinkSlug('link')));
+    },
+  );
 
   tearDownAll(() async {
     await Get.find<CommonDriftProvider>().close();
@@ -486,18 +518,15 @@ final chatData = {
 final recentChats = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteChats = {
@@ -509,8 +538,8 @@ final favoriteChats = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };
 
 final myUserData = {
@@ -536,5 +565,5 @@ final blocklist = {
     'hasNextPage': false,
     'startCursor': 'startCursor',
     'hasPreviousPage': false,
-  }
+  },
 };

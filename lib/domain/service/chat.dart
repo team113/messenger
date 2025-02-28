@@ -460,10 +460,12 @@ extension ChatIsRoute on Chat {
         members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
 
     final bool byId = route.startsWith('${Routes.chats}/$id');
-    final bool byUser = isDialog &&
+    final bool byUser =
+        isDialog &&
         member != null &&
         route.startsWith('${Routes.chats}/${ChatId.local(member)}');
-    final bool byMonolog = isMonolog &&
+    final bool byMonolog =
+        isMonolog &&
         me != null &&
         route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 

@@ -119,10 +119,7 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signUp({
-    UserPassword? password,
-    UserLogin? login,
-  }) async {
+  Future<Credentials> signUp({UserPassword? password, UserLogin? login}) async {
     Log.debug(
       'signUp(password: ${password?.obscured}, login: $login)',
       '$runtimeType',
@@ -283,12 +280,7 @@ class AuthRepository extends DisposableInterface
     );
 
     await _graphQlProvider.createConfirmationCode(
-      MyUserIdentifier(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-      ),
+      MyUserIdentifier(login: login, num: num, email: email, phone: phone),
       locale: locale,
     );
   }

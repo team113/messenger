@@ -23,42 +23,42 @@ MultipartFile fromGraphQLUploadToDartMultipartFile(MultipartFile file) => file;
 MultipartFile fromDartMultipartFileToGraphQLUpload(MultipartFile file) => file;
 
 List<MultipartFile> fromGraphQLListUploadToDartListMultipartFile(
-        List<MultipartFile> file) =>
-    file;
+  List<MultipartFile> file,
+) => file;
 List<MultipartFile> fromDartListMultipartFileToGraphQLListUpload(
-        List<MultipartFile> file) =>
-    file;
+  List<MultipartFile> file,
+) => file;
 
 List<MultipartFile>?
-    fromGraphQLListNullableUploadToDartListNullableMultipartFile(
-            List<MultipartFile>? file) =>
-        file;
+fromGraphQLListNullableUploadToDartListNullableMultipartFile(
+  List<MultipartFile>? file,
+) => file;
 List<MultipartFile>?
-    fromDartListNullableMultipartFileToGraphQLListNullableUpload(
-            List<MultipartFile>? file) =>
-        file;
+fromDartListNullableMultipartFileToGraphQLListNullableUpload(
+  List<MultipartFile>? file,
+) => file;
 
 MultipartFile? fromGraphQLUploadNullableToDartMultipartFileNullable(
-        MultipartFile? file) =>
-    file;
+  MultipartFile? file,
+) => file;
 MultipartFile? fromDartMultipartFileNullableToGraphQLUploadNullable(
-        MultipartFile? file) =>
-    file;
+  MultipartFile? file,
+) => file;
 
 List<MultipartFile?>?
-    fromDartListNullableMultipartFileNullableToGraphQLListNullableUploadNullable(
-            List<MultipartFile?>? file) =>
-        file;
+fromDartListNullableMultipartFileNullableToGraphQLListNullableUploadNullable(
+  List<MultipartFile?>? file,
+) => file;
 List<MultipartFile?>?
-    fromGraphQLListNullableUploadNullableToDartListNullableMultipartFileNullable(
-            List<MultipartFile?>? file) =>
-        file;
+fromGraphQLListNullableUploadNullableToDartListNullableMultipartFileNullable(
+  List<MultipartFile?>? file,
+) => file;
 
 List<MultipartFile?>
-    fromGraphQLListUploadNullableToDartListMultipartFileNullable(
-            List<MultipartFile?> file) =>
-        file;
+fromGraphQLListUploadNullableToDartListMultipartFileNullable(
+  List<MultipartFile?> file,
+) => file;
 List<MultipartFile?>
-    fromDartListMultipartFileNullableToGraphQLListUploadNullable(
-            List<MultipartFile?> file) =>
-        file;
+fromDartListMultipartFileNullableToGraphQLListUploadNullable(
+  List<MultipartFile?> file,
+) => file;

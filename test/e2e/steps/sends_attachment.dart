@@ -34,8 +34,8 @@ import '../world/custom_world.dart';
 /// Examples:
 /// - Then Bob sends "test.txt" attachment to me
 /// - Then Bob sends "test.jpg" attachment to me
-final StepDefinitionGeneric sendsAttachmentToMe =
-    and2<TestUser, String, CustomWorld>(
+final StepDefinitionGeneric
+sendsAttachmentToMe = and2<TestUser, String, CustomWorld>(
   '{user} sends {string} attachment to me',
   (TestUser user, String filename, context) async {
     final provider = GraphQlProvider();
@@ -48,8 +48,8 @@ final StepDefinitionGeneric sendsAttachmentToMe =
       dio.MultipartFile.fromBytes(
         mime?.type == 'image'
             ? base64Decode(
-                '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
-              )
+              '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+            )
             : Uint8List.fromList([1, 1]),
         filename: filename,
         contentType: type != null ? MediaType.parse(type) : null,
@@ -64,6 +64,6 @@ final StepDefinitionGeneric sendsAttachmentToMe =
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

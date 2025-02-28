@@ -17,7 +17,8 @@
 
 import 'dart:convert';
 
-import 'package:dio/dio.dart' as dio
+import 'package:dio/dio.dart'
+    as dio
     show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -264,11 +265,12 @@ mixin UserGraphQlMixin {
         document: UpdateUserLoginMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateUserLoginException(
-        (UpdateUserLogin$Mutation.fromJson(data).updateUserLogin
-                as UpdateUserLogin$Mutation$UpdateUserLogin$UpdateUserLoginError)
-            .code,
-      ),
+      onException:
+          (data) => UpdateUserLoginException(
+            (UpdateUserLogin$Mutation.fromJson(data).updateUserLogin
+                    as UpdateUserLogin$Mutation$UpdateUserLogin$UpdateUserLoginError)
+                .code,
+          ),
     );
     return UpdateUserLogin$Mutation.fromJson(res.data!).updateUserLogin
         as MyUserEventsVersionedMixin?;
@@ -361,11 +363,12 @@ mixin UserGraphQlMixin {
         document: UpdateUserPasswordMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateUserPasswordException(
-        (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
-                as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
-            .code,
-      ),
+      onException:
+          (data) => UpdateUserPasswordException(
+            (UpdateUserPassword$Mutation.fromJson(data).updateUserPassword
+                    as UpdateUserPassword$Mutation$UpdateUserPassword$UpdateUserPasswordError)
+                .code,
+          ),
       raw: RawClientOptions(token),
     );
     return UpdateUserPassword$Mutation.fromJson(res.data!).updateUserPassword
@@ -402,11 +405,12 @@ mixin UserGraphQlMixin {
         document: DeleteMyUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteMyUserException(
-        (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
-                as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
-            .code,
-      ),
+      onException:
+          (data) => DeleteMyUserException(
+            (DeleteMyUser$Mutation.fromJson(data).deleteMyUser
+                    as DeleteMyUser$Mutation$DeleteMyUser$DeleteMyUserError)
+                .code,
+          ),
     );
     return DeleteMyUser$Mutation.fromJson(res.data!).deleteMyUser
         as DeleteMyUser$Mutation$DeleteMyUser$MyUserEventsVersioned;
@@ -647,11 +651,12 @@ mixin UserGraphQlMixin {
         document: DeleteUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteUserEmailException(
-        (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
-                as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
-            .code,
-      ),
+      onException:
+          (data) => DeleteUserEmailException(
+            (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
+                    as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
+                .code,
+          ),
     );
     return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail
         as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
@@ -756,11 +761,12 @@ mixin UserGraphQlMixin {
         headers: {if (locale != null) 'Accept-Language': locale},
       ),
       operationName: query.operationName,
-      onException: (data) => AddUserEmailException(
-        (AddUserEmail$Mutation.fromJson(data).addUserEmail
-                as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
-            .code,
-      ),
+      onException:
+          (data) => AddUserEmailException(
+            (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                    as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+                .code,
+          ),
     );
 
     if (response.data['data'] == null) {
@@ -861,15 +867,17 @@ mixin UserGraphQlMixin {
         document: CreateUserDirectLinkMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => CreateChatDirectLinkException(
-        (CreateUserDirectLink$Mutation.fromJson(data).createChatDirectLink
-                as CreateUserDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
-            .code,
-      ),
+      onException:
+          (data) => CreateChatDirectLinkException(
+            (CreateUserDirectLink$Mutation.fromJson(data).createChatDirectLink
+                    as CreateUserDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
+                .code,
+          ),
     );
     return CreateUserDirectLink$Mutation.fromJson(
-      result.data!,
-    ).createChatDirectLink as MyUserEventsVersionedMixin?;
+          result.data!,
+        ).createChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 
   /// Deletes the current [ChatDirectLink] of the authenticated [MyUser].
@@ -895,14 +903,16 @@ mixin UserGraphQlMixin {
         operationName: 'DeleteUserDirectLink',
         document: DeleteUserDirectLinkMutation().document,
       ),
-      onException: (data) => DeleteChatDirectLinkException(
-        DeleteUserDirectLink$Mutation.fromJson(data).deleteChatDirectLink
-            as DeleteChatDirectLinkErrorCode,
-      ),
+      onException:
+          (data) => DeleteChatDirectLinkException(
+            DeleteUserDirectLink$Mutation.fromJson(data).deleteChatDirectLink
+                as DeleteChatDirectLinkErrorCode,
+          ),
     );
     return DeleteUserDirectLink$Mutation.fromJson(
-      result.data!,
-    ).deleteChatDirectLink as MyUserEventsVersionedMixin?;
+          result.data!,
+        ).deleteChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 
   /// Updates or resets the [MyUser.avatar] field with the provided image
@@ -950,20 +960,22 @@ mixin UserGraphQlMixin {
         file == null
             ? encodedBody
             : dio.FormData.fromMap({
-                'operations': encodedBody,
-                'map': '{ "file": ["variables.upload"] }',
-                'file': file,
-              }),
-        options: file == null
-            ? null
-            : dio.Options(contentType: 'multipart/form-data'),
+              'operations': encodedBody,
+              'map': '{ "file": ["variables.upload"] }',
+              'file': file,
+            }),
+        options:
+            file == null
+                ? null
+                : dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateUserAvatarException(
-          (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
-                  as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateUserAvatarException(
+              (UpdateUserAvatar$Mutation.fromJson(data).updateUserAvatar
+                      as UpdateUserAvatar$Mutation$UpdateUserAvatar$UpdateUserAvatarError)
+                  .code,
+            ),
       );
 
       if (response.data['data'] == null) {
@@ -973,8 +985,9 @@ mixin UserGraphQlMixin {
       }
 
       return (UpdateUserAvatar$Mutation.fromJson(
-        response.data['data'],
-      ).updateUserAvatar as MyUserEventsVersionedMixin?);
+            response.data['data'],
+          ).updateUserAvatar
+          as MyUserEventsVersionedMixin?);
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserAvatarException(
@@ -1034,20 +1047,22 @@ mixin UserGraphQlMixin {
         file == null
             ? encodedBody
             : dio.FormData.fromMap({
-                'operations': encodedBody,
-                'map': '{ "file": ["variables.upload"] }',
-                'file': file,
-              }),
-        options: file == null
-            ? null
-            : dio.Options(contentType: 'multipart/form-data'),
+              'operations': encodedBody,
+              'map': '{ "file": ["variables.upload"] }',
+              'file': file,
+            }),
+        options:
+            file == null
+                ? null
+                : dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateUserCallCoverException(
-          (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
-                  as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateUserCallCoverException(
+              (UpdateUserCallCover$Mutation.fromJson(data).updateUserCallCover
+                      as UpdateUserCallCover$Mutation$UpdateUserCallCover$UpdateUserCallCoverError)
+                  .code,
+            ),
       );
 
       if (response.data['data'] == null) {
@@ -1057,8 +1072,9 @@ mixin UserGraphQlMixin {
       }
 
       return (UpdateUserCallCover$Mutation.fromJson(
-        response.data['data'],
-      ).updateUserCallCover as MyUserEventsVersionedMixin?);
+            response.data['data'],
+          ).updateUserCallCover
+          as MyUserEventsVersionedMixin?);
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateUserCallCoverException(
@@ -1106,10 +1122,11 @@ mixin UserGraphQlMixin {
         document: ToggleMyUserMuteMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ToggleMyUserMuteException(
-        ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
-            as ToggleMyUserMuteErrorCode,
-      ),
+      onException:
+          (data) => ToggleMyUserMuteException(
+            ToggleMyUserMute$Mutation.fromJson(data).toggleMyUserMute
+                as ToggleMyUserMuteErrorCode,
+          ),
     );
     return (ToggleMyUserMute$Mutation.fromJson(result.data!).toggleMyUserMute
         as MyUserEventsVersionedMixin?);
@@ -1189,9 +1206,10 @@ mixin UserGraphQlMixin {
         document: BlockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => BlockUserException(
-        BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
-      ),
+      onException:
+          (data) => BlockUserException(
+            BlockUser$Mutation.fromJson(data).blockUser as BlockUserErrorCode,
+          ),
     );
     return BlockUser$Mutation.fromJson(result.data!).blockUser
         as BlocklistEventsVersionedMixin?;
@@ -1225,9 +1243,11 @@ mixin UserGraphQlMixin {
         document: UnblockUserMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnblockUserException(
-        UnblockUser$Mutation.fromJson(data).unblockUser as UnblockUserErrorCode,
-      ),
+      onException:
+          (data) => UnblockUserException(
+            UnblockUser$Mutation.fromJson(data).unblockUser
+                as UnblockUserErrorCode,
+          ),
     );
     return UnblockUser$Mutation.fromJson(result.data!).unblockUser
         as BlocklistEventsVersionedMixin?;
@@ -1323,12 +1343,13 @@ mixin UserGraphQlMixin {
         headers: {if (locale != null) 'Accept-Language': locale},
       ),
       operationName: query.operationName,
-      onException: (data) => RegisterPushDeviceException(
-        data['registerPushDevice'] == null
-            ? null
-            : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
-                as RegisterPushDeviceErrorCode,
-      ),
+      onException:
+          (data) => RegisterPushDeviceException(
+            data['registerPushDevice'] == null
+                ? null
+                : RegisterPushDevice$Mutation.fromJson(data).registerPushDevice
+                    as RegisterPushDeviceErrorCode,
+          ),
     );
   }
 
@@ -1484,14 +1505,16 @@ mixin UserGraphQlMixin {
         document: UpdateWelcomeMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UpdateWelcomeMessageException(
-        (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
-                as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
-            .code,
-      ),
+      onException:
+          (data) => UpdateWelcomeMessageException(
+            (UpdateWelcomeMessage$Mutation.fromJson(data).updateWelcomeMessage
+                    as UpdateWelcomeMessage$Mutation$UpdateWelcomeMessage$UpdateWelcomeMessageError)
+                .code,
+          ),
     );
     return DeleteUserDirectLink$Mutation.fromJson(
-      result.data!,
-    ).deleteChatDirectLink as MyUserEventsVersionedMixin?;
+          result.data!,
+        ).deleteChatDirectLink
+        as MyUserEventsVersionedMixin?;
   }
 }

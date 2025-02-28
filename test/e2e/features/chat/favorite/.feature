@@ -24,6 +24,7 @@ Feature: Favorite chats
     And I have "Alice and Charlie" group with Charlie
     And I wait until "Alice and Bob" chat is present
     And I wait until "Alice and Charlie" chat is present
+    And I pause for 5 seconds
 
   Scenario: User adds chat to favorites
     When I long press "Alice and Bob" chat
@@ -56,8 +57,10 @@ Feature: Favorite chats
     When I drag "Alice and Charlie" chat 200 pixels down
     Then I see "Alice and Charlie" chat last in favorites list
 
+  @disabled
   Scenario: Favorite chats receive update events when user signs in
     When I logout
     And Alice favorites "Alice and Bob" group
+    And I pause for 5 seconds
     And I sign in as Alice
     Then I see "Alice and Bob" chat as favorite

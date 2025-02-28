@@ -42,10 +42,14 @@ void main() async {
     expect(val2.microsecondsSinceEpoch == val3.microsecondsSinceEpoch, true);
     expect(val2.isBefore(val4), true);
     expect(val4.microsecondsSinceEpoch > val2.microsecondsSinceEpoch, true);
-    expect(val1.add(const Duration(seconds: 3)).microsecondsSinceEpoch,
-        1654259917366158);
-    expect(val1.subtract(const Duration(seconds: 3)).microsecondsSinceEpoch,
-        1654259911366158);
+    expect(
+      val1.add(const Duration(seconds: 3)).microsecondsSinceEpoch,
+      1654259917366158,
+    );
+    expect(
+      val1.subtract(const Duration(seconds: 3)).microsecondsSinceEpoch,
+      1654259911366158,
+    );
     expect(val5.isAfter(val1), true);
     expect(val1.toString(), '2022-06-03 12:38:34.366158Z');
     expect(val2.toString(), '2022-06-03 12:38:34.366Z');

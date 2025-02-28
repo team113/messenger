@@ -51,9 +51,11 @@ class LanguageSelectionController extends GetxController {
 
   /// Sets the provided [language] to be [L10n.chosen].
   Future<void> setLocalization(Language language) async {
-    await Future.wait([
-      L10n.set(language),
-      _settingsRepository?.setLocale(language.toString()),
-    ].nonNulls);
+    await Future.wait(
+      [
+        L10n.set(language),
+        _settingsRepository?.setLocale(language.toString()),
+      ].nonNulls,
+    );
   }
 }

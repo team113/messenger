@@ -32,11 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {
-  const AddEmailView({
-    super.key,
-    required this.email,
-    this.timeout = false,
-  });
+  const AddEmailView({super.key, required this.email, this.timeout = false});
 
   /// [UserEmail] to confirm.
   final UserEmail email;
@@ -99,14 +95,16 @@ class AddEmailView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed: c.resendEmailTimeout.value == 0
-                            ? c.resendEmail
-                            : null,
-                        title: c.resendEmailTimeout.value == 0
-                            ? 'label_resend'.l10n
-                            : 'label_resend_timeout'.l10nfmt(
-                                {'timeout': c.resendEmailTimeout.value},
-                              ),
+                        onPressed:
+                            c.resendEmailTimeout.value == 0
+                                ? c.resendEmail
+                                : null,
+                        title:
+                            c.resendEmailTimeout.value == 0
+                                ? 'label_resend'.l10n
+                                : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
                       ),
                     ),
                     const SizedBox(width: 10),

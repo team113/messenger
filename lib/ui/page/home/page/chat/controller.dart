@@ -406,9 +406,10 @@ class ChatController extends GetxController {
   /// Returns [RxUser] being recipient of this [chat].
   ///
   /// Only meaningful, if the [chat] is a dialog.
-  RxUser? get user => chat?.chat.value.isDialog == true
-      ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
-      : null;
+  RxUser? get user =>
+      chat?.chat.value.isDialog == true
+          ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
+          : null;
 
   /// Returns the [WelcomeMessage] of this [chat], if any.
   WelcomeMessage? get welcomeMessage => user?.user.value.welcomeMessage;
@@ -475,9 +476,10 @@ class ChatController extends GetxController {
             _chatService
                 .sendChatMessage(
                   chat?.chat.value.id ?? id,
-                  text: send.field.text.trim().isEmpty
-                      ? null
-                      : ChatMessageText(send.field.text.trim()),
+                  text:
+                      send.field.text.trim().isEmpty
+                          ? null
+                          : ChatMessageText(send.field.text.trim()),
                   repliesTo: send.replied.map((e) => e.value).toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
@@ -541,8 +543,8 @@ class ChatController extends GetxController {
         _fragment = null;
         elements.clear();
 
-        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
-            await chat!.around(withText: ChatMessageText(query));
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment = await chat!
+            .around(withText: ChatMessageText(query));
 
         _searchSubscription?.cancel();
         _searchSubscription = fragment!.updates.listen(
@@ -844,8 +846,10 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-        listController.sliverController.onPaintItemPositionsCallback =
-            (height, positions) {
+        listController.sliverController.onPaintItemPositionsCallback = (
+          height,
+          positions,
+        ) {
           if (positions.isNotEmpty) {
             _topVisibleItem = positions.last;
 
@@ -860,8 +864,9 @@ class ChatController extends GetxController {
             if (_lastVisibleItem != null &&
                 status.value.isSuccess &&
                 !status.value.isLoadingMore) {
-              final ListElement element =
-                  elements.values.elementAt(_lastVisibleItem!.index);
+              final ListElement element = elements.values.elementAt(
+                _lastVisibleItem!.index,
+              );
 
               // If the [_lastVisibleItem] is posted after the [_lastSeenItem],
               // then set the [_lastSeenItem] to this item.
@@ -897,28 +902,27 @@ class ChatController extends GetxController {
           }
         });
 
-        _bottomLoaderStartTimer = Timer(
-          const Duration(seconds: 2),
-          () {
-            if ((!status.value.isSuccess || status.value.isLoadingMore) &&
-                elements.isNotEmpty) {
-              _bottomLoader = LoaderElement.bottom(
-                (chat?.messages.lastOrNull?.value.at
-                        .add(const Duration(microseconds: 1)) ??
-                    PreciseDateTime.now()),
-              );
+        _bottomLoaderStartTimer = Timer(const Duration(seconds: 2), () {
+          if ((!status.value.isSuccess || status.value.isLoadingMore) &&
+              elements.isNotEmpty) {
+            _bottomLoader = LoaderElement.bottom(
+              (chat?.messages.lastOrNull?.value.at.add(
+                    const Duration(microseconds: 1),
+                  ) ??
+                  PreciseDateTime.now()),
+            );
 
-              elements[_bottomLoader!.id] = _bottomLoader!;
-            }
-          },
-        );
+            elements[_bottomLoader!.id] = _bottomLoader!;
+          }
+        });
 
         // If [RxChat.status] is not successful yet, populate the
         // [_messageInitializedWorker] to determine the initial messages list
         // index and offset.
         if (!chat!.status.value.isSuccess) {
-          _messageInitializedWorker =
-              ever(chat!.status, (RxStatus status) async {
+          _messageInitializedWorker = ever(chat!.status, (
+            RxStatus status,
+          ) async {
             if (_messageInitializedWorker != null) {
               if (status.isSuccess) {
                 _messageInitializedWorker?.dispose();
@@ -1024,13 +1028,15 @@ class ChatController extends GetxController {
     Rx<ChatItem>? item;
 
     item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
-    item ??= _fragments
-        .firstWhereOrNull((e) => e.items.keys.contains(id))
-        ?.items[id];
+    item ??=
+        _fragments
+            .firstWhereOrNull((e) => e.items.keys.contains(id))
+            ?.items[id];
 
     if (item == null) {
-      final Future<Rx<ChatItem>?>? future =
-          chat?.single(id).then((fragment) async {
+      final Future<Rx<ChatItem>?>? future = chat?.single(id).then((
+        fragment,
+      ) async {
         if (fragment != null) {
           await fragment.around();
           _fragments.add(fragment);
@@ -1114,15 +1120,16 @@ class ChatController extends GetxController {
     } else {
       if (original != null) {
         final ListElementId elementId = ListElementId(original.at, original.id);
-        final ListElementId? lastId = elements.values
-            .lastWhereOrNull(
-              (e) =>
-                  e is ChatMessageElement ||
-                  e is ChatInfoElement ||
-                  e is ChatCallElement ||
-                  e is ChatForwardElement,
-            )
-            ?.id;
+        final ListElementId? lastId =
+            elements.values
+                .lastWhereOrNull(
+                  (e) =>
+                      e is ChatMessageElement ||
+                      e is ChatInfoElement ||
+                      e is ChatCallElement ||
+                      e is ChatForwardElement,
+                )
+                ?.id;
 
         // If the [original] is placed before the first item, then animate to top,
         // or otherwise to bottom.
@@ -1497,9 +1504,10 @@ class ChatController extends GetxController {
                 attachment.filename,
                 attachment.original.size,
                 checksum: attachment.original.checksum,
-                to: attachments.length > 1 && to != null
-                    ? '$to/${attachment.filename}'
-                    : to,
+                to:
+                    attachments.length > 1 && to != null
+                        ? '$to/${attachment.filename}'
+                        : to,
               )
               .future;
         } else {
@@ -1512,8 +1520,8 @@ class ChatController extends GetxController {
         attachments.length > 1
             ? 'label_files_downloaded'.l10n
             : attachments.first is ImageAttachment
-                ? 'label_image_downloaded'.l10n
-                : 'label_video_downloaded'.l10n,
+            ? 'label_image_downloaded'.l10n
+            : 'label_video_downloaded'.l10n,
       );
     } catch (e) {
       MessagePopup.error('err_could_not_download'.l10n);
@@ -1555,8 +1563,8 @@ class ChatController extends GetxController {
         attachments.length > 1
             ? 'label_files_saved_to_gallery'.l10n
             : attachments.first is ImageAttachment
-                ? 'label_image_saved_to_gallery'.l10n
-                : 'label_video_saved_to_gallery'.l10n,
+            ? 'label_image_saved_to_gallery'.l10n
+            : 'label_video_saved_to_gallery'.l10n,
       );
     }
 
@@ -1584,15 +1592,19 @@ class ChatController extends GetxController {
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
-      String? to = attachments.length > 1
-          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
-          : await FilePicker.platform.saveFile(
-              fileName: attachments.first.filename,
-              type: attachments.first is ImageAttachment
-                  ? FileType.image
-                  : FileType.video,
-              lockParentWindow: true,
-            );
+      String? to =
+          attachments.length > 1
+              ? await FilePicker.platform.getDirectoryPath(
+                lockParentWindow: true,
+              )
+              : await FilePicker.platform.saveFile(
+                fileName: attachments.first.filename,
+                type:
+                    attachments.first is ImageAttachment
+                        ? FileType.image
+                        : FileType.video,
+                lockParentWindow: true,
+              );
 
       if (to != null) {
         await downloadMedia(attachments, to: to);
@@ -1684,8 +1696,8 @@ class ChatController extends GetxController {
       // If no fragments from the [_fragments] already contain the [itemId],
       // then fetch and use a new one from the [RxChat.around].
       if (_fragment == null) {
-        final Paginated<ChatItemId, Rx<ChatItem>>? fragment =
-            await chat!.around(item: item, reply: reply, forward: forward);
+        final Paginated<ChatItemId, Rx<ChatItem>>? fragment = await chat!
+            .around(item: item, reply: reply, forward: forward);
 
         StreamSubscription? subscription;
         subscription = fragment!.updates.listen(
@@ -1774,8 +1786,10 @@ class ChatController extends GetxController {
       final ChatInfoElement element = ChatInfoElement(e);
       elements[element.id] = element;
     } else if (item is ChatForward) {
-      final ChatForwardElement element =
-          ChatForwardElement(forwards: [e], e.value.at);
+      final ChatForwardElement element = ChatForwardElement(
+        forwards: [e],
+        e.value.at,
+      );
 
       final ListElementId? previousKey = elements.firstKeyAfter(element.id);
       final ListElement? previous = elements[previousKey];
@@ -1891,8 +1905,9 @@ class ChatController extends GetxController {
           elements.remove(forward.id);
 
           if (forward.note.value != null) {
-            final ChatMessageElement message =
-                ChatMessageElement(forward.note.value!);
+            final ChatMessageElement message = ChatMessageElement(
+              forward.note.value!,
+            );
             elements[message.id] = message;
           }
         } else {
@@ -2001,15 +2016,17 @@ class ChatController extends GetxController {
       }
 
       if (stickyIndex.value != null) {
-        final double? offset =
-            listController.sliverController.getItemOffset(stickyIndex.value!);
+        final double? offset = listController.sliverController.getItemOffset(
+          stickyIndex.value!,
+        );
         if (offset == null || offset == 0) {
           showSticky.value = false;
         } else {
-          showSticky.value = (listController.offset +
-                      MediaQuery.of(onContext?.call() ?? router.context!)
-                          .size
-                          .height) -
+          showSticky.value =
+              (listController.offset +
+                      MediaQuery.of(
+                        onContext?.call() ?? router.context!,
+                      ).size.height) -
                   offset >
               170;
         }
@@ -2076,8 +2093,9 @@ class ChatController extends GetxController {
       if (_bottomLoader != null) {
         elements.remove(_bottomLoader!.id);
       }
-      _bottomLoader =
-          LoaderElement.bottom(elements.firstKey()?.at.add(1.milliseconds));
+      _bottomLoader = LoaderElement.bottom(
+        elements.firstKey()?.at.add(1.milliseconds),
+      );
       elements[_bottomLoader!.id] = _bottomLoader!;
 
       await (_fragment?.next ?? chat!.next).call();
@@ -2149,7 +2167,8 @@ class ChatController extends GetxController {
             }
 
             return e.forwards.firstWhereOrNull(
-                    (f) => f.value.id == _firstUnread!.value.id) !=
+                  (f) => f.value.id == _firstUnread!.value.id,
+                ) !=
                 null;
           }
 
@@ -2160,9 +2179,10 @@ class ChatController extends GetxController {
           index = i;
 
           try {
-            offset = (MediaQuery.of(onContext?.call() ?? router.context!)
-                    .size
-                    .height) /
+            offset =
+                (MediaQuery.of(
+                  onContext?.call() ?? router.context!,
+                ).size.height) /
                 3;
           } catch (_) {
             offset = 0;
@@ -2242,9 +2262,9 @@ class ChatController extends GetxController {
       case ChatKind.dialog:
         if (user != null) {
           MessagePopup.error(
-            'err_blocked_by'.l10nfmt(
-              {'user': '${user?.user.value.name ?? user?.user.value.num}'},
-            ),
+            'err_blocked_by'.l10nfmt({
+              'user': '${user?.user.value.name ?? user?.user.value.num}',
+            }),
           );
         }
         break;
@@ -2316,7 +2336,7 @@ abstract class ListElement {
 /// [ListElement] representing a [ChatMessage].
 class ChatMessageElement extends ListElement {
   ChatMessageElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id));
+    : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatMessageElement].
   final Rx<ChatItem> item;
@@ -2325,7 +2345,7 @@ class ChatMessageElement extends ListElement {
 /// [ListElement] representing a [ChatCall].
 class ChatCallElement extends ListElement {
   ChatCallElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id));
+    : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatCallElement].
   final Rx<ChatItem> item;
@@ -2334,7 +2354,7 @@ class ChatCallElement extends ListElement {
 /// [ListElement] representing a [ChatInfo].
 class ChatInfoElement extends ListElement {
   ChatInfoElement(this.item)
-      : super(ListElementId(item.value.at, item.value.id));
+    : super(ListElementId(item.value.at, item.value.id));
 
   /// [ChatItem] of this [ChatInfoElement].
   final Rx<ChatItem> item;
@@ -2346,10 +2366,10 @@ class ChatForwardElement extends ListElement {
     PreciseDateTime at, {
     List<Rx<ChatItem>> forwards = const [],
     Rx<ChatItem>? note,
-  })  : forwards = RxList(forwards),
-        note = Rx(note),
-        authorId = forwards.first.value.author.id,
-        super(ListElementId(at, forwards.first.value.id));
+  }) : forwards = RxList(forwards),
+       note = Rx(note),
+       authorId = forwards.first.value.author.id,
+       super(ListElementId(at, forwards.first.value.id));
 
   /// Forwarded [ChatItem]s.
   final RxList<Rx<ChatItem>> forwards;
@@ -2364,32 +2384,32 @@ class ChatForwardElement extends ListElement {
 /// [ListElement] representing a [DateTime] label.
 class DateTimeElement extends ListElement {
   DateTimeElement(PreciseDateTime at)
-      : super(ListElementId(at, const ChatItemId('0')));
+    : super(ListElementId(at, const ChatItemId('0')));
 }
 
 /// [ListElement] indicating unread [ChatItem]s below.
 class UnreadMessagesElement extends ListElement {
   UnreadMessagesElement(PreciseDateTime at)
-      : super(ListElementId(at, const ChatItemId('1')));
+    : super(ListElementId(at, const ChatItemId('1')));
 }
 
 /// [ListElement] representing a [CustomProgressIndicator].
 class LoaderElement extends ListElement {
   LoaderElement.bottom([PreciseDateTime? at])
-      : super(
-          ListElementId(
-            at ?? PreciseDateTime.now().add(1.days),
-            const ChatItemId('0'),
-          ),
-        );
+    : super(
+        ListElementId(
+          at ?? PreciseDateTime.now().add(1.days),
+          const ChatItemId('0'),
+        ),
+      );
 
   LoaderElement.top()
-      : super(
-          ListElementId(
-            PreciseDateTime.fromMicrosecondsSinceEpoch(0),
-            const ChatItemId('0'),
-          ),
-        );
+    : super(
+        ListElementId(
+          PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+          const ChatItemId('0'),
+        ),
+      );
 }
 
 /// Extension adding [ChatView] related wrappers and helpers.
@@ -2404,7 +2424,8 @@ extension ChatViewExt on Chat {
         break;
 
       case ChatKind.dialog:
-        final String? name = users.firstWhereOrNull((u) => u.id != me)?.title ??
+        final String? name =
+            users.firstWhereOrNull((u) => u.id != me)?.title ??
             members.firstWhereOrNull((e) => e.user.id != me)?.user.title;
         if (name != null) {
           title = name;

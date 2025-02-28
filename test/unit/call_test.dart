@@ -79,10 +79,12 @@ void main() async {
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-    final callCredentialsProvider =
-        Get.put(CallCredentialsDriftProvider(common, scoped));
-    final chatCredentialsProvider =
-        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callCredentialsProvider = Get.put(
+      CallCredentialsDriftProvider(common, scoped),
+    );
+    final chatCredentialsProvider = Get.put(
+      ChatCredentialsDriftProvider(common, scoped),
+    );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
@@ -118,7 +120,7 @@ void main() async {
               'user': _caller(),
               'handRaised': false,
               'joinedAt': DateTime.now().toString(),
-            }
+            },
           ],
           'dialed': {
             '__typename': 'ChatMembersDialedAll',
@@ -127,25 +129,22 @@ void main() async {
           'ver': '1',
           'presence': 'AWAY',
           'online': {'__typename': 'UserOnline'},
-        }
+        },
       ],
     );
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credentialsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credentialsProvider, accountProvider),
+    );
     authService.init();
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
@@ -217,7 +216,7 @@ void main() async {
                       'user': _caller(),
                       'handRaised': false,
                       'joinedAt': DateTime.now().toString(),
-                    }
+                    },
                   ],
                   'ver': '1',
                   'withVideo': false,
@@ -228,9 +227,9 @@ void main() async {
                 },
                 'reason': 'UNANSWERED',
                 'at': DateTime.now().toString(),
-              }
-            ]
-          }
+              },
+            ],
+          },
         },
         parserFn: (_) => null,
       ),
@@ -239,37 +238,39 @@ void main() async {
     await Future.delayed(1.seconds);
     expect(callService.calls.length, 0);
 
-    graphQlProvider.ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallAdded',
-          'call': {
-            'id': 'second',
-            'chatId': 'chatId',
-            'author': _caller(),
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'withVideo': false,
-            'members': [
-              {
-                'user': _caller(),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
-              }
-            ],
-            'ver': '2',
-            'presence': 'AWAY',
-            'online': {'__typename': 'UserOnline'},
-            'dialed': {
-              '__typename': 'ChatMembersDialedAll',
-              'answeredMembers': [],
+    graphQlProvider.ongoingCallStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'incomingChatCallsTopEvents': {
+            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            'call': {
+              'id': 'second',
+              'chatId': 'chatId',
+              'author': _caller(),
+              'answered': false,
+              'at': DateTime.now().toString(),
+              'withVideo': false,
+              'members': [
+                {
+                  'user': _caller(),
+                  'handRaised': false,
+                  'joinedAt': DateTime.now().toString(),
+                },
+              ],
+              'ver': '2',
+              'presence': 'AWAY',
+              'online': {'__typename': 'UserOnline'},
+              'dialed': {
+                '__typename': 'ChatMembersDialedAll',
+                'answeredMembers': [],
+              },
             },
           },
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
@@ -288,10 +289,12 @@ void main() async {
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-    final callCredentialsProvider =
-        Get.put(CallCredentialsDriftProvider(common, scoped));
-    final chatCredentialsProvider =
-        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callCredentialsProvider = Get.put(
+      CallCredentialsDriftProvider(common, scoped),
+    );
+    final chatCredentialsProvider = Get.put(
+      ChatCredentialsDriftProvider(common, scoped),
+    );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
@@ -300,20 +303,17 @@ void main() async {
     final graphQlProvider = _FakeGraphQlProvider();
     Get.put<GraphQlProvider>(graphQlProvider);
 
-    final AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ));
-    final AuthService authService = Get.put(AuthService(
-      authRepository,
-      credentialsProvider,
-      accountProvider,
-    ));
+    final AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+    );
+    final AuthService authService = Get.put(
+      AuthService(authRepository, credentialsProvider, accountProvider),
+    );
     authService.init();
 
-    final UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    final UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
         const UserId('me'),
@@ -347,8 +347,9 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    final ChatService chatService =
-        Get.put(ChatService(chatRepository, authService));
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
+    );
     final CallService callService = Get.put(
       CallService(authService, chatService, callRepository),
     );
@@ -364,8 +365,10 @@ void main() async {
       withScreen: false,
     );
     expect(callService.calls.length, 1);
-    expect(callService.calls.values.first.value.state.value,
-        OngoingCallState.local);
+    expect(
+      callService.calls.values.first.value.state.value,
+      OngoingCallState.local,
+    );
 
     await Future.delayed(Duration.zero);
     expect(callService.calls.length, 1);
@@ -393,10 +396,12 @@ void main() async {
     final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
     final chatProvider = Get.put(ChatDriftProvider(common, scoped));
     final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-    final callCredentialsProvider =
-        Get.put(CallCredentialsDriftProvider(common, scoped));
-    final chatCredentialsProvider =
-        Get.put(ChatCredentialsDriftProvider(common, scoped));
+    final callCredentialsProvider = Get.put(
+      CallCredentialsDriftProvider(common, scoped),
+    );
+    final chatCredentialsProvider = Get.put(
+      ChatCredentialsDriftProvider(common, scoped),
+    );
     final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
     final monologProvider = Get.put(MonologDriftProvider(common));
     final draftProvider = Get.put(DraftDriftProvider(common, scoped));
@@ -404,16 +409,12 @@ void main() async {
 
     final graphQlProvider = _FakeGraphQlProvider();
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credentialsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credentialsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credentialsProvider, accountProvider),
+    );
     authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
@@ -424,8 +425,9 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     final CallRepository callRepository = Get.put(
       CallRepository(
@@ -460,37 +462,39 @@ void main() async {
     await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 0);
 
-    graphQlProvider.ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallAdded',
-          'call': {
-            'id': 'id',
-            'chatId': 'incoming',
-            'author': _caller(),
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'withVideo': false,
-            'members': [
-              {
-                'user': _caller(),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
-              }
-            ],
-            'ver': '1',
-            'presence': 'AWAY',
-            'online': {'__typename': 'UserOnline'},
-            'dialed': {
-              '__typename': 'ChatMembersDialedAll',
-              'answeredMembers': [],
+    graphQlProvider.ongoingCallStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'incomingChatCallsTopEvents': {
+            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            'call': {
+              'id': 'id',
+              'chatId': 'incoming',
+              'author': _caller(),
+              'answered': false,
+              'at': DateTime.now().toString(),
+              'withVideo': false,
+              'members': [
+                {
+                  'user': _caller(),
+                  'handRaised': false,
+                  'joinedAt': DateTime.now().toString(),
+                },
+              ],
+              'ver': '1',
+              'presence': 'AWAY',
+              'online': {'__typename': 'UserOnline'},
+              'dialed': {
+                '__typename': 'ChatMembersDialedAll',
+                'answeredMembers': [],
+              },
             },
           },
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
@@ -502,37 +506,39 @@ void main() async {
     expect(callService.calls.length, 0);
     await Future.delayed(const Duration(milliseconds: 16));
 
-    graphQlProvider.ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallAdded',
-          'call': {
-            'id': 'id',
-            'chatId': 'incoming',
-            'author': _caller(),
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'withVideo': false,
-            'members': [
-              {
-                'user': _caller(),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
-              }
-            ],
-            'ver': '2',
-            'PRESENCE': 'AWAY',
-            'online': {'__typename': 'UserOnline'},
-            'dialed': {
-              '__typename': 'ChatMembersDialedAll',
-              'answeredMembers': [],
+    graphQlProvider.ongoingCallStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'incomingChatCallsTopEvents': {
+            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            'call': {
+              'id': 'id',
+              'chatId': 'incoming',
+              'author': _caller(),
+              'answered': false,
+              'at': DateTime.now().toString(),
+              'withVideo': false,
+              'members': [
+                {
+                  'user': _caller(),
+                  'handRaised': false,
+                  'joinedAt': DateTime.now().toString(),
+                },
+              ],
+              'ver': '2',
+              'PRESENCE': 'AWAY',
+              'online': {'__typename': 'UserOnline'},
+              'dialed': {
+                '__typename': 'ChatMembersDialedAll',
+                'answeredMembers': [],
+              },
             },
           },
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     await Future.delayed(const Duration(milliseconds: 16));
     expect(callService.calls.length, 1);
@@ -574,10 +580,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult> callEvents(
-    ChatItemId id,
-    ChatCallDeviceId deviceId,
-  ) =>
+  Stream<QueryResult> callEvents(ChatItemId id, ChatCallDeviceId deviceId) =>
       _heartbeat.stream;
 
   @override
@@ -588,32 +591,33 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   ) {
     Future.delayed(
       Duration.zero,
-      () => chatEventsStream.add(QueryResult.internal(
-        source: QueryResultSource.network,
-        data: {
-          'chatEvents': {
-            '__typename': 'SubscriptionInitialized',
-            'ok': true,
-          }
-        },
-        parserFn: (_) => null,
-      )),
+      () => chatEventsStream.add(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'chatEvents': {'__typename': 'SubscriptionInitialized', 'ok': true},
+          },
+          parserFn: (_) => null,
+        ),
+      ),
     );
     return chatEventsStream.stream;
   }
 
   @override
   Stream<QueryResult> incomingCallsTopEvents(int count) {
-    ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'IncomingChatCallsTop',
-          'list': initialOngoingCalls ?? [],
+    ongoingCallStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'incomingChatCallsTopEvents': {
+            '__typename': 'IncomingChatCallsTop',
+            'list': initialOngoingCalls ?? [],
+          },
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
     return ongoingCallStream.stream;
   }
 
@@ -622,111 +626,114 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
     int count, {
     bool noFavorite = false,
     bool? withOngoingCalls,
-  }) =>
-      Stream.value(
-        QueryResult.internal(
-          source: QueryResultSource.network,
-          data: {
-            'recentChatsTopEvents': {
-              '__typename': 'SubscriptionInitialized',
-              'ok': true
-            }
-          },
-          parserFn: (_) => null,
-        ),
-      );
+  }) => Stream.value(
+    QueryResult.internal(
+      source: QueryResultSource.network,
+      data: {
+        'recentChatsTopEvents': {
+          '__typename': 'SubscriptionInitialized',
+          'ok': true,
+        },
+      },
+      parserFn: (_) => null,
+    ),
+  );
 
   @override
   Future<Stream<QueryResult>> userEvents(
     UserId id,
     Future<UserVersion?> Function() ver,
-  ) async =>
-      Stream.value(
-        QueryResult.internal(
-          source: QueryResultSource.network,
-          data: {
-            'userEvents': {'__typename': 'SubscriptionInitialized', 'ok': true}
-          },
-          parserFn: (_) => null,
-        ),
-      );
+  ) async => Stream.value(
+    QueryResult.internal(
+      source: QueryResultSource.network,
+      data: {
+        'userEvents': {'__typename': 'SubscriptionInitialized', 'ok': true},
+      },
+      parserFn: (_) => null,
+    ),
+  );
 
   @override
   Future<StartCall$Mutation$StartChatCall$StartChatCallOk> startChatCall(
-      ChatId chatId, ChatCallCredentials creds,
-      [bool? withVideo]) async {
+    ChatId chatId,
+    ChatCallCredentials creds, [
+    bool? withVideo,
+  ]) async {
     latestVersion++;
-    ongoingCallStream.add(QueryResult.internal(
-      source: QueryResultSource.network,
-      data: {
-        'incomingChatCallsTopEvents': {
-          '__typename': 'EventIncomingChatCallsTopChatCallAdded',
-          'call': {
-            'id': 'id',
-            'chatId': chatId.val,
-            'author': _caller('me'),
-            'answered': false,
-            'at': DateTime.now().toString(),
-            'withVideo': false,
-            'members': [
-              {
-                'user': _caller('me'),
-                'handRaised': false,
-                'joinedAt': DateTime.now().toString(),
-              }
-            ],
-            'ver': '$latestVersion',
-            'presence': 'AWAY',
-            'online': {'__typename': 'UserOnline'},
-            'dialed': {
-              '__typename': 'ChatMembersDialedAll',
-              'answeredMembers': [],
+    ongoingCallStream.add(
+      QueryResult.internal(
+        source: QueryResultSource.network,
+        data: {
+          'incomingChatCallsTopEvents': {
+            '__typename': 'EventIncomingChatCallsTopChatCallAdded',
+            'call': {
+              'id': 'id',
+              'chatId': chatId.val,
+              'author': _caller('me'),
+              'answered': false,
+              'at': DateTime.now().toString(),
+              'withVideo': false,
+              'members': [
+                {
+                  'user': _caller('me'),
+                  'handRaised': false,
+                  'joinedAt': DateTime.now().toString(),
+                },
+              ],
+              'ver': '$latestVersion',
+              'presence': 'AWAY',
+              'online': {'__typename': 'UserOnline'},
+              'dialed': {
+                '__typename': 'ChatMembersDialedAll',
+                'answeredMembers': [],
+              },
             },
           },
         },
-      },
-      parserFn: (_) => null,
-    ));
+        parserFn: (_) => null,
+      ),
+    );
 
     return (StartCall$Mutation.fromJson({
-      'startChatCall': {
-        '__typename': 'StartChatCallOk',
-        'deviceId': 'deviceId',
-        'event': {
-          '__typename': 'ChatEventsVersioned',
-          'events': [
-            {
-              '__typename': 'EventChatCallStarted',
-              'callId': 'id',
-              'chatId': chatId.val,
-              'call': {
-                'id': 'id',
-                'chatId': chatId.val,
-                'author': _caller('me'),
-                'answered': false,
-                'at': DateTime.now().toString(),
-                'withVideo': false,
-                'members': [
-                  {
-                    'user': _caller('me'),
-                    'handRaised': false,
-                    'joinedAt': DateTime.now().toString(),
-                  }
-                ],
-                'ver': '$latestVersion',
-                'presence': 'AWAY',
-                'online': {'__typename': 'UserOnline'},
-                'dialed': {
-                  '__typename': 'ChatMembersDialedAll',
-                  'answeredMembers': [],
+          'startChatCall': {
+            '__typename': 'StartChatCallOk',
+            'deviceId': 'deviceId',
+            'event': {
+              '__typename': 'ChatEventsVersioned',
+              'events': [
+                {
+                  '__typename': 'EventChatCallStarted',
+                  'callId': 'id',
+                  'chatId': chatId.val,
+                  'call': {
+                    'id': 'id',
+                    'chatId': chatId.val,
+                    'author': _caller('me'),
+                    'answered': false,
+                    'at': DateTime.now().toString(),
+                    'withVideo': false,
+                    'members': [
+                      {
+                        'user': _caller('me'),
+                        'handRaised': false,
+                        'joinedAt': DateTime.now().toString(),
+                      },
+                    ],
+                    'ver': '$latestVersion',
+                    'presence': 'AWAY',
+                    'online': {'__typename': 'UserOnline'},
+                    'dialed': {
+                      '__typename': 'ChatMembersDialedAll',
+                      'answeredMembers': [],
+                    },
+                  },
                 },
-              },
+              ],
+              'ver': '$latestVersion',
             },
-          ],
-          'ver': '$latestVersion',
-        }
-      },
-    }).startChatCall as StartCall$Mutation$StartChatCall$StartChatCallOk);
+          },
+        }).startChatCall
+        as StartCall$Mutation$StartChatCall$StartChatCallOk);
   }
 
   @override
@@ -784,16 +791,16 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
                       'user': _caller('me'),
                       'handRaised': false,
                       'joinedAt': DateTime.now().toString(),
-                    }
+                    },
                   ],
                   'ver': '1',
-                  'withVideo': false
+                  'withVideo': false,
                 },
                 'reason': 'DROPPED',
                 'at': DateTime.now().toString(),
-              }
-            ]
-          }
+              },
+            ],
+          },
         },
         parserFn: (_) => null,
       ),
@@ -808,44 +815,47 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Future<JoinCall$Mutation$JoinChatCall$JoinChatCallOk> joinChatCall(
-          ChatId chatId, ChatCallCredentials creds) async =>
+    ChatId chatId,
+    ChatCallCredentials creds,
+  ) async =>
       (JoinCall$Mutation.fromJson({
-        'joinChatCall': {
-          '__typename': 'JoinChatCallOk',
-          'deviceId': 'deviceId',
-          'event': {
-            '__typename': 'ChatEventsVersioned',
-            'events': [
-              {
-                '__typename': 'EventChatCallMemberJoined',
-                'callId': 'id',
-                'chatId': chatId.val,
-                'call': {
-                  'id': 'id',
-                  'chatId': chatId.val,
-                  'author': _caller('me'),
-                  'answered': false,
-                  'at': DateTime.now().toString(),
-                  'withVideo': false,
-                  'members': [
-                    {
-                      'user': _caller('me'),
-                      'handRaised': false,
-                      'joinedAt': DateTime.now().toString(),
-                    }
-                  ],
-                  'ver': '$latestVersion',
-                  'presence': 'AWAY',
-                  'online': {'__typename': 'UserOnline'},
-                },
-                'user': _caller('me'),
-                'at': DateTime.now().toString(),
+            'joinChatCall': {
+              '__typename': 'JoinChatCallOk',
+              'deviceId': 'deviceId',
+              'event': {
+                '__typename': 'ChatEventsVersioned',
+                'events': [
+                  {
+                    '__typename': 'EventChatCallMemberJoined',
+                    'callId': 'id',
+                    'chatId': chatId.val,
+                    'call': {
+                      'id': 'id',
+                      'chatId': chatId.val,
+                      'author': _caller('me'),
+                      'answered': false,
+                      'at': DateTime.now().toString(),
+                      'withVideo': false,
+                      'members': [
+                        {
+                          'user': _caller('me'),
+                          'handRaised': false,
+                          'joinedAt': DateTime.now().toString(),
+                        },
+                      ],
+                      'ver': '$latestVersion',
+                      'presence': 'AWAY',
+                      'online': {'__typename': 'UserOnline'},
+                    },
+                    'user': _caller('me'),
+                    'at': DateTime.now().toString(),
+                  },
+                ],
+                'ver': '$latestVersion',
               },
-            ],
-            'ver': '$latestVersion',
-          },
-        },
-      }).joinChatCall as JoinCall$Mutation$JoinChatCall$JoinChatCallOk);
+            },
+          }).joinChatCall
+          as JoinCall$Mutation$JoinChatCall$JoinChatCallOk);
 
   @override
   Future<GetChat$Query> getChat(ChatId id) async {
@@ -884,15 +894,15 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
 }
 
 Map<String, dynamic> _caller([String? id]) => {
-      'id': id ?? 'id',
-      'num': '1234567890123456',
-      'mutualContactsCount': 0,
-      'contacts': [],
-      'isDeleted': false,
-      'isBlocked': {'ver': '0'},
-      'presence': 'AWAY',
-      'ver': '0',
-    };
+  'id': id ?? 'id',
+  'num': '1234567890123456',
+  'mutualContactsCount': 0,
+  'contacts': [],
+  'isDeleted': false,
+  'isBlocked': {'ver': '0'},
+  'presence': 'AWAY',
+  'ver': '0',
+};
 
 final chatData = {
   'id': 'chatId',
@@ -912,24 +922,21 @@ final chatData = {
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
-  'ver': '0'
+  'ver': '0',
 };
 
 final chatsQuery = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteQuery = {
@@ -941,6 +948,6 @@ final favoriteQuery = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };

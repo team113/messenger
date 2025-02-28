@@ -23,12 +23,12 @@ enum IterableAmount { no, some }
 /// [CustomParameter] representing an [IterableStatus].
 class IterableAmountParameter extends CustomParameter<IterableAmount> {
   IterableAmountParameter()
-      : super(
-          'iterable_amount',
-          RegExp(
-            '(${IterableAmount.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => IterableAmount.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'iterable_amount',
+        RegExp(
+          '(${IterableAmount.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => IterableAmount.values.firstWhere((e) => e.name == c),
+      );
 }

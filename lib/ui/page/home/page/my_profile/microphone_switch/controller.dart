@@ -32,7 +32,7 @@ export 'view.dart';
 /// Controller of a [MicrophoneSwitchView].
 class MicrophoneSwitchController extends GetxController {
   MicrophoneSwitchController(this._settingsRepository, {String? mic})
-      : _mic = mic ?? _settingsRepository.mediaSettings.value?.audioDevice;
+    : _mic = mic ?? _settingsRepository.mediaSettings.value?.audioDevice;
 
   /// Settings repository updating the [MediaSettings.audioDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -61,12 +61,10 @@ class MicrophoneSwitchController extends GetxController {
 
   @override
   void onInit() async {
-    _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) {
-        devices.value = e.audio().toList();
-        selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
-      },
-    );
+    _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
+      devices.value = e.audio().toList();
+      selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
+    });
 
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
@@ -77,8 +75,9 @@ class MicrophoneSwitchController extends GetxController {
 
     try {
       _permissionSubscription = await WebUtils.microphonePermission();
-      devices.value =
-          await MediaUtils.enumerateDevices(MediaDeviceKind.audioInput);
+      devices.value = await MediaUtils.enumerateDevices(
+        MediaDeviceKind.audioInput,
+      );
       selected.value = devices.firstWhereOrNull((e) => e.id() == _mic);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;

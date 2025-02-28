@@ -34,14 +34,11 @@ final StepDefinitionGeneric chatIsIndeedHidden = given1<String, CustomWorld>(
     final AuthService authService = Get.find();
     provider.token = authService.credentials.value!.access.secret;
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        final response = await provider.getChat(context.world.groups[name]!);
-        return response.chat?.isHidden == true;
-      },
-      timeout: const Duration(seconds: 30),
-    );
+    await context.world.appDriver.waitUntil(() async {
+      final response = await provider.getChat(context.world.groups[name]!);
+      return response.chat?.isHidden == true;
+    }, timeout: const Duration(seconds: 30));
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

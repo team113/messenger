@@ -27,8 +27,8 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - And Bob removes Alice from "Alice and Bob" group
-final StepDefinitionGeneric removeGroupMember =
-    then3<TestUser, TestUser, String, CustomWorld>(
+final StepDefinitionGeneric
+removeGroupMember = then3<TestUser, TestUser, String, CustomWorld>(
   RegExp(r'{user} removes {user} from {string} group'),
   (TestUser user, TestUser member, String groupName, context) async {
     final CustomUser? kicker = context.world.sessions[user.name]?.firstOrNull;
@@ -54,6 +54,6 @@ final StepDefinitionGeneric removeGroupMember =
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

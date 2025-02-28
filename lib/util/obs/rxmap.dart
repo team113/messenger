@@ -30,7 +30,7 @@ class RxObsMap<K, V> extends MapMixin<K, V>
     implements RxInterface<ObsMap<K, V>> {
   /// Creates a new [LinkedHashMap] with the provided [initial] keys and values.
   RxObsMap([Map<K, V> initial = const {}])
-      : _value = ObsMap<K, V>.from(initial);
+    : _value = ObsMap<K, V>.from(initial);
 
   /// Creates a new [LinkedHashMap] with the same keys and values as [other].
   factory RxObsMap.from(Map<K, V> other) => RxObsMap(Map<K, V>.from(other));
@@ -48,8 +48,7 @@ class RxObsMap<K, V> extends MapMixin<K, V>
     Iterable iterable, {
     K Function(dynamic element)? key,
     V Function(dynamic element)? value,
-  }) =>
-      RxObsMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
+  }) => RxObsMap(Map<K, V>.fromIterable(iterable, key: key, value: value));
 
   /// Creates a new [LinkedHashMap] associating the given [keys] to the given
   /// [values].

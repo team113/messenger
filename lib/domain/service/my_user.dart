@@ -290,8 +290,10 @@ class MyUserService extends DisposableService {
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug('updateCallCover($file, onSendProgress)', '$runtimeType');
-    await _myUserRepository.updateCallCover(file,
-        onSendProgress: onSendProgress);
+    await _myUserRepository.updateCallCover(
+      file,
+      onSendProgress: onSendProgress,
+    );
   }
 
   /// Mutes or unmutes all the [Chat]s of the authenticated [MyUser].

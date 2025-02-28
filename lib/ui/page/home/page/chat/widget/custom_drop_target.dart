@@ -60,8 +60,9 @@ class _CustomDropTargetState extends State<CustomDropTarget> {
 
     return DropRegion(
       formats: Formats.standardFormats,
-      onDropOver: (event) =>
-          event.session.allowedOperations.firstOrNull ?? DropOperation.none,
+      onDropOver:
+          (event) =>
+              event.session.allowedOperations.firstOrNull ?? DropOperation.none,
       onPerformDrop: (event) async {
         await widget.onPerformDrop?.call(event);
       },

@@ -456,11 +456,13 @@ mixin ContactGraphQlMixin {
       last: last,
       before: before,
     );
-    final QueryResult res = await client.query(QueryOptions(
-      operationName: 'SearchChatContacts',
-      document: SearchChatContactsQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    final QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'SearchChatContacts',
+        document: SearchChatContactsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return SearchChatContacts$Query.fromJson(res.data!);
   }
 
@@ -473,11 +475,13 @@ mixin ContactGraphQlMixin {
     Log.debug('chatContact($id)', '$runtimeType');
 
     final variables = GetContactArguments(id: id);
-    final QueryResult res = await client.query(QueryOptions(
-      operationName: 'GetContact',
-      document: GetContactQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    final QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetContact',
+        document: GetContactQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return GetContact$Query.fromJson(res.data!);
   }
 }

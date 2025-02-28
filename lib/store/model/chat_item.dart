@@ -41,7 +41,7 @@ abstract class DtoChatItem {
         'DtoChatCall' => DtoChatCall.fromJson(json),
         'DtoChatInfo' => DtoChatInfo.fromJson(json),
         'DtoChatForward' => DtoChatForward.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Persisted [ChatItem] model.
@@ -72,12 +72,12 @@ abstract class DtoChatItem {
 
   /// Returns a [Map] representing this [DtoChatItem].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (DtoChatMessage) => (this as DtoChatMessage).toJson(),
-        const (DtoChatCall) => (this as DtoChatCall).toJson(),
-        const (DtoChatInfo) => (this as DtoChatInfo).toJson(),
-        const (DtoChatForward) => (this as DtoChatForward).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (DtoChatMessage) => (this as DtoChatMessage).toJson(),
+    const (DtoChatCall) => (this as DtoChatCall).toJson(),
+    const (DtoChatInfo) => (this as DtoChatInfo).toJson(),
+    const (DtoChatForward) => (this as DtoChatForward).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Persisted in storage [ChatInfo]'s [value].
@@ -109,12 +109,7 @@ class DtoChatInfo extends DtoChatItem {
 /// Persisted in storage [ChatMessage]'s [value].
 @JsonSerializable()
 class DtoChatMessage extends DtoChatItem {
-  DtoChatMessage(
-    super.value,
-    super.cursor,
-    super.ver,
-    this.repliesToCursors,
-  );
+  DtoChatMessage(super.value, super.cursor, super.ver, this.repliesToCursors);
 
   /// Constructs a [DtoChatMessage] in a [SendingStatus.sending] state.
   factory DtoChatMessage.sending({
@@ -125,22 +120,21 @@ class DtoChatMessage extends DtoChatItem {
     List<Attachment> attachments = const [],
     ChatItemId? existingId,
     PreciseDateTime? existingDateTime,
-  }) =>
-      DtoChatMessage(
-        ChatMessage(
-          existingId ?? ChatItemId.local(),
-          chatId,
-          User(me, UserNum('1234123412341234')),
-          existingDateTime ?? PreciseDateTime.now(),
-          text: text,
-          repliesTo: repliesTo,
-          attachments: attachments,
-          status: SendingStatus.sending,
-        ),
-        null,
-        ChatItemVersion('0'),
-        [],
-      );
+  }) => DtoChatMessage(
+    ChatMessage(
+      existingId ?? ChatItemId.local(),
+      chatId,
+      User(me, UserNum('1234123412341234')),
+      existingDateTime ?? PreciseDateTime.now(),
+      text: text,
+      repliesTo: repliesTo,
+      attachments: attachments,
+      status: SendingStatus.sending,
+    ),
+    null,
+    ChatItemVersion('0'),
+    [],
+  );
 
   /// Constructs a [DtoChatMessage] from the provided [json].
   factory DtoChatMessage.fromJson(Map<String, dynamic> json) =>
@@ -184,12 +178,7 @@ class DtoChatMessage extends DtoChatItem {
 /// Persisted in storage [ChatForward]'s [value].
 @JsonSerializable()
 class DtoChatForward extends DtoChatItem {
-  DtoChatForward(
-    super.value,
-    super.cursor,
-    super.ver,
-    this.quoteCursor,
-  );
+  DtoChatForward(super.value, super.cursor, super.ver, this.quoteCursor);
 
   /// Constructs a [DtoChatForward] from the provided [json].
   factory DtoChatForward.fromJson(Map<String, dynamic> json) =>

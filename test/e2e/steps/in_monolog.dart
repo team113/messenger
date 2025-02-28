@@ -33,12 +33,10 @@ final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
     final ChatService chatService = Get.find<ChatService>();
     router.chat(chatService.monolog);
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatView', FindType.key),
+      );
+    });
   },
 );

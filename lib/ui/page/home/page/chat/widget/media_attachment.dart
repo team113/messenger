@@ -84,8 +84,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     final Attachment attachment = widget.attachment;
 
-    final bool isImage = (attachment is ImageAttachment ||
-        (attachment is LocalAttachment && attachment.file.isImage));
+    final bool isImage =
+        (attachment is ImageAttachment ||
+            (attachment is LocalAttachment && attachment.file.isImage));
 
     Widget? preview;
     Widget? child;
@@ -142,7 +143,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 attachment.file.bytes.value!,
                 fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
-                height: widget.height ??
+                height:
+                    widget.height ??
                     max(100, min(dimensions?.height ?? 300, 300)),
               );
             }
@@ -158,9 +160,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         if (narrow || single) {
           final ThumbHash? thumbhash =
               (attachment.original as ImageFile).thumbhash ??
-                  attachment.big.thumbhash ??
-                  attachment.medium.thumbhash ??
-                  attachment.small.thumbhash;
+              attachment.big.thumbhash ??
+              attachment.medium.thumbhash ??
+              attachment.small.thumbhash;
 
           // Display only the [ThumbHash], if [attachment] has any, to reduce
           // possible overhead caused by a [RetryImage].
@@ -187,11 +189,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
           minWidth: 75,
-          height: widget.height ??
-              max(
-                100,
-                min(file.height?.toDouble() ?? 300, 300),
-              ),
+          height:
+              widget.height ??
+              max(100, min(file.height?.toDouble() ?? 300, 300)),
           onForbidden: widget.onError,
           cancelable: true,
         );

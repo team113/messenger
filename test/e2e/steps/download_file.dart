@@ -48,8 +48,9 @@ final StepDefinitionGeneric downloadFile = then1<String, CustomWorld>(
         .expand((e) => e.attachments)
         .firstWhere((a) => a.filename == name);
 
-    Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('File_${attachment.id}');
+    Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      'File_${attachment.id}',
+    );
     Finder downloadButton = context.world.appDriver.findByDescendant(
       finder,
       context.world.appDriver.findByKeySkipOffstage('Download'),
@@ -81,8 +82,9 @@ final StepDefinitionGeneric cancelFileDownload = then1<String, CustomWorld>(
             .expand((e) => e.attachments)
             .firstWhere((a) => a.filename == name);
 
-        Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('File_${attachment.id}');
+        Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'File_${attachment.id}',
+        );
         Finder cancelButton = context.world.appDriver.findByDescendant(
           finder,
           context.world.appDriver.findByKeySkipOffstage('CancelDownloading'),

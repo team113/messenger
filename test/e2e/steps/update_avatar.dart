@@ -35,11 +35,14 @@ final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
     final Uint8List bytes = base64Decode(
       '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
     );
-    final NativeFile file =
-        NativeFile(name: 'avatar.png', size: bytes.length, bytes: bytes);
+    final NativeFile file = NativeFile(
+      name: 'avatar.png',
+      size: bytes.length,
+      bytes: bytes,
+    );
 
     await service.updateAvatar(file);
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

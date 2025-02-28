@@ -71,8 +71,9 @@ Future<void> main() {
           );
         } else {
           await fs.directory(directory).create(recursive: true);
-          final File file =
-              fs.file('$directory/${e.key}.timeline_summary.json');
+          final File file = fs.file(
+            '$directory/${e.key}.timeline_summary.json',
+          );
           await file.writeAsString(
             const JsonEncoder.withIndent('  ').convert(summary.summaryJson),
           );

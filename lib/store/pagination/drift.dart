@@ -61,7 +61,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     required int after,
     required int before,
     K? around,
-  })? fetch;
+  })?
+  fetch;
 
   /// Callback, called when [Stream] of the [T] items [around] the provided [K]
   /// are required.
@@ -71,7 +72,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
     int? after,
     int? before,
     K? around,
-  })? watch;
+  })?
+  watch;
 
   /// Callback, comparing the provided items when they update during [watch] to
   /// determine whether the [onAdded] should be invoked.
@@ -214,7 +216,8 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
 
     final int edgesBefore = _list.length;
     final List<T> edges = await _page();
-    final bool fulfilled = fulfilledWhenNone ||
+    final bool fulfilled =
+        fulfilledWhenNone ||
         (_hasFirst && _hasLast) ||
         edges.length - edgesBefore >= count ~/ 2;
 
@@ -403,22 +406,21 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
         _watchSubscription = stream.listen(handle);
 
         _timeoutTimer?.cancel();
-        _timeoutTimer = Timer(
-          const Duration(seconds: 1),
-          () async {
-            if (!completer.isCompleted) {
-              if (fetch != null) {
-                handle(await fetch!(
+        _timeoutTimer = Timer(const Duration(seconds: 1), () async {
+          if (!completer.isCompleted) {
+            if (fetch != null) {
+              handle(
+                await fetch!(
                   after: _after ?? 50,
                   before: _before ?? 50,
                   around: _around,
-                ));
-              } else {
-                handle([]);
-              }
+                ),
+              );
+            } else {
+              handle([]);
             }
-          },
-        );
+          }
+        });
 
         _list = await completer.future;
       } else if (fetch != null) {

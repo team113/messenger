@@ -162,8 +162,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-  }) =>
-      false;
+  }) => false;
 
   /// Closes the current window.
   static void closeWindow() {
@@ -281,14 +280,17 @@ class WebUtils {
   /// Registers the custom [Config.scheme].
   static Future<void> registerScheme() async {
     if (PlatformUtils.isWindows) {
-      final RegistryKey regKey =
-          Registry.currentUser.createKey('Software\\Classes\\${Config.scheme}');
+      final RegistryKey regKey = Registry.currentUser.createKey(
+        'Software\\Classes\\${Config.scheme}',
+      );
 
       regKey.createValue(
         const RegistryValue('URL Protocol', RegistryValueType.string, ''),
       );
 
-      regKey.createKey('shell\\open\\command').createValue(
+      regKey
+          .createKey('shell\\open\\command')
+          .createValue(
             RegistryValue(
               '',
               RegistryValueType.string,

@@ -29,65 +29,74 @@ SessionVersion fromGraphQLSessionVersionToDartSessionVersion(String v) =>
 String fromDartSessionVersionToGraphQLSessionVersion(SessionVersion v) =>
     v.toString();
 List<SessionVersion> fromGraphQLListSessionVersionToDartListSessionVersion(
-        List<Object?> v) =>
+  List<Object?> v,
+) =>
     v
         .map((e) => fromGraphQLSessionVersionToDartSessionVersion(e as String))
         .toList();
 List<String> fromDartListSessionVersionToGraphQLListSessionVersion(
-        List<SessionVersion> v) =>
-    v.map((e) => fromDartSessionVersionToGraphQLSessionVersion(e)).toList();
+  List<SessionVersion> v,
+) => v.map((e) => fromDartSessionVersionToGraphQLSessionVersion(e)).toList();
 List<SessionVersion>?
-    fromGraphQLListNullableSessionVersionToDartListNullableSessionVersion(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLSessionVersionToDartSessionVersion(e as String))
-            .toList();
+fromGraphQLListNullableSessionVersionToDartListNullableSessionVersion(
+  List<Object?>? v,
+) =>
+    v
+        ?.map((e) => fromGraphQLSessionVersionToDartSessionVersion(e as String))
+        .toList();
 List<String>?
-    fromDartListNullableSessionVersionToGraphQLListNullableSessionVersion(
-            List<SessionVersion>? v) =>
-        v
-            ?.map((e) => fromDartSessionVersionToGraphQLSessionVersion(e))
-            .toList();
+fromDartListNullableSessionVersionToGraphQLListNullableSessionVersion(
+  List<SessionVersion>? v,
+) => v?.map((e) => fromDartSessionVersionToGraphQLSessionVersion(e)).toList();
 
 SessionVersion? fromGraphQLSessionVersionNullableToDartSessionVersionNullable(
-        String? v) =>
-    v == null ? null : SessionVersion.parse(v);
+  String? v,
+) => v == null ? null : SessionVersion.parse(v);
 String? fromDartSessionVersionNullableToGraphQLSessionVersionNullable(
-        SessionVersion? v) =>
-    v?.toString();
+  SessionVersion? v,
+) => v?.toString();
 List<SessionVersion?>
-    fromGraphQLListSessionVersionNullableToDartListSessionVersionNullable(
-            List<Object?> v) =>
-        v
-            .map((e) =>
-                fromGraphQLSessionVersionNullableToDartSessionVersionNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListSessionVersionNullableToDartListSessionVersionNullable(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) => fromGraphQLSessionVersionNullableToDartSessionVersionNullable(
+            e as String?,
+          ),
+        )
+        .toList();
 List<String?>
-    fromDartListSessionVersionNullableToGraphQLListSessionVersionNullable(
-            List<SessionVersion?> v) =>
-        v
-            .map((e) =>
-                fromDartSessionVersionNullableToGraphQLSessionVersionNullable(
-                    e))
-            .toList();
+fromDartListSessionVersionNullableToGraphQLListSessionVersionNullable(
+  List<SessionVersion?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromDartSessionVersionNullableToGraphQLSessionVersionNullable(e),
+        )
+        .toList();
 List<SessionVersion?>?
-    fromGraphQLListNullableSessionVersionNullableToDartListNullableSessionVersionNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLSessionVersionNullableToDartSessionVersionNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListNullableSessionVersionNullableToDartListNullableSessionVersionNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) => fromGraphQLSessionVersionNullableToDartSessionVersionNullable(
+            e as String?,
+          ),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableSessionVersionNullableToGraphQLListNullableSessionVersionNullable(
-            List<SessionVersion?>? v) =>
-        v
-            ?.map((e) =>
-                fromDartSessionVersionNullableToGraphQLSessionVersionNullable(
-                    e))
-            .toList();
+fromDartListNullableSessionVersionNullableToGraphQLListNullableSessionVersionNullable(
+  List<SessionVersion?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromDartSessionVersionNullableToGraphQLSessionVersionNullable(e),
+        )
+        .toList();
 
 // SessionId
 
@@ -98,114 +107,144 @@ List<SessionId> fromGraphQLListSessionIdToDartListSessionId(List<Object?> v) =>
 List<String> fromDartListSessionIdToGraphQLListSessionId(List<SessionId> v) =>
     v.map((e) => fromDartSessionIdToGraphQLSessionId(e)).toList();
 List<SessionId>? fromGraphQLListNullableSessionIdToDartListNullableSessionId(
-        List<Object?>? v) =>
-    v?.map((e) => fromGraphQLSessionIdToDartSessionId(e as String)).toList();
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLSessionIdToDartSessionId(e as String)).toList();
 List<String>? fromDartListNullableSessionIdToGraphQLListNullableSessionId(
-        List<SessionId>? v) =>
-    v?.map((e) => fromDartSessionIdToGraphQLSessionId(e)).toList();
+  List<SessionId>? v,
+) => v?.map((e) => fromDartSessionIdToGraphQLSessionId(e)).toList();
 
 SessionId? fromGraphQLSessionIdNullableToDartSessionIdNullable(String? v) =>
     v == null ? null : SessionId(v);
 String? fromDartSessionIdNullableToGraphQLSessionIdNullable(SessionId? v) =>
     v?.toString();
 List<SessionId?> fromGraphQLListSessionIdNullableToDartListSessionIdNullable(
-        List<Object?> v) =>
+  List<Object?> v,
+) =>
     v
-        .map((e) =>
-            fromGraphQLSessionIdNullableToDartSessionIdNullable(e as String?))
+        .map(
+          (e) =>
+              fromGraphQLSessionIdNullableToDartSessionIdNullable(e as String?),
+        )
         .toList();
 List<String?> fromDartListSessionIdNullableToGraphQLListSessionIdNullable(
-        List<SessionId?> v) =>
+  List<SessionId?> v,
+) =>
     v
         .map((e) => fromDartSessionIdNullableToGraphQLSessionIdNullable(e))
         .toList();
 List<SessionId?>?
-    fromGraphQLListNullableSessionIdNullableToDartListNullableSessionIdNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) => fromGraphQLSessionIdNullableToDartSessionIdNullable(
-                e as String?))
-            .toList();
+fromGraphQLListNullableSessionIdNullableToDartListNullableSessionIdNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLSessionIdNullableToDartSessionIdNullable(e as String?),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableSessionIdNullableToGraphQLListNullableSessionIdNullable(
-            List<SessionId?>? v) =>
-        v
-            ?.map((e) => fromDartSessionIdNullableToGraphQLSessionIdNullable(e))
-            .toList();
+fromDartListNullableSessionIdNullableToGraphQLListNullableSessionIdNullable(
+  List<SessionId?>? v,
+) =>
+    v
+        ?.map((e) => fromDartSessionIdNullableToGraphQLSessionIdNullable(e))
+        .toList();
 
 // AccessTokenSecret
 
 AccessTokenSecret fromGraphQLAccessTokenSecretToDartAccessTokenSecret(
-        String v) =>
-    AccessTokenSecret(v);
+  String v,
+) => AccessTokenSecret(v);
 String fromDartAccessTokenSecretToGraphQLAccessTokenSecret(
-        AccessTokenSecret v) =>
-    v.toString();
+  AccessTokenSecret v,
+) => v.toString();
 List<AccessTokenSecret>
-    fromGraphQLListAccessTokenSecretToDartListAccessTokenSecret(
-            List<Object?> v) =>
-        v
-            .map((e) => fromGraphQLAccessTokenSecretToDartAccessTokenSecret(
-                e as String))
-            .toList();
+fromGraphQLListAccessTokenSecretToDartListAccessTokenSecret(List<Object?> v) =>
+    v
+        .map(
+          (e) =>
+              fromGraphQLAccessTokenSecretToDartAccessTokenSecret(e as String),
+        )
+        .toList();
 List<String> fromDartListAccessTokenSecretToGraphQLListAccessTokenSecret(
-        List<AccessTokenSecret> v) =>
+  List<AccessTokenSecret> v,
+) =>
     v
         .map((e) => fromDartAccessTokenSecretToGraphQLAccessTokenSecret(e))
         .toList();
 List<AccessTokenSecret>?
-    fromGraphQLListNullableAccessTokenSecretToDartListNullableAccessTokenSecret(
-            List<Object?>? v) =>
-        v
-            ?.map((e) => fromGraphQLAccessTokenSecretToDartAccessTokenSecret(
-                e as String))
-            .toList();
+fromGraphQLListNullableAccessTokenSecretToDartListNullableAccessTokenSecret(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLAccessTokenSecretToDartAccessTokenSecret(e as String),
+        )
+        .toList();
 List<String>?
-    fromDartListNullableAccessTokenSecretToGraphQLListNullableAccessTokenSecret(
-            List<AccessTokenSecret>? v) =>
-        v
-            ?.map((e) => fromDartAccessTokenSecretToGraphQLAccessTokenSecret(e))
-            .toList();
+fromDartListNullableAccessTokenSecretToGraphQLListNullableAccessTokenSecret(
+  List<AccessTokenSecret>? v,
+) =>
+    v
+        ?.map((e) => fromDartAccessTokenSecretToGraphQLAccessTokenSecret(e))
+        .toList();
 
 AccessTokenSecret?
-    fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
-            String? v) =>
-        v == null ? null : AccessTokenSecret(v);
+fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
+  String? v,
+) => v == null ? null : AccessTokenSecret(v);
 String? fromDartAccessTokenSecretNullableToGraphQLAccessTokenSecretNullable(
-        AccessTokenSecret? v) =>
-    v?.toString();
+  AccessTokenSecret? v,
+) => v?.toString();
 List<AccessTokenSecret?>
-    fromGraphQLListAccessTokenSecretNullableToDartListAccessTokenSecretNullable(
-            List<Object?> v) =>
-        v
-            .map((e) =>
-                fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListAccessTokenSecretNullableToDartListAccessTokenSecretNullable(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>
-    fromDartListAccessTokenSecretNullableToGraphQLListAccessTokenSecretNullable(
-            List<AccessTokenSecret?> v) =>
-        v
-            .map((e) =>
-                fromDartAccessTokenSecretNullableToGraphQLAccessTokenSecretNullable(
-                    e))
-            .toList();
+fromDartListAccessTokenSecretNullableToGraphQLListAccessTokenSecretNullable(
+  List<AccessTokenSecret?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromDartAccessTokenSecretNullableToGraphQLAccessTokenSecretNullable(
+                e,
+              ),
+        )
+        .toList();
 List<AccessTokenSecret?>?
-    fromGraphQLListNullableAccessTokenSecretNullableToDartListNullableAccessTokenSecretNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListNullableAccessTokenSecretNullableToDartListNullableAccessTokenSecretNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLAccessTokenSecretNullableToDartAccessTokenSecretNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableAccessTokenSecretNullableToGraphQLListNullableAccessTokenSecretNullable(
-            List<AccessTokenSecret?>? v) =>
-        v
-            ?.map((e) =>
-                fromDartAccessTokenSecretNullableToGraphQLAccessTokenSecretNullable(
-                    e))
-            .toList();
+fromDartListNullableAccessTokenSecretNullableToGraphQLListNullableAccessTokenSecretNullable(
+  List<AccessTokenSecret?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromDartAccessTokenSecretNullableToGraphQLAccessTokenSecretNullable(
+                e,
+              ),
+        )
+        .toList();
 
 // UserAgent
 
@@ -216,191 +255,248 @@ List<UserAgent> fromGraphQLListUserAgentToDartListUserAgent(List<Object?> v) =>
 List<String> fromDartListUserAgentToGraphQLListUserAgent(List<UserAgent> v) =>
     v.map((e) => fromDartUserAgentToGraphQLUserAgent(e)).toList();
 List<UserAgent>? fromGraphQLListNullableUserAgentToDartListNullableUserAgent(
-        List<Object?>? v) =>
-    v?.map((e) => fromGraphQLUserAgentToDartUserAgent(e as String)).toList();
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLUserAgentToDartUserAgent(e as String)).toList();
 List<String>? fromDartListNullableUserAgentToGraphQLListNullableUserAgent(
-        List<UserAgent>? v) =>
-    v?.map((e) => fromDartUserAgentToGraphQLUserAgent(e)).toList();
+  List<UserAgent>? v,
+) => v?.map((e) => fromDartUserAgentToGraphQLUserAgent(e)).toList();
 
 UserAgent? fromGraphQLUserAgentNullableToDartUserAgentNullable(String? v) =>
     v == null ? null : UserAgent(v);
 String? fromDartUserAgentNullableToGraphQLUserAgentNullable(UserAgent? v) =>
     v?.val;
 List<UserAgent?> fromGraphQLListUserAgentNullableToDartListUserAgentNullable(
-        List<Object?> v) =>
+  List<Object?> v,
+) =>
     v
-        .map((e) =>
-            fromGraphQLUserAgentNullableToDartUserAgentNullable(e as String?))
+        .map(
+          (e) =>
+              fromGraphQLUserAgentNullableToDartUserAgentNullable(e as String?),
+        )
         .toList();
 List<String?> fromDartListUserAgentNullableToGraphQLListUserAgentNullable(
-        List<UserAgent?> v) =>
+  List<UserAgent?> v,
+) =>
     v
         .map((e) => fromDartUserAgentNullableToGraphQLUserAgentNullable(e))
         .toList();
 List<UserAgent?>?
-    fromGraphQLListNullableUserAgentNullableToDartListNullableUserAgentNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) => fromGraphQLUserAgentNullableToDartUserAgentNullable(
-                e as String?))
-            .toList();
+fromGraphQLListNullableUserAgentNullableToDartListNullableUserAgentNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLUserAgentNullableToDartUserAgentNullable(e as String?),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableUserAgentNullableToGraphQLListNullableUserAgentNullable(
-            List<UserAgent?>? v) =>
-        v
-            ?.map((e) => fromDartUserAgentNullableToGraphQLUserAgentNullable(e))
-            .toList();
+fromDartListNullableUserAgentNullableToGraphQLListNullableUserAgentNullable(
+  List<UserAgent?>? v,
+) =>
+    v
+        ?.map((e) => fromDartUserAgentNullableToGraphQLUserAgentNullable(e))
+        .toList();
 
 // RefreshTokenSecret
 
 RefreshTokenSecret fromGraphQLRefreshTokenSecretToDartRefreshTokenSecret(
-        String v) =>
-    RefreshTokenSecret(v);
+  String v,
+) => RefreshTokenSecret(v);
 String fromDartRefreshTokenSecretToGraphQLRefreshTokenSecret(
-        RefreshTokenSecret v) =>
-    v.val;
+  RefreshTokenSecret v,
+) => v.val;
 List<RefreshTokenSecret>
-    fromGraphQLListRefreshTokenSecretToDartListRefreshTokenSecret(
-            List<Object?> v) =>
-        v
-            .map((e) => fromGraphQLRefreshTokenSecretToDartRefreshTokenSecret(
-                e as String))
-            .toList();
+fromGraphQLListRefreshTokenSecretToDartListRefreshTokenSecret(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) => fromGraphQLRefreshTokenSecretToDartRefreshTokenSecret(
+            e as String,
+          ),
+        )
+        .toList();
 List<String> fromDartListRefreshTokenSecretToGraphQLListRefreshTokenSecret(
-        List<RefreshTokenSecret> v) =>
+  List<RefreshTokenSecret> v,
+) =>
     v
         .map((e) => fromDartRefreshTokenSecretToGraphQLRefreshTokenSecret(e))
         .toList();
 List<RefreshTokenSecret>?
-    fromGraphQLListNullableRefreshTokenSecretToDartListNullableRefreshTokenSecret(
-            List<Object?>? v) =>
-        v
-            ?.map((e) => fromGraphQLRefreshTokenSecretToDartRefreshTokenSecret(
-                e as String))
-            .toList();
+fromGraphQLListNullableRefreshTokenSecretToDartListNullableRefreshTokenSecret(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) => fromGraphQLRefreshTokenSecretToDartRefreshTokenSecret(
+            e as String,
+          ),
+        )
+        .toList();
 List<String>?
-    fromDartListNullableRefreshTokenSecretToGraphQLListNullableRefreshTokenSecret(
-            List<RefreshTokenSecret>? v) =>
-        v
-            ?.map(
-                (e) => fromDartRefreshTokenSecretToGraphQLRefreshTokenSecret(e))
-            .toList();
+fromDartListNullableRefreshTokenSecretToGraphQLListNullableRefreshTokenSecret(
+  List<RefreshTokenSecret>? v,
+) =>
+    v
+        ?.map((e) => fromDartRefreshTokenSecretToGraphQLRefreshTokenSecret(e))
+        .toList();
 
 RefreshTokenSecret?
-    fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
-            String? v) =>
-        v == null ? null : RefreshTokenSecret(v);
+fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
+  String? v,
+) => v == null ? null : RefreshTokenSecret(v);
 String? fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
-        RefreshTokenSecret? v) =>
-    v?.val;
+  RefreshTokenSecret? v,
+) => v?.val;
 List<RefreshTokenSecret?>
-    fromGraphQLListRefreshTokenSecretNullableToDartListRefreshTokenSecretNullable(
-            List<Object?> v) =>
-        v
-            .map((e) =>
-                fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListRefreshTokenSecretNullableToDartListRefreshTokenSecretNullable(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>
-    fromDartListRefreshTokenSecretNullableToGraphQLListRefreshTokenSecretNullable(
-            List<RefreshTokenSecret?> v) =>
-        v
-            .map((e) =>
-                fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
-                    e))
-            .toList();
+fromDartListRefreshTokenSecretNullableToGraphQLListRefreshTokenSecretNullable(
+  List<RefreshTokenSecret?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
+                e,
+              ),
+        )
+        .toList();
 List<RefreshTokenSecret?>?
-    fromGraphQLListNullableRefreshTokenSecretNullableToDartListNullableRefreshTokenSecretNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListNullableRefreshTokenSecretNullableToDartListNullableRefreshTokenSecretNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLRefreshTokenSecretNullableToDartRefreshTokenSecretNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableRefreshTokenSecretNullableToGraphQLListNullableRefreshTokenSecretNullable(
-            List<RefreshTokenSecret?>? v) =>
-        v
-            ?.map((e) =>
-                fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
-                    e))
-            .toList();
+fromDartListNullableRefreshTokenSecretNullableToGraphQLListNullableRefreshTokenSecretNullable(
+  List<RefreshTokenSecret?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromDartRefreshTokenSecretNullableToGraphQLRefreshTokenSecretNullable(
+                e,
+              ),
+        )
+        .toList();
 
 // SessionsListVersion
 
 SessionsListVersion fromGraphQLSessionsListVersionToDartSessionsListVersion(
-        String v) =>
-    SessionsListVersion(v);
+  String v,
+) => SessionsListVersion(v);
 String fromDartSessionsListVersionToGraphQLSessionsListVersion(
-        SessionsListVersion v) =>
-    v.toString();
+  SessionsListVersion v,
+) => v.toString();
 List<SessionsListVersion>
-    fromGraphQLListSessionsListVersionToDartListSessionsListVersion(
-            List<Object?> v) =>
-        v
-            .map((e) => fromGraphQLSessionsListVersionToDartSessionsListVersion(
-                e as String))
-            .toList();
+fromGraphQLListSessionsListVersionToDartListSessionsListVersion(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) => fromGraphQLSessionsListVersionToDartSessionsListVersion(
+            e as String,
+          ),
+        )
+        .toList();
 List<String> fromDartListSessionsListVersionToGraphQLListSessionsListVersion(
-        List<SessionsListVersion> v) =>
+  List<SessionsListVersion> v,
+) =>
     v
         .map((e) => fromDartSessionsListVersionToGraphQLSessionsListVersion(e))
         .toList();
 List<SessionsListVersion>?
-    fromGraphQLListNullableSessionsListVersionToDartListNullableSessionsListVersion(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLSessionsListVersionToDartSessionsListVersion(
-                    e as String))
-            .toList();
+fromGraphQLListNullableSessionsListVersionToDartListNullableSessionsListVersion(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) => fromGraphQLSessionsListVersionToDartSessionsListVersion(
+            e as String,
+          ),
+        )
+        .toList();
 List<String>?
-    fromDartListNullableSessionsListVersionToGraphQLListNullableSessionsListVersion(
-            List<SessionsListVersion>? v) =>
-        v
-            ?.map((e) =>
-                fromDartSessionsListVersionToGraphQLSessionsListVersion(e))
-            .toList();
+fromDartListNullableSessionsListVersionToGraphQLListNullableSessionsListVersion(
+  List<SessionsListVersion>? v,
+) =>
+    v
+        ?.map((e) => fromDartSessionsListVersionToGraphQLSessionsListVersion(e))
+        .toList();
 
 SessionsListVersion?
-    fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
-            String? v) =>
-        v == null ? null : SessionsListVersion(v);
+fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
+  String? v,
+) => v == null ? null : SessionsListVersion(v);
 String? fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
-        SessionsListVersion? v) =>
-    v?.toString();
+  SessionsListVersion? v,
+) => v?.toString();
 List<SessionsListVersion?>
-    fromGraphQLListSessionsListVersionNullableToDartListSessionsListVersionNullable(
-            List<Object?> v) =>
-        v
-            .map((e) =>
-                fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListSessionsListVersionNullableToDartListSessionsListVersionNullable(
+  List<Object?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>
-    fromDartListSessionsListVersionNullableToGraphQLListSessionsListVersionNullable(
-            List<SessionsListVersion?> v) =>
-        v
-            .map((e) =>
-                fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
-                    e))
-            .toList();
+fromDartListSessionsListVersionNullableToGraphQLListSessionsListVersionNullable(
+  List<SessionsListVersion?> v,
+) =>
+    v
+        .map(
+          (e) =>
+              fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
+                e,
+              ),
+        )
+        .toList();
 List<SessionsListVersion?>?
-    fromGraphQLListNullableSessionsListVersionNullableToDartListNullableSessionsListVersionNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) =>
-                fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
-                    e as String?))
-            .toList();
+fromGraphQLListNullableSessionsListVersionNullableToDartListNullableSessionsListVersionNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLSessionsListVersionNullableToDartSessionsListVersionNullable(
+                e as String?,
+              ),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableSessionsListVersionNullableToGraphQLListNullableSessionsListVersionNullable(
-            List<SessionsListVersion?>? v) =>
-        v
-            ?.map((e) =>
-                fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
-                    e))
-            .toList();
+fromDartListNullableSessionsListVersionNullableToGraphQLListNullableSessionsListVersionNullable(
+  List<SessionsListVersion?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromDartSessionsListVersionNullableToGraphQLSessionsListVersionNullable(
+                e,
+              ),
+        )
+        .toList();
 
 // Ip -> IpAddress
 
@@ -411,21 +507,22 @@ List<IpAddress> fromGraphQLListIpToDartListIpAddress(List<Object?> v) =>
 List<String> fromDartListIpAddressToGraphQLListDataTime(List<IpAddress> v) =>
     v.map((e) => fromDartIpAddressToGraphQLIp(e)).toList();
 List<IpAddress>? fromGraphQLListNullableIpToDartListNullableIpAddress(
-        List<Object?>? v) =>
-    v?.map((e) => fromGraphQLIpToDartIpAddress(e as String)).toList();
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLIpToDartIpAddress(e as String)).toList();
 List<String>? fromDartListNullableIpAddressToGraphQLListNullableIp(
-        List<IpAddress>? v) =>
-    v?.map((e) => fromDartIpAddressToGraphQLIp(e)).toList();
+  List<IpAddress>? v,
+) => v?.map((e) => fromDartIpAddressToGraphQLIp(e)).toList();
 
 IpAddress? fromGraphQLIpNullableToDartIpAddressNullable(String? v) =>
     v == null ? null : IpAddress(v);
 String? fromDartIpAddressNullableToGraphQLIpNullable(IpAddress? v) => v?.val;
 
 List<IpAddress?> fromGraphQLListIpNullableToDartListIpAddressNullable(
-        List<Object?> v) =>
+  List<Object?> v,
+) =>
     v
         .map((e) => fromGraphQLIpNullableToDartIpAddressNullable(e as String?))
         .toList();
 List<String?> fromDartListIpAddressNullableToGraphQLListIpNullable(
-        List<IpAddress?> v) =>
-    v.map((e) => fromDartIpAddressNullableToGraphQLIpNullable(e)).toList();
+  List<IpAddress?> v,
+) => v.map((e) => fromDartIpAddressNullableToGraphQLIpNullable(e)).toList();

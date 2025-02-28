@@ -31,13 +31,11 @@ final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
   (context) async {
     router.chatInfo(ChatId(router.route.split('/').last));
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatInfoView', FindType.key),
-        );
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatInfoView', FindType.key),
+      );
+    });
   },
 );

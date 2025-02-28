@@ -66,24 +66,26 @@ class FloatingSnackBar extends StatefulWidget {
     OverlayEntry? entry;
 
     entry = OverlayEntry(
-      builder: (_) => FloatingSnackBar(
-        duration: duration,
-        onPressed: onPressed,
-        onEnd: () {
-          if (entry?.mounted == true) {
-            entry?.remove();
-          }
-          entry = null;
-        },
-        bottom: bottom,
-        at: at,
-        child: Text(
-          title,
-          style: onPressed == null
-              ? style.fonts.normal.regular.onBackground
-              : style.fonts.medium.regular.primary,
-        ),
-      ),
+      builder:
+          (_) => FloatingSnackBar(
+            duration: duration,
+            onPressed: onPressed,
+            onEnd: () {
+              if (entry?.mounted == true) {
+                entry?.remove();
+              }
+              entry = null;
+            },
+            bottom: bottom,
+            at: at,
+            child: Text(
+              title,
+              style:
+                  onPressed == null
+                      ? style.fonts.normal.regular.onBackground
+                      : style.fonts.medium.regular.primary,
+            ),
+          ),
     );
 
     router.overlay?.insert(entry!);
@@ -142,9 +144,10 @@ class _FloatingSnackBarState extends State<FloatingSnackBar>
                 duration: const Duration(milliseconds: 120),
                 onEnd: _onEnd,
                 child: MouseRegion(
-                  cursor: widget.onPressed == null
-                      ? MouseCursor.defer
-                      : SystemMouseCursors.click,
+                  cursor:
+                      widget.onPressed == null
+                          ? MouseCursor.defer
+                          : SystemMouseCursors.click,
                   child: Container(
                     padding: const EdgeInsets.fromLTRB(24, 8, 24, 8),
                     decoration: BoxDecoration(

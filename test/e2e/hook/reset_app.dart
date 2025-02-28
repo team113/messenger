@@ -49,8 +49,9 @@ class ResetAppHook extends Hook {
 
     await Get.deleteAll();
 
-    PlatformUtils.client?.interceptors
-        .removeWhere((e) => e is DelayedInterceptor);
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
 
     svg.cache.clear();
 
@@ -65,8 +66,7 @@ class ResetAppHook extends Hook {
     TestConfiguration config,
     String scenario,
     Iterable<Tag> tags,
-  ) =>
-      onBeforeScenario(config, scenario, tags);
+  ) => onBeforeScenario(config, scenario, tags);
 
   @override
   Future<void> onAfterRun(TestConfiguration config) async {

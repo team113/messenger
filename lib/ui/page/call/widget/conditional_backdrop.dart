@@ -31,12 +31,9 @@ class ConditionalBackdropFilter extends StatelessWidget {
     ImageFilter? filter,
     this.borderRadius,
   }) {
-    this.filter = filter ??
-        ImageFilter.blur(
-          sigmaX: 10,
-          sigmaY: 10,
-          tileMode: TileMode.mirror,
-        );
+    this.filter =
+        filter ??
+        ImageFilter.blur(sigmaX: 10, sigmaY: 10, tileMode: TileMode.mirror);
   }
 
   /// [Widget] to apply [BackdropFilter] to.

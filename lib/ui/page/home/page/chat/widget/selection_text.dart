@@ -92,8 +92,10 @@ class _SelectionTextState extends State<SelectionText> {
           child: child,
         );
       } else {
-        child =
-            SelectionArea(onSelectionChanged: widget.onChanged, child: child);
+        child = SelectionArea(
+          onSelectionChanged: widget.onChanged,
+          child: child,
+        );
 
         if (PlatformUtils.isWeb) {
           child = ContextMenuInterceptor(child: child);

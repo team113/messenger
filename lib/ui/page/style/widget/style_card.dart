@@ -41,10 +41,11 @@ class StyleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedButton(
       onPressed: onPressed,
-      decorator: (child) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: child,
-      ),
+      decorator:
+          (child) => Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: child,
+          ),
       child: AnimatedScale(
         duration: const Duration(milliseconds: 150),
         curve: Curves.bounceInOut,

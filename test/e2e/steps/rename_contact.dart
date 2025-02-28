@@ -31,18 +31,18 @@ import '../world/custom_world.dart';
 /// - When I rename Bob contact to "Example"
 final StepDefinitionGeneric renameContact =
     when2<TestUser, String, CustomWorld>(
-  'I rename {user} contact to {string}',
-  (user, name, context) async {
-    final ChatContactId contactId = context.world.contacts[user.name]!;
+      'I rename {user} contact to {string}',
+      (user, name, context) async {
+        final ChatContactId contactId = context.world.contacts[user.name]!;
 
-    final AuthService authService = Get.find();
-    final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.access.secret;
+        final AuthService authService = Get.find();
+        final provider = GraphQlProvider();
+        provider.token = authService.credentials.value!.access.secret;
 
-    await provider.changeContactName(contactId, UserName(name));
+        await provider.changeContactName(contactId, UserName(name));
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

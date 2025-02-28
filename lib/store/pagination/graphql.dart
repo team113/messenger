@@ -32,7 +32,8 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
     int? last,
     C? before,
     C? after,
-  }) fetch;
+  })
+  fetch;
 
   @override
   Future<Page<T, C>?> init(K? key, int count) async {
@@ -50,17 +51,19 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
     final Page<T, C> page = await fetch(
       after: cursor,
-      last: cursor == null
-          ? reversed
-              ? count
-              : null
-          : half,
+      last:
+          cursor == null
+              ? reversed
+                  ? count
+                  : null
+              : half,
       before: cursor,
-      first: cursor == null
-          ? reversed
-              ? null
-              : count
-          : half,
+      first:
+          cursor == null
+              ? reversed
+                  ? null
+                  : count
+              : half,
     );
 
     return reversed ? page.reversed() : page;

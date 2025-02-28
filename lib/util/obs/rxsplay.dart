@@ -34,7 +34,7 @@ class RxObsSplayTreeMap<K, V>
     implements RxInterface<SplayTreeMap<K, V>> {
   /// Creates a new [SplayTreeMap] with the provided [initial] keys and values.
   RxObsSplayTreeMap([Map<K, V> initial = const {}])
-      : _value = SplayTreeMap.from(initial);
+    : _value = SplayTreeMap.from(initial);
 
   /// Creates a new [SplayTreeMap] with the same keys and values as [other].
   factory RxObsSplayTreeMap.from(Map<K, V> other) =>
@@ -54,18 +54,16 @@ class RxObsSplayTreeMap<K, V>
     Iterable iterable, {
     K Function(dynamic element)? key,
     V Function(dynamic element)? value,
-  }) =>
-      RxObsSplayTreeMap(
-        Map<K, V>.fromIterable(iterable, key: key, value: value),
-      );
+  }) => RxObsSplayTreeMap(
+    Map<K, V>.fromIterable(iterable, key: key, value: value),
+  );
 
   /// Creates a new [SplayTreeMap] associating the given [keys] to the given
   /// [values].
   factory RxObsSplayTreeMap.fromIterables(
     Iterable<K> keys,
     Iterable<V> values,
-  ) =>
-      RxObsSplayTreeMap(Map<K, V>.fromIterables(keys, values));
+  ) => RxObsSplayTreeMap(Map<K, V>.fromIterables(keys, values));
 
   /// Creates a new [SplayTreeMap] and adds all the provided [entries] to it.
   factory RxObsSplayTreeMap.fromEntries(Iterable<MapEntry<K, V>> entries) =>
@@ -75,8 +73,9 @@ class RxObsSplayTreeMap<K, V>
   late SplayTreeMap<K, V> _value;
 
   /// [StreamController] of record of changes of this [ObsMap].
-  final _changes =
-      StreamController<MapChangeNotification<K, V>>.broadcast(sync: true);
+  final _changes = StreamController<MapChangeNotification<K, V>>.broadcast(
+    sync: true,
+  );
 
   /// Returns stream of record of changes of this [ObsMap].
   Stream<MapChangeNotification<K, V>> get changes => _changes.stream;

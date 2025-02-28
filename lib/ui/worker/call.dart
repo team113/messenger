@@ -142,11 +142,12 @@ class CallWorker extends DisposableService {
   String get _endCall => 'end_call.wav';
 
   /// Indicator whether this device's [Locale] contains a China country code.
-  bool get _isChina => !Platform.localeName.contains('CN');
+  bool get _isChina => Platform.localeName.contains('CN');
 
   /// Indicates whether [FlutterCallkitIncoming] should be considered active.
   bool get _isCallKit =>
-      PlatformUtils.isIOS && !PlatformUtils.isWeb && !_isChina;
+      !PlatformUtils.isWeb &&
+      ((PlatformUtils.isIOS && !_isChina) || PlatformUtils.isAndroid);
 
   @override
   void onInit() {
@@ -161,10 +162,12 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _lifecycleWorker = ever(router.lifecycle, (e) async {
         if (e.inForeground) {
-          try {
-            await FlutterCallkitIncoming.endAllCalls();
-          } catch (_) {
-            // No-op.
+          if (_isCallKit) {
+            try {
+              await FlutterCallkitIncoming.endAllCalls();
+            } catch (_) {
+              // No-op.
+            }
           }
 
           _callService.calls.forEach((id, call) {
@@ -193,7 +196,8 @@ class CallWorker extends DisposableService {
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
             // Indicator whether it is us who are calling.
-            final bool outgoing = (_callService.me == c.caller?.id ||
+            final bool outgoing =
+                (_callService.me == c.caller?.id ||
                     c.state.value == OngoingCallState.local) &&
                 c.conversationStartedAt == null;
 
@@ -213,23 +217,28 @@ class CallWorker extends DisposableService {
               play(_outgoing);
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play(_incoming, fade: true);
-              Vibration.hasVibrator().then((bool? v) {
-                _vibrationTimer?.cancel();
+              Vibration.hasVibrator()
+                  .then((bool? v) {
+                    _vibrationTimer?.cancel();
 
-                if (v == true) {
-                  Vibration.vibrate(pattern: [500, 1000])
-                      .onError((_, __) => false);
-                  _vibrationTimer = Timer.periodic(
-                    const Duration(milliseconds: 1500),
-                    (timer) {
-                      Vibration.vibrate(pattern: [500, 1000], repeat: 0)
-                          .onError((_, __) => false);
-                    },
-                  );
-                }
-              }).catchError((_, __) {
-                // No-op.
-              });
+                    if (v == true) {
+                      Vibration.vibrate(
+                        pattern: [500, 1000],
+                      ).onError((_, __) => false);
+                      _vibrationTimer = Timer.periodic(
+                        const Duration(milliseconds: 1500),
+                        (timer) {
+                          Vibration.vibrate(
+                            pattern: [500, 1000],
+                            repeat: 0,
+                          ).onError((_, __) => false);
+                        },
+                      );
+                    }
+                  })
+                  .catchError((_, __) {
+                    // No-op.
+                  });
 
               // Show a notification of an incoming call.
               if (!outgoing && !PlatformUtils.isMobile && !_focused) {
@@ -274,19 +283,18 @@ class CallWorker extends DisposableService {
           }
 
           if (_isCallKit) {
-            _audioWorkers[event.key!] = ever(
-              c.audioState,
-              (LocalTrackState state) async {
-                final ChatItemId? callId = c.call.value?.id;
+            _audioWorkers[event.key!] = ever(c.audioState, (
+              LocalTrackState state,
+            ) async {
+              final ChatItemId? callId = c.call.value?.id;
 
-                if (callId != null) {
-                  await FlutterCallkitIncoming.muteCall(
-                    callId.val.base62ToUuid(),
-                    isMuted: !state.isEnabled,
-                  );
-                }
-              },
-            );
+              if (callId != null) {
+                await FlutterCallkitIncoming.muteCall(
+                  callId.val.base62ToUuid(),
+                  isMuted: !state.isEnabled,
+                );
+              }
+            });
           }
 
           _workers[event.key!] = ever(c.state, (OngoingCallState state) async {
@@ -354,7 +362,7 @@ class CallWorker extends DisposableService {
           if (call != null) {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
-                    call.state.value == OngoingCallState.ended;
+                call.state.value == OngoingCallState.ended;
             final bool withMe = call.members.containsKey(call.me.id);
 
             if (withMe && isActiveOrEnded && call.participated) {
@@ -392,9 +400,10 @@ class CallWorker extends DisposableService {
       }
     });
 
-    if (PlatformUtils.isIOS && !PlatformUtils.isWeb) {
-      _callKitSubscription =
-          FlutterCallkitIncoming.onEvent.listen((CallEvent? event) async {
+    if (_isCallKit) {
+      _callKitSubscription = FlutterCallkitIncoming.onEvent.listen((
+        CallEvent? event,
+      ) async {
         Log.debug('FlutterCallkitIncoming.onEvent -> $event', '$runtimeType');
 
         switch (event!.event) {
@@ -440,49 +449,61 @@ class CallWorker extends DisposableService {
               provider.token = credentials.access.secret;
 
               _eventsSubscriptions[chatId]?.cancel();
-              _eventsSubscriptions[chatId] = provider
-                  .chatEvents(chatId, null, () => null)
-                  .listen((e) async {
+              _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
+                e,
+              ) async {
                 var events =
                     ChatEvents$Subscription.fromJson(e.data!).chatEvents;
                 if (events.$$typename == 'ChatEventsVersioned') {
-                  var mixin = events
-                      as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+                  var mixin =
+                      events
+                          as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
                   for (var e in mixin.events) {
                     if (e.$$typename == 'EventChatCallFinished') {
-                      final node = e
-                          as ChatEventsVersionedMixin$Events$EventChatCallFinished;
-                      await FlutterCallkitIncoming.endCall(
-                        node.call.id.val.base62ToUuid(),
-                      );
+                      final node =
+                          e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+
+                      if (_isCallKit) {
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
+                      }
                     } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                      final node = e
-                          as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                      final node =
+                          e
+                              as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
                       final call = _callService.calls[chatId];
 
                       if (node.user.id == credentials.userId &&
                           call?.value.connected != true) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
                       }
                     } else if (e.$$typename == 'EventChatCallDeclined') {
-                      final node = e
-                          as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                      final node =
+                          e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
                       if (node.user.id == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.call.id.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
                       }
                     } else if (e.$$typename ==
                         'EventChatCallAnswerTimeoutPassed') {
-                      final node = e
-                          as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                      final node =
+                          e
+                              as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
                       if (node.userId == credentials.userId) {
-                        await FlutterCallkitIncoming.endCall(
-                          node.callId.val.base62ToUuid(),
-                        );
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.callId.val.base62ToUuid(),
+                          );
+                        }
                       }
                     }
                   }
@@ -591,10 +612,10 @@ class CallWorker extends DisposableService {
 
             final bool isActiveOrEnded =
                 call.state == OngoingCallState.active ||
-                    call.state == OngoingCallState.ended;
+                call.state == OngoingCallState.ended;
             final bool withMe =
                 call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
-                    false;
+                false;
 
             if (isActiveOrEnded && withMe) {
               play(_endCall);

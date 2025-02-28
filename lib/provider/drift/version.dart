@@ -77,15 +77,12 @@ class VersionDriftProvider extends DriftProviderBase {
         return;
       }
 
-      final result = await safe(
-        (db) async {
-          final stmt = await db.select(db.versions).get();
-          return stmt
-              .map((e) => (UserId(e.userId), _SessionDataDb.fromDb(e)))
-              .toList();
-        },
-        exclusive: false,
-      );
+      final result = await safe((db) async {
+        final stmt = await db.select(db.versions).get();
+        return stmt
+            .map((e) => (UserId(e.userId), _SessionDataDb.fromDb(e)))
+            .toList();
+      }, exclusive: false);
 
       for (var e in result ?? <(UserId, SessionData)>[]) {
         data[e.$1] = e.$2;
@@ -103,7 +100,9 @@ class VersionDriftProvider extends DriftProviderBase {
     final result = await safe((db) async {
       try {
         final SessionData stored = _SessionDataDb.fromDb(
-          await db.into(db.versions).insertReturning(
+          await db
+              .into(db.versions)
+              .insertReturning(
                 data.toDb(userId),
                 onConflict: DoUpdate((_) => data.toDb(userId)),
               ),
@@ -128,20 +127,17 @@ class VersionDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<SessionData?>(
-      (db) async {
-        final stmt = db.select(db.versions)
-          ..where((u) => u.userId.equals(id.val));
-        final VersionRow? row = await stmt.getSingleOrNull();
+    return await safe<SessionData?>((db) async {
+      final stmt = db.select(db.versions)
+        ..where((u) => u.userId.equals(id.val));
+      final VersionRow? row = await stmt.getSingleOrNull();
 
-        if (row == null) {
-          return null;
-        }
+      if (row == null) {
+        return null;
+      }
 
-        return _SessionDataDb.fromDb(row);
-      },
-      exclusive: false,
-    );
+      return _SessionDataDb.fromDb(row);
+    }, exclusive: false);
   }
 
   /// Deletes the [SessionData] identified by the provided [id] from the
@@ -171,22 +167,26 @@ extension _SessionDataDb on SessionData {
   /// Constructs a [SessionData] from the provided [VersionRow].
   static SessionData fromDb(VersionRow e) {
     return SessionData(
-      favoriteChatsListVersion: e.favoriteChatsListVersion == null
-          ? null
-          : FavoriteChatsListVersion(e.favoriteChatsListVersion!),
+      favoriteChatsListVersion:
+          e.favoriteChatsListVersion == null
+              ? null
+              : FavoriteChatsListVersion(e.favoriteChatsListVersion!),
       favoriteChatsSynchronized: e.favoriteChatsSynchronized,
-      chatContactsListVersion: e.chatContactsListVersion == null
-          ? null
-          : ChatContactsListVersion(e.chatContactsListVersion!),
+      chatContactsListVersion:
+          e.chatContactsListVersion == null
+              ? null
+              : ChatContactsListVersion(e.chatContactsListVersion!),
       favoriteContactsSynchronized: e.favoriteContactsSynchronized,
       contactsSynchronized: e.contactsSynchronized,
       blocklistSynchronized: e.blocklistSynchronized,
-      sessionsListVersion: e.sessionsListVersion == null
-          ? null
-          : SessionsListVersion(e.sessionsListVersion!),
-      blocklistVersion: e.blocklistVersion == null
-          ? null
-          : BlocklistVersion(e.blocklistVersion!),
+      sessionsListVersion:
+          e.sessionsListVersion == null
+              ? null
+              : SessionsListVersion(e.sessionsListVersion!),
+      blocklistVersion:
+          e.blocklistVersion == null
+              ? null
+              : BlocklistVersion(e.blocklistVersion!),
       blocklistCount: e.blocklistCount,
     );
   }

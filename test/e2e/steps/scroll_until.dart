@@ -34,65 +34,66 @@ import '../world/custom_world.dart';
 /// - Then I scroll `Menu` until `LogoutButton` is present
 final StepDefinitionGeneric<CustomWorld> scrollUntilPresent =
     then2<WidgetKey, WidgetKey, CustomWorld>(
-  RegExp(r'I scroll {key} until {key} is present'),
-  (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
-    await context.world.appDriver.waitUntil(() async {
-      await context.world.appDriver
-          .waitForAppToSettle(timeout: const Duration(seconds: 1));
+      RegExp(r'I scroll {key} until {key} is present'),
+      (WidgetKey list, WidgetKey key, StepContext<CustomWorld> context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle(
+            timeout: const Duration(seconds: 1),
+          );
 
-      final scrollable = find.descendant(
-        of: find.byKey(Key(list.name)),
-        matching: find.byWidgetPredicate((widget) {
-          // TODO: Find a proper way to differentiate [Scrollable]s from
-          //       [TextField]s:
-          //       https://github.com/flutter/flutter/issues/76981
-          if (widget is Scrollable) {
-            return widget.restorationId == null;
+          final scrollable = find.descendant(
+            of: find.byKey(Key(list.name)),
+            matching: find.byWidgetPredicate((widget) {
+              // TODO: Find a proper way to differentiate [Scrollable]s from
+              //       [TextField]s:
+              //       https://github.com/flutter/flutter/issues/76981
+              if (widget is Scrollable) {
+                return widget.restorationId == null;
+              }
+              return false;
+            }),
+          );
+
+          if (scrollable.evaluate().isEmpty) {
+            return false;
           }
-          return false;
-        }),
-      );
 
-      if (scrollable.evaluate().isEmpty) {
-        return false;
-      }
+          await context.world.appDriver.scrollIntoVisible(
+            context.world.appDriver.findByKeySkipOffstage(key.name),
+            scrollable.first,
+            dy: 50,
+          );
 
-      await context.world.appDriver.scrollIntoVisible(
-        context.world.appDriver.findByKeySkipOffstage(key.name),
-        scrollable.first,
-        dy: 50,
-      );
+          return true;
+        }, timeout: const Duration(seconds: 30));
 
-      return true;
-    }, timeout: const Duration(seconds: 30));
-
-    await context.world.appDriver.waitForAppToSettle();
-  },
-);
+        await context.world.appDriver.waitForAppToSettle();
+      },
+    );
 
 /// Scrolls the provided [Scrollable] to the bottom.
 ///
 /// Examples:
 /// - Then I scroll `Menu` to bottom
 final StepDefinitionGeneric<CustomWorld> scrollToBottom =
-    then1<WidgetKey, CustomWorld>(
-  RegExp(r'I scroll {key} to bottom'),
-  (WidgetKey key, StepContext<CustomWorld> context) async {
-    await _scrollScrollableTo(key, context, (p) => p.maxScrollExtent);
-  },
-);
+    then1<WidgetKey, CustomWorld>(RegExp(r'I scroll {key} to bottom'), (
+      WidgetKey key,
+      StepContext<CustomWorld> context,
+    ) async {
+      await _scrollScrollableTo(key, context, (p) => p.maxScrollExtent);
+    });
 
 /// Scrolls the provided [Scrollable] to the top.
 ///
 /// Examples:
 /// - Then I scroll `Menu` to top
 final StepDefinitionGeneric<CustomWorld> scrollToTop =
-    then1<WidgetKey, CustomWorld>(
-  RegExp(r'I scroll {key} to top'),
-  (WidgetKey key, StepContext<CustomWorld> context) async {
-    await _scrollScrollableTo(key, context, (_) => 0);
-  },
-);
+    then1<WidgetKey, CustomWorld>(RegExp(r'I scroll {key} to top'), (
+      WidgetKey key,
+      StepContext<CustomWorld> context,
+    ) async {
+      await _scrollScrollableTo(key, context, (_) => 0);
+    });
 
 /// Scrolls the [Scrollable] identified by its [key] to the specified in the
 /// [getPosition] position.
@@ -121,8 +122,9 @@ Future<void> _scrollScrollableTo(
       return false;
     }
 
-    final ScrollableState state = context.world.appDriver.nativeDriver
-        .state(scrollable) as ScrollableState;
+    final ScrollableState state =
+        context.world.appDriver.nativeDriver.state(scrollable)
+            as ScrollableState;
     final ScrollPosition position = state.position;
 
     position.jumpTo(getPosition(position));
@@ -153,10 +155,7 @@ extension ScrollAppDriverAdapter<TNativeAdapter, TFinderType, TWidgetBaseType>
       final ScrollPosition position = state.position;
 
       if (await isPresent(finder)) {
-        await Scrollable.ensureVisible(
-          finder.evaluate().first,
-          alignment: 0.5,
-        );
+        await Scrollable.ensureVisible(finder.evaluate().first, alignment: 0.5);
 
         // If [finder] is present and it's within our view, then break the loop.
         if (tester.getCenter(finder.first).dy <= height - dy ||

@@ -111,24 +111,29 @@ class MyProfileView extends StatelessWidget {
           onTap: FocusManager.instance.primaryFocus?.unfocus,
           child: Scaffold(
             appBar: CustomAppBar(title: _bar(c, context)),
-            body: Builder(builder: (context) {
-              final Widget child = ScrollablePositionedList.builder(
-                key: const Key('MyProfileScrollable'),
-                initialScrollIndex: c.listInitIndex,
-                scrollController: c.scrollController,
-                itemScrollController: c.itemScrollController,
-                itemPositionsListener: c.positionsListener,
-                itemCount: ProfileTab.values.length,
-                physics: const ClampingScrollPhysics(),
-                itemBuilder: (context, i) => _block(context, c, i),
-              );
+            body: Builder(
+              builder: (context) {
+                final Widget child = ScrollablePositionedList.builder(
+                  key: const Key('MyProfileScrollable'),
+                  initialScrollIndex: c.listInitIndex,
+                  scrollController: c.scrollController,
+                  itemScrollController: c.itemScrollController,
+                  itemPositionsListener: c.positionsListener,
+                  itemCount: ProfileTab.values.length,
+                  physics: const ClampingScrollPhysics(),
+                  itemBuilder: (context, i) => _block(context, c, i),
+                );
 
-              if (PlatformUtils.isMobile) {
-                return Scrollbar(controller: c.scrollController, child: child);
-              }
+                if (PlatformUtils.isMobile) {
+                  return Scrollbar(
+                    controller: c.scrollController,
+                    child: child,
+                  );
+                }
 
-              return child;
-            }),
+                return child;
+              },
+            ),
             floatingActionButton: Obx(() {
               if (c.myUser.value != null) {
                 return const SizedBox();
@@ -148,10 +153,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
   final ProfileTab tab = ProfileTab.values[i];
 
   // Builds a [Block] wrapped with [Obx] to highlight it.
-  Widget block({
-    String? title,
-    required List<Widget> children,
-  }) {
+  Widget block({String? title, required List<Widget> children}) {
     return Obx(() {
       return Block(
         title: title ?? tab.l10n,
@@ -204,7 +206,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                     }),
                   ),
                 ],
-              )
+              ),
             ],
           ),
         );
@@ -418,12 +420,8 @@ Widget _emails(BuildContext context, MyProfileController c) {
           key: const Key('UnconfirmedEmail'),
           content: unconfirmed.val,
           trailing: WidgetButton(
-            onPressed: () => _deleteEmail(
-              c,
-              context,
-              unconfirmed,
-              confirmed: false,
-            ),
+            onPressed:
+                () => _deleteEmail(c, context, unconfirmed, confirmed: false),
             child: const SvgIcon(SvgIcons.delete),
           ),
           title: 'label_email_not_verified'.l10n,
@@ -561,10 +559,11 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         );
       }),
       Obx(() {
-        final emails = [
-          ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
-          c.myUser.value?.emails.unconfirmed,
-        ].nonNulls;
+        final emails =
+            [
+              ...c.myUser.value?.emails.confirmed ?? <UserEmail>[],
+              c.myUser.value?.emails.unconfirmed,
+            ].nonNulls;
 
         final email = ReactiveTextField(
           key: const Key('Email'),
@@ -614,10 +613,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
                   ],
                 ),
               ),
-              if (c.expanded.value) ...[
-                const SizedBox(height: 24),
-                email,
-              ],
+              if (c.expanded.value) ...[const SizedBox(height: 24), email],
             ],
           ],
         );
@@ -634,17 +630,20 @@ Widget _password(BuildContext context, MyProfileController c) {
     children: [
       Obx(() {
         return FieldButton(
-          key: c.myUser.value?.hasPassword == true
-              ? const Key('ChangePassword')
-              : const Key('SetPassword'),
-          text: c.myUser.value?.hasPassword == true
-              ? 'btn_change_password'.l10n
-              : 'btn_set_password'.l10n,
+          key:
+              c.myUser.value?.hasPassword == true
+                  ? const Key('ChangePassword')
+                  : const Key('SetPassword'),
+          text:
+              c.myUser.value?.hasPassword == true
+                  ? 'btn_change_password'.l10n
+                  : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
           warning: c.myUser.value?.hasPassword != true,
-          trailing: c.myUser.value?.hasPassword == true
-              ? const SvgIcon(SvgIcons.passwordSmall)
-              : const SvgIcon(SvgIcons.passwordSmallWhite),
+          trailing:
+              c.myUser.value?.hasPassword == true
+                  ? const SvgIcon(SvgIcons.passwordSmall)
+                  : const SvgIcon(SvgIcons.passwordSmallWhite),
         );
       }),
       const SizedBox(height: 10),
@@ -677,8 +676,7 @@ Widget _chats(BuildContext context, MyProfileController c) {
           return FieldButton(
             text: switch (c.settings.value?.callButtonsPosition) {
               CallButtonsPosition.appBar ||
-              null =>
-                'label_media_buttons_in_app_bar'.l10n,
+              null => 'label_media_buttons_in_app_bar'.l10n,
               CallButtonsPosition.contextMenu =>
                 'label_media_buttons_in_context_menu'.l10n,
               CallButtonsPosition.top => 'label_media_buttons_in_top'.l10n,
@@ -703,9 +701,10 @@ Widget _call(BuildContext context, MyProfileController c) {
       Paddings.dense(
         Obx(() {
           return FieldButton(
-            text: (c.settings.value?.enablePopups ?? true)
-                ? 'label_open_calls_in_window'.l10n
-                : 'label_open_calls_in_app'.l10n,
+            text:
+                (c.settings.value?.enablePopups ?? true)
+                    ? 'label_open_calls_in_window'.l10n
+                    : 'label_open_calls_in_app'.l10n,
             maxLines: null,
             onPressed: () => CallWindowSwitchView.show(context),
           );
@@ -722,9 +721,10 @@ Widget _media(BuildContext context, MyProfileController c) {
     children: [
       Paddings.dense(
         Obx(() {
-          final selected = c.devices.video().firstWhereOrNull(
-                    (e) => e.deviceId() == c.media.value?.videoDevice,
-                  ) ??
+          final selected =
+              c.devices.video().firstWhereOrNull(
+                (e) => e.deviceId() == c.media.value?.videoDevice,
+              ) ??
               c.devices.video().firstOrNull;
 
           return FieldButton(
@@ -746,9 +746,10 @@ Widget _media(BuildContext context, MyProfileController c) {
       const SizedBox(height: 16),
       Paddings.dense(
         Obx(() {
-          final selected = c.devices.audio().firstWhereOrNull(
-                    (e) => e.id() == c.media.value?.audioDevice,
-                  ) ??
+          final selected =
+              c.devices.audio().firstWhereOrNull(
+                (e) => e.id() == c.media.value?.audioDevice,
+              ) ??
               c.devices.audio().firstOrNull;
 
           return FieldButton(
@@ -775,9 +776,10 @@ Widget _media(BuildContext context, MyProfileController c) {
         const SizedBox(height: 16),
         Paddings.dense(
           Obx(() {
-            final selected = c.devices.output().firstWhereOrNull(
-                      (e) => e.id() == c.media.value?.outputDevice,
-                    ) ??
+            final selected =
+                c.devices.output().firstWhereOrNull(
+                  (e) => e.id() == c.media.value?.outputDevice,
+                ) ??
                 c.devices.output().firstOrNull;
 
             return FieldButton(
@@ -831,16 +833,18 @@ Widget _welcome(BuildContext context, MyProfileController c) {
     List<Attachment> attachments = const [],
     PreciseDateTime? at,
   }) {
-    final List<Attachment> media = attachments.where((e) {
-      return ((e is ImageAttachment) ||
-          (e is FileAttachment && e.isVideo) ||
-          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-    }).toList();
+    final List<Attachment> media =
+        attachments.where((e) {
+          return ((e is ImageAttachment) ||
+              (e is FileAttachment && e.isVideo) ||
+              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+        }).toList();
 
-    final List<Attachment> files = attachments.where((e) {
-      return ((e is FileAttachment && !e.isVideo) ||
-          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
-    }).toList();
+    final List<Attachment> files =
+        attachments.where((e) {
+          return ((e is FileAttachment && !e.isVideo) ||
+              (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+        }).toList();
 
     final bool timeInBubble = attachments.isNotEmpty;
 
@@ -874,48 +878,54 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(15),
                         topRight: const Radius.circular(15),
-                        bottomLeft: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
+                        bottomLeft:
+                            text.isNotEmpty || files.isNotEmpty
+                                ? Radius.zero
+                                : files.isEmpty
                                 ? const Radius.circular(15)
                                 : Radius.zero,
-                        bottomRight: text.isNotEmpty || files.isNotEmpty
-                            ? Radius.zero
-                            : files.isEmpty
+                        bottomRight:
+                            text.isNotEmpty || files.isNotEmpty
+                                ? Radius.zero
+                                : files.isEmpty
                                 ? const Radius.circular(15)
                                 : Radius.zero,
                       ),
-                      child: media.length == 1
-                          ? ChatItemWidget.mediaAttachment(
-                              context,
-                              media.first,
-                              media,
-                              filled: false,
-                            )
-                          : SizedBox(
-                              width: media.length * 120,
-                              height: max(media.length * 60, 300),
-                              child: FitView(
-                                dividerColor: Colors.transparent,
-                                children: media
-                                    .mapIndexed(
-                                      (i, e) => ChatItemWidget.mediaAttachment(
-                                        context,
-                                        e,
-                                        media,
-                                      ),
-                                    )
-                                    .toList(),
+                      child:
+                          media.length == 1
+                              ? ChatItemWidget.mediaAttachment(
+                                context,
+                                media.first,
+                                media,
+                                filled: false,
+                              )
+                              : SizedBox(
+                                width: media.length * 120,
+                                height: max(media.length * 60, 300),
+                                child: FitView(
+                                  dividerColor: Colors.transparent,
+                                  children:
+                                      media
+                                          .mapIndexed(
+                                            (i, e) =>
+                                                ChatItemWidget.mediaAttachment(
+                                                  context,
+                                                  e,
+                                                  media,
+                                                ),
+                                          )
+                                          .toList(),
+                                ),
                               ),
-                            ),
                     ),
                   if (files.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
                       child: Column(
-                        children: files
-                            .map((e) => ChatItemWidget.fileAttachment(e))
-                            .toList(),
+                        children:
+                            files
+                                .map((e) => ChatItemWidget.fileAttachment(e))
+                                .toList(),
                       ),
                     ),
                   if (text.isNotEmpty)
@@ -947,22 +957,23 @@ Widget _welcome(BuildContext context, MyProfileController c) {
             Positioned(
               right: timeInBubble ? 4 : 8,
               bottom: 4,
-              child: timeInBubble
-                  ? Container(
-                      padding: const EdgeInsets.only(
-                        left: 5,
-                        right: 5,
-                        top: 2,
-                        bottom: 2,
-                      ),
-                      decoration: BoxDecoration(
-                        color: style.readMessageColor,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: timeline,
-                    )
-                  : timeline,
-            )
+              child:
+                  timeInBubble
+                      ? Container(
+                        padding: const EdgeInsets.only(
+                          left: 5,
+                          right: 5,
+                          top: 2,
+                          bottom: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: style.readMessageColor,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: timeline,
+                      )
+                      : timeline,
+            ),
         ],
       ),
     );
@@ -979,7 +990,8 @@ Widget _welcome(BuildContext context, MyProfileController c) {
 
             c.welcome.edited.value = message;
             c.welcome.field.unchecked = message?.text?.val;
-            c.welcome.attachments.value = message?.attachments
+            c.welcome.attachments.value =
+                message?.attachments
                     .map((e) => MapEntry(GlobalKey(), e))
                     .toList() ??
                 [];
@@ -990,10 +1002,11 @@ Widget _welcome(BuildContext context, MyProfileController c) {
         Text('space_or_space'.l10n, style: style.systemMessageStyle),
         WidgetButton(
           key: const Key('DeleteWelcomeMessage'),
-          onPressed: () => c.updateWelcomeMessage(
-            text: const ChatMessageText(''),
-            attachments: [],
-          ),
+          onPressed:
+              () => c.updateWelcomeMessage(
+                text: const ChatMessageText(''),
+                attachments: [],
+              ),
           child: Text(
             'btn_delete'.l10n.toLowerCase(),
             style: style.systemMessagePrimary,
@@ -1026,14 +1039,18 @@ Widget _welcome(BuildContext context, MyProfileController c) {
               child: Obx(() {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: c.background.value == null
-                      ? const SvgImage.asset(
-                          'assets/images/background_light.svg',
-                          width: double.infinity,
-                          height: double.infinity,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.memory(c.background.value!, fit: BoxFit.cover),
+                  child:
+                      c.background.value == null
+                          ? const SvgImage.asset(
+                            'assets/images/background_light.svg',
+                            width: double.infinity,
+                            height: double.infinity,
+                            fit: BoxFit.cover,
+                          )
+                          : Image.memory(
+                            c.background.value!,
+                            fit: BoxFit.cover,
+                          ),
                 );
               }),
             ),
@@ -1108,10 +1125,11 @@ Widget _language(BuildContext context, MyProfileController c) {
   return Paddings.dense(
     FieldButton(
       key: const Key('ChangeLanguage'),
-      onPressed: () => LanguageSelectionView.show(
-        context,
-        Get.find<AbstractSettingsRepository>(),
-      ),
+      onPressed:
+          () => LanguageSelectionView.show(
+            context,
+            Get.find<AbstractSettingsRepository>(),
+          ),
       text: 'label_language_entry'.l10nfmt({
         'code': L10n.chosen.value!.locale.countryCode,
         'name': L10n.chosen.value!.name,
@@ -1144,18 +1162,20 @@ Widget _devices(BuildContext context, MyProfileController c) {
 
       final bool isCurrent = session.id == c.credentials.value?.sessionId;
 
-      final String device = isCurrent
-          ? 'label_this_device'.l10n
-          : session.lastActivatedAt.val.yMdHm;
+      final String device =
+          isCurrent
+              ? 'label_this_device'.l10n
+              : session.lastActivatedAt.val.yMdHm;
 
       final String title;
       if (geo == null) {
         title = device;
       } else {
         title = 'comma_separated_a_b_c'.l10nfmt({
-          'a': isCurrent
-              ? 'label_this_device'.l10n
-              : session.lastActivatedAt.val.yMdHm,
+          'a':
+              isCurrent
+                  ? 'label_this_device'.l10n
+                  : session.lastActivatedAt.val.yMdHm,
           'b': geo.city,
           'c': geo.country,
         });
@@ -1167,13 +1187,14 @@ Widget _devices(BuildContext context, MyProfileController c) {
           key: Key(isCurrent ? 'CurrentSession' : 'Session_${session.id}'),
           title: title,
           content: session.userAgent.localized,
-          trailing: isCurrent
-              ? null
-              : WidgetButton(
-                  key: const Key('DeleteSessionButton'),
-                  onPressed: () => DeleteSessionView.show(context, session),
-                  child: const SvgIcon(SvgIcons.delete),
-                ),
+          trailing:
+              isCurrent
+                  ? null
+                  : WidgetButton(
+                    key: const Key('DeleteSessionButton'),
+                    onPressed: () => DeleteSessionView.show(context, session),
+                    child: const SvgIcon(SvgIcons.delete),
+                  ),
         ),
       );
     });
@@ -1278,17 +1299,10 @@ Widget _danger(BuildContext context, MyProfileController c) {
 Widget _storage(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  final List<double> values = [
-    0.0,
-    2.0,
-    4.0,
-    8.0,
-    16.0,
-    32.0,
-    64.0,
-  ];
+  final List<double> values = [0.0, 2.0, 4.0, 8.0, 16.0, 32.0, 64.0];
 
-  final gbs = (CacheWorker.instance.info.value.maxSize?.toDouble() ??
+  final gbs =
+      (CacheWorker.instance.info.value.maxSize?.toDouble() ??
           (values.last * GB)) /
       GB;
 
@@ -1304,13 +1318,15 @@ Widget _storage(BuildContext context, MyProfileController c) {
       children: [
         Obx(() {
           final int size = CacheWorker.instance.info.value.size;
-          final int max = CacheWorker.instance.info.value.maxSize ??
+          final int max =
+              CacheWorker.instance.info.value.maxSize ??
               (values.last * GB).toInt();
 
           if (max >= 64 * GB) {
             return Text(
-              'label_gb_occupied'
-                  .l10nfmt({'count': (size / GB).toPrecision(2)}),
+              'label_gb_occupied'.l10nfmt({
+                'count': (size / GB).toPrecision(2),
+              }),
             );
           } else if (max <= 0) {
             return Text('label_gb_occupied'.l10nfmt({'count': 0}));
@@ -1329,14 +1345,13 @@ Widget _storage(BuildContext context, MyProfileController c) {
             handlerHeight: 24,
             values: [v.toDouble()],
             tooltip: FlutterSliderTooltip(disabled: true),
-            fixedValues: values.mapIndexed(
-              (i, e) {
-                return FlutterSliderFixedValue(
-                  percent: ((i / (values.length - 1)) * 100).round(),
-                  value: e * GB,
-                );
-              },
-            ).toList(),
+            fixedValues:
+                values.mapIndexed((i, e) {
+                  return FlutterSliderFixedValue(
+                    percent: ((i / (values.length - 1)) * 100).round(),
+                    value: e * GB,
+                  );
+                }).toList(),
             trackBar: FlutterSliderTrackBar(
               inactiveTrackBar: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
@@ -1423,10 +1438,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
           ),
         ),
         const SizedBox(height: 8),
-        FieldButton(
-          onPressed: c.clearCache,
-          text: 'btn_clear_cache'.l10n,
-        ),
+        FieldButton(onPressed: c.clearCache, text: 'btn_clear_cache'.l10n),
       ],
     ),
   );
@@ -1598,7 +1610,7 @@ Future<void> _deletePhone(
 
 /// Opens a confirmation popup deleting the [MyUser]'s account.
 Future<void> _deleteAccount(MyProfileController c, BuildContext context) async {
-  await Navigator.of(context).push(
-    MaterialPageRoute(builder: (_) => const EraseView()),
-  );
+  await Navigator.of(
+    context,
+  ).push(MaterialPageRoute(builder: (_) => const EraseView()));
 }

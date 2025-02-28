@@ -33,42 +33,43 @@ import '../world/custom_world.dart';
 /// - Given "Name" contact is favorite
 final StepDefinitionGeneric contactIsFavorite =
     given2<String, FavoriteStatus, CustomWorld>(
-  '{string} contact is {favorite}',
-  (String name, status, context) async {
-    final ChatContactId contactId = context.world.contacts[name]!;
-    final AuthService authService = Get.find();
+      '{string} contact is {favorite}',
+      (String name, status, context) async {
+        final ChatContactId contactId = context.world.contacts[name]!;
+        final AuthService authService = Get.find();
 
-    final provider = GraphQlProvider();
-    provider.token = authService.credentials.value!.access.secret;
+        final provider = GraphQlProvider();
+        provider.token = authService.credentials.value!.access.secret;
 
-    if (status == FavoriteStatus.favorite) {
-      final List<RxChatContact> favorites = Get.find<ContactService>()
-          .paginated
-          .values
-          .where((e) => e.contact.value.favoritePosition != null)
-          .toList();
+        if (status == FavoriteStatus.favorite) {
+          final List<RxChatContact> favorites =
+              Get.find<ContactService>().paginated.values
+                  .where((e) => e.contact.value.favoritePosition != null)
+                  .toList();
 
-      final sortFavorites = favorites
-        ..sort(
-          (a, b) => a.contact.value.favoritePosition!
-              .compareTo(b.contact.value.favoritePosition!),
-        );
+          final sortFavorites =
+              favorites..sort(
+                (a, b) => a.contact.value.favoritePosition!.compareTo(
+                  b.contact.value.favoritePosition!,
+                ),
+              );
 
-      final double? lowest = sortFavorites.isEmpty
-          ? null
-          : sortFavorites.first.contact.value.favoritePosition!.val;
+          final double? lowest =
+              sortFavorites.isEmpty
+                  ? null
+                  : sortFavorites.first.contact.value.favoritePosition!.val;
 
-      final position = ChatContactFavoritePosition(
-        lowest == null ? 9007199254740991 : lowest / 2,
-      );
+          final position = ChatContactFavoritePosition(
+            lowest == null ? 9007199254740991 : lowest / 2,
+          );
 
-      await provider.favoriteChatContact(contactId, position);
-    } else {
-      await provider.unfavoriteChatContact(contactId);
-    }
+          await provider.favoriteChatContact(contactId, position);
+        } else {
+          await provider.unfavoriteChatContact(contactId);
+        }
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

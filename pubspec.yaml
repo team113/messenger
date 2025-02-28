@@ -1,10 +1,10 @@
 name: messenger
-version: 0.3.2
+version: 0.3.3
 publish_to: none
 
 environment:
-  flutter: ">=3.27.0"
-  sdk: ">=3.6.0 <4.0.0"
+  flutter: ">=3.29.0"
+  sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
   all_sensors:
@@ -34,7 +34,8 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_callkit_incoming: ^2.0.4+2
+  flutter_callkit_incoming:
+    git: https://github.com/SleepySquash/flutter_callkit_incoming_android.git
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
@@ -57,7 +58,7 @@ dependencies:
   image_gallery_saver:
     git:
       url: https://github.com/SleepySquash/image_gallery_saver
-      ref: 71b76be903b657ca08d524f003af7ba2a6741e38
+      ref: 30bfe2d373da611879bffc36365b8d26e3d2e065
   image_picker: ^1.1.1
   intl: ^0.17.0
   json_annotation: ^4.9.0
@@ -105,7 +106,7 @@ dependencies:
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^4.3.3
-  vibration: ^1.8.1
+  vibration: ^3.1.2
   volume_controller: any
   wakelock_plus: ^1.1.4
   web_socket_channel: ^3.0.1

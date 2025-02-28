@@ -20,11 +20,7 @@ import '/domain/model/session.dart';
 
 /// Persisted in storage [IpGeoLocation]'s [value].
 class DtoIpGeoLocation {
-  const DtoIpGeoLocation(
-    this.value,
-    this.updatedAt, {
-    this.language,
-  });
+  const DtoIpGeoLocation(this.value, this.updatedAt, {this.language});
 
   /// Persisted [IpGeoLocation] model.
   final IpGeoLocation value;

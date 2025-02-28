@@ -31,10 +31,10 @@ class ChatContact implements Comparable<ChatContact> {
     List<UserPhone>? phones,
     List<UserEmail>? emails,
     this.favoritePosition,
-  })  : users = users ?? List.empty(growable: true),
-        groups = groups ?? List.empty(growable: true),
-        phones = phones ?? List.empty(growable: true),
-        emails = emails ?? List.empty(growable: true);
+  }) : users = users ?? List.empty(growable: true),
+       groups = groups ?? List.empty(growable: true),
+       phones = phones ?? List.empty(growable: true),
+       emails = emails ?? List.empty(growable: true);
 
   /// Unique ID of this [ChatContact].
   final ChatContactId id;

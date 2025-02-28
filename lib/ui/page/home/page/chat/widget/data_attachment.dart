@@ -76,10 +76,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 width: 29,
                 height: 29,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    width: 2,
-                    color: style.colors.primary,
-                  ),
+                  border: Border.all(width: 2, color: style.colors.primary),
                   shape: BoxShape.circle,
                   gradient: LinearGradient(
                     begin: Alignment.bottomCenter,
@@ -135,10 +132,7 @@ class _DataAttachmentState extends State<DataAttachment> {
                 shape: BoxShape.circle,
                 color:
                     _hovered ? style.colors.backgroundAuxiliaryLighter : null,
-                border: Border.all(
-                  width: 2,
-                  color: style.colors.primary,
-                ),
+                border: Border.all(width: 2, color: style.colors.primary),
               ),
               child: const KeyedSubtree(
                 key: Key('Sent'),

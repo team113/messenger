@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.27"
+  FLUTTER_VER: "3.29"
 
 jobs:
 
@@ -301,7 +301,9 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
         run: |
           set -ex
-          npm install -g firebase-tools
+          # TODO: Unpin when is flutterfire_cli/issues#372 fixed:
+          #       https://github.com/invertase/flutterfire_cli/issues/372
+          npm install -g firebase-tools@13.30.0
           dart pub global activate flutterfire_cli
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
           > ${{ runner.temp }}/service_account.json
@@ -849,7 +851,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(53103\\)] ",
+              ":INFO:CONSOLE\\(53388\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

@@ -127,9 +127,9 @@ class CacheDriftProvider extends DriftProviderBase {
 
     final stmt = db!.select(db!.cacheSummary)..where((u) => u.id.equals(0));
 
-    return stmt
-        .watchSingleOrNull()
-        .map((e) => e == null ? null : _CacheInfoDb.fromDb(e));
+    return stmt.watchSingleOrNull().map(
+      (e) => e == null ? null : _CacheInfoDb.fromDb(e),
+    );
   }
 }
 

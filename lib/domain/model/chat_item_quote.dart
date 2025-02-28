@@ -28,11 +28,7 @@ part 'chat_item_quote.g.dart';
 
 /// Quote of a [ChatItem].
 abstract class ChatItemQuote {
-  const ChatItemQuote({
-    this.original,
-    required this.author,
-    required this.at,
-  });
+  const ChatItemQuote({this.original, required this.author, required this.at});
 
   /// Constructs a [ChatItemQuote] from the provided [ChatItem].
   factory ChatItemQuote.from(ChatItem item) {
@@ -45,11 +41,7 @@ abstract class ChatItemQuote {
         original: item,
       );
     } else if (item is ChatCall) {
-      return ChatCallQuote(
-        author: item.author.id,
-        at: item.at,
-        original: item,
-      );
+      return ChatCallQuote(author: item.author.id, at: item.at, original: item);
     } else if (item is ChatInfo) {
       return ChatInfoQuote(
         author: item.author.id,
@@ -70,7 +62,7 @@ abstract class ChatItemQuote {
         'ChatMessageQuote' => ChatMessageQuote.fromJson(json),
         'ChatCallQuote' => ChatCallQuote.fromJson(json),
         'ChatInfoQuote' => ChatInfoQuote.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Quoted [ChatItem].
@@ -87,11 +79,11 @@ abstract class ChatItemQuote {
 
   /// Returns a [Map] representing this [ChatItemQuote].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (ChatMessageQuote) => (this as ChatMessageQuote).toJson(),
-        const (ChatCallQuote) => (this as ChatCallQuote).toJson(),
-        const (ChatInfoQuote) => (this as ChatInfoQuote).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (ChatMessageQuote) => (this as ChatMessageQuote).toJson(),
+    const (ChatCallQuote) => (this as ChatCallQuote).toJson(),
+    const (ChatInfoQuote) => (this as ChatInfoQuote).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// [ChatItemQuote] of a [ChatMessage].
@@ -126,11 +118,7 @@ class ChatMessageQuote extends ChatItemQuote {
 /// [ChatItemQuote] of a [ChatCall].
 @JsonSerializable()
 class ChatCallQuote extends ChatItemQuote {
-  ChatCallQuote({
-    super.original,
-    required super.author,
-    required super.at,
-  });
+  ChatCallQuote({super.original, required super.author, required super.at});
 
   /// Constructs a [ChatCallQuote] from the provided [json].
   factory ChatCallQuote.fromJson(Map<String, dynamic> json) =>

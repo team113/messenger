@@ -30,8 +30,10 @@ final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
 
     await context.world.appDriver.scrollIntoView(finder);
     await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver
-        .tap(finder, timeout: context.configuration.timeout);
+    await context.world.appDriver.tap(
+      finder,
+      timeout: context.configuration.timeout,
+    );
     await context.world.appDriver.waitForAppToSettle();
   },
 );

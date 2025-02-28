@@ -77,35 +77,33 @@ abstract class ChatInfoAction {
   const ChatInfoAction();
 
   /// Constructs a [ChatInfoAction] from the provided [json].
-  factory ChatInfoAction.fromJson(Map<String, dynamic> json) =>
-      switch (json['runtimeType']) {
-        'ChatInfoActionAvatarUpdated' =>
-          ChatInfoActionAvatarUpdated.fromJson(json),
-        'ChatInfoActionCreated' => ChatInfoActionCreated.fromJson(json),
-        'ChatInfoActionMemberAdded' => ChatInfoActionMemberAdded.fromJson(json),
-        'ChatInfoActionMemberRemoved' =>
-          ChatInfoActionMemberRemoved.fromJson(json),
-        'ChatInfoActionNameUpdated' => ChatInfoActionNameUpdated.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
-      };
+  factory ChatInfoAction.fromJson(
+    Map<String, dynamic> json,
+  ) => switch (json['runtimeType']) {
+    'ChatInfoActionAvatarUpdated' => ChatInfoActionAvatarUpdated.fromJson(json),
+    'ChatInfoActionCreated' => ChatInfoActionCreated.fromJson(json),
+    'ChatInfoActionMemberAdded' => ChatInfoActionMemberAdded.fromJson(json),
+    'ChatInfoActionMemberRemoved' => ChatInfoActionMemberRemoved.fromJson(json),
+    'ChatInfoActionNameUpdated' => ChatInfoActionNameUpdated.fromJson(json),
+    _ => throw UnimplementedError(json['runtimeType']),
+  };
 
   /// [ChatInfoActionKind] of this event.
   ChatInfoActionKind get kind;
 
   /// Returns a [Map] representing this [ChatInfoAction].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (ChatInfoActionAvatarUpdated) =>
-          (this as ChatInfoActionAvatarUpdated).toJson(),
-        const (ChatInfoActionCreated) =>
-          (this as ChatInfoActionCreated).toJson(),
-        const (ChatInfoActionMemberAdded) =>
-          (this as ChatInfoActionMemberAdded).toJson(),
-        const (ChatInfoActionMemberRemoved) =>
-          (this as ChatInfoActionMemberRemoved).toJson(),
-        const (ChatInfoActionNameUpdated) =>
-          (this as ChatInfoActionNameUpdated).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (ChatInfoActionAvatarUpdated) =>
+      (this as ChatInfoActionAvatarUpdated).toJson(),
+    const (ChatInfoActionCreated) => (this as ChatInfoActionCreated).toJson(),
+    const (ChatInfoActionMemberAdded) =>
+      (this as ChatInfoActionMemberAdded).toJson(),
+    const (ChatInfoActionMemberRemoved) =>
+      (this as ChatInfoActionMemberRemoved).toJson(),
+    const (ChatInfoActionNameUpdated) =>
+      (this as ChatInfoActionNameUpdated).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
@@ -135,8 +133,9 @@ class ChatInfoActionAvatarUpdated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionAvatarUpdated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionAvatarUpdatedToJson(this)
-    ..['runtimeType'] = 'ChatInfoActionAvatarUpdated';
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoActionAvatarUpdatedToJson(this)
+        ..['runtimeType'] = 'ChatInfoActionAvatarUpdated';
 }
 
 /// [ChatInfoAction] about a [Chat] being created.
@@ -165,8 +164,9 @@ class ChatInfoActionCreated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionCreated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionCreatedToJson(this)
-    ..['runtimeType'] = 'ChatInfoActionCreated';
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoActionCreatedToJson(this)
+        ..['runtimeType'] = 'ChatInfoActionCreated';
 }
 
 /// [ChatInfoAction] about a [ChatAvatar] being updated.
@@ -202,8 +202,9 @@ class ChatInfoActionMemberAdded implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionMemberAdded].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionMemberAddedToJson(this)
-    ..['runtimeType'] = 'ChatInfoActionMemberAdded';
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoActionMemberAddedToJson(this)
+        ..['runtimeType'] = 'ChatInfoActionMemberAdded';
 }
 
 /// [ChatInfoAction] about a [ChatMember] being removed from a [Chat].
@@ -234,8 +235,9 @@ class ChatInfoActionMemberRemoved implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionMemberRemoved].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionMemberRemovedToJson(this)
-    ..['runtimeType'] = 'ChatInfoActionMemberRemoved';
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoActionMemberRemovedToJson(this)
+        ..['runtimeType'] = 'ChatInfoActionMemberRemoved';
 }
 
 /// [ChatInfoAction] about a [ChatName] being updated.
@@ -265,6 +267,7 @@ class ChatInfoActionNameUpdated implements ChatInfoAction {
 
   /// Returns a [Map] representing this [ChatInfoActionNameUpdated].
   @override
-  Map<String, dynamic> toJson() => _$ChatInfoActionNameUpdatedToJson(this)
-    ..['runtimeType'] = 'ChatInfoActionNameUpdated';
+  Map<String, dynamic> toJson() =>
+      _$ChatInfoActionNameUpdatedToJson(this)
+        ..['runtimeType'] = 'ChatInfoActionNameUpdated';
 }

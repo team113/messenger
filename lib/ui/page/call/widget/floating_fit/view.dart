@@ -118,15 +118,16 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
       builder: (FloatingFitController c) {
         return IgnorePointer(
           ignoring: _locked != 0,
-          child: LayoutBuilder(builder: (context, constraints) {
-            c.size = constraints.biggest;
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              c.size = constraints.biggest;
 
-            return Stack(
-              children: [
-                FitView(
-                  children: [
-                    _primary.entry == null
-                        ? KeyedSubtree(
+              return Stack(
+                children: [
+                  FitView(
+                    children: [
+                      _primary.entry == null
+                          ? KeyedSubtree(
                             key: _primary.itemKey,
                             child: Stack(
                               children: [
@@ -138,81 +139,88 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                               ],
                             ),
                           )
-                        : Container(),
-                    if (widget.fit)
-                      KeyedSubtree(
-                        key: _paneled.itemKey,
-                        child: Stack(
-                          children: [
-                            widget.itemBuilder(_paneled.item),
-                            widget.overlayBuilder(_paneled.item),
-                          ],
+                          : Container(),
+                      if (widget.fit)
+                        KeyedSubtree(
+                          key: _paneled.itemKey,
+                          child: Stack(
+                            children: [
+                              widget.itemBuilder(_paneled.item),
+                              widget.overlayBuilder(_paneled.item),
+                            ],
+                          ),
                         ),
-                      ),
-                  ],
-                ),
-                if (!widget.fit)
-                  Positioned.fill(
-                    child: Obx(() {
-                      return _FloatingPanel<T>(
-                        panelKey: c.floatingKey,
-                        left: c.left.value,
-                        top: c.top.value,
-                        right: c.right.value,
-                        bottom: c.bottom.value,
-                        width: c.width.value,
-                        height: c.height.value,
-                        item: _paneled,
-                        itemBuilder: () => widget.itemBuilder(_paneled.item),
-                        overlayBuilder: () =>
-                            widget.overlayBuilder(_paneled.item),
-                        onPointerDown: (_) => widget.onManipulated?.call(true),
-                        onPointerUp: (_) => widget.onManipulated?.call(false),
-                        onTap: _swap,
-                        onScaleStart: (d) {
-                          c.bottomShifted = null;
-
-                          c.left.value ??= c.size.width -
-                              c.width.value -
-                              (c.right.value ?? 0);
-                          c.top.value ??= c.size.height -
-                              c.height.value -
-                              (c.bottom.value ?? 0);
-
-                          c.right.value = null;
-                          c.bottom.value = null;
-
-                          if (d.pointerCount == 1) {
-                            c.dragged.value = true;
-                            c.calculatePanning(d.focalPoint);
-                            c.applyConstraints();
-                          } else if (d.pointerCount == 2) {
-                            c.unscaledSize = max(c.width.value, c.height.value);
-                            c.scaled.value = true;
-                            c.calculatePanning(d.focalPoint);
-                          }
-                        },
-                        onScaleUpdate: (d) {
-                          c.updateOffset(d.focalPoint);
-                          if (d.pointerCount == 2) {
-                            c.scaleFloating(d.scale);
-                          }
-
-                          c.applyConstraints();
-                        },
-                        onScaleEnd: (d) {
-                          c.dragged.value = false;
-                          c.scaled.value = false;
-                          c.unscaledSize = null;
-
-                          c.updateAttach();
-                        },
-                      );
-                    }),
+                    ],
                   ),
-              ],
-            );
-          }),
+                  if (!widget.fit)
+                    Positioned.fill(
+                      child: Obx(() {
+                        return _FloatingPanel<T>(
+                          panelKey: c.floatingKey,
+                          left: c.left.value,
+                          top: c.top.value,
+                          right: c.right.value,
+                          bottom: c.bottom.value,
+                          width: c.width.value,
+                          height: c.height.value,
+                          item: _paneled,
+                          itemBuilder: () => widget.itemBuilder(_paneled.item),
+                          overlayBuilder:
+                              () => widget.overlayBuilder(_paneled.item),
+                          onPointerDown:
+                              (_) => widget.onManipulated?.call(true),
+                          onPointerUp: (_) => widget.onManipulated?.call(false),
+                          onTap: _swap,
+                          onScaleStart: (d) {
+                            c.bottomShifted = null;
+
+                            c.left.value ??=
+                                c.size.width -
+                                c.width.value -
+                                (c.right.value ?? 0);
+                            c.top.value ??=
+                                c.size.height -
+                                c.height.value -
+                                (c.bottom.value ?? 0);
+
+                            c.right.value = null;
+                            c.bottom.value = null;
+
+                            if (d.pointerCount == 1) {
+                              c.dragged.value = true;
+                              c.calculatePanning(d.focalPoint);
+                              c.applyConstraints();
+                            } else if (d.pointerCount == 2) {
+                              c.unscaledSize = max(
+                                c.width.value,
+                                c.height.value,
+                              );
+                              c.scaled.value = true;
+                              c.calculatePanning(d.focalPoint);
+                            }
+                          },
+                          onScaleUpdate: (d) {
+                            c.updateOffset(d.focalPoint);
+                            if (d.pointerCount == 2) {
+                              c.scaleFloating(d.scale);
+                            }
+
+                            c.applyConstraints();
+                          },
+                          onScaleEnd: (d) {
+                            c.dragged.value = false;
+                            c.scaled.value = false;
+                            c.unscaledSize = null;
+
+                            c.updateAttach();
+                          },
+                        );
+                      }),
+                    ),
+                ],
+              );
+            },
+          ),
         );
       },
     );
@@ -224,38 +232,42 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
     final _FloatingItem<T> primary = _primary;
 
     ++_locked;
-    paneled.entry = OverlayEntry(builder: (context) {
-      return AnimatedTransition(
-        beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
-        endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-        onEnd: () {
-          paneled.entry?.remove();
-          paneled.entry = null;
-          --_locked;
-          setState(() {});
-        },
-        child: widget.itemBuilder(paneled.item),
-      );
-    });
+    paneled.entry = OverlayEntry(
+      builder: (context) {
+        return AnimatedTransition(
+          beginRect: paneled.itemKey.globalPaintBounds ?? Rect.zero,
+          endRect: primary.itemKey.globalPaintBounds ?? Rect.largest,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.ease,
+          onEnd: () {
+            paneled.entry?.remove();
+            paneled.entry = null;
+            --_locked;
+            setState(() {});
+          },
+          child: widget.itemBuilder(paneled.item),
+        );
+      },
+    );
 
     ++_locked;
-    primary.entry = OverlayEntry(builder: (context) {
-      return AnimatedTransition(
-        beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
-        endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.ease,
-        onEnd: () {
-          primary.entry?.remove();
-          primary.entry = null;
-          --_locked;
-          setState(() {});
-        },
-        child: widget.itemBuilder(primary.item),
-      );
-    });
+    primary.entry = OverlayEntry(
+      builder: (context) {
+        return AnimatedTransition(
+          beginRect: primary.itemKey.globalPaintBounds ?? Rect.zero,
+          endRect: paneled.itemKey.globalPaintBounds ?? Rect.largest,
+          duration: const Duration(milliseconds: 400),
+          curve: Curves.ease,
+          onEnd: () {
+            primary.entry?.remove();
+            primary.entry = null;
+            --_locked;
+            setState(() {});
+          },
+          child: widget.itemBuilder(primary.item),
+        );
+      },
+    );
 
     Overlay.of(context).insertAll([paneled.entry, primary.entry].nonNulls);
 
@@ -370,7 +382,7 @@ class _FloatingPanel<T> extends StatelessWidget {
               color: style.colors.onBackgroundOpacity27,
               blurRadius: 9,
               blurStyle: BlurStyle.outer.workaround,
-            )
+            ),
           ],
         ),
       ),
@@ -422,20 +434,21 @@ class _FloatingPanel<T> extends StatelessWidget {
         child: ClipRRect(
           key: panelKey,
           borderRadius: BorderRadius.circular(10),
-          child: item.entry == null
-              ? KeyedSubtree(
-                  key: item.itemKey,
-                  child: Stack(
-                    children: [
-                      itemBuilder(),
-                      AnimatedDelayedSwitcher(
-                        duration: 100.milliseconds,
-                        child: overlayBuilder(),
-                      ),
-                    ],
-                  ),
-                )
-              : null,
+          child:
+              item.entry == null
+                  ? KeyedSubtree(
+                    key: item.itemKey,
+                    child: Stack(
+                      children: [
+                        itemBuilder(),
+                        AnimatedDelayedSwitcher(
+                          duration: 100.milliseconds,
+                          child: overlayBuilder(),
+                        ),
+                      ],
+                    ),
+                  )
+                  : null,
         ),
       ),
     );

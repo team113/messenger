@@ -31,12 +31,14 @@ void main() {
     expect(validChars.hasMatch(slug.val), isTrue);
   });
 
-  test('ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
-      () {
-    for (int i = 0; i < 10; ++i) {
-      final slug = ChatDirectLinkSlug.generate();
-      expect(slug.val.endsWith('-'), isFalse);
-      expect(slug.val.endsWith('_'), isFalse);
-    }
-  });
+  test(
+    'ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
+    () {
+      for (int i = 0; i < 10; ++i) {
+        final slug = ChatDirectLinkSlug.generate();
+        expect(slug.val.endsWith('-'), isFalse);
+        expect(slug.val.endsWith('_'), isFalse);
+      }
+    },
+  );
 }

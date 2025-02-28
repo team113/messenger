@@ -25,18 +25,14 @@ part 'file.g.dart';
 
 /// File on a file storage.
 abstract class StorageFile {
-  StorageFile({
-    required this.relativeRef,
-    this.checksum,
-    this.size,
-  });
+  StorageFile({required this.relativeRef, this.checksum, this.size});
 
   /// Constructs a [StorageFile] from the provided [json].
   factory StorageFile.fromJson(Map<String, dynamic> json) =>
       switch (json['runtimeType']) {
         'PlainFile' => PlainFile.fromJson(json),
         'ImageFile' => ImageFile.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Relative reference to this [StorageFile] on a file storage.
@@ -108,20 +104,16 @@ abstract class StorageFile {
 
   /// Returns a [Map] representing this [StorageFile].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (PlainFile) => (this as PlainFile).toJson(),
-        const (ImageFile) => (this as ImageFile).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (PlainFile) => (this as PlainFile).toJson(),
+    const (ImageFile) => (this as ImageFile).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Plain-[StorageFile] on a file storage.
 @JsonSerializable()
 class PlainFile extends StorageFile {
-  PlainFile({
-    required super.relativeRef,
-    super.checksum,
-    super.size,
-  });
+  PlainFile({required super.relativeRef, super.checksum, super.size});
 
   /// Constructs a [PlainFile] from the provided [json].
   factory PlainFile.fromJson(Map<String, dynamic> json) =>

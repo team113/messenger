@@ -18,12 +18,7 @@
 import '/domain/model/chat_call.dart';
 
 /// Possible kinds of an [IncomingChatCallsTopEvent].
-enum IncomingChatCallsTopEventKind {
-  initialized,
-  list,
-  added,
-  removed,
-}
+enum IncomingChatCallsTopEventKind { initialized, list, added, removed }
 
 /// Event indicating changes in an ongoing [ChatCall]s list.
 abstract class IncomingChatCallsTopEvent {

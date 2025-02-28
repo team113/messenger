@@ -32,11 +32,7 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({
-    super.key,
-    this.timeout = false,
-    required this.phone,
-  });
+  const AddPhoneView({super.key, this.timeout = false, required this.phone});
 
   /// [UserPhone] this modal is about.
   final UserPhone phone;
@@ -99,14 +95,16 @@ class AddPhoneView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed: c.resendPhoneTimeout.value == 0
-                            ? c.resendPhone
-                            : null,
-                        title: c.resendPhoneTimeout.value == 0
-                            ? 'label_resend'.l10n
-                            : 'label_resend_timeout'.l10nfmt(
-                                {'timeout': c.resendPhoneTimeout.value},
-                              ),
+                        onPressed:
+                            c.resendPhoneTimeout.value == 0
+                                ? c.resendPhone
+                                : null,
+                        title:
+                            c.resendPhoneTimeout.value == 0
+                                ? 'label_resend'.l10n
+                                : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendPhoneTimeout.value,
+                                }),
                       ),
                     ),
                     const SizedBox(width: 10),

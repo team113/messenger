@@ -22,7 +22,7 @@ import 'map.dart';
 /// Self-sorting observable [Map].
 class SortedObsMap<K, V> extends MapMixin<K, V> {
   SortedObsMap([Comparator<V>? compare])
-      : _compare = compare ?? _defaultCompare<V>();
+    : _compare = compare ?? _defaultCompare<V>();
 
   /// Callback, comparing the provided [V] items.
   final Comparator<V> _compare;

@@ -168,32 +168,29 @@ class CacheWorker extends DisposableService {
 
       if (url != null) {
         try {
-          final Uint8List? data = await Backoff.run(
-            () async {
-              Response? data;
+          final Uint8List? data = await Backoff.run(() async {
+            Response? data;
 
-              try {
-                data = await (await PlatformUtils.dio).get(
-                  url,
-                  options: Options(responseType: ResponseType.bytes),
-                  cancelToken: cancelToken,
-                  onReceiveProgress: onReceiveProgress,
-                );
-              } on DioException catch (e) {
-                if (e.response?.statusCode == 403) {
-                  await onForbidden?.call();
-                  return null;
-                }
+            try {
+              data = await (await PlatformUtils.dio).get(
+                url,
+                options: Options(responseType: ResponseType.bytes),
+                cancelToken: cancelToken,
+                onReceiveProgress: onReceiveProgress,
+              );
+            } on DioException catch (e) {
+              if (e.response?.statusCode == 403) {
+                await onForbidden?.call();
+                return null;
               }
+            }
 
-              if (data?.data != null && data!.statusCode == 200) {
-                return data.data as Uint8List;
-              } else {
-                throw Exception('Data is not loaded');
-              }
-            },
-            cancelToken,
-          );
+            if (data?.data != null && data!.statusCode == 200) {
+              return data.data as Uint8List;
+            } else {
+              throw Exception('Data is not loaded');
+            }
+          }, cancelToken);
 
           switch (responseType) {
             case CacheResponseType.file:
@@ -220,7 +217,8 @@ class CacheWorker extends DisposableService {
 
   /// Returns the [ImageProvider] for the provided [thumbhash].
   ImageProvider getThumbhashProvider(ThumbHash thumbhash) {
-    final ImageProvider thumbhashProvider = _thumbhashProviders[thumbhash] ??
+    final ImageProvider thumbhashProvider =
+        _thumbhashProviders[thumbhash] ??
         (_thumbhashProviders[thumbhash] =
             t.ThumbHash.fromBase64(thumbhash.val).toImage());
 
@@ -379,15 +377,13 @@ class CacheWorker extends DisposableService {
         final List<Future> futures = [];
         for (var file in files) {
           futures.add(
-            Future(
-              () async {
-                try {
-                  await file.delete();
-                } catch (_) {
-                  // No-op.
-                }
-              },
-            ),
+            Future(() async {
+              try {
+                await file.delete();
+              } catch (_) {
+                // No-op.
+              }
+            }),
           );
         }
 
@@ -481,29 +477,31 @@ class CacheWorker extends DisposableService {
       int size = 0;
 
       _cacheSubscription?.cancel();
-      _cacheSubscription = cache.list(recursive: true).listen(
-        (FileSystemEntity file) async {
-          if (file is File) {
-            checksums.add(p.basename(file.path));
-            final FileStat stat = await file.stat();
-            size += stat.size;
-          }
-        },
-        onDone: () async {
-          await _cacheLocal?.clear();
-          info.value.size = size;
-          info.value.modified = (await cache.stat()).modified;
-          info.refresh();
-          hashes.addAll(checksums);
-          await _cacheLocal?.upsert(info.value);
-          await _cacheLocal?.register(checksums.toList());
+      _cacheSubscription = cache
+          .list(recursive: true)
+          .listen(
+            (FileSystemEntity file) async {
+              if (file is File) {
+                checksums.add(p.basename(file.path));
+                final FileStat stat = await file.stat();
+                size += stat.size;
+              }
+            },
+            onDone: () async {
+              await _cacheLocal?.clear();
+              info.value.size = size;
+              info.value.modified = (await cache.stat()).modified;
+              info.refresh();
+              hashes.addAll(checksums);
+              await _cacheLocal?.upsert(info.value);
+              await _cacheLocal?.register(checksums.toList());
 
-          _optimizeCache();
+              _optimizeCache();
 
-          _cacheSubscription?.cancel();
-          _cacheSubscription = null;
-        },
-      );
+              _cacheSubscription?.cancel();
+              _cacheSubscription = null;
+            },
+          );
     }
   }
 }

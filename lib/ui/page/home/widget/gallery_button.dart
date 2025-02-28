@@ -23,12 +23,7 @@ import '/ui/widget/svg/svgs.dart';
 
 /// [RoundFloatingButton] styled to be used in [GalleryPopup] overlay.
 class GalleryButton extends StatelessWidget {
-  const GalleryButton({
-    super.key,
-    this.child,
-    this.icon,
-    this.onPressed,
-  });
+  const GalleryButton({super.key, this.child, this.icon, this.onPressed});
 
   /// Optional [Widget] to display.
   final Widget? child;

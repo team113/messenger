@@ -25,6 +25,6 @@ import 'package:gherkin/gherkin.dart';
 final StepDefinitionGeneric waitForAppToSettle = then<FlutterWorld>(
   'I wait for app to settle',
   (context) => context.world.appDriver.waitForAppToSettle(),
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 60),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 60),
 );

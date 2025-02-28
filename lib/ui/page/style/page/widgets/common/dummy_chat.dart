@@ -125,8 +125,7 @@ class DummyRxChat extends RxChat {
     ChatItemId? reply,
     ChatItemId? forward,
     ChatMessageText? withText,
-  }) async =>
-      null;
+  }) async => null;
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async =>

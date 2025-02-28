@@ -92,7 +92,8 @@ class SharableTextField extends StatelessWidget {
                 child: ReactiveTextField(
                   prefix: leading,
                   state: state,
-                  trailing: trailing ??
+                  trailing:
+                      trailing ??
                       Transform.translate(
                         offset: const Offset(0, -1),
                         child: const SvgIcon(SvgIcons.share),

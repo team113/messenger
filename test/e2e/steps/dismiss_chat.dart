@@ -32,19 +32,24 @@ final StepDefinitionGeneric dismissChat = given1<String, CustomWorld>(
     final ChatId chatId = context.world.groups[name]!;
 
     await context.world.appDriver.waitUntil(() async {
-      final finder = context.world.appDriver
-          .findBy(Key('Chat_${chatId.val}'), FindType.key);
+      final finder = context.world.appDriver.findBy(
+        Key('Chat_${chatId.val}'),
+        FindType.key,
+      );
 
       if (await context.world.appDriver.isAbsent(finder)) {
         return false;
       }
 
-      await context.world.appDriver.nativeDriver
-          .fling(finder, const Offset(-400, 0), 800);
+      await context.world.appDriver.nativeDriver.fling(
+        finder,
+        const Offset(-400, 0),
+        800,
+      );
 
       return true;
     });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

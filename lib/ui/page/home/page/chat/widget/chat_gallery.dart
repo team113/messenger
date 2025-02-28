@@ -74,18 +74,20 @@ class _ChatGalleryState extends State<ChatGallery> {
 
   /// Returns the [GalleryItem] to pass to a [GalleryPopup].
   List<GalleryItem> get _gallery => [
-        if (_initial != null) _initial!,
-        ..._items.expand((e) => e.gallery),
-      ];
+    if (_initial != null) _initial!,
+    ..._items.expand((e) => e.gallery),
+  ];
 
   /// Index of the [_initial] attachment in the [_gallery] list.
   int get _index => max(
-      _gallery.indexWhere(
-        (e) => widget.initial?.$1 == null
-            ? e.id?.endsWith('${widget.initial?.$2.id}') == true
-            : e.id == '${widget.initial?.$1?.id}_${widget.initial?.$2.id}',
-      ),
-      0);
+    _gallery.indexWhere(
+      (e) =>
+          widget.initial?.$1 == null
+              ? e.id?.endsWith('${widget.initial?.$2.id}') == true
+              : e.id == '${widget.initial?.$1?.id}_${widget.initial?.$2.id}',
+    ),
+    0,
+  );
 
   @override
   void initState() {

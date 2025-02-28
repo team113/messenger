@@ -34,39 +34,43 @@ import '../world/custom_world.dart';
 /// - Given "Name" chat is favorite
 final StepDefinitionGeneric chatIsFavorite =
     given2<String, FavoriteStatus, CustomWorld>(
-  '{string} chat is {favorite}',
-  (String name, status, context) async {
-    final ChatId chatId = context.world.groups[name]!;
-    final provider = GraphQlProvider();
-    final AuthService authService = Get.find();
-    provider.token = authService.credentials.value!.access.secret;
+      '{string} chat is {favorite}',
+      (String name, status, context) async {
+        final ChatId chatId = context.world.groups[name]!;
+        final provider = GraphQlProvider();
+        final AuthService authService = Get.find();
+        provider.token = authService.credentials.value!.access.secret;
 
-    if (status == FavoriteStatus.favorite) {
-      final RxObsMap<ChatId, RxChat> chats = Get.find<ChatService>().chats;
+        if (status == FavoriteStatus.favorite) {
+          final RxObsMap<ChatId, RxChat> chats = Get.find<ChatService>().chats;
 
-      final List<RxChat> favorites = chats.values
-          .where((e) => e.chat.value.favoritePosition != null)
-          .toList();
+          final List<RxChat> favorites =
+              chats.values
+                  .where((e) => e.chat.value.favoritePosition != null)
+                  .toList();
 
-      favorites.sort(
-        (a, b) => a.chat.value.favoritePosition!
-            .compareTo(b.chat.value.favoritePosition!),
-      );
+          favorites.sort(
+            (a, b) => a.chat.value.favoritePosition!.compareTo(
+              b.chat.value.favoritePosition!,
+            ),
+          );
 
-      final double? lowest = favorites.isEmpty
-          ? null
-          : favorites.first.chat.value.favoritePosition!.val;
+          final double? lowest =
+              favorites.isEmpty
+                  ? null
+                  : favorites.first.chat.value.favoritePosition!.val;
 
-      final position =
-          ChatFavoritePosition(lowest == null ? 9007199254740991 : lowest / 2);
+          final position = ChatFavoritePosition(
+            lowest == null ? 9007199254740991 : lowest / 2,
+          );
 
-      await provider.favoriteChat(chatId, position);
-    } else {
-      await provider.unfavoriteChat(chatId);
-    }
+          await provider.favoriteChat(chatId, position);
+        } else {
+          await provider.unfavoriteChat(chatId);
+        }
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

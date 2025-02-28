@@ -139,8 +139,10 @@ class Pagination<T, C, K> {
       }
 
       try {
-        final Page<T, C>? page =
-            await Backoff.run(() => provider.init(key, perPage), _cancelToken);
+        final Page<T, C>? page = await Backoff.run(
+          () => provider.init(key, perPage),
+          _cancelToken,
+        );
         Log.debug(
           'init(key: $key)... \n'
               '\tFetched ${page?.edges.length} items\n'

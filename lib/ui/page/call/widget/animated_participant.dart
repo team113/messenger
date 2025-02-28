@@ -61,9 +61,10 @@ class AnimatedParticipant extends StatelessWidget {
       child: AnimatedContainer(
         duration: 200.milliseconds,
         decoration: BoxDecoration(
-          color: rounded
-              ? style.colors.backgroundAuxiliaryLight
-              : style.colors.transparent,
+          color:
+              rounded
+                  ? style.colors.backgroundAuxiliaryLight
+                  : style.colors.transparent,
         ),
         width: rounded ? MediaQuery.of(context).size.width - 20 : null,
         height: rounded ? MediaQuery.of(context).size.height / 2 : null,

@@ -22,11 +22,7 @@ import '/themes.dart';
 
 /// Centered [time] label animating its [opacity] changes.
 class TimeLabelWidget extends StatelessWidget {
-  const TimeLabelWidget(
-    this.time, {
-    super.key,
-    this.opacity = 1,
-  });
+  const TimeLabelWidget(this.time, {super.key, this.opacity = 1});
 
   /// Opacity of this [TimeLabelWidget].
   final double opacity;

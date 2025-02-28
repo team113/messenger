@@ -93,8 +93,9 @@ void main() async {
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
   final StreamController<QueryResult> contactEvents = StreamController();
   when(
@@ -102,11 +103,13 @@ void main() async {
   ).thenAnswer((_) => contactEvents.stream);
 
   final StreamController<QueryResult> chatEvents = StreamController();
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => chatEvents.stream);
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => chatEvents.stream);
 
   when(
     graphQlProvider.keepTyping(
@@ -127,12 +130,14 @@ void main() async {
     ),
   ).thenAnswer((_) => Future.value(null));
 
-  when(graphQlProvider.chatItems(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    last: 50,
-  )).thenAnswer(
-    (_) => Future.value(GetMessages$Query.fromJson(
-      {
+  when(
+    graphQlProvider.chatItems(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      last: 50,
+    ),
+  ).thenAnswer(
+    (_) => Future.value(
+      GetMessages$Query.fromJson({
         'chat': {
           'items': {
             'edges': [
@@ -156,9 +161,10 @@ void main() async {
                   'repliesTo': [],
                   'text': 'edit message',
                   'editedAt': null,
-                  'attachments': []
+                  'attachments': [],
                 },
-                'cursor': 'IjkxZTZlNTk3LWU2Y2EtNGIxZi1hZDcwLTgzZGQ2MjFlNGNiNCI='
+                'cursor':
+                    'IjkxZTZlNTk3LWU2Y2EtNGIxZi1hZDcwLTgzZGQ2MjFlNGNiNCI=',
               },
             ],
             'pageInfo': {
@@ -166,43 +172,54 @@ void main() async {
               'hasNextPage': false,
               'startCursor': 'startCursor',
               'hasPreviousPage': false,
-            }
-          }
-        }
-      },
-    )),
+            },
+          },
+        },
+      }),
+    ),
   );
 
   when(graphQlProvider.chatItem(any)).thenAnswer(
     (_) => Future.value(GetMessage$Query.fromJson({'chatItem': null})),
   );
 
-  when(graphQlProvider.recentChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-    noFavorite: anyNamed('noFavorite'),
-    withOngoingCalls: anyNamed('withOngoingCalls'),
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+  when(
+    graphQlProvider.recentChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
+    ),
+  ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-  when(graphQlProvider.favoriteChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
-      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+  when(
+    graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
+    (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+  );
 
-  when(graphQlProvider.incomingCalls()).thenAnswer((_) => Future.value(
-      IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []})));
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(graphQlProvider.incomingCalls()).thenAnswer(
+    (_) => Future.value(
+      IncomingCalls$Query$IncomingChatCalls.fromJson({'nodes': []}),
+    ),
+  );
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.editChatMessage(
-    const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
-    text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-  )).thenAnswer((_) {
+  when(
+    graphQlProvider.editChatMessage(
+      const ChatItemId('91e6e597-e6ca-4b1f-ad70-83dd621e4cb2'),
+      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
+    ),
+  ).thenAnswer((_) {
     var event = {
       '__typename': 'ChatEventsVersioned',
       'events': [
@@ -211,64 +228,79 @@ void main() async {
           'chatId': '0d72d245-8425-467a-9ebd-082d4f47850b',
           'itemId': '91e6e597-e6ca-4b1f-ad70-83dd621e4cb2',
           'text': {'changed': 'new text'},
-        }
+        },
       ],
-      'ver': '1'
+      'ver': '1',
     };
 
-    chatEvents.add(QueryResult.internal(
-      data: {'chatEvents': event},
-      parserFn: (_) => null,
-      source: null,
-    ));
+    chatEvents.add(
+      QueryResult.internal(
+        data: {'chatEvents': event},
+        parserFn: (_) => null,
+        source: null,
+      ),
+    );
 
     return Future.value(
-      EditChatMessage$Mutation.fromJson({'editChatMessage': event})
-          .editChatMessage as ChatEventsVersionedMixin?,
+      EditChatMessage$Mutation.fromJson({
+            'editChatMessage': event,
+          }).editChatMessage
+          as ChatEventsVersionedMixin?,
     );
   });
 
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.blocklistEvents(any))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.myUserEvents(any))
-      .thenAnswer((_) async => const Stream.empty());
-  when(graphQlProvider.sessionsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.blocklistEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.myUserEvents(any),
+  ).thenAnswer((_) async => const Stream.empty());
+  when(
+    graphQlProvider.sessionsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getBlocklist(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
+  when(
+    graphQlProvider.getBlocklist(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
     (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
   );
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
-  when(graphQlProvider.chatMembers(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    first: anyNamed('first'),
-  )).thenAnswer(
-    (_) => Future.value(GetMembers$Query.fromJson({
-      'chat': {
-        'members': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          }
-        }
-      }
-    })),
+  when(
+    graphQlProvider.chatMembers(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      first: anyNamed('first'),
+    ),
+  ).thenAnswer(
+    (_) => Future.value(
+      GetMembers$Query.fromJson({
+        'chat': {
+          'members': {
+            'edges': [],
+            'pageInfo': {
+              'endCursor': 'endCursor',
+              'hasNextPage': false,
+              'startCursor': 'startCursor',
+              'hasPreviousPage': false,
+            },
+          },
+        },
+      }),
+    ),
   );
 
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
@@ -298,10 +330,12 @@ void main() async {
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
@@ -319,15 +353,14 @@ void main() async {
     );
   }
 
-  testWidgets('ChatView successfully edits a ChatMessage',
-      (WidgetTester tester) async {
+  testWidgets('ChatView successfully edits a ChatMessage', (
+    WidgetTester tester,
+  ) async {
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),
@@ -345,8 +378,10 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider);
+    UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+    );
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
@@ -402,9 +437,11 @@ void main() async {
     ChatService chatService = Get.put(ChatService(chatRepository, authService));
     Get.put(CallService(authService, chatService, callRepository));
 
-    await tester.pumpWidget(createWidgetForTesting(
-      child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
-    ));
+    await tester.pumpWidget(
+      createWidgetForTesting(
+        child: const ChatView(ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')),
+      ),
+    );
 
     for (int i = 0; i < 20; i++) {
       await tester.pump(const Duration(seconds: 2));
@@ -421,19 +458,13 @@ void main() async {
     await tester.tap(find.byKey(const Key('EditButton')));
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    await tester.enterText(
-      find.byKey(const Key('MessageField')),
-      'new text',
-    );
+    await tester.enterText(find.byKey(const Key('MessageField')), 'new text');
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
     await tester.testTextInput.receiveAction(TextInputAction.done);
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    expect(
-      find.text('edit message', skipOffstage: false),
-      findsNothing,
-    );
+    expect(find.text('edit message', skipOffstage: false), findsNothing);
     expect(find.richText('new text', skipOffstage: false), findsOneWidget);
 
     await Future.wait([common.close(), scoped.close()]);
@@ -461,24 +492,21 @@ final chatData = {
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
-  'ver': '0'
+  'ver': '0',
 };
 
 final recentChats = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteChats = {
@@ -490,8 +518,8 @@ final favoriteChats = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };
 
 final chatContacts = {
@@ -504,7 +532,7 @@ final chatContacts = {
       'hasPreviousPage': false,
     },
     'ver': '0',
-  }
+  },
 };
 
 final favoriteChatContacts = {
@@ -517,7 +545,7 @@ final favoriteChatContacts = {
       'hasPreviousPage': false,
     },
     'ver': '0',
-  }
+  },
 };
 
 final blocklist = {
@@ -527,5 +555,5 @@ final blocklist = {
     'hasNextPage': false,
     'startCursor': 'startCursor',
     'hasPreviousPage': false,
-  }
+  },
 };

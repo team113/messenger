@@ -83,11 +83,12 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
-      _bundle = FluentBundle(lang.toString())
-        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
-        ..addMessages(
-          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-        );
+      _bundle =
+          FluentBundle(lang.toString())
+            ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
+            ..addMessages(
+              _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+            );
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -148,7 +149,9 @@ extension L10nDateExtension on DateTime {
 
   // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
-  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
+  String get yyMd => DateFormat.yMd()
+      .format(this)
+      .replaceFirst(
         DateTime.now().year.toString(),
         DateFormat('yy').format(this),
       );

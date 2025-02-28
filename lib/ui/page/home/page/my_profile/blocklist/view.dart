@@ -71,8 +71,9 @@ class BlocklistView extends StatelessWidget {
                 child: Obx(() {
                   // Show only users with [User.isBlocked] for optimistic
                   // deletion from blocklist.
-                  final Iterable<RxUser> blocklist =
-                      c.blocklist.where((e) => e.user.value.isBlocked != null);
+                  final Iterable<RxUser> blocklist = c.blocklist.where(
+                    (e) => e.user.value.isBlocked != null,
+                  );
 
                   if (c.status.value.isLoading) {
                     return SizedBox(
@@ -129,9 +130,10 @@ class BlocklistView extends StatelessWidget {
                                   child,
                                   CustomProgressIndicator(
                                     key: const Key('BlocklistLoading'),
-                                    value: Config.disableInfiniteAnimations
-                                        ? 0
-                                        : null,
+                                    value:
+                                        Config.disableInfiniteAnimations
+                                            ? 0
+                                            : null,
                                   ),
                                 ],
                               );

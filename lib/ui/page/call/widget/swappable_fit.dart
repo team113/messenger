@@ -116,57 +116,65 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
     return IgnorePointer(
       ignoring: _locked != 0,
-      child: LayoutBuilder(builder: (context, constraints) {
-        _constraints = constraints;
-        final double size = constraints.maxHeight / 8;
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          _constraints = constraints;
+          final double size = constraints.maxHeight / 8;
 
-        return Column(
-          children: [
-            if (_centered != null && !widget.fit)
-              SizedBox(
-                height: size,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: _items.map((e) {
-                    if (e.item == _centered) {
-                      return const SizedBox();
-                    }
+          return Column(
+            children: [
+              if (_centered != null && !widget.fit)
+                SizedBox(
+                  height: size,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    children:
+                        _items.map((e) {
+                          if (e.item == _centered) {
+                            return const SizedBox();
+                          }
 
-                    return SizedBox(
-                      width: size,
-                      height: size,
-                      child: e.entry == null
-                          ? KeyedSubtree(
-                              key: e.itemKey,
-                              child: widget.itemBuilder(e.item),
-                            )
-                          : null,
-                    );
-                  }).toList(),
+                          return SizedBox(
+                            width: size,
+                            height: size,
+                            child:
+                                e.entry == null
+                                    ? KeyedSubtree(
+                                      key: e.itemKey,
+                                      child: widget.itemBuilder(e.item),
+                                    )
+                                    : null,
+                          );
+                        }).toList(),
+                  ),
+                ),
+              Expanded(
+                child: FitView(
+                  children:
+                      _items
+                          .where((e) {
+                            if (_centered != null && !widget.fit) {
+                              return e.item == _centered;
+                            }
+
+                            return true;
+                          })
+                          .map((e) {
+                            if (e.entry == null) {
+                              return KeyedSubtree(
+                                key: e.itemKey,
+                                child: widget.itemBuilder(e.item),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          })
+                          .toList(),
                 ),
               ),
-            Expanded(
-              child: FitView(
-                children: _items.where((e) {
-                  if (_centered != null && !widget.fit) {
-                    return e.item == _centered;
-                  }
-
-                  return true;
-                }).map((e) {
-                  if (e.entry == null) {
-                    return KeyedSubtree(
-                      key: e.itemKey,
-                      child: widget.itemBuilder(e.item),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                }).toList(),
-              ),
-            ),
-          ],
-        );
-      }),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -185,45 +193,49 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
         ++_locked;
 
         if (i.item == item) {
-          i.entry = OverlayEntry(builder: (context) {
-            return AnimatedTransition(
-              beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
-              endRect: Rect.fromLTWH(
-                0,
-                layout.height / 8,
-                layout.width,
-                layout.height * 7 / 8,
-              ),
-              curve: Curves.ease,
-              onEnd: () {
-                i.entry?.remove();
-                i.entry = null;
-                --_locked;
-                setState(() {});
-              },
-              child: widget.itemBuilder(i.item),
-            );
-          });
+          i.entry = OverlayEntry(
+            builder: (context) {
+              return AnimatedTransition(
+                beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
+                endRect: Rect.fromLTWH(
+                  0,
+                  layout.height / 8,
+                  layout.width,
+                  layout.height * 7 / 8,
+                ),
+                curve: Curves.ease,
+                onEnd: () {
+                  i.entry?.remove();
+                  i.entry = null;
+                  --_locked;
+                  setState(() {});
+                },
+                child: widget.itemBuilder(i.item),
+              );
+            },
+          );
         } else {
-          i.entry = OverlayEntry(builder: (context) {
-            return AnimatedTransition(
-              beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
-              endRect: Rect.fromLTWH(
-                (j > index ? (j - 1) : j) * (layout.height / 8),
-                0,
-                layout.height / 8,
-                layout.height / 8,
-              ),
-              curve: Curves.ease,
-              onEnd: () {
-                i.entry?.remove();
-                i.entry = null;
-                --_locked;
-                setState(() {});
-              },
-              child: widget.itemBuilder(i.item),
-            );
-          });
+          i.entry = OverlayEntry(
+            builder: (context) {
+              return AnimatedTransition(
+                beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
+                endRect: Rect.fromLTWH(
+                  (j > index ? (j - 1) : j) * (layout.height / 8),
+                  0,
+                  layout.height / 8,
+                  layout.height / 8,
+                ),
+                curve: Curves.ease,
+                onEnd: () {
+                  i.entry?.remove();
+                  i.entry = null;
+                  --_locked;
+                  setState(() {});
+                },
+                child: widget.itemBuilder(i.item),
+              );
+            },
+          );
         }
 
         Overlay.of(context).insert(i.entry!);
@@ -249,24 +261,26 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
       _SwappableItem<T> i = _items[j];
       ++_locked;
 
-      i.entry = OverlayEntry(builder: (context) {
-        return AnimatedTransition(
-          beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
-          endRect: FitView.sizeOf(
-            index: j,
-            length: _items.length,
-            constraints: _constraints ?? BoxConstraints.tight(layout),
-          ),
-          curve: Curves.ease,
-          onEnd: () {
-            i.entry?.remove();
-            i.entry = null;
-            --_locked;
-            setState(() {});
-          },
-          child: widget.itemBuilder(i.item),
-        );
-      });
+      i.entry = OverlayEntry(
+        builder: (context) {
+          return AnimatedTransition(
+            beginRect: i.itemKey.globalPaintBounds ?? Rect.zero,
+            endRect: FitView.sizeOf(
+              index: j,
+              length: _items.length,
+              constraints: _constraints ?? BoxConstraints.tight(layout),
+            ),
+            curve: Curves.ease,
+            onEnd: () {
+              i.entry?.remove();
+              i.entry = null;
+              --_locked;
+              setState(() {});
+            },
+            child: widget.itemBuilder(i.item),
+          );
+        },
+      );
 
       Overlay.of(context).insert(i.entry!);
     }
@@ -283,36 +297,40 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
 
     if (a != null && b != null) {
       ++_locked;
-      a.entry = OverlayEntry(builder: (context) {
-        return AnimatedTransition(
-          beginRect: a.itemKey.globalPaintBounds ?? Rect.zero,
-          endRect: b.itemKey.globalPaintBounds ?? Rect.largest,
-          curve: Curves.ease,
-          onEnd: () {
-            a.entry?.remove();
-            a.entry = null;
-            --_locked;
-            setState(() {});
-          },
-          child: widget.itemBuilder(a.item),
-        );
-      });
+      a.entry = OverlayEntry(
+        builder: (context) {
+          return AnimatedTransition(
+            beginRect: a.itemKey.globalPaintBounds ?? Rect.zero,
+            endRect: b.itemKey.globalPaintBounds ?? Rect.largest,
+            curve: Curves.ease,
+            onEnd: () {
+              a.entry?.remove();
+              a.entry = null;
+              --_locked;
+              setState(() {});
+            },
+            child: widget.itemBuilder(a.item),
+          );
+        },
+      );
 
       ++_locked;
-      b.entry = OverlayEntry(builder: (context) {
-        return AnimatedTransition(
-          beginRect: b.itemKey.globalPaintBounds ?? Rect.zero,
-          endRect: a.itemKey.globalPaintBounds ?? Rect.largest,
-          curve: Curves.ease,
-          onEnd: () {
-            b.entry?.remove();
-            b.entry = null;
-            --_locked;
-            setState(() {});
-          },
-          child: widget.itemBuilder(b.item),
-        );
-      });
+      b.entry = OverlayEntry(
+        builder: (context) {
+          return AnimatedTransition(
+            beginRect: b.itemKey.globalPaintBounds ?? Rect.zero,
+            endRect: a.itemKey.globalPaintBounds ?? Rect.largest,
+            curve: Curves.ease,
+            onEnd: () {
+              b.entry?.remove();
+              b.entry = null;
+              --_locked;
+              setState(() {});
+            },
+            child: widget.itemBuilder(b.item),
+          );
+        },
+      );
 
       Overlay.of(context).insertAll([a.entry, b.entry].nonNulls);
     }
