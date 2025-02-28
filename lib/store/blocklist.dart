@@ -239,9 +239,7 @@ class BlocklistRepository extends DisposableInterface
   ) async {
     Log.debug('_blocklistRemoteEvents(ver)', '$runtimeType');
 
-    return _graphQlProvider.blocklistEvents(ver).asyncExpand((
-      event,
-    ) async* {
+    return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
       Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
 
       var events =
