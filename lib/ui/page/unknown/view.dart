@@ -32,9 +32,10 @@ class UnknownView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return Scaffold(
-      appBar: ModalRoute.of(context)?.canPop == true
-          ? const CustomAppBar(leading: [StyledBackButton()])
-          : null,
+      appBar:
+          ModalRoute.of(context)?.canPop == true
+              ? const CustomAppBar(leading: [StyledBackButton()])
+              : null,
       backgroundColor: style.colors.background,
       body: Center(child: SystemInfoPrompt('label_unknown_page'.l10n)),
     );

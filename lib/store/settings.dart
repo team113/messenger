@@ -221,9 +221,10 @@ class SettingsRepository extends DisposableInterface
 
     applicationSettings.value =
         settings?.call(applicationSettings.value ?? ApplicationSettings()) ??
-            applicationSettings.value;
+        applicationSettings.value;
 
-    mediaSettings.value = media?.call(mediaSettings.value ?? MediaSettings()) ??
+    mediaSettings.value =
+        media?.call(mediaSettings.value ?? MediaSettings()) ??
         mediaSettings.value;
 
     await _settingsLocal.upsert(

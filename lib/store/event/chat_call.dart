@@ -40,11 +40,7 @@ enum ChatCallEventKind {
 }
 
 /// Tag representing a [ChatCallEvents] kind.
-enum ChatCallEventsKind {
-  initialized,
-  chatCall,
-  event,
-}
+enum ChatCallEventsKind { initialized, chatCall, event }
 
 /// [ChatCall] event union.
 abstract class ChatCallEvents {

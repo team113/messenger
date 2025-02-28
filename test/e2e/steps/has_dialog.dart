@@ -34,11 +34,12 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
     final AuthService authService = Get.find();
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
-    var chat =
-        await provider.createDialogChat(authService.credentials.value!.userId);
+    var chat = await provider.createDialogChat(
+      authService.credentials.value!.userId,
+    );
     context.world.sessions[user.name]?.dialog = chat.id;
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

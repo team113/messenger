@@ -132,8 +132,9 @@ class AuthService extends DisposableService {
 
     _authRepository.authExceptionHandler = (e) async {
       // Try to refresh session, otherwise just force logout.
-      if (credentials.value?.refresh.expireAt
-              .isAfter(PreciseDateTime.now().toUtc()) ==
+      if (credentials.value?.refresh.expireAt.isAfter(
+            PreciseDateTime.now().toUtc(),
+          ) ==
           true) {
         await refreshSession();
       } else {
@@ -152,8 +153,9 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
         if (e.newValue != null) {
-          final Credentials received =
-              Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials received = Credentials.fromJson(
+            json.decode(e.newValue!),
+          );
           Credentials? current = credentials.value;
           final bool authorized = _hasAuthorization;
 
@@ -180,8 +182,9 @@ class AuthService extends DisposableService {
             }
           }
         } else {
-          final UserId? deletedId = accounts.keys
-              .firstWhereOrNull((k) => e.key?.endsWith(k.val) ?? false);
+          final UserId? deletedId = accounts.keys.firstWhereOrNull(
+            (k) => e.key?.endsWith(k.val) ?? false,
+          );
 
           accounts.remove(deletedId);
 
@@ -203,9 +206,10 @@ class AuthService extends DisposableService {
       }
 
       final UserId? userId = _accountProvider.userId;
-      final Credentials? creds = userId != null
-          ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
-          : null;
+      final Credentials? creds =
+          userId != null
+              ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
+              : null;
 
       if (creds == null) {
         return _unauthorized();
@@ -424,8 +428,9 @@ class AuthService extends DisposableService {
     Log.debug('signInWith(credentials)', '$runtimeType');
 
     // Check if the [credentials] are valid.
-    credentials =
-        await _authRepository.refreshSession(credentials.refresh.secret);
+    credentials = await _authRepository.refreshSession(
+      credentials.refresh.secret,
+    );
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
@@ -740,8 +745,8 @@ class AuthService extends DisposableService {
         }
       });
     } on RefreshSessionException catch (_) {
-      // No-op, already handled in the callback passed to [WebUtils.protect].
       _refreshRetryDelay = _initialRetryDelay;
+      rethrow;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
@@ -785,26 +790,23 @@ class AuthService extends DisposableService {
     _refreshTimers.clear();
 
     for (final UserId id in accounts.keys) {
-      _refreshTimers[id] = Timer.periodic(
-        _refreshTaskInterval,
-        (_) async {
-          final Credentials? creds = accounts[id]?.value;
-          if (creds == null) {
-            Log.debug(
-              '_initRefreshTimers(): no credentials found for user $id, killing timer',
-              '$runtimeType',
-            );
+      _refreshTimers[id] = Timer.periodic(_refreshTaskInterval, (_) async {
+        final Credentials? creds = accounts[id]?.value;
+        if (creds == null) {
+          Log.debug(
+            '_initRefreshTimers(): no credentials found for user $id, killing timer',
+            '$runtimeType',
+          );
 
-            // Cancel the timer to avoid memory leaks.
-            _refreshTimers.remove(id)?.cancel();
-            return;
-          }
+          // Cancel the timer to avoid memory leaks.
+          _refreshTimers.remove(id)?.cancel();
+          return;
+        }
 
-          if (_shouldRefresh(creds)) {
-            await refreshSession(userId: id);
-          }
-        },
-      );
+        if (_shouldRefresh(creds)) {
+          await refreshSession(userId: id);
+        }
+      });
     }
   }
 

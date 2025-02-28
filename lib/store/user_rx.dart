@@ -39,19 +39,17 @@ import 'model/user.dart';
 
 /// [RxUser] implementation backed by local [ScopedDriftProvider] storage.
 class RxUserImpl extends RxUser {
-  RxUserImpl(
-    this._userRepository,
-    this._userLocal,
-    DtoUser dto,
-  )   : user = Rx<User>(dto.value),
-        lastSeen = Rx(dto.value.lastSeenAt) {
+  RxUserImpl(this._userRepository, this._userLocal, DtoUser dto)
+    : user = Rx<User>(dto.value),
+      lastSeen = Rx(dto.value.lastSeenAt) {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
     final ChatContactId? contactId = user.value.contacts.firstOrNull?.id;
     if (contactId != null) {
-      final FutureOr<RxChatContact?> contactOrFuture =
-          _userRepository.getContact?.call(contactId);
+      final FutureOr<RxChatContact?> contactOrFuture = _userRepository
+          .getContact
+          ?.call(contactId);
 
       if (contactOrFuture is RxChatContact?) {
         contact.value = contactOrFuture;
@@ -71,8 +69,9 @@ class RxUserImpl extends RxUser {
       final ChatContactId? contactId = user.contacts.firstOrNull?.id;
       if (contact.value?.id != contactId) {
         if (contactId != null) {
-          final FutureOr<RxChatContact?> contactOrFuture =
-              _userRepository.getContact?.call(contactId);
+          final FutureOr<RxChatContact?> contactOrFuture = _userRepository
+              .getContact
+              ?.call(contactId);
 
           if (contactOrFuture is RxChatContact?) {
             contact.value = contactOrFuture;
@@ -139,8 +138,9 @@ class RxUserImpl extends RxUser {
   Rx<RxChat?> get dialog {
     final ChatId dialogId = user.value.dialog;
     if (_dialog == null) {
-      final FutureOr<RxChat?> chatOrFuture =
-          _userRepository.getChat?.call(dialogId);
+      final FutureOr<RxChat?> chatOrFuture = _userRepository.getChat?.call(
+        dialogId,
+      );
 
       if (chatOrFuture is RxChat?) {
         _dialog = Rx(chatOrFuture);
@@ -171,18 +171,15 @@ class RxUserImpl extends RxUser {
 
     _remoteSubscription?.close(immediate: true);
 
-    await WebUtils.protect(
-      () async {
-        _remoteSubscription = StreamQueue(
-          await _userRepository.userEvents(
-            id,
-            () async => (await _userLocal.read(id))?.ver,
-          ),
-        );
-        await _remoteSubscription!.execute(_userEvent);
-      },
-      tag: 'userEvents($id)',
-    );
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _userRepository.userEvents(
+          id,
+          () async => (await _userLocal.read(id))?.ver,
+        ),
+      );
+      await _remoteSubscription!.execute(_userEvent);
+    }, tag: 'userEvents($id)');
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
@@ -292,12 +289,14 @@ class RxUserImpl extends RxUser {
             case UserEventKind.welcomeMessageUpdated:
               event as EventUserWelcomeMessageUpdated;
               userEntity.value.welcomeMessage = WelcomeMessage(
-                text: event.text == null
-                    ? userEntity.value.welcomeMessage?.text
-                    : event.text?.changed,
-                attachments: event.attachments == null
-                    ? userEntity.value.welcomeMessage?.attachments ?? []
-                    : event.attachments?.attachments ?? [],
+                text:
+                    event.text == null
+                        ? userEntity.value.welcomeMessage?.text
+                        : event.text?.changed,
+                attachments:
+                    event.attachments == null
+                        ? userEntity.value.welcomeMessage?.attachments ?? []
+                        : event.attachments?.attachments ?? [],
                 at: event.at,
               );
               break;
@@ -359,19 +358,22 @@ class RxUserImpl extends RxUser {
     if (difference.inHours < 1) {
       period = const Duration(minutes: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerMinute -
+        microseconds:
+            Duration.microsecondsPerMinute -
             difference.inMicroseconds % Duration.microsecondsPerMinute,
       );
     } else if (difference.inDays < 1) {
       period = const Duration(hours: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerHour -
+        microseconds:
+            Duration.microsecondsPerHour -
             difference.inMicroseconds % Duration.microsecondsPerHour,
       );
     } else {
       period = const Duration(days: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerDay -
+        microseconds:
+            Duration.microsecondsPerDay -
             difference.inMicroseconds % Duration.microsecondsPerDay,
       );
     }
@@ -379,31 +381,25 @@ class RxUserImpl extends RxUser {
     lastSeen.value = user.value.lastSeenAt;
     lastSeen.refresh();
 
-    _lastSeenTimer = Timer(
-      delay,
-      () {
+    _lastSeenTimer = Timer(delay, () {
+      Log.debug(
+        '_runLastSeenTimer(): delay($delay) has passed',
+        '$runtimeType($id)',
+      );
+
+      lastSeen.value = user.value.lastSeenAt;
+      lastSeen.refresh();
+
+      _lastSeenTimer?.cancel();
+      _lastSeenTimer = Timer.periodic(period, (timer) {
         Log.debug(
-          '_runLastSeenTimer(): delay($delay) has passed',
+          '_runLastSeenTimer(): period($period) has passed',
           '$runtimeType($id)',
         );
 
         lastSeen.value = user.value.lastSeenAt;
         lastSeen.refresh();
-
-        _lastSeenTimer?.cancel();
-        _lastSeenTimer = Timer.periodic(
-          period,
-          (timer) {
-            Log.debug(
-              '_runLastSeenTimer(): period($period) has passed',
-              '$runtimeType($id)',
-            );
-
-            lastSeen.value = user.value.lastSeenAt;
-            lastSeen.refresh();
-          },
-        );
-      },
-    );
+      });
+    });
   }
 }

@@ -23,12 +23,12 @@ enum SelectionStatus { selected, unselected }
 /// [CustomParameter] representing a [SelectionStatus].
 class SelectionStatusParameter extends CustomParameter<SelectionStatus> {
   SelectionStatusParameter()
-      : super(
-          'selection',
-          RegExp(
-            '(${SelectionStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => SelectionStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'selection',
+        RegExp(
+          '(${SelectionStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => SelectionStatus.values.firstWhere((e) => e.name == c),
+      );
 }

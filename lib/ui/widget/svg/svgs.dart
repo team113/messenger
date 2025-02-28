@@ -21,11 +21,7 @@ import 'svg.dart';
 
 /// Data of a SVG to display in [SvgImage].
 class SvgData {
-  const SvgData(
-    this.asset, {
-    this.width,
-    this.height,
-  });
+  const SvgData(this.asset, {this.width, this.height});
 
   /// Asset of the SVG.
   final String asset;
@@ -534,10 +530,7 @@ class SvgIcons {
     height: 9,
   );
 
-  static const SvgData read = SvgData(
-    'assets/icons/read.svg',
-    height: 9,
-  );
+  static const SvgData read = SvgData('assets/icons/read.svg', height: 9);
 
   static const SvgData readWhite = SvgData(
     'assets/icons/read_white.svg',
@@ -554,10 +547,7 @@ class SvgIcons {
     height: 13,
   );
 
-  static const SvgData error = SvgData(
-    'assets/icons/error.svg',
-    height: 13,
-  );
+  static const SvgData error = SvgData('assets/icons/error.svg', height: 13);
 
   static const SvgData forward = SvgData(
     'assets/icons/forward.svg',
@@ -577,10 +567,7 @@ class SvgIcons {
     height: 21.91,
   );
 
-  static const SvgData readSmall = SvgData(
-    'assets/icons/read.svg',
-    height: 7,
-  );
+  static const SvgData readSmall = SvgData('assets/icons/read.svg', height: 7);
 
   static const SvgData halfReadSmall = SvgData(
     'assets/icons/half_read.svg',
@@ -602,10 +589,7 @@ class SvgIcons {
     height: 10,
   );
 
-  static const SvgData sentSmall = SvgData(
-    'assets/icons/sent.svg',
-    height: 7,
-  );
+  static const SvgData sentSmall = SvgData('assets/icons/sent.svg', height: 7);
 
   static const SvgData audioMessage = SvgData(
     'assets/icons/audio_message.svg',
@@ -1125,56 +1109,16 @@ class SvgIcons {
   );
 
   static const List<SvgData> head = [
-    SvgData(
-      'assets/images/logo/head_0.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_1.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_2.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_3.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_4.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_5.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_6.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_7.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_8.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_9.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
+    SvgData('assets/images/logo/head_0.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_1.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_2.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_3.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_4.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_5.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_6.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_7.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_8.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_9.svg', width: 206.33, height: 220.68),
   ];
 
   static const SvgData fullscreenEnterSmall = SvgData(

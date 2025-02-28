@@ -180,8 +180,9 @@ class RecentChatTile extends StatelessWidget {
       final style = Theme.of(context).style;
 
       final Chat chat = rxChat.chat.value;
-      final String? lastRoute =
-          router.routes.lastWhereOrNull((e) => e.startsWith(Routes.chats));
+      final String? lastRoute = router.routes.lastWhereOrNull(
+        (e) => e.startsWith(Routes.chats),
+      );
       final bool isRoute = chat.isRoute(lastRoute ?? '', me);
       final bool inverted = selected ?? (invertible && isRoute);
 
@@ -192,9 +193,10 @@ class RecentChatTile extends StatelessWidget {
         endActionPane: ActionPane(
           extentRatio: 0.33,
           motion: const StretchMotion(),
-          dismissible: onDismissed == null
-              ? null
-              : DismissiblePane(onDismissed: onDismissed!),
+          dismissible:
+              onDismissed == null
+                  ? null
+                  : DismissiblePane(onDismissed: onDismissed!),
           children: [
             FadingSlidableAction(
               onPressed: _hideChat,
@@ -205,131 +207,144 @@ class RecentChatTile extends StatelessWidget {
         ),
         child: CustomDropTarget(
           onPerformDrop: onPerformDrop,
-          builder: (dragging) => ChatTile(
-            chat: rxChat,
-            dimmed: blocked || dragging,
-            status: [
-              const SizedBox(height: 28),
-              if (trailing == null) ...[
-                _ongoingCall(context, inverted: inverted),
-                if (blocked) ...[
-                  const SizedBox(width: 8),
-                  SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
+          builder:
+              (dragging) => ChatTile(
+                chat: rxChat,
+                dimmed: blocked || dragging,
+                status: [
+                  const SizedBox(height: 28),
+                  if (trailing == null) ...[
+                    _ongoingCall(context, inverted: inverted),
+                    if (blocked) ...[
+                      const SizedBox(width: 8),
+                      SvgIcon(
+                        inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
+                      ),
+                    ],
+                    if (rxChat.unreadCount.value > 0) ...[
+                      const SizedBox(width: 10),
+                      UnreadCounter(
+                        key: const Key('UnreadMessages'),
+                        rxChat.unreadCount.value,
+                        inverted: inverted,
+                        dimmed: chat.muted != null,
+                      ),
+                    ] else ...[
+                      if (chat.muted != null) ...[
+                        const SizedBox(width: 10),
+                        SvgIcon(
+                          inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                          key: Key('MuteIndicator_${chat.id}'),
+                        ),
+                      ],
+                      const SizedBox(key: Key('NoUnreadMessages')),
+                    ],
+                  ] else
+                    ...trailing!,
                 ],
-                if (rxChat.unreadCount.value > 0) ...[
-                  const SizedBox(width: 10),
-                  UnreadCounter(
-                    key: const Key('UnreadMessages'),
-                    rxChat.unreadCount.value,
-                    inverted: inverted,
-                    dimmed: chat.muted != null,
+                subtitle: [
+                  const SizedBox(height: 5),
+                  ConstrainedBox(
+                    constraints: const BoxConstraints(maxHeight: 38),
+                    child: Row(
+                      children: [
+                        const SizedBox(height: 3),
+                        Expanded(
+                          child: _subtitle(
+                            context,
+                            selected ?? false,
+                            inverted,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        _status(context, inverted),
+                        if (!chat.id.isLocal)
+                          Text(
+                            chat.updatedAt.val.toLocal().short,
+                            style:
+                                inverted
+                                    ? style.fonts.normal.regular.onPrimary
+                                    : style.fonts.normal.regular.secondary,
+                          ),
+                      ],
+                    ),
                   ),
-                ] else ...[
-                  if (chat.muted != null) ...[
-                    const SizedBox(width: 10),
-                    SvgIcon(
-                      inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                      key: Key('MuteIndicator_${chat.id}'),
-                    ),
-                  ],
-                  const SizedBox(key: Key('NoUnreadMessages')),
                 ],
-              ] else
-                ...trailing!,
-            ],
-            subtitle: [
-              const SizedBox(height: 5),
-              ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 38),
-                child: Row(
-                  children: [
-                    const SizedBox(height: 3),
-                    Expanded(
-                      child: _subtitle(context, selected ?? false, inverted),
-                    ),
-                    const SizedBox(width: 3),
-                    _status(context, inverted),
-                    if (!chat.id.isLocal)
-                      Text(
-                        chat.updatedAt.val.toLocal().short,
-                        style: inverted
-                            ? style.fonts.normal.regular.onPrimary
-                            : style.fonts.normal.regular.secondary,
+                actions: [
+                  if (chat.isDialog &&
+                      inContacts != null &&
+                      onContact != null) ...[
+                    if (inContacts!.call() == true)
+                      ContextMenuButton(
+                        label: 'btn_delete_from_contacts'.l10n,
+                        onPressed: () => onContact?.call(false),
+                        trailing: const SvgIcon(SvgIcons.deleteContact),
+                        inverted: const SvgIcon(SvgIcons.deleteContactWhite),
+                      )
+                    else
+                      ContextMenuButton(
+                        label: 'btn_add_to_contacts'.l10n,
+                        onPressed: () => onContact?.call(true),
+                        trailing: const SvgIcon(SvgIcons.addContact),
+                        inverted: const SvgIcon(SvgIcons.addContactWhite),
                       ),
                   ],
-                ),
+                  if (chat.favoritePosition != null && onUnfavorite != null)
+                    ContextMenuButton(
+                      key: const Key('UnfavoriteChatButton'),
+                      label: 'btn_delete_from_favorites'.l10n,
+                      onPressed: onUnfavorite,
+                      trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                      inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
+                    ),
+                  if (chat.favoritePosition == null && onFavorite != null)
+                    ContextMenuButton(
+                      key: const Key('FavoriteChatButton'),
+                      label: 'btn_add_to_favorites'.l10n,
+                      onPressed: onFavorite,
+                      trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                      inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
+                    ),
+                  if (chat.muted == null && onMute != null)
+                    ContextMenuButton(
+                      key: const Key('MuteChatButton'),
+                      label:
+                          PlatformUtils.isMobile
+                              ? 'btn_mute'.l10n
+                              : 'btn_mute_chat'.l10n,
+                      onPressed: onMute,
+                      trailing: const SvgIcon(SvgIcons.unmuteSmall),
+                      inverted: const SvgIcon(SvgIcons.unmuteSmallWhite),
+                    ),
+                  if (chat.muted != null && onUnmute != null)
+                    ContextMenuButton(
+                      key: const Key('UnmuteChatButton'),
+                      label:
+                          PlatformUtils.isMobile
+                              ? 'btn_unmute'.l10n
+                              : 'btn_unmute_chat'.l10n,
+                      onPressed: onUnmute,
+                      trailing: const SvgIcon(SvgIcons.muteSmall),
+                      inverted: const SvgIcon(SvgIcons.muteSmallWhite),
+                    ),
+                  if (onHide != null)
+                    ContextMenuButton(
+                      key: const Key('HideChatButton'),
+                      label:
+                          PlatformUtils.isMobile
+                              ? 'btn_delete'.l10n
+                              : 'btn_delete_chat'.l10n,
+                      onPressed: () => _hideChat(context),
+                      trailing: const SvgIcon(SvgIcons.delete19),
+                      inverted: const SvgIcon(SvgIcons.delete19White),
+                    ),
+                ],
+                selected: inverted,
+                avatarBuilder: avatarBuilder,
+                enableContextMenu: enableContextMenu,
+                onTap: onTap ?? () => router.dialog(chat, me),
+                onForbidden: rxChat.updateAvatar,
               ),
-            ],
-            actions: [
-              if (chat.isDialog && inContacts != null && onContact != null) ...[
-                if (inContacts!.call() == true)
-                  ContextMenuButton(
-                    label: 'btn_delete_from_contacts'.l10n,
-                    onPressed: () => onContact?.call(false),
-                    trailing: const SvgIcon(SvgIcons.deleteContact),
-                    inverted: const SvgIcon(SvgIcons.deleteContactWhite),
-                  )
-                else
-                  ContextMenuButton(
-                    label: 'btn_add_to_contacts'.l10n,
-                    onPressed: () => onContact?.call(true),
-                    trailing: const SvgIcon(SvgIcons.addContact),
-                    inverted: const SvgIcon(SvgIcons.addContactWhite),
-                  ),
-              ],
-              if (chat.favoritePosition != null && onUnfavorite != null)
-                ContextMenuButton(
-                  key: const Key('UnfavoriteChatButton'),
-                  label: 'btn_delete_from_favorites'.l10n,
-                  onPressed: onUnfavorite,
-                  trailing: const SvgIcon(SvgIcons.favoriteSmall),
-                  inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
-                ),
-              if (chat.favoritePosition == null && onFavorite != null)
-                ContextMenuButton(
-                  key: const Key('FavoriteChatButton'),
-                  label: 'btn_add_to_favorites'.l10n,
-                  onPressed: onFavorite,
-                  trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
-                  inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
-                ),
-              if (chat.muted == null && onMute != null)
-                ContextMenuButton(
-                  key: const Key('MuteChatButton'),
-                  label: PlatformUtils.isMobile
-                      ? 'btn_mute'.l10n
-                      : 'btn_mute_chat'.l10n,
-                  onPressed: onMute,
-                  trailing: const SvgIcon(SvgIcons.unmuteSmall),
-                  inverted: const SvgIcon(SvgIcons.unmuteSmallWhite),
-                ),
-              if (chat.muted != null && onUnmute != null)
-                ContextMenuButton(
-                  key: const Key('UnmuteChatButton'),
-                  label: PlatformUtils.isMobile
-                      ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'.l10n,
-                  onPressed: onUnmute,
-                  trailing: const SvgIcon(SvgIcons.muteSmall),
-                  inverted: const SvgIcon(SvgIcons.muteSmallWhite),
-                ),
-              if (onHide != null)
-                ContextMenuButton(
-                  key: const Key('HideChatButton'),
-                  label: PlatformUtils.isMobile
-                      ? 'btn_delete'.l10n
-                      : 'btn_delete_chat'.l10n,
-                  onPressed: () => _hideChat(context),
-                  trailing: const SvgIcon(SvgIcons.delete19),
-                  inverted: const SvgIcon(SvgIcons.delete19White),
-                ),
-            ],
-            selected: inverted,
-            avatarBuilder: avatarBuilder,
-            enableContextMenu: enableContextMenu,
-            onTap: onTap ?? () => router.dialog(chat, me),
-            onForbidden: rxChat.updateAvatar,
-          ),
         ),
       );
     });
@@ -343,9 +358,10 @@ class RecentChatTile extends StatelessWidget {
     if (blocked) {
       return Text(
         'label_blocked'.l10n,
-        style: inverted
-            ? style.fonts.normal.regular.onPrimary
-            : style.fonts.normal.regular.secondary,
+        style:
+            inverted
+                ? style.fonts.normal.regular.onPrimary
+                : style.fonts.normal.regular.secondary,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
@@ -370,9 +386,10 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style: inverted
-                      ? style.fonts.small.regular.onPrimary
-                      : style.fonts.small.regular.primary,
+                  style:
+                      inverted
+                          ? style.fonts.small.regular.onPrimary
+                          : style.fonts.small.regular.primary,
                 ),
                 const SizedBox(width: 2),
                 Padding(
@@ -393,9 +410,10 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: inverted
-                          ? style.fonts.small.regular.onPrimary
-                          : style.fonts.small.regular.primary,
+                      style:
+                          inverted
+                              ? style.fonts.small.regular.onPrimary
+                              : style.fonts.small.regular.primary,
                     ),
                   ),
                   const SizedBox(width: 2),
@@ -405,7 +423,7 @@ class RecentChatTile extends StatelessWidget {
                   ),
                 ],
               ),
-            )
+            ),
           ];
         }
       } else if (draft != null && !selected) {
@@ -418,7 +436,8 @@ class RecentChatTile extends StatelessWidget {
         if (draft.repliesTo.isNotEmpty) {
           if (desc.isNotEmpty) desc.write('space'.l10n);
           desc.write(
-              'label_replies'.l10nfmt({'count': draft.repliesTo.length}));
+            'label_replies'.l10nfmt({'count': draft.repliesTo.length}),
+          );
         }
 
         final List<Widget> images = [];
@@ -449,33 +468,32 @@ class RecentChatTile extends StatelessWidget {
           Text('${'label_draft'.l10n}${'colon_space'.l10n}'),
           if (desc.isEmpty)
             Flexible(
-              child: LayoutBuilder(builder: (_, constraints) {
-                return Row(
-                  children: images
-                      .take((constraints.maxWidth / (30 + 4)).floor())
-                      .toList(),
-                );
-              }),
+              child: LayoutBuilder(
+                builder: (_, constraints) {
+                  return Row(
+                    children:
+                        images
+                            .take((constraints.maxWidth / (30 + 4)).floor())
+                            .toList(),
+                  );
+                },
+              ),
             )
           else
             ...images,
           if (desc.isNotEmpty)
-            Flexible(
-              child: Text(
-                desc.toString(),
-                key: const Key('Draft'),
-              ),
-            ),
+            Flexible(child: Text(desc.toString(), key: const Key('Draft'))),
         ];
       } else if (item != null) {
         if (item is ChatCall) {
-          final bool isOngoing = hasCall != false &&
+          final bool isOngoing =
+              hasCall != false &&
               item.finishReason == null &&
               (item.conversationStartedAt != null || !chat.isDialog);
 
           final bool isMissed =
               item.finishReason == ChatCallFinishReason.dropped ||
-                  item.finishReason == ChatCallFinishReason.unanswered;
+              item.finishReason == ChatCallFinishReason.unanswered;
 
           final Widget icon = Padding(
             padding: const EdgeInsets.fromLTRB(0, 2, 6, 2),
@@ -484,13 +502,13 @@ class RecentChatTile extends StatelessWidget {
                   ? inverted
                       ? SvgIcons.callVideoWhite
                       : isMissed
-                          ? SvgIcons.callVideoMissed
-                          : SvgIcons.callVideoDisabled
+                      ? SvgIcons.callVideoMissed
+                      : SvgIcons.callVideoDisabled
                   : inverted
-                      ? SvgIcons.callAudioWhite
-                      : isMissed
-                          ? SvgIcons.callAudioMissed
-                          : SvgIcons.callAudioDisabled,
+                  ? SvgIcons.callAudioWhite
+                  : isMissed
+                  ? SvgIcons.callAudioMissed
+                  : SvgIcons.callAudioDisabled,
             ),
           );
 
@@ -499,7 +517,7 @@ class RecentChatTile extends StatelessWidget {
           } else if (item.finishReason != null) {
             final String description =
                 item.finishReason?.localizedString(item.author.id == me) ??
-                    'label_chat_call_ended'.l10n;
+                'label_chat_call_ended'.l10n;
             subtitle = [icon, Flexible(child: Text(description))];
           } else {
             subtitle = [
@@ -563,7 +581,8 @@ class RecentChatTile extends StatelessWidget {
                   future: userOrFuture is RxUser? ? null : userOrFuture,
                   initialData: userOrFuture is RxUser? ? userOrFuture : null,
                   builder: (_, snapshot) {
-                    final FutureOr<RxUser?> rxUser = snapshot.data ??
+                    final FutureOr<RxUser?> rxUser =
+                        snapshot.data ??
                         userOrFuture ??
                         rxChat.members.values
                             .firstWhereOrNull(
@@ -587,13 +606,16 @@ class RecentChatTile extends StatelessWidget {
               ),
             if (desc.isEmpty)
               Flexible(
-                child: LayoutBuilder(builder: (_, constraints) {
-                  return Row(
-                    children: images
-                        .take((constraints.maxWidth / (30 + 4)).floor())
-                        .toList(),
-                  );
-                }),
+                child: LayoutBuilder(
+                  builder: (_, constraints) {
+                    return Row(
+                      children:
+                          images
+                              .take((constraints.maxWidth / (30 + 4)).floor())
+                              .toList(),
+                    );
+                  },
+                ),
               )
             else
               ...images,
@@ -609,15 +631,17 @@ class RecentChatTile extends StatelessWidget {
                 child: FutureBuilder<RxUser?>(
                   future: userOrFuture is RxUser? ? null : userOrFuture,
                   initialData: userOrFuture is RxUser? ? userOrFuture : null,
-                  builder: (_, snapshot) => snapshot.data != null
-                      ? AvatarWidget.fromRxUser(
-                          snapshot.data,
-                          radius: AvatarRadius.smaller,
-                        )
-                      : AvatarWidget.fromUser(
-                          chat.getUser(item.author.id),
-                          radius: AvatarRadius.smaller,
-                        ),
+                  builder:
+                      (_, snapshot) =>
+                          snapshot.data != null
+                              ? AvatarWidget.fromRxUser(
+                                snapshot.data,
+                                radius: AvatarRadius.smaller,
+                              )
+                              : AvatarWidget.fromUser(
+                                chat.getUser(item.author.id),
+                                radius: AvatarRadius.smaller,
+                              ),
                 ),
               ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
@@ -680,9 +704,7 @@ class RecentChatTile extends StatelessWidget {
                     return Text('label_user_added_user'.l10nfmt(args));
                   });
                 } else {
-                  return Text(
-                    'label_was_added'.l10nfmt({'author': userName}),
-                  );
+                  return Text('label_was_added'.l10nfmt({'author': userName}));
                 }
               });
               break;
@@ -704,9 +726,9 @@ class RecentChatTile extends StatelessWidget {
               } else {
                 content = userBuilder(action.user.id, (context, rxUser) {
                   return Text(
-                    'label_was_removed'.l10nfmt(
-                      {'author': rxUser?.title ?? action.user.title},
-                    ),
+                    'label_was_removed'.l10nfmt({
+                      'author': rxUser?.title ?? action.user.title,
+                    }),
                   );
                 });
               }
@@ -755,9 +777,10 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style: inverted
-            ? style.fonts.normal.regular.onPrimary
-            : style.fonts.normal.regular.secondary,
+        style:
+            inverted
+                ? style.fonts.normal.regular.onPrimary
+                : style.fonts.normal.regular.secondary,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
         child: Row(children: subtitle),
@@ -803,11 +826,7 @@ class RecentChatTile extends StatelessWidget {
         } else {
           content = FittedBox(
             fit: BoxFit.cover,
-            child: VideoThumbnail.file(
-              e.file.path!,
-              key: key,
-              height: 300,
-            ),
+            child: VideoThumbnail.file(e.file.path!, key: key, height: 300),
           );
         }
       } else {
@@ -894,21 +913,21 @@ class RecentChatTile extends StatelessWidget {
                         ? SvgIcons.halfReadWhite
                         : SvgIcons.halfRead
                     : inverted
-                        ? SvgIcons.readWhite
-                        : SvgIcons.read
+                    ? SvgIcons.readWhite
+                    : SvgIcons.read
                 : isDelivered
-                    ? inverted
-                        ? SvgIcons.deliveredWhite
-                        : SvgIcons.delivered
-                    : isError
-                        ? SvgIcons.error
-                        : isSending
-                            ? inverted
-                                ? SvgIcons.sendingWhite
-                                : SvgIcons.sending
-                            : inverted
-                                ? SvgIcons.sentWhite
-                                : SvgIcons.sent,
+                ? inverted
+                    ? SvgIcons.deliveredWhite
+                    : SvgIcons.delivered
+                : isError
+                ? SvgIcons.error
+                : isSending
+                ? inverted
+                    ? SvgIcons.sendingWhite
+                    : SvgIcons.sending
+                : inverted
+                ? SvgIcons.sentWhite
+                : SvgIcons.sent,
           ),
         );
       }
@@ -932,18 +951,20 @@ class RecentChatTile extends StatelessWidget {
       // associated action.
       Widget button(bool displayed) {
         return DecoratedBox(
-          key: displayed
-              ? const Key('JoinCallButton')
-              : const Key('DropCallButton'),
+          key:
+              displayed
+                  ? const Key('JoinCallButton')
+                  : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(6),
-            color: displayed
-                ? style.colors.danger
-                : inverted
+            color:
+                displayed
+                    ? style.colors.danger
+                    : inverted
                     ? style.colors.onPrimary
                     : style.colors.primary,
             child: InkWell(
@@ -955,37 +976,41 @@ class RecentChatTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     PeriodicBuilder(
-                      period: Config.disableInfiniteAnimations
-                          ? const Duration(minutes: 1)
-                          : const Duration(seconds: 1),
+                      period:
+                          Config.disableInfiniteAnimations
+                              ? const Duration(minutes: 1)
+                              : const Duration(seconds: 1),
                       builder: (_) {
                         if (chat.ongoingCall == null) {
                           return const SizedBox();
                         }
 
-                        final Duration duration =
-                            DateTime.now().difference(chat.ongoingCall!.at.val);
+                        final Duration duration = DateTime.now().difference(
+                          chat.ongoingCall!.at.val,
+                        );
                         final String text = duration.hhMmSs();
 
                         return Text(
                           text,
-                          style: !displayed && inverted
-                              ? style.fonts.smaller.regular.primary
-                              : style.fonts.smaller.regular.onPrimary,
+                          style:
+                              !displayed && inverted
+                                  ? style.fonts.smaller.regular.primary
+                                  : style.fonts.smaller.regular.onPrimary,
                         ).fixedDigits();
                       },
                     ),
                     const SizedBox(width: 6),
                     Transform.translate(
-                      offset: PlatformUtils.isWeb
-                          ? const Offset(0, -0.5)
-                          : Offset.zero,
+                      offset:
+                          PlatformUtils.isWeb
+                              ? const Offset(0, -0.5)
+                              : Offset.zero,
                       child: SvgIcon(
                         displayed
                             ? SvgIcons.activeCallEnd
                             : inverted
-                                ? SvgIcons.activeCallStartBlue
-                                : SvgIcons.activeCallStart,
+                            ? SvgIcons.activeCallStartBlue
+                            : SvgIcons.activeCallStart,
                       ),
                     ),
                   ],
@@ -1028,7 +1053,7 @@ class RecentChatTile extends StatelessWidget {
               onPressed: () => setState(() => clear = !clear),
             );
           },
-        )
+        ),
       ],
     );
 
@@ -1041,8 +1066,6 @@ class RecentChatTile extends StatelessWidget {
   ///
   /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
   /// for discarding long presses on its [child].
-  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
-        onLongPress: () {},
-        child: child,
-      );
+  static Widget _defaultAvatarBuilder(Widget child) =>
+      GestureDetector(onLongPress: () {}, child: child);
 }

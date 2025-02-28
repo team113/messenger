@@ -76,7 +76,7 @@ void main() async {
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             'isCurrent': true,
             'lastActivatedAt': DateTime.now().toString(),
-            'ver': '031592915314290362597742826064324903711'
+            'ver': '031592915314290362597742826064324903711',
           },
           'accessToken': {
             '__typename': 'AccessToken',
@@ -106,16 +106,12 @@ void main() async {
       ),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      getStorage,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, getStorage, accountProvider),
+    );
 
     expect(await authService.init(), Routes.auth);
 
@@ -160,16 +156,12 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
     expect(await authService.init(), null);
 
@@ -198,16 +190,12 @@ void main() async {
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    final AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    final AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    final AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    final AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
     expect(await authService.init(), Routes.auth);
     try {
@@ -229,16 +217,12 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
     when(
       graphQlProvider.createConfirmationCode(
@@ -277,20 +261,18 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
-    when(graphQlProvider.createConfirmationCode(
-      MyUserIdentifier(login: UserLogin('login')),
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
+      ),
+    ).thenAnswer((_) => Future.value());
 
     when(
       graphQlProvider.updateUserPassword(

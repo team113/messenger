@@ -25,10 +25,7 @@ import '/util/backoff.dart';
 
 /// Utility limiting [Function] invokes to [requests] per the specified [per].
 class RateLimiter {
-  RateLimiter({
-    this.requests = 5,
-    this.per = const Duration(seconds: 1),
-  });
+  RateLimiter({this.requests = 5, this.per = const Duration(seconds: 1)});
 
   /// Requests allowed to be invoked in [per].
   final int requests;
@@ -53,24 +50,21 @@ class RateLimiter {
     int iteration = _iteration;
 
     // Start the [Timer] reducing the [_queue].
-    _timer ??= Timer.periodic(
-      per,
-      (_) {
-        // Remove unlocked [Mutex]es.
-        queue.removeWhere((e) => !e.isLocked);
+    _timer ??= Timer.periodic(per, (_) {
+      // Remove unlocked [Mutex]es.
+      queue.removeWhere((e) => !e.isLocked);
 
-        if (queue.isEmpty) {
-          _timer?.cancel();
-          _timer = null;
-          return;
-        }
+      if (queue.isEmpty) {
+        _timer?.cancel();
+        _timer = null;
+        return;
+      }
 
-        final taken = queue.take(requests);
-        for (var m in taken) {
-          m.release();
-        }
-      },
-    );
+      final taken = queue.take(requests);
+      for (var m in taken) {
+        m.release();
+      }
+    });
 
     final Mutex mutex = Mutex();
     queue.add(mutex);

@@ -23,7 +23,7 @@ import 'package:flutter/widgets.dart';
 class MockedPlatformRouteInformationProvider
     extends PlatformRouteInformationProvider {
   MockedPlatformRouteInformationProvider()
-      : super(initialRouteInformation: RouteInformation(uri: Uri.parse('/')));
+    : super(initialRouteInformation: RouteInformation(uri: Uri.parse('/')));
 
   @override
   void routerReportsNewRouteInformation(

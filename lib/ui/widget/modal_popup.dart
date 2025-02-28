@@ -61,17 +61,18 @@ abstract class ModalPopup {
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
-        transitionAnimationController:
-            BottomSheet.createAnimationController(Navigator.of(context))
-              ..duration = const Duration(milliseconds: 350),
+        transitionAnimationController: BottomSheet.createAnimationController(
+          Navigator.of(context),
+        )..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
             topRight: Radius.circular(14),
           ),
         ),
-        constraints:
-            BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height - 60,
+        ),
         builder: (context) {
           return CustomSafeArea(
             child: Column(

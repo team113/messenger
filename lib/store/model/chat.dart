@@ -72,13 +72,13 @@ class DtoChat {
 
   @override
   int get hashCode => Object.hash(
-        value,
-        ver,
-        lastItemCursor,
-        lastReadItemCursor,
-        recentCursor,
-        favoriteCursor,
-      );
+    value,
+    ver,
+    lastItemCursor,
+    lastReadItemCursor,
+    recentCursor,
+    favoriteCursor,
+  );
 }
 
 /// Version of a [Chat]'s state.

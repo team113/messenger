@@ -25,9 +25,10 @@ void main() {
     final _Mock mock = _Mock();
 
     test('TextFieldState.onSubmitted is called', () {
-      final TextFieldState state = TextFieldState(onSubmitted: mock.dummy)
-        ..controller.text = 'zhorenty'
-        ..submit();
+      final TextFieldState state =
+          TextFieldState(onSubmitted: mock.dummy)
+            ..controller.text = 'zhorenty'
+            ..submit();
 
       verify(mock.dummy.call(state)).called(1);
     });

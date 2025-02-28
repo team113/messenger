@@ -54,8 +54,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : file = null,
-        bytes = null;
+  }) : file = null,
+       bytes = null;
 
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
@@ -73,8 +73,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : file = null,
-        asset = null;
+  }) : file = null,
+       asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [File].
   ///
@@ -92,8 +92,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : bytes = null,
-        asset = null;
+  }) : bytes = null,
+       asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [SvgData].
   SvgImage.icon(
@@ -106,11 +106,11 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : asset = data.asset,
-        file = null,
-        bytes = null,
-        width = width ?? data.width,
-        height = height ?? data.height;
+  }) : asset = data.asset,
+       file = null,
+       bytes = null,
+       width = width ?? data.width,
+       height = height ?? data.height;
 
   /// Path to an asset containing an SVG image to display.
   final String? asset;

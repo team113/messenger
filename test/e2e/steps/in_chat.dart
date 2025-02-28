@@ -30,16 +30,14 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric iAmInChatWith = given1<TestUser, CustomWorld>(
   'I am in chat with {user}',
   (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        final CustomUser customUser = context.world.sessions[user.name]!.first;
-        router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
+    await context.world.appDriver.waitUntil(() async {
+      final CustomUser customUser = context.world.sessions[user.name]!.first;
+      router.chat(customUser.dialog ?? ChatId.local(customUser.userId));
 
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-    );
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatView', FindType.key),
+      );
+    });
   },
 );
 
@@ -52,14 +50,11 @@ final StepDefinitionGeneric iAmInChatNamed = given1<String, CustomWorld>(
   (String chatName, context) async {
     router.chat(context.world.groups[chatName]!);
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatView', FindType.key),
+      );
+    }, timeout: const Duration(seconds: 30));
   },
 );

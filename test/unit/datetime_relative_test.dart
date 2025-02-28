@@ -54,10 +54,7 @@ void main() {
       'Yesterday',
     );
 
-    expect(
-      DateTime(2022, 2, 28).toRelative(DateTime(2022, 3, 1)),
-      'Yesterday',
-    );
+    expect(DateTime(2022, 2, 28).toRelative(DateTime(2022, 3, 1)), 'Yesterday');
 
     expect(
       DateTime(2022, 2, 28).toRelative(DateTime(2022, 3, 2)),
@@ -89,10 +86,7 @@ void main() {
       '6 days ago',
     );
 
-    expect(
-      DateTime(2022, 12, 31).toRelative(DateTime(2023)),
-      'Yesterday',
-    );
+    expect(DateTime(2022, 12, 31).toRelative(DateTime(2023)), 'Yesterday');
 
     expect(
       DateTime(2022, 12, 31).toRelative(DateTime(2023, 1, 5)),
@@ -104,15 +98,9 @@ void main() {
       '2/17/2022',
     );
 
-    expect(
-      DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 2)),
-      '2/17/2022',
-    );
+    expect(DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 2)), '2/17/2022');
 
-    expect(
-      DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 3)),
-      '2/17/2022',
-    );
+    expect(DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 3)), '2/17/2022');
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 3, 17)),
@@ -124,10 +112,7 @@ void main() {
       '2/17/2022',
     );
 
-    expect(
-      DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 1)),
-      '2/17/2022',
-    );
+    expect(DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 1)), '2/17/2022');
 
     expect(
       DateTime(2022, 2, 17).toRelative(DateTime(2022, 4, 16)),
@@ -169,15 +154,9 @@ void main() {
       '2/17/2022',
     );
 
-    expect(
-      DateTime(2022, 3).toRelative(DateTime(2023, 3)),
-      '3/1/2022',
-    );
+    expect(DateTime(2022, 3).toRelative(DateTime(2023, 3)), '3/1/2022');
 
-    expect(
-      DateTime(2022).toRelative(DateTime(2023)),
-      '1/1/2022',
-    );
+    expect(DateTime(2022).toRelative(DateTime(2023)), '1/1/2022');
 
     expect(
       DateTime(2022, 12, 13).toRelative(DateTime(2023, 12, 12)),

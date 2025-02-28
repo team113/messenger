@@ -30,12 +30,10 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric myNameIs = given1<TestUser, CustomWorld>(
   'my name is indeed {user}',
   (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        final MyUserService? myUserService = Get.findOrNull<MyUserService>();
-        return myUserService?.myUser.value?.name?.val == user.name;
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      final MyUserService? myUserService = Get.findOrNull<MyUserService>();
+      return myUserService?.myUser.value?.name?.val == user.name;
+    });
   },
 );
 
@@ -46,10 +44,8 @@ final StepDefinitionGeneric myNameIs = given1<TestUser, CustomWorld>(
 final StepDefinitionGeneric myNameIsNot = given1<TestUser, CustomWorld>(
   'my name is not {user}',
   (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        return Get.find<MyUserService>().myUser.value?.name?.val != user.name;
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      return Get.find<MyUserService>().myUser.value?.name?.val != user.name;
+    });
   },
 );

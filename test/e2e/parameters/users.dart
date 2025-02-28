@@ -20,22 +20,17 @@
 import 'package:gherkin/gherkin.dart';
 
 /// [User]s available in a [UsersParameter].
-enum TestUser {
-  Alice,
-  Bob,
-  Charlie,
-  Dave,
-}
+enum TestUser { Alice, Bob, Charlie, Dave }
 
 /// [CustomParameter] of [TestUser]s representing an [User] of a test.
 class UsersParameter extends CustomParameter<TestUser> {
   UsersParameter()
-      : super(
-          'user',
-          RegExp(
-            '(${TestUser.values.map((e) => e.name).join('|')})',
-            caseSensitive: true,
-          ),
-          (c) => TestUser.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'user',
+        RegExp(
+          '(${TestUser.values.map((e) => e.name).join('|')})',
+          caseSensitive: true,
+        ),
+        (c) => TestUser.values.firstWhere((e) => e.name == c),
+      );
 }

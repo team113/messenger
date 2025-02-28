@@ -63,13 +63,10 @@ class DownloadDriftProvider extends DriftProviderBase {
 
   /// Returns the download paths stored in the database.
   Future<List<(String, String)>> values() async {
-    final result = await safe<List<(String, String)>?>(
-      (db) async {
-        final result = await db.select(db.downloads).get();
-        return result.map((e) => (e.checksum, e.path)).toList();
-      },
-      exclusive: false,
-    );
+    final result = await safe<List<(String, String)>?>((db) async {
+      final result = await db.select(db.downloads).get();
+      return result.map((e) => (e.checksum, e.path)).toList();
+    }, exclusive: false);
 
     return result ?? <(String, String)>[];
   }
@@ -81,15 +78,12 @@ class DownloadDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<String?>(
-      (db) async {
-        final stmt = db.select(db.downloads)
-          ..where((u) => u.checksum.equals(checksum));
-        final DownloadRow? row = await stmt.getSingleOrNull();
-        return row?.path;
-      },
-      exclusive: false,
-    );
+    return await safe<String?>((db) async {
+      final stmt = db.select(db.downloads)
+        ..where((u) => u.checksum.equals(checksum));
+      final DownloadRow? row = await stmt.getSingleOrNull();
+      return row?.path;
+    }, exclusive: false);
   }
 
   /// Deletes all the download paths stored in the database.

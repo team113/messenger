@@ -51,9 +51,9 @@ class ConfirmDeleteView extends StatelessWidget {
             children.addAll([
               const SizedBox(height: 12),
               Text(
-                'label_add_email_confirmation_sent_to'.l10nfmt(
-                  {'email': '${c.myUser.value?.emails.confirmed.firstOrNull}'},
-                ),
+                'label_add_email_confirmation_sent_to'.l10nfmt({
+                  'email': '${c.myUser.value?.emails.confirmed.firstOrNull}',
+                }),
                 style: style.fonts.normal.regular.onBackground,
               ),
               const SizedBox(height: 16),
@@ -73,11 +73,13 @@ class ConfirmDeleteView extends StatelessWidget {
                   child: Text(
                     enabled
                         ? 'btn_resend_code'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.resendEmailTimeout.value}),
-                    style: enabled
-                        ? style.fonts.normal.regular.primary
-                        : style.fonts.normal.regular.onBackground,
+                        : 'label_wait_seconds'.l10nfmt({
+                          'for': c.resendEmailTimeout.value,
+                        }),
+                    style:
+                        enabled
+                            ? style.fonts.normal.regular.primary
+                            : style.fonts.normal.regular.onBackground,
                   ),
                 );
               }),

@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.3.3] · 2025-??-??
+[0.3.3]: /../../tree/v0.3.3
+
+[Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
+
+### Fixed
+
+- UI:
+    - Mobile:
+        - Context menus having meaningless dividers. ([#1170])
+    - Chats tab:
+        - Inability to paste clipboard into search field when chat is open. ([#1170])
+
+[#1170]: /../../pull/1170
+
+
+
+
 ## [0.3.2] · 2025-02-07
 [0.3.2]: /../../tree/v0.3.2
 

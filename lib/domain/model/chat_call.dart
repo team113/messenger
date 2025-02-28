@@ -73,9 +73,10 @@ class ChatCall extends ChatItem {
   ChatMembersDialed? dialed;
 
   /// Returns the [ChatCallFinishReason] this [ChatCall] finished with, if any.
-  ChatCallFinishReason? get finishReason => finishReasonIndex == null
-      ? null
-      : ChatCallFinishReason.values[finishReasonIndex!];
+  ChatCallFinishReason? get finishReason =>
+      finishReasonIndex == null
+          ? null
+          : ChatCallFinishReason.values[finishReasonIndex!];
 
   /// Sets the [ChatCallFinishReason] of this [ChatCall] to the [reason].
   set finishReason(ChatCallFinishReason? reason) {
@@ -104,17 +105,17 @@ class ChatCall extends ChatItem {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        chatId,
-        author.id,
-        at,
-        members,
-        withVideo,
-        conversationStartedAt,
-        finishReasonIndex,
-        finishedAt,
-        dialed,
-      );
+    id,
+    chatId,
+    author.id,
+    at,
+    members,
+    withVideo,
+    conversationStartedAt,
+    finishReasonIndex,
+    finishedAt,
+    dialed,
+  );
 }
 
 /// Member of a [ChatCall].
@@ -215,16 +216,16 @@ abstract class ChatMembersDialed {
       switch (json['runtimeType']) {
         'ChatMembersDialedAll' => ChatMembersDialedAll.fromJson(json),
         'ChatMembersDialedConcrete' => ChatMembersDialedConcrete.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Returns a [Map] representing this [ChatMembersDialed].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (ChatMembersDialedAll) => (this as ChatMembersDialedAll).toJson(),
-        const (ChatMembersDialedConcrete) =>
-          (this as ChatMembersDialedConcrete).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (ChatMembersDialedAll) => (this as ChatMembersDialedAll).toJson(),
+    const (ChatMembersDialedConcrete) =>
+      (this as ChatMembersDialedConcrete).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Information about all [ChatMember]s of a [Chat] being dialed (or redialed)
@@ -243,8 +244,9 @@ class ChatMembersDialedAll implements ChatMembersDialed {
 
   /// Returns a [Map] representing this [ChatMembersDialedAll].
   @override
-  Map<String, dynamic> toJson() => _$ChatMembersDialedAllToJson(this)
-    ..['runtimeType'] = 'ChatMembersDialedAll';
+  Map<String, dynamic> toJson() =>
+      _$ChatMembersDialedAllToJson(this)
+        ..['runtimeType'] = 'ChatMembersDialedAll';
 
   @override
   bool operator ==(Object other) {
@@ -273,8 +275,9 @@ class ChatMembersDialedConcrete implements ChatMembersDialed {
 
   /// Returns a [Map] representing this [ChatMembersDialedConcrete].
   @override
-  Map<String, dynamic> toJson() => _$ChatMembersDialedConcreteToJson(this)
-    ..['runtimeType'] = 'ChatMembersDialedConcrete';
+  Map<String, dynamic> toJson() =>
+      _$ChatMembersDialedConcreteToJson(this)
+        ..['runtimeType'] = 'ChatMembersDialedConcrete';
 
   @override
   bool operator ==(Object other) {

@@ -34,9 +34,9 @@ export 'view.dart';
 /// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
   CameraSwitchController(this._settingsRepository, {String? camera})
-      : camera = RxnString(
-          camera ?? _settingsRepository.mediaSettings.value?.videoDevice,
-        );
+    : camera = RxnString(
+        camera ?? _settingsRepository.mediaSettings.value?.videoDevice,
+      );
 
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -72,13 +72,15 @@ class CameraSwitchController extends GetxController {
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
-    _devicesSubscription = MediaUtils.onDeviceChange
-        .listen((e) => devices.value = e.video().toList());
+    _devicesSubscription = MediaUtils.onDeviceChange.listen(
+      (e) => devices.value = e.video().toList(),
+    );
 
     try {
       _permissionSubscription = await WebUtils.cameraPermission();
-      devices.value =
-          await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
+      devices.value = await MediaUtils.enumerateDevices(
+        MediaDeviceKind.videoInput,
+      );
 
       initRenderer();
     } on UnsupportedError {
@@ -126,8 +128,9 @@ class CameraSwitchController extends GetxController {
     String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
-      final List<LocalMediaTrack> tracks =
-          await MediaUtils.getTracks(video: VideoPreferences(device: camera));
+      final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+        video: VideoPreferences(device: camera),
+      );
 
       if (isClosed) {
         tracks.firstOrNull?.free();

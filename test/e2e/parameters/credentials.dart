@@ -20,27 +20,19 @@
 import 'package:gherkin/gherkin.dart';
 
 /// [Credentials] available in a [CredentialsParameter].
-enum TestCredential {
-  num,
-  login,
-  directLink,
-}
+enum TestCredential { num, login, directLink }
 
 /// [CustomParameter] of [TestCredential]s representing [Credentials] of a
 /// [CustomUser].
 class CredentialsParameter extends CustomParameter<TestCredential> {
   CredentialsParameter()
-      : super(
-          'credential',
-          RegExp('(num|login|direct link)'),
-          (c) {
-            switch (c) {
-              case 'direct link':
-                return TestCredential.directLink;
+    : super('credential', RegExp('(num|login|direct link)'), (c) {
+        switch (c) {
+          case 'direct link':
+            return TestCredential.directLink;
 
-              default:
-                return TestCredential.values.firstWhere((e) => e.name == c);
-            }
-          },
-        );
+          default:
+            return TestCredential.values.firstWhere((e) => e.name == c);
+        }
+      });
 }

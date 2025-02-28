@@ -113,38 +113,38 @@ class _AnimatedSliderState extends State<AnimatedSlider>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: animation,
-        builder: (context, child) {
-          if (widget.translate) {
-            return Transform.translate(
-              offset: Tween(
-                begin: widget.beginOffset,
-                end: widget.endOffset,
-              ).evaluate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: widget.curve,
-                  reverseCurve: widget.reverseCurve,
-                ),
-              ),
-              child: child,
-            );
-          } else {
-            return SlideTransition(
-              position: Tween(
-                begin: widget.beginOffset,
-                end: widget.endOffset,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: widget.curve,
-                  reverseCurve: widget.reverseCurve,
-                ),
-              ),
-              child: child,
-            );
-          }
-        },
-        child: widget.child,
-      );
+    animation: animation,
+    builder: (context, child) {
+      if (widget.translate) {
+        return Transform.translate(
+          offset: Tween(
+            begin: widget.beginOffset,
+            end: widget.endOffset,
+          ).evaluate(
+            CurvedAnimation(
+              parent: animation,
+              curve: widget.curve,
+              reverseCurve: widget.reverseCurve,
+            ),
+          ),
+          child: child,
+        );
+      } else {
+        return SlideTransition(
+          position: Tween(
+            begin: widget.beginOffset,
+            end: widget.endOffset,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: widget.curve,
+              reverseCurve: widget.reverseCurve,
+            ),
+          ),
+          child: child,
+        );
+      }
+    },
+    child: widget.child,
+  );
 }

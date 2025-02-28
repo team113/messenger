@@ -241,8 +241,10 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
       await clear();
     }
 
-    final Page<V, C>? page =
-        await pagination?.around(key: initialKey, cursor: initialCursor);
+    final Page<V, C>? page = await pagination?.around(
+      key: initialKey,
+      cursor: initialCursor,
+    );
 
     if (page != null) {
       for (var e in page.edges) {
@@ -296,8 +298,10 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
   /// Applies [transform] to the [value] item with its [key].
   FutureOr<void> _apply(K key, V value) {
-    final FutureOr<T?> itemOrFuture =
-        transform(previous: items[key], data: value);
+    final FutureOr<T?> itemOrFuture = transform(
+      previous: items[key],
+      data: value,
+    );
 
     if (itemOrFuture is T?) {
       if (itemOrFuture != null) {

@@ -33,15 +33,10 @@ part 'chat_item.g.dart';
 
 /// Item posted in a [Chat] (its content).
 abstract class ChatItem {
-  ChatItem(
-    this.id,
-    this.chatId,
-    this.author,
-    this.at, {
-    SendingStatus? status,
-  }) : status = Rx(
-          status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
-        );
+  ChatItem(this.id, this.chatId, this.author, this.at, {SendingStatus? status})
+    : status = Rx(
+        status ?? (id.isLocal ? SendingStatus.error : SendingStatus.sent),
+      );
 
   /// Constructs a [ChatItem] from the provided [json].
   factory ChatItem.fromJson(Map<String, dynamic> json) =>
@@ -50,7 +45,7 @@ abstract class ChatItem {
         'ChatCall' => ChatCall.fromJson(json),
         'ChatInfo' => ChatInfo.fromJson(json),
         'ChatForward' => ChatForward.fromJson(json),
-        _ => throw UnimplementedError(json['runtimeType'])
+        _ => throw UnimplementedError(json['runtimeType']),
       };
 
   /// Unique ID of this [ChatItem].
@@ -79,12 +74,12 @@ abstract class ChatItem {
 
   /// Returns a [Map] representing this [ChatItem].
   Map<String, dynamic> toJson() => switch (runtimeType) {
-        const (ChatMessage) => (this as ChatMessage).toJson(),
-        const (ChatCall) => (this as ChatCall).toJson(),
-        const (ChatInfo) => (this as ChatInfo).toJson(),
-        const (ChatForward) => (this as ChatForward).toJson(),
-        _ => throw UnimplementedError(runtimeType.toString()),
-      };
+    const (ChatMessage) => (this as ChatMessage).toJson(),
+    const (ChatCall) => (this as ChatCall).toJson(),
+    const (ChatInfo) => (this as ChatInfo).toJson(),
+    const (ChatForward) => (this as ChatForward).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Message in a [Chat].

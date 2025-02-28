@@ -76,8 +76,9 @@ class _ProgressBarState extends State<ProgressBar> {
   @override
   void initState() {
     _position = widget.controller.player.state.position;
-    _positionSubscription =
-        widget.controller.player.stream.position.listen((e) => _position = e);
+    _positionSubscription = widget.controller.player.stream.position.listen(
+      (e) => _position = e,
+    );
 
     super.initState();
   }
@@ -223,15 +224,17 @@ class _ProgressBarPainter extends CustomPainter {
       colors.background,
     );
 
-    final double playedPartPercent = duration == Duration.zero
-        ? 0
-        : position.inMilliseconds / duration.inMilliseconds;
+    final double playedPartPercent =
+        duration == Duration.zero
+            ? 0
+            : position.inMilliseconds / duration.inMilliseconds;
     final double playedPart =
         playedPartPercent > 1 ? size.width : playedPartPercent * size.width;
 
-    final double end = duration == Duration.zero
-        ? 0
-        : (buffered.inMilliseconds / duration.inMilliseconds) * size.width;
+    final double end =
+        duration == Duration.zero
+            ? 0
+            : (buffered.inMilliseconds / duration.inMilliseconds) * size.width;
 
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -256,13 +259,13 @@ class _ProgressBarPainter extends CustomPainter {
     );
 
     if (drawShadow) {
-      final Path shadowPath = Path()
-        ..addOval(
-          Rect.fromCircle(
-            center: Offset(playedPart, baseOffset + barHeight / 2),
-            radius: handleHeight,
-          ),
-        );
+      final Path shadowPath =
+          Path()..addOval(
+            Rect.fromCircle(
+              center: Offset(playedPart, baseOffset + barHeight / 2),
+              radius: handleHeight,
+            ),
+          );
 
       canvas.drawShadow(shadowPath, Colors.black, 0.2, false);
     }

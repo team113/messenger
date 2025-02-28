@@ -58,9 +58,7 @@ class EraseView extends StatelessWidget {
           children: [
             // For web, background color is displayed in `index.html` file.
             if (!PlatformUtils.isWeb)
-              IgnorePointer(
-                child: ColoredBox(color: style.colors.background),
-              ),
+              IgnorePointer(child: ColoredBox(color: style.colors.background)),
             const IgnorePointer(
               child: SvgImage.asset(
                 'assets/images/background_light.svg',
@@ -126,7 +124,8 @@ class EraseView extends StatelessWidget {
           ),
           const SizedBox(height: 25),
           Obx(() {
-            final bool enabled = !c.login.isEmpty.value &&
+            final bool enabled =
+                !c.login.isEmpty.value &&
                 c.login.error.value == null &&
                 !c.password.isEmpty.value &&
                 c.password.error.value == null;
@@ -172,7 +171,8 @@ class EraseView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
         TextSpan(
-          text: c.myUser?.value?.name?.val ??
+          text:
+              c.myUser?.value?.name?.val ??
               c.myUser?.value?.login?.val ??
               c.myUser?.value?.num.toString() ??
               'dot'.l10n * 3,

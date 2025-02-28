@@ -86,25 +86,27 @@ class ScreenShareView extends StatelessWidget {
                         onTap: () => c.selected.value = e,
                         child: SizedBox(
                           height: videoHeight,
-                          child: c.renderers[e] != null
-                              ? Center(
-                                  child: RtcVideoView(
-                                    c.renderers[e]!,
-                                    border: c.selected.value == e
-                                        ? Border.all(
-                                            color: style.colors.primary,
-                                            width: 4,
-                                          )
-                                        : null,
-                                    source: MediaSourceKind.display,
-                                    fit: BoxFit.contain,
-                                    enableContextMenu: false,
-                                    respectAspectRatio: true,
-                                    framelessBuilder: () => framelessBuilder,
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                )
-                              : framelessBuilder,
+                          child:
+                              c.renderers[e] != null
+                                  ? Center(
+                                    child: RtcVideoView(
+                                      c.renderers[e]!,
+                                      border:
+                                          c.selected.value == e
+                                              ? Border.all(
+                                                color: style.colors.primary,
+                                                width: 4,
+                                              )
+                                              : null,
+                                      source: MediaSourceKind.display,
+                                      fit: BoxFit.contain,
+                                      enableContextMenu: false,
+                                      respectAspectRatio: true,
+                                      framelessBuilder: () => framelessBuilder,
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                  )
+                                  : framelessBuilder,
                         ),
                       );
                     });

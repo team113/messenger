@@ -116,10 +116,7 @@ class ChatMemberDriftProvider extends DriftProviderBaseWithScope {
     final result = await safe(
       (db) async {
         final stmt = db.select(db.chatMembers).join([
-          innerJoin(
-            db.users,
-            db.users.id.equalsExp(db.chatMembers.userId),
-          ),
+          innerJoin(db.users, db.users.id.equalsExp(db.chatMembers.userId)),
         ]);
 
         stmt.where(db.chatMembers.chatId.equals(chatId.val));

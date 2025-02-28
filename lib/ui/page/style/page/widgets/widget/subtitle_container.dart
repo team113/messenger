@@ -74,7 +74,7 @@ class SubtitleContainer extends StatelessWidget {
               },
               child: Text(subtitle!),
             ),
-          )
+          ),
       ],
     );
   }

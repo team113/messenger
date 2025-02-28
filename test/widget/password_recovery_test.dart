@@ -63,14 +63,12 @@ void main() async {
   final userProvider = UserDriftProvider(common, scoped);
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(
-      theme: Themes.light(),
-      home: Scaffold(body: child),
-    );
+    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
   }
 
-  testWidgets('LoginView successfully recovers account access',
-      (WidgetTester tester) async {
+  testWidgets('LoginView successfully recovers account access', (
+    WidgetTester tester,
+  ) async {
     Get.put(myUserProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -78,11 +76,9 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),

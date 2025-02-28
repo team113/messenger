@@ -39,8 +39,8 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : bytes = null,
-        path = null;
+  }) : bytes = null,
+       path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   const VideoThumbnail.bytes(
@@ -49,9 +49,9 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : url = null,
-        checksum = null,
-        path = null;
+  }) : url = null,
+       checksum = null,
+       path = null;
 
   /// Constructs a [VideoThumbnail] from the provided file [path].
   const VideoThumbnail.file(
@@ -60,9 +60,9 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : url = null,
-        checksum = null,
-        bytes = null;
+  }) : url = null,
+       checksum = null,
+       bytes = null;
 
   /// URL of the video to display.
   final String? url;
@@ -230,28 +230,25 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
       bool shouldReload = false;
 
       try {
-        await Backoff.run(
-          () async {
-            try {
-              await (await PlatformUtils.dio).head(widget.url!);
+        await Backoff.run(() async {
+          try {
+            await (await PlatformUtils.dio).head(widget.url!);
 
-              // Reinitialize the [_controller] if an unexpected error was
-              // thrown.
-              if (shouldReload) {
-                await _player.open(Media(widget.url!), play: false);
-              }
-            } catch (e) {
-              if (e is DioException && e.response?.statusCode == 403) {
-                widget.onError?.call();
-                _cancelToken?.cancel();
-              } else {
-                shouldReload = true;
-                rethrow;
-              }
+            // Reinitialize the [_controller] if an unexpected error was
+            // thrown.
+            if (shouldReload) {
+              await _player.open(Media(widget.url!), play: false);
             }
-          },
-          _cancelToken,
-        );
+          } catch (e) {
+            if (e is DioException && e.response?.statusCode == 403) {
+              widget.onError?.call();
+              _cancelToken?.cancel();
+            } else {
+              shouldReload = true;
+              rethrow;
+            }
+          }
+        }, _cancelToken);
       } on OperationCanceledException {
         // No-op.
       }

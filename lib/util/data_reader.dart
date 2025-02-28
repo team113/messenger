@@ -26,29 +26,27 @@ extension DropItemExtension on DataReader {
   /// Constructs the [PlatformFile] from this [DataReader].
   Future<PlatformFile?> asPlatformFile() {
     final Completer<PlatformFile?> completer = Completer<PlatformFile?>();
-    final SimpleFileFormat? format = getFormats(Formats.standardFormats)
-        .whereType<SimpleFileFormat>()
-        .lastOrNull;
+    final SimpleFileFormat? format =
+        getFormats(
+          Formats.standardFormats,
+        ).whereType<SimpleFileFormat>().lastOrNull;
 
-    getFile(
-      format,
-      (DataReaderFile file) async {
-        try {
-          // Read the file bytes asynchronously.
-          final Uint8List bytes = await file.readAll();
+    getFile(format, (DataReaderFile file) async {
+      try {
+        // Read the file bytes asynchronously.
+        final Uint8List bytes = await file.readAll();
 
-          final PlatformFile platformFile = PlatformFile(
-            name: file.fileName ?? '',
-            size: file.fileSize ?? 0,
-            bytes: bytes,
-          );
+        final PlatformFile platformFile = PlatformFile(
+          name: file.fileName ?? '',
+          size: file.fileSize ?? 0,
+          bytes: bytes,
+        );
 
-          completer.complete(platformFile);
-        } catch (error) {
-          completer.completeError(error);
-        }
-      },
-    );
+        completer.complete(platformFile);
+      } catch (error) {
+        completer.completeError(error);
+      }
+    });
 
     return completer.future;
   }

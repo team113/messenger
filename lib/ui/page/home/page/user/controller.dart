@@ -308,8 +308,10 @@ class UserController extends GetxController {
   Future<void> report() async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
     }
 
@@ -325,9 +327,11 @@ class UserController extends GetxController {
         ),
       );
     } catch (e) {
-      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
-        'email': Config.support,
-      }));
+      await MessagePopup.error(
+        'label_contact_us_via_provided_email'.l10nfmt({
+          'email': Config.support,
+        }),
+      );
     }
   }
 
@@ -651,7 +655,7 @@ extension DateTimeToAgo on DateTime {
       'weeks': diff.inDays ~/ 7,
       'days': diff.inDays,
       'hours': diff.inHours,
-      'minutes': diff.inMinutes
+      'minutes': diff.inMinutes,
     });
   }
 }

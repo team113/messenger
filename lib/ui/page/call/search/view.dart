@@ -146,7 +146,8 @@ class SearchView extends StatelessWidget {
                     return const Center(child: CustomProgressIndicator());
                   }
 
-                  final int childCount = c.chats.length +
+                  final int childCount =
+                      c.chats.length +
                       c.contacts.length +
                       c.users.length +
                       c.recent.length;
@@ -174,7 +175,7 @@ class SearchView extends StatelessWidget {
                                   SelectedDot(
                                     selected: c.selectedUsers.contains(element),
                                     size: 20,
-                                  )
+                                  ),
                                 ],
                               );
                             }
@@ -184,9 +185,10 @@ class SearchView extends StatelessWidget {
                               user: element,
                               selected: c.selectedUsers.contains(element),
                               onAvatarTap: null,
-                              onTap: selectable
-                                  ? () => c.select(user: element)
-                                  : enabled
+                              onTap:
+                                  selectable
+                                      ? () => c.select(user: element)
+                                      : enabled
                                       ? () => onPressed?.call(element)
                                       : null,
                             );
@@ -204,10 +206,11 @@ class SearchView extends StatelessWidget {
                                 invertible: !selectable,
                                 trailing: [
                                   SelectedDot(
-                                    selected:
-                                        c.selectedContacts.contains(element),
+                                    selected: c.selectedContacts.contains(
+                                      element,
+                                    ),
                                     size: 20,
-                                  )
+                                  ),
                                 ],
                               );
                             }
@@ -217,9 +220,10 @@ class SearchView extends StatelessWidget {
                               contact: element,
                               selected: c.selectedContacts.contains(element),
                               onAvatarTap: null,
-                              onTap: selectable
-                                  ? () => c.select(contact: element)
-                                  : enabled
+                              onTap:
+                                  selectable
+                                      ? () => c.select(contact: element)
+                                      : enabled
                                       ? () => onPressed?.call(element)
                                       : null,
                             );
@@ -238,7 +242,7 @@ class SearchView extends StatelessWidget {
                                 SelectedDot(
                                   selected: c.selectedChats.contains(element),
                                   size: 20,
-                                )
+                                ),
                               ],
                             );
                           });
@@ -293,7 +297,8 @@ class SearchView extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 10),
                   child: Obx(() {
-                    final bool enabled = (c.selectedContacts.isNotEmpty ||
+                    final bool enabled =
+                        (c.selectedContacts.isNotEmpty ||
                             c.selectedUsers.isNotEmpty) &&
                         this.enabled;
 
@@ -307,9 +312,10 @@ class SearchView extends StatelessWidget {
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
+                        style:
+                            enabled
+                                ? style.fonts.medium.regular.onPrimary
+                                : style.fonts.medium.regular.onBackground,
                       ),
                     );
                   }),

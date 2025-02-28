@@ -32,19 +32,23 @@ final StepDefinitionGeneric dragContactDown = given2<String, int, CustomWorld>(
     final ChatContactId contactId = context.world.contacts[name]!;
 
     await context.world.appDriver.waitUntil(() async {
-      final finder = context.world.appDriver
-          .findBy(Key('ReorderHandle_${contactId.val}'), FindType.key);
+      final finder = context.world.appDriver.findBy(
+        Key('ReorderHandle_${contactId.val}'),
+        FindType.key,
+      );
 
       if (await context.world.appDriver.isAbsent(finder)) {
         return false;
       }
 
-      await context.world.appDriver.nativeDriver
-          .drag(finder, Offset(0, offset.toDouble()));
+      await context.world.appDriver.nativeDriver.drag(
+        finder,
+        Offset(0, offset.toDouble()),
+      );
 
       return true;
     });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

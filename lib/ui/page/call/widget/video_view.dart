@@ -96,12 +96,14 @@ class RtcVideoView extends StatefulWidget {
         // Video is horizontal.
         if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height = renderer.height.value *
+          double height =
+              renderer.height.value *
               (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 3.0;
           if (factor < 1) {
-            width = renderer.width.value *
+            width =
+                renderer.width.value *
                 (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
@@ -110,14 +112,16 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width = renderer.width.value *
+          double width =
+              renderer.width.value *
               (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 3.9;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height.value *
+            height =
+                renderer.height.value *
                 (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 3.0;
@@ -127,12 +131,14 @@ class RtcVideoView extends StatefulWidget {
         // Video is horizontal.
         if (aspectRatio >= 1) {
           double width = constraints.maxWidth;
-          double height = renderer.height.value *
+          double height =
+              renderer.height.value *
               (constraints.maxWidth / renderer.width.value);
           double factor = constraints.maxHeight / height;
           contain = factor >= 2.41;
           if (factor < 1) {
-            width = renderer.width.value *
+            width =
+                renderer.width.value *
                 (constraints.maxHeight / renderer.height.value);
             height = constraints.maxHeight;
             factor = constraints.maxWidth / width;
@@ -141,14 +147,16 @@ class RtcVideoView extends StatefulWidget {
         }
         // Video is vertical.
         else {
-          double width = renderer.width.value *
+          double width =
+              renderer.width.value *
               (constraints.maxHeight / renderer.height.value);
           double height = constraints.maxHeight;
           double factor = constraints.maxWidth / width;
           contain = factor >= 2.0;
           if (factor < 1) {
             width = constraints.maxWidth;
-            height = renderer.height.value *
+            height =
+                renderer.height.value *
                 (constraints.maxWidth / renderer.width.value);
             factor = constraints.maxHeight / height;
             contain = factor >= 2.2;
@@ -190,7 +198,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
           children: [
             video,
             if (widget.framelessBuilder != null) widget.framelessBuilder!(),
-            const Center(child: CustomProgressIndicator.big())
+            const Center(child: CustomProgressIndicator.big()),
           ],
         );
       }
@@ -209,7 +217,7 @@ class _RtcVideoViewState extends State<RtcVideoView> {
             return Stack(
               children: [
                 video,
-                const Center(child: CustomProgressIndicator.big())
+                const Center(child: CustomProgressIndicator.big()),
               ],
             );
           }
@@ -245,23 +253,24 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
     // [aspected] otherwise.
-    Widget clipped(BoxFit? fit) => widget.borderRadius == null
-        ? aspected(fit)
-        : ClipRRect(
-            borderRadius: widget.borderRadius ?? BorderRadius.zero,
-            child: aspected(fit),
-          );
+    Widget clipped(BoxFit? fit) =>
+        widget.borderRadius == null
+            ? aspected(fit)
+            : ClipRRect(
+              borderRadius: widget.borderRadius ?? BorderRadius.zero,
+              child: aspected(fit),
+            );
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.
     Widget outlined(BoxFit? fit) => AnimatedContainer(
-          duration: 200.milliseconds,
-          decoration: BoxDecoration(
-            border: widget.border,
-            borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
-          ),
-          child: clipped(fit),
-        );
+      duration: 200.milliseconds,
+      decoration: BoxDecoration(
+        border: widget.border,
+        borderRadius: widget.borderRadius?.add(BorderRadius.circular(4)),
+      ),
+      child: clipped(fit),
+    );
 
     return LayoutBuilder(
       builder: (context, constraints) {

@@ -28,23 +28,24 @@ import 'my_user.dart';
 extension UserConversion on UserMixin {
   /// Constructs a new [User] from this [UserMixin].
   User toModel() => User(
-        id,
-        this.num,
-        name: name,
-        bio: bio,
-        avatar: avatar?.toModel(),
-        callCover: callCover?.toModel(),
-        online: online?.$$typename == 'UserOnline',
-        lastSeenAt: online?.$$typename == 'UserOffline'
+    id,
+    this.num,
+    name: name,
+    bio: bio,
+    avatar: avatar?.toModel(),
+    callCover: callCover?.toModel(),
+    online: online?.$$typename == 'UserOnline',
+    lastSeenAt:
+        online?.$$typename == 'UserOffline'
             ? (online as UserMixin$Online$UserOffline).lastSeenAt
             : null,
-        dialog: dialog?.id,
-        presenceIndex: presence?.index,
-        status: status,
-        isDeleted: isDeleted,
-        isBlocked: isBlocked.record?.toModel(id),
-        welcomeMessage: welcomeMessage?.toModel(),
-      );
+    dialog: dialog?.id,
+    presenceIndex: presence?.index,
+    status: status,
+    isDeleted: isDeleted,
+    isBlocked: isBlocked.record?.toModel(id),
+    welcomeMessage: welcomeMessage?.toModel(),
+  );
 
   /// Constructs a new [DtoUser] from this [UserMixin].
   DtoUser toDto() => DtoUser(toModel(), ver, isBlocked.ver);
@@ -55,58 +56,51 @@ extension UserConversion on UserMixin {
 extension BlocklistRecordConversion on UserMixin$IsBlocked$Record {
   /// Constructs a new [BlocklistRecord] from this
   /// [UserMixin$IsBlocked$Record].
-  BlocklistRecord toModel(UserId id) => BlocklistRecord(
-        userId: id,
-        reason: reason,
-        at: at,
-      );
+  BlocklistRecord toModel(UserId id) =>
+      BlocklistRecord(userId: id, reason: reason, at: at);
 }
 
 /// Extension adding models construction from an [UserAvatarMixin].
 extension UserAvatarConversion on UserAvatarMixin {
   /// Constructs a new [UserAvatar] from this [UserAvatarMixin].
   UserAvatar toModel() => UserAvatar(
-        full: full.toModel(),
-        original: original.toModel(),
-        big: big.toModel(),
-        medium: medium.toModel(),
-        small: small.toModel(),
-        crop: crop != null
+    full: full.toModel(),
+    original: original.toModel(),
+    big: big.toModel(),
+    medium: medium.toModel(),
+    small: small.toModel(),
+    crop:
+        crop != null
             ? CropArea(
-                topLeft: CropPoint(
-                  x: crop!.topLeft.x,
-                  y: crop!.topLeft.y,
-                ),
-                bottomRight: CropPoint(
-                  x: crop!.bottomRight.x,
-                  y: crop!.bottomRight.y,
-                ),
-                angle: crop?.angle,
-              )
+              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+              bottomRight: CropPoint(
+                x: crop!.bottomRight.x,
+                y: crop!.bottomRight.y,
+              ),
+              angle: crop?.angle,
+            )
             : null,
-      );
+  );
 }
 
 /// Extension adding models construction from an [UserCallCoverMixin].
 extension UserCallCoverConversion on UserCallCoverMixin {
   /// Constructs a new [UserCallCover] from this [UserCallCoverMixin].
   UserCallCover toModel() => UserCallCover(
-        full: full.toModel(),
-        original: original.toModel(),
-        vertical: vertical.toModel(),
-        square: square.toModel(),
-        crop: crop != null
+    full: full.toModel(),
+    original: original.toModel(),
+    vertical: vertical.toModel(),
+    square: square.toModel(),
+    crop:
+        crop != null
             ? CropArea(
-                topLeft: CropPoint(
-                  x: crop!.topLeft.x,
-                  y: crop!.topLeft.y,
-                ),
-                bottomRight: CropPoint(
-                  x: crop!.bottomRight.x,
-                  y: crop!.bottomRight.y,
-                ),
-                angle: crop?.angle,
-              )
+              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+              bottomRight: CropPoint(
+                x: crop!.bottomRight.x,
+                y: crop!.bottomRight.y,
+              ),
+              angle: crop?.angle,
+            )
             : null,
-      );
+  );
 }

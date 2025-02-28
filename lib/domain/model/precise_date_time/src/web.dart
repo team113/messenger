@@ -38,13 +38,13 @@ class PreciseDateTime extends NewType<DateTime>
   /// print(newYearsEve); // 2021-12-31 19:30:00.000Z
   /// ```
   PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
-      : microsecond = microsecondsSinceEpoch % 1000,
-        super(
-          DateTime.fromMillisecondsSinceEpoch(
-            (microsecondsSinceEpoch / 1000).floor(),
-            isUtc: true,
-          ),
-        );
+    : microsecond = microsecondsSinceEpoch % 1000,
+      super(
+        DateTime.fromMillisecondsSinceEpoch(
+          (microsecondsSinceEpoch / 1000).floor(),
+          isUtc: true,
+        ),
+      );
 
   /// Constructs a [PreciseDateTime] from the provided [json].
   factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>
@@ -150,10 +150,11 @@ class PreciseDateTime extends NewType<DateTime>
   ///
   /// Be careful when working with dates in local time.
   PreciseDateTime add(Duration duration) => PreciseDateTime(
-        val.add(duration),
-        microsecond: microsecond +
-            (duration.inMicroseconds - duration.inMilliseconds * 1000),
-      );
+    val.add(duration),
+    microsecond:
+        microsecond +
+        (duration.inMicroseconds - duration.inMilliseconds * 1000),
+  );
 
   /// Returns a new [PreciseDateTime] instance with [duration] subtracted from
   /// this [PreciseDateTime].
@@ -171,10 +172,11 @@ class PreciseDateTime extends NewType<DateTime>
   ///
   /// Be careful when working with dates in local time.
   PreciseDateTime subtract(Duration duration) => PreciseDateTime(
-        val.subtract(duration),
-        microsecond: microsecond -
-            (duration.inMicroseconds - duration.inMilliseconds * 1000),
-      );
+    val.subtract(duration),
+    microsecond:
+        microsecond -
+        (duration.inMicroseconds - duration.inMilliseconds * 1000),
+  );
 
   /// Constructs a [PreciseDateTime] instance with current date and time in the
   /// local time zone.
@@ -231,8 +233,10 @@ class PreciseDateTime extends NewType<DateTime>
       split[1] = split[1].replaceFirst('Z', '');
       String microsecondsStr = microsecond.toString().padLeft(3, '0');
       if (microsecondsStr.length < 3) {
-        microsecondsStr =
-            microsecondsStr.padLeft(3 - microsecondsStr.length, '0');
+        microsecondsStr = microsecondsStr.padLeft(
+          3 - microsecondsStr.length,
+          '0',
+        );
       }
 
       split[1] = split[1].substring(0, 3) + microsecondsStr;

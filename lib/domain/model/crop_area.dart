@@ -28,11 +28,7 @@ part 'crop_area.g.dart';
 /// coordinates should be bigger than the ones of [CropArea.topLeft] point.
 @JsonSerializable()
 class CropArea {
-  CropArea({
-    required this.topLeft,
-    required this.bottomRight,
-    this.angle,
-  });
+  CropArea({required this.topLeft, required this.bottomRight, this.angle});
 
   /// Constructs a [CropArea] from the provided [json].
   factory CropArea.fromJson(Map<String, dynamic> json) =>

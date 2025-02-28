@@ -41,8 +41,8 @@ import 'pagination/drift.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
 
-typedef BlocklistPaginated
-    = RxPaginatedImpl<UserId, RxUser, DtoBlocklistRecord, BlocklistCursor>;
+typedef BlocklistPaginated =
+    RxPaginatedImpl<UserId, RxUser, DtoBlocklistRecord, BlocklistCursor>;
 
 /// [MyUser]'s blocklist repository.
 class BlocklistRepository extends DisposableInterface
@@ -77,23 +77,25 @@ class BlocklistRepository extends DisposableInterface
           },
           delete: (e) async => await _blocklistLocal.delete(e),
           reset: () async => await _blocklistLocal.clear(),
-          isFirst: (_) =>
-              _sessionLocal.data[me]?.blocklistSynchronized == true &&
-              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
-          isLast: (_) =>
-              _sessionLocal.data[me]?.blocklistSynchronized == true &&
-              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isFirst:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isLast:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
             final Page<DtoBlocklistRecord, BlocklistCursor> page =
                 await _blocklist(
-              after: after,
-              before: before,
-              first: first,
-              last: last,
-            );
+                  after: after,
+                  before: before,
+                  first: first,
+                  last: last,
+                );
 
             if (page.info.hasNext == false) {
               _sessionLocal.upsert(
@@ -149,10 +151,7 @@ class BlocklistRepository extends DisposableInterface
   }
 
   /// Puts the provided [record] to [Pagination] and local storage.
-  Future<void> put(
-    DtoBlocklistRecord record, {
-    bool pagination = false,
-  }) async {
+  Future<void> put(DtoBlocklistRecord record, {bool pagination = false}) async {
     Log.debug('put($record, $pagination)', '$runtimeType');
     await blocklist.put(record);
   }

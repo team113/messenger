@@ -38,8 +38,9 @@ class FrontendWorkController extends GetxController {
   final AuthService _authService;
 
   /// [ChatDirectLinkSlug] to use in the [useLink].
-  static const ChatDirectLinkSlug _link =
-      ChatDirectLinkSlug.unchecked('HR-Gapopa');
+  static const ChatDirectLinkSlug _link = ChatDirectLinkSlug.unchecked(
+    'HR-Gapopa',
+  );
 
   /// Returns the authorization [RxStatus].
   Rx<RxStatus> get status => _authService.status;

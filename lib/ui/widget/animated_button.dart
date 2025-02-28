@@ -113,7 +113,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
                 animation: _controller,
                 builder: (_, child) {
                   return Transform.scale(
-                    scale: 1.0 -
+                    scale:
+                        1.0 -
                         Tween<double>(begin: 0.0, end: 0.2)
                             .animate(
                               CurvedAnimation(

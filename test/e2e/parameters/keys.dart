@@ -114,6 +114,7 @@ enum WidgetKey {
   LoginAndPassword,
   LoginButton,
   LoginField,
+  LoginTile,
   LoginView,
   LogoutButton,
   MembersLoading,
@@ -205,12 +206,12 @@ enum WidgetKey {
 /// [CustomParameter] of [WidgetKey]s representing a [Key] of a [Widget].
 class WidgetKeyParameter extends CustomParameter<WidgetKey> {
   WidgetKeyParameter()
-      : super(
-          'key',
-          RegExp(
-            '`(${WidgetKey.values.map((e) => e.name).join('|')})`',
-            caseSensitive: true,
-          ),
-          (c) => WidgetKey.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'key',
+        RegExp(
+          '`(${WidgetKey.values.map((e) => e.name).join('|')})`',
+          caseSensitive: true,
+        ),
+        (c) => WidgetKey.values.firstWhere((e) => e.name == c),
+      );
 }

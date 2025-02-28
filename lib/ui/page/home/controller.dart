@@ -130,8 +130,9 @@ class HomeController extends GetxController {
       (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
     );
 
-    sideBarWidth =
-        RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
+    sideBarWidth = RxDouble(
+      _settings.applicationSettings.value?.sideBarWidth ?? 350,
+    );
 
     router.addListener(_onRouterChanged);
   }
@@ -147,16 +148,13 @@ class HomeController extends GetxController {
         _displayIntroduction(_myUserService.myUser.value!);
       } else {
         Worker? worker;
-        worker = ever(
-          _myUserService.myUser,
-          (MyUser? myUser) {
-            if (myUser != null && worker != null) {
-              _displayIntroduction(myUser);
-              worker?.dispose();
-              worker = null;
-            }
-          },
-        );
+        worker = ever(_myUserService.myUser, (MyUser? myUser) {
+          if (myUser != null && worker != null) {
+            _displayIntroduction(myUser);
+            worker?.dispose();
+            worker = null;
+          }
+        });
       }
     }
   }
@@ -233,8 +231,10 @@ class HomeController extends GetxController {
     }
 
     if (stage != null) {
-      IntroductionView.show(context ?? router.context!, initial: stage)
-          .then((_) => _settings.setShowIntroduction(false));
+      IntroductionView.show(
+        context ?? router.context!,
+        initial: stage,
+      ).then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);
     }

@@ -350,6 +350,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
+      ..tagExpression = 'not @disabled'
+      // ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
@@ -384,10 +386,7 @@ Future<CustomUser> createUser({
   final result = await provider.signUp();
   final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-  final CustomUser customUser = CustomUser(
-    success.toModel(),
-    success.user.num,
-  );
+  final CustomUser customUser = CustomUser(success.toModel(), success.user.num);
 
   if (user != null && world != null) {
     world.sessions[user.name] = [customUser];

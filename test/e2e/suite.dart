@@ -30,8 +30,5 @@ part 'suite.g.dart';
 )
 void main() async {
   Config.disableInfiniteAnimations = true;
-  executeTestSuite(
-    gherkinTestConfiguration,
-    appInitializationFn,
-  );
+  executeTestSuite(gherkinTestConfiguration, appInitializationFn);
 }

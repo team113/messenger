@@ -3,6 +3,7 @@
 gradle-wrapper.jar
 /gradlew
 /gradlew.bat
+/app/.cxx/
 
 GeneratedPluginRegistrant.java
 

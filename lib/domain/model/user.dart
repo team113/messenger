@@ -576,11 +576,7 @@ class UserTextStatus extends NewType<String> {
 /// [User]'s record in a blocklist of the authenticated [MyUser].
 @JsonSerializable()
 class BlocklistRecord implements Comparable<BlocklistRecord> {
-  BlocklistRecord({
-    required this.userId,
-    this.reason,
-    required this.at,
-  });
+  BlocklistRecord({required this.userId, this.reason, required this.at});
 
   /// Constructs a [BlocklistRecord] from the provided [json].
   factory BlocklistRecord.fromJson(Map<String, dynamic> json) =>
@@ -643,8 +639,8 @@ class NestedChatContact {
 
   /// Constructs a [NestedChatContact] from the provided [ChatContact].
   NestedChatContact.from(ChatContact contact)
-      : id = contact.id,
-        name = contact.name;
+    : id = contact.id,
+      name = contact.name;
 
   /// Constructs a [NestedChatContact] from the provided [json].
   factory NestedChatContact.fromJson(Map<String, dynamic> json) =>

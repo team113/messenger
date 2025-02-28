@@ -85,9 +85,10 @@ class ColorsView extends StatelessWidget {
       (style.colors.warning, 'warning'),
     ];
 
-    final Iterable<(Color, String?)> avatars = style.colors.userColors
-        .mapIndexed((i, color) => (color, 'userColors[$i]'))
-        .toList();
+    final Iterable<(Color, String?)> avatars =
+        style.colors.userColors
+            .mapIndexed((i, color) => (color, 'userColors[$i]'))
+            .toList();
 
     return ScrollableColumn(
       children: [

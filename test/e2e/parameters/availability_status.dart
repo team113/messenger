@@ -23,12 +23,12 @@ enum AvailabilityStatus { local, remote }
 /// [CustomParameter] representing an [AvailabilityStatus].
 class AvailabilityStatusParameter extends CustomParameter<AvailabilityStatus> {
   AvailabilityStatusParameter()
-      : super(
-          'availability',
-          RegExp(
-            '(${AvailabilityStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => AvailabilityStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'availability',
+        RegExp(
+          '(${AvailabilityStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => AvailabilityStatus.values.firstWhere((e) => e.name == c),
+      );
 }

@@ -20,10 +20,7 @@ import '/store/event/chat.dart';
 import '/store/model/chat.dart';
 
 /// Tag representing a [FavoriteChatsEvents] kind.
-enum FavoriteChatsEventsKind {
-  initialized,
-  event,
-}
+enum FavoriteChatsEventsKind { initialized, event }
 
 /// Favorite [Chat]s list event union.
 abstract class FavoriteChatsEvents {

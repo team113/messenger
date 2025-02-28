@@ -23,12 +23,8 @@ import 'user.dart';
 
 /// Persisted in storage [ChatMember].
 class DtoChatMember implements Comparable<DtoChatMember> {
-  DtoChatMember(
-    this.user,
-    this.joinedAt,
-    this.cursor, {
-    UserId? userId,
-  }) : id = userId ?? user!.id;
+  DtoChatMember(this.user, this.joinedAt, this.cursor, {UserId? userId})
+    : id = userId ?? user!.id;
 
   /// [UserId] of the [User] this [ChatMember] is about.
   UserId id;

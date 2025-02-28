@@ -80,11 +80,12 @@ class CallOverlayController extends GetxController {
               event.key!,
               withAudio:
                   ongoingCall.audioState.value == LocalTrackState.enabling ||
-                      ongoingCall.audioState.value == LocalTrackState.enabled,
+                  ongoingCall.audioState.value == LocalTrackState.enabled,
               withVideo:
                   ongoingCall.videoState.value == LocalTrackState.enabling ||
-                      ongoingCall.videoState.value == LocalTrackState.enabled,
-              withScreen: ongoingCall.screenShareState.value ==
+                  ongoingCall.videoState.value == LocalTrackState.enabled,
+              withScreen:
+                  ongoingCall.screenShareState.value ==
                       LocalTrackState.enabling ||
                   ongoingCall.screenShareState.value == LocalTrackState.enabled,
             );
@@ -95,24 +96,23 @@ class CallOverlayController extends GetxController {
               WebUtils.setCall(ongoingCall.toStored());
               if (ongoingCall.callChatItemId == null ||
                   ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  event.value!.value.call,
-                  (ChatCall? call) {
-                    WebUtils.setCall(
-                      WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ),
-                    );
+                _workers[event.key!] = ever(event.value!.value.call, (
+                  ChatCall? call,
+                ) {
+                  WebUtils.setCall(
+                    WebStoredCall(
+                      chatId: ongoingCall.chatId.value,
+                      call: call,
+                      creds: ongoingCall.creds,
+                      deviceId: ongoingCall.deviceId,
+                      state: ongoingCall.state.value,
+                    ),
+                  );
 
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
-                );
+                  if (call?.id != null) {
+                    _workers[event.key!]?.dispose();
+                  }
+                });
               }
             } else {
               Future.delayed(Duration.zero, () {

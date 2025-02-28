@@ -25,16 +25,16 @@ import 'buttons.dart';
 class ChatButtonWidget extends StatelessWidget {
   /// Constructs a [ChatButtonWidget] from the provided [ChatButton].
   ChatButtonWidget(ChatButton button, {super.key})
-      : onPressed = button.onPressed,
-        onLongPress = null,
-        icon = Transform.translate(
-          offset: button.offset,
-          child: SvgIcon(button.asset),
-        ),
-        disabledIcon = Transform.translate(
-          offset: button.offset,
-          child: SvgIcon(button.disabled ?? button.asset),
-        );
+    : onPressed = button.onPressed,
+      onLongPress = null,
+      icon = Transform.translate(
+        offset: button.offset,
+        child: SvgIcon(button.asset),
+      ),
+      disabledIcon = Transform.translate(
+        offset: button.offset,
+        child: SvgIcon(button.disabled ?? button.asset),
+      );
 
   /// Constructs a send/forward [ChatButtonWidget].
   ChatButtonWidget.send({
@@ -42,8 +42,8 @@ class ChatButtonWidget extends StatelessWidget {
     bool forwarding = false,
     this.onPressed,
     this.onLongPress,
-  })  : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send),
-        disabledIcon = null;
+  }) : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send),
+       disabledIcon = null;
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;

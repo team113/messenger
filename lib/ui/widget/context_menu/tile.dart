@@ -94,9 +94,10 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
       onExit: (_) => setState(() => _hovered = false),
       opaque: false,
       child: WidgetButton(
-        onPressed: widget.onPressed == null
-            ? null
-            : () => widget.onPressed?.call(context),
+        onPressed:
+            widget.onPressed == null
+                ? null
+                : () => widget.onPressed?.call(context),
         child: Container(
           width: double.infinity,
           color: _hovered ? style.colors.onBackgroundOpacity2 : null,
@@ -120,13 +121,16 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
                   child: Center(
                     child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 100),
-                      child: widget.pinned!
-                          ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                          : Transform.translate(
-                              offset: const Offset(0.5, 0),
-                              child:
-                                  const SvgIcon(SvgIcons.pin, key: Key('Pin')),
-                            ),
+                      child:
+                          widget.pinned!
+                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
+                              : Transform.translate(
+                                offset: const Offset(0.5, 0),
+                                child: const SvgIcon(
+                                  SvgIcons.pin,
+                                  key: Key('Pin'),
+                                ),
+                              ),
                     ),
                   ),
                 ),

@@ -46,7 +46,9 @@ class CallCredentialsDriftProvider extends DriftProviderBaseWithScope {
     _cache[id] = credentials;
 
     await safe((db) async {
-      await db.into(db.callCredentials).insertReturning(
+      await db
+          .into(db.callCredentials)
+          .insertReturning(
             credentials.toDb(id),
             mode: InsertMode.insertOrReplace,
           );

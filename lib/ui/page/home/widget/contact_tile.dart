@@ -124,9 +124,12 @@ class ContactTile extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return ContextMenuRegion(
-      key: contact != null || user != null
-          ? Key('ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}')
-          : null,
+      key:
+          contact != null || user != null
+              ? Key(
+                'ContextMenuRegion_${contact?.id ?? user?.id ?? myUser?.id}',
+              )
+              : null,
       preventContextMenu: preventContextMenu,
       actions: actions ?? [],
       indicateOpenedMenu: true,
@@ -148,10 +151,12 @@ class ContactTile extends StatelessWidget {
           child: SizedBox(
             height: dense ? 56 : height,
             child: Padding(
-              key: contact?.contact.value.favoritePosition != null
-                  ? Key('FavoriteIndicator_${contact?.contact.value.id}')
-                  : null,
-              padding: padding ??
+              key:
+                  contact?.contact.value.favoritePosition != null
+                      ? Key('FavoriteIndicator_${contact?.contact.value.id}')
+                      : null,
+              padding:
+                  padding ??
                   EdgeInsets.symmetric(horizontal: 12, vertical: dense ? 4 : 6),
               child: Row(
                 children: [
@@ -159,18 +164,18 @@ class ContactTile extends StatelessWidget {
                   avatarBuilder(
                     contact != null
                         ? AvatarWidget.fromRxContact(
-                            contact,
-                            radius: dense ? AvatarRadius.medium : radius,
-                          )
+                          contact,
+                          radius: dense ? AvatarRadius.medium : radius,
+                        )
                         : user != null
-                            ? AvatarWidget.fromRxUser(
-                                user,
-                                radius: dense ? AvatarRadius.medium : radius,
-                              )
-                            : AvatarWidget.fromMyUser(
-                                myUser,
-                                radius: dense ? AvatarRadius.medium : radius,
-                              ),
+                        ? AvatarWidget.fromRxUser(
+                          user,
+                          radius: dense ? AvatarRadius.medium : radius,
+                        )
+                        : AvatarWidget.fromMyUser(
+                          myUser,
+                          radius: dense ? AvatarRadius.medium : radius,
+                        ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
@@ -203,11 +208,7 @@ class ContactTile extends StatelessWidget {
   }
 
   /// Returns [Text] representing the [contact], [user] or [myUser] name.
-  Widget _name(
-    BuildContext context, {
-    ChatContact? contact,
-    RxUser? user,
-  }) {
+  Widget _name(BuildContext context, {ChatContact? contact, RxUser? user}) {
     final style = Theme.of(context).style;
 
     return Text(
@@ -218,9 +219,10 @@ class ContactTile extends StatelessWidget {
           (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
-      style: selected
-          ? style.fonts.big.regular.onPrimary
-          : style.fonts.big.regular.onBackground,
+      style:
+          selected
+              ? style.fonts.big.regular.onPrimary
+              : style.fonts.big.regular.onBackground,
     );
   }
 
@@ -228,8 +230,6 @@ class ContactTile extends StatelessWidget {
   ///
   /// Uses [GestureDetector] with a dummy [GestureDetector.onLongPress] callback
   /// for discarding long presses on its [child].
-  static Widget _defaultAvatarBuilder(Widget child) => GestureDetector(
-        onLongPress: () {},
-        child: child,
-      );
+  static Widget _defaultAvatarBuilder(Widget child) =>
+      GestureDetector(onLongPress: () {}, child: child);
 }
