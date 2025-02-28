@@ -18,8 +18,11 @@ All user visible changes to this project will be documented in this file. This p
         - Context menus having meaningless dividers. ([#1170])
     - Chats tab:
         - Inability to paste clipboard into search field when chat is open. ([#1170])
+- macOS:
+    - Application becoming unresponsive when drag-n-dropping screenshots to chat. ([#1177])
 
 [#1170]: /../../pull/1170
+[#1177]: /../../pull/1177
 
 
 
