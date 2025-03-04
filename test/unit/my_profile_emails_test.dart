@@ -138,6 +138,9 @@ void main() async {
       when(
         graphQlProvider.sessionsEvents(any),
       ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.blocklistEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
 
       when(
         graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')),
@@ -163,15 +166,14 @@ void main() async {
       );
 
       when(
-        graphQlProvider.getBlocklist(
-          first: anyNamed('first'),
-          after: null,
-          last: null,
-          before: null,
-        ),
-      ).thenAnswer(
-        (_) => Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist)),
-      );
+        graphQlProvider.keepOnline(),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.sessionsEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
+      when(
+        graphQlProvider.blocklistEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
 
       AuthService authService = Get.put(
         AuthService(
@@ -192,7 +194,6 @@ void main() async {
           blocklistProvider,
           userRepository,
           versionProvider,
-          myUserProvider,
           me: const UserId('me'),
         ),
       );
@@ -278,7 +279,6 @@ void main() async {
           blocklistProvider,
           userRepository,
           versionProvider,
-          myUserProvider,
           me: const UserId('me'),
         ),
       );

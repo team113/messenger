@@ -160,11 +160,12 @@ void main() async {
       when(
         graphQlProvider.keepOnline(),
       ).thenAnswer((_) => const Stream.empty());
-
       when(
         graphQlProvider.myUserEvents(any),
       ).thenAnswer((_) async => const Stream.empty());
-
+      when(
+        graphQlProvider.blocklistEvents(any),
+      ).thenAnswer((_) => const Stream.empty());
       when(
         graphQlProvider.sessionsEvents(any),
       ).thenAnswer((_) => const Stream.empty());
@@ -373,7 +374,6 @@ void main() async {
           blocklistProvider,
           userRepository,
           versionProvider,
-          myUserProvider,
           me: const UserId('me'),
         ),
       );

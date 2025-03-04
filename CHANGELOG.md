@@ -18,10 +18,13 @@ All user visible changes to this project will be documented in this file. This p
         - Context menus having meaningless dividers. ([#1170])
     - Chats tab:
         - Inability to paste clipboard into search field when chat is open. ([#1170])
+    - Profile page:
+        - Blocklist count not being updated in real time. ([#1175])
 - macOS:
     - Application becoming unresponsive when drag-n-dropping screenshots to chat. ([#1177])
 
 [#1170]: /../../pull/1170
+[#1175]: /../../pull/1175
 [#1177]: /../../pull/1177
 
 

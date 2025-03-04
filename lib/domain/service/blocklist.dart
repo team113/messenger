@@ -37,6 +37,10 @@ class BlocklistService extends DisposableService {
   /// Returns [User]s blocked by the authenticated [MyUser].
   Paginated<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
 
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count => _blocklistRepo.count;
+
   /// Returns the [RxStatus] of the [blocklist] fetching.
   Rx<RxStatus> get status => _blocklistRepo.blocklist.status;
 
@@ -50,9 +54,11 @@ class BlocklistService extends DisposableService {
   int get perPage => _blocklistRepo.blocklist.perPage;
 
   /// Fetches the initial [blocklist].
-  Future<void> around() {
+  Future<void> around() async {
     Log.debug('around()', '$runtimeType');
-    return _blocklistRepo.blocklist.around();
+
+    await _blocklistRepo.blocklist.clear();
+    await _blocklistRepo.blocklist.around();
   }
 
   /// Fetches the next [blocklist] page.

@@ -22,6 +22,7 @@ import 'package:drift/remote.dart';
 import 'package:mutex/mutex.dart';
 
 import '/domain/model/user.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
@@ -42,6 +43,8 @@ class Versions extends Table {
   BoolColumn get contactsSynchronized => boolean().nullable()();
   BoolColumn get blocklistSynchronized => boolean().nullable()();
   TextColumn get sessionsListVersion => text().nullable()();
+  TextColumn get blocklistVersion => text().nullable()();
+  IntColumn get blocklistCount => integer().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [SessionData].
@@ -180,6 +183,11 @@ extension _SessionDataDb on SessionData {
           e.sessionsListVersion == null
               ? null
               : SessionsListVersion(e.sessionsListVersion!),
+      blocklistVersion:
+          e.blocklistVersion == null
+              ? null
+              : BlocklistVersion(e.blocklistVersion!),
+      blocklistCount: e.blocklistCount,
     );
   }
 
@@ -194,6 +202,8 @@ extension _SessionDataDb on SessionData {
       contactsSynchronized: contactsSynchronized,
       blocklistSynchronized: blocklistSynchronized,
       sessionsListVersion: sessionsListVersion?.val,
+      blocklistVersion: blocklistVersion?.val,
+      blocklistCount: blocklistCount,
     );
   }
 }

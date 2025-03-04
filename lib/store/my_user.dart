@@ -53,7 +53,6 @@ import '/util/web/web_utils.dart';
 import 'blocklist.dart';
 import 'event/changed.dart';
 import 'event/my_user.dart';
-import 'model/blocklist.dart';
 import 'model/my_user.dart';
 import 'user.dart';
 
@@ -836,15 +835,7 @@ class MyUserRepository extends DisposableInterface
 
     await WebUtils.protect(() async {
       _remoteSubscription = StreamQueue(
-        await _myUserRemoteEvents(() async {
-          // Ask for initial [MyUser] event, if the stored
-          // [MyUser.blocklistCount] is `null`, to retrieve it.
-          if ((await _active)?.value.blocklistCount == null) {
-            return null;
-          }
-
-          return (await _active)?.ver;
-        }),
+        await _myUserRemoteEvents(() async => (await _active)?.ver),
       );
 
       await _remoteSubscription!.execute(
@@ -877,17 +868,8 @@ class MyUserRepository extends DisposableInterface
     Log.debug('_setMyUser($user, $ignoreVersion)', '$runtimeType');
 
     if (ignoreVersion || user.ver >= (await _active)?.ver) {
-      user.value.blocklistCount ??= (await _active)?.value.blocklistCount;
       await _driftMyUser.upsert(user);
       _applyMyUser(user.id, user);
-    } else {
-      // Update the stored [MyUser], if the provided [user] has non-`null`
-      // blocklist count, which is different from the stored one.
-      if (user.value.blocklistCount != null &&
-          user.value.blocklistCount != (await _active)?.value.blocklistCount) {
-        await _driftMyUser.upsert(user);
-        _applyMyUser(user.id, user);
-      }
     }
   }
 
@@ -1190,28 +1172,6 @@ class MyUserRepository extends DisposableInterface
         case MyUserEventKind.directLinkUpdated:
           event as EventUserDirectLinkUpdated;
           userEntity.value.chatDirectLink = event.directLink;
-          break;
-
-        case MyUserEventKind.blocklistRecordAdded:
-          event as EventBlocklistRecordAdded;
-          if (userEntity.value.blocklistCount != null) {
-            userEntity.value.blocklistCount =
-                userEntity.value.blocklistCount! + 1;
-          }
-          _blocklistRepository.put(
-            DtoBlocklistRecord(event.user.value.isBlocked!, null),
-          );
-          break;
-
-        case MyUserEventKind.blocklistRecordRemoved:
-          event as EventBlocklistRecordRemoved;
-          if (userEntity.value.blocklistCount != null) {
-            userEntity.value.blocklistCount = max(
-              userEntity.value.blocklistCount! - 1,
-              0,
-            );
-          }
-          _blocklistRepository.remove(event.user.value.id);
           break;
 
         case MyUserEventKind.welcomeMessageDeleted:

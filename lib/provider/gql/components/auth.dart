@@ -133,8 +133,9 @@ mixin AuthGraphQlMixin {
         ),
         onException:
             (data) => DeleteSessionException(
-              DeleteSession$Mutation.fromJson(data).deleteSession
-                  as DeleteSessionErrorCode,
+              (DeleteSession$Mutation.fromJson(data).deleteSession
+                      as DeleteSession$Mutation$DeleteSession$DeleteSessionError)
+                  .code,
             ),
         raw: RawClientOptions(token),
       );

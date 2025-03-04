@@ -42,9 +42,8 @@ import '/store/pagination/graphql.dart';
 import '/store/user_rx.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
+import 'event/blocklist.dart';
 import 'event/changed.dart';
-import 'event/my_user.dart'
-    show BlocklistEvent, EventBlocklistRecordAdded, EventBlocklistRecordRemoved;
 import 'model/page_info.dart';
 import 'paginated.dart';
 
@@ -359,7 +358,7 @@ class UserRepository extends DisposableInterface
         yield UserEventsBlocklistEventsEvent(
           BlocklistEventsVersioned(
             mixin.events.map((e) => _blocklistEvent(e)).toList(),
-            mixin.myVer,
+            mixin.blocklistVer,
           ),
         );
       } else if (events.$$typename == 'isBlocked') {

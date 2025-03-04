@@ -104,6 +104,9 @@ void main() async {
     when(
       graphQlProvider.sessionsEvents(any),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.blocklistEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
     when(
       graphQlProvider.chatEvents(
@@ -187,7 +190,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );

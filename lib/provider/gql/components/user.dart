@@ -30,6 +30,7 @@ import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/store/event/my_user.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
 import '/store/model/session.dart';
 import '/store/model/user.dart';
@@ -476,6 +477,68 @@ mixin UserGraphQlMixin {
       SubscriptionOptions(
         operationName: 'MyUserEvents',
         document: MyUserEventsSubscription(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      ver: ver,
+    );
+  }
+
+  /// Subscribes to [BlocklistEvent]s of the authenticated [MyUser].
+  ///
+  /// ### Authentication
+  ///
+  /// Mandatory.
+  ///
+  /// ### Initialization
+  ///
+  /// Once this subscription is initialized completely, it immediately emits
+  /// `SubscriptionInitialized`.
+  ///
+  /// If nothing has been emitted for a long period of time after establishing
+  /// this subscription (while not being completed), it should be considered as
+  /// an unexpected server error. This fact can be used on a client side to
+  /// decide whether this subscription has been initialized successfully.
+  ///
+  /// ### Result
+  ///
+  /// If [ver] argument is not specified (or is `null`) an initial state of the
+  /// `Blocklist` will be emitted after `SubscriptionInitialized` and before any
+  /// other [BlocklistEvent]s (and won't be emitted ever again until this
+  /// subscription completes). This allows to skip calling `Query.blocklist`
+  /// before establishing this subscription.
+  ///
+  /// If the specified [ver] is not fresh (was queried quite a time ago), it may
+  /// become stale, so this subscription will return `STALE_VERSION` error on
+  /// initialization. In such case:
+  /// - either a fresh version should be obtained via `Query.blocklist`;
+  /// - or a re-subscription should be done without specifying a [ver] argument
+  /// (so the fresh ver may be obtained in the emitted initial state of the
+  /// `Blocklist`).
+  ///
+  /// ### Completion
+  ///
+  /// Infinite.
+  ///
+  /// Completes requiring a re-subscription when:
+  /// - Authenticated [Session] expires (`SESSION_EXPIRED` error is emitted).
+  /// - An error occurs on the server (error is emitted).
+  /// - The server is shutting down or becoming unreachable (unexpectedly
+  /// completes after initialization).
+  ///
+  /// ### Idempotency
+  ///
+  /// It's possible that in rare scenarios this subscription could emit an event
+  /// which have already been applied to the state of some [BlocklistRecord], so
+  /// a client side is expected to handle all the events idempotently
+  /// considering the [ver].
+  Stream<QueryResult> blocklistEvents(BlocklistVersion? Function() ver) {
+    Log.debug('blocklistEvents(ver)', '$runtimeType');
+
+    final variables = BlocklistEventsArguments(ver: ver());
+    return client.subscribe(
+      SubscriptionOptions(
+        operationName: 'BlocklistEvents',
+        document: BlocklistEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
       ver: ver,

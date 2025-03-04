@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:get/get.dart';
+
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
@@ -24,4 +26,8 @@ import 'paginated.dart';
 abstract class AbstractBlocklistRepository {
   /// Returns [Paginated] of [User]s blocked by the authenticated [MyUser].
   Paginated<UserId, RxUser> get blocklist;
+
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count;
 }
