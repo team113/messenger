@@ -79,8 +79,7 @@ extension MyUserEventsMyUserConversion
     on MyUserEvents$Subscription$MyUserEvents$MyUser {
   /// Constructs a new [DtoMyUser] from this
   /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
-  DtoMyUser toDto() =>
-      DtoMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
+  DtoMyUser toDto() => DtoMyUser(toModel(), ver);
 }
 
 /// Extension adding models construction from a [BlocklistRecordMixin].

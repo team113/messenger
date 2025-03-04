@@ -109,7 +109,9 @@ void main() async {
   when(
     graphQlProvider.incomingCallsTopEvents(3),
   ).thenAnswer((_) => const Stream.empty());
-
+  when(
+    graphQlProvider.blocklistEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
   when(
     graphQlProvider.favoriteChatsEvents(any),
   ).thenAnswer((_) => const Stream.empty());
@@ -361,7 +363,6 @@ void main() async {
       blocklistProvider,
       userRepository,
       versionProvider,
-      myUserProvider,
       me: const UserId('me'),
     );
 

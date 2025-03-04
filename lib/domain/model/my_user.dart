@@ -49,7 +49,6 @@ class MyUser {
     required this.presenceIndex,
     required this.online,
     this.muted,
-    this.blocklistCount,
     this.lastSeenAt,
     this.welcomeMessage,
   });
@@ -136,9 +135,6 @@ class MyUser {
   /// Mute duration of this [MyUser].
   MuteDuration? muted;
 
-  /// Total count of blocked users.
-  int? blocklistCount;
-
   /// [PreciseDateTime] this [MyUser] was last seen online at.
   PreciseDateTime? lastSeenAt;
 
@@ -166,7 +162,7 @@ class MyUser {
     presenceIndex: presenceIndex,
     online: online,
     muted: muted,
-    blocklistCount: blocklistCount,
+
     lastSeenAt: lastSeenAt,
     welcomeMessage: welcomeMessage,
   );

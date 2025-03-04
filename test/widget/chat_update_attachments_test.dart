@@ -330,6 +330,9 @@ void main() async {
     graphQlProvider.sessionsEvents(any),
   ).thenAnswer((_) => const Stream.empty());
   when(
+    graphQlProvider.blocklistEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
     graphQlProvider.getUser(any),
   ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
@@ -429,7 +432,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );

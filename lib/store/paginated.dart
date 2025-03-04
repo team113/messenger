@@ -128,6 +128,11 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   }
 
   @override
+  Future<void> clear() async {
+    await pagination?.clear();
+  }
+
+  @override
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
@@ -289,7 +294,7 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     await pagination?.remove(key);
   }
 
-  /// Clears the [pagination].
+  @override
   Future<void> clear() async {
     items.clear();
     await pagination?.clear();

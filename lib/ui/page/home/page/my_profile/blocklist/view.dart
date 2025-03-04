@@ -61,9 +61,7 @@ class BlocklistView extends StatelessWidget {
             const SizedBox(height: 4),
             Obx(() {
               return ModalPopupHeader(
-                text: 'label_users_count'.l10nfmt({
-                  'count': c.myUser.value?.blocklistCount ?? 0,
-                }),
+                text: 'label_users_count'.l10nfmt({'count': c.count.value}),
               );
             }),
             const SizedBox(height: 4),
@@ -79,7 +77,7 @@ class BlocklistView extends StatelessWidget {
 
                   if (c.status.value.isLoading) {
                     return SizedBox(
-                      height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                      height: blocklist.length * 95,
                       child: const Center(
                         child: CustomProgressIndicator.primary(),
                       ),

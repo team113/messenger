@@ -18,6 +18,7 @@
 import '/domain/model/chat.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
+import 'blocklist.dart';
 import 'session.dart';
 
 /// [Session] relative preferences.
@@ -30,6 +31,8 @@ class SessionData {
     this.contactsSynchronized,
     this.blocklistSynchronized,
     this.sessionsListVersion,
+    this.blocklistVersion,
+    this.blocklistCount,
   });
 
   /// Persisted [FavoriteChatsListVersion] data.
@@ -57,6 +60,12 @@ class SessionData {
   /// Persisted [SessionsListVersion] data.
   SessionsListVersion? sessionsListVersion;
 
+  /// Persisted [BlocklistVersion] data.
+  BlocklistVersion? blocklistVersion;
+
+  /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
+  int? blocklistCount;
+
   /// Returns a copy of this [SessionData] from the [other].
   SessionData copyFrom(SessionData other) {
     return copyWith(
@@ -67,6 +76,8 @@ class SessionData {
       contactsSynchronized: other.contactsSynchronized,
       blocklistSynchronized: other.blocklistSynchronized,
       sessionsListVersion: other.sessionsListVersion,
+      blocklistVersion: other.blocklistVersion,
+      blocklistCount: other.blocklistCount,
     );
   }
 
@@ -79,6 +90,8 @@ class SessionData {
     bool? contactsSynchronized,
     bool? blocklistSynchronized,
     SessionsListVersion? sessionsListVersion,
+    BlocklistVersion? blocklistVersion,
+    int? blocklistCount,
   }) {
     return SessionData(
       favoriteChatsListVersion:
@@ -93,6 +106,8 @@ class SessionData {
       blocklistSynchronized:
           this.blocklistSynchronized ?? blocklistSynchronized,
       sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
+      blocklistVersion: this.blocklistVersion ?? blocklistVersion,
+      blocklistCount: this.blocklistCount ?? blocklistCount,
     );
   }
 }

@@ -85,6 +85,9 @@ void main() async {
     when(
       graphQlProvider.sessionsEvents(any),
     ).thenAnswer((_) => const Stream.empty());
+    when(
+      graphQlProvider.blocklistEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
     when(graphQlProvider.toggleMyUserMute(null)).thenAnswer(
       (_) => Future.value(
@@ -132,7 +135,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );
@@ -197,7 +199,6 @@ void main() async {
           blocklistProvider,
           userRepository,
           versionProvider,
-          myUserProvider,
           me: const UserId('me'),
         ),
       );

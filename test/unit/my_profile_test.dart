@@ -32,6 +32,7 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
+import 'package:messenger/store/model/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/model/session.dart';
 import 'package:messenger/store/my_user.dart';
@@ -73,7 +74,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );
@@ -161,6 +161,13 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
 
   @override
   Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+    return const Stream.empty();
+  }
+
+  @override
+  Stream<QueryResult<Object?>> blocklistEvents(
+    BlocklistVersion? Function() ver,
+  ) {
     return const Stream.empty();
   }
 }
