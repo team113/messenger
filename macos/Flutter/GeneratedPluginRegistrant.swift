@@ -15,6 +15,7 @@ import firebase_messaging
 import flutter_custom_cursor
 import flutter_local_notifications
 import flutter_native_badge_foundation
+import hotkey_manager_macos
 import irondash_engine_context
 import just_audio
 import macos_haptic_feedback
@@ -47,6 +48,7 @@ func RegisterGeneratedPlugins(registry: FlutterPluginRegistry) {
   FlutterCustomCursorPlugin.register(with: registry.registrar(forPlugin: "FlutterCustomCursorPlugin"))
   FlutterLocalNotificationsPlugin.register(with: registry.registrar(forPlugin: "FlutterLocalNotificationsPlugin"))
   FlutterNativeBadgePlugin.register(with: registry.registrar(forPlugin: "FlutterNativeBadgePlugin"))
+  HotkeyManagerMacosPlugin.register(with: registry.registrar(forPlugin: "HotkeyManagerMacosPlugin"))
   IrondashEngineContextPlugin.register(with: registry.registrar(forPlugin: "IrondashEngineContextPlugin"))
   JustAudioPlugin.register(with: registry.registrar(forPlugin: "JustAudioPlugin"))
   MacosHapticFeedbackPlugin.register(with: registry.registrar(forPlugin: "MacosHapticFeedbackPlugin"))

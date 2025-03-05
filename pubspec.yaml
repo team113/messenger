@@ -53,6 +53,7 @@ dependencies:
   flutter_xlider: ^3.5.0
   get: ^4.6.5
   graphql_flutter: ^5.2.0-beta.7
+  hotkey_manager: ^0.2.3
   http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
   image_gallery_saver:

@@ -24,12 +24,14 @@ import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '../../domain/repository/settings.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
@@ -61,6 +63,7 @@ class CallWorker extends DisposableService {
     this._myUserService,
     this._notificationService,
     this._authService,
+    this._settingsRepository,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -78,6 +81,8 @@ class CallWorker extends DisposableService {
   /// [AuthService] for retrieving the current [Credentials] in
   /// [FlutterCallkitIncoming] events handling.
   final AuthService _authService;
+
+  final AbstractSettingsRepository _settingsRepository;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -123,6 +128,12 @@ class CallWorker extends DisposableService {
   /// [GraphQlProvider.chatEvents] subscriptions for each ongoing
   /// [FlutterCallkitIncoming] call to be notified about their endings.
   final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
+
+  HotKey? _hotKey;
+
+  bool _bind = false;
+
+  final RxBool _muted = RxBool(false);
 
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
@@ -180,6 +191,8 @@ class CallWorker extends DisposableService {
       });
     }
 
+    bool _isEmpty = true;
+
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
@@ -192,6 +205,11 @@ class CallWorker extends DisposableService {
       switch (event.op) {
         case OperationKind.added:
           final OngoingCall c = event.value!.value;
+
+          if (_isEmpty) {
+            _bindHotKey();
+          }
+          _isEmpty = false;
 
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
@@ -280,6 +298,10 @@ class CallWorker extends DisposableService {
                 }
               }
             }
+          }
+
+          if (_muted.value) {
+            c.setAudioEnabled(!_muted.value);
           }
 
           if (_isCallKit) {
@@ -383,6 +405,8 @@ class CallWorker extends DisposableService {
 
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
+            _unbindHotKey();
+
             try {
               await AudioUtils.setDefaultSpeaker();
             } on PlatformException {
@@ -526,13 +550,44 @@ class CallWorker extends DisposableService {
       });
     }
 
+    final List<String> keys =
+        _settingsRepository.applicationSettings.value?.muteKeys ?? [];
+
+    final List<HotKeyModifier> modifiers = [];
+    final List<PhysicalKeyboardKey> physicalKeys = [];
+
+    for (var e in keys) {
+      final modifier = HotKeyModifier.values.firstWhereOrNull(
+        (m) => m.name == e,
+      );
+
+      if (modifier != null) {
+        modifiers.add(modifier);
+      } else {
+        final int? hid = int.tryParse(e);
+        if (hid != null) {
+          physicalKeys.add(PhysicalKeyboardKey(hid));
+        }
+      }
+    }
+
+    if (modifiers.isEmpty) {
+      modifiers.add(HotKeyModifier.alt);
+    }
+
+    _hotKey = HotKey(
+      key: physicalKeys.lastOrNull ?? PhysicalKeyboardKey.keyM,
+      modifiers: modifiers,
+      scope: HotKeyScope.system,
+    );
+
     super.onInit();
   }
 
   @override
   void onReady() {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
-
+    _bindHotKey();
     super.onReady();
   }
 
@@ -553,6 +608,8 @@ class CallWorker extends DisposableService {
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
+
+    _unbindHotKey();
 
     super.onClose();
   }
@@ -633,6 +690,47 @@ class CallWorker extends DisposableService {
         }
       }
     });
+  }
+
+  Future<void> _bindHotKey() async {
+    if (!_bind && _hotKey != null) {
+      _bind = true;
+
+      try {
+        await WebUtils.bindKey(_hotKey!, _toggleMuteOnKey);
+      } catch (e) {
+        Log.warning('Unable to bind hot key: $e', '$runtimeType');
+      }
+    }
+  }
+
+  void _unbindHotKey() {
+    if (_bind) {
+      _bind = false;
+      _muted.value = false;
+
+      if (_hotKey != null) {
+        WebUtils.unbindKey(_hotKey!, _toggleMuteOnKey);
+      }
+    }
+  }
+
+  bool _toggleMuteOnKey() {
+    Log.debug('hotKeyManager -> onKeyDown', '$runtimeType');
+
+    AudioUtils.once(
+      AudioSource.asset(
+        _muted.value ? 'audio/pause_on.ogg' : 'audio/pause_off.ogg',
+      ),
+    );
+
+    _muted.toggle();
+
+    for (var e in _callService.calls.values) {
+      e.value.setAudioEnabled(!_muted.value);
+    }
+
+    return true;
   }
 }
 

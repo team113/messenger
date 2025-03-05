@@ -24,6 +24,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -31,6 +32,7 @@ import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
+import '../log.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
@@ -443,5 +445,21 @@ class WebUtils {
     }
 
     return agent;
+  }
+
+  static Future<void> bindKey(HotKey key, bool Function() onPressed) async {
+    try {
+      await hotKeyManager.register(key, keyDownHandler: (_) => onPressed());
+    } catch (e) {
+      Log.warning('Unable to bind to hot key: $e', 'WebUtils');
+    }
+  }
+
+  static Future<void> unbindKey(HotKey key, bool Function() onPressed) async {
+    try {
+      await hotKeyManager.unregister(key);
+    } catch (e) {
+      Log.warning('Unable to unbind hot key: $e', 'WebUtils');
+    }
   }
 }

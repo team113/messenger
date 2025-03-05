@@ -29,6 +29,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
@@ -827,6 +828,51 @@ class WebUtils {
     final info = await DeviceInfoPlugin().webBrowserInfo;
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
+  }
+
+  static bool _handleBindKeys(KeyEvent key) {
+    if (key is KeyUpEvent) {
+      for (var e in _keyHandlers.entries) {
+        if (e.key.key == key.physicalKey) {
+          // TODO: Check modifiers.
+          for (var f in e.value) {
+            if (f()) {
+              return true;
+            }
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  static final Map<HotKey, List<bool Function()>> _keyHandlers = {};
+
+  static Future<void> bindKey(HotKey key, bool Function() onPressed) async {
+    if (_keyHandlers.isEmpty) {
+      HardwareKeyboard.instance.addHandler(_handleBindKeys);
+    }
+
+    final List<bool Function()>? contained = _keyHandlers[key];
+    if (contained == null) {
+      _keyHandlers[key] = [onPressed];
+    } else {
+      contained.add(onPressed);
+    }
+  }
+
+  static Future<void> unbindKey(HotKey key, bool Function() onPressed) async {
+    final list = _keyHandlers[key];
+    list?.remove(onPressed);
+
+    if (list?.isEmpty == true) {
+      _keyHandlers.remove(key);
+    }
+
+    if (_keyHandlers.isEmpty) {
+      HardwareKeyboard.instance.removeHandler(_handleBindKeys);
+    }
   }
 }
 

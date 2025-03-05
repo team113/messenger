@@ -28,6 +28,7 @@ class ApplicationSettings {
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
+    this.muteKeys,
   });
 
   /// Indicator whether [OngoingCall]s are preferred to be displayed in the
@@ -64,6 +65,8 @@ class ApplicationSettings {
   /// Indicator whether [WorkTabView] should be displayed in the
   /// [CustomNavigationBar] of [HomeView].
   bool workWithUsTabEnabled;
+
+  List<String>? muteKeys;
 }
 
 /// Possible call buttons position.
