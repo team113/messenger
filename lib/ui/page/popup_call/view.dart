@@ -68,7 +68,7 @@ class _PopupCallViewState extends State<PopupCallView> {
     }
 
     return GetBuilder<PopupCallController>(
-      init: PopupCallController(widget.chatId, Get.find()),
+      init: PopupCallController(widget.chatId, Get.find(), Get.find()),
       builder: (PopupCallController c) {
         // If call is `null`, this only means that `WebUtils.closeWindow()`
         // didn't succeed, which can be happen only due to browser not allowing

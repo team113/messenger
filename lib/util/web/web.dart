@@ -134,6 +134,10 @@ class WebUtils {
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
 
+  /// Handlers for [HotKey]s intended to be manipulated via [bindKey] and
+  /// [unbindKey] to invoke [_handleBindKeys].
+  static final Map<HotKey, List<bool Function()>> _keyHandlers = {};
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
       _navigator.appVersion.contains('Mac') && !PlatformUtils.isIOS;
@@ -830,41 +834,24 @@ class WebUtils {
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
 
-  static bool _handleBindKeys(KeyEvent key) {
-    if (key is KeyUpEvent) {
-      for (var e in _keyHandlers.entries) {
-        if (e.key.key == key.physicalKey) {
-          // TODO: Check modifiers.
-          for (var f in e.value) {
-            if (f()) {
-              return true;
-            }
-          }
-        }
-      }
-    }
-
-    return false;
-  }
-
-  static final Map<HotKey, List<bool Function()>> _keyHandlers = {};
-
-  static Future<void> bindKey(HotKey key, bool Function() onPressed) async {
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
     if (_keyHandlers.isEmpty) {
       HardwareKeyboard.instance.addHandler(_handleBindKeys);
     }
 
     final List<bool Function()>? contained = _keyHandlers[key];
     if (contained == null) {
-      _keyHandlers[key] = [onPressed];
+      _keyHandlers[key] = [handler];
     } else {
-      contained.add(onPressed);
+      contained.add(handler);
     }
   }
 
-  static Future<void> unbindKey(HotKey key, bool Function() onPressed) async {
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
     final list = _keyHandlers[key];
-    list?.remove(onPressed);
+    list?.remove(handler);
 
     if (list?.isEmpty == true) {
       _keyHandlers.remove(key);
@@ -873,6 +860,45 @@ class WebUtils {
     if (_keyHandlers.isEmpty) {
       HardwareKeyboard.instance.removeHandler(_handleBindKeys);
     }
+  }
+
+  /// Handles the [key] event to invoke [_keyHandlers] related to it.
+  static bool _handleBindKeys(KeyEvent key) {
+    if (key is KeyUpEvent) {
+      for (var e in _keyHandlers.entries) {
+        if (e.key.key == key.physicalKey) {
+          bool modifiers = true;
+
+          for (var m in e.key.modifiers ?? <HotKeyModifier>[]) {
+            modifiers =
+                modifiers &&
+                switch (m) {
+                  HotKeyModifier.alt => HardwareKeyboard.instance.isAltPressed,
+                  HotKeyModifier.capsLock => HardwareKeyboard.instance
+                      .isPhysicalKeyPressed(PhysicalKeyboardKey.capsLock),
+                  HotKeyModifier.control =>
+                    HardwareKeyboard.instance.isControlPressed,
+                  HotKeyModifier.fn => HardwareKeyboard.instance
+                      .isPhysicalKeyPressed(PhysicalKeyboardKey.fn),
+                  HotKeyModifier.meta =>
+                    HardwareKeyboard.instance.isMetaPressed,
+                  HotKeyModifier.shift =>
+                    HardwareKeyboard.instance.isShiftPressed,
+                };
+          }
+
+          if (modifiers) {
+            for (var f in e.value) {
+              if (f()) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return false;
   }
 }
 

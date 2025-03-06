@@ -31,14 +31,15 @@ import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import '../../domain/repository/settings.dart';
 import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -82,6 +83,8 @@ class CallWorker extends DisposableService {
   /// [FlutterCallkitIncoming] events handling.
   final AuthService _authService;
 
+  /// [AbstractSettingsRepository] used to retrieve
+  /// [ApplicationSettings.muteKeys].
   final AbstractSettingsRepository _settingsRepository;
 
   /// Subscription to [CallService.calls] map.
@@ -129,10 +132,13 @@ class CallWorker extends DisposableService {
   /// [FlutterCallkitIncoming] call to be notified about their endings.
   final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
 
+  /// [HotKey] used for mute/unmute action of the [OngoingCall]s.
   HotKey? _hotKey;
 
+  /// Indicator whether the [_hotKey] is already bind or not.
   bool _bind = false;
 
+  /// Indicator whether all the [OngoingCall]s should be muted or not.
   final RxBool _muted = RxBool(false);
 
   /// [Duration] indicating the time after which the push notification should be
@@ -191,8 +197,6 @@ class CallWorker extends DisposableService {
       });
     }
 
-    bool _isEmpty = true;
-
     _subscription = _callService.calls.changes.listen((event) async {
       if (!wakelock && _callService.calls.isNotEmpty) {
         wakelock = true;
@@ -206,10 +210,12 @@ class CallWorker extends DisposableService {
         case OperationKind.added:
           final OngoingCall c = event.value!.value;
 
-          if (_isEmpty) {
-            _bindHotKey();
-          }
-          _isEmpty = false;
+          Future.delayed(Duration.zero, () {
+            // Ensure the call is displayed in the application before binding.
+            if (!c.background && c.state.value != OngoingCallState.ended) {
+              _bindHotKey();
+            }
+          });
 
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
@@ -550,36 +556,9 @@ class CallWorker extends DisposableService {
       });
     }
 
-    final List<String> keys =
-        _settingsRepository.applicationSettings.value?.muteKeys ?? [];
-
-    final List<HotKeyModifier> modifiers = [];
-    final List<PhysicalKeyboardKey> physicalKeys = [];
-
-    for (var e in keys) {
-      final modifier = HotKeyModifier.values.firstWhereOrNull(
-        (m) => m.name == e,
-      );
-
-      if (modifier != null) {
-        modifiers.add(modifier);
-      } else {
-        final int? hid = int.tryParse(e);
-        if (hid != null) {
-          physicalKeys.add(PhysicalKeyboardKey(hid));
-        }
-      }
-    }
-
-    if (modifiers.isEmpty) {
-      modifiers.add(HotKeyModifier.alt);
-    }
-
-    _hotKey = HotKey(
-      key: physicalKeys.lastOrNull ?? PhysicalKeyboardKey.keyM,
-      modifiers: modifiers,
-      scope: HotKeyScope.system,
-    );
+    _hotKey =
+        _settingsRepository.applicationSettings.value?.muteHotKey ??
+        MuteHotKeyExtension.defaultHotKey;
 
     super.onInit();
   }
@@ -587,7 +566,6 @@ class CallWorker extends DisposableService {
   @override
   void onReady() {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
-    _bindHotKey();
     super.onReady();
   }
 
@@ -692,6 +670,7 @@ class CallWorker extends DisposableService {
     });
   }
 
+  /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
   Future<void> _bindHotKey() async {
     if (!_bind && _hotKey != null) {
       _bind = true;
@@ -704,6 +683,7 @@ class CallWorker extends DisposableService {
     }
   }
 
+  /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
   void _unbindHotKey() {
     if (_bind) {
       _bind = false;
@@ -715,9 +695,9 @@ class CallWorker extends DisposableService {
     }
   }
 
+  /// Toggles the [_muted] and invokes appropriate [OngoingCall.setAudioEnabled]
+  /// while playing an audio indicating the current [_muted] status.
   bool _toggleMuteOnKey() {
-    Log.debug('hotKeyManager -> onKeyDown', '$runtimeType');
-
     AudioUtils.once(
       AudioSource.asset(
         _muted.value ? 'audio/pause_on.ogg' : 'audio/pause_off.ogg',
@@ -745,5 +725,48 @@ extension Base62ToUuid on String {
 
     final Uint8List bytes = codec.decode(this);
     return UuidValue.fromByteList(bytes).toString();
+  }
+}
+
+/// Extension adding muting [HotKey] related getters to [ApplicationSettings].
+extension MuteHotKeyExtension on ApplicationSettings {
+  /// Returns the [HotKey] intended to be used as a default mute/unmute one.
+  static HotKey get defaultHotKey => HotKey(
+    key: PhysicalKeyboardKey.keyM,
+    modifiers: [HotKeyModifier.alt],
+    scope: HotKeyScope.system,
+  );
+
+  /// Constructs a [HotKey] for mute/unmute from these [ApplicationSettings].
+  HotKey get muteHotKey {
+    final List<String> keys = muteKeys ?? [];
+
+    final List<HotKeyModifier> modifiers = [];
+    final List<PhysicalKeyboardKey> physicalKeys = [];
+
+    for (var e in keys) {
+      final modifier = HotKeyModifier.values.firstWhereOrNull(
+        (m) => m.name == e,
+      );
+
+      if (modifier != null) {
+        modifiers.add(modifier);
+      } else {
+        final int? hid = int.tryParse(e);
+        if (hid != null) {
+          physicalKeys.add(PhysicalKeyboardKey(hid));
+        }
+      }
+    }
+
+    if (modifiers.isEmpty) {
+      modifiers.addAll(defaultHotKey.modifiers ?? []);
+    }
+
+    return HotKey(
+      key: physicalKeys.lastOrNull ?? defaultHotKey.physicalKey,
+      modifiers: modifiers,
+      scope: HotKeyScope.system,
+    );
   }
 }

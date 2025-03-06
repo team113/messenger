@@ -32,13 +32,13 @@ import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
 import 'package:win32_registry/win32_registry.dart';
 
-import '../log.dart';
 import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
@@ -447,15 +447,17 @@ class WebUtils {
     return agent;
   }
 
-  static Future<void> bindKey(HotKey key, bool Function() onPressed) async {
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
     try {
-      await hotKeyManager.register(key, keyDownHandler: (_) => onPressed());
+      await hotKeyManager.register(key, keyDownHandler: (_) => handler());
     } catch (e) {
       Log.warning('Unable to bind to hot key: $e', 'WebUtils');
     }
   }
 
-  static Future<void> unbindKey(HotKey key, bool Function() onPressed) async {
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
     try {
       await hotKeyManager.unregister(key);
     } catch (e) {

@@ -66,6 +66,7 @@ class ApplicationSettings {
   /// [CustomNavigationBar] of [HomeView].
   bool workWithUsTabEnabled;
 
+  /// String representation of the [HotKey]s used to mute/unmute [OngoingCall]s.
   List<String>? muteKeys;
 }
 

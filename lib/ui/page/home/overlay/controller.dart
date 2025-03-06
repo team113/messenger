@@ -26,6 +26,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -35,10 +36,17 @@ export 'view.dart';
 
 /// Controller of an [OngoingCall]s overlay.
 class CallOverlayController extends GetxController {
-  CallOverlayController(this._callService, this._settingsRepo);
+  CallOverlayController(
+    this._callService,
+    this._chatService,
+    this._settingsRepo,
+  );
 
   /// Call service used to expose the [calls].
   final CallService _callService;
+
+  /// [ChatService] used to [ChatService.get] chats.
+  final ChatService _chatService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -125,6 +133,7 @@ class CallOverlayController extends GetxController {
             // Otherwise the popup creation request failed or wasn't invoked, so
             // add this call to the [calls] to display it in the view.
             calls.add(OverlayCall(event.value!));
+            event.value?.value.init(getChat: _chatService.get);
           }
           break;
 
