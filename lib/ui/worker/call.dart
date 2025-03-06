@@ -698,13 +698,25 @@ class CallWorker extends DisposableService {
   /// Toggles the [_muted] and invokes appropriate [OngoingCall.setAudioEnabled]
   /// while playing an audio indicating the current [_muted] status.
   bool _toggleMuteOnKey() {
+    bool muted = _muted.value;
+
+    final List<bool> states =
+        _callService.calls.values
+            .where((e) => !e.value.background)
+            .map((e) => e.value.audioState.value.isEnabled)
+            .toList();
+
+    if (states.isNotEmpty) {
+      muted = states.where((e) => e).length <= states.where((e) => !e).length;
+    }
+
+    _muted.value = !muted;
+
     AudioUtils.once(
       AudioSource.asset(
-        _muted.value ? 'audio/pause_on.ogg' : 'audio/pause_off.ogg',
+        _muted.value ? 'audio/pause_off.ogg' : 'audio/pause_on.ogg',
       ),
     );
-
-    _muted.toggle();
 
     for (var e in _callService.calls.values) {
       e.value.setAudioEnabled(!_muted.value);
