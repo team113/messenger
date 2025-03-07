@@ -6,6 +6,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_linux
   flutter_custom_cursor
   gtk
+  hotkey_manager_linux
   irondash_engine_context
   medea_flutter_webrtc
   medea_jason

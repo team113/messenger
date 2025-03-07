@@ -19,13 +19,17 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/routes.dart';
+import '/ui/worker/call.dart';
+import '/util/audio_utils.dart';
 import '/util/log.dart';
 import '/util/web/web_utils.dart';
 
@@ -33,7 +37,7 @@ export 'view.dart';
 
 /// Controller of the [Routes.call] page.
 class PopupCallController extends GetxController {
-  PopupCallController(this.chatId, this._calls);
+  PopupCallController(this.chatId, this._callService, this._settingsRepository);
 
   /// ID of a [Chat] this [call] is taking place in.
   final ChatId chatId;
@@ -42,7 +46,11 @@ class PopupCallController extends GetxController {
   Rx<OngoingCall>? call;
 
   /// [CallService] maintaining the [call].
-  final CallService _calls;
+  final CallService _callService;
+
+  /// [AbstractSettingsRepository] maintaining the [ApplicationSettings] to
+  /// retrieve the [_hotKey].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] communicating with the
   /// main application.
@@ -55,8 +63,14 @@ class PopupCallController extends GetxController {
   /// [Timer] invoking [WebUtils.pingCall] so it stays active to other tabs.
   Timer? _pingTimer;
 
+  /// [HotKey] used for mute/unmute action of the [OngoingCall]s.
+  HotKey? _hotKey;
+
+  /// Indicator whether the [_hotKey] is already bind or not.
+  bool _bind = false;
+
   /// Returns ID of the authenticated [MyUser].
-  UserId get me => _calls.me;
+  UserId get me => _callService.me;
 
   @override
   void onInit() {
@@ -65,7 +79,7 @@ class PopupCallController extends GetxController {
       return WebUtils.closeWindow();
     }
 
-    call = _calls.addStored(
+    call = _callService.addStored(
       stored,
       withAudio: router.arguments?['audio'] != 'false',
       withVideo: router.arguments?['video'] == 'true',
@@ -110,7 +124,17 @@ class PopupCallController extends GetxController {
       (_) => WebUtils.pingCall(chatId),
     );
 
+    _hotKey =
+        _settingsRepository.applicationSettings.value?.muteHotKey ??
+        MuteHotKeyExtension.defaultHotKey;
+
     super.onInit();
+  }
+
+  @override
+  void onReady() {
+    _bindHotKey();
+    super.onReady();
   }
 
   @override
@@ -121,9 +145,11 @@ class PopupCallController extends GetxController {
     _stateWorker.dispose();
     if (call != null) {
       WebUtils.removeCall(call!.value.chatId.value);
-      _calls.leave(call!.value.chatId.value);
+      _callService.leave(call!.value.chatId.value);
     }
     WebUtils.closeWindow();
+    _unbindHotKey();
+
     super.dispose();
   }
 
@@ -138,7 +164,51 @@ class PopupCallController extends GetxController {
     }
 
     if (call!.value.caller?.id == me || call!.value.isActive) {
-      call!.value.connect(_calls);
+      call!.value.connect(_callService);
     }
+  }
+
+  /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
+  Future<void> _bindHotKey() async {
+    if (!_bind && _hotKey != null) {
+      _bind = true;
+
+      try {
+        await WebUtils.bindKey(_hotKey!, _toggleMuteOnKey);
+      } catch (e) {
+        Log.warning('Unable to bind hot key: $e', '$runtimeType');
+      }
+    }
+  }
+
+  /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
+  void _unbindHotKey() {
+    if (_bind) {
+      _bind = false;
+
+      if (_hotKey != null) {
+        WebUtils.unbindKey(_hotKey!, _toggleMuteOnKey);
+      }
+    }
+  }
+
+  /// Invokes appropriate [OngoingCall.setAudioEnabled] while playing an audio
+  /// indicating the current muted status.
+  bool _toggleMuteOnKey() {
+    if (call == null) {
+      return false;
+    }
+
+    AudioUtils.once(
+      AudioSource.asset(
+        call!.value.audioState.value.isEnabled
+            ? 'audio/pause_on.ogg'
+            : 'audio/pause_off.ogg',
+      ),
+    );
+
+    call!.value.toggleAudio();
+
+    return true;
   }
 }

@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
 
+### Added
+
+- UI:
+    - Media panel:
+        - Hot key `Alt + M` for toggling microphone on and off. ([#1179])
+
 ### Fixed
 
 - UI:
@@ -26,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1170]: /../../pull/1170
 [#1175]: /../../pull/1175
 [#1177]: /../../pull/1177
+[#1179]: /../../pull/1179
 
 
 
