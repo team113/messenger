@@ -1,7 +1,4 @@
-- Added VoIP push notifications for calls on iOS.
-- Updated app bar and navigation panel to be of rectangular shape.
-- Updated group creating and chats selecting UX.
-- Updated chat info page editing and overall design.
-- Updated user page design.
-- Updated monolog chat description.
-- Fixed auto-capitalization setting being ignored in text fields on iOS and Android.
+- Fixed inability to paste clipboard into search field when chat is open.
+- Fixed context menus on mobile platforms having meaningless dividers.
+- Fixed application becoming unresponsive when drag-n-dropping screenshots to chat on macOS.
+- Fixed blocklist count not being updated in real-time in profile.
