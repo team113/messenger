@@ -655,7 +655,7 @@ class ChatController extends GetxController {
   }
 
   /// Drops the call in the [Chat] identified by the [id].
-  Future<void> dropCall() => _callService.leave(id);
+  Future<void> dropCall() => _callService.leave(chat?.id ?? id);
 
   /// Hides the specified [ChatItem] for the authenticated [MyUser].
   Future<void> hideChatItem(ChatItem item) async {
@@ -813,6 +813,9 @@ class ChatController extends GetxController {
             userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
 
         id = user?.user.value.dialog ?? id;
+        if (user != null && user.id == me) {
+          id = _chatService.monolog;
+        }
       }
 
       final FutureOr<RxChat?> fetched = _chatService.get(id);

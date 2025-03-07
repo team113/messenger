@@ -860,6 +860,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   myUserService,
                   Get.find(),
                   Get.find(),
+                  settingsRepository,
                 ),
               );
 

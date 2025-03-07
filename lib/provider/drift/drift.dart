@@ -96,6 +96,11 @@ class CommonDatabase extends _$CommonDatabase {
         if (a != b) {
           bool migrated = false;
 
+          if (a >= 5 && b <= 4) {
+            await m.addColumn(settings, settings.muteKeys);
+            migrated = true;
+          }
+
           if (a >= 4 && b <= 3) {
             await m.addColumn(versions, versions.blocklistVersion);
             await m.addColumn(versions, versions.blocklistCount);

@@ -380,6 +380,9 @@ class OngoingCall {
   /// Intended be used to determine whether [OngoingCall] is not a notification.
   bool get participated => _participated;
 
+  /// Indicator whether this [OngoingCall] wasn't [init]ed.
+  bool get background => _background;
+
   /// Initializes the media client resources.
   ///
   /// No-op if already initialized.

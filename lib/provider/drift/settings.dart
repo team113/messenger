@@ -46,6 +46,7 @@ class Settings extends Table {
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
   TextColumn get screenDevice => text().nullable()();
+  TextColumn get muteKeys => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [DtoSettings].
@@ -165,6 +166,10 @@ extension _SettingsDb on DtoSettings {
             ) ??
             CallButtonsPosition.appBar,
         workWithUsTabEnabled: e.workWithUsTabEnabled ?? true,
+        muteKeys: (e.muteKeys ?? '[]')
+            .replaceFirst('[', '')
+            .replaceFirst(']', '')
+            .split(', '),
       ),
       media: MediaSettings(
         audioDevice: e.audioDevice,
@@ -191,6 +196,7 @@ extension _SettingsDb on DtoSettings {
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,
       outputDevice: media.outputDevice,
+      muteKeys: application.muteKeys?.toString(),
     );
   }
 }

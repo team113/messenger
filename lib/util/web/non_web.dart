@@ -24,6 +24,7 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,6 +38,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
@@ -443,5 +445,23 @@ class WebUtils {
     }
 
     return agent;
+  }
+
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
+    try {
+      await hotKeyManager.register(key, keyDownHandler: (_) => handler());
+    } catch (e) {
+      Log.warning('Unable to bind to hot key: $e', 'WebUtils');
+    }
+  }
+
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
+    try {
+      await hotKeyManager.unregister(key);
+    } catch (e) {
+      Log.warning('Unable to unbind hot key: $e', 'WebUtils');
+    }
   }
 }

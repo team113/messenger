@@ -24,6 +24,7 @@ import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
 import 'package:uuid/uuid.dart';
@@ -31,12 +32,14 @@ import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
@@ -61,6 +64,7 @@ class CallWorker extends DisposableService {
     this._myUserService,
     this._notificationService,
     this._authService,
+    this._settingsRepository,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -78,6 +82,10 @@ class CallWorker extends DisposableService {
   /// [AuthService] for retrieving the current [Credentials] in
   /// [FlutterCallkitIncoming] events handling.
   final AuthService _authService;
+
+  /// [AbstractSettingsRepository] used to retrieve
+  /// [ApplicationSettings.muteKeys].
+  final AbstractSettingsRepository _settingsRepository;
 
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
@@ -123,6 +131,15 @@ class CallWorker extends DisposableService {
   /// [GraphQlProvider.chatEvents] subscriptions for each ongoing
   /// [FlutterCallkitIncoming] call to be notified about their endings.
   final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
+
+  /// [HotKey] used for mute/unmute action of the [OngoingCall]s.
+  HotKey? _hotKey;
+
+  /// Indicator whether the [_hotKey] is already bind or not.
+  bool _bind = false;
+
+  /// Indicator whether all the [OngoingCall]s should be muted or not.
+  final RxBool _muted = RxBool(false);
 
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
@@ -192,6 +209,13 @@ class CallWorker extends DisposableService {
       switch (event.op) {
         case OperationKind.added:
           final OngoingCall c = event.value!.value;
+
+          Future.delayed(Duration.zero, () {
+            // Ensure the call is displayed in the application before binding.
+            if (!c.background && c.state.value != OngoingCallState.ended) {
+              _bindHotKey();
+            }
+          });
 
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
@@ -280,6 +304,10 @@ class CallWorker extends DisposableService {
                 }
               }
             }
+          }
+
+          if (_muted.value) {
+            c.setAudioEnabled(!_muted.value);
           }
 
           if (_isCallKit) {
@@ -383,6 +411,8 @@ class CallWorker extends DisposableService {
 
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
+            _unbindHotKey();
+
             try {
               await AudioUtils.setDefaultSpeaker();
             } on PlatformException {
@@ -526,13 +556,16 @@ class CallWorker extends DisposableService {
       });
     }
 
+    _hotKey =
+        _settingsRepository.applicationSettings.value?.muteHotKey ??
+        MuteHotKeyExtension.defaultHotKey;
+
     super.onInit();
   }
 
   @override
   void onReady() {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
-
     super.onReady();
   }
 
@@ -553,6 +586,8 @@ class CallWorker extends DisposableService {
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
+
+    _unbindHotKey();
 
     super.onClose();
   }
@@ -634,6 +669,61 @@ class CallWorker extends DisposableService {
       }
     });
   }
+
+  /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
+  Future<void> _bindHotKey() async {
+    if (!_bind && _hotKey != null) {
+      _bind = true;
+
+      try {
+        await WebUtils.bindKey(_hotKey!, _toggleMuteOnKey);
+      } catch (e) {
+        Log.warning('Unable to bind hot key: $e', '$runtimeType');
+      }
+    }
+  }
+
+  /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
+  void _unbindHotKey() {
+    if (_bind) {
+      _bind = false;
+      _muted.value = false;
+
+      if (_hotKey != null) {
+        WebUtils.unbindKey(_hotKey!, _toggleMuteOnKey);
+      }
+    }
+  }
+
+  /// Toggles the [_muted] and invokes appropriate [OngoingCall.setAudioEnabled]
+  /// while playing an audio indicating the current [_muted] status.
+  bool _toggleMuteOnKey() {
+    bool muted = _muted.value;
+
+    final List<bool> states =
+        _callService.calls.values
+            .where((e) => !e.value.background)
+            .map((e) => e.value.audioState.value.isEnabled)
+            .toList();
+
+    if (states.isNotEmpty) {
+      muted = states.where((e) => e).length <= states.where((e) => !e).length;
+    }
+
+    _muted.value = !muted;
+
+    AudioUtils.once(
+      AudioSource.asset(
+        _muted.value ? 'audio/pause_off.ogg' : 'audio/pause_on.ogg',
+      ),
+    );
+
+    for (var e in _callService.calls.values) {
+      e.value.setAudioEnabled(!_muted.value);
+    }
+
+    return true;
+  }
 }
 
 /// Extension adding ability for [String] to be converted from base62-encoded
@@ -647,5 +737,48 @@ extension Base62ToUuid on String {
 
     final Uint8List bytes = codec.decode(this);
     return UuidValue.fromByteList(bytes).toString();
+  }
+}
+
+/// Extension adding muting [HotKey] related getters to [ApplicationSettings].
+extension MuteHotKeyExtension on ApplicationSettings {
+  /// Returns the [HotKey] intended to be used as a default mute/unmute one.
+  static HotKey get defaultHotKey => HotKey(
+    key: PhysicalKeyboardKey.keyM,
+    modifiers: [HotKeyModifier.alt],
+    scope: HotKeyScope.system,
+  );
+
+  /// Constructs a [HotKey] for mute/unmute from these [ApplicationSettings].
+  HotKey get muteHotKey {
+    final List<String> keys = muteKeys ?? [];
+
+    final List<HotKeyModifier> modifiers = [];
+    final List<PhysicalKeyboardKey> physicalKeys = [];
+
+    for (var e in keys) {
+      final modifier = HotKeyModifier.values.firstWhereOrNull(
+        (m) => m.name == e,
+      );
+
+      if (modifier != null) {
+        modifiers.add(modifier);
+      } else {
+        final int? hid = int.tryParse(e);
+        if (hid != null) {
+          physicalKeys.add(PhysicalKeyboardKey(hid));
+        }
+      }
+    }
+
+    if (modifiers.isEmpty) {
+      modifiers.addAll(defaultHotKey.modifiers ?? []);
+    }
+
+    return HotKey(
+      key: physicalKeys.lastOrNull ?? defaultHotKey.physicalKey,
+      modifiers: modifiers,
+      scope: HotKeyScope.system,
+    );
   }
 }
