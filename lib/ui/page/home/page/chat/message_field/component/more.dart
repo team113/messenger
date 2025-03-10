@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,9 +18,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controller.dart';
+import '../widget/more_button.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/page/home/page/chat/message_field/widget/more_button.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -84,126 +84,133 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final Rect? rect = widget.c.fieldKey.globalPaintBounds;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final Rect? rect = widget.c.fieldKey.globalPaintBounds;
 
-      final double left = rect?.left ?? 0;
-      final double right =
-          rect == null ? 0 : (constraints.maxWidth - rect.right);
-      final double bottom = rect == null
-          ? 0
-          : (constraints.maxHeight - rect.bottom + rect.height);
+        final double left = rect?.left ?? 0;
+        final double right =
+            rect == null ? 0 : (constraints.maxWidth - rect.right);
+        final double bottom =
+            rect == null
+                ? 0
+                : (constraints.maxHeight - rect.bottom + rect.height);
 
-      final List<Widget> widgets = [];
-      for (int i = 0; i < widget.c.panel.length; ++i) {
-        final e = widget.c.panel.elementAt(i);
+        final List<Widget> widgets = [];
+        for (int i = 0; i < widget.c.panel.length; ++i) {
+          final e = widget.c.panel.elementAt(i);
 
-        widgets.add(
-          Obx(() {
-            final bool contains = widget.c.buttons.contains(e);
+          widgets.add(
+            Obx(() {
+              final bool contains = widget.c.buttons.contains(e);
 
-            return ChatMoreWidget(
-              e,
-              pinned: contains,
-              onPressed: dismiss,
-              onPin: contains || widget.c.canPin.value
-                  ? () {
-                      if (widget.c.buttons.contains(e)) {
-                        widget.c.buttons.remove(e);
-                      } else {
-                        widget.c.buttons.add(e);
-                      }
-                    }
-                  : null,
-            );
-          }),
+              return ChatMoreWidget(
+                e,
+                pinned: contains,
+                onPressed: dismiss,
+                onPin:
+                    contains || widget.c.canPin.value
+                        ? () {
+                          if (widget.c.buttons.contains(e)) {
+                            widget.c.buttons.remove(e);
+                          } else {
+                            widget.c.buttons.add(e);
+                          }
+                        }
+                        : null,
+              );
+            }),
+          );
+        }
+
+        final Widget actions = Column(
+          mainAxisSize: MainAxisSize.min,
+          children: widgets,
         );
-      }
 
-      final Widget actions = Column(
-        mainAxisSize: MainAxisSize.min,
-        children: widgets,
-      );
-
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          Align(
-            alignment: Alignment.topLeft,
-            child: Listener(
-              onPointerDown: (_) => dismiss(),
-              child: Container(
-                width: rect?.left ?? constraints.maxWidth,
-                height: constraints.maxHeight,
-                color: style.colors.transparent,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Listener(
-              onPointerDown: (_) => dismiss(),
-              child: Container(
-                margin: EdgeInsets.only(
-                  left: (rect?.left ?? constraints.maxWidth) + 50,
-                ),
-                width: constraints.maxWidth -
-                    (rect?.left ?? constraints.maxWidth) -
-                    50,
-                height: constraints.maxHeight,
-                color: style.colors.transparent,
-              ),
-            ),
-          ),
-          Align(
-            alignment: Alignment.topLeft,
-            child: Listener(
-              onPointerDown: (_) => dismiss(),
-              child: Container(
-                margin:
-                    EdgeInsets.only(left: (rect?.left ?? constraints.maxWidth)),
-                width: 50,
-                height: rect?.top ?? 0,
-                color: style.colors.transparent,
-              ),
-            ),
-          ),
-          Positioned(
-            left: left,
-            right: context.isNarrow ? right : null,
-            bottom: 0,
-            child: SlideTransition(
-              position: Tween(
-                begin: context.isMobile ? const Offset(0, 1) : Offset.zero,
-                end: Offset.zero,
-              ).animate(_animation),
-              child: FadeTransition(
-                opacity: Tween(
-                  begin: context.isMobile ? 1.0 : 0.0,
-                  end: 1.0,
-                ).animate(_animation),
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Align(
+              alignment: Alignment.topLeft,
+              child: Listener(
+                onPointerDown: (_) => dismiss(),
                 child: Container(
-                  margin: EdgeInsets.only(bottom: bottom + 10),
-                  decoration: BoxDecoration(
-                    color: style.colors.onPrimary,
-                    borderRadius: style.cardRadius,
-                    boxShadow: [
-                      CustomBoxShadow(
-                        blurRadius: 8,
-                        color: style.colors.onBackgroundOpacity13,
-                      ),
-                    ],
-                  ),
-                  child: context.isNarrow
-                      ? actions
-                      : IntrinsicWidth(child: actions),
+                  width: rect?.left ?? constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  color: style.colors.transparent,
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    });
+            Align(
+              alignment: Alignment.topLeft,
+              child: Listener(
+                onPointerDown: (_) => dismiss(),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: (rect?.left ?? constraints.maxWidth) + 50,
+                  ),
+                  width:
+                      constraints.maxWidth -
+                      (rect?.left ?? constraints.maxWidth) -
+                      50,
+                  height: constraints.maxHeight,
+                  color: style.colors.transparent,
+                ),
+              ),
+            ),
+            Align(
+              alignment: Alignment.topLeft,
+              child: Listener(
+                onPointerDown: (_) => dismiss(),
+                child: Container(
+                  margin: EdgeInsets.only(
+                    left: (rect?.left ?? constraints.maxWidth),
+                  ),
+                  width: 50,
+                  height: rect?.top ?? 0,
+                  color: style.colors.transparent,
+                ),
+              ),
+            ),
+            Positioned(
+              left: left,
+              right: context.isNarrow ? right : null,
+              bottom: 0,
+              child: SlideTransition(
+                position: Tween(
+                  begin: context.isMobile ? const Offset(0, 1) : Offset.zero,
+                  end: Offset.zero,
+                ).animate(_animation),
+                child: FadeTransition(
+                  opacity: Tween(
+                    begin: context.isMobile ? 1.0 : 0.0,
+                    end: 1.0,
+                  ).animate(_animation),
+                  child: Container(
+                    margin: EdgeInsets.only(bottom: bottom + 10),
+                    decoration: BoxDecoration(
+                      color: style.colors.onPrimary,
+                      borderRadius: style.cardRadius,
+                      boxShadow: [
+                        CustomBoxShadow(
+                          blurRadius: 8,
+                          color: style.colors.onBackgroundOpacity13,
+                        ),
+                      ],
+                    ),
+                    child:
+                        context.isNarrow
+                            ? actions
+                            : IntrinsicWidth(child: actions),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   /// Dismisses this [MessageFieldMore] with animation.

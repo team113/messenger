@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,21 +29,18 @@ import '../parameters/keys.dart';
 /// - Then I wait until text "Dummy" is present within `WidgetKey`
 final StepDefinitionGeneric untilTextExistsWithin =
     then3<String, Existence, WidgetKey, FlutterWorld>(
-  'I wait until text {string} is {existence} within {key}',
-  (text, existence, key, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        var finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver.findBy(key.name, FindType.key),
-          context.world.appDriver.findBy(text, FindType.text),
-          firstMatchOnly: true,
-        );
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
+      'I wait until text {string} is {existence} within {key}',
+      (text, existence, key, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
+          var finder = context.world.appDriver.findByDescendant(
+            context.world.appDriver.findBy(key.name, FindType.key),
+            context.world.appDriver.findBy(text, FindType.text),
+            firstMatchOnly: true,
+          );
+          return existence == Existence.absent
+              ? context.world.appDriver.isAbsent(finder)
+              : context.world.appDriver.isPresent(finder);
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

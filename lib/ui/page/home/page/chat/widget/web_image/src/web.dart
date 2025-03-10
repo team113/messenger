@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,12 +18,12 @@
 // ignore_for_file: avoid_web_libraries_in_flutter
 
 import 'dart:async';
-import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:web/web.dart' as web;
 
 import '/domain/model/file.dart';
 import '/ui/worker/cache.dart';
@@ -99,29 +99,31 @@ class _WebImageState extends State<WebImage> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return ConstrainedBox(
-        constraints: constraints,
-        child: Stack(
-          children: [
-            if (_loading) ...[
-              _thumbhash(),
-              const Positioned.fill(
-                child: Center(child: CircularProgressIndicator()),
-              ),
-            ],
-            if (!_backoffRunning)
-              IgnorePointer(
-                child: _HtmlImage(
-                  src: widget.src,
-                  onLoaded: () => _loading = false,
-                  onError: _backoff,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return ConstrainedBox(
+          constraints: constraints,
+          child: Stack(
+            children: [
+              if (_loading) ...[
+                _thumbhash(),
+                const Positioned.fill(
+                  child: Center(child: CircularProgressIndicator()),
                 ),
-              ),
-          ],
-        ),
-      );
-    });
+              ],
+              if (!_backoffRunning)
+                IgnorePointer(
+                  child: _HtmlImage(
+                    src: widget.src,
+                    onLoaded: () => _loading = false,
+                    onError: _backoff,
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   /// Returns [Image] representing the [WebImage.thumbhash].
@@ -162,29 +164,26 @@ class _WebImageState extends State<WebImage> {
     }
 
     try {
-      await Backoff.run(
-        () async {
-          Response? data;
+      await Backoff.run(() async {
+        Response? data;
 
-          try {
-            data = await (await PlatformUtils.dio).head(widget.src);
-          } on DioException catch (e) {
-            if (e.response?.statusCode == 403) {
-              await widget.onForbidden?.call();
-              return;
-            }
+        try {
+          data = await (await PlatformUtils.dio).head(widget.src);
+        } on DioException catch (e) {
+          if (e.response?.statusCode == 403) {
+            await widget.onForbidden?.call();
+            return;
           }
+        }
 
-          if (data?.data != null && data!.statusCode == 200) {
-            if (mounted) {
-              setState(() => _backoffRunning = false);
-            }
-          } else {
-            throw Exception('Image `HEAD` request failed');
+        if (data?.data != null && data!.statusCode == 200) {
+          if (mounted) {
+            setState(() => _backoffRunning = false);
           }
-        },
-        _cancelToken,
-      );
+        } else {
+          throw Exception('Image `HEAD` request failed');
+        }
+      }, _cancelToken);
     } on OperationCanceledException {
       // No-op.
     }
@@ -193,11 +192,7 @@ class _WebImageState extends State<WebImage> {
 
 /// Web [html.ImageElement] used to show images natively.
 class _HtmlImage extends StatefulWidget {
-  const _HtmlImage({
-    required this.src,
-    this.onError,
-    this.onLoaded,
-  });
+  const _HtmlImage({required this.src, this.onError, this.onLoaded});
 
   /// URL of the image to display.
   final String src;
@@ -215,16 +210,16 @@ class _HtmlImage extends StatefulWidget {
 /// State of a [_HtmlImage] used to register and remove the actual HTML element
 /// representing an image.
 class _HtmlImageState extends State<_HtmlImage> {
-  /// Native [html.ImageElement] itself.
-  html.ImageElement? _element;
+  /// Native [web.HTMLImageElement] itself.
+  web.HTMLImageElement? _element;
 
   /// Unique identifier for a platform view.
   late int _elementId;
 
-  /// Subscription for [html.ImageElement.onLoad] stream.
+  /// Subscription for [web.ElementEventGetters.onLoad] stream.
   StreamSubscription? _loadSubscription;
 
-  /// Subscription for [html.ImageElement.onError] stream.
+  /// Subscription for [web.ElementEventGetters.onError] stream.
   StreamSubscription? _errorSubscription;
 
   /// Type of platform view to pass to [HtmlElementView].
@@ -270,30 +265,29 @@ class _HtmlImageState extends State<_HtmlImage> {
     _elementId = platformViewsRegistry.getNextPlatformViewId();
     _viewType = '${_elementId}__webImageViewType__${widget.src}__';
 
-    ui.platformViewRegistry.registerViewFactory(
-      _viewType,
-      (int viewId) {
-        _element = html.ImageElement(src: widget.src)
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..style.objectFit = 'scale-down';
+    ui.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
+      _element =
+          web.HTMLImageElement()
+            ..src = widget.src
+            ..style.width = '100%'
+            ..style.height = '100%'
+            ..style.objectFit = 'scale-down';
 
-        if (_element?.complete == true) {
-          widget.onLoaded?.call();
-        }
+      if (_element?.complete == true) {
+        widget.onLoaded?.call();
+      }
 
-        _loadSubscription?.cancel();
-        _loadSubscription = _element?.onLoad.listen((_) {
-          widget.onLoaded?.call();
-        });
+      _loadSubscription?.cancel();
+      _loadSubscription = _element?.onLoad.listen((_) {
+        widget.onLoaded?.call();
+      });
 
-        _errorSubscription?.cancel();
-        _errorSubscription = _element?.onError.listen((_) {
-          widget.onError?.call();
-        });
+      _errorSubscription?.cancel();
+      _errorSubscription = _element?.onError.listen((_) {
+        widget.onError?.call();
+      });
 
-        return _element!;
-      },
-    );
+      return _element!;
+    });
   }
 }

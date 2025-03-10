@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,11 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../menu_interceptor/menu_interceptor.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/avatar.dart';
 import '/ui/widget/selector.dart';
@@ -136,6 +139,29 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
   /// [OverlayEntry] displaying a currently opened [ContextMenuOverlay].
   OverlayEntry? _entry;
 
+  /// [RouterState.routes] subscription closing the [ContextMenu] whenever the
+  /// current route changes.
+  StreamSubscription? _routesSubscription;
+
+  @override
+  void initState() {
+    // Close the [ContextMenu], when the route changes.
+    _routesSubscription = router.routes.listen((e) {
+      if (_entry?.mounted == true) {
+        _entry?.remove();
+        _entry = null;
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _routesSubscription?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     Widget builder() {
@@ -156,7 +182,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           builder(),
           Positioned.fill(
             child: ColoredBox(
-              color: style.cardColor.darken(0.03).withOpacity(0.4),
+              color: style.cardColor.darken(0.03).withValues(alpha: 0.4),
             ),
           ),
         ],
@@ -177,18 +203,20 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
           unconstrained: widget.unconstrained,
           onOpened: () => _displayed = true,
           onClosed: () => _displayed = false,
-          child: widget.builder == null
-              ? child
-              // Wrap [widget.builder] with [Builder] to trigger
-              // [ContextMenuRegion.builder] on [setState].
-              : Builder(builder: (_) => widget.builder!(_displayed)),
+          child:
+              widget.builder == null
+                  ? child
+                  // Wrap [widget.builder] with [Builder] to trigger
+                  // [ContextMenuRegion.builder] on [setState].
+                  : Builder(builder: (_) => widget.builder!(_displayed)),
         );
       } else {
         menu = GestureDetector(
           behavior: HitTestBehavior.translucent,
-          onLongPressStart: widget.enableLongTap
-              ? (d) => _show(context, d.globalPosition)
-              : null,
+          onLongPressStart:
+              widget.enableLongTap
+                  ? (d) => _show(context, d.globalPosition)
+                  : null,
           child: widget.builder == null ? child : widget.builder!(_displayed),
         );
 
@@ -247,18 +275,7 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         margin: widget.margin,
         buttonBuilder: (i, b) {
           if (PlatformUtils.isMobile) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                b,
-                if (i < widget.actions.length - 1)
-                  Container(
-                    color: style.colors.onBackgroundOpacity7,
-                    height: 1,
-                    width: double.infinity,
-                  ),
-              ],
-            );
+            return Column(mainAxisSize: MainAxisSize.min, children: [b]);
           }
 
           return Padding(
@@ -287,9 +304,10 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         onSelected: (b) => b is ContextMenuButton ? b.onPressed?.call() : {},
         buttonKey: widget.selector,
         alignment: Alignment(-widget.alignment.x, -widget.alignment.y),
-        onPointerUp: widget.selectorClosable
-            ? (context) => Navigator.of(context).pop()
-            : null,
+        onPointerUp:
+            widget.selectorClosable
+                ? (context) => Navigator.of(context).pop()
+                : null,
       );
 
       _displayed = false;
@@ -300,24 +318,26 @@ class _ContextMenuRegionState extends State<ContextMenuRegion> {
         setState(() {});
       }
     } else {
-      _entry = OverlayEntry(builder: (_) {
-        return Listener(
-          onPointerUp: (d) {
-            _displayed = false;
-            if (widget.indicateOpenedMenu) {
-              _darkened = false;
-            }
-            if (mounted) {
-              setState(() {});
-            }
-          },
-          child: ContextMenuOverlay(
-            position: position,
-            actions: widget.actions,
-            onDismissed: _entry?.remove,
-          ),
-        );
-      });
+      _entry = OverlayEntry(
+        builder: (_) {
+          return Listener(
+            onPointerUp: (d) {
+              _displayed = false;
+              if (widget.indicateOpenedMenu) {
+                _darkened = false;
+              }
+              if (mounted) {
+                setState(() {});
+              }
+            },
+            child: ContextMenuOverlay(
+              position: position,
+              actions: widget.actions,
+              onDismissed: _entry?.remove,
+            ),
+          );
+        },
+      );
 
       Overlay.of(context, rootOverlay: true).insert(_entry!);
     }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:get/get.dart';
 
+import '/api/backend/schema.dart' show CropAreaInput;
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -186,6 +187,7 @@ abstract class AbstractChatRepository {
   Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   });
 
@@ -308,6 +310,7 @@ abstract class RxChat implements Comparable<RxChat> {
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
+    ChatMessageText? withText,
   });
 
   /// Fetches a single [ChatItem] in the [Paginated] page identified by the
@@ -337,15 +340,18 @@ abstract class RxChat implements Comparable<RxChat> {
   /// [repliesTo].
   ///
   /// Resets it, if the specified fields are empty or `null`.
-  void setDraft({
+  Future<void> setDraft({
     ChatMessageText? text,
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
   });
 
-  // TODO: Remove when backend supports welcome messages.
-  /// Posts a new [ChatMessage] with the provided [text] by the recipient.
-  Future<void> addMessage(ChatMessageText text);
+  /// Ensures the [draft] is initialized.
+  Future<void> ensureDraft();
+
+  /// Returns the [Paginated] of [ChatItem]s having any [Attachment]s posted in
+  /// this [chat] around the provided [item], if any.
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item});
 }
 
 /// Reactive [ChatMember] entity.

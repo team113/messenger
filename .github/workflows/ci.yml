@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.19"
+  FLUTTER_VER: "3.29"
 
 jobs:
 
@@ -35,6 +35,7 @@ jobs:
       - pubspec
       - test-e2e
       - test-unit
+      - validate-publish
     runs-on: ubuntu-latest
     steps:
       - run: true
@@ -57,6 +58,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -107,6 +110,93 @@ jobs:
 
       - name: Check `pubspec.lock` is in sync with `pubspec.yaml`
         run: git diff --exit-code
+
+  validate-publish:
+    name: validate (${{ matrix.store }})
+    if: ${{ github.event_name == 'pull_request' }}
+    needs: ["build"]
+    strategy:
+      matrix:
+        store:
+          - App Store
+          - Google Play
+    runs-on: ${{ matrix.store == 'App Store' && 'macos'
+              ||                                'ubuntu' }}-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2 # For commit message retrieving.
+      - name: Retrieve last commit messages
+        id: commit
+        run: |
+          echo "message=$(git log --grep='\[run ci\]' --format=%s)" \
+          >> $GITHUB_OUTPUT
+
+      - name: Determine whether `fastlane/` directory has any changes
+        uses: dorny/paths-filter@v3
+        id: changed
+        with:
+          filters: |
+            fastlane:
+              - '${{ (matrix.store == 'App Store' &&   'ios')
+                  || (matrix.store == 'Google Play' && 'android')
+                  }}/fastlane/**'
+
+      # Skip if there are no changes in `fastlane/` directory and no `[run ci]`
+      # mark is detected in the last commit message.
+      - id: skip
+        run: echo "no=${{ steps.changed.outputs.fastlane == 'true'
+                       || contains(steps.commit.outputs.message, '[run ci]') }}"
+             >> $GITHUB_OUTPUT
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ (matrix.store == 'App Store' &&   'ipa')
+                       || (matrix.store == 'Google Play' && 'appbundle')
+                       }}-${{ github.run_number }}
+        if: ${{ steps.skip.outputs.no == 'true' }}
+      - run: mv *.ipa ios/app.ipa
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
+      - run: mv *.aab android/app.aab
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
+
+      - name: Prepare App Store Connect key
+        run: echo "${{ secrets.APP_STORE_KEY }}"
+             >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
+
+      - name: Validate iOS application against App Store
+        run: fastlane validate
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        working-directory: ios/
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'App Store' }}
+      - name: Validate Android application against Google Play
+        run: fastlane validate
+        working-directory: android/
+        if: ${{ steps.skip.outputs.no == 'true'
+             && matrix.store == 'Google Play' }}
+
+      - name: Cleanup App Store Connect key
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always()
+             && matrix.store == 'App Store' }}
+      - name: Cleanup Google Service account
+        run: rm -rf android/service_account.json
+        if: ${{ always()
+             && matrix.store == 'Google Play' }}
 
 
 
@@ -163,11 +253,11 @@ jobs:
         platform:
           - apk
           - appbundle
-          - ios
+          - ipa
           - macos
           - web
           - windows
-    runs-on: ${{ (contains('ios macos', matrix.platform) && 'macos-latest')
+    runs-on: ${{ (contains('ipa macos', matrix.platform) && 'macos-latest')
               || (matrix.platform == 'windows'           && 'windows-latest')
               ||                                            'ubuntu-latest' }}
     steps:
@@ -181,6 +271,12 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+      - run: brew install ripgrep
+        if: ${{ matrix.platform == 'ipa' }}
+      - run: sudo apt-get update
+        if: ${{ contains('apk appbundle', matrix.platform) }}
+      - run: sudo apt-get install -y ripgrep
+        if: ${{ contains('apk appbundle', matrix.platform) }}
 
       - run: make flutter.pub
 
@@ -188,12 +284,15 @@ jobs:
       # `git describe` command returns the valid result without possible
       # `-dirty` part, that may happen during FCM configuration.
       - run: make flutter.gen overwrite=true
-        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
+        if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
+
+      - run: make flutter.bundle.rename to=${{ secrets.FCM_BUNDLE_ID }}
+        if: ${{ contains('apk appbundle ipa', matrix.platform) }}
 
       - uses: actions/setup-java@v4
         with:
           distribution: temurin  # Temurin is cached on GitHub Actions Runners.
-          java-version: 17
+          java-version: 21
           cache: gradle
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
@@ -202,7 +301,9 @@ jobs:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
         run: |
           set -ex
-          npm install -g firebase-tools
+          # TODO: Unpin when is flutterfire_cli/issues#372 fixed:
+          #       https://github.com/invertase/flutterfire_cli/issues/372
+          npm install -g firebase-tools@13.30.0
           dart pub global activate flutterfire_cli
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
           > ${{ runner.temp }}/service_account.json
@@ -211,7 +312,7 @@ jobs:
                         platforms="android,ios,web" \
                         web-id=${{ secrets.FCM_WEB_APP_ID }} \
                         bundle-id=${{ secrets.FCM_BUNDLE_ID }}
-        if: ${{ contains('apk appbundle ios web', matrix.platform) }}
+        if: ${{ contains('apk appbundle ipa web', matrix.platform) }}
       - name: Configure FCM (Firebase Cloud Messaging) service worker
         run: echo '${{ secrets.GOOGLE_SERVICES_JS }}'
              > web/firebase-messaging-sw.js
@@ -241,6 +342,46 @@ jobs:
           > android/key.properties
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
+      - name: Prepare iOS signing resources
+        run: |
+          # Install Codemagic CLI Tools.
+          python3 -m venv $RUNNER_TEMP/venv
+          source $RUNNER_TEMP/venv/bin/activate
+          python3 -m pip install codemagic-cli-tools
+
+          # Create variables.
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          KEY_PATH=$RUNNER_TEMP/cert_key
+
+          # Import certificate and its key from secrets.
+          echo -n "$BUILD_CERTIFICATE_BASE64" \
+          | base64 --decode -o $CERTIFICATE_PATH
+          openssl pkcs12 -in $CERTIFICATE_PATH \
+                         -nodes -nocerts -passin pass:$P12_PASSWORD \
+          | openssl rsa -out $KEY_PATH
+
+          # Initialize keychain.
+          keychain initialize
+
+          # Fetch the signing resources from App Store Connect.
+          app-store-connect fetch-signing-files \
+                            $(xcode-project detect-bundle-id) \
+                            --platform IOS \
+                            --type IOS_APP_STORE \
+                            --certificate-key=@file:$KEY_PATH \
+                            --create
+          keychain add-certificates
+
+          # Export `export_options.plist` file to sign iOS application with.
+          xcode-project use-profiles
+        env:
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_KEY_IDENTIFIER: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_PRIVATE_KEY: ${{ secrets.APP_STORE_KEY }}
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.IOS_SIGNING_CERTIFICATE }}
+          P12_PASSWORD: ${{ secrets.IOS_SIGNING_CERTIFICATE_PASSWORD }}
+        if: ${{ matrix.platform == 'ipa' }}
+
       # TODO: Add the following `split-debug-info`, when self-hosted Sentry
       #       supports debug symbols:
       #       split-debug-info=${{ contains('web windows', matrix.platform) && 'no' || 'yes' }}
@@ -248,15 +389,72 @@ jobs:
       #       https://github.com/getsentry/sentry-dart/issues/433
       #       https://github.com/getsentry/sentry-dart/issues/896
       - run: make flutter.build platform=${{ matrix.platform }}
+                  export-options="$HOME/export_options.plist"
                   dart-env='SOCAPP_HTTP_URL=${{ secrets.BACKEND_URL }}
                             SOCAPP_HTTP_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_WS_URL=${{ secrets.BACKEND_WS }}
                             SOCAPP_WS_PORT=${{ secrets.BACKEND_PORT }}
                             SOCAPP_APPCAST_URL=${{ startsWith(github.ref, 'refs/tags/v') && secrets.APPCAST_STABLE || secrets.APPCAST_MAIN }}
+                            SOCAPP_DOWNLOADS_DOWNLOADABLE=${{ !startsWith(github.ref, 'refs/tags/v') || !contains('appbundle ipa', matrix.platform) }}
                             SOCAPP_LINK_PREFIX=${{ startsWith(github.ref, 'refs/tags/v') && secrets.LINK_STABLE || secrets.LINK_MAIN }}
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
         if: ${{ matrix.platform != 'web' }}
+
+      - name: Read generated `pubspec.g.dart`
+        id: pubspec
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: lib/pubspec.g.dart
+      - name: Ensure no `-dirty` in `pubspec.g.dart` version
+        run: ${{ contains(steps.pubspec.outputs.content, '-dirty')
+                 && 'exit 1'
+                 || 'exit 0' }}
+
+      - name: Codesign macOS application
+        run: |
+          set -ex
+
+          # Create variables.
+          CERTIFICATE_PATH=$RUNNER_TEMP/build_certificate.p12
+          PP_PATH=$RUNNER_TEMP/build_pp.provisionprofile
+          KEYCHAIN_PATH=$RUNNER_TEMP/app-signing.keychain-db
+
+          # Import certificate and provisioning profile from secrets.
+          echo -n "$BUILD_CERTIFICATE_BASE64" \
+          | base64 --decode -o $CERTIFICATE_PATH
+          echo -n "$BUILD_PROVISION_PROFILE_BASE64" \
+          | base64 --decode -o $PP_PATH
+
+          # Create temporary keychain.
+          security create-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security set-keychain-settings -lut 21600 $KEYCHAIN_PATH
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+
+          # Import certificate to keychain.
+          security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A \
+                   -t cert -f pkcs12 -k $KEYCHAIN_PATH
+          security set-key-partition-list -S apple-tool:,apple: \
+                   -k "$KEYCHAIN_PASSWORD" $KEYCHAIN_PATH
+          security list-keychain -d user -s $KEYCHAIN_PATH
+
+          # Apply provisioning profile.
+          mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
+          cp $PP_PATH ~/Library/MobileDevice/Provisioning\ Profiles
+
+          # Codesign the application.
+          codesign --deep --force --verbose --options=runtime --timestamp \
+                   --sign "$BUILD_CERTIFICATE_IDENTITY" \
+                   --entitlements macos/Runner/Release.entitlements \
+                   build/macos/Build/Products/Release/*.app
+          codesign --verify -vvvv build/macos/Build/Products/Release/*.app
+        env:
+          BUILD_CERTIFICATE_BASE64: ${{ secrets.MACOS_SIGNING_CERTIFICATE }}
+          BUILD_CERTIFICATE_IDENTITY: ${{ secrets.MACOS_SIGNING_IDENTITY }}
+          BUILD_PROVISION_PROFILE_BASE64: ${{ secrets.MACOS_PROVISION_PROFILE }}
+          KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
+          P12_PASSWORD: ${{ secrets.MACOS_SIGNING_CERTIFICATE_PASSWORD }}
+        if: ${{ matrix.platform == 'macos' }}
 
       - name: Parse application name from Git repository name
         id: app
@@ -272,24 +470,46 @@ jobs:
       - run: mv build/app/outputs/bundle/release/app-release.aab
                 artifacts/${{ steps.app.outputs.group1 }}-android.aab
         if: ${{ matrix.platform == 'appbundle' }}
-      - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
-        working-directory: build/ios/iphoneos/
-        if: ${{ matrix.platform == 'ios' }}
+      - run: mv build/ios/ipa/messenger.ipa
+                artifacts/${{ steps.app.outputs.group1 }}-ios.ipa
+        if: ${{ matrix.platform == 'ipa' }}
       - run: mkdir -p dist/ && mv *.app dist/  # `.app` executable is a folder itself
         working-directory: build/macos/Build/Products/Release/
         if: ${{ matrix.platform == 'macos' }}
+
+      - name: Notarize and staple macOS application
+        run: |
+          set -ex
+
+          mkdir -p .cache/
+          cd build/macos/Build/Products/Release/dist/
+          zip -r ${{ github.workspace }}/.cache/app.zip . --symlinks
+          cd ${{ github.workspace }}/
+
+          xcrun notarytool submit .cache/app.zip \
+                                  --apple-id "$APPLE_ID" \
+                                  --team-id $TEAM_ID \
+                                  --password $PASSWORD \
+                                  --wait
+          xcrun stapler staple build/macos/Build/Products/Release/dist/*.app
+        env:
+          APPLE_ID: ${{ secrets.NOTARY_APPLE_ID }}
+          TEAM_ID: ${{ secrets.NOTARY_TEAM_ID }}
+          PASSWORD: ${{ secrets.NOTARY_PASSWORD }}
+        if: ${{ matrix.platform == 'macos'
+             && (github.ref == 'refs/heads/main'
+                 || startsWith(github.ref, 'refs/tags/v')) }}
+
       - uses: thedoctor0/zip-release@0.7.6
         with:
           custom: ${{ (runner.os == 'Windows' && ' ') || '--symlinks' }}  # preserve symlinks, instead of copying files
           filename: ${{ github.workspace }}/artifacts/${{ steps.app.outputs.group1 }}-${{ matrix.platform }}.zip
-          directory: ${{ (matrix.platform == 'ios'
-                          && 'build/ios/iphoneos/dist')
-                      || (matrix.platform == 'macos'
+          directory: ${{ (matrix.platform == 'macos'
                           && 'build/macos/Build/Products/Release/dist')
                       || (matrix.platform == 'windows'
                           && 'build/windows/x64/runner/Release')
                       ||     'build/web'}}
-        if: ${{ contains('ios macos web windows', matrix.platform) }}
+        if: ${{ contains('macos web windows', matrix.platform) }}
 
       - name: Generate SHA256 checksums
         run: ${{ (runner.os == 'Windows'
@@ -315,7 +535,7 @@ jobs:
       # Globstar is supported in Bash 4.0+, `macos-latest` runner uses Bash 3.2.
       # - name: Prepare `*.dSYM` debug symbols
       #   run: find build -name "*.dSYM" -prune -exec mv {} debug/ \;
-      #   if: ${{ contains('ios macos', matrix.platform) }}
+      #   if: ${{ contains('ipa macos', matrix.platform) }}
       # - name: Prepare debug web source maps
       #   run: |
       #     shopt -s globstar
@@ -328,14 +548,14 @@ jobs:
       #   with:
       #     filename: ${{ github.workspace }}/debug-${{ matrix.platform }}.zip
       #     directory: debug
-      #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+      #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
       # - uses: actions/upload-artifact@v4
       #   with:
       #     name: debug-${{ matrix.platform }}-${{ github.run_number }}
       #     path: debug-${{ matrix.platform }}.zip
       #     if-no-files-found: error
       #     retention-days: 1
-      #   if: ${{ contains('apk appbundle ios macos web', matrix.platform) }}
+      #   if: ${{ contains('apk appbundle ipa macos web', matrix.platform) }}
 
       - name: Cleanup Android signing resources
         run: rm -rf android/app/keystore.jks
@@ -343,12 +563,35 @@ jobs:
         if: ${{ always()
              && runner.os != 'Windows' }}  # we don't use any for Windows anyway
 
+      - name: Cleanup iOS codesign resources
+        run: |
+          source $RUNNER_TEMP/venv/bin/activate
+          security delete-keychain $(keychain get-default)
+          keychain use-login
+        if: ${{ always()
+             && matrix.platform == 'ipa' }}
+
+      - name: Cleanup macOS codesign resources
+        run: |
+          rm -rf ~/Library/MobileDevice/Provisioning\ Profiles/build_pp.provisionprofile
+          security delete-keychain $RUNNER_TEMP/app-signing.keychain-db
+        if: ${{ always()
+             && matrix.platform == 'macos' }}
+
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
     # Pin glibc to 2.31 version for better compatibility.
     container: debian:bullseye
     steps:
+      # `debian:bullseye` doesn't include Git in its `PATH`, which is required
+      # by `PubspecBuilder`.
+      - name: Install Git
+        run: |
+          set -ex
+          apt-get update
+          apt-get install -y git
+
       - uses: actions/checkout@v4
         with:
           # Unshallow the repository in order for `PubspecBuilder` and its
@@ -362,6 +605,8 @@ jobs:
                      libgtk-3-dev
                      libpulse-dev
                      libmpv-dev
+                     libcurl4-openssl-dev
+                     keybinder-3.0
                      mpv
                      jq
                      curl
@@ -402,6 +647,16 @@ jobs:
                             SOCAPP_SENTRY_DSN=${{ startsWith(github.ref, 'refs/tags/v') && secrets.SENTRY_DSN_STABLE || secrets.SENTRY_DSN_MAIN }}
                             SOCAPP_USER_AGENT_VERSION=${{ steps.semver.outputs.group1 }}'
 
+      - name: Read generated `pubspec.g.dart`
+        id: pubspec
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: lib/pubspec.g.dart
+      - name: Ensure no `-dirty` in `pubspec.g.dart` version
+        run: ${{ contains(steps.pubspec.outputs.content, '-dirty')
+                 && 'exit 1'
+                 || 'exit 0' }}
+
       - name: Parse application name from Git repository name
         id: app
         uses: actions-ecosystem/action-regex-match@v2
@@ -433,6 +688,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -475,7 +732,7 @@ jobs:
           path: build/web/artifacts/
       - uses: actions/download-artifact@v4
         with:
-          name: build-ios-${{ github.run_number }}
+          name: build-ipa-${{ github.run_number }}
           path: build/web/artifacts/
       - uses: actions/download-artifact@v4
         with:
@@ -528,7 +785,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ (github.event_name == 'pull_request') && 2 || 1 }}
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - name: Retrieve commit messages
         id: commit
         run: |
@@ -567,7 +824,11 @@ jobs:
         with:
           envkey_COMPOSE_BACKEND: ${{ secrets.E2E_BACKEND }}
           envkey_COMPOSE_COCKROACHDB: ${{ secrets.E2E_COCKROACH }}
-          envkey_COMPOSE_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
+          envkey_COMPOSE_PUSH_FCM_SA_KEY: ${{ secrets.E2E_FCM_SA_KEY }}
+          envkey_COMPOSE_PUSH_APNS_TEAM_ID: ${{ secrets.E2E_APNS_TEAM_ID }}
+          envkey_COMPOSE_PUSH_APNS_KEY_ID: ${{ secrets.E2E_APNS_KEY_ID }}
+          envkey_COMPOSE_PUSH_APNS_TOPIC: ${{ secrets.E2E_APNS_TOPIC }}
+          envkey_COMPOSE_PUSH_APNS_PRIVATE_KEY: ${{ secrets.E2E_APNS_PRIVATE_KEY }}
           envkey_COMPOSE_FRONTEND_IMAGE: nginx
           envkey_COMPOSE_FRONTEND_TAG: stable-alpine
           envkey_COMPOSE_FILESERVER: ${{ secrets.E2E_FILESERVER }}
@@ -591,7 +852,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(60603\\)] ",
+              ":INFO:CONSOLE\\(53388\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]
@@ -602,9 +863,13 @@ jobs:
 
   test-unit:
     name: test (unit)
-    runs-on: ubuntu-latest
+    # TODO: Use `ubuntu-latest` when actions/runner-images#11279 is fixed:
+    #       https://github.com/actions/runner-images/issues/11279
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # for correct versioning via `git describe --tags`
       - uses: subosito/flutter-action@v2
         with:
           flutter-version: ${{ env.FLUTTER_VER }}
@@ -642,13 +907,13 @@ jobs:
     steps:
       # Skip if this is fork and no credentials are provided.
       - id: skip
-        run: echo ::set-output name=no::${{ !(
+        run: echo "no=${{ !(
                github.repository_owner != 'team113'
                && ((matrix.registry == 'quay.io'
                     && secrets.QUAYIO_ROBOT_USER == '')
                 || (matrix.registry == 'docker.io'
                     && secrets.DOCKERHUB_BOT_USER == ''))
-             ) }}
+             ) }}" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -697,7 +962,7 @@ jobs:
               if ('${{ steps.semver.outputs.group4 }}' !== '0') {
                 versions += ',${{ steps.semver.outputs.group4 }}';
               }
-              versions += 'latest';
+              versions += ',latest';
             }
             return versions;
         if: ${{ steps.skip.outputs.no == 'true'
@@ -750,10 +1015,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - id: skip
-        run: echo ::set-output name=no::${{
+        run: echo "no=${{
                  startsWith(github.ref,
                             format('refs/tags/helm/{0}/', matrix.chart))
-             }}
+             }}" >> $GITHUB_OUTPUT
 
       - uses: actions/checkout@v4
         if: ${{ steps.skip.outputs.no == 'true' }}
@@ -791,8 +1056,8 @@ jobs:
 
       - name: Parse CHANGELOG link
         id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/blob/helm%2F${{ matrix.chart }}%2F${{ steps.semver.outputs.group1 }}/helm/${{ matrix.chart }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' helm/${{ matrix.chart }}/CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
@@ -841,6 +1106,76 @@ jobs:
           git push --force origin gh-pages
         if: ${{ steps.skip.outputs.no == 'true' }}
 
+  # NOTE: When pushing `v*` version Git tags, remember to cancel the CI workflow
+  #       running for the `main` branch to prevent uploading an `.aab` file with
+  #       the same `versionCode`, because Google Play expects it to be unique
+  #       and errors on duplicates uploading.
+  publish:
+    if: ${{ github.ref == 'refs/heads/main'
+         || startsWith(github.ref, 'refs/tags/v') }}
+    needs:
+      - build
+      - build-linux
+      - copyright
+      - dartanalyze
+      - dartdoc
+      - dartfmt
+      - test-e2e
+      - test-unit
+    strategy:
+      matrix:
+        store:
+          - App Store
+          - Google Play
+    runs-on: ${{ matrix.store == 'App Store' && 'macos'
+              ||                                'ubuntu' }}-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: build-${{ (matrix.store == 'App Store' &&   'ipa')
+                       || (matrix.store == 'Google Play' && 'appbundle')
+                       }}-${{ github.run_number }}
+      - run: mv *.ipa ios/app.ipa
+        if: ${{ matrix.store == 'App Store' }}
+      - run: mv *.aab android/app.aab
+        if: ${{ matrix.store == 'Google Play' }}
+
+      - name: Prepare App Store Connect key
+        run: echo "${{ secrets.APP_STORE_KEY }}"
+             >> ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ matrix.store == 'App Store' }}
+      - name: Prepare Google Service account
+        run: echo "${{ secrets.GOOGLE_PLAY_SERVICE_ACCOUNT_BASE64 }}"
+             | base64 -d
+             > android/service_account.json
+        if: ${{ matrix.store == 'Google Play' }}
+
+      - name: Publish iOS application to App Store
+        run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
+                                                                || 'internal' }}
+        env:
+          APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.APP_STORE_IDENTIFIER }}
+          APP_STORE_CONNECT_API_KEY_ISSUER_ID: ${{ secrets.APP_STORE_ISSUER }}
+          APP_STORE_CONNECT_API_KEY_KEY_FILEPATH: ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        working-directory: ios/
+        if: ${{ matrix.store == 'App Store' }}
+      - name: Publish Android application to Google Play
+        run: fastlane ${{ startsWith(github.ref, 'refs/tags/v') && 'publish'
+                                                                || 'internal' }}
+        working-directory: android/
+        if: ${{ matrix.store == 'Google Play' }}
+
+      - name: Cleanup App Store Connect key
+        run: rm -rf ${{ runner.temp }}/AuthKey_${{ secrets.APP_STORE_IDENTIFIER }}.p8
+        if: ${{ always()
+             && matrix.store == 'App Store' }}
+      - name: Cleanup Google Service account
+        run: rm -rf android/service_account.json
+        if: ${{ always()
+             && matrix.store == 'Google Play' }}
+
   release-appcast:
     name: release (Sparkle Appcast XML)
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
@@ -887,6 +1222,7 @@ jobs:
       - dartdoc
       - dartfmt
       - docker-push
+      - publish
       - test-e2e
       - test-unit
     runs-on: ubuntu-latest
@@ -906,12 +1242,12 @@ jobs:
 
       - name: Parse CHANGELOG link
         id: changelog
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/blob/v${{ steps.semver.outputs.group1 }}/CHANGELOG.md#$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/{s/^## \[\(.*\)\][^0-9]*\([0-9].*\)/\1--\2/;s/[^0-9a-z-]*//g;p;}' CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
       - name: Parse milestone link
         id: milestone
-        run: echo ::set-output
-                  name=link::${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)
+        run: echo "link=${{ github.server_url }}/${{ github.repository }}/milestone/$(sed -n '/^## \[${{ steps.semver.outputs.group1 }}\]/,/Milestone/{s/.*milestone.\([0-9]*\).*/\1/p;}' CHANGELOG.md)"
+             >> $GITHUB_OUTPUT
 
       - uses: actions/download-artifact@v4
         with:
@@ -923,7 +1259,7 @@ jobs:
           path: artifacts/
       - uses: actions/download-artifact@v4
         with:
-          name: build-ios-${{ github.run_number }}
+          name: build-ipa-${{ github.run_number }}
           path: artifacts/
       - uses: actions/download-artifact@v4
         with:
@@ -969,6 +1305,7 @@ jobs:
           files: |
             artifacts/*.apk
             artifacts/*.aab
+            artifacts/*.ipa
             artifacts/*.zip
             artifacts/*.sha256sum
           fail_on_unmatched_files: true
@@ -1028,7 +1365,7 @@ jobs:
   #         path: debug/
   #     - uses: actions/download-artifact@v4
   #       with:
-  #         name: debug-ios-${{ github.run_number }}
+  #         name: debug-ipa-${{ github.run_number }}
   #         path: debug/
   #     - uses: actions/download-artifact@v4
   #       with:

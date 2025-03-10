@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,43 +15,99 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/chat.dart';
-import '/domain/model_type_id.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
-
-part 'session_data.g.dart';
+import 'blocklist.dart';
+import 'session.dart';
 
 /// [Session] relative preferences.
-@HiveType(typeId: ModelTypeId.sessionData)
-class SessionData extends HiveObject {
+class SessionData {
+  SessionData({
+    this.favoriteChatsListVersion,
+    this.favoriteChatsSynchronized,
+    this.chatContactsListVersion,
+    this.favoriteContactsSynchronized,
+    this.contactsSynchronized,
+    this.blocklistSynchronized,
+    this.sessionsListVersion,
+    this.blocklistVersion,
+    this.blocklistCount,
+  });
+
   /// Persisted [FavoriteChatsListVersion] data.
-  @HiveField(0)
   FavoriteChatsListVersion? favoriteChatsListVersion;
 
   /// Persisted indicator whether all favorite [Chat]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(1)
   bool? favoriteChatsSynchronized;
 
   /// Persisted [ChatContactsListVersion] data.
-  @HiveField(2)
   ChatContactsListVersion? chatContactsListVersion;
 
   /// Persisted indicator whether all favorite [ChatContact]s are synchronized
   /// with the remote, meaning no queries should be made.
-  @HiveField(3)
   bool? favoriteContactsSynchronized;
 
   /// Persisted indicator whether all [ChatContact]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(4)
   bool? contactsSynchronized;
 
   /// Persisted indicator whether all blocked [User]s are synchronized with the
   /// remote, meaning no queries should be made.
-  @HiveField(5)
   bool? blocklistSynchronized;
+
+  /// Persisted [SessionsListVersion] data.
+  SessionsListVersion? sessionsListVersion;
+
+  /// Persisted [BlocklistVersion] data.
+  BlocklistVersion? blocklistVersion;
+
+  /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
+  int? blocklistCount;
+
+  /// Returns a copy of this [SessionData] from the [other].
+  SessionData copyFrom(SessionData other) {
+    return copyWith(
+      favoriteChatsListVersion: other.favoriteChatsListVersion,
+      favoriteChatsSynchronized: other.favoriteChatsSynchronized,
+      chatContactsListVersion: other.chatContactsListVersion,
+      favoriteContactsSynchronized: other.favoriteContactsSynchronized,
+      contactsSynchronized: other.contactsSynchronized,
+      blocklistSynchronized: other.blocklistSynchronized,
+      sessionsListVersion: other.sessionsListVersion,
+      blocklistVersion: other.blocklistVersion,
+      blocklistCount: other.blocklistCount,
+    );
+  }
+
+  /// Returns a copy of this [SessionData].
+  SessionData copyWith({
+    FavoriteChatsListVersion? favoriteChatsListVersion,
+    bool? favoriteChatsSynchronized,
+    ChatContactsListVersion? chatContactsListVersion,
+    bool? favoriteContactsSynchronized,
+    bool? contactsSynchronized,
+    bool? blocklistSynchronized,
+    SessionsListVersion? sessionsListVersion,
+    BlocklistVersion? blocklistVersion,
+    int? blocklistCount,
+  }) {
+    return SessionData(
+      favoriteChatsListVersion:
+          this.favoriteChatsListVersion ?? favoriteChatsListVersion,
+      favoriteChatsSynchronized:
+          this.favoriteChatsSynchronized ?? favoriteChatsSynchronized,
+      chatContactsListVersion:
+          this.chatContactsListVersion ?? chatContactsListVersion,
+      favoriteContactsSynchronized:
+          this.favoriteContactsSynchronized ?? favoriteContactsSynchronized,
+      contactsSynchronized: this.contactsSynchronized ?? contactsSynchronized,
+      blocklistSynchronized:
+          this.blocklistSynchronized ?? blocklistSynchronized,
+      sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
+      blocklistVersion: this.blocklistVersion ?? blocklistVersion,
+      blocklistCount: this.blocklistCount ?? blocklistCount,
+    );
+  }
 }

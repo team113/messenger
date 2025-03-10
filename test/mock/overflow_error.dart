@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,8 +27,10 @@ void ignoreOverflowErrors(
   // Detect overflow error.
   var exception = details.exception;
   if (exception is FlutterError) {
-    ifIsOverflowError = !exception.diagnostics.any(
-        (e) => e.value.toString().startsWith('A RenderFlex overflowed by'));
+    ifIsOverflowError =
+        !exception.diagnostics.any(
+          (e) => e.value.toString().startsWith('A RenderFlex overflowed by'),
+        );
   }
 
   // Ignore if it is an overflow error.

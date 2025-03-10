@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,10 +28,7 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 
 /// Possible [ConfirmLogoutView] flow stage.
-enum ConfirmLogoutViewStage {
-  password,
-  success,
-}
+enum ConfirmLogoutViewStage { password, success }
 
 /// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {

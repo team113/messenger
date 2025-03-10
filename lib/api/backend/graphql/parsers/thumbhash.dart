@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,37 +30,45 @@ List<ThumbHash> fromGraphQLListThumbHashToDartListThumbHash(List<Object?> v) =>
 List<String> fromDartListThumbHashToGraphQLListThumbHash(List<ThumbHash> v) =>
     v.map((e) => fromDartThumbHashToGraphQLThumbHash(e)).toList();
 List<ThumbHash>? fromGraphQLListNullableThumbHashToDartListNullableThumbHash(
-        List<Object?>? v) =>
-    v?.map((e) => fromGraphQLThumbHashToDartThumbHash(e as String)).toList();
+  List<Object?>? v,
+) => v?.map((e) => fromGraphQLThumbHashToDartThumbHash(e as String)).toList();
 List<String>? fromDartListNullableThumbHashToGraphQLListNullableThumbHash(
-        List<ThumbHash>? v) =>
-    v?.map((e) => fromDartThumbHashToGraphQLThumbHash(e)).toList();
+  List<ThumbHash>? v,
+) => v?.map((e) => fromDartThumbHashToGraphQLThumbHash(e)).toList();
 
 ThumbHash? fromGraphQLThumbHashNullableToDartThumbHashNullable(String? v) =>
     v == null ? null : ThumbHash(v);
 String? fromDartThumbHashNullableToGraphQLThumbHashNullable(ThumbHash? v) =>
     v?.val;
 List<ThumbHash?> fromGraphQLListThumbHashNullableToDartListThumbHashNullable(
-        List<Object?> v) =>
+  List<Object?> v,
+) =>
     v
-        .map((e) =>
-            fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?))
+        .map(
+          (e) =>
+              fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
+        )
         .toList();
 List<String?> fromDartListThumbHashNullableToGraphQLListThumbHashNullable(
-        List<ThumbHash?> v) =>
+  List<ThumbHash?> v,
+) =>
     v
         .map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
         .toList();
 List<ThumbHash?>?
-    fromGraphQLListNullableThumbHashNullableToDartListNullableThumbHashNullable(
-            List<Object?>? v) =>
-        v
-            ?.map((e) => fromGraphQLThumbHashNullableToDartThumbHashNullable(
-                e as String?))
-            .toList();
+fromGraphQLListNullableThumbHashNullableToDartListNullableThumbHashNullable(
+  List<Object?>? v,
+) =>
+    v
+        ?.map(
+          (e) =>
+              fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
+        )
+        .toList();
 List<String?>?
-    fromDartListNullableThumbHashNullableToGraphQLListNullableThumbHashNullable(
-            List<ThumbHash?>? v) =>
-        v
-            ?.map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
-            .toList();
+fromDartListNullableThumbHashNullableToGraphQLListNullableThumbHashNullable(
+  List<ThumbHash?>? v,
+) =>
+    v
+        ?.map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
+        .toList();

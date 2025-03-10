@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
+import '/ui/page/chat_direct_link/view.dart';
 import '/ui/page/erase/view.dart';
 import '/ui/page/support/view.dart';
 import '/ui/page/work/page/vacancy/view.dart';
@@ -61,72 +62,100 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       }
 
       if (route == Routes.me) {
-        pages.add(const CustomPage(
-          key: ValueKey('MyProfilePage'),
-          name: Routes.me,
-          child: MyProfileView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('MyProfilePage'),
+            name: Routes.me,
+            child: MyProfileView(),
+          ),
+        );
       } else if (route.startsWith('${Routes.chats}/') &&
           route.endsWith(Routes.chatInfo)) {
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatInfoPage$id'),
-          name: '${Routes.chats}/$id${Routes.chatInfo}',
-          child: ChatInfoView(ChatId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatInfoPage$id'),
+            name: '${Routes.chats}/$id${Routes.chatInfo}',
+            child: ChatInfoView(ChatId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.chats}/')) {
         String id = route
             .replaceFirst('${Routes.chats}/', '')
             .replaceAll(Routes.chatInfo, '');
-        pages.add(CustomPage(
-          key: ValueKey('ChatPage$id'),
-          name: '${Routes.chats}/$id',
-          child: ChatView(
-            ChatId(id),
-            itemId: router.arguments?['itemId'] as ChatItemId?,
-            welcome: router.arguments?['welcome'] as ChatMessageText?,
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatPage$id'),
+            name: '${Routes.chats}/$id',
+            child: ChatView(
+              ChatId(id),
+              itemId: router.arguments?['itemId'] as ChatItemId?,
+            ),
           ),
-        ));
+        );
       } else if (route.startsWith('${Routes.contacts}/')) {
         final id = route.replaceFirst('${Routes.contacts}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('ContactPage$id'),
-          name: '${Routes.contacts}/$id',
-          child: ContactView(ChatContactId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('ContactPage$id'),
+            name: '${Routes.contacts}/$id',
+            child: ContactView(ChatContactId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-        pages.add(CustomPage(
-          key: ValueKey('UserPage$id'),
-          name: '${Routes.user}/$id',
-          child: UserView(UserId(id)),
-        ));
+        pages.add(
+          CustomPage(
+            key: ValueKey('UserPage$id'),
+            name: '${Routes.user}/$id',
+            child: UserView(UserId(id)),
+          ),
+        );
       } else if (route.startsWith('${Routes.work}/')) {
         final String? last = route.split('/').lastOrNull;
-        final WorkTab? work =
-            WorkTab.values.firstWhereOrNull((e) => e.name == last);
+        final WorkTab? work = WorkTab.values.firstWhereOrNull(
+          (e) => e.name == last,
+        );
 
         if (work != null) {
-          pages.add(CustomPage(
-            key: ValueKey('${work.name}WorkPage'),
-            name: Routes.me,
-            child: VacancyWorkView(work),
-          ));
+          pages.add(
+            CustomPage(
+              key: ValueKey('${work.name}WorkPage'),
+              name: Routes.me,
+              child: VacancyWorkView(work),
+            ),
+          );
         }
       } else if (route.startsWith(Routes.erase)) {
-        pages.add(const CustomPage(
-          key: ValueKey('ErasePage'),
-          name: Routes.erase,
-          child: EraseView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('ErasePage'),
+            name: Routes.erase,
+            child: EraseView(),
+          ),
+        );
       } else if (route.startsWith(Routes.support)) {
-        pages.add(const CustomPage(
-          key: ValueKey('SupportPage'),
-          name: Routes.support,
-          child: SupportView(),
-        ));
+        pages.add(
+          const CustomPage(
+            key: ValueKey('SupportPage'),
+            name: Routes.support,
+            child: SupportView(),
+          ),
+        );
+      } else if (route.startsWith('${Routes.chatDirectLink}/')) {
+        final String slug = _state.route.replaceFirst(
+          '${Routes.chatDirectLink}/',
+          '',
+        );
+        pages.add(
+          CustomPage(
+            key: ValueKey('ChatDirectLinkPage$slug'),
+            name: Routes.chatDirectLink,
+            child: ChatDirectLinkView(slug),
+          ),
+        );
       }
     }
 
@@ -139,11 +168,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       pages: _pages,
       observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-      onPopPage: (route, result) {
-        _state.pop();
-        notifyListeners();
-        return route.didPop(result);
-      },
+      onDidRemovePage: (page) => _state.pop(page.name),
     );
   }
 

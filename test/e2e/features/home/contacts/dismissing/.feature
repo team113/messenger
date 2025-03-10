@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,33 +15,34 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Contacts dismissing
+# TODO: Uncomment, when contacts are implemented.
+# Feature: Contacts dismissing
 
-  Scenario: Contacts can be dismissed and restored
-    Given I am Alice
-    And contacts Bob and Charlie
-    And I tap `ContactsButton` button
-    And I wait until "Bob" contact is present
-    And I wait until "Charlie" contact is present
-    And I see no contacts dismissed
-    And I wait for app to settle
+#   Scenario: Contacts can be dismissed and restored
+#     Given I am Alice
+#     And contacts Bob and Charlie
+#     And I tap `ContactsButton` button
+#     And I wait until "Bob" contact is present
+#     And I wait until "Charlie" contact is present
+#     And I see no contacts dismissed
+#     And I wait for app to settle
 
-    When I dismiss "Bob" contact
-    Then I wait until "Bob" contact is absent
-    And I see "Bob" contact as dismissed
+#     When I dismiss "Bob" contact
+#     Then I wait until "Bob" contact is absent
+#     And I see "Bob" contact as dismissed
 
-    When I tap `Restore` button
-    Then I wait until "Bob" contact is present
+#     When I tap `Restore` button
+#     Then I wait until "Bob" contact is present
 
-    When I dismiss "Charlie" contact
-    Then I wait until "Charlie" contact is absent
-    And I see "Charlie" contact as dismissed
+#     When I dismiss "Charlie" contact
+#     Then I wait until "Charlie" contact is absent
+#     And I see "Charlie" contact as dismissed
 
-    When I dismiss "Bob" contact
-    Then I wait until "Bob" contact is absent
-    And I see "Bob" contact as dismissed
-    And "Charlie" contact is indeed deleted
+#     When I dismiss "Bob" contact
+#     Then I wait until "Bob" contact is absent
+#     And I see "Bob" contact as dismissed
+#     And "Charlie" contact is indeed deleted
 
-    When I pause for 6 seconds
-    Then I see no contacts dismissed
-    And "Bob" contact is indeed deleted
+#     When I pause for 6 seconds
+#     Then I see no contacts dismissed
+#     And "Bob" contact is indeed deleted

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,23 +33,21 @@ import '../world/custom_world.dart';
 /// - Then I wait until "Dummy" chat is present
 final StepDefinitionGeneric untilChatExists =
     then2<String, Existence, CustomWorld>(
-  'I wait until {string} chat is {existence}',
-  (name, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I wait until {string} chat is {existence}',
+      (name, existence, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[context.world.groups[name]];
+          final RxChat? chat =
+              Get.find<ChatService>().chats[context.world.groups[name]];
 
-        final Finder finder =
-            context.world.appDriver.findByKeySkipOffstage('Chat_${chat?.id}');
+          final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+            'Chat_${chat?.id}',
+          );
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
+          return existence == Existence.absent
+              ? context.world.appDriver.isAbsent(finder)
+              : context.world.appDriver.isPresent(finder);
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

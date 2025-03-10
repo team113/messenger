@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -91,7 +91,8 @@ class ConfirmLogoutView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.repeat.status.value.isLoading &&
+                  final bool enabled =
+                      !c.repeat.status.value.isLoading &&
                       !c.password.isEmpty.value &&
                       !c.repeat.isEmpty.value;
 
@@ -137,7 +138,8 @@ class ConfirmLogoutView extends StatelessWidget {
                         ),
                         TextSpan(
                           style: style.fonts.medium.regular.onBackground,
-                          text: c.myUser.value?.name?.val ??
+                          text:
+                              c.myUser.value?.name?.val ??
                               c.myUser.value?.num.toString() ??
                               '',
                         ),
@@ -153,9 +155,7 @@ class ConfirmLogoutView extends StatelessWidget {
                   RichText(
                     text: TextSpan(
                       style: style.fonts.medium.regular.secondary,
-                      children: [
-                        TextSpan(text: 'label_password_not_set'.l10n),
-                      ],
+                      children: [TextSpan(text: 'label_password_not_set'.l10n)],
                     ),
                   ),
                   const SizedBox(height: 25),
@@ -221,14 +221,16 @@ class ConfirmLogoutView extends StatelessWidget {
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('SetPasswordButton'),
-                          onPressed: () =>
-                              c.stage.value = ConfirmLogoutViewStage.password,
+                          onPressed:
+                              () =>
+                                  c.stage.value =
+                                      ConfirmLogoutViewStage.password,
                           title: 'btn_set_password'.l10n,
                         ),
                       ),
                     ],
                   ),
-                ]
+                ],
               ];
               break;
           }
@@ -245,8 +247,10 @@ class ConfirmLogoutView extends StatelessWidget {
                 children: [
                   header,
                   const SizedBox(height: 12),
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  ...children.map(
+                    (e) =>
+                        Padding(padding: ModalPopup.padding(context), child: e),
+                  ),
                   const SizedBox(height: 16),
                 ],
               ),

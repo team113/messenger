@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -35,11 +35,8 @@ Future<void> main() {
     }
   };
 
-  // If available, test report will be saved in this directory.
-  integration_test_driver.testOutputsDirectory = 'test/e2e/reports';
-
   return integration_test_driver.integrationDriver(
-    timeout: const Duration(minutes: 30),
+    timeout: const Duration(minutes: 60),
     responseDataCallback: (data) async {
       // Retrieve the [LogLevel] from the [data], as accessing [Config] here
       // isn't possible due to Flutter imports happening in [Config].
@@ -74,8 +71,9 @@ Future<void> main() {
           );
         } else {
           await fs.directory(directory).create(recursive: true);
-          final File file =
-              fs.file('$directory/${e.key}.timeline_summary.json');
+          final File file = fs.file(
+            '$directory/${e.key}.timeline_summary.json',
+          );
           await file.writeAsString(
             const JsonEncoder.withIndent('  ').convert(summary.summaryJson),
           );

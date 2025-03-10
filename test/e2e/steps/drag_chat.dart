@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,19 +32,23 @@ final StepDefinitionGeneric dragChatDown = given2<String, int, CustomWorld>(
     final ChatId chatId = context.world.groups[name]!;
 
     await context.world.appDriver.waitUntil(() async {
-      final finder = context.world.appDriver
-          .findBy(Key('ReorderHandle_${chatId.val}'), FindType.key);
+      final finder = context.world.appDriver.findBy(
+        Key('ReorderHandle_${chatId.val}'),
+        FindType.key,
+      );
 
       if (await context.world.appDriver.isAbsent(finder)) {
         return false;
       }
 
-      await context.world.appDriver.nativeDriver
-          .drag(finder, Offset(0, offset.toDouble()));
+      await context.world.appDriver.nativeDriver.drag(
+        finder,
+        Offset(0, offset.toDouble()),
+      );
 
       return true;
     });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

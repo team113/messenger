@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -98,11 +98,12 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
         child: Material(
           type: MaterialType.card,
           borderRadius: widget.borderRadius,
-          color: hovered
-              ? widget.selected
-                  ? widget.selectedHoverColor
-                  : widget.unselectedHoverColor
-              : widget.selected
+          color:
+              hovered
+                  ? widget.selected
+                      ? widget.selectedHoverColor
+                      : widget.unselectedHoverColor
+                  : widget.selected
                   ? widget.selectedColor
                   : widget.unselectedColor,
           child: InkWell(
@@ -149,12 +150,13 @@ class _Clipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    final path = Path()
-      ..lineTo(size.width, 0)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height)
-      ..lineTo(0, radius)
-      ..lineTo(radius, 0);
+    final path =
+        Path()
+          ..lineTo(size.width, 0)
+          ..lineTo(size.width, size.height)
+          ..lineTo(0, size.height)
+          ..lineTo(0, radius)
+          ..lineTo(radius, 0);
     return path;
   }
 

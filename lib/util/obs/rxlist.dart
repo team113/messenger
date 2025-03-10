@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -49,9 +49,11 @@ class RxObsList<E> extends ListMixin<E>
       RxObsList(List<E>.of(elements, growable: growable));
 
   /// Generates a list of values.
-  factory RxObsList.generate(int length, E Function(int index) generator,
-          {bool growable = true}) =>
-      RxObsList(List<E>.generate(length, generator, growable: growable));
+  factory RxObsList.generate(
+    int length,
+    E Function(int index) generator, {
+    bool growable = true,
+  }) => RxObsList(List<E>.generate(length, generator, growable: growable));
 
   /// Creates an unmodifiable list containing all the provided [elements].
   factory RxObsList.unmodifiable(Iterable elements) =>

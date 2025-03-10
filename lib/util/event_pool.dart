@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -14,6 +14,8 @@
 // You should have received a copy of the GNU Affero General Public License v3.0
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+import 'dart:async';
 
 import 'package:mutex/mutex.dart';
 
@@ -47,7 +49,7 @@ class EventPool<T> {
   Future<void> protect(
     T tag,
     Future<void> Function() callback, {
-    bool Function()? repeat,
+    FutureOr<bool> Function()? repeat,
     List<Object?> values = const [],
   }) async {
     _PoolMutex? mutex = _mutexes[tag];
@@ -60,7 +62,7 @@ class EventPool<T> {
       mutex.values = values;
       do {
         await mutex.protect(callback);
-      } while (!_disposed && repeat?.call() == true);
+      } while (!_disposed && await repeat?.call() == true);
     }
   }
 

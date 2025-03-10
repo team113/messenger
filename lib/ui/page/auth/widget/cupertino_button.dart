@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -81,9 +81,10 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
             duration: const Duration(milliseconds: 100),
             style: (widget.style ?? style.fonts.small.regular.secondary),
             child: Opacity(
-              opacity: _clicked
-                  ? 0.5
-                  : _hovered
+              opacity:
+                  _clicked
+                      ? 0.5
+                      : _hovered
                       ? 0.7
                       : 1,
               child: Text(widget.label),

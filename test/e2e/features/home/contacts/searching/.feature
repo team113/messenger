@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,19 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Contacts searching
+# TODO: Uncomment, when contacts are implemented.
+# Feature: Contacts searching
 
-  Scenario: User and contact can be found
-    Given I am Alice
-    And users Bob and Charlie
-    And contact Charlie
-    And I have "Example" group with Bob
+#   Scenario: User and contact can be found
+#     Given I am Alice
+#     And users Bob and Charlie
+#     And contact Charlie
+#     And I have "Example" group with Bob
 
-    When I tap `ContactsButton` button
-    Then I tap `SearchButton` button
+#     When I tap `ContactsButton` button
+#     Then I tap `SearchButton` button
 
-    When I fill `SearchField` field with "Bob"
-    Then I see user Bob in search results
+#     When I fill `SearchField` field with "Bob"
+#     Then I see user Bob in search results
 
-    When I fill `SearchField` field with "Charlie"
-    Then I see contact Charlie in search results
+#     When I fill `SearchField` field with "Charlie"
+#     Then I see contact Charlie in search results

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -63,10 +63,11 @@ class CallSection {
                   onDragEnded: (_) {},
                   onLeave: (_) {},
                   onWillAccept: (d) => true,
-                  itemBuilder: (i) => CallButtonWidget(
-                    asset: SvgIcons.callMore,
-                    onPressed: () {},
-                  ),
+                  itemBuilder:
+                      (i) => CallButtonWidget(
+                        asset: SvgIcons.callMore,
+                        onPressed: () {},
+                      ),
                 ),
               ),
             ],
@@ -76,22 +77,23 @@ class CallSection {
       Headline(
         child: Launchpad(
           onWillAccept: (_) => true,
-          children: List.generate(
-            8,
-            (i) => SizedBox(
-              width: 100,
-              height: 100,
-              child: Center(
-                child: CallButtonWidget(
-                  asset: SvgIcons.callMore,
-                  hint: 'Hint',
-                  expanded: true,
-                  big: true,
-                  onPressed: () {},
+          children:
+              List.generate(
+                8,
+                (i) => SizedBox(
+                  width: 100,
+                  height: 100,
+                  child: Center(
+                    child: CallButtonWidget(
+                      asset: SvgIcons.callMore,
+                      hint: 'Hint',
+                      expanded: true,
+                      big: true,
+                      onPressed: () {},
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          ).toList(),
+              ).toList(),
         ),
       ),
       const Headline(child: RaisedHand(true)),
@@ -148,10 +150,7 @@ class CallSection {
       ),
       Headline(
         background: style.colors.backgroundAuxiliaryLight,
-        child: const CallTitle(
-          title: 'Title',
-          state: 'State',
-        ),
+        child: const CallTitle(title: 'Title', state: 'State'),
       ),
       Headline(
         child: ChatInfoCard(
@@ -164,41 +163,40 @@ class CallSection {
       ),
       const Headline(
         headline: 'DropBox',
-        child: SizedBox(
-          width: 200,
-          height: 200,
-          child: DropBox(),
-        ),
+        child: SizedBox(width: 200, height: 200, child: DropBox()),
       ),
-      Builder(builder: (context) {
-        final GlobalKey key = GlobalKey();
+      Builder(
+        builder: (context) {
+          final GlobalKey key = GlobalKey();
 
-        return Headline(
-          headline: 'ReorderableFit',
-          child: SizedBox(
-            key: key,
-            width: 400,
-            height: 400,
-            child: ReorderableFit(
-              children: List.generate(5, (i) => i),
-              itemBuilder: (i) => Container(
-                color: Colors.primaries[i],
-                child: Center(child: Text('$i')),
+          return Headline(
+            headline: 'ReorderableFit',
+            child: SizedBox(
+              key: key,
+              width: 400,
+              height: 400,
+              child: ReorderableFit(
+                children: List.generate(5, (i) => i),
+                itemBuilder:
+                    (i) => Container(
+                      color: Colors.primaries[i],
+                      child: Center(child: Text('$i')),
+                    ),
+                onOffset: () {
+                  if (key.globalPaintBounds != null) {
+                    return Offset(
+                      -key.globalPaintBounds!.left,
+                      -key.globalPaintBounds!.top,
+                    );
+                  }
+
+                  return Offset.zero;
+                },
               ),
-              onOffset: () {
-                if (key.globalPaintBounds != null) {
-                  return Offset(
-                    -key.globalPaintBounds!.left,
-                    -key.globalPaintBounds!.top,
-                  );
-                }
-
-                return Offset.zero;
-              },
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     ];
   }
 }

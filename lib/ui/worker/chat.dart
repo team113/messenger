@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,11 +41,7 @@ import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
 class ChatWorker extends DisposableService {
-  ChatWorker(
-    this._chatService,
-    this._myUserService,
-    this._notificationService,
-  );
+  ChatWorker(this._chatService, this._myUserService, this._notificationService);
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
@@ -61,7 +57,7 @@ class ChatWorker extends DisposableService {
   static const Duration newMessageThreshold = Duration(seconds: 30);
 
   /// Subscription to the [ChatService.chats] map.
-  late final StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
@@ -124,7 +120,7 @@ class ChatWorker extends DisposableService {
 
   @override
   void onClose() {
-    _subscription.cancel();
+    _subscription?.cancel();
     _onFocusChanged?.cancel();
     _chats.forEach((_, value) => value.dispose());
     super.onClose();
@@ -141,7 +137,8 @@ class ChatWorker extends DisposableService {
         final msg = c.chat.value.lastItem as ChatInfo;
         if (msg.action.kind == ChatInfoActionKind.memberAdded) {
           final action = msg.action as ChatInfoActionMemberAdded;
-          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
+          newChat =
+              msg.action.kind == ChatInfoActionKind.memberAdded &&
               action.user.id == _chatService.me &&
               DateTime.now()
                       .difference(msg.at.val)
@@ -150,7 +147,8 @@ class ChatWorker extends DisposableService {
         }
       } else if (c.chat.value.lastItem == null) {
         // The chat was created just now.
-        newChat = DateTime.now()
+        newChat =
+            DateTime.now()
                 .difference(c.chat.value.updatedAt.val)
                 .compareTo(newMessageThreshold) <=
             -1;
@@ -262,11 +260,12 @@ class _ChatWatchData {
               attachments: msg.attachments,
             );
 
-            image = msg.attachments
-                .whereType<ImageAttachment>()
-                .firstOrNull
-                ?.big
-                .url;
+            image =
+                msg.attachments
+                    .whereType<ImageAttachment>()
+                    .firstOrNull
+                    ?.big
+                    .url;
 
             if (text != null) {
               body.write(text);
@@ -281,11 +280,12 @@ class _ChatWatchData {
                 attachments: quote.attachments,
               );
 
-              image = quote.attachments
-                  .whereType<ImageAttachment>()
-                  .firstOrNull
-                  ?.big
-                  .url;
+              image =
+                  quote.attachments
+                      .whereType<ImageAttachment>()
+                      .firstOrNull
+                      ?.big
+                      .url;
 
               if (text != null) {
                 body.write(text);
@@ -352,13 +352,14 @@ class _ChatWatchData {
     final String name = author?.title ?? 'x';
     final String num = author?.num.toString() ?? 'err_unknown_user'.l10n;
     final String type = isGroup ? 'group' : 'dialog';
-    String attachmentsType = attachments.every((e) => e is ImageAttachment)
-        ? 'image'
-        : attachments.every((e) => e is FileAttachment && e.isVideo)
+    String attachmentsType =
+        attachments.every((e) => e is ImageAttachment)
+            ? 'image'
+            : attachments.every((e) => e is FileAttachment && e.isVideo)
             ? 'video'
             : attachments.every((e) => e is FileAttachment && !e.isVideo)
-                ? 'file'
-                : 'attachments';
+            ? 'file'
+            : 'attachments';
 
     return 'fcm_message'.l10nfmt({
       'type': type,
@@ -383,12 +384,10 @@ class _ChatWatchData {
         final action = info as ChatInfoActionMemberAdded;
 
         if (author?.id == action.user.id) {
-          return 'fcm_user_joined_group_by_link'.l10nfmt(
-            {
-              'authorName': action.user.title,
-              'authorNum': action.user.num.toString(),
-            },
-          );
+          return 'fcm_user_joined_group_by_link'.l10nfmt({
+            'authorName': action.user.title,
+            'authorNum': action.user.num.toString(),
+          });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
             'authorName': author?.title ?? 'x',
@@ -407,12 +406,10 @@ class _ChatWatchData {
         final action = info as ChatInfoActionMemberRemoved;
 
         if (author?.id == action.user.id) {
-          return 'fcm_user_left_group'.l10nfmt(
-            {
-              'authorName': action.user.title,
-              'authorNum': action.user.num.toString(),
-            },
-          );
+          return 'fcm_user_left_group'.l10nfmt({
+            'authorName': action.user.title,
+            'authorNum': action.user.num.toString(),
+          });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
             'authorName': author?.title ?? 'x',
@@ -433,7 +430,7 @@ class _ChatWatchData {
         return 'fcm_group_avatar_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
           'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
-          'operation': action.avatar == null ? 'delete' : 'update',
+          'operation': action.avatar == null ? 'remove' : 'update',
         });
 
       case ChatInfoActionKind.nameUpdated:
@@ -442,7 +439,7 @@ class _ChatWatchData {
         return 'fcm_group_name_changed'.l10nfmt({
           'userName': author?.title ?? 'x',
           'userNum': author?.num.toString() ?? 'err_unknown_user'.l10n,
-          'operation': action.name == null ? 'delete' : 'update',
+          'operation': action.name == null ? 'remove' : 'update',
           'groupName': action.name?.val ?? '',
         });
     }

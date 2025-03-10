@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,20 +18,17 @@
 import 'package:gherkin/gherkin.dart';
 
 /// Available [Attachment] types of the [AttachmentTypeParameter].
-enum AttachmentType {
-  file,
-  image,
-}
+enum AttachmentType { file, image }
 
 /// [CustomParameter] representing a type of an [Attachment].
 class AttachmentTypeParameter extends CustomParameter<AttachmentType> {
   AttachmentTypeParameter()
-      : super(
-          'attachment',
-          RegExp(
-            '(${AttachmentType.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => AttachmentType.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'attachment',
+        RegExp(
+          '(${AttachmentType.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => AttachmentType.values.firstWhere((e) => e.name == c),
+      );
 }

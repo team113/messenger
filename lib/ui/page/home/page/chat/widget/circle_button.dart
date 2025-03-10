@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,11 +24,7 @@ import '/ui/widget/svg/svg.dart';
 
 /// Circle button with the provided [icon].
 class CircleButton extends StatelessWidget {
-  const CircleButton(
-    this.icon, {
-    super.key,
-    this.onPressed,
-  });
+  const CircleButton(this.icon, {super.key, this.onPressed});
 
   /// Icon to display.
   final SvgData icon;

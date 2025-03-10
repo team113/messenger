@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -113,7 +113,8 @@ class _AnimatedButtonState extends State<AnimatedButton>
                 animation: _controller,
                 builder: (_, child) {
                   return Transform.scale(
-                    scale: 1.0 -
+                    scale:
+                        1.0 -
                         Tween<double>(begin: 0.0, end: 0.2)
                             .animate(
                               CurvedAnimation(

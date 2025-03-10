@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,8 +39,8 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : bytes = null,
-        path = null;
+  }) : bytes = null,
+       path = null;
 
   /// Constructs a [VideoThumbnail] from the provided [bytes].
   const VideoThumbnail.bytes(
@@ -49,9 +49,9 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : url = null,
-        checksum = null,
-        path = null;
+  }) : url = null,
+       checksum = null,
+       path = null;
 
   /// Constructs a [VideoThumbnail] from the provided file [path].
   const VideoThumbnail.file(
@@ -60,9 +60,9 @@ class VideoThumbnail extends StatefulWidget {
     this.height,
     this.width,
     this.onError,
-  })  : url = null,
-        checksum = null,
-        bytes = null;
+  }) : url = null,
+       checksum = null,
+       bytes = null;
 
   /// URL of the video to display.
   final String? url;
@@ -229,8 +229,8 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
 
       bool shouldReload = false;
 
-      await Backoff.run(
-        () async {
+      try {
+        await Backoff.run(() async {
           try {
             await (await PlatformUtils.dio).head(widget.url!);
 
@@ -248,9 +248,10 @@ class _VideoThumbnailState extends State<VideoThumbnail> {
               rethrow;
             }
           }
-        },
-        _cancelToken,
-      );
+        }, _cancelToken);
+      } on OperationCanceledException {
+        // No-op.
+      }
     }
   }
 }

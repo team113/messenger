@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -61,8 +61,7 @@ class BlocklistView extends StatelessWidget {
             const SizedBox(height: 4),
             Obx(() {
               return ModalPopupHeader(
-                text: 'label_users_count'
-                    .l10nfmt({'count': c.myUser.value?.blocklistCount ?? 0}),
+                text: 'label_users_count'.l10nfmt({'count': c.count.value}),
               );
             }),
             const SizedBox(height: 4),
@@ -72,12 +71,13 @@ class BlocklistView extends StatelessWidget {
                 child: Obx(() {
                   // Show only users with [User.isBlocked] for optimistic
                   // deletion from blocklist.
-                  final Iterable<RxUser> blocklist =
-                      c.blocklist.where((e) => e.user.value.isBlocked != null);
+                  final Iterable<RxUser> blocklist = c.blocklist.where(
+                    (e) => e.user.value.isBlocked != null,
+                  );
 
                   if (c.status.value.isLoading) {
                     return SizedBox(
-                      height: (c.myUser.value?.blocklistCount ?? 0) * 95,
+                      height: blocklist.length * 95,
                       child: const Center(
                         child: CustomProgressIndicator.primary(),
                       ),
@@ -130,9 +130,10 @@ class BlocklistView extends StatelessWidget {
                                   child,
                                   CustomProgressIndicator(
                                     key: const Key('BlocklistLoading'),
-                                    value: Config.disableInfiniteAnimations
-                                        ? 0
-                                        : null,
+                                    value:
+                                        Config.disableInfiniteAnimations
+                                            ? 0
+                                            : null,
                                   ),
                                 ],
                               );

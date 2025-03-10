@@ -3,19 +3,24 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
+  app_links
   connectivity_plus
-  desktop_drop
+  file_selector_windows
   firebase_core
   flutter_custom_cursor
+  hotkey_manager_windows
+  irondash_engine_context
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_windows_video
   media_kit_video
   permission_handler_windows
   screen_brightness_windows
-  screen_retriever
+  screen_retriever_windows
   sentry_flutter
   share_plus
+  sqlite3_flutter_libs
+  super_native_extensions
   url_launcher_windows
   win_toast
   window_manager

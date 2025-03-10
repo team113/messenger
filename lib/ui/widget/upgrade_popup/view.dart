@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -75,59 +75,66 @@ class UpgradePopupView extends StatelessWidget {
                 onBack: () => c.screen.value = UpgradePopupScreen.notice,
               );
 
-              final ReleaseArtifact? windows =
-                  release.assets.firstWhereOrNull((e) => e.os == 'windows');
-              final ReleaseArtifact? macos =
-                  release.assets.firstWhereOrNull((e) => e.os == 'macos');
-              final ReleaseArtifact? linux =
-                  release.assets.firstWhereOrNull((e) => e.os == 'linux');
-              final ReleaseArtifact? android =
-                  release.assets.firstWhereOrNull((e) => e.os == 'android');
-              final ReleaseArtifact? ios =
-                  release.assets.firstWhereOrNull((e) => e.os == 'ios');
+              final ReleaseArtifact? windows = release.assets.firstWhereOrNull(
+                (e) => e.os == 'windows',
+              );
+              final ReleaseArtifact? macos = release.assets.firstWhereOrNull(
+                (e) => e.os == 'macos',
+              );
+              final ReleaseArtifact? linux = release.assets.firstWhereOrNull(
+                (e) => e.os == 'linux',
+              );
+              final ReleaseArtifact? android = release.assets.firstWhereOrNull(
+                (e) => e.os == 'android',
+              );
+              final ReleaseArtifact? ios = release.assets.firstWhereOrNull(
+                (e) => e.os == 'ios',
+              );
 
-              children = [
-                if (windows != null) ...[
-                  DownloadButton.windows(link: windows.url),
-                  const SizedBox(height: 8),
-                ],
-                if (macos != null) ...[
-                  DownloadButton.macos(link: macos.url),
-                  const SizedBox(height: 8),
-                ],
-                if (linux != null) ...[
-                  DownloadButton.linux(link: linux.url),
-                  const SizedBox(height: 8),
-                ],
-                if (Config.appStoreUrl.isNotEmpty) ...[
-                  DownloadButton.appStore(),
-                  const SizedBox(height: 8),
-                ],
-                if (ios != null) ...[
-                  DownloadButton.ios(link: ios.url),
-                  const SizedBox(height: 8),
-                ],
-                if (Config.googlePlayUrl.isNotEmpty) ...[
-                  DownloadButton.googlePlay(),
-                  const SizedBox(height: 8),
-                ],
-                if (android != null) DownloadButton.android(link: android.url),
-              ]
-                  .map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: e,
-                    ),
-                  )
-                  .toList();
+              children =
+                  [
+                        if (windows != null) ...[
+                          DownloadButton.windows(link: windows.url),
+                          const SizedBox(height: 8),
+                        ],
+                        if (macos != null) ...[
+                          DownloadButton.macos(link: macos.url),
+                          const SizedBox(height: 8),
+                        ],
+                        if (linux != null) ...[
+                          DownloadButton.linux(link: linux.url),
+                          const SizedBox(height: 8),
+                        ],
+                        if (Config.appStoreUrl.isNotEmpty) ...[
+                          DownloadButton.appStore(),
+                          const SizedBox(height: 8),
+                        ],
+                        if (ios != null) ...[
+                          DownloadButton.ios(link: ios.url),
+                          const SizedBox(height: 8),
+                        ],
+                        if (Config.googlePlayUrl.isNotEmpty) ...[
+                          DownloadButton.googlePlay(),
+                          const SizedBox(height: 8),
+                        ],
+                        if (android != null)
+                          DownloadButton.android(link: android.url),
+                      ]
+                      .map(
+                        (e) => Padding(
+                          padding: ModalPopup.padding(context),
+                          child: e,
+                        ),
+                      )
+                      .toList();
               break;
 
             case UpgradePopupScreen.notice:
               header = ModalPopupHeader(
-                text: critical
-                    ? 'label_critical_update_is_available'.l10n
-                    : 'label_update_is_available'.l10n,
-                close: !critical,
+                text:
+                    critical
+                        ? 'label_critical_update_is_available'.l10n
+                        : 'label_update_is_available'.l10n,
               );
               children = [
                 Flexible(
@@ -176,17 +183,18 @@ class UpgradePopupView extends StatelessWidget {
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('DownloadButton'),
-                          onPressed: Config.downloadable
-                              ? () =>
-                                  c.screen.value = UpgradePopupScreen.download
-                              : PlatformUtils.isIOS &&
+                          onPressed:
+                              Config.downloadable
+                                  ? () =>
+                                      c.screen.value =
+                                          UpgradePopupScreen.download
+                                  : PlatformUtils.isIOS &&
                                       Config.appStoreUrl.isNotEmpty
                                   ? () => launchUrlString(Config.appStoreUrl)
                                   : PlatformUtils.isAndroid &&
-                                          Config.googlePlayUrl.isNotEmpty
-                                      ? () =>
-                                          launchUrlString(Config.googlePlayUrl)
-                                      : null,
+                                      Config.googlePlayUrl.isNotEmpty
+                                  ? () => launchUrlString(Config.googlePlayUrl)
+                                  : null,
                           title: 'btn_download'.l10n,
                         ),
                       ),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,13 +29,6 @@ import 'paginated.dart';
 abstract class AbstractUserRepository {
   /// Returns reactive map of [User]s.
   RxMap<UserId, RxUser> get users;
-
-  /// Indicates whether this repository was initialized and [users] can be
-  /// used.
-  RxBool get isReady;
-
-  /// Clears the stored [users].
-  Future<void> clearCache();
 
   /// Searches [User]s by the given criteria.
   Paginated<UserId, RxUser> search({

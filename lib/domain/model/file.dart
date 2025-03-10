@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,21 +16,24 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:intl/intl.dart';
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import '/config.dart';
 import '/util/new_type.dart';
 
 part 'file.g.dart';
 
 /// File on a file storage.
-abstract class StorageFile extends HiveObject {
-  StorageFile({
-    required this.relativeRef,
-    this.checksum,
-    this.size,
-  });
+abstract class StorageFile {
+  StorageFile({required this.relativeRef, this.checksum, this.size});
+
+  /// Constructs a [StorageFile] from the provided [json].
+  factory StorageFile.fromJson(Map<String, dynamic> json) =>
+      switch (json['runtimeType']) {
+        'PlainFile' => PlainFile.fromJson(json),
+        'ImageFile' => ImageFile.fromJson(json),
+        _ => throw UnimplementedError(json['runtimeType']),
+      };
 
   /// Relative reference to this [StorageFile] on a file storage.
   ///
@@ -44,7 +47,6 @@ abstract class StorageFile extends HiveObject {
   /// `403` HTTP status code, on the other hand, means that the link has been
   /// expired and this relative reference should be re-fetched to rebuild the
   /// link.
-  @HiveField(0)
   final String relativeRef;
 
   /// SHA-256 checksum of this [StorageFile].
@@ -58,7 +60,6 @@ abstract class StorageFile extends HiveObject {
   ///
   /// Also, this checksum may be useful as a key in a cache, allowing to store
   /// [StorageFile] in deduplicated manner.
-  @HiveField(1)
   final String? checksum;
 
   /// Size of this [StorageFile] (in bytes).
@@ -66,7 +67,6 @@ abstract class StorageFile extends HiveObject {
   /// May be `null` in case this [StorageFile] is not ready on a file storage
   /// yet. May be also computed, once this [StorageFile] is ready and
   /// successfully downloaded from a file storage.
-  @HiveField(2)
   final int? size;
 
   /// Returns an absolute URL to this [StorageFile] on a file storage.
@@ -101,20 +101,32 @@ abstract class StorageFile extends HiveObject {
 
     return result;
   }
+
+  /// Returns a [Map] representing this [StorageFile].
+  Map<String, dynamic> toJson() => switch (runtimeType) {
+    const (PlainFile) => (this as PlainFile).toJson(),
+    const (ImageFile) => (this as ImageFile).toJson(),
+    _ => throw UnimplementedError(runtimeType.toString()),
+  };
 }
 
 /// Plain-[StorageFile] on a file storage.
-@HiveType(typeId: ModelTypeId.plainFile)
+@JsonSerializable()
 class PlainFile extends StorageFile {
-  PlainFile({
-    required super.relativeRef,
-    super.checksum,
-    super.size,
-  });
+  PlainFile({required super.relativeRef, super.checksum, super.size});
+
+  /// Constructs a [PlainFile] from the provided [json].
+  factory PlainFile.fromJson(Map<String, dynamic> json) =>
+      _$PlainFileFromJson(json);
+
+  /// Returns a [Map] representing this [PlainFile].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$PlainFileToJson(this)..['runtimeType'] = 'PlainFile';
 }
 
 /// Image-[StorageFile] on a file storage.
-@HiveType(typeId: ModelTypeId.imageFile)
+@JsonSerializable()
 class ImageFile extends StorageFile {
   ImageFile({
     required super.relativeRef,
@@ -125,24 +137,37 @@ class ImageFile extends StorageFile {
     this.thumbhash,
   });
 
+  /// Constructs an [ImageFile] from the provided [json].
+  factory ImageFile.fromJson(Map<String, dynamic> json) =>
+      _$ImageFileFromJson(json);
+
   /// Width of this [ImageFile] in pixels.
-  @HiveField(3)
   final int? width;
 
   /// Height of this [ImageFile] in pixels.
-  @HiveField(4)
   final int? height;
 
   /// [ThumbHash] of this [ImageFile].
-  @HiveField(5)
   final ThumbHash? thumbhash;
+
+  /// Returns a [Map] representing this [ImageFile].
+  @override
+  Map<String, dynamic> toJson() =>
+      _$ImageFileToJson(this)..['runtimeType'] = 'ImageFile';
 }
 
 /// [Base64URL][1]-encoded [ThumbHash][2].
 ///
 /// [1]: https://base64.guru/standards/base64url
 /// [2]: https://evanw.github.io/thumbhash/
-@HiveType(typeId: ModelTypeId.thumbhash)
+@JsonSerializable()
 class ThumbHash extends NewType<String> {
   const ThumbHash(super.val);
+
+  /// Constructs a [ThumbHash] from the provided [json].
+  factory ThumbHash.fromJson(Map<String, dynamic> json) =>
+      _$ThumbHashFromJson(json);
+
+  /// Returns a [Map] representing this [ThumbHash].
+  Map<String, dynamic> toJson() => _$ThumbHashToJson(this);
 }

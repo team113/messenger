@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,7 +17,6 @@
 
 import 'dart:async';
 
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
@@ -62,18 +61,17 @@ class MessageInfoController extends GetxController {
 
   /// Fetches the [users] from the [UserService].
   Future<void> _fetchUsers() async {
-    final List<Future<void>> futures = reads
-        .map(
-          (read) async {
-            final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
-            final RxUser? user = fetched is RxUser? ? fetched : await fetched;
-            if (user != null) {
-              users.add(user);
-            }
-          },
-        )
-        .whereNotNull()
-        .toList();
+    final List<Future<void>> futures =
+        reads
+            .map((read) async {
+              final FutureOr<RxUser?> fetched = _userService.get(read.memberId);
+              final RxUser? user = fetched is RxUser? ? fetched : await fetched;
+              if (user != null) {
+                users.add(user);
+              }
+            })
+            .nonNulls
+            .toList();
 
     await Future.wait(futures);
   }

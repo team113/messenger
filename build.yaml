@@ -15,6 +15,18 @@ targets:
               queries_glob: lib/api/backend/graphql/{query,subscription,mutation}/**/**.graphql
               naming_scheme: pathedWithFields
           scalar_mapping:
+            - graphql_type: ApnsDeviceToken
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: ApnsDeviceToken
+                imports:
+                  - "package:messenger/domain/model/push_token.dart"
+            - graphql_type: ApnsVoipDeviceToken
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: ApnsVoipDeviceToken
+                imports:
+                  - "package:messenger/domain/model/push_token.dart"
             - graphql_type: AttachmentId
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/chat.dart"
               dart_type:
@@ -33,6 +45,12 @@ targets:
                 name: BlocklistReason
                 imports:
                   - "package:messenger/domain/model/user.dart"
+            - graphql_type: BlocklistVersion
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
+              dart_type:
+                name: BlocklistVersion
+                imports:
+                  - "package:messenger/store/model/blocklist.dart"
             - graphql_type: ChatCallCredentials
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
@@ -182,13 +200,19 @@ targets:
               dart_type:
                 name: FcmRegistrationToken
                 imports:
-                  - "package:messenger/domain/model/fcm_registration_token.dart"
+                  - "package:messenger/domain/model/push_token.dart"
             - graphql_type: IncomingChatCallsCursor
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/call.dart"
               dart_type:
                 name: IncomingChatCallsCursor
                 imports:
                   - "package:messenger/store/model/chat_call.dart"
+            - graphql_type: IP
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: IpAddress
+                imports:
+                  - "package:messenger/domain/model/session.dart"
             - graphql_type: MyUserVersion
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/user.dart"
               dart_type:
@@ -211,6 +235,12 @@ targets:
               custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
               dart_type:
                 name: SessionVersion
+                imports:
+                  - "package:messenger/store/model/session.dart"
+            - graphql_type: SessionsListVersion
+              custom_parser_import: "package:messenger/api/backend/graphql/parsers/session.dart"
+              dart_type:
+                name: SessionsListVersion
                 imports:
                   - "package:messenger/store/model/session.dart"
             - graphql_type: ThumbHash
@@ -315,6 +345,18 @@ targets:
                 name: SessionId
                 imports:
                   - "package:messenger/domain/model/session.dart"
+      drift_dev:
+        generate_for:
+          include:
+            - lib/provider/drift/**.dart
+      json_serializable:
+        generate_for:
+          exclude:
+            - lib/provider/drift/**.dart
+          include:
+            - lib/api/backend/**.dart
+            - lib/domain/model/**
+            - lib/store/model/**
       messenger|pubspec_builder:
         enabled: true
 

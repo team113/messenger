@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -35,11 +35,11 @@ Feature: Text messages selection and copying
     Then copied text is "For selection"
 
     When I select "For selection" message from 2 to 12 symbols
-    And I long press "For selection" message
+    And I right click "For selection" message
     And I tap `CopyButton` button
     Then copied text is "r selectio"
 
     When I select "For selection" message from 0 to 13 symbols
-    And I long press "For selection" message
+    And I right click "For selection" message
     And I tap `CopyButton` button
     Then copied text is "For selection"

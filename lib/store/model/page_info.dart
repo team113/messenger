@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,4 +40,8 @@ class PageInfo<K> {
 
   /// Cursor of the last item in the [Page] this [PageInfo] is about.
   K? endCursor;
+
+  @override
+  String toString() =>
+      'Page(hasNext: $hasNext, hasPrevious: $hasPrevious, startCursor: $startCursor, endCursor: $endCursor)';
 }

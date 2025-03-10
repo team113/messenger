@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -118,9 +118,10 @@ class RenderInnerShadow extends RenderProxyBox {
 
     canvas.saveLayer(rectOuter, Paint()..blendMode = BlendMode.srcATop);
 
-    final Paint shadowPaint = Paint()
-      ..colorFilter = ColorFilter.mode(_color, BlendMode.srcOut)
-      ..imageFilter = ImageFilter.blur(sigmaX: _blur, sigmaY: _blur);
+    final Paint shadowPaint =
+        Paint()
+          ..colorFilter = ColorFilter.mode(_color, BlendMode.srcOut)
+          ..imageFilter = ImageFilter.blur(sigmaX: _blur, sigmaY: _blur);
 
     canvas
       ..saveLayer(rectOuter, shadowPaint)

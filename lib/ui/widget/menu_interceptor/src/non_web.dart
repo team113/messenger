@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,9 +22,10 @@ class ContextMenuInterceptor extends StatelessWidget {
   // ignore: prefer_const_constructors_in_immutables
   ContextMenuInterceptor({
     super.key,
+    EdgeInsets margin = EdgeInsets.zero,
     required this.child,
-    enabled = true,
-    debug = false,
+    bool enabled = true,
+    bool debug = false,
   });
 
   /// Widget being wrapped.

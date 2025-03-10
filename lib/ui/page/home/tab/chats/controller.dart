@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,18 +20,23 @@ import 'dart:async';
 import 'package:async/async.dart';
 import 'package:back_button_interceptor/back_button_interceptor.dart';
 import 'package:collection/collection.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart' hide SearchController;
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
+import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
+import '/domain/model/native_file.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/call.dart'
     show
@@ -47,7 +52,9 @@ import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/contact.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/domain/service/user.dart';
+import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         ClearChatException,
@@ -60,7 +67,8 @@ import '/provider/gql/exceptions.dart'
         UnfavoriteChatException;
 import '/routes.dart';
 import '/ui/page/call/search/controller.dart';
-import '/ui/widget/text_field.dart';
+import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -77,6 +85,7 @@ class ChatsTabController extends GetxController {
     this._userService,
     this._contactService,
     this._myUserService,
+    this._sessionService,
   );
 
   /// Reactive list of sorted [Chat]s.
@@ -115,9 +124,6 @@ class ChatsTabController extends GetxController {
   /// Used to discard a broken [FadeInAnimation].
   final RxBool reordering = RxBool(false);
 
-  /// [TextFieldState] for [ChatName] inputting while [groupCreating].
-  final TextFieldState groupName = TextFieldState();
-
   /// [Timer] displaying the [chats] being fetched when it becomes `null`.
   late final Rx<Timer?> fetching = Rx(
     Timer(2.seconds, () => fetching.value = null),
@@ -147,6 +153,9 @@ class ChatsTabController extends GetxController {
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;
 
+  /// [SessionService] for checking the current [connected] status.
+  final SessionService _sessionService;
+
   /// Subscription for the [ChatService.paginated] changes.
   late final StreamSubscription _chatsSubscription;
 
@@ -164,6 +173,10 @@ class ChatsTabController extends GetxController {
   /// current frame.
   bool _scrollIsInvoked = false;
 
+  /// [ChatService.paginated] length fetched during [ChatService.next] invoke
+  /// used to guard against the method spamming again and again.
+  int? _chatsInitiallyFetched;
+
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
 
@@ -175,6 +188,13 @@ class ChatsTabController extends GetxController {
 
   /// Indicates whether the [chats] have a next page.
   RxBool get hasNext => _chatService.hasNext;
+
+  /// Indicates whether the current device is connected to any network.
+  RxBool get connected => _sessionService.connected;
+
+  /// Returns [ChatId] of the [Chat]-monolog of the currently authenticated
+  /// [MyUser], if any.
+  ChatId get monolog => _chatService.monolog;
 
   @override
   void onInit() {
@@ -196,16 +216,18 @@ class ChatsTabController extends GetxController {
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
     // listening to its updates.
     Future<void> listenUpdates(ChatEntry chat) async {
-      final UserId? userId = chat.chat.value.members
-          .firstWhereOrNull((u) => u.user.id != me)
-          ?.user
-          .id;
+      final UserId? userId =
+          chat.chat.value.members
+              .firstWhereOrNull((u) => u.user.id != me)
+              ?.user
+              .id;
 
       if (userId != null) {
-        RxUser? rxUser = chat.members.values
-            .toList()
-            .firstWhereOrNull((u) => u.user.id != me)
-            ?.user;
+        RxUser? rxUser =
+            chat.members.values
+                .toList()
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user;
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
           _userSubscriptions.remove(userId)?.cancel();
@@ -238,10 +260,11 @@ class ChatsTabController extends GetxController {
           });
 
           if (event.value!.chat.value.isDialog) {
-            final UserId? userId = event.value!.chat.value.members
-                .firstWhereOrNull((u) => u.user.id != me)
-                ?.user
-                .id;
+            final UserId? userId =
+                event.value!.chat.value.members
+                    .firstWhereOrNull((u) => u.user.id != me)
+                    ?.user
+                    .id;
 
             _userSubscriptions.remove(userId)?.cancel();
           }
@@ -256,13 +279,15 @@ class ChatsTabController extends GetxController {
     });
 
     if (_chatService.status.value.isSuccess) {
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => _ensureScrollable());
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => _ensureScrollable(),
+      );
     } else {
       _statusSubscription = _chatService.status.listen((status) {
         if (status.isSuccess) {
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => _ensureScrollable());
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => _ensureScrollable(),
+          );
         }
       });
     }
@@ -313,7 +338,7 @@ class ChatsTabController extends GetxController {
     RxChat? chat,
   }) async {
     if (chat != null) {
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
     } else {
       user ??= contact?.user.value;
 
@@ -321,7 +346,7 @@ class ChatsTabController extends GetxController {
         if (user.id == me) {
           router.chat(_chatService.monolog, push: true);
         } else {
-          router.chat(user.user.value.dialog);
+          router.chat(ChatId.local(user.user.value.id));
         }
       }
     }
@@ -377,12 +402,11 @@ class ChatsTabController extends GetxController {
   /// well if [clear] is `true`.
   Future<void> hideChat(ChatId id, [bool clear = false]) async {
     try {
-      final Iterable<Future> futures = [
-        if (clear) _chatService.clearChat(id),
-        _chatService.hideChat(id)
-      ];
+      await _chatService.hideChat(id);
 
-      await Future.wait(futures);
+      if (clear) {
+        await _chatService.clearChat(id);
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
@@ -402,12 +426,11 @@ class ChatsTabController extends GetxController {
     router.navigation.value = !selecting.value;
 
     try {
-      final Iterable<Future> futures = [
-        if (clear) ...selectedChats.map((e) => _chatService.clearChat(e)),
-        ...selectedChats.map((e) => _chatService.hideChat(e)),
-      ];
+      await Future.wait(selectedChats.map(_chatService.hideChat));
 
-      await Future.wait(futures);
+      if (clear) {
+        await Future.wait(selectedChats.map(_chatService.clearChat));
+      }
     } on HideChatException catch (e) {
       MessagePopup.error(e);
     } on ClearChatException catch (e) {
@@ -447,10 +470,7 @@ class ChatsTabController extends GetxController {
   }
 
   /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(
-    ChatId id, [
-    ChatFavoritePosition? position,
-  ]) async {
+  Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) async {
     try {
       await _chatService.favoriteChat(id, position);
     } on FavoriteChatException catch (e) {
@@ -503,11 +523,12 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user = chat.members.values
-        .firstWhereOrNull((e) => e.user.id != me)
-        ?.user
-        .user
-        .value;
+    final User? user =
+        chat.members.values
+            .firstWhereOrNull((e) => e.user.id != me)
+            ?.user
+            .user
+            .value;
     if (user == null) {
       return;
     }
@@ -530,14 +551,15 @@ class ChatsTabController extends GetxController {
     }
 
     try {
-      final ChatContactId? contactId = chat.members.values
-          .firstWhereOrNull((e) => e.user.id != me)
-          ?.user
-          .user
-          .value
-          .contacts
-          .firstOrNull
-          ?.id;
+      final ChatContactId? contactId =
+          chat.members.values
+              .firstWhereOrNull((e) => e.user.id != me)
+              ?.user
+              .user
+              .value
+              .contacts
+              .firstOrNull
+              ?.id;
 
       if (contactId != null) {
         await _contactService.deleteContact(contactId);
@@ -550,6 +572,37 @@ class ChatsTabController extends GetxController {
 
   /// Drops an [OngoingCall] in a [Chat] identified by its [id], if any.
   Future<void> dropCall(ChatId id) => _callService.leave(id);
+
+  /// Sends the dropped files of [event] to the [Chat] identified by its [id].
+  Future<void> sendFiles(ChatId id, PerformDropEvent event) async {
+    final List<Attachment> attachments = [];
+
+    // Populate attachments with dropped files.
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
+      if (file != null) {
+        if (file.size >= MessageFieldController.maxAttachmentSize) {
+          MessagePopup.error('err_size_too_big'.l10n);
+          continue;
+        }
+
+        attachments.add(
+          LocalAttachment(
+            NativeFile.fromPlatformFile(file),
+            status: SendingStatus.sending,
+          ),
+        );
+      }
+    }
+
+    if (attachments.isNotEmpty) {
+      attachments.whereType<LocalAttachment>().forEach(
+        _chatService.uploadAttachment,
+      );
+
+      await _chatService.sendChatMessage(id, attachments: attachments);
+    }
+  }
 
   /// Enables and initializes the [search]ing.
   void startSearch() {
@@ -580,7 +633,6 @@ class ChatsTabController extends GetxController {
   /// Disables and disposes the group creating.
   void closeGroupCreating() {
     groupCreating.value = false;
-    groupName.clear();
     closeSearch(true);
     router.navigation.value = true;
   }
@@ -594,14 +646,14 @@ class ChatsTabController extends GetxController {
       final RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
-          ...search.value!.selectedContacts
-              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...search.value!.selectedContacts.expand(
+            (e) => e.contact.value.users.map((u) => u.id),
+          ),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
-        name: ChatName.tryParse(groupName.text),
       );
 
-      router.chat(chat.chat.value.id);
+      router.dialog(chat.chat.value, me);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -635,15 +687,16 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    final List<ChatEntry> favorites = chats
-        .where(
-          (e) =>
-              e.chat.value.ongoingCall == null &&
-              e.chat.value.favoritePosition != null &&
-              !e.chat.value.isHidden &&
-              !e.hidden.value,
-        )
-        .toList();
+    final List<ChatEntry> favorites =
+        chats
+            .where(
+              (e) =>
+                  e.chat.value.ongoingCall == null &&
+                  e.chat.value.favoritePosition != null &&
+                  !e.chat.value.isHidden &&
+                  !e.hidden.value,
+            )
+            .toList();
 
     double position;
 
@@ -652,7 +705,8 @@ class ChatsTabController extends GetxController {
     } else if (to >= favorites.length) {
       position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
-      position = (favorites[to].chat.value.favoritePosition!.val +
+      position =
+          (favorites[to].chat.value.favoritePosition!.val +
               favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
@@ -846,8 +900,16 @@ class ChatsTabController extends GetxController {
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
             _chatService.nextLoading.isFalse) {
+          final int amount = _chatService.paginated.length;
+
           await _chatService.next();
-          _ensureScrollable();
+
+          _chatsInitiallyFetched = _chatService.paginated.length;
+
+          // Don't spam this method again and again if no chats were fetched.
+          if (_chatsInitiallyFetched != amount) {
+            _ensureScrollable();
+          }
         }
       });
     }
@@ -880,24 +942,21 @@ class ChatEntry implements Comparable<ChatEntry> {
     _updatedAt = _chat.chat.value.updatedAt;
     _hasCall = _chat.chat.value.ongoingCall != null;
 
-    _worker = ever(
-      _chat.chat,
-      (Chat chat) {
-        bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
-          sort?.call();
-          _updatedAt = chat.updatedAt;
-          _hasCall = hasCall;
-        }
-      },
-    );
+    _worker = ever(_chat.chat, (Chat chat) {
+      bool hasCall = chat.ongoingCall != null;
+      if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
+        sort?.call();
+        _updatedAt = chat.updatedAt;
+        _hasCall = hasCall;
+      }
+    });
   }
-
-  /// [RxChat] itself.
-  final RxChat _chat;
 
   /// Indicator whether this [ChatEntry] is hidden.
   final RxBool hidden = RxBool(false);
+
+  /// [RxChat] itself.
+  final RxChat _chat;
 
   /// Worker capturing the [Chat] changes to invoke sorting on [_updatedAt] and
   /// [_hasCall] mismatches.

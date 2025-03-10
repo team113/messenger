@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -54,9 +54,10 @@ class _WorkViewState extends State<WorkView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _backButtonDispatcher = Router.of(context)
-        .backButtonDispatcher!
-        .createChildBackButtonDispatcher();
+    _backButtonDispatcher =
+        Router.of(
+          context,
+        ).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -96,11 +97,12 @@ class _WorkViewState extends State<WorkView> {
                     appBar: CustomAppBar(
                       leading: [
                         AnimatedButton(
-                          decorator: (child) => Container(
-                            margin: const EdgeInsets.only(left: 18),
-                            height: double.infinity,
-                            child: Center(child: child),
-                          ),
+                          decorator:
+                              (child) => Container(
+                                margin: const EdgeInsets.only(left: 18),
+                                height: double.infinity,
+                                child: Center(child: child),
+                              ),
                           onPressed: router.auth,
                           child: const Center(child: SvgIcon(SvgIcons.home)),
                         ),
@@ -108,11 +110,12 @@ class _WorkViewState extends State<WorkView> {
                       title: Text('label_work_with_us'.l10n),
                       actions: [
                         AnimatedButton(
-                          decorator: (child) => Container(
-                            padding: const EdgeInsets.only(right: 18),
-                            height: double.infinity,
-                            child: Center(child: child),
-                          ),
+                          decorator:
+                              (child) => Container(
+                                padding: const EdgeInsets.only(right: 18),
+                                height: double.infinity,
+                                child: Center(child: child),
+                              ),
                           onPressed: () {
                             // No-op.
                           },
@@ -153,23 +156,26 @@ class _WorkViewState extends State<WorkView> {
           final bool isWork = router.routes.lastOrNull == Routes.work;
           return IgnorePointer(
             ignoring: isWork && context.isNarrow,
-            child: LayoutBuilder(builder: (context, constraints) {
-              return Row(
-                children: [
-                  ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: context.isNarrow ? 0 : 350),
-                    child: Container(),
-                  ),
-                  Expanded(
-                    child: Router(
-                      routerDelegate: _routerDelegate,
-                      backButtonDispatcher: _backButtonDispatcher,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Row(
+                  children: [
+                    ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: context.isNarrow ? 0 : 350,
+                      ),
+                      child: Container(),
                     ),
-                  ),
-                ],
-              );
-            }),
+                    Expanded(
+                      child: Router(
+                        routerDelegate: _routerDelegate,
+                        backButtonDispatcher: _backButtonDispatcher,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           );
         });
 
@@ -223,8 +229,9 @@ class _WorkViewState extends State<WorkView> {
                   ConditionalBackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
                     child: ConstrainedBox(
-                      constraints:
-                          BoxConstraints(maxWidth: context.isNarrow ? 0 : 350),
+                      constraints: BoxConstraints(
+                        maxWidth: context.isNarrow ? 0 : 350,
+                      ),
                       child: const SizedBox.expand(),
                     ),
                   ),

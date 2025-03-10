@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ class PrefixButton extends StatelessWidget {
   const PrefixButton({
     super.key,
     this.title = '',
+    this.subtitle,
     this.onPressed,
     this.style,
     this.prefix,
@@ -31,6 +32,9 @@ class PrefixButton extends StatelessWidget {
 
   /// Title of this [PrefixButton].
   final String title;
+
+  /// Title of this [PrefixButton].
+  final String? subtitle;
 
   /// [TextStyle] of the [title].
   final TextStyle? style;
@@ -70,21 +74,28 @@ class PrefixButton extends StatelessWidget {
                   minHeight: 46,
                   maxHeight: double.infinity,
                 ),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 5.6, vertical: 4.2),
-                child: Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: DefaultTextStyle.merge(
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: style,
-                        child: Center(child: Text(title)),
+                padding: const EdgeInsets.fromLTRB(13.6, 4.2, 13.6, 4.2),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          title,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: style,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
+                      if (subtitle != null)
+                        Text(
+                          subtitle!,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: styles.fonts.small.regular.secondary,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),

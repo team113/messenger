@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,25 +16,28 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:universal_io/io.dart';
 import 'package:win_toast/win_toast.dart';
 import 'package:window_manager/window_manager.dart';
 
+import '/api/backend/schema.dart' show PushDeviceToken;
 import '/config.dart';
-import '/domain/model/fcm_registration_token.dart';
 import '/domain/model/file.dart';
+import '/domain/model/push_token.dart';
 import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/android_utils.dart';
 import '/util/audio_utils.dart';
+import '/util/ios_utils.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -51,16 +54,18 @@ class NotificationService extends DisposableService {
   /// Language to receive Firebase Cloud Messaging notifications on.
   String? _language;
 
-  /// Firebase Cloud Messaging token used to subscribe to push notifications.
+  /// [FcmRegistrationToken] used to subscribe to FCM push notifications.
   String? _token;
+
+  /// [ApnsDeviceToken] used to subscribe to APNs push notifications.
+  String? _apns;
+
+  /// [ApnsVoipDeviceToken] used to subscribe to APNs VoIP push notifications.
+  String? _voip;
 
   /// Instance of a [FlutterLocalNotificationsPlugin] used to send notifications
   /// on non-web platforms.
   FlutterLocalNotificationsPlugin? _plugin;
-
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
-  /// [_focused].
-  StreamSubscription? _onFocusChanged;
 
   /// Subscription to the [FirebaseMessaging.onTokenRefresh] refreshing the
   /// [_token].
@@ -97,6 +102,9 @@ class NotificationService extends DisposableService {
   /// successfully configured.
   bool get pushNotifications => _pushNotifications;
 
+  /// Indicator whether this device's [Locale] contains a China country code.
+  bool get _isChina => Platform.localeName.contains('CN');
+
   /// Initializes this [NotificationService].
   ///
   /// Requests permission to send notifications if it hasn't been granted yet.
@@ -125,8 +133,9 @@ class NotificationService extends DisposableService {
     _language = language ?? _language;
 
     PlatformUtils.isActive.then((value) => _active = value);
-    _onActivityChanged =
-        PlatformUtils.onActivityChanged.listen((v) => _active = v);
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen(
+      (v) => _active = v,
+    );
 
     AudioUtils.ensureInitialized();
 
@@ -162,7 +171,6 @@ class NotificationService extends DisposableService {
   void onClose() {
     Log.debug('onClose()', '$runtimeType');
 
-    _onFocusChanged?.cancel();
     _onTokenRefresh?.cancel();
     _foregroundSubscription?.cancel();
     _onActivityChanged?.cancel();
@@ -222,16 +230,17 @@ class NotificationService extends DisposableService {
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {
-        file = (await CacheWorker.instance.get(
-          url: icon.url,
-          checksum: icon.checksum,
-          responseType: CacheResponseType.file,
-        ))
-            .file;
+        file =
+            (await CacheWorker.instance.get(
+              url: icon.url,
+              checksum: icon.checksum,
+              responseType: CacheResponseType.file,
+            )).file;
       }
 
       await WinToast.instance().showCustomToast(
-        xml: '<?xml version="1.0" encoding="UTF-8"?>'
+        xml:
+            '<?xml version="1.0" encoding="UTF-8"?>'
             '<toast activationType="Foreground" launch="${payload ?? ''}">'
             '  <visual addImageQuery="true">'
             '      <binding template="ToastGeneric">'
@@ -252,8 +261,12 @@ class NotificationService extends DisposableService {
         try {
           final String name =
               'notification_${DateTime.now().toString().replaceAll(':', '.')}.jpg';
-          final File? file =
-              await PlatformUtils.download(image, name, null, temporary: true);
+          final File? file = await PlatformUtils.download(
+            image,
+            name,
+            null,
+            temporary: true,
+          );
 
           imagePath = file?.path;
         } catch (_) {
@@ -275,9 +288,12 @@ class NotificationService extends DisposableService {
             'default',
             'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
-            styleInformation: imagePath == null
-                ? null
-                : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
+            styleInformation:
+                imagePath == null
+                    ? null
+                    : BigPictureStyleInformation(
+                      FilePathAndroidBitmap(imagePath),
+                    ),
             tag: tag,
           ),
           linux: LinuxNotificationDetails(
@@ -286,13 +302,13 @@ class NotificationService extends DisposableService {
           iOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
-              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+              if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
           ),
           macOS: DarwinNotificationDetails(
             sound: 'notification.caf',
             attachments: [
-              if (imagePath != null) DarwinNotificationAttachment(imagePath)
+              if (imagePath != null) DarwinNotificationAttachment(imagePath),
             ],
           ),
         ),
@@ -303,15 +319,15 @@ class NotificationService extends DisposableService {
 
   /// Sets the provided [language] as a preferred localization of the push
   /// notifications.
-  void setLanguage(String? language) async {
-    Log.debug('setLanguage($language)', '$runtimeType');
+  Future<void> setLanguage(String? language) async {
+    Log.debug('setLanguage($language) from $_language', '$runtimeType');
 
     if (_language != language) {
       _language = language;
 
-      if (_token != null) {
-        await _unregisterFcmDevice();
-        await _registerFcmDevice();
+      if (_token != null || _apns != null || _voip != null) {
+        await _unregisterPushDevice();
+        await _registerPushDevice();
       }
     }
   }
@@ -332,11 +348,12 @@ class NotificationService extends DisposableService {
       await WinToast.instance().initialize(
         aumId: 'team113.messenger',
         displayName: 'Gapopa',
-        iconPath: kDebugMode
-            ? File(r'assets\icons\app_icon.ico').absolute.path
-            : File(r'data\flutter_assets\assets\icons\app_icon.ico')
-                .absolute
-                .path,
+        iconPath:
+            kDebugMode
+                ? File(r'assets\icons\app_icon.ico').absolute.path
+                : File(
+                  r'data\flutter_assets\assets\icons\app_icon.ico',
+                ).absolute.path,
         clsid: Config.clsid,
       );
 
@@ -419,23 +436,52 @@ class NotificationService extends DisposableService {
 
     // Display a local notification, if there's any push notifications received
     // while application is in foreground.
-    _foregroundSubscription = FirebaseMessaging.onMessage.listen((message) {
-      Log.debug('_foregroundSubscription($message)', '$runtimeType');
+    _foregroundSubscription = FirebaseMessaging.onMessage.listen((
+      message,
+    ) async {
+      Log.debug('_foregroundSubscription(${message.toMap()})', '$runtimeType');
 
-      if (message.notification?.title != null) {
-        show(
+      // If message contains no notification (it's a background notification),
+      // then try canceling the notifications with the provided thread, if any,
+      // or otherwise a single one, if data contains a tag.
+      if (message.notification == null ||
+          (message.notification?.title == 'Canceled' &&
+              message.notification?.body == null)) {
+        final String? tag = message.data['tag'];
+        final String? thread = message.data['thread'];
+
+        if (PlatformUtils.isWeb) {
+          // TODO: Implement notifications canceling for Web.
+        } else if (PlatformUtils.isAndroid) {
+          if (thread != null) {
+            await AndroidUtils.cancelNotificationsContaining(thread);
+          } else if (tag != null) {
+            await AndroidUtils.cancelNotification(tag);
+          }
+        } else if (PlatformUtils.isIOS) {
+          if (thread != null) {
+            await IosUtils.cancelNotificationsContaining(thread);
+          } else if (tag != null) {
+            await IosUtils.cancelNotification(tag);
+          }
+        }
+      } else if (message.notification?.title != null) {
+        await show(
           message.notification!.title!,
           body: message.notification?.body,
-          payload: message.data['chatId'] != null
-              ? '${Routes.chats}/${message.data['chatId']}'
-              : null,
-          image: message.notification?.android?.imageUrl ??
+          payload:
+              message.data['chatId'] != null
+                  ? '${Routes.chats}/${message.data['chatId']}'
+                  : null,
+          image:
+              message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
-          tag: message.data['chatId'] != null &&
-                  message.data['chatItemId'] != null
-              ? '${message.data['chatId']}_${message.data['chatItemId']}'
-              : null,
+          tag:
+              message.data['chatId'] != null &&
+                      message.data['chatItemId'] != null
+                  ? '${message.data['chatId']}_${message.data['chatItemId']}'
+                  : null,
         );
       }
     });
@@ -460,19 +506,21 @@ class NotificationService extends DisposableService {
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
     // [AndroidUtils.createNotificationChannel], so try again on failure.
-    if (PlatformUtils.isAndroid &&
-        settings.authorizationStatus != AuthorizationStatus.authorized) {
+    if (settings.authorizationStatus == AuthorizationStatus.notDetermined ||
+        (PlatformUtils.isAndroid &&
+            settings.authorizationStatus != AuthorizationStatus.authorized)) {
       settings = await FirebaseMessaging.instance.requestPermission();
     }
 
     if (settings.authorizationStatus == AuthorizationStatus.authorized) {
       _onBroadcastMessage = WebUtils.onBroadcastMessage.listen((message) {
-        final String? chatId = message['data']['chatId'];
-        final String? chatItemId = message['data']['chatItemId'];
+        final String? chatId = message['data']?['chatId'];
+        final String? chatItemId = message['data']?['chatItemId'];
 
-        final String? tag = (chatId != null && chatItemId != null)
-            ? '${chatId}_$chatItemId'
-            : null;
+        final String? tag =
+            (chatId != null && chatItemId != null)
+                ? '${chatId}_$chatItemId'
+                : null;
 
         // Keep track of the shown notifications' [tag]s to prevent duplication.
         //
@@ -487,50 +535,106 @@ class NotificationService extends DisposableService {
           }
         }
 
-        // On Web push notifications don't support playing any sounds, it's up
-        // to operating system to decide, whether to play sound at all, so we
-        // play a sound manually.
-        AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        if (message['notification']?['title'] != null) {
+          // On Web push notifications don't support playing any sounds, it's up
+          // to operating system to decide, whether to play sound at all, so we
+          // play a sound manually.
+          AudioUtils.once(AudioSource.asset('audio/notification.mp3'));
+        }
       });
 
-      _token =
-          await FirebaseMessaging.instance.getToken(vapidKey: Config.vapidKey);
+      if (!PlatformUtils.isWeb && PlatformUtils.isIOS) {
+        _voip = await FlutterCallkitIncoming.getDevicePushTokenVoIP();
+        _apns = await FirebaseMessaging.instance.getAPNSToken();
+      }
 
-      _onTokenRefresh =
-          FirebaseMessaging.instance.onTokenRefresh.listen((token) async {
-        await _unregisterFcmDevice();
-        _token = token;
-        await _registerFcmDevice();
-      });
+      if (_apns == null) {
+        _token = await FirebaseMessaging.instance.getToken(
+          vapidKey: Config.vapidKey,
+        );
 
-      await _registerFcmDevice();
+        _onTokenRefresh = FirebaseMessaging.instance.onTokenRefresh.listen((
+          token,
+        ) async {
+          await _unregisterPushDevice();
+          _token = token;
+          await _registerPushDevice();
+        });
+      }
+
+      await _registerPushDevice();
     }
   }
 
-  /// Registers a device (Android, iOS, or Web) for receiving notifications via
-  /// Firebase Cloud Messaging.
-  Future<void> _registerFcmDevice() async {
-    Log.debug('_registerFcmDevice()', '$runtimeType');
+  /// Registers a device (Android, iOS, or Web) for receiving notifications.
+  Future<void> _registerPushDevice() async {
+    Log.debug('_registerPushDevice()', '$runtimeType');
 
     _pushNotifications = false;
 
-    if (_token != null) {
-      await _graphQlProvider.registerFcmDevice(
-        FcmRegistrationToken(_token!),
-        _language,
-      );
+    Log.debug('_registerPushDevice() -> _token: $_token', '$runtimeType');
+    Log.debug('_registerPushDevice() -> _apns: $_apns', '$runtimeType');
+    Log.debug('_registerPushDevice() -> _voip: $_voip', '$runtimeType');
 
-      _pushNotifications = true;
+    final List<Future> futures = [];
+
+    if (_token != null) {
+      futures.add(
+        _graphQlProvider
+            .registerPushDevice(
+              PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+              _language,
+            )
+            .then((_) => _pushNotifications = true),
+      );
     }
+
+    if (_apns != null) {
+      futures.add(
+        _graphQlProvider
+            .registerPushDevice(
+              PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
+              _language,
+            )
+            .then((_) => _pushNotifications = true),
+      );
+    }
+
+    // CallKit should not be used in China due to restrictions.
+    if (!_isChina) {
+      if (_voip != null) {
+        futures.add(
+          _graphQlProvider.registerPushDevice(
+            PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+            _language,
+          ),
+        );
+      }
+    }
+
+    await Future.wait(futures);
   }
 
-  /// Unregisters a device (Android, iOS, or Web) from receiving notifications
-  /// via Firebase Cloud Messaging.
-  Future<void> _unregisterFcmDevice() async {
-    Log.debug('_unregisterFcmDevice()', '$runtimeType');
+  /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
+  Future<void> _unregisterPushDevice() async {
+    Log.debug('_unregisterPushDevice()', '$runtimeType');
 
-    if (_token != null) {
-      await _graphQlProvider.unregisterFcmDevice(FcmRegistrationToken(_token!));
+    try {
+      await Future.wait([
+        if (_token != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(fcm: FcmRegistrationToken(_token!)),
+          ),
+        if (_apns != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apns: ApnsDeviceToken(_apns!)),
+          ),
+        if (_voip != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apnsVoip: ApnsVoipDeviceToken(_voip!)),
+          ),
+      ]);
+    } finally {
       _pushNotifications = false;
     }
   }

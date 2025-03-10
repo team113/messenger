@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,10 +20,34 @@ import 'package:flutter/services.dart';
 /// Helper providing direct access to iOS-only features.
 class IosUtils {
   /// [MethodChannel] to communicate with iOS via.
-  static const platform = MethodChannel('team113.flutter.dev/ios_utils');
+  static const _platform = MethodChannel('team113.flutter.dev/ios_utils');
 
   /// Returns the architecture of this device.
   static Future<String> getArchitecture() async {
-    return await platform.invokeMethod('getArchitecture');
+    return await _platform.invokeMethod('getArchitecture');
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<bool> cancelNotification(String tag) async {
+    return await _platform.invokeMethod('cancelNotification', {'tag': tag});
+  }
+
+  /// Removes the delivered notifications containing the provided [thread].
+  static Future<bool> cancelNotificationsContaining(String thread) async {
+    return await _platform.invokeMethod('cancelNotificationsContaining', {
+      'thread': thread,
+    });
+  }
+
+  /// Returns the directory that is shared among both application and its
+  /// services (Notification Service Extension, for example).
+  static Future<String> getSharedDirectory() async {
+    final String url = await _platform.invokeMethod('getSharedDirectory');
+    return url.replaceFirst('file://', '');
+  }
+
+  /// Writes the provided [value] at the [key] in the shared dictionaries.
+  static Future<void> writeDefaults(String key, String value) async {
+    await _platform.invokeMethod('writeDefaults', {'key': key, 'value': value});
   }
 }

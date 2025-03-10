@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,9 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteUserPhone($phone: UserPhone!) {
-    deleteUserPhone(phone: $phone) {
+mutation DeleteUserPhone(
+    $phone: UserPhone!
+    $confirmation: MyUserCredentials
+) {
+    deleteUserPhone(
+        phone: $phone
+        confirmation: $confirmation
+    ) {
         __typename
-        ...MyUserEventsVersioned
+        ... on MyUserEventsVersioned {
+            ...MyUserEventsVersioned
+        }
+        ... on DeleteUserPhoneError {
+            code
+        }
     }
 }

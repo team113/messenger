@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,23 +31,21 @@ import '../world/custom_world.dart';
 /// - Then I see "Bob" contact last in contacts list
 final StepDefinitionGeneric seeContactPosition =
     then2<String, PositionStatus, CustomWorld>(
-  'I see {string} contact {position} in contacts list',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} contact {position} in contacts list',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ContactsTabController>();
-        final ChatContactId contactId = context.world.contacts[name]!;
+          final controller = Get.find<ContactsTabController>();
+          final ChatContactId contactId = context.world.contacts[name]!;
 
-        switch (status) {
-          case PositionStatus.first:
-            return controller.contacts.first.id == contactId;
+          switch (status) {
+            case PositionStatus.first:
+              return controller.contacts.first.id == contactId;
 
-          case PositionStatus.last:
-            return controller.contacts.last.id == contactId;
-        }
+            case PositionStatus.last:
+              return controller.contacts.last.id == contactId;
+          }
+        });
       },
     );
-  },
-);

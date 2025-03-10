@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,60 +41,64 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
   @override
   Stream<QueryResult> incomingCallsTopEvents(int count) {
     Future.delayed(
-        Duration.zero,
-        () => ongoingCallStream.add(QueryResult.internal(
-              source: QueryResultSource.network,
-              data: {
-                'incomingChatCallsTopEvents': {
-                  '__typename': 'SubscriptionInitialized',
-                  'ok': true,
-                }
-              },
-              parserFn: (_) => null,
-            )));
+      Duration.zero,
+      () => ongoingCallStream.add(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'incomingChatCallsTopEvents': {
+              '__typename': 'SubscriptionInitialized',
+              'ok': true,
+            },
+          },
+          parserFn: (_) => null,
+        ),
+      ),
+    );
+
     return ongoingCallStream.stream;
   }
 
-  @override
-  Future<Contacts$Query$ChatContacts> chatContacts({
-    int? first,
-    ChatContactsCursor? after,
-    int? last,
-    ChatContactsCursor? before,
-    bool noFavorite = false,
-  }) async =>
-      Contacts$Query.fromJson({
-        'chatContacts': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          },
-          'ver': '0',
-        }
-      }).chatContacts;
+  // @override
+  // Future<Contacts$Query$ChatContacts> chatContacts({
+  //   int? first,
+  //   ChatContactsCursor? after,
+  //   int? last,
+  //   ChatContactsCursor? before,
+  //   bool noFavorite = false,
+  // }) async =>
+  //     Contacts$Query.fromJson({
+  //       'chatContacts': {
+  //         'edges': [],
+  //         'pageInfo': {
+  //           'endCursor': 'endCursor',
+  //           'hasNextPage': false,
+  //           'startCursor': 'startCursor',
+  //           'hasPreviousPage': false,
+  //         },
+  //         'ver': '0',
+  //       }
+  //     }).chatContacts;
 
-  @override
-  Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
-    int? first,
-    FavoriteChatContactsCursor? after,
-    int? last,
-    FavoriteChatContactsCursor? before,
-  }) async =>
-      FavoriteContacts$Query.fromJson({
-        'favoriteChatContacts': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          },
-          'ver': '0',
-        }
-      }).favoriteChatContacts;
+  // @override
+  // Future<FavoriteContacts$Query$FavoriteChatContacts> favoriteChatContacts({
+  //   int? first,
+  //   FavoriteChatContactsCursor? after,
+  //   int? last,
+  //   FavoriteChatContactsCursor? before,
+  // }) async =>
+  //     FavoriteContacts$Query.fromJson({
+  //       'favoriteChatContacts': {
+  //         'edges': [],
+  //         'pageInfo': {
+  //           'endCursor': 'endCursor',
+  //           'hasNextPage': false,
+  //           'startCursor': 'startCursor',
+  //           'hasPreviousPage': false,
+  //         },
+  //         'ver': '0',
+  //       }
+  //     }).favoriteChatContacts;
 
   @override
   Future<RecentChats$Query> recentChats({
@@ -104,18 +108,17 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     RecentChatsCursor? before,
     bool noFavorite = false,
     bool? withOngoingCalls,
-  }) async =>
-      RecentChats$Query.fromJson({
-        'recentChats': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          }
-        }
-      });
+  }) async => RecentChats$Query.fromJson({
+    'recentChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+    },
+  });
 
   @override
   Future<FavoriteChats$Query> favoriteChats({
@@ -123,31 +126,31 @@ class MockedGraphQlProvider extends Fake implements GraphQlProvider {
     FavoriteChatsCursor? after,
     int? last,
     FavoriteChatsCursor? before,
-  }) async =>
-      FavoriteChats$Query.fromJson({
-        'favoriteChats': {
-          'edges': [],
-          'pageInfo': {
-            'endCursor': 'endCursor',
-            'hasNextPage': false,
-            'startCursor': 'startCursor',
-            'hasPreviousPage': false,
-          },
-          'ver': '0'
-        }
-      });
+  }) async => FavoriteChats$Query.fromJson({
+    'favoriteChats': {
+      'edges': [],
+      'pageInfo': {
+        'endCursor': 'endCursor',
+        'hasNextPage': false,
+        'startCursor': 'startCursor',
+        'hasPreviousPage': false,
+      },
+      'ver': '0',
+    },
+  });
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) =>
-      const Stream.empty();
+  Future<Stream<QueryResult>> myUserEvents(
+    Future<MyUserVersion?> Function()? getVer,
+  ) async => const Stream.empty();
 
   @override
   Stream<QueryResult> contactsEvents(
-          ChatContactsListVersion? Function()? getVer) =>
-      const Stream.empty();
+    ChatContactsListVersion? Function()? getVer,
+  ) => const Stream.empty();
 
   @override
   Stream<QueryResult> favoriteChatsEvents(
-          FavoriteChatsListVersion? Function()? getVer) =>
-      const Stream.empty();
+    FavoriteChatsListVersion? Function()? getVer,
+  ) => const Stream.empty();
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/routes.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 import 'app_bar.dart';
 import 'navigation_bar.dart';
@@ -62,7 +63,11 @@ class SafeScrollbar extends StatelessWidget {
         data: MediaQuery.of(router.context ?? context).copyWith(
           padding: EdgeInsets.only(
             top: top ? CustomAppBar.height - 5 : 0,
-            bottom: bottom ? CustomNavigationBar.height : 0,
+            bottom:
+                bottom
+                    ? CustomNavigationBar.height +
+                        (CustomSafeArea.isPwa ? 25 : 0)
+                    : 0,
           ),
         ),
         child: Padding(
@@ -93,9 +98,10 @@ class SafeScrollbar extends StatelessWidget {
           bottom: bottom ? padding.bottom + 5 + 5 : 0,
         ),
         clipBehavior: Clip.hardEdge,
-        child: controller == null
-            ? child
-            : Scrollbar(controller: controller, child: child),
+        child:
+            controller == null
+                ? child
+                : Scrollbar(controller: controller, child: child),
       ),
     );
   }

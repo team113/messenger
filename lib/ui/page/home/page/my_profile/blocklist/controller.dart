@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,6 +76,10 @@ class BlocklistController extends GetxController {
   /// Indicates whether the [blocklist] have a next page.
   RxBool get hasNext => _blocklistService.hasNext;
 
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count => _blocklistService.count;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
@@ -83,7 +87,9 @@ class BlocklistController extends GetxController {
     blocklist.value = _blocklistService.blocklist.values.toList();
     _sort();
 
-    _blocklistSubscription = _blocklistService.blocklist.changes.listen((e) {
+    _blocklistSubscription = _blocklistService.blocklist.items.changes.listen((
+      e,
+    ) {
       switch (e.op) {
         case OperationKind.added:
           blocklist.add(e.value!);
@@ -130,15 +136,13 @@ class BlocklistController extends GetxController {
 
   /// Sorts the [blocklist] by the [User.isBlocked] value.
   void _sort() {
-    blocklist.sort(
-      (a, b) {
-        if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
-          return 0;
-        }
+    blocklist.sort((a, b) {
+      if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
+        return 0;
+      }
 
-        return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
-      },
-    );
+      return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
+    });
   }
 
   /// Requests the next page of [blocklist] based on the
@@ -154,7 +158,8 @@ class BlocklistController extends GetxController {
             hasNext.isTrue &&
             _blocklistService.nextLoading.isFalse &&
             scrollController.position.pixels >
-                scrollController.position.maxScrollExtent - 500) {
+                scrollController.position.maxScrollExtent - 500 &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           _blocklistService.next();
         }
       });
@@ -180,7 +185,8 @@ class BlocklistController extends GetxController {
         // If the fetched initial page contains less elements than required to
         // fill the view and there's more pages available, then fetch those pages.
         if (scrollController.position.maxScrollExtent < 50 &&
-            _blocklistService.nextLoading.isFalse) {
+            _blocklistService.nextLoading.isFalse &&
+            _blocklistService.blocklist.length >= _blocklistService.perPage) {
           await _blocklistService.next();
           _ensureScrollable();
         }

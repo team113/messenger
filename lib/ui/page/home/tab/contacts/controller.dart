@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -50,7 +50,7 @@ import 'view.dart';
 
 export 'view.dart';
 
-/// Controller of the [HomeTab.contacts] tab.
+/// Controller of the `HomeTab.contacts` tab.
 class ContactsTabController extends GetxController {
   ContactsTabController(
     this._chatService,
@@ -139,10 +139,9 @@ class ContactsTabController extends GetxController {
   void onInit() {
     scrollController.addListener(_scrollListener);
 
-    contacts.value = _contactService.paginated.values
-        .map((e) => ContactEntry(e))
-        .toList()
-      ..sort();
+    contacts.value =
+        _contactService.paginated.values.map((e) => ContactEntry(e)).toList()
+          ..sort();
 
     _initUsersUpdates();
 
@@ -152,13 +151,15 @@ class ContactsTabController extends GetxController {
     }
 
     if (_contactService.status.value.isSuccess) {
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => _ensureScrollable());
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => _ensureScrollable(),
+      );
     } else {
       _statusSubscription = _contactService.status.listen((status) {
         if (status.isSuccess) {
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => _ensureScrollable());
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => _ensureScrollable(),
+          );
         }
       });
     }
@@ -214,8 +215,9 @@ class ContactsTabController extends GetxController {
     router.navigation.value = !selecting.value;
 
     try {
-      final Iterable<Future> futures =
-          selectedContacts.map((e) => _contactService.deleteContact(e));
+      final Iterable<Future> futures = selectedContacts.map(
+        (e) => _contactService.deleteContact(e),
+      );
       await Future.wait(futures);
     } catch (e) {
       MessagePopup.error(e);
@@ -255,9 +257,10 @@ class ContactsTabController extends GetxController {
 
   /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
-    final List<ContactEntry> favorites = contacts
-        .where((e) => e.contact.value.favoritePosition != null)
-        .toList();
+    final List<ContactEntry> favorites =
+        contacts
+            .where((e) => e.contact.value.favoritePosition != null)
+            .toList();
 
     double position;
 
@@ -266,7 +269,8 @@ class ContactsTabController extends GetxController {
     } else if (to >= favorites.length) {
       position = favorites.last.contact.value.favoritePosition!.val / 2;
     } else {
-      position = (favorites[to].contact.value.favoritePosition!.val +
+      position =
+          (favorites[to].contact.value.favoritePosition!.val +
               favorites[to - 1].contact.value.favoritePosition!.val) /
           2;
     }
@@ -293,10 +297,7 @@ class ContactsTabController extends GetxController {
         _userService,
         _contactService,
         _myUserService,
-        categories: const [
-          SearchCategory.contact,
-          SearchCategory.user,
-        ],
+        categories: const [SearchCategory.contact, SearchCategory.user],
       )..onInit();
 
       _searchSubscription = StreamGroup.merge([
@@ -565,7 +566,7 @@ class DividerElement extends ListElement {
 /// [remaining] milliseconds have passed.
 class DismissedContact {
   DismissedContact(this.contact, {void Function(bool)? onDone})
-      : _onDone = onDone {
+    : _onDone = onDone {
     _timer = Timer.periodic(32.milliseconds, (t) {
       final value = remaining.value - 32;
 

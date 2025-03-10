@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,15 +24,14 @@ import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
 import '/ui/page/call/widget/scaler.dart';
+import '/ui/page/link/view.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/tile.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
@@ -40,9 +39,7 @@ import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
 import 'tab/chats/controller.dart';
-import 'tab/contacts/controller.dart';
 import 'tab/menu/controller.dart';
-import 'tab/work/view.dart';
 import 'widget/animated_slider.dart';
 import 'widget/keep_alive.dart';
 import 'widget/navigation_bar.dart';
@@ -115,9 +112,10 @@ class _HomeViewState extends State<HomeView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _backButtonDispatcher = Router.of(context)
-        .backButtonDispatcher!
-        .createChildBackButtonDispatcher();
+    _backButtonDispatcher =
+        Router.of(
+          context,
+        ).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -127,9 +125,10 @@ class _HomeViewState extends State<HomeView> {
     if (_deps == null) {
       return Scaffold(
         // For web, background color is displayed in `index.html` file.
-        backgroundColor: PlatformUtils.isWeb
-            ? style.colors.transparent
-            : style.colors.onPrimary,
+        backgroundColor:
+            PlatformUtils.isWeb
+                ? style.colors.transparent
+                : style.colors.onPrimary,
         body: const Stack(
           children: [
             SvgImage.asset(
@@ -151,13 +150,17 @@ class _HomeViewState extends State<HomeView> {
         Get.find(),
         signedUp: widget.signedUp,
         link: widget.link,
+        context: context,
       ),
       builder: (HomeController c) {
         // Claim priority of the "Back" button dispatcher.
         _backButtonDispatcher.takePriority();
 
         if (!context.isNarrow) {
-          c.sideBarWidth.value = c.applySideBarWidth(c.sideBarAllowedWidth);
+          c.sideBarWidth.value = c.applySideBarWidth(
+            context,
+            c.sideBarAllowedWidth,
+          );
         }
 
         // Side bar uses a little trick to be responsive:
@@ -207,17 +210,15 @@ class _HomeViewState extends State<HomeView> {
                       },
                       // [KeepAlivePage] used to keep the tabs' states.
                       children: const [
-                        KeepAlivePage(child: WorkTabView()),
-                        KeepAlivePage(child: ContactsTabView()),
+                        SizedBox(),
                         KeepAlivePage(child: ChatsTabView()),
                         KeepAlivePage(child: MenuTabView()),
                       ],
                     ),
                     extendBody: true,
-                    bottomNavigationBar: SafeArea(
+                    bottomNavigationBar: CustomSafeArea(
                       child: Obx(() {
-                        final List<HomeTab> tabs =
-                            c.tabs.where((e) => e != HomeTab.contacts).toList();
+                        final List<HomeTab> tabs = c.tabs;
 
                         return AnimatedSlider(
                           duration: 300.milliseconds,
@@ -226,61 +227,45 @@ class _HomeViewState extends State<HomeView> {
                           translate: false,
                           child: CustomNavigationBar(
                             key: c.panelKey,
-                            items: tabs.map((e) {
-                              switch (e) {
-                                case HomeTab.work:
-                                  return const CustomNavigationBarItem.work();
+                            items:
+                                tabs.map((e) {
+                                  switch (e) {
+                                    case HomeTab.link:
+                                      return const CustomNavigationBarItem.link();
 
-                                case HomeTab.contacts:
-                                  return const CustomNavigationBarItem
-                                      .contacts();
+                                    case HomeTab.chats:
+                                      return Obx(() {
+                                        return CustomNavigationBarItem.chats(
+                                          unread:
+                                              c.unreadChats.value.toString(),
+                                          danger: c.myUser.value?.muted == null,
+                                          selector: c.chatsKey,
+                                          onMute: c.toggleMute,
+                                        );
+                                      });
 
-                                case HomeTab.chats:
-                                  return Obx(() {
-                                    return CustomNavigationBarItem.chats(
-                                      unread: c.unreadChats.value.toString(),
-                                      danger: c.myUser.value?.muted == null,
-                                      selector: c.chatsKey,
-                                      onMute: c.toggleMute,
-                                    );
-                                  });
-
-                                case HomeTab.menu:
-                                  return Obx(() {
-                                    return CustomNavigationBarItem.menu(
-                                      acceptAuxiliary:
-                                          style.colors.acceptAuxiliary,
-                                      warning: style.colors.warning,
-                                      onPresence: c.setPresence,
-                                      onAvatar: c.updateAvatar,
-                                      selector: c.panelKey,
-                                      myUser: c.myUser.value,
-                                      actions: [
-                                        ContextMenuBuilder(
-                                          (_) => Obx(() {
-                                            final hasWork = c.settings.value
-                                                    ?.workWithUsTabEnabled ==
-                                                true;
-
-                                            return ContextMenuTile(
-                                              asset: SvgIcons.partner,
-                                              label: 'label_work_with_us'.l10n,
-                                              pinned: hasWork,
-                                              onPressed: (_) =>
-                                                  c.setWorkWithUsTabEnabled(
-                                                !hasWork,
-                                              ),
-                                            );
-                                          }),
-                                        ),
-                                        const ContextMenuDivider(),
-                                      ],
-                                    );
-                                  });
-                              }
-                            }).toList(),
+                                    case HomeTab.menu:
+                                      return Obx(() {
+                                        return CustomNavigationBarItem.menu(
+                                          acceptAuxiliary:
+                                              style.colors.acceptAuxiliary,
+                                          warning: style.colors.warning,
+                                          onPresence: c.setPresence,
+                                          onAvatar: c.updateAvatar,
+                                          selector: c.panelKey,
+                                          myUser: c.myUser.value,
+                                        );
+                                      });
+                                  }
+                                }).toList(),
                             currentIndex: tabs.indexOf(router.tab),
-                            onTap: (i) => c.pages.jumpToPage(tabs[i].index),
+                            onTap: (i) {
+                              if (i == 0) {
+                                return LinkView.show(context);
+                              }
+
+                              c.pages.jumpToPage(tabs[i].index);
+                            },
                           ),
                         );
                       }),
@@ -292,10 +277,18 @@ class _HomeViewState extends State<HomeView> {
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
-                    onDragStart: (_) => c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value),
-                    onDragUpdate: (dx, _) => c.sideBarWidth.value =
-                        c.applySideBarWidth(c.sideBarWidth.value + dx),
+                    onDragStart:
+                        (_) =>
+                            c.sideBarWidth.value = c.applySideBarWidth(
+                              context,
+                              c.sideBarWidth.value,
+                            ),
+                    onDragUpdate:
+                        (dx, _) =>
+                            c.sideBarWidth.value = c.applySideBarWidth(
+                              context,
+                              c.sideBarWidth.value + dx,
+                            ),
                     onDragEnd: (_) => c.setSideBarWidth(),
                     width: 7,
                     height: context.height,
@@ -307,28 +300,31 @@ class _HomeViewState extends State<HomeView> {
 
         // Nested navigation widget that displays [navigator] in an [Expanded]
         // to take all the remaining from the [sideBar] space.
-        Widget navigation = IgnorePointer(
+        final Widget navigation = IgnorePointer(
           ignoring: router.route == Routes.home && context.isNarrow,
-          child: LayoutBuilder(builder: (context, constraints) {
-            return Row(
-              children: [
-                Obx(() {
-                  double width = c.sideBarWidth.value;
-                  return ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: context.isNarrow ? 0 : width),
-                    child: Container(),
-                  );
-                }),
-                Expanded(
-                  child: Router(
-                    routerDelegate: _routerDelegate,
-                    backButtonDispatcher: _backButtonDispatcher,
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return Row(
+                children: [
+                  Obx(() {
+                    final double width = c.sideBarWidth.value;
+                    return ConstrainedBox(
+                      constraints: BoxConstraints(
+                        maxWidth: context.isNarrow ? 0 : width,
+                      ),
+                      child: Container(),
+                    );
+                  }),
+                  Expanded(
+                    child: Router(
+                      routerDelegate: _routerDelegate,
+                      backButtonDispatcher: _backButtonDispatcher,
+                    ),
                   ),
-                ),
-              ],
-            );
-          }),
+                ],
+              );
+            },
+          ),
         );
 
         // Navigator should be drawn under or above the [sideBar] for the
@@ -350,7 +346,7 @@ class _HomeViewState extends State<HomeView> {
                 ] else
                   const Scaffold(
                     body: Center(child: CustomProgressIndicator.primary()),
-                  )
+                  ),
               ],
             );
           }),

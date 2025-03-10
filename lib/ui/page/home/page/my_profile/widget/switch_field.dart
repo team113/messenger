@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,12 +22,7 @@ import '/ui/widget/text_field.dart';
 
 /// Custom-styled [ReactiveTextField] with [Switch.adaptive].
 class SwitchField extends StatelessWidget {
-  const SwitchField({
-    super.key,
-    this.text,
-    this.value = false,
-    this.onChanged,
-  });
+  const SwitchField({super.key, this.text, this.value = false, this.onChanged});
 
   /// Text of the [ReactiveTextField].
   final String? text;

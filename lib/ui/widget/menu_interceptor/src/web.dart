@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -16,15 +16,16 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 // ignore: avoid_web_libraries_in_flutter
-import 'dart:html' as html;
 import 'dart:ui_web' as ui;
 
 import 'package:flutter/widgets.dart';
+import 'package:web/web.dart' as web;
 
 /// Wrapper to prevent a default web context menu over its [child].
 class ContextMenuInterceptor extends StatelessWidget {
   ContextMenuInterceptor({
     super.key,
+    this.margin = EdgeInsets.zero,
     required this.child,
     this.enabled = true,
     this.debug = false,
@@ -33,6 +34,9 @@ class ContextMenuInterceptor extends StatelessWidget {
       _register();
     }
   }
+
+  /// [EdgeInsets] being the margin of the interception.
+  final EdgeInsets margin;
 
   /// Widget being wrapped.
   final Widget child;
@@ -58,7 +62,12 @@ class ContextMenuInterceptor extends StatelessWidget {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Positioned.fill(child: HtmlElementView(viewType: viewType)),
+        Positioned.fill(
+          child: Padding(
+            padding: margin,
+            child: HtmlElementView(viewType: viewType),
+          ),
+        ),
         child,
       ],
     );
@@ -88,19 +97,16 @@ class ContextMenuInterceptor extends StatelessWidget {
     final String viewType = _getViewType(debug: debug);
 
     // ignore: undefined_prefixed_name
-    ui.platformViewRegistry.registerViewFactory(
-      viewType,
-      (int viewId) {
-        final html.Element htmlElement = html.DivElement()
-          ..style.width = '100%'
-          ..style.height = '100%'
-          ..setAttribute('oncontextmenu', 'return false;');
-        if (debug) {
-          htmlElement.style.backgroundColor = 'rgba(255, 0, 0, .5)';
-        }
-        return htmlElement;
-      },
-      isVisible: false,
-    );
+    ui.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
+      final web.HTMLDivElement htmlElement =
+          web.HTMLDivElement()
+            ..style.width = '100%'
+            ..style.height = '100%'
+            ..setAttribute('oncontextmenu', 'return false;');
+      if (debug) {
+        htmlElement.style.backgroundColor = 'rgba(255, 0, 0, .5)';
+      }
+      return htmlElement;
+    }, isVisible: false);
   }
 }

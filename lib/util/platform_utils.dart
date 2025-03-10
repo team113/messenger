@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,12 +27,15 @@ import 'package:flutter_custom_cursor/cursor_manager.dart';
 import 'package:flutter_custom_cursor/flutter_custom_cursor.dart';
 import 'package:get/get.dart' hide Response;
 import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:macos_haptic_feedback/macos_haptic_feedback.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:share_plus/share_plus.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
+import '/domain/model/native_file.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/log.dart';
@@ -60,6 +63,9 @@ class PlatformUtilsImpl {
 
   /// Temporary directory.
   Directory? _temporaryDirectory;
+
+  /// Library directory.
+  Directory? _libraryDirectory;
 
   /// `User-Agent` header to put in the network requests.
   String? _userAgent;
@@ -153,10 +159,13 @@ class PlatformUtilsImpl {
       Worker? worker;
 
       _focusController = StreamController<bool>.broadcast(
-        onListen: () => worker = ever(
-          router.lifecycle,
-          (AppLifecycleState a) => _focusController?.add(a.inForeground),
-        ),
+        onListen:
+            () =>
+                worker = ever(
+                  router.lifecycle,
+                  (AppLifecycleState a) =>
+                      _focusController?.add(a.inForeground),
+                ),
         onCancel: () {
           worker?.dispose();
           _focusController?.close();
@@ -305,9 +314,43 @@ class PlatformUtilsImpl {
       return _temporaryDirectory!;
     }
 
-    _temporaryDirectory =
-        Directory('${(await getTemporaryDirectory()).path}${Config.downloads}');
+    _temporaryDirectory = Directory(
+      '${(await getTemporaryDirectory()).path}${Config.downloads}',
+    );
     return _temporaryDirectory!;
+  }
+
+  /// Returns a path to the library directory.
+  ///
+  /// Should be used to put local storage files and caches that aren't temporal.
+  FutureOr<Directory> get libraryDirectory async {
+    if (_libraryDirectory != null) {
+      return _libraryDirectory!;
+    }
+
+    Directory? directory;
+
+    try {
+      if (isLinux) {
+        directory ??= dataHome;
+      } else {
+        directory ??= await getLibraryDirectory();
+      }
+    } on MissingPluginException {
+      directory = Directory('');
+    } catch (_) {
+      directory ??= await cacheDirectory;
+      directory ??= await getApplicationDocumentsDirectory();
+    }
+
+    // Windows already contains both product name and company name in the path.
+    //
+    // Android already contains the bundle identifier in the path.
+    if (PlatformUtils.isWindows || PlatformUtils.isAndroid) {
+      return directory;
+    }
+
+    return Directory('${directory.path}/${Config.userAgentProduct}');
   }
 
   /// Indicates whether the application is in active state.
@@ -358,9 +401,12 @@ class PlatformUtilsImpl {
     bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
-      size = size ??
-          int.parse(((await (await dio).head(url!)).headers['content-length']
-              as List<String>)[0]);
+      size =
+          size ??
+          int.parse(
+            ((await (await dio).head(url!)).headers['content-length']
+                as List<String>)[0],
+          );
 
       final Directory directory =
           temporary ? await temporaryDirectory : await downloadsDirectory;
@@ -382,7 +428,12 @@ class PlatformUtilsImpl {
   }
 
   /// Downloads a file by provided [url] using `save as` dialog.
-  Future<File?> saveTo(String url) async {
+  ///
+  /// [onReceiveProgress] is only meaningful on non-Web platforms.
+  Future<File?> saveTo(
+    String url, {
+    Function(int count, int total)? onReceiveProgress,
+  }) async {
     String? to;
 
     if (!isWeb) {
@@ -401,6 +452,7 @@ class PlatformUtilsImpl {
       url.split('/').lastOrNull ?? 'file',
       null,
       path: to,
+      onReceiveProgress: onReceiveProgress,
     );
   }
 
@@ -439,39 +491,33 @@ class PlatformUtilsImpl {
         }
 
         if (PlatformUtils.isWeb) {
-          await Backoff.run(
-            () async {
-              try {
-                await WebUtils.downloadFile(url, filename);
-              } catch (e) {
-                onError(e);
-              }
-            },
-            cancelToken,
-          );
+          await Backoff.run(() async {
+            try {
+              await WebUtils.downloadFile(url, filename);
+            } catch (e) {
+              onError(e);
+            }
+          }, cancelToken);
         } else {
           File? file;
 
           if (path == null) {
             // Retry fetching the size unless any other that `404` error is
             // thrown.
-            file = await Backoff.run(
-              () async {
-                try {
-                  return await fileExists(
-                    filename,
-                    size: size,
-                    url: url,
-                    temporary: temporary,
-                  );
-                } catch (e) {
-                  onError(e);
-                }
+            file = await Backoff.run(() async {
+              try {
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
+              } catch (e) {
+                onError(e);
+              }
 
-                return null;
-              },
-              cancelToken,
-            );
+              return null;
+            }, cancelToken);
           }
 
           if (file == null) {
@@ -483,9 +529,10 @@ class PlatformUtilsImpl {
             if (path == null) {
               final String name = p.basenameWithoutExtension(filename);
               final String extension = p.extension(filename);
-              final Directory directory = temporary
-                  ? await temporaryDirectory
-                  : await downloadsDirectory;
+              final Directory directory =
+                  temporary
+                      ? await temporaryDirectory
+                      : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
               for (int i = 1; await file!.exists(); ++i) {
@@ -498,22 +545,19 @@ class PlatformUtilsImpl {
             if (data == null) {
               // Retry the downloading unless any other that `404` error is
               // thrown.
-              await Backoff.run(
-                () async {
-                  try {
-                    // TODO: Cache the response.
-                    await (await dio).download(
-                      url,
-                      file!.path,
-                      onReceiveProgress: onReceiveProgress,
-                      cancelToken: cancelToken,
-                    );
-                  } catch (e) {
-                    onError(e);
-                  }
-                },
-                cancelToken,
-              );
+              await Backoff.run(() async {
+                try {
+                  // TODO: Cache the response.
+                  await (await dio).download(
+                    url,
+                    file!.path,
+                    onReceiveProgress: onReceiveProgress,
+                    cancelToken: cancelToken,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
+              }, cancelToken);
             } else {
               await file.writeAsBytes(data);
             }
@@ -551,8 +595,10 @@ class PlatformUtilsImpl {
         throw UnsupportedError('SVGs are not supported in gallery.');
       }
 
-      final CacheEntry cache =
-          await CacheWorker.instance.get(url: url, checksum: checksum);
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: url,
+        checksum: checksum,
+      );
 
       await ImageGallerySaver.saveImage(cache.bytes!, name: name);
     } else {
@@ -588,8 +634,9 @@ class PlatformUtilsImpl {
   }
 
   /// Stores the provided [text] on the [Clipboard].
-  void copy({required String text}) =>
-      Clipboard.setData(ClipboardData(text: text));
+  Future<void> copy({required String text}) async {
+    await Clipboard.setData(ClipboardData(text: text));
+  }
 
   /// Keeps the [_isActive] status as [active].
   void keepActive([bool active = true]) {
@@ -607,21 +654,91 @@ class PlatformUtilsImpl {
       });
     }
   }
+
+  /// Returns the [FilePickerResult] of the file picking of the provided [type].
+  Future<FilePickerResult?> pickFiles({
+    FileType type = FileType.any,
+    bool allowCompression = true,
+    int compressionQuality = 30,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+    List<String>? allowedExtensions,
+  }) async {
+    try {
+      FileType accounted = type;
+      if (type == FileType.custom && isMobile) {
+        if (allowedExtensions == NativeFile.images) {
+          accounted = FileType.image;
+          allowedExtensions = null;
+        }
+      }
+
+      return await FilePicker.platform.pickFiles(
+        type: accounted,
+        allowCompression: allowCompression,
+        compressionQuality: compressionQuality,
+        allowMultiple: allowMultiple,
+        withData: withData,
+        withReadStream: withReadStream,
+        lockParentWindow: lockParentWindow,
+        allowedExtensions:
+            accounted == FileType.custom ? allowedExtensions : null,
+      );
+    } on PlatformException catch (e) {
+      if (e.code == 'already_active') {
+        return null;
+      } else {
+        rethrow;
+      }
+    }
+  }
+
+  /// Provides a haptic feedback of the provided [kind].
+  Future<void> haptic({HapticKind kind = HapticKind.click}) async {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      switch (kind) {
+        case HapticKind.click:
+          await MacosHapticFeedback().generic();
+          break;
+
+        case HapticKind.light:
+          await MacosHapticFeedback().alignment();
+          break;
+      }
+    } else {
+      switch (kind) {
+        case HapticKind.click:
+          await HapticFeedback.selectionClick();
+          break;
+
+        case HapticKind.light:
+          await HapticFeedback.lightImpact();
+          break;
+      }
+    }
+  }
 }
+
+/// Kind of a [PlatformUtilsImpl.haptic] feedback.
+enum HapticKind { click, light }
 
 /// Determining whether a [BuildContext] is mobile or not.
 extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
-  bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.sizeOf(this).shortestSide < 600
-      : false;
+  bool get isMobile =>
+      PlatformUtils.isMobile
+          ? MediaQuery.sizeOf(this).shortestSide < 600
+          : false;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
-  bool get isNarrow => PlatformUtils.isDesktop
-      ? MediaQuery.sizeOf(this).width < 600
-      : MediaQuery.sizeOf(this).shortestSide < 600;
+  bool get isNarrow =>
+      PlatformUtils.isDesktop
+          ? MediaQuery.sizeOf(this).width < 600
+          : MediaQuery.sizeOf(this).shortestSide < 600;
 }
 
 /// Extension adding an ability to pop the current [ModalRoute].
@@ -666,20 +783,58 @@ class CustomMouseCursors {
     return SystemMouseCursors.grabbing;
   }
 
+  /// Returns a resize up-left down-right [MouseCursor].
+  static MouseCursor get resizeUpLeftDownRight {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'resizeUpLeftDownRight');
+    }
+
+    return SystemMouseCursors.resizeUpLeftDownRight;
+  }
+
+  /// Returns a resize up-right down-left [MouseCursor].
+  static MouseCursor get resizeUpRightDownLeft {
+    if (PlatformUtils.isMacOS && !PlatformUtils.isWeb) {
+      return const FlutterCustomMemoryImageCursor(key: 'resizeUpRightDownLeft');
+    }
+
+    return SystemMouseCursors.resizeUpRightDownLeft;
+  }
+
   /// Ensures these [CustomMouseCursors] are initialized.
   static Future<void> ensureInitialized() async {
     if (!_initialized) {
       _initialized = true;
 
-      if (PlatformUtils.isWindows && !PlatformUtils.isWeb) {
-        await _initCursor('assets/images/grab.bgra', 'grab');
-        await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+      if (!PlatformUtils.isWeb) {
+        if (PlatformUtils.isWindows) {
+          await _initCursor('assets/images/grab.bgra', 'grab');
+          await _initCursor('assets/images/grabbing.bgra', 'grabbing');
+        } else if (PlatformUtils.isMacOS) {
+          await _initCursor(
+            'assets/images/resizeUpLeftDownRight.png',
+            'resizeUpLeftDownRight',
+            width: 15,
+            height: 15,
+          );
+          await _initCursor(
+            'assets/images/resizeUpRightDownLeft.png',
+            'resizeUpRightDownLeft',
+            width: 15,
+            height: 15,
+          );
+        }
       }
     }
   }
 
   /// Registers a custom [MouseCursor] from the provided [path] and [name].
-  static Future<void> _initCursor(String path, String name) async {
+  static Future<void> _initCursor(
+    String path,
+    String name, {
+    double width = 30,
+    double height = 30,
+  }) async {
     try {
       final ByteData bytes = await rootBundle.load(path);
 
@@ -687,13 +842,13 @@ class CustomMouseCursors {
         CursorData()
           ..name = name
           ..buffer = bytes.buffer.asUint8List()
-          ..height = 30
-          ..width = 30
-          ..hotX = 15
-          ..hotY = 15,
+          ..height = height.round()
+          ..width = width.round()
+          ..hotX = width / 2
+          ..hotY = height / 2,
       );
     } catch (e) {
-      Log.error(
+      Log.warning(
         'Failed to initialize `$name` cursor due to: $e',
         'CustomMouseCursors',
       );
@@ -744,11 +899,11 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowResized() async => onResized?.call(
-        MapEntry<Size, Offset>(
-          await windowManager.getSize(),
-          await windowManager.getPosition(),
-        ),
-      );
+    MapEntry<Size, Offset>(
+      await windowManager.getSize(),
+      await windowManager.getPosition(),
+    ),
+  );
 
   @override
   void onWindowMoved() async =>

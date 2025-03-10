@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -87,7 +87,8 @@ class VideoButton extends CallButton {
 
   @override
   String get hint {
-    bool isVideo = c.videoState.value == LocalTrackState.enabled ||
+    bool isVideo =
+        c.videoState.value == LocalTrackState.enabled ||
         c.videoState.value == LocalTrackState.enabling;
 
     return c.isMobile
@@ -95,8 +96,8 @@ class VideoButton extends CallButton {
             ? 'btn_call_video_off_desc'.l10n
             : 'btn_call_video_on_desc'.l10n
         : isVideo
-            ? 'btn_call_video_off'.l10n
-            : 'btn_call_video_on'.l10n;
+        ? 'btn_call_video_off'.l10n
+        : 'btn_call_video_on'.l10n;
   }
 
   @override
@@ -108,7 +109,8 @@ class VideoButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isVideo = c.videoState.value == LocalTrackState.enabled ||
+      bool isVideo =
+          c.videoState.value == LocalTrackState.enabled ||
           c.videoState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
@@ -131,7 +133,8 @@ class AudioButton extends CallButton {
 
   @override
   String get hint {
-    bool isAudio = c.audioState.value == LocalTrackState.enabled ||
+    bool isAudio =
+        c.audioState.value == LocalTrackState.enabled ||
         c.audioState.value == LocalTrackState.enabling;
 
     return c.isMobile
@@ -139,8 +142,8 @@ class AudioButton extends CallButton {
             ? 'btn_call_audio_off_desc'.l10n
             : 'btn_call_audio_on_desc'.l10n
         : isAudio
-            ? 'btn_call_audio_off'.l10n
-            : 'btn_call_audio_on'.l10n;
+        ? 'btn_call_audio_off'.l10n
+        : 'btn_call_audio_on'.l10n;
   }
 
   @override
@@ -152,7 +155,8 @@ class AudioButton extends CallButton {
     bool opaque = false,
   }) {
     return Obx(() {
-      bool isAudio = c.audioState.value == LocalTrackState.enabled ||
+      bool isAudio =
+          c.audioState.value == LocalTrackState.enabled ||
           c.audioState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
@@ -175,7 +179,8 @@ class ScreenButton extends CallButton {
 
   @override
   String get hint {
-    bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
+    bool isScreen =
+        c.screenShareState.value == LocalTrackState.enabled ||
         c.screenShareState.value == LocalTrackState.enabling;
 
     return c.isMobile
@@ -183,14 +188,15 @@ class ScreenButton extends CallButton {
             ? 'btn_call_screen_off_desc'.l10n
             : 'btn_call_screen_on_desc'.l10n
         : isScreen
-            ? 'btn_call_screen_off'.l10n
-            : 'btn_call_screen_on'.l10n;
+        ? 'btn_call_screen_off'.l10n
+        : 'btn_call_screen_on'.l10n;
   }
 
   @override
   Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
     return Obx(() {
-      bool isScreen = c.screenShareState.value == LocalTrackState.enabled ||
+      bool isScreen =
+          c.screenShareState.value == LocalTrackState.enabled ||
           c.screenShareState.value == LocalTrackState.enabling;
       return CallButtonWidget(
         hint: hint,
@@ -211,11 +217,12 @@ class HandButton extends CallButton {
   const HandButton(super.c);
 
   @override
-  String get hint => c.isMobile
-      ? c.me.isHandRaised.value
-          ? 'btn_call_hand_down_desc'.l10n
-          : 'btn_call_hand_up_desc'.l10n
-      : c.me.isHandRaised.value
+  String get hint =>
+      c.isMobile
+          ? c.me.isHandRaised.value
+              ? 'btn_call_hand_down_desc'.l10n
+              : 'btn_call_hand_up_desc'.l10n
+          : c.me.isHandRaised.value
           ? 'btn_call_hand_down'.l10n
           : 'btn_call_hand_up'.l10n;
 
@@ -224,9 +231,10 @@ class HandButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: c.me.isHandRaised.value
-            ? SvgIcons.callHandDown
-            : SvgIcons.callHandUp,
+        asset:
+            c.me.isHandRaised.value
+                ? SvgIcons.callHandDown
+                : SvgIcons.callHandUp,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -263,11 +271,12 @@ class ParticipantsButton extends CallButton {
   const ParticipantsButton(super.c);
 
   @override
-  String get hint => c.isGroup
-      ? c.isMobile
-          ? 'btn_participants_desc'.l10n
-          : 'btn_participants'.l10n
-      : c.isMobile
+  String get hint =>
+      c.isGroup
+          ? c.isMobile
+              ? 'btn_participants_desc'.l10n
+              : 'btn_participants'.l10n
+          : c.isMobile
           ? 'btn_add_participant_desc'.l10n
           : 'btn_add_participant'.l10n;
 
@@ -291,11 +300,12 @@ class RemoteVideoButton extends CallButton {
   const RemoteVideoButton(super.c);
 
   @override
-  String get hint => c.isMobile
-      ? c.isRemoteVideoEnabled.value
-          ? 'btn_call_remote_video_off_desc'.l10n
-          : 'btn_call_remote_video_on_desc'.l10n
-      : c.isRemoteVideoEnabled.value
+  String get hint =>
+      c.isMobile
+          ? c.isRemoteVideoEnabled.value
+              ? 'btn_call_remote_video_off_desc'.l10n
+              : 'btn_call_remote_video_on_desc'.l10n
+          : c.isRemoteVideoEnabled.value
           ? 'btn_call_remote_video_off'.l10n
           : 'btn_call_remote_video_on'.l10n;
 
@@ -304,9 +314,10 @@ class RemoteVideoButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: c.isRemoteVideoEnabled.value
-            ? SvgIcons.callIncomingVideoOn
-            : SvgIcons.callIncomingVideoOff,
+        asset:
+            c.isRemoteVideoEnabled.value
+                ? SvgIcons.callIncomingVideoOn
+                : SvgIcons.callIncomingVideoOff,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -322,11 +333,12 @@ class RemoteAudioButton extends CallButton {
   const RemoteAudioButton(super.c);
 
   @override
-  String get hint => c.isMobile
-      ? c.isRemoteAudioEnabled.value
-          ? 'btn_call_remote_audio_off_desc'.l10n
-          : 'btn_call_remote_audio_on_desc'.l10n
-      : c.isRemoteAudioEnabled.value
+  String get hint =>
+      c.isMobile
+          ? c.isRemoteAudioEnabled.value
+              ? 'btn_call_remote_audio_off_desc'.l10n
+              : 'btn_call_remote_audio_on_desc'.l10n
+          : c.isRemoteAudioEnabled.value
           ? 'btn_call_remote_audio_off'.l10n
           : 'btn_call_remote_audio_on'.l10n;
 
@@ -335,9 +347,10 @@ class RemoteAudioButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: c.isRemoteAudioEnabled.value
-            ? SvgIcons.callIncomingAudioOn
-            : SvgIcons.callIncomingAudioOff,
+        asset:
+            c.isRemoteAudioEnabled.value
+                ? SvgIcons.callIncomingAudioOn
+                : SvgIcons.callIncomingAudioOff,
         hinted: hinted,
         expanded: expanded,
         big: big,
@@ -372,9 +385,10 @@ class AcceptAudioButton extends CallButton {
       withBlur: expanded,
       big: big,
       constrained: c.isMobile,
-      border: highlight
-          ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
-          : null,
+      border:
+          highlight
+              ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
+              : null,
       onPressed: () => c.join(withVideo: false),
     );
   }
@@ -403,9 +417,10 @@ class AcceptVideoButton extends CallButton {
       withBlur: expanded,
       big: big,
       constrained: c.isMobile,
-      border: highlight
-          ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
-          : null,
+      border:
+          highlight
+              ? Border.all(color: style.colors.onPrimaryOpacity50, width: 1.5)
+              : null,
       onPressed: () => c.join(withVideo: true),
     );
   }
@@ -456,9 +471,10 @@ class CancelButton extends CallButton {
     return CallButtonWidget(
       hint: hint,
       asset: SvgIcons.callEndBig,
-      color: opaque
-          ? style.colors.declineOpacity88
-          : style.colors.declineOpacity50,
+      color:
+          opaque
+              ? style.colors.declineOpacity88
+              : style.colors.declineOpacity50,
       hinted: hinted,
       expanded: expanded,
       withBlur: blur,
@@ -503,9 +519,10 @@ class SpeakerButton extends CallButton {
   const SpeakerButton(super.c);
 
   @override
-  String get hint => c.isMobile
-      ? 'btn_call_toggle_speaker_desc'.l10n
-      : 'btn_call_toggle_speaker'.l10n;
+  String get hint =>
+      c.isMobile
+          ? 'btn_call_toggle_speaker_desc'.l10n
+          : 'btn_call_toggle_speaker'.l10n;
 
   @override
   Widget build({
@@ -551,9 +568,10 @@ class SwitchButton extends CallButton {
   const SwitchButton(super.c);
 
   @override
-  String get hint => c.isMobile
-      ? 'btn_call_switch_camera_desc'.l10n
-      : 'btn_call_switch_camera'.l10n;
+  String get hint =>
+      c.isMobile
+          ? 'btn_call_switch_camera_desc'.l10n
+          : 'btn_call_switch_camera'.l10n;
 
   @override
   Widget build({
@@ -566,9 +584,10 @@ class SwitchButton extends CallButton {
     return Obx(() {
       return CallButtonWidget(
         hint: hint,
-        asset: c.cameraSwitched.value
-            ? SvgIcons.callCameraFront
-            : SvgIcons.callCameraBack,
+        asset:
+            c.cameraSwitched.value
+                ? SvgIcons.callCameraFront
+                : SvgIcons.callCameraBack,
         hinted: hinted,
         expanded: expanded,
         withBlur: blur,
@@ -587,7 +606,8 @@ Widget callTitle(CallController c) {
     final bool isOutgoing =
         (c.outgoing || c.state.value == OngoingCallState.local) && !c.started;
     final bool isDialog = c.chat.value?.chat.value.isDialog == true;
-    final bool withDots = c.state.value != OngoingCallState.active &&
+    final bool withDots =
+        c.state.value != OngoingCallState.active &&
         (c.state.value == OngoingCallState.joining || isOutgoing);
 
     final Map<String, dynamic> args = {'by': 'x'};
@@ -595,17 +615,18 @@ Widget callTitle(CallController c) {
       args['by'] = c.callerName;
     }
 
-    final String state = c.state.value == OngoingCallState.active
-        ? c.duration.value.toString().split('.').first.padLeft(8, '0')
-        : c.state.value == OngoingCallState.joining
+    final String state =
+        c.state.value == OngoingCallState.active
+            ? c.duration.value.toString().split('.').first.padLeft(8, '0')
+            : c.state.value == OngoingCallState.joining
             ? 'label_call_joining'.l10n
             : isOutgoing
-                ? isDialog
-                    ? 'label_call_calling'.l10n
-                    : 'label_call_connecting'.l10n
-                : c.withVideo == true
-                    ? 'label_video_call'.l10nfmt(args)
-                    : 'label_audio_call'.l10nfmt(args);
+            ? isDialog
+                ? 'label_call_calling'.l10n
+                : 'label_call_connecting'.l10n
+            : c.withVideo == true
+            ? 'label_video_call'.l10nfmt(args)
+            : 'label_audio_call'.l10nfmt(args);
 
     return CallTitle(
       title: c.chat.value?.title,

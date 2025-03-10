@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -65,9 +65,10 @@ class IntroductionView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
-      background: initial == IntroductionViewStage.link
-          ? style.colors.background
-          : null,
+      background:
+          initial == IntroductionViewStage.link
+              ? style.colors.background
+              : null,
       child: IntroductionView(initial: initial),
     );
   }
@@ -125,11 +126,12 @@ class IntroductionView extends StatelessWidget {
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
                         style: style.fonts.medium.regular.primary,
-                        recognizer: TapGestureRecognizer()
-                          ..onTap = () {
-                            Navigator.of(context).pop();
-                            router.me();
-                          },
+                        recognizer:
+                            TapGestureRecognizer()
+                              ..onTap = () {
+                                Navigator.of(context).pop();
+                                router.me();
+                              },
                       ),
                       TextSpan(
                         text: 'label_introduction_description3'.l10n,
@@ -174,8 +176,11 @@ class IntroductionView extends StatelessWidget {
                     offset: const Offset(4, 0),
                     child: const SvgIcon(SvgIcons.enter),
                   ),
-                  onPressed: () =>
-                      LoginView.show(context, initial: LoginViewStage.signIn),
+                  onPressed:
+                      () => LoginView.show(
+                        context,
+                        initial: LoginViewStage.signIn,
+                      ),
                   child: Text('btn_sign_in'.l10n),
                 ),
               );
@@ -270,16 +275,15 @@ class IntroductionView extends StatelessWidget {
               key: Key('${c.stage.value.name.capitalizeFirst}Stage'),
               controller: c.scrollController,
               child: ListView(
+                key: const Key('IntroductionScrollable'),
                 controller: c.scrollController,
                 shrinkWrap: true,
                 physics: const ClampingScrollPhysics(),
                 children: [
                   header,
                   ...children.map(
-                    (e) => Padding(
-                      padding: ModalPopup.padding(context),
-                      child: e,
-                    ),
+                    (e) =>
+                        Padding(padding: ModalPopup.padding(context), child: e),
                   ),
                 ],
               ),
@@ -318,9 +322,10 @@ class IntroductionView extends StatelessWidget {
       state: c.link,
       onSuffixPressed: copy,
       selectable: c.myUser.value?.chatDirectLink != null,
-      trailing: PlatformUtils.isMobile
-          ? const SvgIcon(SvgIcons.share)
-          : const SvgIcon(SvgIcons.copy),
+      trailing:
+          PlatformUtils.isMobile
+              ? const SvgIcon(SvgIcons.share)
+              : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
     );
   }
@@ -379,8 +384,9 @@ class IntroductionView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms2'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => TermsOfUseView.show(context),
+            recognizer:
+                TapGestureRecognizer()
+                  ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
@@ -389,8 +395,9 @@ class IntroductionView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms4'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => PrivacyPolicy.show(context),
+            recognizer:
+                TapGestureRecognizer()
+                  ..onTap = () => PrivacyPolicy.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms5'.l10n,

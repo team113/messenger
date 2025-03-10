@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -52,9 +51,11 @@ class LanguageSelectionController extends GetxController {
 
   /// Sets the provided [language] to be [L10n.chosen].
   Future<void> setLocalization(Language language) async {
-    await Future.wait([
-      L10n.set(language),
-      _settingsRepository?.setLocale(language.toString()),
-    ].whereNotNull());
+    await Future.wait(
+      [
+        L10n.set(language),
+        _settingsRepository?.setLocale(language.toString()),
+      ].nonNulls,
+    );
   }
 }

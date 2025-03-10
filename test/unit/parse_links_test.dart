@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -83,10 +83,7 @@ void main() {
       expect(span6.children![0].toPlainText(), 'Duplicate ');
       expect(span6.children![1].toPlainText(), 'google.com');
       expect((span6.children![1] as TextSpan).recognizer != null, true);
-      expect(
-        span6.children![2].toPlainText(),
-        ' links working as expected, ',
-      );
+      expect(span6.children![2].toPlainText(), ' links working as expected, ');
       expect(span6.children![3].toPlainText(), 'google.com');
       expect((span6.children![3] as TextSpan).recognizer != null, true);
 

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -131,10 +131,11 @@ class _VideoViewState extends State<VideoView> {
     return SafeAnimatedSwitcher(
       duration: const Duration(milliseconds: 300),
       child: StreamBuilder(
-          stream: _controller.player.stream.width,
-          builder: (_, __) {
-            if (_controller.player.state.width != null) {
-              return LayoutBuilder(builder: (_, constraints) {
+        stream: _controller.player.stream.width,
+        builder: (_, __) {
+          if (_controller.player.state.width != null) {
+            return LayoutBuilder(
+              builder: (_, constraints) {
                 Size? size = _controller.rect.value?.size;
 
                 final double maxHeight = constraints.maxHeight;
@@ -144,8 +145,10 @@ class _VideoViewState extends State<VideoView> {
                     (maxHeight < size.height ||
                         maxWidth < size.width ||
                         widget.isFullscreen?.value == true)) {
-                  final double ratio =
-                      min(maxHeight / size.height, maxWidth / size.width);
+                  final double ratio = min(
+                    maxHeight / size.height,
+                    maxWidth / size.width,
+                  );
                   size *= ratio;
                 }
 
@@ -164,40 +167,43 @@ class _VideoViewState extends State<VideoView> {
                     PlatformUtils.isMobile
                         ? MobileControls(_controller, barHeight: _barHeight)
                         : DesktopControls(
-                            _controller,
-                            barHeight: _barHeight,
-                            onClose: widget.onClose,
-                            toggleFullscreen: widget.toggleFullscreen,
-                            isFullscreen: widget.isFullscreen,
-                            showInterfaceFor: widget.showInterfaceFor,
-                            size: size,
-                          ),
+                          _controller,
+                          barHeight: _barHeight,
+                          onClose: widget.onClose,
+                          toggleFullscreen: widget.toggleFullscreen,
+                          isFullscreen: widget.isFullscreen,
+                          showInterfaceFor: widget.showInterfaceFor,
+                          size: size,
+                        ),
                   ],
                 );
-              });
-            } else {
-              return GestureDetector(
-                key: Key(_loading != null ? 'Box' : 'Loading'),
-                onTap: () {
-                  // Intercept `onTap` event to prevent [GalleryPopup]
-                  // closing.
-                },
-                child: Center(
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.99,
-                    height: MediaQuery.of(context).size.height * 0.6,
-                    decoration: BoxDecoration(
-                      color: style.colors.transparent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: _loading != null
-                        ? const SizedBox()
-                        : const Center(child: CustomProgressIndicator()),
+              },
+            );
+          } else {
+            return GestureDetector(
+              key: Key(_loading != null ? 'Box' : 'Loading'),
+              onTap: () {
+                // Intercept `onTap` event to prevent [GalleryPopup]
+                // closing.
+              },
+              child: Center(
+                child: Container(
+                  width: MediaQuery.of(context).size.width * 0.99,
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  decoration: BoxDecoration(
+                    color: style.colors.transparent,
+                    borderRadius: BorderRadius.circular(10),
                   ),
+                  child:
+                      _loading != null
+                          ? const SizedBox()
+                          : const Center(child: CustomProgressIndicator()),
                 ),
-              );
-            }
-          }),
+              ),
+            );
+          }
+        },
+      ),
     );
   }
 
@@ -235,25 +241,22 @@ class _VideoViewState extends State<VideoView> {
     bool shouldReload = false;
 
     try {
-      await Backoff.run(
-        () async {
-          try {
-            await (await PlatformUtils.dio).head(widget.url);
-            if (shouldReload) {
-              // Reinitialize the [_controller] if an unexpected error was thrown.
-              await _controller.player.open(Media(widget.url));
-            }
-          } catch (e) {
-            if (e is DioException && e.response?.statusCode == 403) {
-              widget.onError?.call();
-            } else {
-              shouldReload = true;
-              rethrow;
-            }
+      await Backoff.run(() async {
+        try {
+          await (await PlatformUtils.dio).head(widget.url);
+          if (shouldReload) {
+            // Reinitialize the [_controller] if an unexpected error was thrown.
+            await _controller.player.open(Media(widget.url));
           }
-        },
-        _cancelToken,
-      );
+        } catch (e) {
+          if (e is DioException && e.response?.statusCode == 403) {
+            widget.onError?.call();
+          } else {
+            shouldReload = true;
+            rethrow;
+          }
+        }
+      }, _cancelToken);
     } on OperationCanceledException {
       // No-op.
     }

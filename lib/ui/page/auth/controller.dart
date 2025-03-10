@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -42,8 +42,9 @@ class AuthController extends GetxController {
   final RxInt logoFrame = RxInt(0);
 
   /// Current [AuthScreen] of this controller.
-  late final Rx<AuthScreen> screen =
-      Rx(profiles.isEmpty ? AuthScreen.signIn : AuthScreen.accounts);
+  late final Rx<AuthScreen> screen = Rx(
+    profiles.isEmpty ? AuthScreen.signIn : AuthScreen.accounts,
+  );
 
   /// Authorization service used for signing up.
   final AuthService _auth;
@@ -58,6 +59,10 @@ class AuthController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [profiles] subscription to set [screen] to [AuthScreen.signIn] when
+  /// [profiles] become empty.
+  StreamSubscription? _accountsSubscription;
+
   /// Returns user authentication status.
   Rx<RxStatus> get authStatus => _auth.status;
 
@@ -70,12 +75,22 @@ class AuthController extends GetxController {
   @override
   void onReady() {
     SchedulerBinding.instance.addPostFrameCallback((_) => _ready.finish());
+
+    _accountsSubscription = profiles.listen((accounts) {
+      if (accounts.isEmpty) {
+        screen.value = AuthScreen.signIn;
+      } else {
+        screen.value = AuthScreen.accounts;
+      }
+    });
+
     super.onReady();
   }
 
   @override
   void onClose() {
     _animationTimer?.cancel();
+    _accountsSubscription?.cancel();
     super.onClose();
   }
 
@@ -111,12 +126,9 @@ class AuthController extends GetxController {
   void animate() {
     logoFrame.value = 1;
     _animationTimer?.cancel();
-    _animationTimer = Timer.periodic(
-      const Duration(milliseconds: 45),
-      (t) {
-        ++logoFrame.value;
-        if (logoFrame >= 9) t.cancel();
-      },
-    );
+    _animationTimer = Timer.periodic(const Duration(milliseconds: 45), (t) {
+      ++logoFrame.value;
+      if (logoFrame >= 9) t.cancel();
+    });
   }
 }

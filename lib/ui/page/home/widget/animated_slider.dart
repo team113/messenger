@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -113,38 +113,38 @@ class _AnimatedSliderState extends State<AnimatedSlider>
 
   @override
   Widget build(BuildContext context) => AnimatedBuilder(
-        animation: animation,
-        builder: (context, child) {
-          if (widget.translate) {
-            return Transform.translate(
-              offset: Tween(
-                begin: widget.beginOffset,
-                end: widget.endOffset,
-              ).evaluate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: widget.curve,
-                  reverseCurve: widget.reverseCurve,
-                ),
-              ),
-              child: child,
-            );
-          } else {
-            return SlideTransition(
-              position: Tween(
-                begin: widget.beginOffset,
-                end: widget.endOffset,
-              ).animate(
-                CurvedAnimation(
-                  parent: animation,
-                  curve: widget.curve,
-                  reverseCurve: widget.reverseCurve,
-                ),
-              ),
-              child: child,
-            );
-          }
-        },
-        child: widget.child,
-      );
+    animation: animation,
+    builder: (context, child) {
+      if (widget.translate) {
+        return Transform.translate(
+          offset: Tween(
+            begin: widget.beginOffset,
+            end: widget.endOffset,
+          ).evaluate(
+            CurvedAnimation(
+              parent: animation,
+              curve: widget.curve,
+              reverseCurve: widget.reverseCurve,
+            ),
+          ),
+          child: child,
+        );
+      } else {
+        return SlideTransition(
+          position: Tween(
+            begin: widget.beginOffset,
+            end: widget.endOffset,
+          ).animate(
+            CurvedAnimation(
+              parent: animation,
+              curve: widget.curve,
+              reverseCurve: widget.reverseCurve,
+            ),
+          ),
+          child: child,
+        );
+      }
+    },
+    child: widget.child,
+  );
 }

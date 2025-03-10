@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -33,11 +33,12 @@ Feature: Chat members
     Then I wait until text "Bob" is absent
 
   Scenario: User adds a member
+    Given Charlie has dialog with me
     When I scroll `ChatInfoScrollable` until `AddMemberButton` is present
     And I tap `AddMemberButton` button
     Then I wait until `SearchView` is present
 
-    When I fill `SearchTextField` field with "Charlie"
+    When I fill `SearchTextField` field with Charlie's num
     And I tap user Charlie in search results
     And I tap `SearchSubmitButton` button
     Then I wait until text "Charlie" is present

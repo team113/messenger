@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'dart:async';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart'
-    show DeleteChatMessageErrorCode, DeleteChatForwardErrorCode;
+    show CropAreaInput, DeleteChatForwardErrorCode, DeleteChatMessageErrorCode;
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_item.dart';
@@ -95,8 +95,10 @@ class ChatService extends DisposableService {
 
   /// Fetches the next [paginated] page.
   FutureOr<void> next() async {
-    Log.debug('next()', '$runtimeType');
-    return await _chatRepository.next();
+    if (_chatRepository.hasNext.value) {
+      Log.debug('next()', '$runtimeType');
+      await _chatRepository.next();
+    }
   }
 
   /// Renames the specified [Chat] by the authority of authenticated [MyUser].
@@ -387,13 +389,18 @@ class ChatService extends DisposableService {
   Future<void> updateChatAvatar(
     ChatId id, {
     NativeFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug('updateChatAvatar($id, $file, onSendProgress)', '$runtimeType');
+    Log.debug(
+      'updateChatAvatar($id, $file, crop: $crop, onSendProgress)',
+      '$runtimeType',
+    );
 
     await _chatRepository.updateChatAvatar(
       id,
       file: file,
+      crop: crop,
       onSendProgress: onSendProgress,
     );
   }
@@ -453,10 +460,12 @@ extension ChatIsRoute on Chat {
         members.firstWhereOrNull((e) => e.user.id != me)?.user.id;
 
     final bool byId = route.startsWith('${Routes.chats}/$id');
-    final bool byUser = isDialog &&
+    final bool byUser =
+        isDialog &&
         member != null &&
         route.startsWith('${Routes.chats}/${ChatId.local(member)}');
-    final bool byMonolog = isMonolog &&
+    final bool byMonolog =
+        isMonolog &&
         me != null &&
         route.startsWith('${Routes.chats}/${ChatId.local(me)}');
 

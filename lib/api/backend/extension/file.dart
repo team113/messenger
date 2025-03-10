@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,22 +21,19 @@ import '/domain/model/file.dart';
 /// Extension adding models construction from a [PlainFileMixin].
 extension PlainFileConversion on PlainFileMixin {
   /// Constructs a new [PlainFile] from this [PlainFileMixin].
-  PlainFile toModel() => PlainFile(
-        relativeRef: relativeRef,
-        checksum: checksum,
-        size: size,
-      );
+  PlainFile toModel() =>
+      PlainFile(relativeRef: relativeRef, checksum: checksum, size: size);
 }
 
 /// Extension adding models construction from a [ImageFileMixin].
 extension ImageFileConversion on ImageFileMixin {
   /// Constructs a new [ImageFile] from this [ImageFileMixin].
   ImageFile toModel() => ImageFile(
-        relativeRef: relativeRef,
-        checksum: checksum,
-        size: size,
-        width: width,
-        height: height,
-        thumbhash: thumbhash,
-      );
+    relativeRef: relativeRef,
+    checksum: checksum,
+    size: size,
+    width: width,
+    height: height,
+    thumbhash: thumbhash,
+  );
 }

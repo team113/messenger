@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,11 +21,7 @@ import 'package:flutter/material.dart';
 ///
 /// Intended to be used instead of the [AnimatedSwitcher].
 class SafeAnimatedSwitcher extends StatelessWidget {
-  const SafeAnimatedSwitcher({
-    super.key,
-    required this.duration,
-    this.child,
-  });
+  const SafeAnimatedSwitcher({super.key, required this.duration, this.child});
 
   /// [Duration] of the switching animation.
   final Duration duration;
@@ -37,13 +33,14 @@ class SafeAnimatedSwitcher extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
       duration: duration,
-      layoutBuilder: (current, previous) => Stack(
-        alignment: Alignment.center,
-        children: [
-          if (previous.isNotEmpty) previous.first,
-          if (current != null) current,
-        ],
-      ),
+      layoutBuilder:
+          (current, previous) => Stack(
+            alignment: Alignment.center,
+            children: [
+              if (previous.isNotEmpty) previous.first,
+              if (current != null) current,
+            ],
+          ),
       child: child,
     );
   }

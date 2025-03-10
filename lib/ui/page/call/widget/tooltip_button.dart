@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -56,16 +56,16 @@ class TooltipButton extends StatelessWidget {
     return hint == null
         ? button
         : Tooltip(
-            verticalOffset: verticalOffset,
-            message: hint!,
-            textStyle: style.fonts.small.regular.onPrimary.copyWith(
-              shadows: [
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
-                Shadow(blurRadius: 6, color: style.colors.onBackground),
-              ],
-            ),
-            decoration: const BoxDecoration(),
-            child: button,
-          );
+          verticalOffset: verticalOffset,
+          message: hint!,
+          textStyle: style.fonts.small.regular.onPrimary.copyWith(
+            shadows: [
+              Shadow(blurRadius: 6, color: style.colors.onBackground),
+              Shadow(blurRadius: 6, color: style.colors.onBackground),
+            ],
+          ),
+          decoration: const BoxDecoration(),
+          child: button,
+        );
   }
 }

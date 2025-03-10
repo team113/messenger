@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,7 +32,10 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddPhoneView extends StatelessWidget {
-  const AddPhoneView({super.key, this.timeout = false});
+  const AddPhoneView({super.key, this.timeout = false, required this.phone});
+
+  /// [UserPhone] this modal is about.
+  final UserPhone phone;
 
   /// Indicator whether the resend [Timer] should be started initially.
   final bool timeout;
@@ -41,10 +44,11 @@ class AddPhoneView extends StatelessWidget {
   static Future<T?> show<T>(
     BuildContext context, {
     bool timeout = false,
+    required UserPhone phone,
   }) {
     return ModalPopup.show(
       context: context,
-      child: AddPhoneView(timeout: timeout),
+      child: AddPhoneView(timeout: timeout, phone: phone),
     );
   }
 
@@ -55,6 +59,7 @@ class AddPhoneView extends StatelessWidget {
     return GetBuilder(
       init: AddPhoneController(
         Get.find(),
+        phone: phone,
         timeout: timeout,
         pop: context.popModal,
       ),
@@ -90,14 +95,16 @@ class AddPhoneView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed: c.resendPhoneTimeout.value == 0
-                            ? c.resendPhone
-                            : null,
-                        title: c.resendPhoneTimeout.value == 0
-                            ? 'label_resend'.l10n
-                            : 'label_resend_timeout'.l10nfmt(
-                                {'timeout': c.resendPhoneTimeout.value},
-                              ),
+                        onPressed:
+                            c.resendPhoneTimeout.value == 0
+                                ? c.resendPhone
+                                : null,
+                        title:
+                            c.resendPhoneTimeout.value == 0
+                                ? 'label_resend'.l10n
+                                : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendPhoneTimeout.value,
+                                }),
                       ),
                     ),
                     const SizedBox(width: 10),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,6 @@ import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/native_file.dart';
@@ -28,24 +27,24 @@ import 'package:messenger/domain/repository/auth.dart';
 import 'package:messenger/domain/repository/settings.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/chat.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/background.dart';
+import 'package:messenger/provider/drift/call_credentials.dart';
+import 'package:messenger/provider/drift/call_rect.dart';
+import 'package:messenger/provider/drift/chat.dart';
+import 'package:messenger/provider/drift/chat_credentials.dart';
+import 'package:messenger/provider/drift/chat_item.dart';
+import 'package:messenger/provider/drift/chat_member.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/draft.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/monolog.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/settings.dart';
+import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/application_settings.dart';
-import 'package:messenger/provider/hive/background.dart';
-import 'package:messenger/provider/hive/call_credentials.dart';
-import 'package:messenger/provider/hive/call_rect.dart';
-import 'package:messenger/provider/hive/chat.dart';
-import 'package:messenger/provider/hive/chat_credentials.dart';
-import 'package:messenger/provider/hive/draft.dart';
-import 'package:messenger/provider/hive/favorite_chat.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/media_settings.dart';
-import 'package:messenger/provider/hive/monolog.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/recent_chat.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/user.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -58,128 +57,101 @@ import 'chat_avatar_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  Hive.init('./test/.temp_hive/chat_avatar_unit');
-  var userData = {
-    '__typename': 'User',
-    'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
-    'num': '7461878581615099',
-    'name': 'user',
-    'avatar': null,
-    'callCover': null,
-    'mutualContactsCount': 0,
-    'contacts': [],
-    'online': {'__typename': 'UserOnline'},
-    'presence': 'PRESENT',
-    'status': null,
-    'isDeleted': false,
-    'dialog': null,
-    'isBlocked': {'ver': '1'},
-    'ver': '2'
-  };
+  setUp(Get.reset);
 
-  var credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
 
-  var graphQlProvider = MockGraphQlProvider();
-  when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
-  await credentialsProvider.init();
-
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await myUserProvider.clear();
-  var chatHiveProvider = ChatHiveProvider();
-  await chatHiveProvider.init();
-  await chatHiveProvider.clear();
-  var userHiveProvider = UserHiveProvider();
-  await userHiveProvider.init();
-  await userHiveProvider.clear();
-  final callCredentialsProvider = CallCredentialsHiveProvider();
-  await callCredentialsProvider.init();
-  final chatCredentialsProvider = ChatCredentialsHiveProvider();
-  await chatCredentialsProvider.init();
-  var draftProvider = DraftHiveProvider();
-  await draftProvider.init();
-  await draftProvider.clear();
-  var mediaSettingsProvider = MediaSettingsHiveProvider();
-  await mediaSettingsProvider.init();
-  var applicationSettingsProvider = ApplicationSettingsHiveProvider();
-  await applicationSettingsProvider.init();
-  var backgroundProvider = BackgroundHiveProvider();
-  await backgroundProvider.init();
-  var callRectProvider = CallRectHiveProvider();
-  await callRectProvider.init();
-  var monologProvider = MonologHiveProvider();
-  await monologProvider.init();
-  var recentChatProvider = RecentChatHiveProvider();
-  await recentChatProvider.init();
-  var favoriteChatProvider = FavoriteChatHiveProvider();
-  await favoriteChatProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-
-  Get.put(myUserProvider);
-  Get.put(userHiveProvider);
-  Get.put(chatHiveProvider);
-  Get.put(credentialsProvider);
+  final graphQlProvider = MockGraphQlProvider();
   Get.put<GraphQlProvider>(graphQlProvider);
+  when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
+  final settingsProvider = Get.put(SettingsDriftProvider(common));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = Get.put(UserDriftProvider(common, scoped));
+  final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
+  final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
+  final chatProvider = Get.put(ChatDriftProvider(common, scoped));
+  final backgroundProvider = Get.put(BackgroundDriftProvider(common));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
+  final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
+  final draftProvider = Get.put(DraftDriftProvider(common, scoped));
+  final monologProvider = Get.put(MonologDriftProvider(common));
+  final sessionProvider = Get.put(VersionDriftProvider(common));
+
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
   test('ChatService successfully adds and resets chat avatar', () async {
-    when(graphQlProvider.updateChatAvatar(
-      const ChatId('123'),
-      file: null,
-      onSendProgress: null,
-    )).thenAnswer(
-      (_) => Future.value(UpdateChatAvatar$Mutation.fromJson({
-        'updateChatAvatar': {
-          '__typename': 'ChatEventsVersioned',
-          'events': [
-            {
-              'chatId': '123',
-              'byUser': userData,
-              'at': DateTime.now().toString(),
-            }
-          ],
-          'ver': '2'
-        }
-      }).updateChatAvatar as ChatEventsVersionedMixin?),
+    when(
+      graphQlProvider.updateChatAvatar(
+        const ChatId('123'),
+        file: null,
+        onSendProgress: null,
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        UpdateChatAvatar$Mutation.fromJson({
+              'updateChatAvatar': {
+                '__typename': 'ChatEventsVersioned',
+                'events': [
+                  {
+                    'chatId': '123',
+                    'byUser': userData,
+                    'at': DateTime.now().toString(),
+                  },
+                ],
+                'ver': '2',
+              },
+            }).updateChatAvatar
+            as ChatEventsVersionedMixin?,
+      ),
     );
 
-    when(graphQlProvider.updateChatAvatar(
-      const ChatId('123'),
-      file: captureThat(isNotNull, named: 'file'),
-      onSendProgress: null,
-    )).thenAnswer(
-      (_) => Future.value(UpdateChatAvatar$Mutation.fromJson({
-        'updateChatAvatar': {
-          '__typename': 'ChatEventsVersioned',
-          'events': [
-            {
-              'chatId': '123',
-              'avatar': {
-                'full': {'relativeRef': ''},
-                'big': {'relativeRef': ''},
-                'medium': {'relativeRef': ''},
-                'small': {'relativeRef': ''},
-                'original': {'relativeRef': ''},
+    when(
+      graphQlProvider.updateChatAvatar(
+        const ChatId('123'),
+        file: captureThat(isNotNull, named: 'file'),
+        onSendProgress: null,
+      ),
+    ).thenAnswer(
+      (_) => Future.value(
+        UpdateChatAvatar$Mutation.fromJson({
+              'updateChatAvatar': {
+                '__typename': 'ChatEventsVersioned',
+                'events': [
+                  {
+                    'chatId': '123',
+                    'avatar': {
+                      'full': {'relativeRef': ''},
+                      'big': {'relativeRef': ''},
+                      'medium': {'relativeRef': ''},
+                      'small': {'relativeRef': ''},
+                      'original': {'relativeRef': ''},
+                    },
+                    'byUser': userData,
+                    'at': DateTime.now().toString(),
+                  },
+                ],
+                'ver': '1',
               },
-              'byUser': userData,
-              'at': DateTime.now().toString(),
-            }
-          ],
-          'ver': '1'
-        }
-      }).updateChatAvatar as ChatEventsVersionedMixin?),
+            }).updateChatAvatar
+            as ChatEventsVersionedMixin?,
+      ),
     );
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
+        const UserId('me'),
+        settingsProvider,
         backgroundProvider,
         callRectProvider,
       ),
@@ -187,19 +159,19 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
       ),
     );
     authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userHiveProvider);
+    final UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -210,11 +182,11 @@ void main() async {
         me: const UserId('me'),
       ),
     );
-    ChatRepository chatRepository = ChatRepository(
+    final ChatRepository chatRepository = ChatRepository(
       graphQlProvider,
-      chatHiveProvider,
-      recentChatProvider,
-      favoriteChatProvider,
+      chatProvider,
+      chatItemProvider,
+      chatMemberProvider,
       callRepository,
       draftProvider,
       userRepository,
@@ -223,7 +195,7 @@ void main() async {
       me: const UserId('me'),
     );
 
-    ChatService chatService = ChatService(chatRepository, authService);
+    final ChatService chatService = ChatService(chatRepository, authService);
 
     await chatService.updateChatAvatar(
       const ChatId('123'),
@@ -256,122 +228,153 @@ void main() async {
   });
 
   test(
-      'ChatService throws UpdateChatAvatarErrorCode.tooBigSize, UpdateChatAvatarErrorCode.unknownChat',
-      () async {
-    when(graphQlProvider.updateChatAvatar(
-      const ChatId('123'),
-      file: captureThat(isNotNull, named: 'file'),
-      onSendProgress: null,
-    )).thenThrow(
-      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
-    );
-
-    when(graphQlProvider.updateChatAvatar(
-      const ChatId('123'),
-      file: null,
-      onSendProgress: null,
-    )).thenThrow(
-      const UpdateChatAvatarException(UpdateChatAvatarErrorCode.unknownChat),
-    );
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        mediaSettingsProvider,
-        applicationSettingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-
-    AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
-    authService.init();
-
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userHiveProvider);
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    ChatRepository chatRepository = ChatRepository(
-      graphQlProvider,
-      chatHiveProvider,
-      recentChatProvider,
-      favoriteChatProvider,
-      callRepository,
-      draftProvider,
-      userRepository,
-      sessionProvider,
-      monologProvider,
-      me: const UserId('me'),
-    );
-
-    ChatService chatService = ChatService(chatRepository, authService);
-
-    Object? exception;
-
-    try {
-      await chatService.updateChatAvatar(
-        const ChatId('123'),
-        file: NativeFile(
-          name: 'test',
-          size: 2,
-          bytes: Uint8List.fromList([1, 1]),
+    'ChatService throws UpdateChatAvatarErrorCode.tooBigSize, UpdateChatAvatarErrorCode.unknownChat',
+    () async {
+      when(
+        graphQlProvider.updateChatAvatar(
+          const ChatId('123'),
+          file: captureThat(isNotNull, named: 'file'),
+          onSendProgress: null,
         ),
-        onSendProgress: null,
+      ).thenThrow(
+        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.invalidSize),
       );
-    } catch (e) {
-      exception = e;
-    }
 
-    if (exception !=
-        const UpdateChatAvatarException(
-            UpdateChatAvatarErrorCode.invalidSize)) {
-      fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
-    }
-
-    try {
-      await chatService.updateChatAvatar(
-        const ChatId('123'),
-        file: null,
-        onSendProgress: null,
+      when(
+        graphQlProvider.updateChatAvatar(
+          const ChatId('123'),
+          file: null,
+          onSendProgress: null,
+        ),
+      ).thenThrow(
+        const UpdateChatAvatarException(UpdateChatAvatarErrorCode.unknownChat),
       );
-    } catch (e) {
-      exception = e;
-    }
 
-    if (exception !=
-        const UpdateChatAvatarException(
-            UpdateChatAvatarErrorCode.unknownChat)) {
-      fail('UpdateChatAvatarErrorCode.unknownChat not thrown');
-    }
+      AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
 
-    verifyInOrder([
-      graphQlProvider.updateChatAvatar(
-        const ChatId('123'),
-        file: captureThat(isNotNull, named: 'file'),
-        onSendProgress: null,
-      ),
-      graphQlProvider.updateChatAvatar(
-        const ChatId('123'),
-        file: null,
-        onSendProgress: null,
-      ),
-    ]);
-  });
+      AuthService authService = Get.put(
+        AuthService(
+          Get.put<AbstractAuthRepository>(
+            AuthRepository(
+              graphQlProvider,
+              myUserProvider,
+              credentialsProvider,
+            ),
+          ),
+          credentialsProvider,
+          accountProvider,
+        ),
+      );
+      authService.init();
+
+      final UserRepository userRepository = UserRepository(
+        graphQlProvider,
+        userProvider,
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      final ChatRepository chatRepository = ChatRepository(
+        graphQlProvider,
+        chatProvider,
+        chatItemProvider,
+        chatMemberProvider,
+        callRepository,
+        draftProvider,
+        userRepository,
+        sessionProvider,
+        monologProvider,
+        me: const UserId('me'),
+      );
+
+      final ChatService chatService = ChatService(chatRepository, authService);
+
+      Object? exception;
+
+      try {
+        await chatService.updateChatAvatar(
+          const ChatId('123'),
+          file: NativeFile(
+            name: 'test',
+            size: 2,
+            bytes: Uint8List.fromList([1, 1]),
+          ),
+          onSendProgress: null,
+        );
+      } catch (e) {
+        exception = e;
+      }
+
+      if (exception !=
+          const UpdateChatAvatarException(
+            UpdateChatAvatarErrorCode.invalidSize,
+          )) {
+        fail('UpdateChatAvatarErrorCode.tooBigSize not thrown');
+      }
+
+      try {
+        await chatService.updateChatAvatar(
+          const ChatId('123'),
+          file: null,
+          onSendProgress: null,
+        );
+      } catch (e) {
+        exception = e;
+      }
+
+      if (exception !=
+          const UpdateChatAvatarException(
+            UpdateChatAvatarErrorCode.unknownChat,
+          )) {
+        fail('UpdateChatAvatarErrorCode.unknownChat not thrown');
+      }
+
+      verifyInOrder([
+        graphQlProvider.updateChatAvatar(
+          const ChatId('123'),
+          file: captureThat(isNotNull, named: 'file'),
+          onSendProgress: null,
+        ),
+        graphQlProvider.updateChatAvatar(
+          const ChatId('123'),
+          file: null,
+          onSendProgress: null,
+        ),
+      ]);
+    },
+  );
+
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
+
+final userData = {
+  '__typename': 'User',
+  'id': '6a9e0b6e-61ab-43cb-a8d4-dabaf065e5a3',
+  'num': '7461878581615099',
+  'name': 'user',
+  'avatar': null,
+  'callCover': null,
+  'mutualContactsCount': 0,
+  'contacts': [],
+  'online': {'__typename': 'UserOnline'},
+  'presence': 'PRESENT',
+  'status': null,
+  'isDeleted': false,
+  'dialog': null,
+  'isBlocked': {'ver': '1'},
+  'ver': '2',
+};

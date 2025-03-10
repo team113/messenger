@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,10 +17,8 @@
 
 import 'package:get/get.dart';
 
-import '/domain/model/chat_item.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
-import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart' show UseChatDirectLinkException;
 import '/routes.dart';
 import '/util/message_popup.dart';
@@ -55,13 +53,9 @@ class FreelanceWorkController extends GetxController {
   final AuthService _authService;
 
   /// [ChatDirectLinkSlug] to use in the [useLink].
-  static const ChatDirectLinkSlug _link =
-      ChatDirectLinkSlug.unchecked('freelance');
-
-  // TODO: Remove when backend supports it out of the box.
-  /// Welcome message of the [Chat] in the [_link].
-  static final ChatMessageText _welcome =
-      ChatMessageText('label_welcome_message_freelance'.l10n);
+  static const ChatDirectLinkSlug _link = ChatDirectLinkSlug.unchecked(
+    'freelance',
+  );
 
   /// URL to fetch the [Issue]s from.
   ///
@@ -92,9 +86,9 @@ class FreelanceWorkController extends GetxController {
         router.home(signedUp: signedUp);
       }
 
-      router.chat(
+      router.dialog(
         await _authService.useChatDirectLink(_link),
-        welcome: _welcome,
+        _authService.userId,
       );
 
       linkStatus.value = RxStatus.empty();
@@ -115,14 +109,15 @@ class FreelanceWorkController extends GetxController {
     final response = await (await PlatformUtils.dio).get(_url);
 
     if (response.statusCode == 200) {
-      issues.value = (response.data as List<dynamic>).map((e) {
-        return Issue(
-          title: e['title'],
-          description: e['body'],
-          url: e['html_url'],
-          number: e['number'],
-        );
-      }).toList();
+      issues.value =
+          (response.data as List<dynamic>).map((e) {
+            return Issue(
+              title: e['title'],
+              description: e['body'],
+              url: e['html_url'],
+              number: e['number'],
+            );
+          }).toList();
 
       issuesStatus.value = RxStatus.success();
     } else {

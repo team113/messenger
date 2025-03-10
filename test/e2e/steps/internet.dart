@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,12 +40,13 @@ final StepDefinitionGeneric haveInternetWithDelay = given1<int, CustomWorld>(
       provider.client.throwException = false;
     }
 
-    PlatformUtils.client?.interceptors
-        .removeWhere((e) => e is DelayedInterceptor);
+    PlatformUtils.client?.interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
 
-    (await PlatformUtils.dio)
-        .interceptors
-        .add(DelayedInterceptor(Duration(seconds: delay)));
+    (await PlatformUtils.dio).interceptors.add(
+      DelayedInterceptor(Duration(seconds: delay)),
+    );
   },
 );
 
@@ -62,9 +63,9 @@ final StepDefinitionGeneric haveInternetWithoutDelay = given<CustomWorld>(
       provider.client.throwException = false;
     }
 
-    (await PlatformUtils.dio)
-        .interceptors
-        .removeWhere((e) => e is DelayedInterceptor);
+    (await PlatformUtils.dio).interceptors.removeWhere(
+      (e) => e is DelayedInterceptor,
+    );
   },
 );
 

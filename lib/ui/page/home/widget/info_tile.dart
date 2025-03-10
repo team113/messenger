@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -65,9 +65,10 @@ class InfoTile extends StatelessWidget {
               if (title != null)
                 DefaultTextStyle(
                   overflow: TextOverflow.ellipsis,
-                  style: danger
-                      ? style.fonts.small.regular.danger
-                      : style.fonts.small.regular.secondary,
+                  style:
+                      danger
+                          ? style.fonts.small.regular.danger
+                          : style.fonts.small.regular.secondary,
                   child: Text(title!),
                 ),
               DefaultTextStyle.merge(

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,28 +26,38 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
 import '/api/backend/schema.dart'
-    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence;
+    show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence, CropAreaInput;
 import '/domain/model/application_settings.dart';
+import '/domain/model/attachment.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/file.dart';
 import '/domain/model/media_settings.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/blocklist.dart';
+import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
+import '/domain/service/session.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
 import 'add_phone/controller.dart';
+import 'crop_avatar/view.dart';
+import 'welcome_field/controller.dart';
 
 export 'view.dart';
 
@@ -55,8 +65,11 @@ export 'view.dart';
 class MyProfileController extends GetxController {
   MyProfileController(
     this._myUserService,
-    this._authService,
+    this._sessionService,
     this._settingsRepo,
+    this._authService,
+    this._chatService,
+    this._blocklistService,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -111,14 +124,29 @@ class MyProfileController extends GetxController {
   /// Indicator whether the [sessions] are being updated.
   final RxBool sessionsUpdating = RxBool(false);
 
+  /// [WelcomeFieldController] for forming and editing a [WelcomeMessage].
+  late final WelcomeFieldController welcome;
+
+  /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
+  final GlobalKey welcomeFieldKey = GlobalKey();
+
+  /// Service managing current [Credentials].
+  final AuthService _authService;
+
   /// Service responsible for [MyUser] management.
   final MyUserService _myUserService;
 
-  /// [AuthService] used to get [sessions] value.
-  final AuthService _authService;
+  /// Service responsible for [Session]s management.
+  final SessionService _sessionService;
 
   /// Settings repository, used to update the [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
+
+  /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
+  final ChatService _chatService;
+
+  /// [BlocklistService] for retrieving the [BlocklistService.count].
+  final BlocklistService _blocklistService;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -153,26 +181,27 @@ class MyProfileController extends GetxController {
   /// Returns the current [MediaSettings] value.
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
-  /// Returns the list of active [Session]s.
-  RxList<Session> get sessions => _authService.sessions;
+  /// Returns the list of active [RxSession]s.
+  RxList<RxSession> get sessions => _sessionService.sessions;
+
+  /// Returns the current [Credentials].
+  Rx<Credentials?> get credentials => _authService.credentials;
+
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get blocklistCount => _blocklistService.count;
 
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
       try {
-        _devicesSubscription =
-            MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+        _devicesSubscription = MediaUtils.onDeviceChange.listen(
+          (e) => devices.value = e,
+        );
         MediaUtils.enumerateDevices().then((e) => devices.value = e);
       } catch (_) {
         // No-op, shouldn't break the view.
       }
-    }
-
-    // [List.isEmpty] can be used as an indicator to fetch the [Session]s here,
-    // as our current [Session] must be on the list, so the length must be at
-    // least 1 to be up to date.
-    if (sessions.isEmpty) {
-      updateSessions();
     }
 
     listInitIndex = router.profileSection.value?.index ?? 0;
@@ -180,29 +209,30 @@ class MyProfileController extends GetxController {
     bool ignoreWorker = false;
     bool ignorePositions = false;
 
-    _profileWorker = ever(
-      router.profileSection,
-      (ProfileTab? tab) async {
-        if (ignoreWorker) {
-          ignoreWorker = false;
-        } else {
-          ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-          Future.delayed(Duration.zero, () => ignorePositions = false);
+    _profileWorker = ever(router.profileSection, (ProfileTab? tab) async {
+      if (ignoreWorker) {
+        ignoreWorker = false;
+      } else {
+        ignorePositions = true;
+        await itemScrollController.scrollTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+        Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          highlight(tab);
-        }
-      },
-    );
+        highlight(tab);
+      }
+    });
 
     positionsListener.itemPositions.addListener(() {
       if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
+        final ProfileTab tab =
+            ProfileTab.values[positionsListener
+                .itemPositions
+                .value
+                .first
+                .index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
@@ -239,29 +269,30 @@ class MyProfileController extends GetxController {
 
         bool modalVisible = true;
 
-        _myUserService.addUserPhone(phone).onError(
-          (e, __) {
-            s.unchecked = phone.val;
+        _myUserService
+            .addUserPhone(phone, locale: L10n.chosen.value?.toString())
+            .onError((e, __) {
+              s.unchecked = phone.val;
 
-            if (e is AddUserPhoneException) {
-              s.error.value = e.toMessage();
-              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
-            } else {
-              s.error.value = 'err_data_transfer'.l10n;
-              s.resubmitOnError.value = true;
-            }
+              if (e is AddUserPhoneException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-            s.unsubmit();
+              s.unsubmit();
 
-            if (modalVisible) {
-              Navigator.of(router.context!).pop();
-            }
-          },
-        );
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddPhoneView.show(
           router.context!,
           timeout: true,
+          phone: phone,
         ).then((_) => modalVisible = false);
       },
     );
@@ -294,23 +325,25 @@ class MyProfileController extends GetxController {
 
         bool modalVisible = true;
 
-        _myUserService.addUserEmail(email).onError((e, __) {
-          s.unchecked = email.val;
+        _myUserService
+            .addUserEmail(email, locale: L10n.chosen.value?.toString())
+            .onError((e, __) {
+              s.unchecked = email.val;
 
-          if (e is AddUserEmailException) {
-            s.error.value = e.toMessage();
-            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
-          } else {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.resubmitOnError.value = true;
-          }
+              if (e is AddUserEmailException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-          s.unsubmit();
+              s.unsubmit();
 
-          if (modalVisible) {
-            Navigator.of(router.context!).pop();
-          }
-        });
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddEmailView.show(
           router.context!,
@@ -321,6 +354,38 @@ class MyProfileController extends GetxController {
     );
 
     scrollController.addListener(_ensureNameDisplayed);
+
+    welcome = WelcomeFieldController(
+      _chatService,
+      onSubmit: () async {
+        final text = welcome.field.text.trim();
+
+        if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
+          final String previousText = text.toString();
+          final List<Attachment> previousAttachments =
+              welcome.attachments.map((e) => e.value).toList();
+
+          updateWelcomeMessage(
+            text: text.isEmpty ? null : ChatMessageText(text),
+            attachments: welcome.attachments.map((e) => e.value).toList(),
+          ).onError((e, _) {
+            welcome.field.unchecked = previousText;
+            welcome.attachments.addAll(
+              previousAttachments.map((e) => MapEntry(GlobalKey(), e)),
+            );
+
+            if (e is LocalizedExceptionMixin) {
+              MessagePopup.error(e.toMessage());
+            } else {
+              MessagePopup.error('err_data_transfer'.l10n);
+            }
+          });
+
+          welcome.edited.value = null;
+          welcome.clear();
+        }
+      },
+    );
 
     super.onInit();
   }
@@ -344,7 +409,7 @@ class MyProfileController extends GetxController {
 
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
       allowMultiple: false,
       withData: true,
@@ -381,17 +446,57 @@ class MyProfileController extends GetxController {
   Future<void> deleteAvatar() async {
     avatarUpload.value = RxStatus.loading();
     try {
-      await _updateAvatar(null);
+      await _updateAvatar(null, null);
     } finally {
       avatarUpload.value = RxStatus.empty();
     }
   }
 
-  /// Uploads an image and sets it as [MyUser.avatar] and [MyUser.callCover].
+  /// Opens the [CropAvatarView] to update the [MyUser.avatar] with the
+  /// [CropAreaInput] returned from it.
+  Future<void> editAvatar() async {
+    final ImageFile? file = myUser.value?.avatar?.original;
+    if (file == null) {
+      return;
+    }
+
+    avatarUpload.value = RxStatus.loading();
+
+    try {
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: file.url,
+        checksum: file.checksum,
+      );
+
+      if (cache.bytes != null) {
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          cache.bytes!,
+        );
+
+        if (crop != null) {
+          await _updateAvatar(
+            NativeFile(
+              name: file.name,
+              size: cache.bytes!.lengthInBytes,
+              bytes: cache.bytes,
+            ),
+            crop,
+          );
+        }
+      }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
+  }
+
+  /// Crops and uploads an image and sets it as [MyUser.avatar] and
+  /// [MyUser.callCover].
   Future<void> uploadAvatar() async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      final FilePickerResult? result = await PlatformUtils.pickFiles(
         type: FileType.image,
+        allowedExtensions: NativeFile.images,
         allowMultiple: false,
         withData: true,
         lockParentWindow: true,
@@ -399,7 +504,20 @@ class MyProfileController extends GetxController {
 
       if (result?.files.isNotEmpty == true) {
         avatarUpload.value = RxStatus.loading();
-        await _updateAvatar(NativeFile.fromPlatformFile(result!.files.first));
+
+        final PlatformFile file = result!.files.first;
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          file.bytes!,
+        );
+        if (crop == null) {
+          return;
+        }
+
+        await _updateAvatar(
+          NativeFile.fromPlatformFile(result.files.first),
+          crop,
+        );
       }
     } finally {
       avatarUpload.value = RxStatus.empty();
@@ -463,10 +581,19 @@ class MyProfileController extends GetxController {
   }
 
   /// Updates [MyUser.login] field for the authenticated [MyUser].
-  ///
-  /// Throws [UpdateUserLoginException].
   Future<void> updateUserLogin(UserLogin? login) async {
     await _myUserService.updateUserLogin(login);
+  }
+
+  /// Updates [MyUser.login] field for the authenticated [MyUser].
+  Future<void> updateWelcomeMessage({
+    ChatMessageText? text,
+    List<Attachment>? attachments,
+  }) async {
+    await _myUserService.updateWelcomeMessage(
+      text: text,
+      attachments: attachments,
+    );
   }
 
   /// Deletes the cache used by the application.
@@ -486,27 +613,16 @@ class MyProfileController extends GetxController {
     });
   }
 
-  // TODO: Remove, when backend supports real-time updates.
-  /// Updates the [sessions] value.
-  Future<void> updateSessions() async {
-    sessionsUpdating.value = true;
-
-    try {
-      await _authService.updateSessions();
-    } finally {
-      sessionsUpdating.value = false;
-    }
-  }
-
-  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file].
+  /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file]
+  /// and [crop].
   ///
-  /// If [file] is `null`, then deletes the [MyUser.avatar] and
+  /// If [file] is `null`, then deletes [MyUser.avatar] and
   /// [MyUser.callCover].
-  Future<void> _updateAvatar(NativeFile? file) async {
+  Future<void> _updateAvatar(NativeFile? file, CropAreaInput? crop) async {
     try {
       await Future.wait([
-        _myUserService.updateAvatar(file),
-        _myUserService.updateCallCover(file)
+        _myUserService.updateAvatar(file, crop: crop),
+        _myUserService.updateCallCover(file),
       ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);

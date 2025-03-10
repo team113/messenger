@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -83,11 +83,12 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
-      _bundle = FluentBundle(lang.toString())
-        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
-        ..addMessages(
-          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-        );
+      _bundle =
+          FluentBundle(lang.toString())
+            ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
+            ..addMessages(
+              _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+            );
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -148,7 +149,9 @@ extension L10nDateExtension on DateTime {
 
   // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
-  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
+  String get yyMd => DateFormat.yMd()
+      .format(this)
+      .replaceFirst(
         DateTime.now().year.toString(),
         DateFormat('yy').format(this),
       );
@@ -299,17 +302,73 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.chats => 'label_chats'.l10n,
       ProfileTab.calls => 'label_calls'.l10n,
       ProfileTab.media => 'label_media'.l10n,
+      ProfileTab.welcome => 'label_welcome_message'.l10n,
       ProfileTab.notifications => 'label_notifications'.l10n,
       ProfileTab.storage => 'label_storage'.l10n,
       ProfileTab.language => 'label_language'.l10n,
       ProfileTab.blocklist => 'label_blocked_users'.l10n,
       ProfileTab.devices => 'label_linked_devices'.l10n,
-      ProfileTab.sections => 'label_show_sections'.l10n,
       ProfileTab.download => 'label_download'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
       ProfileTab.legal => 'label_legal_information'.l10n,
       ProfileTab.support => 'btn_help'.l10n,
       ProfileTab.logout => 'btn_logout'.l10n,
     };
+  }
+}
+
+/// Extension adding [int] formatting as a human-readable localized bytes.
+extension L10nSizeInBytesExtension on int? {
+  /// Returns bytes formatted into a human-readable, localized string.
+  ///
+  /// ```dart
+  /// print(null.asBytes()); // ...
+  /// print(0.asBytes()); // 0 B
+  /// print(10.asBytes()); // 10 B
+  /// print(1024.asBytes()); // 1 KB
+  /// print((1024 + 50).asBytes()); // 1 KB
+  /// print((1024 + 100).asBytes()); // 1.1 KB
+  /// ```
+  String asBytes() {
+    final bytes = this;
+
+    if (bytes == null) {
+      return 'dot'.l10n * 3;
+    }
+
+    /// Precision to use in [toStringAsFixed] method.
+    const precision = 1;
+
+    // Define as `const`s instead of `pow()`s to decrease possible runtime CPU
+    // computations.
+    const kilobyte = 1024;
+    const megabyte = kilobyte * 1024;
+    const gigabyte = megabyte * 1024;
+    const terabyte = gigabyte * 1024;
+    const petabyte = terabyte * 1024;
+
+    if (bytes < kilobyte) {
+      return 'label_b'.l10nfmt({'amount': bytes.toString()});
+    } else if (bytes < megabyte) {
+      return 'label_kb'.l10nfmt({
+        'amount': (bytes / kilobyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < gigabyte) {
+      return 'label_mb'.l10nfmt({
+        'amount': (bytes / megabyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < terabyte) {
+      return 'label_gb'.l10nfmt({
+        'amount': (bytes / gigabyte).toStringAsFixed(precision),
+      });
+    } else if (bytes < petabyte) {
+      return 'label_tb'.l10nfmt({
+        'amount': (bytes / terabyte).toStringAsFixed(precision),
+      });
+    }
+
+    return 'label_pb'.l10nfmt({
+      'amount': (bytes / petabyte).toStringAsFixed(precision),
+    });
   }
 }

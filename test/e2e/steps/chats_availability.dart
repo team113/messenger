@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,21 +31,18 @@ import '../world/custom_world.dart';
 /// - Then chats fetched are indeed local
 final StepDefinitionGeneric chatsAvailability =
     then1<AvailabilityStatus, CustomWorld>(
-  'chats fetched are indeed {availability}',
-  (status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        final chatRepository = Get.find<AbstractChatRepository>();
-        if (chatRepository is ChatRepository) {
-          return switch (status) {
-            AvailabilityStatus.local => !chatRepository.isRemote,
-            AvailabilityStatus.remote => chatRepository.isRemote,
-          };
-        } else {
-          return false;
-        }
+      'chats fetched are indeed {availability}',
+      (status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          final chatRepository = Get.find<AbstractChatRepository>();
+          if (chatRepository is ChatRepository) {
+            return switch (status) {
+              AvailabilityStatus.local => !chatRepository.isRemote,
+              AvailabilityStatus.remote => chatRepository.isRemote,
+            };
+          } else {
+            return false;
+          }
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

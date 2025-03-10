@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,10 +41,11 @@ class StyleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedButton(
       onPressed: onPressed,
-      decorator: (child) => Padding(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-        child: child,
-      ),
+      decorator:
+          (child) => Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: child,
+          ),
       child: AnimatedScale(
         duration: const Duration(milliseconds: 150),
         curve: Curves.bounceInOut,

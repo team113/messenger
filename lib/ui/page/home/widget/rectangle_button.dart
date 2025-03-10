@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,14 +28,18 @@ class RectangleButton extends StatelessWidget {
     super.key,
     this.selected = false,
     this.onPressed,
-    required this.label,
+    this.label,
+    this.child,
     this.trailingColor,
     this.radio = false,
     this.toggleable = false,
   });
 
   /// Label of this [RectangleButton].
-  final String label;
+  final String? label;
+
+  /// [Widget] to display inside this [RectangleButton] instead of the [label].
+  final Widget? child;
 
   /// Indicator whether this [RectangleButton] is selected, meaning an
   /// [Icons.check] should be displayed in a trailing.
@@ -59,9 +63,10 @@ class RectangleButton extends StatelessWidget {
 
     return Material(
       borderRadius: BorderRadius.circular(10),
-      color: selected && !radio
-          ? style.colors.primary
-          : style.colors.onPrimary.darken(0.05),
+      color:
+          selected && !radio
+              ? style.colors.primary
+              : style.colors.onPrimary.darken(0.05),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),
         onTap: selected && !toggleable ? null : onPressed,
@@ -70,13 +75,14 @@ class RectangleButton extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  label,
+                child: DefaultTextStyle(
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: selected && !radio
-                      ? style.fonts.normal.regular.onPrimary
-                      : style.fonts.normal.regular.onBackground,
+                  style:
+                      selected && !radio
+                          ? style.fonts.normal.regular.onPrimary
+                          : style.fonts.normal.regular.onBackground,
+                  child: child ?? Text(label ?? ''),
                 ),
               ),
               const SizedBox(width: 12),
@@ -86,21 +92,24 @@ class RectangleButton extends StatelessWidget {
                   height: 20,
                   child: SafeAnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    child: selected
-                        ? CircleAvatar(
-                            backgroundColor: radio
-                                ? style.colors.primary
-                                : style.colors.onPrimary,
-                            radius: 12,
-                            child: Icon(
-                              Icons.check,
-                              color: radio
-                                  ? style.colors.onPrimary
-                                  : style.colors.primary,
-                              size: 12,
-                            ),
-                          )
-                        : radio
+                    child:
+                        selected
+                            ? CircleAvatar(
+                              backgroundColor:
+                                  radio
+                                      ? style.colors.primary
+                                      : style.colors.onPrimary,
+                              radius: 12,
+                              child: Icon(
+                                Icons.check,
+                                color:
+                                    radio
+                                        ? style.colors.onPrimary
+                                        : style.colors.primary,
+                                size: 12,
+                              ),
+                            )
+                            : radio
                             ? const SelectedDot()
                             : const SizedBox(),
                   ),
@@ -114,13 +123,14 @@ class RectangleButton extends StatelessWidget {
                     radius: 12,
                     child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 200),
-                      child: selected
-                          ? Icon(
-                              Icons.check,
-                              color: style.colors.onPrimary,
-                              size: 12,
-                            )
-                          : const SizedBox(key: Key('None')),
+                      child:
+                          selected
+                              ? Icon(
+                                Icons.check,
+                                color: style.colors.onPrimary,
+                                size: 12,
+                              )
+                              : const SizedBox(key: Key('None')),
                     ),
                   ),
                 ),

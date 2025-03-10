@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,6 +36,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/widget/chat_forward.dart';
 import '/ui/page/home/page/chat/widget/chat_item.dart';
+import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/page/chat/widget/time_label.dart';
 import '/ui/page/home/page/chat/widget/unread_label.dart';
 
@@ -66,27 +67,25 @@ class ChatSection {
         User(UserId(fromMe ? 'me' : '0'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         text: text == null ? null : ChatMessageText(text),
-        attachments: attachments.map((e) {
-          if (e == 'file') {
-            return FileAttachment(
-              id: AttachmentId.local(),
-              original: PlainFile(relativeRef: '', size: 12300000),
-              filename: 'Document.pdf',
-            );
-          } else {
-            return LocalAttachment(image, status: SendingStatus.sent);
-          }
-        }).toList(),
+        attachments:
+            attachments.map((e) {
+              if (e == 'file') {
+                return FileAttachment(
+                  id: AttachmentId.local(),
+                  original: PlainFile(relativeRef: '', size: 12300000),
+                  filename: 'Document.pdf',
+                );
+              } else {
+                return LocalAttachment(image, status: SendingStatus.sent);
+              }
+            }).toList(),
         status: status,
         repliesTo: repliesTo,
       );
     }
 
     // Returns a [ChatInfo] built locally with the provided parameters.
-    ChatItem info(
-      ChatInfoAction action, {
-      bool fromMe = true,
-    }) {
+    ChatItem info(ChatInfoAction action, {bool fromMe = true}) {
       return ChatInfo(
         ChatItemId.local(),
         ChatId.local(const UserId('me')),
@@ -110,9 +109,10 @@ class ChatSection {
         PreciseDateTime.now(),
         withVideo: withVideo,
         members: [],
-        conversationStartedAt: started
-            ? PreciseDateTime.now().subtract(const Duration(hours: 1))
-            : null,
+        conversationStartedAt:
+            started
+                ? PreciseDateTime.now().subtract(const Duration(hours: 1))
+                : null,
         finishReasonIndex: finishReasonIndex,
         finishedAt: finishReasonIndex == null ? null : PreciseDateTime.now(),
       );
@@ -131,9 +131,10 @@ class ChatSection {
           Chat(
             ChatId.local(const UserId('me')),
             kindIndex: kind.index,
-            lastDelivery: delivered
-                ? null
-                : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            lastDelivery:
+                delivered
+                    ? null
+                    : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
             lastReads: [
               if (read)
                 LastChatRead(
@@ -146,10 +147,7 @@ class ChatSection {
         me: const UserId('me'),
         reads: [
           if (read)
-            LastChatRead(
-              const UserId('fqw'),
-              PreciseDateTime(DateTime(15000)),
-            ),
+            LastChatRead(const UserId('fqw'), PreciseDateTime(DateTime(15000))),
         ],
       );
     }
@@ -185,9 +183,10 @@ class ChatSection {
           Chat(
             ChatId.local(const UserId('me')),
             kindIndex: kind.index,
-            lastDelivery: delivered
-                ? null
-                : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            lastDelivery:
+                delivered
+                    ? null
+                    : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
             lastReads: [
               if (read)
                 LastChatRead(
@@ -200,10 +199,7 @@ class ChatSection {
         me: const UserId('me'),
         reads: [
           if (read)
-            LastChatRead(
-              const UserId('fqw'),
-              PreciseDateTime(DateTime(15000)),
-            ),
+            LastChatRead(const UserId('fqw'), PreciseDateTime(DateTime(15000))),
         ],
       );
     }
@@ -217,27 +213,19 @@ class ChatSection {
             TimeLabelWidget(
               DateTime.now().subtract(const Duration(minutes: 10)),
             ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 1)),
-            ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 7)),
-            ),
-            TimeLabelWidget(
-              DateTime.now().subtract(const Duration(days: 64)),
-            ),
+            TimeLabelWidget(DateTime.now().subtract(const Duration(days: 1))),
+            TimeLabelWidget(DateTime.now().subtract(const Duration(days: 7))),
+            TimeLabelWidget(DateTime.now().subtract(const Duration(days: 64))),
             TimeLabelWidget(
               DateTime.now().subtract(const Duration(days: 365 * 4)),
-            )
+            ),
           ],
         ),
       ),
       Headline(
         headline: 'UnreadLabel',
         background: style.colors.onBackgroundOpacity7,
-        child: const Column(
-          children: [UnreadLabel(123)],
-        ),
+        child: const Column(children: [UnreadLabel(123)]),
       ),
       Headline(
         headline: 'ChatItemWidget',
@@ -296,7 +284,7 @@ class ChatSection {
                     author: const UserId('me'),
                     at: PreciseDateTime.now(),
                     text: const ChatMessageText('Replied message'),
-                  )
+                  ),
                 ],
               ),
               read: true,
@@ -313,7 +301,7 @@ class ChatSection {
                     author: const UserId('me'),
                     at: PreciseDateTime.now(),
                     text: const ChatMessageText('Replied message'),
-                  )
+                  ),
                 ],
               ),
               read: true,
@@ -381,7 +369,7 @@ class ChatSection {
                   'image',
                   'image',
                   'image',
-                  'image'
+                  'image',
                 ],
                 text: 'Message with file and image attachments',
               ),
@@ -474,6 +462,11 @@ class ChatSection {
             const SizedBox(height: 32),
           ],
         ),
+      ),
+      Headline(
+        headline: 'NotesBlock',
+        background: style.colors.onBackgroundOpacity7,
+        child: const Column(children: [NotesBlock()]),
       ),
     ];
   }

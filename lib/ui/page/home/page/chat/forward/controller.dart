@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,10 +18,10 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:desktop_drop/desktop_drop.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
+import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
 import '/api/backend/schema.dart' show ForwardChatItemsErrorCode;
 import '/domain/model/attachment.dart';
@@ -37,6 +37,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/ui/page/call/search/controller.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
+import '/util/data_reader.dart';
 import '/util/message_popup.dart';
 
 export 'view.dart';
@@ -80,9 +81,6 @@ class ChatForwardController extends GetxController {
   /// Callback, called when the [quotes] are sent.
   final void Function()? onSent;
 
-  /// Indicator whether there is an ongoing drag-n-drop at the moment.
-  final RxBool isDraggingFiles = RxBool(false);
-
   /// [Chat]s service forwarding the [quotes].
   final ChatService _chatService;
 
@@ -117,12 +115,13 @@ class ChatForwardController extends GetxController {
         send.field.editable.value = false;
 
         try {
-          final List<Future> uploads = send.attachments
-              .map((e) => e.value)
-              .whereType<LocalAttachment>()
-              .map((e) => e.upload.value?.future)
-              .whereNotNull()
-              .toList();
+          final List<Future> uploads =
+              send.attachments
+                  .map((e) => e.value)
+                  .whereType<LocalAttachment>()
+                  .map((e) => e.upload.value?.future)
+                  .nonNulls
+                  .toList();
           if (uploads.isNotEmpty) {
             await Future.wait(uploads);
           }
@@ -135,9 +134,10 @@ class ChatForwardController extends GetxController {
             );
           }
 
-          final List<AttachmentId>? attachments = send.attachments.isEmpty
-              ? null
-              : send.attachments.map((a) => a.value.id).toList();
+          final List<AttachmentId>? attachments =
+              send.attachments.isEmpty
+                  ? null
+                  : send.attachments.map((a) => a.value.id).toList();
 
           final ChatMessageText? text =
               send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
@@ -160,24 +160,21 @@ class ChatForwardController extends GetxController {
             ...selected.value!.chats.map((e) {
               return _chatService
                   .forwardChatItems(
-                from,
-                e.chat.value.id,
-                quotes,
-                text: text,
-                attachments: attachments,
-              )
-                  .onError<ForwardChatItemsException>(
-                (_, __) async {
-                  await showBlockedPopup(
-                    e.members.values
-                        .firstWhereOrNull((u) => u.user.id != me)
-                        ?.user
-                        .user
-                        .value,
-                  );
-                },
-                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
-              );
+                    from,
+                    e.chat.value.id,
+                    quotes,
+                    text: text,
+                    attachments: attachments,
+                  )
+                  .onError<ForwardChatItemsException>((_, __) async {
+                    await showBlockedPopup(
+                      e.members.values
+                          .firstWhereOrNull((u) => u.user.id != me)
+                          ?.user
+                          .user
+                          .value,
+                    );
+                  }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
             }),
             ...selected.value!.users.map((u) {
               final User user = u.user.value;
@@ -212,7 +209,7 @@ class ChatForwardController extends GetxController {
                     (_, __) => showBlockedPopup(user),
                     test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
                   );
-            })
+            }),
           ];
 
           await Future.wait(futures);
@@ -242,15 +239,13 @@ class ChatForwardController extends GetxController {
   /// Returns an [User] from [UserService] by the provided [id].
   FutureOr<RxUser?> getUser(UserId id) => _userService.get(id);
 
-  /// Adds the specified [details] files to the [attachments].
-  void dropFiles(DropDoneDetails details) async {
-    for (var file in details.files) {
-      send.addPlatformAttachment(PlatformFile(
-        path: file.path,
-        name: file.name,
-        size: await file.length(),
-        readStream: file.openRead(),
-      ));
+  /// Adds the specified [event] files to the [attachments].
+  Future<void> dropFiles(PerformDropEvent event) async {
+    for (final DropItem item in event.session.items) {
+      final PlatformFile? file = await item.dataReader?.asPlatformFile();
+      if (file != null) {
+        send.addPlatformAttachment(file);
+      }
     }
   }
 }

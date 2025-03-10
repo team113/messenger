@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,8 +19,11 @@ import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
+import 'package:http/http.dart';
 import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:universal_io/io.dart';
@@ -35,7 +38,8 @@ import '/util/rate_limiter.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
-    if (dart.library.html) 'websocket/web.dart' as websocket;
+    if (dart.library.js_interop) 'websocket/web.dart'
+    as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {
@@ -58,6 +62,10 @@ class GraphQlProviderBase {
   /// Sets authorization bearer token and reconnects the [client].
   set token(AccessTokenSecret? value) => _client.token = value;
 
+  /// Indicates whether this [GraphQlClient] is successfully connected to the
+  /// endpoint.
+  RxBool get connected => _client.connected;
+
   /// Reconnects the [client] right away if the [token] mismatch is detected.
   Future<void> reconnect() => _client.reconnect();
 
@@ -66,6 +74,20 @@ class GraphQlProviderBase {
 
   /// Clears the cache attached to the client.
   void clearCache() => _client.clearCache();
+
+  /// Registers the provided [handler] to listen to [Exception]s happening with
+  /// the queries.
+  ///
+  /// Exception is `null`, when successful query is made.
+  void addListener(void Function(Exception?) handler) =>
+      _client.addListener(handler);
+
+  /// Unregisters the provided [handler] from listening to [Exception]s
+  /// happening with the queries.
+  ///
+  /// Does nothing, if the provided [handler] wasn't added.
+  void removeListener(void Function(Exception?) handler) =>
+      _client.removeListener(handler);
 }
 
 /// Wrapper around [GraphQLClient] used to implement middleware capabilities.
@@ -84,6 +106,10 @@ class GraphQlClient {
 
   /// Callback, called when middleware catches [AuthorizationException].
   Future<void> Function(AuthorizationException)? authExceptionHandler;
+
+  /// Indicator whether this [GraphQlClient] is successfully connected to the
+  /// endpoint.
+  final RxBool connected = RxBool(true);
 
   /// [Duration] considered as a network timeout.
   static const Duration timeout = Duration(seconds: 60);
@@ -137,6 +163,13 @@ class GraphQlClient {
     per: const Duration(milliseconds: 1000),
   );
 
+  /// Indicator whether the latest [_middleware] has finished with an
+  /// [Exception].
+  bool _errored = false;
+
+  /// Handlers listening for [Exception]s happening with this client.
+  final List<void Function(Exception?)> _handlers = [];
+
   /// Returns [GraphQLClient] with or without [token] header authorization.
   Future<GraphQLClient> get client async {
     if (_client != null && _currentToken == token) {
@@ -184,16 +217,18 @@ class GraphQlClient {
   }) async {
     if (raw != null) {
       return await _transaction(options.operationName, () async {
-        final QueryResult result =
-            await (await _newClient(raw)).mutate(options).timeout(timeout);
+        final QueryResult result = await (await _newClient(
+          raw,
+        )).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
     } else {
       return await _middleware(() async {
         return await _transaction(options.operationName, () async {
-          final QueryResult result =
-              await (await client).mutate(options).timeout(timeout);
+          final QueryResult result = await (await client)
+              .mutate(options)
+              .timeout(timeout);
           GraphQlProviderExceptions.fire(result, onException);
           return result;
         });
@@ -268,6 +303,22 @@ class GraphQlClient {
   /// Clears the cache attached to the [client].
   void clearCache() => _client?.cache.store.reset();
 
+  /// Registers the provided [handler] to listen to [Exception]s happening with
+  /// the queries.
+  ///
+  /// Exception is `null`, when successful query is made.
+  void addListener(void Function(Exception?) handler) {
+    _handlers.add(handler);
+  }
+
+  /// Unregisters the provided [handler] from listening to [Exception]s
+  /// happening with the queries.
+  ///
+  /// Does nothing, if the provided [handler] wasn't added.
+  void removeListener(void Function(Exception?) handler) {
+    _handlers.remove(handler);
+  }
+
   /// Subscribes to a GraphQL subscription according to the [options] specified
   /// and returns a [Stream] which either emits received data or an error.
   ///
@@ -302,10 +353,21 @@ class GraphQlClient {
   /// [AuthorizationException] if any.
   Future<T> _middleware<T>(Future<T> Function() fn) async {
     try {
-      return await fn();
+      final T result = await fn();
+
+      if (_errored) {
+        _reportException(null);
+        _errored = false;
+      }
+
+      return result;
     } on AuthorizationException catch (e) {
       await authExceptionHandler?.call(e);
       return await fn();
+    } on Exception catch (e) {
+      _errored = true;
+      _reportException(e);
+      rethrow;
     }
   }
 
@@ -315,6 +377,11 @@ class GraphQlClient {
     if (_wsConnected) {
       _reconnectPeriodMillis = 0;
       _wsConnected = false;
+
+      if (!_errored) {
+        _reportException(ConnectionException(Exception('_reconnect()')));
+        _errored = true;
+      }
     }
 
     _reconnectPeriodMillis *= 2;
@@ -363,29 +430,34 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          var socket = websocket
-              .connect(
-                uri,
-                protocols: protocols,
-                customClient: PlatformUtils.isWeb
-                    ? null
-                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
-              )
-              .forGraphQL();
+          var socket =
+              websocket
+                  .connect(
+                    uri,
+                    protocols: protocols,
+                    customClient:
+                        PlatformUtils.isWeb
+                            ? null
+                            : (HttpClient()
+                              ..userAgent = await PlatformUtils.userAgent),
+                  )
+                  .forGraphQL();
 
           socket.stream = socket.stream.handleError((_, __) => false);
 
-          _channelSubscription = socket.stream.listen(
-            (_) {
-              if (!_wsConnected) {
-                Log.info('Connected', 'WebSocket');
-                _checkConnectionTimer?.cancel();
-                _backoffTimer?.cancel();
-                _wsConnected = true;
+          _channelSubscription = socket.stream.listen((_) {
+            if (!_wsConnected) {
+              Log.info('Connected', 'WebSocket');
+              _checkConnectionTimer?.cancel();
+              _backoffTimer?.cancel();
+              _wsConnected = true;
+
+              if (_errored) {
+                _reportException(null);
+                _errored = false;
               }
-            },
-            onDone: _reconnect,
-          );
+            }
+          }, onDone: _reconnect);
 
           return socket;
         },
@@ -467,6 +539,7 @@ class GraphQlClient {
         ),
       ),
       link: link,
+      queryRequestTimeout: const Duration(seconds: 60),
     );
   }
 
@@ -491,6 +564,40 @@ class GraphQlClient {
       rethrow;
     } finally {
       transaction.finish();
+    }
+  }
+
+  /// Handles the [exception] to determine the [connected] status of this
+  /// client.
+  void _reportException(Exception? exception) {
+    if (exception == null) {
+      connected.value = true;
+    } else if (connected.value) {
+      if (exception is ClientException ||
+          exception is ConnectionException ||
+          exception is TimeoutException ||
+          exception is FormatException) {
+        connected.value = false;
+      } else if (exception is DioException) {
+        switch (exception.type) {
+          case DioExceptionType.connectionTimeout:
+          case DioExceptionType.sendTimeout:
+          case DioExceptionType.receiveTimeout:
+          case DioExceptionType.connectionError:
+            connected.value = false;
+            break;
+
+          default:
+            // No-op.
+            break;
+        }
+      } else if (exception is GraphQlException) {
+        // No-op.
+      }
+    }
+
+    for (var handler in _handlers) {
+      handler(exception);
     }
   }
 }

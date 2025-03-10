@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,7 @@ import '/ui/widget/svg/svgs.dart';
 
 /// [RoundFloatingButton] styled to be used in [GalleryPopup] overlay.
 class GalleryButton extends StatelessWidget {
-  const GalleryButton({
-    super.key,
-    this.child,
-    this.icon,
-    this.onPressed,
-  });
+  const GalleryButton({super.key, this.child, this.icon, this.onPressed});
 
   /// Optional [Widget] to display.
   final Widget? child;

@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -23,7 +23,8 @@ Feature: Blocklist pagination
     And I sign in as Alice
     And I wait until `HomeView` is present
 
-    When I tap `ProceedButton` button
+    When I scroll `IntroductionScrollable` until `ProceedButton` is present
+    And I tap `ProceedButton` button
     And I tap `MenuButton` button
     And I scroll `MenuListView` until `Blocklist` is present
     And I tap `Blocklist` button

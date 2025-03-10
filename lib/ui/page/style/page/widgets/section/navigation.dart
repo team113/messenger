@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,29 +76,23 @@ class NavigationSection {
       ),
       Headline(
         headline: 'CustomNavigationBar',
-        child: ObxValue(
-          (p) {
-            return CustomNavigationBar(
-              currentIndex: p.value,
-              onTap: (t) => p.value = t,
-              items: [
-                const CustomNavigationBarItem.work(),
-                const CustomNavigationBarItem.contacts(),
-                CustomNavigationBarItem.chats(),
-                CustomNavigationBarItem.menu(),
-              ],
-            );
-          },
-          RxInt(0),
-        ),
+        child: ObxValue((p) {
+          return CustomNavigationBar(
+            currentIndex: p.value,
+            onTap: (t) => p.value = t,
+            items: [
+              const CustomNavigationBarItem.link(),
+              const CustomNavigationBarItem.work(),
+              const CustomNavigationBarItem.contacts(),
+              CustomNavigationBarItem.chats(),
+              CustomNavigationBarItem.menu(),
+            ],
+          );
+        }, RxInt(0)),
       ),
       const Headline(child: BackgroundPreview(null)),
       Headline(
-        child: BigAvatarWidget.myUser(
-          null,
-          onDelete: () {},
-          onUpload: () {},
-        ),
+        child: BigAvatarWidget.myUser(null, onDelete: () {}, onUpload: () {}),
       ),
     ];
   }

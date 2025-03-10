@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,22 +20,17 @@
 import 'package:gherkin/gherkin.dart';
 
 /// [User]s available in a [UsersParameter].
-enum TestUser {
-  Alice,
-  Bob,
-  Charlie,
-  Dave,
-}
+enum TestUser { Alice, Bob, Charlie, Dave }
 
 /// [CustomParameter] of [TestUser]s representing an [User] of a test.
 class UsersParameter extends CustomParameter<TestUser> {
   UsersParameter()
-      : super(
-          'user',
-          RegExp(
-            '(${TestUser.values.map((e) => e.name).join('|')})',
-            caseSensitive: true,
-          ),
-          (c) => TestUser.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'user',
+        RegExp(
+          '(${TestUser.values.map((e) => e.name).join('|')})',
+          caseSensitive: true,
+        ),
+        (c) => TestUser.values.firstWhere((e) => e.name == c),
+      );
 }

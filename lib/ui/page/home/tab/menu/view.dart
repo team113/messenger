@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -83,20 +83,14 @@ class MenuTabView extends StatelessWidget {
               ],
               child: Row(
                 children: [
-                  Material(
-                    elevation: 6,
-                    type: MaterialType.circle,
-                    shadowColor: style.colors.onBackgroundOpacity27,
-                    color: style.colors.onPrimary,
-                    child: Center(
-                      child: Obx(() {
-                        return AvatarWidget.fromMyUser(
-                          c.myUser.value,
-                          key: c.profileKey,
-                          radius: AvatarRadius.medium,
-                        );
-                      }),
-                    ),
+                  Center(
+                    child: Obx(() {
+                      return AvatarWidget.fromMyUser(
+                        c.myUser.value,
+                        key: c.profileKey,
+                        radius: AvatarRadius.medium,
+                      );
+                    }),
                   ),
                   const SizedBox(width: 10),
                   Flexible(
@@ -119,15 +113,17 @@ class MenuTabView extends StatelessWidget {
             leading: const [SizedBox(width: 20)],
             actions: [
               WidgetButton(
+                key: const Key('AccountsButton'),
                 behavior: HitTestBehavior.translucent,
                 onPressed: () => AccountsView.show(context),
                 child: Padding(
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
                     final bool hasMultipleAccounts = c.profiles.length > 1;
-                    final String label = hasMultipleAccounts
-                        ? 'btn_change_account_desc'
-                        : 'btn_add_account_with_desc';
+                    final String label =
+                        hasMultipleAccounts
+                            ? 'btn_change_account_desc'
+                            : 'btn_add_account_with_desc';
 
                     return Text(
                       label.l10n,
@@ -179,7 +175,8 @@ class MenuTabView extends StatelessWidget {
                 }
 
                 return Obx(() {
-                  final bool inverted = tab == router.profileSection.value &&
+                  final bool inverted =
+                      tab == router.profileSection.value &&
                       router.route == Routes.me;
 
                   return Padding(
@@ -194,16 +191,16 @@ class MenuTabView extends StatelessWidget {
                       onPressed: switch (tab) {
                         ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
-                            await ConfirmLogoutView.show(router.context!);
-                          },
+                          await ConfirmLogoutView.show(router.context!);
+                        },
                         (_) => () {
-                            if (router.profileSection.value == tab) {
-                              router.profileSection.refresh();
-                            } else {
-                              router.profileSection.value = tab;
-                            }
-                            router.me();
-                          },
+                          if (router.profileSection.value == tab) {
+                            router.profileSection.refresh();
+                          } else {
+                            router.profileSection.value = tab;
+                          }
+                          router.me();
+                        },
                       },
                     ),
                   );

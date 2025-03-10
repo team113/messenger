@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,55 +38,60 @@ import '../world/custom_world.dart';
 /// - When I select "Example" message from 1 to 5 symbols
 final StepDefinitionGeneric selectMessageText =
     when3<String, int, int, CustomWorld>(
-  'I select {string} message from {int} to {int} symbols',
-  (text, from, to, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+      'I select {string} message from {int} to {int} symbols',
+      (text, from, to, context) async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.text?.val == text);
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        final ChatMessage message = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhere((e) => e.text?.val == text);
 
-    final Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('Text_${message.id}');
-    final RenderParagraph paragraph =
-        context.world.appDriver.nativeDriver.renderObject<RenderParagraph>(
-      find
-          .descendant(
-            of: finder,
-            matching: find.byType(RichText, skipOffstage: false),
-            skipOffstage: false,
-          )
-          .first,
+        final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'Text_${message.id}',
+        );
+        final RenderParagraph paragraph = context.world.appDriver.nativeDriver
+            .renderObject<RenderParagraph>(
+              find
+                  .descendant(
+                    of: finder,
+                    matching: find.byType(RichText, skipOffstage: false),
+                    skipOffstage: false,
+                  )
+                  .first,
+            );
+
+        // Returns an [Offset] of the provided [paragraph].
+        Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
+          const Rect caret = Rect.fromLTWH(0.0, 6.0, 2.0, 20.0);
+          final Offset localOffset = paragraph.getOffsetForCaret(
+            TextPosition(offset: offset),
+            caret,
+          );
+          return paragraph.localToGlobal(localOffset + const Offset(0, 10));
+        }
+
+        final TestGesture gesture = await context.world.appDriver.nativeDriver
+            .startGesture(
+              textOffsetToPosition(paragraph, from),
+              kind: PointerDeviceKind.mouse,
+            );
+
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(milliseconds: 100),
+        );
+
+        await gesture.moveTo(textOffsetToPosition(paragraph, to));
+
+        await context.world.appDriver.nativeDriver.pump(
+          const Duration(milliseconds: 500),
+        );
+
+        await gesture.up();
+      },
     );
-
-    // Returns an [Offset] of the provided [paragraph].
-    Offset textOffsetToPosition(RenderParagraph paragraph, int offset) {
-      const Rect caret = Rect.fromLTWH(0.0, 6.0, 2.0, 20.0);
-      final Offset localOffset =
-          paragraph.getOffsetForCaret(TextPosition(offset: offset), caret);
-      return paragraph.localToGlobal(localOffset + const Offset(0, 10));
-    }
-
-    final TestGesture gesture =
-        await context.world.appDriver.nativeDriver.startGesture(
-      textOffsetToPosition(paragraph, from),
-      kind: PointerDeviceKind.mouse,
-    );
-
-    await context.world.appDriver.nativeDriver
-        .pump(const Duration(milliseconds: 100));
-
-    await gesture.moveTo(textOffsetToPosition(paragraph, to));
-
-    await context.world.appDriver.nativeDriver
-        .pump(const Duration(milliseconds: 500));
-
-    await gesture.up();
-  },
-);
 
 /// Indicates whether the copied text matches the specified text.
 ///

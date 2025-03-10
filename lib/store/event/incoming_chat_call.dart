@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,12 +18,7 @@
 import '/domain/model/chat_call.dart';
 
 /// Possible kinds of an [IncomingChatCallsTopEvent].
-enum IncomingChatCallsTopEventKind {
-  initialized,
-  list,
-  added,
-  removed,
-}
+enum IncomingChatCallsTopEventKind { initialized, list, added, removed }
 
 /// Event indicating changes in an ongoing [ChatCall]s list.
 abstract class IncomingChatCallsTopEvent {

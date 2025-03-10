@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,12 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 
+part 'non_web.g.dart';
+
 /// [DateTime] considering the microseconds on any platform, including Web.
+@JsonSerializable()
 class PreciseDateTime extends NewType<DateTime>
     implements Comparable<PreciseDateTime> {
   PreciseDateTime(super.val, {int microsecond = 0});
@@ -36,10 +38,16 @@ class PreciseDateTime extends NewType<DateTime>
   /// print(newYearsEve); // 2021-12-31 19:30:00.000Z
   /// ```
   PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
-      : super(DateTime.fromMicrosecondsSinceEpoch(
+    : super(
+        DateTime.fromMicrosecondsSinceEpoch(
           microsecondsSinceEpoch,
           isUtc: true,
-        ));
+        ),
+      );
+
+  /// Constructs a [PreciseDateTime] from the provided [json].
+  factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>
+      _$PreciseDateTimeFromJson(json);
 
   /// Returns the number of microseconds since the "Unix epoch"
   /// 1970-01-01T00:00:00Z (UTC).
@@ -64,6 +72,9 @@ class PreciseDateTime extends NewType<DateTime>
   bool operator ==(Object other) =>
       other is PreciseDateTime &&
       microsecondsSinceEpoch == other.microsecondsSinceEpoch;
+
+  /// Returns a [Map] representing this [PreciseDateTime].
+  Map<String, dynamic> toJson() => _$PreciseDateTimeToJson(this);
 
   /// Returns `true` if this [PreciseDateTime] occurs before [other].
   ///
@@ -209,20 +220,4 @@ class PreciseDateTime extends NewType<DateTime>
   /// days of that month plus 11 days into the next month.
   static PreciseDateTime parse(String formattedString) =>
       PreciseDateTime(DateTime.parse(formattedString));
-}
-
-/// [Hive] adapter for a [PreciseDateTime].
-class PreciseDateTimeAdapter extends TypeAdapter<PreciseDateTime> {
-  @override
-  final typeId = ModelTypeId.preciseDateTime;
-
-  @override
-  PreciseDateTime read(BinaryReader reader) => PreciseDateTime(
-        DateTime.fromMicrosecondsSinceEpoch(reader.readInt()),
-      );
-
-  @override
-  void write(BinaryWriter writer, PreciseDateTime obj) {
-    writer.writeInt(obj.microsecondsSinceEpoch);
-  }
 }

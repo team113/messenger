@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,11 +25,12 @@ import '../world/custom_world.dart';
 /// Indicates whether a [Chat] with the provided name is displayed with the
 /// specified [MutedStatus] or not.
 final StepDefinitionGeneric seeChatAsMuted =
-    then2<String, MutedStatus, CustomWorld>(
-  'I see {string} chat as {muted}',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
+    then2<String, MutedStatus, CustomWorld>('I see {string} chat as {muted}', (
+      name,
+      status,
+      context,
+    ) async {
+      await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatId chatId = context.world.groups[name]!;
@@ -37,17 +38,17 @@ final StepDefinitionGeneric seeChatAsMuted =
         switch (status) {
           case MutedStatus.muted:
             return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('MuteIndicator_$chatId'),
+              context.world.appDriver.findByKeySkipOffstage(
+                'MuteIndicator_$chatId',
+              ),
             );
 
           case MutedStatus.unmuted:
             return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('MuteIndicator_$chatId'),
+              context.world.appDriver.findByKeySkipOffstage(
+                'MuteIndicator_$chatId',
+              ),
             );
         }
-      },
-    );
-  },
-);
+      });
+    });

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -139,9 +139,10 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
           ),
           child: InputDecorator(
             decoration: InputDecoration(
-              contentPadding: widget.headline == null
-                  ? EdgeInsets.zero
-                  : const EdgeInsets.fromLTRB(16, 0, 16, 0),
+              contentPadding:
+                  widget.headline == null
+                      ? EdgeInsets.zero
+                      : const EdgeInsets.fromLTRB(16, 0, 16, 0),
               label: widget.headline,
               border: border,
               errorBorder: border,
@@ -150,13 +151,14 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
               disabledBorder: border,
               focusedErrorBorder: border,
               filled: true,
-              fillColor: widget.onPressed == null
-                  ? widget.disabled ?? style.colors.secondaryHighlight
-                  : _hovered
+              fillColor:
+                  widget.onPressed == null
+                      ? widget.disabled ?? style.colors.secondaryHighlight
+                      : _hovered
                       ? Color.alphaBlend(
-                          style.colors.onBackgroundOpacity2,
-                          widget.color ?? style.colors.onPrimary,
-                        )
+                        style.colors.onBackgroundOpacity2,
+                        widget.color ?? style.colors.onPrimary,
+                      )
                       : widget.color ?? style.colors.onPrimary,
             ),
             child: Container(
@@ -180,13 +182,15 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,
-                      style: widget.style ??
+                      style:
+                          widget.style ??
                           style.fonts.medium.regular.onBackground,
                       child: Center(
                         child: Padding(
-                          padding: widget.leading == null
-                              ? EdgeInsets.zero
-                              : const EdgeInsets.only(left: 10 * 0.7),
+                          padding:
+                              widget.leading == null
+                                  ? EdgeInsets.zero
+                                  : const EdgeInsets.only(left: 10 * 0.7),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.center,

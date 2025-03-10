@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -59,8 +59,9 @@ class CallTitle extends StatelessWidget {
         children: [
           Text(
             title ?? ('dot'.l10n * 3),
-            style:
-                style.fonts.largest.bold.onPrimary.copyWith(shadows: shadows),
+            style: style.fonts.largest.bold.onPrimary.copyWith(
+              shadows: shadows,
+            ),
           ),
           if (state != null) const SizedBox(height: 10),
           if (state != null)
@@ -71,8 +72,9 @@ class CallTitle extends StatelessWidget {
                 if (withDots) const SizedBox(width: 13),
                 Text(
                   state!,
-                  style: style.fonts.big.regular.onPrimary
-                      .copyWith(shadows: shadows),
+                  style: style.fonts.big.regular.onPrimary.copyWith(
+                    shadows: shadows,
+                  ),
                 ),
                 if (withDots) const AnimatedDots(),
               ],

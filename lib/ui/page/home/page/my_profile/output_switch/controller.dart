@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,8 +32,7 @@ export 'view.dart';
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._settingsRepository, {String? output})
-      : _output =
-            output ?? _settingsRepository.mediaSettings.value?.outputDevice;
+    : _output = output ?? _settingsRepository.mediaSettings.value?.outputDevice;
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -57,18 +56,20 @@ class OutputSwitchController extends GetxController {
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [WebUtils.microphonePermission] subscription.
+  StreamSubscription? _permissionSubscription;
+
   @override
   void onInit() async {
-    _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) {
-        devices.value = e.output().toList();
-        selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
-      },
-    );
+    _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
+      devices.value = e.output().toList();
+      selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
+    });
 
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
         _output = e.outputDevice;
+
         selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
       }
     });
@@ -76,15 +77,20 @@ class OutputSwitchController extends GetxController {
     try {
       // Output devices are permitted to be use when requesting a microphone
       // permission.
-      await WebUtils.microphonePermission();
-      devices.value =
-          await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+      _permissionSubscription = await WebUtils.microphonePermission();
+      devices.value = await MediaUtils.enumerateDevices(
+        MediaDeviceKind.audioOutput,
+      );
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {
-      error.value = e.toString();
-      rethrow;
+      if (e.toString().contains('Permission denied')) {
+        error.value = 'err_microphone_permission_denied'.l10n;
+      } else {
+        error.value = e.toString();
+        rethrow;
+      }
     }
 
     super.onInit();
@@ -93,6 +99,7 @@ class OutputSwitchController extends GetxController {
   @override
   void onClose() {
     _devicesSubscription?.cancel();
+    _permissionSubscription?.cancel();
     _worker?.dispose();
     super.onClose();
   }

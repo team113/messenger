@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,8 +30,10 @@ final StepDefinitionGeneric tapText = when1<String, FlutterWorld>(
 
     await context.world.appDriver.scrollIntoView(finder);
     await context.world.appDriver.waitForAppToSettle();
-    await context.world.appDriver
-        .tap(finder, timeout: context.configuration.timeout);
+    await context.world.appDriver.tap(
+      finder,
+      timeout: context.configuration.timeout,
+    );
     await context.world.appDriver.waitForAppToSettle();
   },
 );

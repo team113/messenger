@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,19 +18,18 @@
 import '../schema.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_info.dart';
-import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
+import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/crop_area.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
-import '/provider/hive/chat_member.dart';
 import '/store/chat.dart';
-import '/store/model/chat.dart';
+import '/store/model/chat_call.dart';
 import '/store/model/chat_item.dart';
+import '/store/model/chat.dart';
+import '/store/model/chat_member.dart';
 import 'call.dart';
 import 'file.dart';
 import 'user.dart';
@@ -39,43 +38,47 @@ import 'user.dart';
 extension ChatConversion on ChatMixin {
   /// Constructs a new [Chat] from this [ChatMixin].
   Chat toModel() => Chat(
-        id,
-        avatar: avatar?.toModel(),
-        name: name,
-        members: members.nodes
+    id,
+    avatar: avatar?.toModel(),
+    name: name,
+    members:
+        members.nodes
             .map((e) => ChatMember(e.user.toModel(), e.joinedAt))
             .toList(),
-        kindIndex: kind.index,
-        isHidden: isHidden,
-        muted: muted != null
+    kindIndex: kind.index,
+    isHidden: isHidden,
+    muted:
+        muted != null
             ? muted!.$$typename == 'MuteForeverDuration'
                 ? MuteDuration.forever()
                 : MuteDuration.until(
-                    (muted! as ChatMixin$Muted$MuteUntilDuration).until)
+                  (muted! as ChatMixin$Muted$MuteUntilDuration).until,
+                )
             : null,
-        directLink: directLink != null
+    directLink:
+        directLink != null
             ? ChatDirectLink(
-                slug: directLink!.slug,
-                usageCount: directLink!.usageCount,
-              )
+              slug: directLink!.slug,
+              usageCount: directLink!.usageCount,
+              createdAt: createdAt,
+            )
             : null,
-        createdAt: createdAt,
-        updatedAt: updatedAt,
-        lastReads:
-            lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
-        lastDelivery: lastDelivery,
-        lastItem: lastItem?.toHive().value,
-        lastReadItem: lastReadItem?.toHive().value.id,
-        unreadCount: unreadCount,
-        totalCount: totalCount,
-        ongoingCall: ongoingCall?.toModel(),
-        favoritePosition: favoritePosition,
-        membersCount: members.totalCount,
-      );
+    createdAt: createdAt,
+    updatedAt: updatedAt,
+    lastReads: lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
+    lastDelivery: lastDelivery,
+    lastItem: lastItem?.toDto().value,
+    lastReadItem: lastReadItem?.toDto().value.id,
+    unreadCount: unreadCount,
+    totalCount: totalCount,
+    ongoingCall: ongoingCall?.toModel(),
+    favoritePosition: favoritePosition,
+    membersCount: members.totalCount,
+  );
 
-  /// Constructs a new [HiveChat] from this [ChatMixin].
-  HiveChat toHive(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
-      HiveChat(
+  /// Constructs a new [DtoChat] from this [ChatMixin].
+  DtoChat toDto(RecentChatsCursor? recent, FavoriteChatsCursor? favorite) =>
+      DtoChat(
         toModel(),
         ver,
         lastItem?.cursor,
@@ -86,31 +89,21 @@ extension ChatConversion on ChatMixin {
 
   /// Constructs a new [ChatData] from this [ChatMixin].
   ChatData toData([RecentChatsCursor? recent, FavoriteChatsCursor? favorite]) {
-    var lastItem = this.lastItem?.toHive();
-    var lastReadItem = this.lastReadItem?.toHive();
-
-    return ChatData(
-      toHive(recent, favorite),
-      lastItem,
-      lastReadItem,
-    );
+    final lastItem = this.lastItem?.toDto();
+    final lastReadItem = this.lastReadItem?.toDto();
+    return ChatData(toDto(recent, favorite), lastItem, lastReadItem);
   }
 }
 
 /// Extension adding models construction from [ChatInfoMixin].
 extension ChatInfoConversion on ChatInfoMixin {
   /// Constructs a new [ChatInfo] from this [ChatInfoMixin].
-  ChatInfo toModel() => ChatInfo(
-        id,
-        chatId,
-        author.toModel(),
-        at,
-        action: action.toModel(),
-      );
+  ChatInfo toModel() =>
+      ChatInfo(id, chatId, author.toModel(), at, action: action.toModel());
 
-  /// Constructs a new [HiveChatInfo] from this [ChatInfoMixin].
-  HiveChatInfo toHive(ChatItemsCursor cursor) =>
-      HiveChatInfo(toModel(), cursor, ver);
+  /// Constructs a new [DtoChatInfo] from this [ChatInfoMixin].
+  DtoChatInfo toDto(ChatItemsCursor cursor) =>
+      DtoChatInfo(toModel(), cursor, ver);
 }
 
 /// Extension adding models construction from [ChatInfoMixin$Action].
@@ -143,18 +136,18 @@ extension ChatInfoActionConversion on ChatInfoMixin$Action {
 
 /// Extension adding models construction from [ChatCallMixin].
 extension ChatCallConversion on ChatCallMixin {
-  /// Constructs a new [HiveChatCall] from this [ChatCallMixin].
-  HiveChatCall toHive(ChatItemsCursor cursor) =>
-      HiveChatCall(toModel(), cursor, ver);
+  /// Constructs a new [DtoChatCall] from this [ChatCallMixin].
+  DtoChatCall toDto(ChatItemsCursor cursor) =>
+      DtoChatCall(toModel(), cursor, ver);
 }
 
 /// Extension adding models construction from [ChatMessageMixin].
 extension ChatMessageConversion on ChatMessageMixin {
-  /// Constructs a new [HiveChatItem]s from this [ChatMessageMixin].
-  HiveChatItem toHive(ChatItemsCursor cursor) {
-    List<HiveChatItemQuote> items = repliesTo.map((e) => e.toHive()).toList();
+  /// Constructs a new [DtoChatItem]s from this [ChatMessageMixin].
+  DtoChatItem toDto(ChatItemsCursor cursor) {
+    List<DtoChatItemQuote> items = repliesTo.map((e) => e.toDto()).toList();
 
-    return HiveChatMessage(
+    return DtoChatMessage(
       ChatMessage(
         id,
         chatId,
@@ -176,38 +169,32 @@ extension ChatMessageConversion on ChatMessageMixin {
 extension NestedChatMessageConversion on NestedChatMessageMixin {
   /// Constructs a new [ChatMessage] from this [NestedChatMessageMixin].
   ChatMessage toModel() => ChatMessage(
-        id,
-        chatId,
-        author.toModel(),
-        at,
-        repliesTo: [],
-        text: text,
-        editedAt: editedAt,
-        attachments: attachments.map((e) => e.toModel()).toList(),
-      );
+    id,
+    chatId,
+    author.toModel(),
+    at,
+    repliesTo: [],
+    text: text,
+    editedAt: editedAt,
+    attachments: attachments.map((e) => e.toModel()).toList(),
+  );
 
-  /// Constructs a new [HiveChatMessage] from this [NestedChatMessageMixin].
-  HiveChatMessage toHive(ChatItemsCursor cursor) => HiveChatMessage(
-        toModel(),
-        cursor,
-        ver,
-        repliesTo.map((e) => e.original?.cursor).toList(),
-      );
+  /// Constructs a new [DtoChatMessage] from this [NestedChatMessageMixin].
+  DtoChatMessage toDto(ChatItemsCursor cursor) => DtoChatMessage(
+    toModel(),
+    cursor,
+    ver,
+    repliesTo.map((e) => e.original?.cursor).toList(),
+  );
 }
 
 /// Extension adding models construction from [ChatForwardMixin].
 extension ChatForwardConversion on ChatForwardMixin {
-  /// Constructs the new [HiveChatItem]s from this [ChatForwardMixin].
-  HiveChatItem toHive(ChatItemsCursor cursor) {
-    final HiveChatItemQuote item = quote.toHive();
-    return HiveChatForward(
-      ChatForward(
-        id,
-        chatId,
-        author.toModel(),
-        at,
-        quote: item.value,
-      ),
+  /// Constructs the new [DtoChatItem]s from this [ChatForwardMixin].
+  DtoChatItem toDto(ChatItemsCursor cursor) {
+    final DtoChatItemQuote item = quote.toDto();
+    return DtoChatForward(
+      ChatForward(id, chatId, author.toModel(), at, quote: item.value),
       cursor,
       ver,
       item.cursor,
@@ -217,18 +204,12 @@ extension ChatForwardConversion on ChatForwardMixin {
 
 /// Extension adding models construction from [NestedChatForwardMixin].
 extension NestedChatForwardConversion on NestedChatForwardMixin {
-  /// Constructs the new [HiveChatForward]s from this [NestedChatForwardMixin].
-  HiveChatForward toHive(ChatItemsCursor cursor) {
-    final HiveChatItemQuote item = quote.toHive();
+  /// Constructs the new [DtoChatForward]s from this [NestedChatForwardMixin].
+  DtoChatForward toDto(ChatItemsCursor cursor) {
+    final DtoChatItemQuote item = quote.toDto();
 
-    return HiveChatForward(
-      ChatForward(
-        id,
-        chatId,
-        author.toModel(),
-        at,
-        quote: item.value,
-      ),
+    return DtoChatForward(
+      ChatForward(id, chatId, author.toModel(), at, quote: item.value),
       cursor,
       ver,
       item.cursor,
@@ -238,11 +219,11 @@ extension NestedChatForwardConversion on NestedChatForwardMixin {
 
 /// Extension adding models construction from [NestedChatForwardMixin$Quote].
 extension NestedChatForwardItemConversion on NestedChatForwardMixin$Quote {
-  /// Constructs a new [HiveChatItem]s from this [NestedChatForwardMixin$Quote].
-  HiveChatItemQuote toHive() {
+  /// Constructs a new [DtoChatItem]s from this [NestedChatForwardMixin$Quote].
+  DtoChatItemQuote toDto() {
     if ($$typename == 'ChatMessageQuote') {
       final q = this as NestedChatForwardMixin$Quote$ChatMessageQuote;
-      return HiveChatItemQuote(
+      return DtoChatItemQuote(
         ChatMessageQuote(
           text: q.text,
           attachments: q.attachments.map((e) => e.toModel()).toList(),
@@ -252,21 +233,14 @@ extension NestedChatForwardItemConversion on NestedChatForwardMixin$Quote {
         original?.cursor,
       );
     } else if ($$typename == 'ChatCallQuote') {
-      return HiveChatItemQuote(
-        ChatCallQuote(
-          author: author.id,
-          at: at,
-        ),
+      return DtoChatItemQuote(
+        ChatCallQuote(author: author.id, at: at),
         original?.cursor,
       );
     } else if ($$typename == 'ChatInfoQuote') {
       final q = this as NestedChatForwardMixin$Quote$ChatInfoQuote;
-      return HiveChatItemQuote(
-        ChatInfoQuote(
-          action: q.action.toModel(),
-          author: author.id,
-          at: at,
-        ),
+      return DtoChatItemQuote(
+        ChatInfoQuote(action: q.action.toModel(), author: author.id, at: at),
         original?.cursor,
       );
     }
@@ -320,130 +294,133 @@ extension NestedChatForwardChatInfoQuoteActionConversion
 /// Extension adding models construction from
 /// [GetMessages$Query$Chat$Items$Edges].
 extension GetMessagesConversion on GetMessages$Query$Chat$Items$Edges {
-  /// Constructs the new [HiveChatItem]s from this
+  /// Constructs the new [DtoChatItem]s from this
   /// [GetMessages$Query$Chat$Items$Edges].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastItem].
 extension ChatLastItemConversion on ChatMixin$LastItem {
-  /// Constructs the new [HiveChatItem]s from this [ChatMixin$LastItem].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  /// Constructs the new [DtoChatItem]s from this [ChatMixin$LastItem].
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMixin$LastReadItem].
 extension ChatLastReadItemConversion on ChatMixin$LastReadItem {
-  /// Constructs the new [HiveChatItem]s from this [ChatMixin$LastReadItem].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  /// Constructs the new [DtoChatItem]s from this [ChatMixin$LastReadItem].
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatForwardMixin$Quote].
 extension ChatForwardMixinItemConversion on ChatForwardMixin$Quote {
-  /// Constructs the new [HiveChatItemQuote]s from this [ChatForwardMixin$Quote].
-  HiveChatItemQuote toHive() => _chatItemQuote(this);
+  /// Constructs the new [DtoChatItemQuote]s from this [ChatForwardMixin$Quote].
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from [ChatMessageMixin$RepliesTo].
 extension ChatMessageMixinRepliesToConversion on ChatMessageMixin$RepliesTo {
-  /// Constructs the new [HiveChatItemQuote] from this
+  /// Constructs the new [DtoChatItemQuote] from this
   /// [ChatMessageMixin$RepliesTo].
-  HiveChatItemQuote toHive() => _chatItemQuote(this);
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from
 /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
 extension EventChatItemEditedRepliesToConversion
     on ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed {
-  /// Constructs the new [HiveChatItemQuote]s from this
+  /// Constructs the new [DtoChatItemQuote]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatItemEdited$RepliesTo$Changed].
-  HiveChatItemQuote toHive() => _chatItemQuote(this);
+  DtoChatItemQuote toDto() => _chatItemQuote(this);
 }
 
 /// Extension adding models construction from
 /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
 extension EventChatItemPostedConversion
     on ChatEventsVersionedMixin$Events$EventChatItemPosted$Item {
-  /// Constructs the new [HiveChatItem]s from this
+  /// Constructs the new [DtoChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatItemPosted$Item].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from
 /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
 extension EventChatLastItemUpdatedConversion
     on ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem {
-  /// Constructs the new [HiveChatItem]s from this
+  /// Constructs the new [DtoChatItem]s from this
   /// [ChatEventsVersionedMixin$Events$EventChatLastItemUpdated$LastItem].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatMessageQuoteMixin].
 extension ChatMessageQuoteConversion on ChatMessageQuoteMixin {
   /// Constructs a new [ChatMessageQuote] from this [ChatMessageQuoteMixin].
   ChatMessageQuote toModel() => ChatMessageQuote(
-        original: original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
-        author: author.id,
-        at: at,
-        text: text,
-        attachments: attachments.map((e) => e.toModel()).toList(),
-      );
-
-  /// Constructs a new [HiveChatItemQuote] from this [ChatMessageQuoteMixin].
-  HiveChatItemQuote toHive() => HiveChatItemQuote(
-        toModel(),
+    original:
         original == null
             ? null
-            : _chatItem(original!.node, original!.cursor).cursor,
-      );
+            : _chatItem(original!.node, original!.cursor).value,
+    author: author.id,
+    at: at,
+    text: text,
+    attachments: attachments.map((e) => e.toModel()).toList(),
+  );
+
+  /// Constructs a new [DtoChatItemQuote] from this [ChatMessageQuoteMixin].
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
+    toModel(),
+    original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).cursor,
+  );
 }
 
 /// Extension adding models construction from [ChatCallQuoteMixin].
 extension ChatCallQuoteConversion on ChatCallQuoteMixin {
   /// Constructs a new [ChatCallQuote] from this [ChatCallQuoteMixin].
   ChatCallQuote toModel() => ChatCallQuote(
-        original: original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
-        author: author.id,
-        at: at,
-      );
-
-  /// Constructs a new [HiveChatItemQuote] from this [ChatCallQuoteMixin].
-  HiveChatItemQuote toHive() => HiveChatItemQuote(
-        toModel(),
+    original:
         original == null
             ? null
-            : _chatItem(original!.node, original!.cursor).cursor,
-      );
+            : _chatItem(original!.node, original!.cursor).value,
+    author: author.id,
+    at: at,
+  );
+
+  /// Constructs a new [DtoChatItemQuote] from this [ChatCallQuoteMixin].
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
+    toModel(),
+    original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).cursor,
+  );
 }
 
 /// Extension adding models construction from [ChatInfoQuoteMixin].
 extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
   /// Constructs a new [ChatInfoQuote] from this [ChatInfoQuoteMixin].
   ChatInfoQuote toModel() => ChatInfoQuote(
-        original: original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
-        author: author.id,
-        at: at,
-        action: action.toModel(),
-      );
-
-  /// Constructs a new [HiveChatItemQuote] from this [ChatInfoQuoteMixin].
-  HiveChatItemQuote toHive() => HiveChatItemQuote(
-        toModel(),
+    original:
         original == null
             ? null
-            : _chatItem(original!.node, original!.cursor).cursor,
-      );
+            : _chatItem(original!.node, original!.cursor).value,
+    author: author.id,
+    at: at,
+    action: action.toModel(),
+  );
+
+  /// Constructs a new [DtoChatItemQuote] from this [ChatInfoQuoteMixin].
+  DtoChatItemQuote toDto() => DtoChatItemQuote(
+    toModel(),
+    original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).cursor,
+  );
 }
 
 /// Extension adding models construction from [GetMessage$Query$ChatItem].
 extension GetMessageConversion on GetMessage$Query$ChatItem {
-  /// Constructs a new [HiveChatItem] from this [GetMessage$Query$ChatItem].
-  HiveChatItem toHive() => _chatItem(node, cursor);
+  /// Constructs a new [DtoChatItem] from this [GetMessage$Query$ChatItem].
+  DtoChatItem toDto() => _chatItem(node, cursor);
 }
 
 /// Extension adding models construction from [ChatInfoQuoteMixin$Action].
@@ -480,24 +457,22 @@ extension ChatInfoQuoteActionConversion on ChatInfoQuoteMixin$Action {
 extension ChatAvatarConversion on ChatAvatarMixin {
   /// Constructs a new [ChatAvatar] from this [ChatAvatarMixin].
   ChatAvatar toModel() => ChatAvatar(
-        medium: medium.toModel(),
-        small: small.toModel(),
-        original: original.toModel(),
-        full: full.toModel(),
-        big: big.toModel(),
-        crop: crop == null
+    medium: medium.toModel(),
+    small: small.toModel(),
+    original: original.toModel(),
+    full: full.toModel(),
+    big: big.toModel(),
+    crop:
+        crop == null
             ? null
             : CropArea(
-                topLeft: CropPoint(
-                  x: crop!.topLeft.x,
-                  y: crop!.topLeft.y,
-                ),
-                bottomRight: CropPoint(
-                  x: crop!.bottomRight.x,
-                  y: crop!.bottomRight.y,
-                ),
+              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+              bottomRight: CropPoint(
+                x: crop!.bottomRight.x,
+                y: crop!.bottomRight.y,
               ),
-      );
+            ),
+  );
 }
 
 /// Extension adding models construction from an
@@ -515,6 +490,33 @@ extension ChatMessageAttachmentsConversion on ChatMessageMixin$Attachments {
   Attachment toModel() => _attachment(this);
 }
 
+/// Extension adding models construction from [WelcomeMessageMixin$Attachments].
+extension WelcomeMessageAttachmentsConversion
+    on WelcomeMessageMixin$Attachments {
+  /// Constructs a new [Attachment] from this [WelcomeMessageMixin$Attachments].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventMyUserWelcomeMessageUpdatedAttachmentsConversion
+    on
+        MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [MyUserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  Attachment toModel() => _attachment(this);
+}
+
+/// Extension adding models construction from
+/// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+extension EventUserWelcomeMessageUpdatedAttachmentsConversion
+    on
+        UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed {
+  /// Constructs a new [Attachment] from this
+  /// [UserEventsVersionedMixin$Events$EventUserWelcomeMessageUpdated$Attachments$Changed].
+  Attachment toModel() => _attachment(this);
+}
+
 /// Extension adding models construction from
 /// [NestedChatMessageMixin$Attachments].
 extension NestedChatMessageAttachmentsConversion
@@ -528,23 +530,20 @@ extension NestedChatMessageAttachmentsConversion
 extension ImageAttachmentConversion on ImageAttachmentMixin {
   /// Constructs a new [ImageAttachment] from this [ImageAttachmentMixin].
   ImageAttachment toModel() => ImageAttachment(
-        id: id,
-        original: original.toModel(),
-        filename: filename,
-        big: big.toModel(),
-        medium: medium.toModel(),
-        small: small.toModel(),
-      );
+    id: id,
+    original: original.toModel(),
+    filename: filename,
+    big: big.toModel(),
+    medium: medium.toModel(),
+    small: small.toModel(),
+  );
 }
 
 /// Extension adding models construction from a [FileAttachmentMixin].
 extension FileAttachmentConversion on FileAttachmentMixin {
   /// Constructs a new [FileAttachment] from this [FileAttachmentMixin].
-  FileAttachment toModel() => FileAttachment(
-        id: id,
-        original: original.toModel(),
-        filename: filename,
-      );
+  FileAttachment toModel() =>
+      FileAttachment(id: id, original: original.toModel(), filename: filename);
 }
 
 /// Extension adding models construction from a [GetAttachments$Query$ChatItem].
@@ -561,8 +560,9 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
       if (message.repliesTo.isNotEmpty) {
         for (var r in message.repliesTo) {
           if (r.original?.node.$$typename == 'ChatMessage') {
-            var replied = r.original?.node
-                as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage;
+            var replied =
+                r.original?.node
+                    as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage;
             attachments.addAll(replied.attachments.map((e) => e.toModel()));
           }
         }
@@ -570,8 +570,9 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
     } else if (node.$$typename == 'ChatForward') {
       var message = node as GetAttachments$Query$ChatItem$Node$ChatForward;
       if (message.quote.$$typename == 'ChatMessageQuote') {
-        var quote = message.quote
-            as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
+        var quote =
+            message.quote
+                as GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote;
         attachments.addAll(quote.attachments.map((e) => e.toModel()));
       }
     }
@@ -592,7 +593,8 @@ extension GetAttachmentsChatMessageAttachmentConversion
 /// Extension adding models construction from
 /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
 extension GetAttachmentsChatForwardAttachmentConversion
-    on GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
+    on
+        GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
   /// [GetAttachments$Query$ChatItem$Node$ChatForward$Quote$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
@@ -601,7 +603,8 @@ extension GetAttachmentsChatForwardAttachmentConversion
 /// Extension adding models construction from
 /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments].
 extension GetAttachmentsChatMessageRepliesToAttachmentConversion
-    on GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments {
+    on
+        GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments {
   /// Constructs a new [Attachment] from this
   /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments].
   Attachment toModel() => _attachment(this);
@@ -648,9 +651,11 @@ extension EventChatMuted$DurationConversion
       return MuteDuration.forever();
     }
 
-    return MuteDuration.until((this
-            as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
-        .until);
+    return MuteDuration.until(
+      (this
+              as ChatEventsVersionedMixin$Events$EventChatMuted$Duration$MuteUntilDuration)
+          .until,
+    );
   }
 }
 
@@ -659,11 +664,9 @@ extension ChatMemberConversion on ChatMemberMixin {
   /// Constructs a new [ChatMember] from this [ChatMemberMixin].
   ChatMember toModel() => ChatMember(user.toModel(), joinedAt);
 
-  /// Constructs a new [HiveChatMember] from this [ChatMemberMixin].
-  HiveChatMember toHive(ChatMembersCursor? cursor) => HiveChatMember(
-        toModel(),
-        cursor,
-      );
+  /// Constructs a new [DtoChatMember] from this [ChatMemberMixin].
+  DtoChatMember toDto(ChatMembersCursor? cursor) =>
+      DtoChatMember(user.toModel(), joinedAt, cursor);
 }
 
 /// Constructs a new [Attachment] based on the [node].
@@ -677,33 +680,33 @@ Attachment _attachment(dynamic node) {
   throw UnimplementedError('$node is not implemented');
 }
 
-/// Constructs a new [HiveChatItem]s based on the [node] and [cursor].
-HiveChatItem _chatItem(dynamic node, ChatItemsCursor cursor) {
+/// Constructs a new [DtoChatItem]s based on the [node] and [cursor].
+DtoChatItem _chatItem(dynamic node, ChatItemsCursor cursor) {
   if (node is ChatInfoMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatCallMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatMessageMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is NestedChatMessageMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is ChatForwardMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   } else if (node is NestedChatForwardMixin) {
-    return node.toHive(cursor);
+    return node.toDto(cursor);
   }
 
   throw UnimplementedError('$node is not implemented');
 }
 
-/// Constructs a new [HiveChatItemQuote] based on the [node].
-HiveChatItemQuote _chatItemQuote(dynamic node) {
+/// Constructs a new [DtoChatItemQuote] based on the [node].
+DtoChatItemQuote _chatItemQuote(dynamic node) {
   if (node is ChatMessageQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   } else if (node is ChatInfoQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   } else if (node is ChatCallQuoteMixin) {
-    return node.toHive();
+    return node.toDto();
   }
 
   throw UnimplementedError('$node is not implemented');

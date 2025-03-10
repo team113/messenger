@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,7 +48,7 @@ class TilesSection {
                 ContextMenuDivider(),
                 ContextMenuButton(label: 'Action 4'),
               ],
-            )
+            ),
           ),
           (
             headline: 'ContextMenu(mobile)',
@@ -76,11 +76,7 @@ class TilesSection {
           ),
           (
             headline: 'RecentChatTile(selected)',
-            widget: RecentChatTile(
-              DummyRxChat(),
-              onTap: () {},
-              selected: true,
-            ),
+            widget: RecentChatTile(DummyRxChat(), onTap: () {}, selected: true),
           ),
           (
             headline: 'RecentChatTile(trailing)',
@@ -105,54 +101,52 @@ class TilesSection {
           ),
           (
             headline: 'ChatTile(selected)',
-            widget: ChatTile(
-              chat: DummyRxChat(),
-              onTap: () {},
-              selected: true,
-            ),
+            widget: ChatTile(chat: DummyRxChat(), onTap: () {}, selected: true),
           ),
         ],
       ),
-      Builder(builder: (context) {
-        final MyUser myUser = MyUser(
-          id: const UserId('123'),
-          num: UserNum('1234123412341234'),
-          emails: MyUserEmails(confirmed: []),
-          phones: MyUserPhones(confirmed: []),
-          presenceIndex: 0,
-          online: true,
-        );
+      Builder(
+        builder: (context) {
+          final MyUser myUser = MyUser(
+            id: const UserId('123'),
+            num: UserNum('1234123412341234'),
+            emails: MyUserEmails(confirmed: []),
+            phones: MyUserPhones(confirmed: []),
+            presenceIndex: 0,
+            online: true,
+          );
 
-        return Headlines(
-          color: Color.alphaBlend(
-            style.sidebarColor,
-            style.colors.onBackgroundOpacity7,
-          ),
-          children: [
-            (
-              headline: 'ContactTile',
-              widget: ContactTile(myUser: myUser, onTap: () {}),
+          return Headlines(
+            color: Color.alphaBlend(
+              style.sidebarColor,
+              style.colors.onBackgroundOpacity7,
             ),
-            (
-              headline: 'ContactTile(selected)',
-              widget: ContactTile(
-                myUser: myUser,
-                onTap: () {},
-                selected: true,
+            children: [
+              (
+                headline: 'ContactTile',
+                widget: ContactTile(myUser: myUser, onTap: () {}),
               ),
-            ),
-            (
-              headline: 'ContactTile(trailing)',
-              widget: ContactTile(
-                myUser: myUser,
-                onTap: () {},
-                selected: false,
-                trailing: const [SelectedDot(selected: false, size: 20)],
+              (
+                headline: 'ContactTile(selected)',
+                widget: ContactTile(
+                  myUser: myUser,
+                  onTap: () {},
+                  selected: true,
+                ),
               ),
-            ),
-          ],
-        );
-      }),
+              (
+                headline: 'ContactTile(trailing)',
+                widget: ContactTile(
+                  myUser: myUser,
+                  onTap: () {},
+                  selected: false,
+                  trailing: const [SelectedDot(selected: false, size: 20)],
+                ),
+              ),
+            ],
+          );
+        },
+      ),
     ];
   }
 }

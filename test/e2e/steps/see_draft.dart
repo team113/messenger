@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,25 +34,25 @@ import '../world/custom_world.dart';
 /// - Then I see draft "Message" in chat with Bob
 final StepDefinitionGeneric seeDraftInDialog =
     then2<String, TestUser, CustomWorld>(
-  'I see draft {string} in chat with {user}',
-  (text, user, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+      'I see draft {string} in chat with {user}',
+      (text, user, context) async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    await context.world.appDriver.waitUntil(() async {
-      final ChatId dialog = context.world.sessions[user.name]!.dialog!;
+        await context.world.appDriver.waitUntil(() async {
+          final ChatId dialog = context.world.sessions[user.name]!.dialog!;
 
-      final Finder finder = context.world.appDriver.findByDescendant(
-        context.world.appDriver.findBy('Chat_$dialog', FindType.key),
-        context.world.appDriver.findBy('Draft', FindType.key),
-        firstMatchOnly: true,
-      );
+          final Finder finder = context.world.appDriver.findByDescendant(
+            context.world.appDriver.findBy('Chat_$dialog', FindType.key),
+            context.world.appDriver.findBy('Draft', FindType.key),
+            firstMatchOnly: true,
+          );
 
-      if (await context.world.appDriver.isPresent(finder)) {
-        final RxChat? chat = Get.find<ChatService>().chats[dialog];
-        return (chat?.draft.value as ChatMessage).text?.val == text;
-      }
+          if (await context.world.appDriver.isPresent(finder)) {
+            final RxChat? chat = Get.find<ChatService>().chats[dialog];
+            return (chat?.draft.value as ChatMessage).text?.val == text;
+          }
 
-      return false;
-    });
-  },
-);
+          return false;
+        });
+      },
+    );

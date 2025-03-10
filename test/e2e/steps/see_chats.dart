@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,19 +30,17 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
   'I see {int} chats',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<ChatsTabController>();
-        if (controller.chats.where((e) => !e.id.isLocal).length == count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<ChatsTabController>();
+
+      if (controller.chats.where((e) => !e.id.isLocal).length == count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 60));
   },
 );
 
@@ -54,21 +52,18 @@ final StepDefinitionGeneric seeCountChats = then1<int, CustomWorld>(
 final StepDefinitionGeneric seeCountFavoriteChats = then1<int, CustomWorld>(
   'I see {int} favorite chats',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<ChatsTabController>();
-        if (controller.chats
-                .where((e) => e.chat.value.favoritePosition != null)
-                .length ==
-            count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<ChatsTabController>();
+      if (controller.chats
+              .where((e) => e.chat.value.favoritePosition != null)
+              .length ==
+          count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );

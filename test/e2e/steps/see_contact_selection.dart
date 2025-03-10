@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,25 +30,24 @@ import '../world/custom_world.dart';
 /// - Then I see "Charlie" contact as unselected
 final StepDefinitionGeneric seeContactSelection =
     then2<String, SelectionStatus, CustomWorld>(
-  'I see {string} contact as {selection}',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} contact as {selection}',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final ChatContactId contactId = context.world.contacts[name]!;
-        final Finder contact =
-            context.world.appDriver.findByKeySkipOffstage('Contact_$contactId');
+          final ChatContactId contactId = context.world.contacts[name]!;
+          final Finder contact = context.world.appDriver.findByKeySkipOffstage(
+            'Contact_$contactId',
+          );
 
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver.findByDescendant(
-            contact,
-            context.world.appDriver.findByKeySkipOffstage(
-              status == SelectionStatus.selected ? 'Selected' : 'Unselected',
+          return await context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              contact,
+              context.world.appDriver.findByKeySkipOffstage(
+                status == SelectionStatus.selected ? 'Selected' : 'Unselected',
+              ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
-  },
-);

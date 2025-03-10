@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,11 +22,7 @@ import '/themes.dart';
 
 /// Centered [time] label animating its [opacity] changes.
 class TimeLabelWidget extends StatelessWidget {
-  const TimeLabelWidget(
-    this.time, {
-    super.key,
-    this.opacity = 1,
-  });
+  const TimeLabelWidget(this.time, {super.key, this.opacity = 1});
 
   /// Opacity of this [TimeLabelWidget].
   final double opacity;

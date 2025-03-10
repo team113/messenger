@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,10 +31,6 @@ class UserService extends DisposableService {
 
   /// Repository to fetch [User]s from.
   final AbstractUserRepository _userRepository;
-
-  /// Changes to `true` once the underlying data storage is initialized and
-  /// [users] value is fetched.
-  RxBool get isReady => _userRepository.isReady;
 
   /// Returns the current reactive map of [User]s.
   RxMap<UserId, RxUser> get users => _userRepository.users;
@@ -72,11 +68,5 @@ class UserService extends DisposableService {
   Future<void> unblockUser(UserId id) async {
     Log.debug('unblockUser($id)', '$runtimeType');
     await _userRepository.unblockUser(id);
-  }
-
-  /// Removes [users] from the local data storage.
-  Future<void> clearCached() async {
-    Log.debug('clearCached()', '$runtimeType');
-    await _userRepository.clearCache();
   }
 }

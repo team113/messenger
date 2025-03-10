@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,9 +15,10 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter/scheduler.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:xml/xml.dart';
@@ -25,11 +26,12 @@ import 'package:xml/xml.dart';
 import '/config.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
-import '/provider/hive/skipped_version.dart';
+import '/provider/drift/skipped_version.dart';
 import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/widget/upgrade_popup/view.dart';
 import '/util/log.dart';
+import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
@@ -37,12 +39,21 @@ import '/util/platform_utils.dart';
 class UpgradeWorker extends DisposableService {
   UpgradeWorker(this._skippedLocal);
 
-  /// [SkippedVersionHiveProvider] for maintaining the skipped [Release]s.
-  final SkippedVersionHiveProvider? _skippedLocal;
+  /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
+  final SkippedVersionDriftProvider? _skippedLocal;
+
+  /// [Timer] to periodically fetch updates over time.
+  Timer? _timer;
+
+  /// Latest [Release] fetched during the [fetchUpdates].
+  Release? _latest;
 
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
+
+  /// [Duration] being the period of [_timer].
+  static const Duration _refreshPeriod = Duration(minutes: 5);
 
   @override
   void onReady() {
@@ -53,23 +64,38 @@ class UpgradeWorker extends DisposableService {
       fetchUpdates();
     }
 
+    if (Config.appcast.isNotEmpty) {
+      _timer = Timer.periodic(_refreshPeriod, (_) {
+        fetchUpdates();
+      });
+    }
+
     super.onReady();
+  }
+
+  @override
+  void onClose() {
+    _timer?.cancel();
+    super.onClose();
   }
 
   /// Skips the [release], meaning no popups will be prompted for this one.
   Future<void> skip(Release release) async {
     Log.debug('skip($release)', '$runtimeType');
-    await _skippedLocal?.set(release.name);
+    await _skippedLocal?.upsert(release.name);
   }
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
-  @visibleForTesting
-  Future<void> fetchUpdates() async {
-    Log.debug('fetchUpdates()', '$runtimeType');
+  ///
+  /// Returns `true`, if new update is detected.
+  ///
+  /// If [force] is `true`, then ignores the [_skippedLocal] stored one.
+  Future<bool> fetchUpdates({bool force = false}) async {
+    Log.debug('fetchUpdates(force: $force)', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
-      return;
+      return false;
     }
 
     try {
@@ -90,8 +116,19 @@ class UpgradeWorker extends DisposableService {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
-          final Release release =
-              Release.fromXml(items.first, language: L10n.chosen.value);
+          final Release release = Release.fromXml(
+            items.first,
+            language: L10n.chosen.value,
+          );
+
+          // If the latest fetched [Release] is the same as this one, then don't
+          // even try to compare it.
+          if (_latest?.name == release.name) {
+            return false;
+          }
+
+          bool silent = _latest != null;
+          _latest = release;
 
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',
@@ -114,24 +151,32 @@ class UpgradeWorker extends DisposableService {
             }
 
             // Shouldn't prompt user with versions lower than current.
-            final bool lower = ours != null && their != null
-                ? ours < their
-                : Pubspec.ref.compareTo(release.name) == -1;
-            Log.debug(
+            final bool lower =
+                ours != null && their != null
+                    ? ours < their
+                    : Pubspec.ref.compareTo(release.name) == -1;
+            Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
             );
 
             // Critical releases must always be displayed and can't be skipped.
             final bool critical = ours?.isCritical(their) ?? false;
-            Log.debug(
+            Log.info(
               'Whether `$ours` is considered critical relative to `$their`: $critical',
               '$runtimeType',
             );
 
-            final bool skipped = _skippedLocal?.get() == release.name;
+            final bool skipped =
+                !force && await _skippedLocal?.read() == release.name;
             if (critical || (lower && !skipped && Config.downloadable)) {
-              _schedulePopup(release, critical: critical);
+              _schedulePopup(
+                release,
+                critical: critical,
+                delay: !force,
+                silent: silent,
+              );
+              return true;
             }
           }
         }
@@ -139,21 +184,50 @@ class UpgradeWorker extends DisposableService {
     } catch (e) {
       Log.info('Failed to fetch releases: $e', '$runtimeType');
     }
+
+    return false;
   }
 
   /// Schedules an [UpgradePopupView] prompt displaying.
-  void _schedulePopup(Release release, {bool critical = false}) {
+  Future<void> _schedulePopup(
+    Release release, {
+    bool critical = false,
+    bool delay = true,
+    bool silent = false,
+  }) async {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
-    Future.delayed(_popupDelay, () {
-      SchedulerBinding.instance.addPostFrameCallback((_) async {
-        await UpgradePopupView.show(
-          router.context!,
-          release: release,
-          critical: critical,
+    Future<void> displayPopup() async {
+      if (silent && !critical) {
+        return MessagePopup.success(
+          'label_update_is_available'.l10n,
+          duration: const Duration(minutes: 5),
+          onPressed: () async {
+            await UpgradePopupView.show(
+              router.context!,
+              release: release,
+              critical: critical,
+            );
+          },
+        );
+      }
+
+      await UpgradePopupView.show(
+        router.context!,
+        release: release,
+        critical: critical,
+      );
+    }
+
+    if (delay) {
+      await Future.delayed(_popupDelay, () {
+        SchedulerBinding.instance.addPostFrameCallback(
+          (_) async => await displayPopup(),
         );
       });
-    });
+    } else {
+      await displayPopup();
+    }
   }
 }
 
@@ -180,7 +254,8 @@ class Release {
       title = title.substring(1);
     }
 
-    final String? description = xml
+    final String? description =
+        xml
             .findElements('description')
             .firstWhereOrNull(
               (e) => e.attributes.any(
@@ -193,10 +268,11 @@ class Release {
         xml.findElements('description').firstOrNull?.innerText;
 
     final String date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseArtifact> assets = xml
-        .findElements('enclosure')
-        .map((e) => ReleaseArtifact.fromXml(e))
-        .toList();
+    final List<ReleaseArtifact> assets =
+        xml
+            .findElements('enclosure')
+            .map((e) => ReleaseArtifact.fromXml(e))
+            .toList();
 
     return Release(
       name: title,
@@ -222,6 +298,18 @@ class Release {
   String toString() {
     return 'Release(name: $name, description: $description, publishedAt: $publishedAt, assets: $assets)';
   }
+
+  @override
+  bool operator ==(Object other) {
+    return other is Release &&
+        name == other.name &&
+        description == other.description &&
+        publishedAt == other.publishedAt &&
+        const ListEquality().equals(assets, other.assets);
+  }
+
+  @override
+  int get hashCode => Object.hash(name, description, publishedAt, assets);
 }
 
 /// Artifact of the [Release].
@@ -244,6 +332,14 @@ class ReleaseArtifact {
 
   @override
   String toString() => 'ReleaseArtifact(url: $url, os: $os)';
+
+  @override
+  bool operator ==(Object other) {
+    return other is ReleaseArtifact && url == other.url && os == other.os;
+  }
+
+  @override
+  int get hashCode => Object.hash(url, os);
 }
 
 /// Extension adding parsing of RFC-822 date format to [DateTime].
@@ -475,11 +571,12 @@ extension VersionExtension on Version {
       parsed.major,
       parsed.minor,
       parsed.patch,
-      pre: parsed.preRelease.isEmpty
-          ? null
-          : parsed.preRelease
-              .map((e) => e is String ? e.replaceAll('-', '.') : e)
-              .join('.'),
+      pre:
+          parsed.preRelease.isEmpty
+              ? null
+              : parsed.preRelease
+                  .map((e) => e is String ? e.replaceAll('-', '.') : e)
+                  .join('.'),
       build: parsed.build.isEmpty ? null : parsed.build.join('.'),
     );
   }

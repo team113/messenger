@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -58,21 +58,32 @@ class MediaUtilsImpl {
   /// [Mutex] guarding synchronized access to the [_setOutputDevice].
   final Mutex _mutex = Mutex();
 
-  /// Returns the [Jason] instance of these [MediaUtils].
-  Jason? get jason {
-    if (_jason == null) {
-      try {
-        _jason = Jason();
-      } catch (_) {
-        // TODO: So the test would run. Jason currently only supports Web and
-        //       Android, and unit tests run on a host machine.
-        _jason = null;
-      }
+  /// [Mutex] guarding asynchronous [jason] and [_mediaManager] initialization.
+  final Mutex _guard = Mutex();
 
-      WebUtils.onPanic((e) {
-        Log.error('Panic: ${e.toString()}', 'Jason');
-        _jason = null;
-        __mediaManager = null;
+  /// Returns the [Jason] instance of these [MediaUtils].
+  FutureOr<Jason?> get jason {
+    if (_jason == null) {
+      return _guard.protect(() async {
+        if (_jason != null) {
+          return _jason;
+        }
+
+        try {
+          _jason = await Jason.init();
+        } catch (_) {
+          // TODO: So the test would run. Jason currently only supports Web and
+          //       Android, and unit tests run on a host machine.
+          _jason = null;
+        }
+
+        WebUtils.onPanic((e) {
+          Log.error('Panic: ${e.toString()}', 'Jason');
+          _jason = null;
+          __mediaManager = null;
+        });
+
+        return _jason;
       });
     }
 
@@ -80,8 +91,22 @@ class MediaUtilsImpl {
   }
 
   /// Returns the [MediaManagerHandle] instance of these [MediaUtils].
-  MediaManagerHandle? get _mediaManager {
-    __mediaManager ??= jason?.mediaManager();
+  FutureOr<MediaManagerHandle?> get _mediaManager {
+    if (__mediaManager == null) {
+      if (__mediaManager != null) {
+        return __mediaManager;
+      }
+
+      final FutureOr<Jason?> instance = jason;
+      if (instance is Future) {
+        return _guard.protect(() async {
+          return __mediaManager = (await instance)?.mediaManager();
+        });
+      }
+
+      return __mediaManager = instance?.mediaManager();
+    }
+
     return __mediaManager;
   }
 
@@ -89,12 +114,15 @@ class MediaUtilsImpl {
   Stream<List<DeviceDetails>> get onDeviceChange {
     if (_devicesController == null) {
       _devicesController = StreamController.broadcast();
-      _mediaManager?.onDeviceChange(() async {
-        _devicesController?.add(
-          (await enumerateDevices())
-              .where((e) => e.deviceId().isNotEmpty)
-              .toList(),
-        );
+
+      Future(() async {
+        (await _mediaManager)?.onDeviceChange(() async {
+          _devicesController?.add(
+            (await enumerateDevices())
+                .where((e) => e.deviceId().isNotEmpty)
+                .toList(),
+          );
+        });
       });
     }
 
@@ -109,7 +137,7 @@ class MediaUtilsImpl {
       if (PlatformUtils.isDesktop && !PlatformUtils.isWeb) {
         Future(() async {
           _displaysController?.add(
-            (await _mediaManager?.enumerateDisplays() ?? [])
+            (await (await _mediaManager)?.enumerateDisplays() ?? [])
                 .where((e) => e.deviceId().isNotEmpty)
                 .toList(),
           );
@@ -133,11 +161,14 @@ class MediaUtilsImpl {
     final List<LocalMediaTrack> tracks = [];
 
     if (audio != null || video != null || screen != null) {
-      final List<LocalMediaTrack> local = await _mediaManager!.initLocalTracks(
-        _mediaStreamSettings(audio: audio, video: video, screen: screen),
-      );
+      final List<LocalMediaTrack>? local = await (await _mediaManager)
+          ?.initLocalTracks(
+            _mediaStreamSettings(audio: audio, video: video, screen: screen),
+          );
 
-      tracks.addAll(local);
+      if (local != null) {
+        tracks.addAll(local);
+      }
     }
 
     return tracks;
@@ -145,11 +176,9 @@ class MediaUtilsImpl {
 
   /// Returns the [DeviceDetails] currently available with the provided
   /// [kind], if specified.
-  Future<List<DeviceDetails>> enumerateDevices([
-    MediaDeviceKind? kind,
-  ]) async {
+  Future<List<DeviceDetails>> enumerateDevices([MediaDeviceKind? kind]) async {
     final List<DeviceDetails> devices =
-        (await _mediaManager?.enumerateDevices() ?? [])
+        (await (await _mediaManager)?.enumerateDevices() ?? [])
             .where((e) => e.deviceId().isNotEmpty)
             .where((e) => kind == null || e.kind() == kind)
             .whereType<MediaDeviceDetails>()
@@ -160,12 +189,15 @@ class MediaUtilsImpl {
     //
     // Browsers and mobiles already may include their own default devices.
     if (kind == null || kind == MediaDeviceKind.audioInput) {
-      final DeviceDetails? hasDefault = devices.firstWhereOrNull((d) =>
-          d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default');
+      final DeviceDetails? hasDefault = devices.firstWhereOrNull(
+        (d) =>
+            d.kind() == MediaDeviceKind.audioInput && d.deviceId() == 'default',
+      );
 
       if (hasDefault == null) {
-        final DeviceDetails? device = devices
-            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioInput);
+        final DeviceDetails? device = devices.firstWhereOrNull(
+          (e) => e.kind() == MediaDeviceKind.audioInput,
+        );
         if (device != null) {
           devices.insert(0, DefaultDeviceDetails(device));
         }
@@ -180,12 +212,16 @@ class MediaUtilsImpl {
     }
 
     if (kind == null || kind == MediaDeviceKind.audioOutput) {
-      final bool hasDefault = devices.any((d) =>
-          d.kind() == MediaDeviceKind.audioOutput && d.deviceId() == 'default');
+      final bool hasDefault = devices.any(
+        (d) =>
+            d.kind() == MediaDeviceKind.audioOutput &&
+            d.deviceId() == 'default',
+      );
 
       if (!hasDefault) {
-        final DeviceDetails? device = devices
-            .firstWhereOrNull((e) => e.kind() == MediaDeviceKind.audioOutput);
+        final DeviceDetails? device = devices.firstWhereOrNull(
+          (e) => e.kind() == MediaDeviceKind.audioOutput,
+        );
         if (device != null) {
           devices.insert(0, DefaultDeviceDetails(device));
         }
@@ -221,7 +257,7 @@ class MediaUtilsImpl {
           );
         }
 
-        await _mediaManager?.setOutputAudioId(deviceId);
+        await (await _mediaManager)?.setOutputAudioId(deviceId);
       });
     });
 
@@ -238,7 +274,7 @@ class MediaUtilsImpl {
       return [];
     }
 
-    return (await _mediaManager?.enumerateDisplays() ?? [])
+    return (await (await _mediaManager)?.enumerateDisplays() ?? [])
         .where((e) => e.deviceId().isNotEmpty)
         .toList();
   }
@@ -317,18 +353,14 @@ extension MediaDeviceToSpeakerExtension on MediaDeviceDetails {
   /// Only meaningful, if these [MediaDeviceDetails] are of
   /// [MediaDeviceKind.audioOutput].
   AudioSpeakerKind get speaker => switch (deviceId()) {
-        'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
-        'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
-        (_) => AudioSpeakerKind.headphones,
-      };
+    'ear-speaker' || 'ear-piece' => AudioSpeakerKind.earpiece,
+    'speakerphone' || 'speaker' => AudioSpeakerKind.speaker,
+    (_) => AudioSpeakerKind.headphones,
+  };
 }
 
 /// Possible kind of an audio output device.
-enum AudioSpeakerKind {
-  headphones,
-  earpiece,
-  speaker,
-}
+enum AudioSpeakerKind { headphones, earpiece, speaker }
 
 /// Wrapper around a [MediaDeviceDetails] with [id] method.
 ///
@@ -378,7 +410,6 @@ class DeviceDetails extends MediaDeviceDetails {
         id() == other.id() &&
         deviceId() == other.deviceId() &&
         label() == other.label() &&
-
         // On Web `default` devices aren't equal.
         (!PlatformUtils.isWeb || deviceId() != 'default');
   }

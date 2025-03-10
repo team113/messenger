@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'dart:async';
 import 'dart:math';
 
 import 'package:apple_product_name/apple_product_name.dart';
@@ -36,13 +35,16 @@ export 'view.dart';
 
 /// Controller of a [DeleteSessionView].
 class DeleteSessionController extends GetxController {
-  DeleteSessionController(this._authService, {this.pop});
+  DeleteSessionController(this._authService, {this.pop, required this.session});
 
   /// [TextFieldState] of the [MyUser]'s password.
   late final TextFieldState password;
 
   /// Indicator whether the [password] should be obscured.
   final RxBool obscurePassword = RxBool(true);
+
+  /// [Session] to delete.
+  final Session session;
 
   /// Callback, called when an [DeleteSessionView] this controller is bound to
   /// should be popped from the [Navigator].
@@ -65,38 +67,33 @@ class DeleteSessionController extends GetxController {
           }
         }
       },
-      onSubmitted: (s) {
-        s.unsubmit();
+      onSubmitted: (s) async {
+        if (s.error.value != null || s.status.value.isLoading) {
+          return;
+        }
+
+        s.editable.value = false;
+        s.status.value = RxStatus.loading();
+
+        try {
+          await _authService.deleteSession(
+            id: session.id,
+            password: UserPassword(s.text),
+          );
+          pop?.call();
+        } on DeleteSessionException catch (e) {
+          s.error.value = e.toMessage();
+        } catch (e) {
+          s.error.value = 'err_data_transfer'.l10n;
+          rethrow;
+        } finally {
+          s.status.value = RxStatus.empty();
+          s.editable.value = true;
+        }
       },
     );
 
     super.onInit();
-  }
-
-  /// Deletes the provided [session].
-  Future<void> deleteSession(Session session) async {
-    if (password.error.value != null || password.status.value.isLoading) {
-      return;
-    }
-
-    password.editable.value = false;
-    password.status.value = RxStatus.loading();
-
-    try {
-      await _authService.deleteSession(
-        id: session.id,
-        password: UserPassword(password.text),
-      );
-      pop?.call();
-    } on DeleteSessionException catch (e) {
-      password.error.value = e.toMessage();
-    } catch (e) {
-      password.error.value = 'err_data_transfer'.l10n;
-      rethrow;
-    } finally {
-      password.status.value = RxStatus.empty();
-      password.editable.value = true;
-    }
   }
 }
 
@@ -172,15 +169,15 @@ extension UserAgentExtension on UserAgent {
 
       return system;
     }
-
     // Otherwise it may be a browser's `User-Agent` header.
     else {
       // Header values are separated by spaces.
       final List<String> parts = val.split(' ');
 
       // Browser's `User-Agent` may contain the `Version` tag.
-      final String? versionPart =
-          parts.firstWhereOrNull((e) => e.startsWith('Version/'));
+      final String? versionPart = parts.firstWhereOrNull(
+        (e) => e.startsWith('Version/'),
+      );
 
       for (final BrowserRule e in _rules) {
         // Lookup the part that is identifiable by any [BrowserRule] out there.
@@ -215,11 +212,8 @@ extension UserAgentExtension on UserAgent {
 
 /// Data for parsing a browser from a [UserAgent].
 class BrowserRule {
-  const BrowserRule({
-    required this.rule,
-    String? name,
-    this.versionDepth,
-  }) : _name = name;
+  const BrowserRule({required this.rule, String? name, this.versionDepth})
+    : _name = name;
 
   /// [Pattern] of the browser.
   final Pattern rule;

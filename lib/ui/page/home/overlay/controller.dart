@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,6 +26,7 @@ import '/domain/model/chat.dart';
 import '/domain/model/ongoing_call.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
+import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -35,10 +36,17 @@ export 'view.dart';
 
 /// Controller of an [OngoingCall]s overlay.
 class CallOverlayController extends GetxController {
-  CallOverlayController(this._callService, this._settingsRepo);
+  CallOverlayController(
+    this._callService,
+    this._chatService,
+    this._settingsRepo,
+  );
 
   /// Call service used to expose the [calls].
   final CallService _callService;
+
+  /// [ChatService] used to [ChatService.get] chats.
+  final ChatService _chatService;
 
   /// Settings repository, used to get the stored [ApplicationSettings].
   final AbstractSettingsRepository _settingsRepo;
@@ -61,6 +69,12 @@ class CallOverlayController extends GetxController {
     _subscription = _callService.calls.changes.listen((event) {
       switch (event.op) {
         case OperationKind.added:
+          if (WebUtils.containsCall(event.key!)) {
+            // Call's popup is already displayed, perhaps by another tab, so
+            // don't react to this call at all.
+            return;
+          }
+
           // Unfocus any inputs being active.
           FocusManager.instance.primaryFocus?.unfocus();
 
@@ -74,11 +88,12 @@ class CallOverlayController extends GetxController {
               event.key!,
               withAudio:
                   ongoingCall.audioState.value == LocalTrackState.enabling ||
-                      ongoingCall.audioState.value == LocalTrackState.enabled,
+                  ongoingCall.audioState.value == LocalTrackState.enabled,
               withVideo:
                   ongoingCall.videoState.value == LocalTrackState.enabling ||
-                      ongoingCall.videoState.value == LocalTrackState.enabled,
-              withScreen: ongoingCall.screenShareState.value ==
+                  ongoingCall.videoState.value == LocalTrackState.enabled,
+              withScreen:
+                  ongoingCall.screenShareState.value ==
                       LocalTrackState.enabling ||
                   ongoingCall.screenShareState.value == LocalTrackState.enabled,
             );
@@ -89,24 +104,23 @@ class CallOverlayController extends GetxController {
               WebUtils.setCall(ongoingCall.toStored());
               if (ongoingCall.callChatItemId == null ||
                   ongoingCall.deviceId == null) {
-                _workers[event.key!] = ever(
-                  event.value!.value.call,
-                  (ChatCall? call) {
-                    WebUtils.setCall(
-                      WebStoredCall(
-                        chatId: ongoingCall.chatId.value,
-                        call: call,
-                        creds: ongoingCall.creds,
-                        deviceId: ongoingCall.deviceId,
-                        state: ongoingCall.state.value,
-                      ),
-                    );
+                _workers[event.key!] = ever(event.value!.value.call, (
+                  ChatCall? call,
+                ) {
+                  WebUtils.setCall(
+                    WebStoredCall(
+                      chatId: ongoingCall.chatId.value,
+                      call: call,
+                      creds: ongoingCall.creds,
+                      deviceId: ongoingCall.deviceId,
+                      state: ongoingCall.state.value,
+                    ),
+                  );
 
-                    if (call?.id != null) {
-                      _workers[event.key!]?.dispose();
-                    }
-                  },
-                );
+                  if (call?.id != null) {
+                    _workers[event.key!]?.dispose();
+                  }
+                });
               }
             } else {
               Future.delayed(Duration.zero, () {
@@ -119,15 +133,18 @@ class CallOverlayController extends GetxController {
             // Otherwise the popup creation request failed or wasn't invoked, so
             // add this call to the [calls] to display it in the view.
             calls.add(OverlayCall(event.value!));
+            event.value?.value.init(getChat: _chatService.get);
           }
-
           break;
 
         case OperationKind.removed:
-          calls.removeWhere((e) => e.call == event.value!);
+          calls.removeWhere((e) => e.call.value.chatId.value == event.key);
 
           final OngoingCall call = event.value!.value;
-          if (call.callChatItemId == null || call.connected) {
+          final WebStoredCall? web = WebUtils.getCall(event.key!);
+          if (call.callChatItemId == null ||
+              call.connected ||
+              web?.state == OngoingCallState.pending) {
             WebUtils.removeCall(event.key!);
           }
           break;

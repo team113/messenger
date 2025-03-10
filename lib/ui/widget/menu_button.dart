@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,72 +40,73 @@ class MenuButton extends StatelessWidget {
     Key? key,
     this.inverted = false,
     this.onPressed,
-  })  : icon = null,
-        title = tab.l10n,
-        subtitle = switch (tab) {
-          ProfileTab.public => 'label_public_section_hint'.l10n,
-          ProfileTab.signing => 'label_login_section_hint'.l10n,
-          ProfileTab.link => 'label_your_direct_link'.l10n,
-          ProfileTab.background => 'label_app_background'.l10n,
-          ProfileTab.chats => 'label_chats_section_hint'.l10n,
-          ProfileTab.calls => 'label_calls_displaying'.l10n,
-          ProfileTab.media => 'label_media_section_hint'.l10n,
-          ProfileTab.notifications => 'label_sound_and_vibrations'.l10n,
-          ProfileTab.storage => 'label_cache_and_downloads'.l10n,
-          ProfileTab.language =>
-            L10n.chosen.value?.name ?? 'label_current_language'.l10n,
-          ProfileTab.blocklist => 'label_your_blocklist'.l10n,
-          ProfileTab.devices => 'label_devices'.l10n,
-          ProfileTab.sections => 'label_navigation_panel'.l10n,
-          ProfileTab.download => 'label_application'.l10n,
-          ProfileTab.danger => 'label_delete_account'.l10n,
-          ProfileTab.legal => 'btn_terms_and_conditions'.l10n,
-          ProfileTab.support => null,
-          ProfileTab.logout => null,
-        },
-        leading = switch (tab) {
-          ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
-          ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
-          ProfileTab.link => const SvgIcon(SvgIcons.menuLink),
-          ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
-          ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
-          ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
-          ProfileTab.media => const SvgIcon(SvgIcons.menuMedia),
-          ProfileTab.notifications => const SvgIcon(SvgIcons.menuNotifications),
-          ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
-          ProfileTab.language => const SvgIcon(SvgIcons.menuLanguage),
-          ProfileTab.blocklist => const SvgIcon(SvgIcons.menuBlocklist),
-          ProfileTab.devices => const SvgIcon(SvgIcons.menuDevices),
-          ProfileTab.sections => const SvgIcon(SvgIcons.menuNav),
-          ProfileTab.download => const SvgIcon(SvgIcons.menuDownload),
-          ProfileTab.danger => const SvgIcon(SvgIcons.menuDanger),
-          ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
-          ProfileTab.support => const SvgIcon(SvgIcons.menuSupport),
-          ProfileTab.logout => const SvgIcon(SvgIcons.menuLogout),
-        },
-        super(
-          key: key ??
-              switch (tab) {
-                ProfileTab.public => const Key('PublicInformation'),
-                ProfileTab.signing => const Key('Signing'),
-                ProfileTab.link => const Key('Link'),
-                ProfileTab.background => const Key('Background'),
-                ProfileTab.chats => const Key('Chats'),
-                ProfileTab.calls => const Key('Calls'),
-                ProfileTab.media => const Key('Media'),
-                ProfileTab.notifications => const Key('Notifications'),
-                ProfileTab.storage => const Key('Storage'),
-                ProfileTab.language => const Key('Language'),
-                ProfileTab.blocklist => const Key('Blocklist'),
-                ProfileTab.devices => const Key('Devices'),
-                ProfileTab.sections => const Key('Sections'),
-                ProfileTab.download => const Key('Download'),
-                ProfileTab.danger => const Key('DangerZone'),
-                ProfileTab.legal => const Key('Legal'),
-                ProfileTab.support => const Key('Support'),
-                ProfileTab.logout => const Key('LogoutButton'),
-              },
-        );
+  }) : icon = null,
+       title = tab.l10n,
+       subtitle = switch (tab) {
+         ProfileTab.public => 'label_public_section_hint'.l10n,
+         ProfileTab.signing => 'label_login_section_hint'.l10n,
+         ProfileTab.link => 'label_your_direct_link'.l10n,
+         ProfileTab.background => 'label_app_background'.l10n,
+         ProfileTab.chats => 'label_chats_section_hint'.l10n,
+         ProfileTab.calls => 'label_calls_displaying'.l10n,
+         ProfileTab.media => 'label_media_section_hint'.l10n,
+         ProfileTab.welcome => 'label_welcome_message_hint'.l10n,
+         ProfileTab.notifications => 'label_sound_and_vibrations'.l10n,
+         ProfileTab.storage => 'label_cache_and_downloads'.l10n,
+         ProfileTab.language =>
+           L10n.chosen.value?.name ?? 'label_current_language'.l10n,
+         ProfileTab.blocklist => 'label_your_blocklist'.l10n,
+         ProfileTab.devices => 'label_devices'.l10n,
+         ProfileTab.download => 'label_application'.l10n,
+         ProfileTab.danger => 'label_delete_account'.l10n,
+         ProfileTab.legal => 'btn_terms_and_conditions'.l10n,
+         ProfileTab.support => null,
+         ProfileTab.logout => null,
+       },
+       leading = switch (tab) {
+         ProfileTab.public => const SvgIcon(SvgIcons.menuProfile),
+         ProfileTab.signing => const SvgIcon(SvgIcons.menuSigning),
+         ProfileTab.link => const SvgIcon(SvgIcons.menuLink),
+         ProfileTab.background => const SvgIcon(SvgIcons.menuBackground),
+         ProfileTab.chats => const SvgIcon(SvgIcons.menuChats),
+         ProfileTab.calls => const SvgIcon(SvgIcons.menuCalls),
+         ProfileTab.media => const SvgIcon(SvgIcons.menuMedia),
+         ProfileTab.welcome => const SvgIcon(SvgIcons.menuWelcome),
+         ProfileTab.notifications => const SvgIcon(SvgIcons.menuNotifications),
+         ProfileTab.storage => const SvgIcon(SvgIcons.menuStorage),
+         ProfileTab.language => const SvgIcon(SvgIcons.menuLanguage),
+         ProfileTab.blocklist => const SvgIcon(SvgIcons.menuBlocklist),
+         ProfileTab.devices => const SvgIcon(SvgIcons.menuDevices),
+         ProfileTab.download => const SvgIcon(SvgIcons.menuDownload),
+         ProfileTab.danger => const SvgIcon(SvgIcons.menuDanger),
+         ProfileTab.legal => const SvgIcon(SvgIcons.menuLegal),
+         ProfileTab.support => const SvgIcon(SvgIcons.menuSupport),
+         ProfileTab.logout => const SvgIcon(SvgIcons.menuLogout),
+       },
+       super(
+         key:
+             key ??
+             switch (tab) {
+               ProfileTab.public => const Key('PublicInformation'),
+               ProfileTab.signing => const Key('Signing'),
+               ProfileTab.link => const Key('Link'),
+               ProfileTab.background => const Key('Background'),
+               ProfileTab.chats => const Key('Chats'),
+               ProfileTab.calls => const Key('Calls'),
+               ProfileTab.media => const Key('Media'),
+               ProfileTab.welcome => const Key('WelcomeMessage'),
+               ProfileTab.notifications => const Key('Notifications'),
+               ProfileTab.storage => const Key('Storage'),
+               ProfileTab.language => const Key('Language'),
+               ProfileTab.blocklist => const Key('Blocklist'),
+               ProfileTab.devices => const Key('Devices'),
+               ProfileTab.download => const Key('Download'),
+               ProfileTab.danger => const Key('DangerZone'),
+               ProfileTab.legal => const Key('Legal'),
+               ProfileTab.support => const Key('Support'),
+               ProfileTab.logout => const Key('LogoutButton'),
+             },
+       );
 
   /// Optional title of this [MenuButton].
   final String? title;
@@ -156,9 +157,10 @@ class MenuButton extends StatelessWidget {
                   if (icon != null)
                     Icon(
                       icon,
-                      color: inverted
-                          ? style.colors.onPrimary
-                          : style.colors.primary,
+                      color:
+                          inverted
+                              ? style.colors.onPrimary
+                              : style.colors.primary,
                     ),
                   const SizedBox(width: 18),
                   Expanded(
@@ -170,9 +172,10 @@ class MenuButton extends StatelessWidget {
                           DefaultTextStyle(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style: inverted
-                                ? style.fonts.big.regular.onPrimary
-                                : style.fonts.big.regular.onBackground,
+                            style:
+                                inverted
+                                    ? style.fonts.big.regular.onPrimary
+                                    : style.fonts.big.regular.onBackground,
                             child: Text(title!),
                           ),
                         if (title != null && subtitle != null)
@@ -181,9 +184,10 @@ class MenuButton extends StatelessWidget {
                           DefaultTextStyle.merge(
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: inverted
-                                ? style.fonts.small.regular.onPrimary
-                                : style.fonts.small.regular.onBackground,
+                            style:
+                                inverted
+                                    ? style.fonts.small.regular.onPrimary
+                                    : style.fonts.small.regular.onBackground,
                             child: Text(subtitle!),
                           ),
                       ],

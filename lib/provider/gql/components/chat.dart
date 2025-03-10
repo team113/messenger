@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,8 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:dio/dio.dart' as dio
+import 'package:dio/dio.dart'
+    as dio
     show MultipartFile, Options, FormData, DioException;
 import 'package:graphql_flutter/graphql_flutter.dart';
 
@@ -192,11 +193,12 @@ mixin ChatGraphQlMixin {
         document: CreateDialogMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => CreateDialogException((CreateDialog$Mutation
-                      .fromJson(data)
-                  .createDialogChat
-              as CreateDialog$Mutation$CreateDialogChat$CreateDialogChatError)
-          .code),
+      onException:
+          (data) => CreateDialogException(
+            (CreateDialog$Mutation.fromJson(data).createDialogChat
+                    as CreateDialog$Mutation$CreateDialogChat$CreateDialogChatError)
+                .code,
+          ),
     );
     return (CreateDialog$Mutation.fromJson(result.data!).createDialogChat
         as ChatMixin);
@@ -212,19 +214,22 @@ mixin ChatGraphQlMixin {
   }) async {
     Log.debug('createGroupChat($memberIds, $name)', '$runtimeType');
 
-    final variables =
-        CreateGroupChatArguments(memberIds: memberIds, name: name);
+    final variables = CreateGroupChatArguments(
+      memberIds: memberIds,
+      name: name,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateGroupChat',
         document: CreateGroupChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => CreateGroupChatException((CreateGroupChat$Mutation
-                      .fromJson(data)
-                  .createGroupChat
-              as CreateGroupChat$Mutation$CreateGroupChat$CreateGroupChatError)
-          .code),
+      onException:
+          (data) => CreateGroupChatException(
+            (CreateGroupChat$Mutation.fromJson(data).createGroupChat
+                    as CreateGroupChat$Mutation$CreateGroupChat$CreateGroupChatError)
+                .code,
+          ),
     );
     return (CreateGroupChat$Mutation.fromJson(result.data!).createGroupChat
         as CreateGroupChat$Mutation$CreateGroupChat$Chat);
@@ -262,10 +267,12 @@ mixin ChatGraphQlMixin {
         document: RenameChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => RenameChatException(
-          (RenameChat$Mutation.fromJson(data).renameChat
-                  as RenameChat$Mutation$RenameChat$RenameChatError)
-              .code),
+      onException:
+          (data) => RenameChatException(
+            (RenameChat$Mutation.fromJson(data).renameChat
+                    as RenameChat$Mutation$RenameChat$RenameChatError)
+                .code,
+          ),
     );
     return (RenameChat$Mutation.fromJson(result.data!).renameChat
         as ChatEventsVersionedMixin?);
@@ -291,10 +298,10 @@ mixin ChatGraphQlMixin {
     ChatItemsCursor? after,
     int? last,
     ChatItemsCursor? before,
-    bool onlyAttachments = false,
+    ChatItemsFilter? filter,
   }) async {
     Log.debug(
-      'chatItems($id, $first, $after, $last, $before, $onlyAttachments)',
+      'chatItems($id, first: $first, after: $after, last: $last, before: $before, filter: $filter)',
       '$runtimeType',
     );
 
@@ -304,7 +311,7 @@ mixin ChatGraphQlMixin {
       after: after,
       last: last,
       before: before,
-      onlyAttachments: onlyAttachments,
+      filter: filter,
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -386,11 +393,12 @@ mixin ChatGraphQlMixin {
         document: PostChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => PostChatMessageException((PostChatMessage$Mutation
-                      .fromJson(data)
-                  .postChatMessage
-              as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
-          .code),
+      onException:
+          (data) => PostChatMessageException(
+            (PostChatMessage$Mutation.fromJson(data).postChatMessage
+                    as PostChatMessage$Mutation$PostChatMessage$PostChatMessageError)
+                .code,
+          ),
     );
     return PostChatMessage$Mutation.fromJson(result.data!).postChatMessage
         as PostChatMessage$Mutation$PostChatMessage$ChatEventsVersioned;
@@ -425,11 +433,12 @@ mixin ChatGraphQlMixin {
         document: AddChatMemberMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => AddChatMemberException(
-        (AddChatMember$Mutation.fromJson(data).addChatMember
-                as AddChatMember$Mutation$AddChatMember$AddChatMemberError)
-            .code,
-      ),
+      onException:
+          (data) => AddChatMemberException(
+            (AddChatMember$Mutation.fromJson(data).addChatMember
+                    as AddChatMember$Mutation$AddChatMember$AddChatMemberError)
+                .code,
+          ),
     );
     return AddChatMember$Mutation.fromJson(result.data!).addChatMember
         as ChatEventsVersionedMixin?;
@@ -457,19 +466,22 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug('removeChatMember($chatId, $userId)', '$runtimeType');
 
-    RemoveChatMemberArguments variables =
-        RemoveChatMemberArguments(chatId: chatId, userId: userId);
+    RemoveChatMemberArguments variables = RemoveChatMemberArguments(
+      chatId: chatId,
+      userId: userId,
+    );
     var result = await client.mutate(
       MutationOptions(
         operationName: 'RemoveChatMember',
         document: RemoveChatMemberMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => RemoveChatMemberException((RemoveChatMember$Mutation
-                      .fromJson(data)
-                  .removeChatMember
-              as RemoveChatMember$Mutation$RemoveChatMember$RemoveChatMemberError)
-          .code),
+      onException:
+          (data) => RemoveChatMemberException(
+            (RemoveChatMember$Mutation.fromJson(data).removeChatMember
+                    as RemoveChatMember$Mutation$RemoveChatMember$RemoveChatMemberError)
+                .code,
+          ),
     );
     return (RemoveChatMember$Mutation.fromJson(result.data!).removeChatMember
         as ChatEventsVersionedMixin?);
@@ -504,9 +516,12 @@ mixin ChatGraphQlMixin {
         document: HideChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => HideChatException((HideChat$Mutation.fromJson(data)
-              .hideChat as HideChat$Mutation$HideChat$HideChatError)
-          .code),
+      onException:
+          (data) => HideChatException(
+            (HideChat$Mutation.fromJson(data).hideChat
+                    as HideChat$Mutation$HideChat$HideChatError)
+                .code,
+          ),
     );
     return (HideChat$Mutation.fromJson(result.data!).hideChat
         as ChatEventsVersionedMixin?);
@@ -552,9 +567,12 @@ mixin ChatGraphQlMixin {
         document: ReadChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ReadChatException((ReadChat$Mutation.fromJson(data)
-              .readChat as ReadChat$Mutation$ReadChat$ReadChatError)
-          .code),
+      onException:
+          (data) => ReadChatException(
+            (ReadChat$Mutation.fromJson(data).readChat
+                    as ReadChat$Mutation$ReadChat$ReadChatError)
+                .code,
+          ),
     );
     return (ReadChat$Mutation.fromJson(result.data!).readChat
         as ChatEventsVersionedMixin?);
@@ -728,10 +746,12 @@ mixin ChatGraphQlMixin {
         document: HideChatItemMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => HideChatItemException(
-          (HideChatItem$Mutation.fromJson(data).hideChatItem
-                  as HideChatItem$Mutation$HideChatItem$HideChatItemError)
-              .code),
+      onException:
+          (data) => HideChatItemException(
+            (HideChatItem$Mutation.fromJson(data).hideChatItem
+                    as HideChatItem$Mutation$HideChatItem$HideChatItemError)
+                .code,
+          ),
     );
     return (HideChatItem$Mutation.fromJson(result.data!).hideChatItem
         as ChatEventsVersionedMixin?);
@@ -769,11 +789,12 @@ mixin ChatGraphQlMixin {
         document: DeleteChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteChatMessageException((DeleteChatMessage$Mutation
-                      .fromJson(data)
-                  .deleteChatMessage
-              as DeleteChatMessage$Mutation$DeleteChatMessage$DeleteChatMessageError)
-          .code),
+      onException:
+          (data) => DeleteChatMessageException(
+            (DeleteChatMessage$Mutation.fromJson(data).deleteChatMessage
+                    as DeleteChatMessage$Mutation$DeleteChatMessage$DeleteChatMessageError)
+                .code,
+          ),
     );
     return (DeleteChatMessage$Mutation.fromJson(result.data!).deleteChatMessage
         as ChatEventsVersionedMixin?);
@@ -811,11 +832,12 @@ mixin ChatGraphQlMixin {
         document: DeleteChatForwardMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteChatForwardException((DeleteChatForward$Mutation
-                      .fromJson(data)
-                  .deleteChatForward
-              as DeleteChatForward$Mutation$DeleteChatForward$DeleteChatForwardError)
-          .code),
+      onException:
+          (data) => DeleteChatForwardException(
+            (DeleteChatForward$Mutation.fromJson(data).deleteChatForward
+                    as DeleteChatForward$Mutation$DeleteChatForward$DeleteChatForwardError)
+                .code,
+          ),
     );
     return (DeleteChatForward$Mutation.fromJson(result.data!).deleteChatForward
         as ChatEventsVersionedMixin?);
@@ -836,14 +858,11 @@ mixin ChatGraphQlMixin {
   ///
   /// Each time creates a new unique [Attachment].
   Future<UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk>
-      uploadAttachment(
+  uploadAttachment(
     dio.MultipartFile? attachment, {
     void Function(int count, int total)? onSendProgress,
   }) async {
-    Log.debug(
-      'uploadAttachment($attachment, onSendProgress)',
-      '$runtimeType',
-    );
+    Log.debug('uploadAttachment($attachment, onSendProgress)', '$runtimeType');
 
     final variables = UploadAttachmentArguments(file: null);
     final query = MutationOptions(
@@ -866,21 +885,23 @@ mixin ChatGraphQlMixin {
         options: dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UploadAttachmentException((UploadAttachment$Mutation
-                        .fromJson(data)
-                    .uploadAttachment
-                as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
-            .code),
+        onException:
+            (data) => UploadAttachmentException(
+              (UploadAttachment$Mutation.fromJson(data).uploadAttachment
+                      as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentError)
+                  .code,
+            ),
       );
 
       if (response.data['data'] == null) {
-        throw GraphQlException(
-          [GraphQLError(message: response.data.toString())],
-        );
+        throw GraphQlException([
+          GraphQLError(message: response.data.toString()),
+        ]);
       }
 
-      return (UploadAttachment$Mutation.fromJson(response.data['data']))
-              .uploadAttachment
+      return (UploadAttachment$Mutation.fromJson(
+            response.data['data'],
+          )).uploadAttachment
           as UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk;
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
@@ -915,25 +936,32 @@ mixin ChatGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatEvent]) if the given [Chat]-group
   /// has an active [ChatDirectLink] with such [ChatDirectLinkSlug] already.
   Future<ChatEventsVersionedMixin?> createChatDirectLink(
-      ChatDirectLinkSlug slug,
-      {ChatId? groupId}) async {
+    ChatDirectLinkSlug slug, {
+    ChatId? groupId,
+  }) async {
     Log.debug('createChatDirectLink($slug, $groupId)', '$runtimeType');
 
-    final variables =
-        CreateChatDirectLinkArguments(slug: slug, groupId: groupId);
+    final variables = CreateChatDirectLinkArguments(
+      slug: slug,
+      groupId: groupId,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateChatDirectLink',
         document: CreateChatDirectLinkMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => CreateChatDirectLinkException(
-          (CreateChatDirectLink$Mutation.fromJson(data).createChatDirectLink
-                  as CreateChatDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
-              .code),
+      onException:
+          (data) => CreateChatDirectLinkException(
+            (CreateChatDirectLink$Mutation.fromJson(data).createChatDirectLink
+                    as CreateChatDirectLink$Mutation$CreateChatDirectLink$CreateChatDirectLinkError)
+                .code,
+          ),
     );
-    return CreateChatDirectLink$Mutation.fromJson(result.data!)
-        .createChatDirectLink as ChatEventsVersionedMixin?;
+    return CreateChatDirectLink$Mutation.fromJson(
+          result.data!,
+        ).createChatDirectLink
+        as ChatEventsVersionedMixin?;
   }
 
   /// Deletes the current [ChatDirectLink] of the given [Chat]-group.
@@ -963,12 +991,16 @@ mixin ChatGraphQlMixin {
         document: DeleteChatDirectLinkMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => DeleteChatDirectLinkException(
-          DeleteChatDirectLink$Mutation.fromJson(data).deleteChatDirectLink
-              as DeleteChatDirectLinkErrorCode),
+      onException:
+          (data) => DeleteChatDirectLinkException(
+            DeleteChatDirectLink$Mutation.fromJson(data).deleteChatDirectLink
+                as DeleteChatDirectLinkErrorCode,
+          ),
     );
-    return DeleteChatDirectLink$Mutation.fromJson(result.data!)
-        .deleteChatDirectLink as ChatEventsVersionedMixin?;
+    return DeleteChatDirectLink$Mutation.fromJson(
+          result.data!,
+        ).deleteChatDirectLink
+        as ChatEventsVersionedMixin?;
   }
 
   /// Uses the specified [ChatDirectLink] by the authenticated [MyUser] creating
@@ -992,7 +1024,7 @@ mixin ChatGraphQlMixin {
   /// [MyUser] is already a member of the [Chat]-group or has already created
   /// the [Chat]-dialog by the specified [ChatDirectLink].
   Future<UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk>
-      useChatDirectLink(ChatDirectLinkSlug slug) async {
+  useChatDirectLink(ChatDirectLinkSlug slug) async {
     Log.debug('useChatDirectLink($slug)', '$runtimeType');
 
     final variables = UseChatDirectLinkArguments(slug: slug);
@@ -1002,11 +1034,12 @@ mixin ChatGraphQlMixin {
         document: UseChatDirectLinkMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UseChatDirectLinkException((UseChatDirectLink$Mutation
-                      .fromJson(data)
-                  .useChatDirectLink
-              as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkError)
-          .code),
+      onException:
+          (data) => UseChatDirectLinkException(
+            (UseChatDirectLink$Mutation.fromJson(data).useChatDirectLink
+                    as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkError)
+                .code,
+          ),
     );
     return (UseChatDirectLink$Mutation.fromJson(result.data!).useChatDirectLink
         as UseChatDirectLink$Mutation$UseChatDirectLink$UseChatDirectLinkOk);
@@ -1101,11 +1134,12 @@ mixin ChatGraphQlMixin {
         document: EditChatMessageMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => EditChatMessageException(
-        (EditChatMessage$Mutation.fromJson(data).editChatMessage
-                as EditChatMessage$Mutation$EditChatMessage$EditChatMessageError)
-            .code,
-      ),
+      onException:
+          (data) => EditChatMessageException(
+            (EditChatMessage$Mutation.fromJson(data).editChatMessage
+                    as EditChatMessage$Mutation$EditChatMessage$EditChatMessageError)
+                .code,
+          ),
     );
     return (EditChatMessage$Mutation.fromJson(result.data!).editChatMessage
         as ChatEventsVersionedMixin?);
@@ -1159,11 +1193,12 @@ mixin ChatGraphQlMixin {
         document: ForwardChatItemsMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ForwardChatItemsException((ForwardChatItems$Mutation
-                      .fromJson(data)
-                  .forwardChatItems
-              as ForwardChatItems$Mutation$ForwardChatItems$ForwardChatItemsError)
-          .code),
+      onException:
+          (data) => ForwardChatItemsException(
+            (ForwardChatItems$Mutation.fromJson(data).forwardChatItems
+                    as ForwardChatItems$Mutation$ForwardChatItems$ForwardChatItemsError)
+                .code,
+          ),
     );
     return ForwardChatItems$Mutation.fromJson(result.data!).forwardChatItems
         as ForwardChatItems$Mutation$ForwardChatItems$ChatEventsVersioned;
@@ -1209,10 +1244,12 @@ mixin ChatGraphQlMixin {
         document: ToggleChatMuteMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ToggleChatMuteException(
-          (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
-                  as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
-              .code),
+      onException:
+          (data) => ToggleChatMuteException(
+            (ToggleChatMute$Mutation.fromJson(data).toggleChatMute
+                    as ToggleChatMute$Mutation$ToggleChatMute$ToggleChatMuteError)
+                .code,
+          ),
     );
     return ToggleChatMute$Mutation.fromJson(result.data!).toggleChatMute
         as ChatEventsVersionedMixin?;
@@ -1264,14 +1301,19 @@ mixin ChatGraphQlMixin {
   Future<ChatEventsVersionedMixin?> updateChatAvatar(
     ChatId id, {
     dio.MultipartFile? file,
+    CropAreaInput? crop,
     void Function(int count, int total)? onSendProgress,
   }) async {
     Log.debug(
-      'updateChatAvatar($id, $file, onSendProgress)',
+      'updateChatAvatar($id, $file, $crop, onSendProgress)',
       '$runtimeType',
     );
 
-    final variables = UpdateChatAvatarArguments(chatId: id, file: null);
+    final variables = UpdateChatAvatarArguments(
+      chatId: id,
+      file: null,
+      crop: crop,
+    );
     final query = MutationOptions(
       operationName: 'UpdateChatAvatar',
       document: UpdateChatAvatarMutation(variables: variables).document,
@@ -1281,11 +1323,12 @@ mixin ChatGraphQlMixin {
     if (file == null) {
       final QueryResult result = await client.mutate(
         query,
-        onException: (data) => UpdateChatAvatarException(
-          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
-                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateChatAvatarException(
+              (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                      as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+                  .code,
+            ),
       );
 
       return UpdateChatAvatar$Mutation.fromJson(result.data!).updateChatAvatar
@@ -1306,15 +1349,18 @@ mixin ChatGraphQlMixin {
         options: dio.Options(contentType: 'multipart/form-data'),
         operationName: query.operationName,
         onSendProgress: onSendProgress,
-        onException: (data) => UpdateChatAvatarException(
-          (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
-                  as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
-              .code,
-        ),
+        onException:
+            (data) => UpdateChatAvatarException(
+              (UpdateChatAvatar$Mutation.fromJson(data).updateChatAvatar
+                      as UpdateChatAvatar$Mutation$UpdateChatAvatar$UpdateChatAvatarError)
+                  .code,
+            ),
       );
 
-      return UpdateChatAvatar$Mutation.fromJson(response.data['data'])
-          .updateChatAvatar as ChatEventsVersionedMixin?;
+      return UpdateChatAvatar$Mutation.fromJson(
+            response.data['data'],
+          ).updateChatAvatar
+          as ChatEventsVersionedMixin?;
     } on dio.DioException catch (e) {
       if (e.response?.statusCode == 413) {
         throw const UpdateChatAvatarException(
@@ -1358,10 +1404,12 @@ mixin ChatGraphQlMixin {
         document: FavoriteChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => FavoriteChatException(
-          (FavoriteChat$Mutation.fromJson(data).favoriteChat
-                  as FavoriteChat$Mutation$FavoriteChat$FavoriteChatError)
-              .code),
+      onException:
+          (data) => FavoriteChatException(
+            (FavoriteChat$Mutation.fromJson(data).favoriteChat
+                    as FavoriteChat$Mutation$FavoriteChat$FavoriteChatError)
+                .code,
+          ),
     );
     return FavoriteChat$Mutation.fromJson(result.data!).favoriteChat
         as ChatEventsVersionedMixin?;
@@ -1393,10 +1441,12 @@ mixin ChatGraphQlMixin {
         document: UnfavoriteChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => UnfavoriteChatException(
-          (UnfavoriteChat$Mutation.fromJson(data).unfavoriteChat
-                  as UnfavoriteChat$Mutation$UnfavoriteChat$UnfavoriteChatError)
-              .code),
+      onException:
+          (data) => UnfavoriteChatException(
+            (UnfavoriteChat$Mutation.fromJson(data).unfavoriteChat
+                    as UnfavoriteChat$Mutation$UnfavoriteChat$UnfavoriteChatError)
+                .code,
+          ),
     );
     return UnfavoriteChat$Mutation.fromJson(result.data!).unfavoriteChat
         as ChatEventsVersionedMixin?;
@@ -1490,18 +1540,22 @@ mixin ChatGraphQlMixin {
   ) async {
     Log.debug('clearChat($id, $untilId)', '$runtimeType');
 
-    final ClearChatArguments variables =
-        ClearChatArguments(id: id, untilId: untilId);
+    final ClearChatArguments variables = ClearChatArguments(
+      id: id,
+      untilId: untilId,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'ClearChat',
         document: ClearChatMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException: (data) => ClearChatException(
-          (ClearChat$Mutation.fromJson(data).clearChat
-                  as ClearChat$Mutation$ClearChat$ClearChatError)
-              .code),
+      onException:
+          (data) => ClearChatException(
+            (ClearChat$Mutation.fromJson(data).clearChat
+                    as ClearChat$Mutation$ClearChat$ClearChatError)
+                .code,
+          ),
     );
     return ClearChat$Mutation.fromJson(result.data!).clearChat
         as ChatEventsVersionedMixin?;
@@ -1522,8 +1576,10 @@ mixin ChatGraphQlMixin {
   Future<ChatMixin> createMonologChat({ChatName? name, bool? isHidden}) async {
     Log.debug('createMonologChat($name)', '$runtimeType');
 
-    final variables =
-        CreateMonologChatArguments(name: name, isHidden: isHidden);
+    final variables = CreateMonologChatArguments(
+      name: name,
+      isHidden: isHidden,
+    );
     final QueryResult result = await client.mutate(
       MutationOptions(
         operationName: 'CreateMonologChat',

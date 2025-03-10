@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
 import 'package:intl/intl.dart';
 
 /// Helper for implementing a "new-type" idiom.
@@ -23,7 +22,6 @@ class NewType<T> {
   const NewType(this.val);
 
   /// Actual value wrapped by this [NewType].
-  @HiveField(0)
   final T val;
 
   @override

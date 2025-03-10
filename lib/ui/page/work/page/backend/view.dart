@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -85,18 +85,22 @@ class BackendWorkView extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text: 'label_for_learning_use_our_rust_incubator1'
-                                .l10n,
+                            text:
+                                'label_for_learning_use_our_rust_incubator1'
+                                    .l10n,
                             style: style.fonts.normal.regular.onBackground,
                           ),
                           TextSpan(
-                            text: 'label_for_learning_use_our_rust_incubator2'
-                                .l10n,
+                            text:
+                                'label_for_learning_use_our_rust_incubator2'
+                                    .l10n,
                             style: style.fonts.normal.regular.primary,
-                            recognizer: TapGestureRecognizer()
-                              ..onTap = () => launchUrlString(
-                                    'https://github.com/instrumentisto/rust-incubator',
-                                  ),
+                            recognizer:
+                                TapGestureRecognizer()
+                                  ..onTap =
+                                      () => launchUrlString(
+                                        'https://github.com/instrumentisto/rust-incubator',
+                                      ),
                           ),
                         ],
                       ),
@@ -106,19 +110,20 @@ class BackendWorkView extends StatelessWidget {
                 Obx(() {
                   return ProceedBlock(
                     'btn_schedule_an_interview'.l10n,
-                    onPressed: c.linkStatus.value.isLoading
-                        ? null
-                        : () async {
-                            if (c.status.value.isSuccess) {
-                              await c.useLink();
-                            } else {
-                              await LoginView.show(
-                                context,
-                                initial: LoginViewStage.signUpOrSignIn,
-                                onSuccess: c.useLink,
-                              );
-                            }
-                          },
+                    onPressed:
+                        c.linkStatus.value.isLoading
+                            ? null
+                            : () async {
+                              if (c.status.value.isSuccess) {
+                                await c.useLink();
+                              } else {
+                                await LoginView.show(
+                                  context,
+                                  initial: LoginViewStage.signUpOrSignIn,
+                                  onSuccess: c.useLink,
+                                );
+                              }
+                            },
                   );
                 }),
                 const SizedBox(height: 4),

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,14 +23,17 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/extension/credentials.dart';
+import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/main.dart' as app;
+import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/util/platform_utils.dart';
 
 import 'hook/performance.dart';
 import 'hook/reset_app.dart';
+import 'mock/geo.dart';
 import 'mock/graphql.dart';
 import 'mock/platform_utils.dart';
 import 'parameters/appcast_version.dart';
@@ -51,6 +54,7 @@ import 'parameters/search_category.dart';
 import 'parameters/selection_status.dart';
 import 'parameters/sending_status.dart';
 import 'parameters/users.dart';
+import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
@@ -80,8 +84,10 @@ import 'steps/long_press_contact.dart';
 import 'steps/long_press_message.dart';
 import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
+import 'steps/name_is.dart';
 import 'steps/open_chat_info.dart';
 import 'steps/popup_windows.dart';
+import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
 import 'steps/remove_chat_member.dart';
 import 'steps/rename_contact.dart';
@@ -121,11 +127,13 @@ import 'steps/tap_chat.dart';
 import 'steps/tap_chat_in_search_view.dart';
 import 'steps/tap_contact.dart';
 import 'steps/tap_dropdown_item.dart';
+import 'steps/tap_image.dart';
 import 'steps/tap_message.dart';
 import 'steps/tap_reply.dart';
 import 'steps/tap_search_result.dart';
 import 'steps/tap_text.dart';
 import 'steps/tap_widget.dart';
+import 'steps/tap_widget_n_times.dart';
 import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
@@ -173,6 +181,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillField,
         fillFieldN,
         fillFieldWithMyCredential,
+        fillFieldWithRandomLogin,
         fillFieldWithUserCredential,
         goToUserPage,
         hasContacts,
@@ -202,12 +211,16 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressMonolog,
         longPressWidget,
         monologAvailability,
+        myNameIs,
+        myNameIsNot,
         noInternetConnection,
         openChatInfo,
         pasteToField,
         popupWindows,
+        postsNAttachmentsToGroup,
         readsAllMessages,
         readsMessage,
+        removeAccountInAccounts,
         removeGroupMember,
         renameContact,
         repliesToMessage,
@@ -219,6 +232,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         scrollToBottom,
         scrollToTop,
         scrollUntilPresent,
+        seeAccountInAccounts,
         seeBlockedUsers,
         seeChatAsDismissed,
         seeChatAsFavorite,
@@ -246,10 +260,10 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeNamedChat,
         seeNoChatsDismissed,
         seeNoContactsDismissed,
-        seeUserInSearchResults,
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
         sendsCountMessages,
@@ -259,9 +273,12 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         setCredential,
         setMyCredential,
         signInAs,
+        signsOutSession,
+        tapAccountInAccounts,
         tapChat,
         tapContact,
         tapDropdownItem,
+        tapLastImageInChat,
 
         // TODO: Fix `gherkin` matching `tapMessage` instead.
         tapReply,
@@ -270,6 +287,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         tapText,
         tapUserInSearchResults,
         tapWidget,
+        tapWidgetNTimes,
         twoContacts,
         twoUsers,
         untilAttachmentExists,
@@ -283,6 +301,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         updateAvatar,
         updateName,
         user,
+        userWithPassword,
         waitForAppToSettle,
         waitUntilAttachmentStatus,
         waitUntilFileStatus,
@@ -331,12 +350,29 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
+      ..tagExpression = 'not @disabled'
+      // ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
+  Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
+
+  FlutterError.onError = (details) {
+    final String exception = details.exception.toString();
+
+    // Silence the `GlobalKey` being duplicated errors:
+    // https://github.com/google/flutter.widgets/issues/137
+    if (exception.contains('Duplicate GlobalKey detected in widget tree.') ||
+        exception.contains('Multiple widgets used the same GlobalKey.')) {
+      return;
+    }
+
+    FlutterError.presentError(details);
+  };
+
   return Future.sync(app.main);
 }
 
@@ -348,23 +384,23 @@ Future<CustomUser> createUser({
 }) async {
   final provider = GraphQlProvider();
   final result = await provider.signUp();
+  final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-  final CustomUser customUser = CustomUser(
-    result.toModel(),
-    result.createUser.user.num,
-  );
+  final CustomUser customUser = CustomUser(success.toModel(), success.user.num);
 
   if (user != null && world != null) {
-    world.sessions[user.name] = customUser;
+    world.sessions[user.name] = [customUser];
 
-    provider.token = result.createUser.accessToken.secret;
+    provider.token = success.accessToken.secret;
     await provider.updateUserName(UserName(user.name));
     if (password != null) {
-      await provider.updateUserPassword(null, password);
+      await provider.updateUserPassword(newPassword: password);
       world.sessions[user.name]?.password = password;
 
-      final result =
-          await provider.signIn(password, null, customUser.userNum, null, null);
+      final result = await provider.signIn(
+        credentials: MyUserCredentials(password: password),
+        identifier: MyUserIdentifier(num: customUser.userNum),
+      );
       world.sessions[user.name]?.credentials = result.toModel();
     }
   }

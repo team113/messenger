@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -93,9 +93,52 @@ abstract class Paginated<K, T> {
     await ensureInitialized();
   }
 
+  /// Clears the [Paginated].
+  Future<void> clear();
+
   /// Fetches next page of the [items].
   Future<void> next();
 
   /// Fetches previous page of the [items].
   Future<void> previous();
+}
+
+/// [Paginated] with a single item.
+class SingleItemPaginated<K, T> extends Paginated<K, T> {
+  SingleItemPaginated(K key, T item) {
+    items[key] = item;
+  }
+
+  @override
+  RxBool get hasNext => RxBool(false);
+
+  @override
+  RxBool get hasPrevious => RxBool(false);
+
+  @override
+  RxBool get nextLoading => RxBool(false);
+
+  @override
+  RxBool get previousLoading => RxBool(false);
+
+  @override
+  int get perPage => 1;
+
+  @override
+  Future<void> ensureInitialized() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> clear() async {}
+
+  @override
+  Future<void> next() async {
+    // No-op.
+  }
+
+  @override
+  Future<void> previous() async {
+    // No-op.
+  }
 }

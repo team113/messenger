@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,8 +34,10 @@ class AnimatedLogo extends StatelessWidget {
     return Stack(
       children: [
         // Load the whole [SvgImage]s beforehand to reduce possible frame drops.
-        ...List.generate(10, (i) => SvgIcons.head[i])
-            .map((e) => Offstage(child: SvgIcon(e))),
+        ...List.generate(
+          10,
+          (i) => SvgIcons.head[i],
+        ).map((e) => Offstage(child: SvgIcon(e))),
 
         // Animation itself.
         SvgImage.asset(

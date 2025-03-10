@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -69,6 +69,8 @@ class ColorsView extends StatelessWidget {
       (style.colors.primary, 'primary'),
       (style.colors.primaryHighlightShiniest, 'primaryHighlightShiniest'),
       (style.colors.primaryHighlightLightest, 'primaryHighlightLightest'),
+      (style.colors.primaryLight, 'primaryLight'),
+      (style.colors.primaryLightest, 'primaryLightest'),
       (style.colors.backgroundAuxiliaryLighter, 'backgroundAuxiliaryLighter'),
       (style.colors.backgroundAuxiliaryLightest, 'backgroundAuxiliaryLightest'),
       (style.colors.accept, 'accept'),
@@ -83,9 +85,10 @@ class ColorsView extends StatelessWidget {
       (style.colors.warning, 'warning'),
     ];
 
-    final Iterable<(Color, String?)> avatars = style.colors.userColors
-        .mapIndexed((i, color) => (color, 'userColors[$i]'))
-        .toList();
+    final Iterable<(Color, String?)> avatars =
+        style.colors.userColors
+            .mapIndexed((i, color) => (color, 'userColors[$i]'))
+            .toList();
 
     return ScrollableColumn(
       children: [

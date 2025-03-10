@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,7 +48,11 @@ class DeleteSessionView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder(
-      init: DeleteSessionController(Get.find(), pop: context.popModal),
+      init: DeleteSessionController(
+        Get.find(),
+        pop: context.popModal,
+        session: session,
+      ),
       builder: (DeleteSessionController c) {
         return Column(
           mainAxisSize: MainAxisSize.min,
@@ -86,9 +90,10 @@ class DeleteSessionView extends StatelessWidget {
                     Obx(() {
                       return PrimaryButton(
                         key: const Key('ProceedButton'),
-                        onPressed: c.password.isEmpty.isTrue
-                            ? null
-                            : () => c.deleteSession(session),
+                        onPressed:
+                            c.password.isEmpty.isTrue
+                                ? null
+                                : c.password.submit,
                         title: 'btn_proceed'.l10n,
                       );
                     }),

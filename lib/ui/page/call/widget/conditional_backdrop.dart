@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,12 +29,9 @@ class ConditionalBackdropFilter extends StatelessWidget {
     ImageFilter? filter,
     this.borderRadius,
   }) {
-    this.filter = filter ??
-        ImageFilter.blur(
-          sigmaX: 10,
-          sigmaY: 10,
-          tileMode: TileMode.mirror,
-        );
+    this.filter =
+        filter ??
+        ImageFilter.blur(sigmaX: 10, sigmaY: 10, tileMode: TileMode.mirror);
   }
 
   /// [Widget] to apply [BackdropFilter] to.
@@ -55,10 +52,20 @@ class ConditionalBackdropFilter extends StatelessWidget {
   /// otherwise.
   final BorderRadius? borderRadius;
 
+  /// Indicates whether the [BackdropFilter] is supported and enabled.
+  static bool get enabled => false;
+
   @override
   Widget build(BuildContext context) {
     if (condition) {
       if (borderRadius != null) {
+        if (!enabled) {
+          return ClipRRect(
+            borderRadius: borderRadius ?? BorderRadius.zero,
+            child: child,
+          );
+        }
+
         return ClipRRect(
           borderRadius: borderRadius ?? BorderRadius.zero,
           child: BackdropFilter(
@@ -67,6 +74,10 @@ class ConditionalBackdropFilter extends StatelessWidget {
             child: child,
           ),
         );
+      }
+
+      if (!enabled) {
+        return child;
       }
 
       return ClipRect(

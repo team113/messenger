@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,7 +30,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
 
   @override
   Future<Directory> get downloadsDirectory =>
-      Future.value(Directory('.temp_hive/downloads'));
+      Future.value(Directory('.temp_cache/downloads'));
 
   @override
   Future<Directory?> get cacheDirectory =>
@@ -63,8 +63,7 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
     CancelToken? cancelToken,
     bool temporary = false,
     int retries = 5,
-  }) async =>
-      File('test/path');
+  }) async => File('test/path');
 
   @override
   void keepActive([bool active = true]) {

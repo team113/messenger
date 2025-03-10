@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,12 +26,14 @@ class Block extends StatelessWidget {
   const Block({
     super.key,
     this.title,
+    this.titleStyle,
     this.highlight = false,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.expanded,
     this.padding = defaultPadding,
     this.margin = defaultMargin,
     this.children = const [],
+    this.overlay = const [],
     this.background,
     this.headline,
     this.maxWidth = 400,
@@ -39,6 +41,9 @@ class Block extends StatelessWidget {
 
   /// Optional header of this [Block].
   final String? title;
+
+  /// Optional [TextStyle] to display the [title] with.
+  final TextStyle? titleStyle;
 
   /// Optional headline of this [Block].
   final String? headline;
@@ -63,6 +68,11 @@ class Block extends StatelessWidget {
 
   /// [Widget]s to display.
   final List<Widget> children;
+
+  /// [Widget]s to display in a [Stack] with this [Block].
+  ///
+  /// [Positioned] may safely be used in the list.
+  final List<Widget> overlay;
 
   /// Optional background [Color] of this [Block].
   final Color? background;
@@ -93,9 +103,10 @@ class Block extends StatelessWidget {
       child: Center(
         child: Container(
           padding: margin,
-          constraints: (expanded ?? context.isNarrow)
-              ? null
-              : BoxConstraints(maxWidth: maxWidth),
+          constraints:
+              (expanded ?? context.isNarrow)
+                  ? null
+                  : BoxConstraints(maxWidth: maxWidth),
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,
@@ -129,7 +140,9 @@ class Block extends StatelessWidget {
                               child: Text(
                                 title!,
                                 textAlign: TextAlign.center,
-                                style: style.fonts.big.regular.onBackground,
+                                style:
+                                    titleStyle ??
+                                    style.fonts.big.regular.onBackground,
                               ),
                             ),
                           ),
@@ -145,6 +158,7 @@ class Block extends StatelessWidget {
                   Positioned(
                     child: Text(headline!, style: _headlineStyle(context)),
                   ),
+                ...overlay,
               ],
             ),
           ),

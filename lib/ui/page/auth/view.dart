@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,6 +32,7 @@ import '/ui/widget/download_button.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -150,15 +151,17 @@ class AuthView extends StatelessWidget {
                 return Padding(
                   padding: ModalPopup.padding(context),
                   child: ContactTile(
+                    key: Key('Account_${e.id}'),
                     myUser: e,
 
                     // TODO: Remove, when [MyUser]s will receive their updates
                     //       in real-time.
-                    avatarBuilder: (_) => AvatarWidget.fromMyUser(
-                      e,
-                      radius: AvatarRadius.large,
-                      badge: false,
-                    ),
+                    avatarBuilder:
+                        (_) => AvatarWidget.fromMyUser(
+                          e,
+                          radius: AvatarRadius.large,
+                          badge: false,
+                        ),
 
                     onTap: () async {
                       if (expired) {
@@ -173,10 +176,12 @@ class AuthView extends StatelessWidget {
                     },
                     trailing: [
                       AnimatedButton(
-                        decorator: (child) => Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                          child: child,
-                        ),
+                        key: const Key('RemoveAccount'),
+                        decorator:
+                            (child) => Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                              child: child,
+                            ),
                         onPressed: () async {
                           final result = await MessagePopup.alert(
                             'btn_logout'.l10n,
@@ -185,8 +190,9 @@ class AuthView extends StatelessWidget {
                                 style: style.fonts.medium.regular.secondary,
                                 children: [
                                   TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out1'
-                                        .l10n,
+                                    text:
+                                        'alert_are_you_sure_want_to_log_out1'
+                                            .l10n,
                                   ),
                                   TextSpan(
                                     style:
@@ -194,8 +200,9 @@ class AuthView extends StatelessWidget {
                                     text: '${e.name ?? e.num}',
                                   ),
                                   TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out2'
-                                        .l10n,
+                                    text:
+                                        'alert_are_you_sure_want_to_log_out2'
+                                            .l10n,
                                   ),
                                   if (!e.hasPassword) ...[
                                     const TextSpan(text: '\n\n'),
@@ -211,7 +218,7 @@ class AuthView extends StatelessWidget {
                                     ),
                                   ],
                                 ],
-                              )
+                              ),
                             ],
                           );
 
@@ -232,7 +239,7 @@ class AuthView extends StatelessWidget {
                         Text(
                           'label_sign_in_required'.l10n,
                           style: style.fonts.small.regular.danger,
-                        )
+                        ),
 
                       // TODO: Uncomment, when [MyUser]s will receive their
                       //       updates in real-time.
@@ -311,8 +318,11 @@ class AuthView extends StatelessWidget {
                     offset: const Offset(4, 0),
                     child: const SvgIcon(SvgIcons.enter),
                   ),
-                  onPressed: () =>
-                      LoginView.show(context, initial: LoginViewStage.signIn),
+                  onPressed:
+                      () => LoginView.show(
+                        context,
+                        initial: LoginViewStage.signIn,
+                      ),
                   child: Text('btn_sign_in'.l10n),
                 ),
                 const SizedBox(height: 15),
@@ -362,7 +372,7 @@ class AuthView extends StatelessWidget {
                           const SizedBox(height: 8),
                           Expanded(child: Center(child: column)),
                           const SizedBox(height: 8),
-                          SafeArea(top: false, child: status),
+                          CustomSafeArea(top: false, child: status),
                         ],
                       ),
                     ),

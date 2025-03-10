@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,17 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
 import '/domain/model/ongoing_call.dart';
-import '/domain/model_type_id.dart';
-
-part 'media_settings.g.dart';
 
 /// Media settings used in an [OngoingCall] containing the IDs of the devices to
 /// use by default.
-@HiveType(typeId: ModelTypeId.mediaSettings)
-class MediaSettings extends HiveObject {
+class MediaSettings {
   MediaSettings({
     this.videoDevice,
     this.audioDevice,
@@ -34,18 +28,14 @@ class MediaSettings extends HiveObject {
   });
 
   /// ID of the video device to use by default.
-  @HiveField(0)
   String? videoDevice;
 
   /// ID of the microphone device to use by default.
-  @HiveField(1)
   String? audioDevice;
 
   /// ID of the output device to use by default.
-  @HiveField(2)
   String? outputDevice;
 
   /// ID of the screen to use in screen sharing by default.
-  @HiveField(3)
   String? screenDevice;
 }

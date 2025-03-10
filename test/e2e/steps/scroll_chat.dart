@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,39 +38,36 @@ import 'scroll_until.dart';
 /// - Then I scroll and see 2 messages in chat
 final StepDefinitionGeneric<FlutterWorld> scrollAndSee =
     then1<int, FlutterWorld>(
-  RegExp(r'I scroll and see {int} message(s) in chat'),
-  (int quantity, StepContext<FlutterWorld> context) async {
-    await context.world.appDriver.waitForAppToSettle();
+      RegExp(r'I scroll and see {int} message(s) in chat'),
+      (int quantity, StepContext<FlutterWorld> context) async {
+        await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final Set<ChatItemId> ids = {};
+        final RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        final Set<ChatItemId> ids = {};
 
-    await context.world.appDriver.scrollIntoVisible(
-      find.byWidgetPredicate(
-        (Widget widget) {
-          if (widget is ChatItemWidget) {
-            final ChatItem item = widget.item.value;
-            if (item is ChatMessage) {
-              ids.add(item.id);
-              if (item.id == chat?.messages.lastOrNull?.value.id) {
-                return true;
+        await context.world.appDriver.scrollIntoVisible(
+          find.byWidgetPredicate((Widget widget) {
+            if (widget is ChatItemWidget) {
+              final ChatItem item = widget.item.value;
+              if (item is ChatMessage) {
+                ids.add(item.id);
+                if (item.id == chat?.messages.lastOrNull?.value.id) {
+                  return true;
+                }
               }
             }
-          }
-          return false;
-        },
-        skipOffstage: false,
-      ),
-      find.descendant(
-        of: find.byKey(const Key('MessagesList')),
-        matching: find.byType(Scrollable),
-      ),
-      dy: 100,
+            return false;
+          }, skipOffstage: false),
+          find.descendant(
+            of: find.byKey(const Key('MessagesList')),
+            matching: find.byType(Scrollable),
+          ),
+          dy: 100,
+        );
+
+        await context.world.appDriver.waitForAppToSettle();
+
+        expect(ids.length, quantity);
+      },
     );
-
-    await context.world.appDriver.waitForAppToSettle();
-
-    expect(ids.length, quantity);
-  },
-);

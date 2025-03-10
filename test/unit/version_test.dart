@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -171,30 +171,15 @@ void main() {
       Version(0, 1, 0, pre: 'beta.5') < Version(0, 1, 0, pre: 'rc.1'),
       true,
     );
-    expect(
-      Version(0, 1, 0, pre: 'beta.5') < Version(0, 1, 0, pre: 'rc'),
-      true,
-    );
+    expect(Version(0, 1, 0, pre: 'beta.5') < Version(0, 1, 0, pre: 'rc'), true);
     expect(
       Version(0, 1, 0, pre: 'rc.1') > Version(0, 1, 0, pre: 'beta.5'),
       true,
     );
-    expect(
-      Version(0, 1, 0, pre: 'rc') > Version(0, 1, 0, pre: 'beta.5'),
-      true,
-    );
-    expect(
-      Version(0, 1, 0, pre: 'rc.1') > Version(0, 1, 0, pre: 'rc'),
-      true,
-    );
-    expect(
-      Version(0, 1, 0, pre: 'rc.2') > Version(0, 1, 0, pre: 'rc.1'),
-      true,
-    );
-    expect(
-      Version(0, 1, 0, pre: 'rc') == Version(0, 1, 0, pre: 'rc'),
-      true,
-    );
+    expect(Version(0, 1, 0, pre: 'rc') > Version(0, 1, 0, pre: 'beta.5'), true);
+    expect(Version(0, 1, 0, pre: 'rc.1') > Version(0, 1, 0, pre: 'rc'), true);
+    expect(Version(0, 1, 0, pre: 'rc.2') > Version(0, 1, 0, pre: 'rc.1'), true);
+    expect(Version(0, 1, 0, pre: 'rc') == Version(0, 1, 0, pre: 'rc'), true);
     expect(
       Version(0, 1, 0, pre: 'alpha.13.4') < Version(0, 1, 0, pre: 'alpha.13.5'),
       true,
@@ -210,6 +195,11 @@ void main() {
           VersionExtension.parse('0.1.0-alpha.14'),
       true,
     );
+
+    expect(Version(0, 1, 0) < Version(0, 1, 0, build: '1'), true);
+    expect(Version(0, 1, 0, build: '1') == Version(0, 1, 0, build: '1'), true);
+    expect(Version(0, 1, 0, build: '1') < Version(0, 1, 0, build: '2'), true);
+    expect(Version(1, 0, 0, build: '502') > Version(1, 0, 0, build: '9'), true);
   });
 
   test('Version correctly detects the critical versions', () async {
@@ -234,33 +224,57 @@ void main() {
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.1')
-          .isCritical(Version(0, 1, 0, pre: 'alpha.2')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.1',
+      ).isCritical(Version(0, 1, 0, pre: 'alpha.2')),
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.1')
-          .isCritical(Version(0, 1, 0, pre: 'alpha.1.1')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.1',
+      ).isCritical(Version(0, 1, 0, pre: 'alpha.1.1')),
       false,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.55.4')
-          .isCritical(Version(0, 1, 0, pre: 'beta.1')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.55.4',
+      ).isCritical(Version(0, 1, 0, pre: 'beta.1')),
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.55.4')
-          .isCritical(Version(0, 1, 0, pre: 'beta.56.6')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.55.4',
+      ).isCritical(Version(0, 1, 0, pre: 'beta.56.6')),
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'beta.54.3')
-          .isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'beta.54.3',
+      ).isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
       false,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.1')
-          .isCritical(Version(0, 1, 1, pre: 'alpha.1')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.1',
+      ).isCritical(Version(0, 1, 1, pre: 'alpha.1')),
       true,
     );
     expect(
@@ -276,24 +290,50 @@ void main() {
       false,
     );
     expect(
-      Version(0, 1, 0, pre: 'beta.54.3')
-          .isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'beta.54.3',
+      ).isCritical(Version(0, 1, 0, pre: 'beta.54.12')),
       false,
     );
     expect(
-      Version(0, 1, 0, pre: 'beta.54.3')
-          .isCritical(Version(0, 1, 1, pre: 'beta.54.12')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'beta.54.3',
+      ).isCritical(Version(0, 1, 1, pre: 'beta.54.12')),
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'beta.54.3')
-          .isCritical(Version(0, 2, 0, pre: 'beta.54.12')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'beta.54.3',
+      ).isCritical(Version(0, 2, 0, pre: 'beta.54.12')),
       true,
     );
     expect(
-      Version(0, 1, 0, pre: 'alpha.1')
-          .isCritical(Version(0, 1, 0, pre: 'alpha.1', build: '1')),
+      Version(
+        0,
+        1,
+        0,
+        pre: 'alpha.1',
+      ).isCritical(Version(0, 1, 0, pre: 'alpha.1', build: '1')),
       false,
+    );
+    expect(Version(0, 1, 0).isCritical(Version(0, 1, 0, build: '1')), false);
+    expect(
+      Version(0, 1, 0, build: '1').isCritical(Version(0, 1, 0, build: '2')),
+      false,
+    );
+    expect(Version(1, 0, 0).isCritical(Version(1, 0, 0, build: '524')), false);
+    expect(
+      Version(0, 1, 0, build: '1').isCritical(Version(0, 2, 0, build: '2')),
+      true,
     );
   });
 }

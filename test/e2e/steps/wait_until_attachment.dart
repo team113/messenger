@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,29 +33,28 @@ import 'package:messenger/routes.dart';
 /// - Then I wait until attachment "test.jpg" is present
 final StepDefinitionGeneric untilAttachmentExists =
     then2<String, Existence, FlutterWorld>(
-  'I wait until attachment {string} is {existence}',
-  (filename, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I wait until attachment {string} is {existence}',
+      (filename, existence, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+          final RxChat? chat =
+              Get.find<ChatService>().chats[ChatId(
+                router.route.split('/').last,
+              )];
 
-        bool exist = chat!.messages
-            .map((m) => m.value)
-            .whereType<ChatMessage>()
-            .any((m) => m.attachments.any((a) => a.filename == filename));
+          bool exist = chat!.messages
+              .map((m) => m.value)
+              .whereType<ChatMessage>()
+              .any((m) => m.attachments.any((a) => a.filename == filename));
 
-        switch (existence) {
-          case Existence.present:
-            return exist;
+          switch (existence) {
+            case Existence.present:
+              return exist;
 
-          case Existence.absent:
-            return !exist;
-        }
+            case Existence.absent:
+              return !exist;
+          }
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

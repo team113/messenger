@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,17 +31,15 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
   RegExp(r'I see {int} chat members'),
   (int count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        return chat?.members.length == count;
-      },
-    );
+      return chat?.members.length == count;
+    });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

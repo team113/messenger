@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,8 +47,9 @@ final StepDefinitionGeneric tapReply = then2<String, String, CustomWorld>(
         .repliesTo
         .firstWhere((e) => (e.original as ChatMessage).text?.val == reply);
 
-    final Finder finder = context.world.appDriver
-        .findByKeySkipOffstage('Reply_${quote.original!.id}');
+    final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      'Reply_${quote.original!.id}',
+    );
 
     await context.world.appDriver.nativeDriver.tap(finder);
     await context.world.appDriver.waitForAppToSettle();

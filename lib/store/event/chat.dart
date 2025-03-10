@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,18 +17,18 @@
 
 import '/api/backend/schema.dart' show ChatCallFinishReason;
 import '/domain/model/attachment.dart';
-import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
+import '/domain/model/chat.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/chat.dart';
-import '/provider/hive/chat_item.dart';
+import '/store/model/chat_item.dart';
 import '/store/model/chat.dart';
 
 /// Possible kinds of a [ChatEvent].
 enum ChatEventKind {
+  callAnswerTimeoutPassed,
   callConversationStarted,
   callDeclined,
   callFinished,
@@ -60,11 +60,7 @@ enum ChatEventKind {
 }
 
 /// Tag representing a [ChatEvents] kind.
-enum ChatEventsKind {
-  initialized,
-  chat,
-  event,
-}
+enum ChatEventsKind { initialized, chat, event }
 
 /// [Chat] event union.
 abstract class ChatEvents {
@@ -88,7 +84,7 @@ class ChatEventsChat extends ChatEvents {
   const ChatEventsChat(this.chat);
 
   /// Initial state itself.
-  final HiveChat chat;
+  final DtoChat chat;
 
   @override
   ChatEventsKind get kind => ChatEventsKind.chat;
@@ -305,8 +301,8 @@ class EventChatItemEdited extends ChatEvent {
   /// Edited [Attachment]s of the [ChatItem].
   final List<Attachment>? attachments;
 
-  /// [HiveChatItemQuote]s the edited [ChatItem] replies to.
-  final List<HiveChatItemQuote>? quotes;
+  /// [DtoChatItemQuote]s the edited [ChatItem] replies to.
+  final List<DtoChatItemQuote>? quotes;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemEdited;
@@ -395,7 +391,7 @@ class EventChatLastItemUpdated extends ChatEvent {
   const EventChatLastItemUpdated(super.chatId, this.lastItem);
 
   /// Updated last [ChatItem].
-  final HiveChatItem? lastItem;
+  final DtoChatItem? lastItem;
 
   @override
   ChatEventKind get kind => ChatEventKind.lastItemUpdated;
@@ -430,7 +426,12 @@ class EventChatRead extends ChatEvent {
 /// Event of a [ChatCall] being declined by a [ChatMember].
 class EventChatCallDeclined extends ChatEvent {
   const EventChatCallDeclined(
-      super.chatId, this.callId, this.call, this.user, this.at);
+    super.chatId,
+    this.callId,
+    this.call,
+    this.user,
+    this.at,
+  );
 
   /// ID of the [ChatCall] being declined.
   final ChatItemId callId;
@@ -453,7 +454,7 @@ class EventChatItemPosted extends ChatEvent {
   const EventChatItemPosted(super.chatId, this.item);
 
   /// New [ChatItem].
-  final HiveChatItem item;
+  final DtoChatItem item;
 
   @override
   ChatEventKind get kind => ChatEventKind.itemPosted;
@@ -540,6 +541,17 @@ class EventChatCallConversationStarted extends ChatEvent {
 
   @override
   ChatEventKind get kind => ChatEventKind.callConversationStarted;
+}
+
+/// Event of an answer timeout being reached in a [ChatCall].
+class EventChatCallAnswerTimeoutPassed extends ChatEvent {
+  const EventChatCallAnswerTimeoutPassed(super.chatId, this.callId);
+
+  /// ID of the [ChatCall] the conversation started in.
+  final ChatItemId callId;
+
+  @override
+  ChatEventKind get kind => ChatEventKind.callAnswerTimeoutPassed;
 }
 
 /// Edited [ChatMessageText].

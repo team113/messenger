@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -104,12 +104,12 @@ void main() async {
     finished.clear();
     futures.clear();
     for (var i = 0; i < requests * 2; ++i) {
-      futures.add(limiter.execute(
-        () async {
+      futures.add(
+        limiter.execute(() async {
           await Future.delayed(per * 5);
           return i;
-        },
-      )..then((v) => finished.add(v)));
+        })..then((v) => finished.add(v)),
+      );
     }
 
     // Wait for [RateLimiter.execute]s to process.

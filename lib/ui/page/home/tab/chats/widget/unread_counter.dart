@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -49,18 +49,20 @@ class UnreadCounter extends StatelessWidget {
       height: 23,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: dimmed
-            ? inverted
-                ? style.colors.onPrimary
-                : style.colors.secondaryHighlightDarkest
-            : style.colors.danger,
+        color:
+            dimmed
+                ? inverted
+                    ? style.colors.onPrimary
+                    : style.colors.secondaryHighlightDarkest
+                : style.colors.danger,
       ),
       alignment: Alignment.center,
       child: Text(
         count > 99 ? '99${'plus'.l10n}' : '$count',
-        style: dimmed && inverted
-            ? style.fonts.smaller.bold.secondary
-            : style.fonts.smaller.bold.onPrimary,
+        style:
+            dimmed && inverted
+                ? style.fonts.smaller.bold.secondary
+                : style.fonts.smaller.bold.onPrimary,
         maxLines: 1,
         overflow: TextOverflow.clip,
         textAlign: TextAlign.center,

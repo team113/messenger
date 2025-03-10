@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,10 +32,10 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class AddEmailView extends StatelessWidget {
-  const AddEmailView({super.key, this.email, this.timeout = false});
+  const AddEmailView({super.key, required this.email, this.timeout = false});
 
   /// [UserEmail] to confirm.
-  final UserEmail? email;
+  final UserEmail email;
 
   /// Indicator whether the resend [Timer] should be started initially.
   final bool timeout;
@@ -43,7 +43,7 @@ class AddEmailView extends StatelessWidget {
   /// Displays a [AddEmailView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(
     BuildContext context, {
-    UserEmail? email,
+    required UserEmail email,
     bool timeout = false,
   }) {
     return ModalPopup.show(
@@ -59,6 +59,7 @@ class AddEmailView extends StatelessWidget {
     return GetBuilder(
       init: AddEmailController(
         Get.find(),
+        email: email,
         timeout: timeout,
         pop: context.popModal,
       ),
@@ -94,14 +95,16 @@ class AddEmailView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed: c.resendEmailTimeout.value == 0
-                            ? c.resendEmail
-                            : null,
-                        title: c.resendEmailTimeout.value == 0
-                            ? 'label_resend'.l10n
-                            : 'label_resend_timeout'.l10nfmt(
-                                {'timeout': c.resendEmailTimeout.value},
-                              ),
+                        onPressed:
+                            c.resendEmailTimeout.value == 0
+                                ? c.resendEmail
+                                : null,
+                        title:
+                            c.resendEmailTimeout.value == 0
+                                ? 'label_resend'.l10n
+                                : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
                       ),
                     ),
                     const SizedBox(width: 10),

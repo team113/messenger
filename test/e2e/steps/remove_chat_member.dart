@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,12 +27,12 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - And Bob removes Alice from "Alice and Bob" group
-final StepDefinitionGeneric removeGroupMember =
-    then3<TestUser, TestUser, String, CustomWorld>(
+final StepDefinitionGeneric
+removeGroupMember = then3<TestUser, TestUser, String, CustomWorld>(
   RegExp(r'{user} removes {user} from {string} group'),
   (TestUser user, TestUser member, String groupName, context) async {
-    final CustomUser? kicker = context.world.sessions[user.name];
-    final CustomUser? kicked = context.world.sessions[member.name];
+    final CustomUser? kicker = context.world.sessions[user.name]?.firstOrNull;
+    final CustomUser? kicked = context.world.sessions[member.name]?.firstOrNull;
     final ChatId? groupId = context.world.groups[groupName];
 
     if (kicker == null) {
@@ -54,6 +54,6 @@ final StepDefinitionGeneric removeGroupMember =
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

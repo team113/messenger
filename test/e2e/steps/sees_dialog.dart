@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,20 +36,21 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
     try {
       await context.world.appDriver.waitUntil(() async {
         provider.token = context.world.sessions[user.name]?.token;
-        final dialog = (await provider.recentChats(first: 120))
-            .recentChats
-            .edges
-            .firstWhereOrNull((e) =>
-                e.node.kind == ChatKind.dialog &&
-                e.node.members.nodes.any((m) => m.user.id == context.world.me));
+        final dialog = (await provider.recentChats(
+          first: 120,
+        )).recentChats.edges.firstWhereOrNull(
+          (e) =>
+              e.node.kind == ChatKind.dialog &&
+              e.node.members.nodes.any((m) => m.user.id == context.world.me),
+        );
         return dialog != null;
       });
     } finally {
       provider.disconnect();
     }
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );
 
 /// Ensures that the provided [User] has no dialog with the authenticated
@@ -62,15 +63,16 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   (TestUser user, context) async {
     final provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
-    final dialog = (await provider.recentChats(first: 120))
-        .recentChats
-        .edges
-        .firstWhereOrNull((e) =>
-            e.node.kind == ChatKind.dialog &&
-            e.node.members.nodes.any((m) => m.user.id == context.world.me));
+    final dialog = (await provider.recentChats(
+      first: 120,
+    )).recentChats.edges.firstWhereOrNull(
+      (e) =>
+          e.node.kind == ChatKind.dialog &&
+          e.node.members.nodes.any((m) => m.user.id == context.world.me),
+    );
     provider.disconnect();
     assert(dialog == null, true);
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

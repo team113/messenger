@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,11 +22,7 @@ import '/util/platform_utils.dart';
 
 /// Styled context menu of [actions].
 class ContextMenu extends StatelessWidget {
-  const ContextMenu({
-    super.key,
-    required this.actions,
-    this.enlarged,
-  });
+  const ContextMenu({super.key, required this.actions, this.enlarged});
 
   /// List of [Widget]s to display in this [ContextMenu].
   final List<Widget> actions;
@@ -70,7 +66,7 @@ class ContextMenu extends StatelessWidget {
             blurRadius: 12,
             color: style.colors.onBackgroundOpacity27,
             blurStyle: BlurStyle.outer.workaround,
-          )
+          ),
         ],
       ),
       child: ClipRRect(
@@ -166,24 +162,31 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding: isMobile
-              ? EdgeInsets.fromLTRB(
-                  widget.trailing == null ? 18 : 5,
-                  15,
-                  18,
-                  15,
-                )
-              : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
+          padding:
+              isMobile
+                  ? EdgeInsets.fromLTRB(
+                    widget.trailing == null ? 18 : 5,
+                    15,
+                    18,
+                    15,
+                  )
+                  : EdgeInsets.fromLTRB(
+                    widget.trailing == null ? 8 : 0,
+                    6,
+                    12,
+                    6,
+                  ),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
             borderRadius:
                 isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
-            color: isMouseOver && widget.onPressed != null
-                ? isMobile
-                    ? style.contextMenuHoveredColor
-                    : style.colors.primary
-                : style.colors.transparent,
+            color:
+                isMouseOver && widget.onPressed != null
+                    ? isMobile
+                        ? style.contextMenuHoveredColor
+                        : style.colors.primary
+                    : style.colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -204,9 +207,10 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child: isMouseOver && widget.onPressed != null
-                            ? (widget.inverted ?? widget.trailing)
-                            : widget.trailing,
+                        child:
+                            isMouseOver && widget.onPressed != null
+                                ? (widget.inverted ?? widget.trailing)
+                                : widget.trailing,
                       ),
                     ),
                   ),
@@ -219,10 +223,11 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                             ? style.fonts.normal.regular.onPrimary
                             : style.fonts.normal.regular.onBackground))
                     .copyWith(
-                  fontSize: isMobile
-                      ? style.fonts.medium.regular.onBackground.fontSize
-                      : style.fonts.small.regular.onBackground.fontSize,
-                ),
+                      fontSize:
+                          isMobile
+                              ? style.fonts.medium.regular.onBackground.fontSize
+                              : style.fonts.small.regular.onBackground.fontSize,
+                    ),
               ),
             ],
           ),

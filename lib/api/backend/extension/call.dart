@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,28 +24,27 @@ import 'user.dart';
 extension ChatCallMemberConversion on ChatCallMemberMixin {
   /// Constructs a new [ChatCallMember] from this [ChatCallMemberMixin].
   ChatCallMember toModel() => ChatCallMember(
-        user: user.toModel(),
-        handRaised: handRaised,
-        joinedAt: joinedAt,
-      );
+    user: user.toModel(),
+    handRaised: handRaised,
+    joinedAt: joinedAt,
+  );
 }
 
 /// Extension adding models construction from [ChatCallMixin].
 extension ChatCallConversion on ChatCallMixin {
   /// Constructs a new [ChatCall] from this [ChatCallMixin].
   ChatCall toModel() => ChatCall(
-        id,
-        chatId,
-        author.toModel(),
-        at,
-        members: members.map((e) => e.toModel()).toList(),
-        withVideo: withVideo,
-        conversationStartedAt: conversationStartedAt,
-        finishReasonIndex: finishReason?.index,
-        finishedAt: finishedAt,
-        joinLink: joinLink,
-        dialed: dialed?.toModel(),
-      );
+    id,
+    chatId,
+    author.toModel(),
+    at,
+    members: members.map((e) => e.toModel()).toList(),
+    withVideo: withVideo,
+    conversationStartedAt: conversationStartedAt,
+    finishReasonIndex: finishReason?.index,
+    finishedAt: finishedAt,
+    dialed: dialed?.toModel(),
+  );
 }
 
 /// Extension adding models construction from [ChatCallMixin$Dialed].

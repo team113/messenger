@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,6 +17,8 @@
 
 import 'dart:async';
 
+import 'log.dart';
+
 /// [Timer] exposing its [future] to be awaited.
 class AwaitableTimer {
   AwaitableTimer(Duration d, FutureOr Function() callback) {
@@ -26,7 +28,15 @@ class AwaitableTimer {
       } on StateError {
         // No-op, as [Future] is allowed to be completed.
       } catch (e, stackTrace) {
-        _completer.completeError(e, stackTrace);
+        try {
+          _completer.completeError(e, stackTrace);
+        } on StateError {
+          // [_completer]'s future is allowed to be competed at this point.
+          Log.error(
+            'Callback completed with the following exception: $e',
+            '$runtimeType',
+          );
+        }
       }
     });
   }

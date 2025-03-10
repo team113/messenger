@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -44,8 +44,9 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
         .whereType<ChatMessage>()
         .firstWhere((e) => e.text?.val == text);
 
-    Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+    Finder finder = context.world.appDriver.findByKeySkipOffstage(
+      'Message_${message.id}',
+    );
 
     await context.world.appDriver.nativeDriver.longPress(finder);
     await context.world.appDriver.waitForAppToSettle();
@@ -59,22 +60,23 @@ final StepDefinitionGeneric longPressMessageByText = then1<String, CustomWorld>(
 /// - Then I long press message with "test.jpg"
 /// - Then I long press message with "test.txt"
 final StepDefinitionGeneric longPressMessageByAttachment =
-    then1<String, CustomWorld>(
-  'I long press message with {string}',
-  (name, context) async {
-    await context.world.appDriver.waitForAppToSettle();
+    then1<String, CustomWorld>('I long press message with {string}', (
+      name,
+      context,
+    ) async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    final ChatMessage message = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhere((e) => e.attachments.any((a) => a.filename == name));
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      final ChatMessage message = chat!.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .firstWhere((e) => e.attachments.any((a) => a.filename == name));
 
-    final Finder finder =
-        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}');
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+        'Message_${message.id}',
+      );
 
-    await context.world.appDriver.nativeDriver.longPress(finder);
-    await context.world.appDriver.waitForAppToSettle();
-  },
-);
+      await context.world.appDriver.nativeDriver.longPress(finder);
+      await context.world.appDriver.waitForAppToSettle();
+    });

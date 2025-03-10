@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,6 +31,6 @@ final StepDefinitionGeneric updateName = then2<TestUser, String, CustomWorld>(
     await provider.updateUserName(UserName(newName));
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

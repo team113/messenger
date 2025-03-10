@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -82,8 +82,8 @@ class CallButtonsSwitchView extends StatelessWidget {
                           CallButtonsPosition.more =>
                             'label_media_buttons_in_more'.l10n,
                         },
-                        selected: position ==
-                                c.settings.value?.callButtonsPosition ||
+                        selected:
+                            position == c.settings.value?.callButtonsPosition ||
                             (c.settings.value?.callButtonsPosition == null &&
                                 position == CallButtonsPosition.appBar),
                         onPressed: () => c.setCallButtonsPosition(position),

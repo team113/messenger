@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -83,7 +83,7 @@ class Launchpad extends StatelessWidget {
                       color: style.colors.onBackgroundOpacity20,
                       blurRadius: 8,
                       blurStyle: BlurStyle.outer,
-                    )
+                    ),
                   ],
                 ),
                 margin: const EdgeInsets.all(2),
@@ -93,11 +93,12 @@ class Launchpad extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
-                      color: onWillAccept != null
-                          ? candidate.any(onWillAccept!)
-                              ? style.colors.primaryDarkOpacity90
-                              : style.colors.primaryDarkOpacity70
-                          : null,
+                      color:
+                          onWillAccept != null
+                              ? candidate.any(onWillAccept!)
+                                  ? style.colors.primaryDarkOpacity90
+                                  : style.colors.primaryDarkOpacity70
+                              : null,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),

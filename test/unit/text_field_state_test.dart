@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,9 +25,10 @@ void main() {
     final _Mock mock = _Mock();
 
     test('TextFieldState.onSubmitted is called', () {
-      final TextFieldState state = TextFieldState(onSubmitted: mock.dummy)
-        ..controller.text = 'zhorenty'
-        ..submit();
+      final TextFieldState state =
+          TextFieldState(onSubmitted: mock.dummy)
+            ..controller.text = 'zhorenty'
+            ..submit();
 
       verify(mock.dummy.call(state)).called(1);
     });

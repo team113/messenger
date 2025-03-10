@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,7 +34,7 @@ export 'view.dart';
 /// [Routes.chatDirectLink] page controller.
 class ChatDirectLinkController extends GetxController {
   ChatDirectLinkController(String url, this._auth)
-      : slug = Rx(ChatDirectLinkSlug.tryParse(url));
+    : slug = Rx(ChatDirectLinkSlug.tryParse(url));
 
   /// [ChatDirectLinkSlug] of this controller.
   final Rx<ChatDirectLinkSlug?> slug;
@@ -94,8 +94,8 @@ class ChatDirectLinkController extends GetxController {
     final ISentrySpan span = _ready.startChild('use');
 
     try {
-      ChatId chatId = await _auth.useChatDirectLink(slug.value!);
-      router.chat(chatId, link: slug.value);
+      final Chat chat = await _auth.useChatDirectLink(slug.value!);
+      router.dialog(chat, _auth.userId, link: slug.value);
     } on UseChatDirectLinkException catch (e) {
       span.throwable = e;
       span.status = const SpanStatus.internalError();

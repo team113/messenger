@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,7 +21,10 @@ import 'package:get/get.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
+import '/ui/page/home/page/chat/widget/back_button.dart';
+import '/ui/page/home/widget/app_bar.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/system_info_prompt.dart';
 import 'controller.dart';
 
 /// View of the [Routes.chatDirectLink] page.
@@ -35,15 +38,27 @@ class ChatDirectLinkView extends StatelessWidget {
   Widget build(BuildContext context) {
     return GetBuilder(
       init: ChatDirectLinkController(_slug, Get.find()),
-      builder: (ChatDirectLinkController c) => Scaffold(
-        body: Center(
-          child: Obx(
-            () => c.slug.value == null
-                ? Text('label_unknown_page'.l10n)
-                : const CustomProgressIndicator(),
+      builder: (ChatDirectLinkController c) {
+        return Scaffold(
+          appBar:
+              ModalRoute.of(context)?.canPop == true
+                  ? const CustomAppBar(leading: [StyledBackButton()])
+                  : null,
+          body: Center(
+            child: Obx(() {
+              if (c.slug.value == null) {
+                return Center(
+                  child: SystemInfoPrompt(
+                    'label_unknown_chat_direct_link'.l10n,
+                  ),
+                );
+              }
+
+              return const CustomProgressIndicator.primary();
+            }),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

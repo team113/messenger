@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,23 +32,23 @@ import '../world/custom_world.dart';
 /// - Then I wait until "Dummy" contact is present
 final StepDefinitionGeneric untilContactExists =
     then2<String, Existence, CustomWorld>(
-  'I wait until {string} contact is {existence}',
-  (name, existence, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I wait until {string} contact is {existence}',
+      (name, existence, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final RxChatContact? contact =
-            Get.find<ContactService>().paginated[context.world.contacts[name]];
+          final RxChatContact? contact =
+              Get.find<ContactService>().paginated[context
+                  .world
+                  .contacts[name]];
 
-        final Finder finder = context.world.appDriver
-            .findByKeySkipOffstage('Contact_${contact?.id}');
+          final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+            'Contact_${contact?.id}',
+          );
 
-        return existence == Existence.absent
-            ? context.world.appDriver.isAbsent(finder)
-            : context.world.appDriver.isPresent(finder);
+          return existence == Existence.absent
+              ? context.world.appDriver.isAbsent(finder)
+              : context.world.appDriver.isPresent(finder);
+        }, timeout: const Duration(seconds: 30));
       },
-      timeout: const Duration(seconds: 30),
     );
-  },
-);

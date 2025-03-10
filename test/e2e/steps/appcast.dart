@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,53 +36,54 @@ import '../world/custom_world.dart';
 /// - Given appcast is with critical available
 final StepDefinitionGeneric appcastIsAvailable =
     given1<AppcastVersion, CustomWorld>(
-  'appcast with {version} version is available',
-  (version, context) async {
-    Config.appcast = 'http://localhost/appcast.xml';
+      'appcast with {version} version is available',
+      (version, context) async {
+        Config.appcast = 'http://localhost/appcast.xml';
 
-    PlatformUtils.client?.interceptors
-        .removeWhere((e) => e is InterceptorsWrapper);
+        PlatformUtils.client?.interceptors.removeWhere(
+          (e) => e is InterceptorsWrapper,
+        );
 
-    (await PlatformUtils.dio).interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          if (options.path == 'http://localhost/appcast.xml') {
-            return handler.resolve(
-              Response(
-                requestOptions: options,
-                statusCode: 200,
-                data: '''
+        (await PlatformUtils.dio).interceptors.add(
+          InterceptorsWrapper(
+            onRequest: (options, handler) {
+              if (options.path == 'http://localhost/appcast.xml') {
+                return handler.resolve(
+                  Response(
+                    requestOptions: options,
+                    statusCode: 200,
+                    data: '''
 <?xml version="1.0" encoding="utf-8"?>
 <rss version="2.0" xmlns:sparkle="http://www.andymatuschak.org/xml-namespaces/sparkle">
   <channel>
     <item>
       <title>v${switch (version) {
-                  AppcastVersion.current => Pubspec.ref,
-                  AppcastVersion.newer => '${Pubspec.ref}+1',
-                  AppcastVersion.critical => '999.0.0',
-                }}</title>
+                      AppcastVersion.current => Pubspec.ref,
+                      AppcastVersion.newer => '${Pubspec.ref}+1',
+                      AppcastVersion.critical => '999.0.0',
+                    }}</title>
       <description>Description</description>
       <pubDate>Fri, 26 Apr 2024 09:43:16 +0000</pubDate>
       <enclosure sparkle:os="macos" url="messenger-macos.zip" />
       <enclosure sparkle:os="windows" url="messenger-windows.zip" />
       <enclosure sparkle:os="linux" url="messenger-linux.zip" />
-      <enclosure sparkle:os="android" url="messenger-android.zip" />
-      <enclosure sparkle:os="ios" url="messenger-ios.zip" />
+      <enclosure sparkle:os="android" url="messenger-android.apk" />
+      <enclosure sparkle:os="ios" url="messenger-ios.ipa" />
     </item>
   </channel>
 </rss>
 ''',
-              ),
-            );
-          }
+                  ),
+                );
+              }
 
-          return handler.next(options);
-        },
-      ),
+              return handler.next(options);
+            },
+          ),
+        );
+
+        // Force [UpgradeWorker] to check for updates.
+        final worker = Get.findOrNull<UpgradeWorker>();
+        await worker?.fetchUpdates();
+      },
     );
-
-    // Force [UpgradeWorker] to check for updates.
-    final worker = Get.findOrNull<UpgradeWorker>();
-    await worker?.fetchUpdates();
-  },
-);

@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -30,6 +30,7 @@ Feature: Chat transitions
 
     When I sign in as Alice
     And I am in "Thoughts" group
+    And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
     And I tap "How are you?" reply of "I am fine" message
     Then I see "How are you?" message

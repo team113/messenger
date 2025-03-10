@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -23,10 +23,10 @@ fragment MyUser on MyUser {
         confirmed
         unconfirmed
     }
-    phones {
-        confirmed
-        unconfirmed
-    }
+    # phones {
+    #     confirmed
+    #     unconfirmed
+    # }
     name
     bio
     avatar {
@@ -41,6 +41,7 @@ fragment MyUser on MyUser {
     chatDirectLink {
         slug
         usageCount
+        createdAt
     }
     muted {
         __typename
@@ -62,4 +63,8 @@ fragment MyUser on MyUser {
     status
     unreadChatsCount
     ver
+    welcomeMessage {
+        __typename
+        ...WelcomeMessage
+    }
 }

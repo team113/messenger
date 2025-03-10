@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -52,15 +52,18 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
 
       if (route.startsWith('${Routes.work}/')) {
         final String? last = route.split('/').lastOrNull;
-        final WorkTab? work =
-            WorkTab.values.firstWhereOrNull((e) => e.name == last);
+        final WorkTab? work = WorkTab.values.firstWhereOrNull(
+          (e) => e.name == last,
+        );
 
         if (work != null) {
-          pages.add(CustomPage(
-            key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
-            name: Routes.me,
-            child: VacancyWorkView(work),
-          ));
+          pages.add(
+            CustomPage(
+              key: ValueKey('${work.name.capitalizeFirst}WorkPage'),
+              name: Routes.me,
+              child: VacancyWorkView(work),
+            ),
+          );
         }
       }
     }
@@ -74,11 +77,7 @@ class WorkRouterDelegate extends RouterDelegate<RouteConfiguration>
       key: navigatorKey,
       observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
       pages: _pages,
-      onPopPage: (route, result) {
-        _state.pop();
-        notifyListeners();
-        return route.didPop(result);
-      },
+      onDidRemovePage: (page) => _state.pop(page.name),
     );
   }
 

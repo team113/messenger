@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,12 +24,12 @@ enum MutedStatus { muted, unmuted }
 /// [CustomParameter] representing a [Chat.muted] status.
 class MutedStatusParameter extends CustomParameter<MutedStatus> {
   MutedStatusParameter()
-      : super(
-          'muted',
-          RegExp(
-            '(${MutedStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => MutedStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'muted',
+        RegExp(
+          '(${MutedStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => MutedStatus.values.firstWhere((e) => e.name == c),
+      );
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,6 +17,7 @@
 
 import 'package:dio/dio.dart' as dio;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
@@ -49,6 +50,9 @@ class MockGraphQlProvider extends GraphQlProvider {
   set token(AccessTokenSecret? value) => _client.token = value;
 
   @override
+  RxBool get connected => _client.connected;
+
+  @override
   Future<void> reconnect() => _client.reconnect();
 
   @override
@@ -58,40 +62,105 @@ class MockGraphQlProvider extends GraphQlProvider {
   void clearCache() => _client.clearCache();
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmEmailCode(
-    ConfirmationCode code, {
+  void addListener(void Function(Exception?) handler) =>
+      _client.addListener(handler);
+
+  @override
+  void removeListener(void Function(Exception?) handler) =>
+      _client.removeListener(handler);
+
+  @override
+  Future<MyUserEventsVersionedMixin?> addUserEmail(
+    UserEmail email, {
+    ConfirmationCode? confirmation,
     RawClientOptions? raw,
+    String? locale,
+  }) async {
+    if (confirmation != null) {
+      return AddUserEmail$Mutation.fromJson({
+            'addUserEmail': {
+              '__typename': 'MyUserEventsVersioned',
+              'events': [
+                {
+                  '__typename': 'EventUserEmailAdded',
+                  'userId': 'id',
+                  'email': '$email',
+                  'confirmed': true,
+                  'at': DateTime.now().toString(),
+                },
+              ],
+              'ver': '9' * 58,
+            },
+          }).addUserEmail
+          as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+    }
+
+    final variables = AddUserEmailArguments(
+      email: email,
+      confirmation: confirmation,
+    );
+    final QueryResult result = await client.mutate(
+      MutationOptions(
+        operationName: 'AddUserEmail',
+        document: AddUserEmailMutation(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+      onException:
+          (data) => AddUserEmailException(
+            (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                    as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+                .code,
+          ),
+    );
+    return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
+        as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;
+  }
+
+  @override
+  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+    UserEmail phone, {
+    MyUserCredentials? confirmation,
   }) async {
     return null;
   }
 
   @override
-  Future<MyUserEventsVersionedMixin?> confirmPhoneCode(
-    ConfirmationCode code,
-  ) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(UserEmail phone) async {
-    return null;
-  }
-
-  @override
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(UserPhone phone) async {
+  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+    UserPhone phone, {
+    MyUserCredentials? confirmation,
+  }) async {
     return null;
   }
 }
 
 /// Mocked [GraphQlClient] with an ability to add [delay] to its requests.
 class MockGraphQlClient extends GraphQlClient {
-  /// [Duration] to add to all requests simulating a delay.
-  Duration? delay;
-
   /// Indicator whether requests should throw [ConnectionException]s or not.
   ///
   /// Intended to be used to simulate a connection loss.
-  bool throwException = false;
+  bool _throwException = false;
+
+  /// [Duration] to add to all requests simulating a delay.
+  Duration? _delay;
+
+  /// Indicates whether requests should throw [ConnectionException]s or not.
+  bool get throwException => _throwException;
+
+  /// Sets the indicator whether requests should throw [ConnectionException]s or
+  /// not.
+  set throwException(bool value) {
+    connected.value = !value;
+    _throwException = value;
+  }
+
+  /// Returns the [Duration] to add to all requests simulating a delay.
+  Duration? get delay => _delay;
+
+  /// Sets the [Duration] to add to all requests simulating a delay.
+  set delay(Duration? value) {
+    connected.value = true;
+    _delay = value;
+  }
 
   @override
   Future<QueryResult> query(
@@ -103,6 +172,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -120,6 +190,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 
@@ -139,6 +210,7 @@ class MockGraphQlClient extends GraphQlClient {
     }
 
     if (throwException) {
+      connected.value = false;
       throw const ConnectionException('Mocked');
     }
 

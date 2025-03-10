@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,21 +31,22 @@ import '../world/custom_world.dart';
 /// - And Bob has his direct link set up
 final StepDefinitionGeneric setCredential =
     then2<TestUser, TestCredential, CustomWorld>(
-  RegExp(r'{user} has (?:his|her) {credential} set up'),
-  (TestUser user, TestCredential credential, context) async {
-    final CustomUser? customUser = context.world.sessions[user.name];
+      RegExp(r'{user} has (?:his|her) {credential} set up'),
+      (TestUser user, TestCredential credential, context) async {
+        final CustomUser? customUser =
+            context.world.sessions[user.name]?.firstOrNull;
 
-    if (customUser == null) {
-      throw ArgumentError(
-        '`${user.name}` is not found in `CustomWorld.sessions`.',
-      );
-    }
+        if (customUser == null) {
+          throw ArgumentError(
+            '`${user.name}` is not found in `CustomWorld.sessions`.',
+          );
+        }
 
-    await _setCredentialTo(customUser, credential);
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        await _setCredentialTo(customUser, credential);
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );
 
 /// Sets the specified [TestCredential] of [CustomWorld.me] to the uniquely
 /// generated one.
@@ -55,21 +56,25 @@ final StepDefinitionGeneric setCredential =
 /// - And I have my direct link set up
 final StepDefinitionGeneric setMyCredential =
     then1<TestCredential, CustomWorld>(
-  'I have my {credential} set up',
-  (TestCredential credential, context) async {
-    final CustomUser? me = context.world.sessions.values
-        .where((user) => user.userId == context.world.me)
-        .firstOrNull;
+      'I have my {credential} set up',
+      (TestCredential credential, context) async {
+        final CustomUser? me =
+            context.world.sessions.values
+                .where((user) => user.userId == context.world.me)
+                .firstOrNull
+                ?.firstOrNull;
 
-    if (me == null) {
-      throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
-    }
+        if (me == null) {
+          throw ArgumentError(
+            '`MyUser` is not found in `CustomWorld.sessions`.',
+          );
+        }
 
-    await _setCredentialTo(me, credential);
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        await _setCredentialTo(me, credential);
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );
 
 /// Generates and sets the specified [TestCredential] of the provided
 /// [TestUser].

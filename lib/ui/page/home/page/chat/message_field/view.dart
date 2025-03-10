@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,6 +45,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -109,24 +110,24 @@ class MessageFieldView extends StatelessWidget {
       shadowColor: style.colors.onBackgroundOpacity27,
       iconTheme: IconThemeData(color: style.colors.primaryHighlight),
       inputDecorationTheme: Theme.of(context).inputDecorationTheme.copyWith(
-            border: border,
-            errorBorder: border,
-            enabledBorder: border,
-            focusedBorder: border,
-            disabledBorder: border,
-            focusedErrorBorder: border,
-            focusColor: style.colors.onPrimary,
-            fillColor: style.colors.onPrimary,
-            hoverColor: style.colors.transparent,
-            filled: true,
-            isDense: true,
-            contentPadding: EdgeInsets.fromLTRB(
-              15,
-              PlatformUtils.isDesktop ? 30 : 23,
-              15,
-              0,
-            ),
-          ),
+        border: border,
+        errorBorder: border,
+        enabledBorder: border,
+        focusedBorder: border,
+        disabledBorder: border,
+        focusedErrorBorder: border,
+        focusColor: style.colors.onPrimary,
+        fillColor: style.colors.onPrimary,
+        hoverColor: style.colors.transparent,
+        filled: true,
+        isDense: true,
+        contentPadding: EdgeInsets.fromLTRB(
+          15,
+          PlatformUtils.isDesktop ? 30 : 23,
+          15,
+          0,
+        ),
+      ),
     );
   }
 
@@ -135,34 +136,46 @@ class MessageFieldView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: controller ??
+      init:
+          controller ??
           MessageFieldController(Get.find(), Get.find(), Get.find()),
       global: false,
       builder: (MessageFieldController c) {
-        return Theme(
-          data: theme(context),
-          child: SafeArea(
-            child: Container(
-              key: const Key('SendField'),
-              decoration: BoxDecoration(
-                borderRadius: style.cardRadius,
-                boxShadow: [
-                  CustomBoxShadow(
-                    blurRadius: 8,
-                    color: style.colors.onBackgroundOpacity13,
-                  ),
-                ],
-              ),
-              child: ConditionalBackdropFilter(
-                condition: style.cardBlur > 0,
-                filter: ImageFilter.blur(
-                  sigmaX: style.cardBlur,
-                  sigmaY: style.cardBlur,
+        return CallbackShortcuts(
+          bindings: {
+            if (!PlatformUtils.isWeb)
+              SingleActivator(LogicalKeyboardKey.keyV, control: true):
+                  c.handlePaste,
+            if (!PlatformUtils.isWeb)
+              SingleActivator(LogicalKeyboardKey.keyV, meta: true):
+                  c.handlePaste,
+          },
+          child: Theme(
+            data: theme(context),
+            child: CustomSafeArea(
+              child: Container(
+                key: const Key('SendField'),
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    CustomBoxShadow(
+                      blurRadius: 8,
+                      color: style.colors.onBackgroundOpacity13,
+                    ),
+                  ],
                 ),
-                borderRadius: style.cardRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [_buildHeader(c, context), _buildField(c, context)],
+                child: ConditionalBackdropFilter(
+                  condition: style.cardBlur > 0,
+                  filter: ImageFilter.blur(
+                    sigmaX: style.cardBlur,
+                    sigmaY: style.cardBlur,
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _buildHeader(c, context),
+                      _buildField(c, context),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -177,255 +190,269 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildHeader(MessageFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Obx(() {
-        final bool grab = c.attachments.isNotEmpty
-            ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-            : false;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Obx(() {
+          final bool grab =
+              c.attachments.isNotEmpty
+                  ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+                  : false;
 
-        Widget? previews;
+          Widget? previews;
 
-        if (c.quotes.isNotEmpty) {
-          previews = ReorderableListView(
-            scrollController: c.scrollController,
-            shrinkWrap: true,
-            buildDefaultDragHandles: PlatformUtils.isMobile,
-            onReorder: (int old, int to) {
-              if (old < to) {
-                --to;
-              }
+          if (c.quotes.isNotEmpty) {
+            previews = ReorderableListView(
+              scrollController: c.scrollController,
+              shrinkWrap: true,
+              buildDefaultDragHandles: PlatformUtils.isMobile,
+              onReorder: (int old, int to) {
+                if (old < to) {
+                  --to;
+                }
 
-              c.quotes.insert(to, c.quotes.removeAt(old));
+                c.quotes.insert(to, c.quotes.removeAt(old));
 
-              HapticFeedback.lightImpact();
-            },
-            proxyDecorator: (child, _, animation) {
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (_, child) {
-                  final double t = Curves.easeInOut.transform(animation.value);
-                  final double elevation = lerpDouble(0, 6, t)!;
-                  final Color color = Color.lerp(
-                    style.colors.transparent,
-                    style.colors.onBackgroundOpacity20,
-                    t,
-                  )!;
+                PlatformUtils.haptic(kind: HapticKind.light);
+              },
+              proxyDecorator: (child, _, animation) {
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (_, child) {
+                    final double t = Curves.easeInOut.transform(
+                      animation.value,
+                    );
+                    final double elevation = lerpDouble(0, 6, t)!;
+                    final Color color =
+                        Color.lerp(
+                          style.colors.transparent,
+                          style.colors.onBackgroundOpacity20,
+                          t,
+                        )!;
 
-                  return InitCallback(
-                    callback: HapticFeedback.selectionClick,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          CustomBoxShadow(
-                            color: color,
-                            blurRadius: elevation,
-                          ),
-                        ],
+                    return InitCallback(
+                      callback: PlatformUtils.haptic,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            CustomBoxShadow(
+                              color: color,
+                              blurRadius: elevation,
+                            ),
+                          ],
+                        ),
+                        child: child,
                       ),
-                      child: child,
-                    ),
-                  );
-                },
-                child: child,
-              );
-            },
-            reverse: true,
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: c.quotes.map((e) {
-              return ReorderableDragStartListener(
-                key: Key('Handle_${e.item.id}'),
-                enabled: !PlatformUtils.isMobile,
-                index: c.quotes.indexOf(e),
-                child: Dismissible(
-                  key: Key('${e.item.id}'),
-                  direction: DismissDirection.horizontal,
-                  onDismissed: (_) {
-                    c.quotes.remove(e);
-                    if (c.quotes.isEmpty) {
-                      Navigator.of(context).pop();
-                    }
+                    );
                   },
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 2,
-                    ),
-                    child: _buildPreview(
-                      context,
-                      e.item,
-                      c,
-                      onClose: () {
-                        c.quotes.remove(e);
-                        if (c.quotes.isEmpty) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                    ),
+                  child: child,
+                );
+              },
+              reverse: true,
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              children:
+                  c.quotes.map((e) {
+                    return ReorderableDragStartListener(
+                      key: Key('Handle_${e.item.id}'),
+                      enabled: !PlatformUtils.isMobile,
+                      index: c.quotes.indexOf(e),
+                      child: Dismissible(
+                        key: Key('${e.item.id}'),
+                        direction: DismissDirection.horizontal,
+                        onDismissed: (_) {
+                          c.quotes.remove(e);
+                          if (c.quotes.isEmpty) {
+                            Navigator.of(context).pop();
+                          }
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: _buildPreview(
+                            context,
+                            e.item,
+                            c,
+                            onClose: () {
+                              c.quotes.remove(e);
+                              if (c.quotes.isEmpty) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+            );
+          } else if (c.replied.isNotEmpty) {
+            previews = ReorderableListView(
+              scrollController: c.scrollController,
+              shrinkWrap: true,
+              buildDefaultDragHandles: PlatformUtils.isMobile,
+              onReorder: (int old, int to) {
+                if (old < to) {
+                  --to;
+                }
+
+                c.replied.insert(to, c.replied.removeAt(old));
+
+                PlatformUtils.haptic(kind: HapticKind.light);
+              },
+              proxyDecorator: (child, _, animation) {
+                return AnimatedBuilder(
+                  animation: animation,
+                  builder: (_, child) {
+                    final double t = Curves.easeInOut.transform(
+                      animation.value,
+                    );
+                    final double elevation = lerpDouble(0, 6, t)!;
+                    final Color color =
+                        Color.lerp(
+                          style.colors.transparent,
+                          style.colors.onBackgroundOpacity20,
+                          t,
+                        )!;
+
+                    return InitCallback(
+                      callback: PlatformUtils.haptic,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          boxShadow: [
+                            CustomBoxShadow(
+                              color: color,
+                              blurRadius: elevation,
+                            ),
+                          ],
+                        ),
+                        child: child,
+                      ),
+                    );
+                  },
+                  child: child,
+                );
+              },
+              padding: const EdgeInsets.symmetric(horizontal: 1),
+              children:
+                  c.replied.map((e) {
+                    return Obx(key: Key('Handle_${e.value.id}'), () {
+                      return ReorderableDragStartListener(
+                        enabled: !PlatformUtils.isMobile,
+                        index: c.replied.indexOf(e),
+                        child: Dismissible(
+                          key: Key('${e.value.id}'),
+                          direction: DismissDirection.horizontal,
+                          onDismissed: (_) => c.replied.remove(e),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 2),
+                            child: WidgetButton(
+                              onPressed: () => onItemPressed?.call(e.value),
+                              child: _buildPreview(
+                                context,
+                                e.value,
+                                c,
+                                onClose: () => c.replied.remove(e),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    });
+                  }).toList(),
+            );
+          }
+
+          return ConditionalBackdropFilter(
+            condition: style.cardBlur > 0,
+            filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
+            child: Container(
+              color: style.colors.onPrimaryOpacity50,
+              child: AnimatedSize(
+                duration: 400.milliseconds,
+                alignment: Alignment.bottomCenter,
+                curve: Curves.ease,
+                child: Container(
+                  width: double.infinity,
+                  padding:
+                      c.replied.isNotEmpty ||
+                              c.attachments.isNotEmpty ||
+                              c.edited.value != null
+                          ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                          : EdgeInsets.zero,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (c.edited.value != null)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2),
+                          child: WidgetButton(
+                            onPressed:
+                                () => onItemPressed?.call(c.edited.value!),
+                            child: _buildPreview(
+                              context,
+                              c.edited.value!,
+                              c,
+                              onClose: () => c.edited.value = null,
+                              edited: true,
+                            ),
+                          ),
+                        ),
+                      if (previews != null)
+                        ConstrainedBox(
+                          constraints:
+                              this.constraints ??
+                              BoxConstraints(
+                                maxHeight: max(
+                                  100,
+                                  MediaQuery.of(context).size.height / 3.4,
+                                ),
+                              ),
+                          child: Scrollbar(
+                            controller: c.scrollController,
+                            child: previews,
+                          ),
+                        ),
+                      if (c.attachments.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: MouseRegion(
+                            cursor:
+                                grab
+                                    ? CustomMouseCursors.grab
+                                    : MouseCursor.defer,
+                            opaque: false,
+                            child: ScrollConfiguration(
+                              behavior: CustomScrollBehavior(),
+                              child: SingleChildScrollView(
+                                clipBehavior: Clip.none,
+                                physics:
+                                    grab
+                                        ? null
+                                        : const NeverScrollableScrollPhysics(),
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.max,
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children:
+                                      c.attachments
+                                          .map(
+                                            (e) =>
+                                                _buildAttachment(context, e, c),
+                                          )
+                                          .toList(),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
                   ),
-                ),
-              );
-            }).toList(),
-          );
-        } else if (c.replied.isNotEmpty) {
-          previews = ReorderableListView(
-            scrollController: c.scrollController,
-            shrinkWrap: true,
-            buildDefaultDragHandles: PlatformUtils.isMobile,
-            onReorder: (int old, int to) {
-              if (old < to) {
-                --to;
-              }
-
-              c.replied.insert(to, c.replied.removeAt(old));
-
-              HapticFeedback.lightImpact();
-            },
-            proxyDecorator: (child, _, animation) {
-              return AnimatedBuilder(
-                animation: animation,
-                builder: (_, child) {
-                  final double t = Curves.easeInOut.transform(animation.value);
-                  final double elevation = lerpDouble(0, 6, t)!;
-                  final Color color = Color.lerp(
-                    style.colors.transparent,
-                    style.colors.onBackgroundOpacity20,
-                    t,
-                  )!;
-
-                  return InitCallback(
-                    callback: HapticFeedback.selectionClick,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        boxShadow: [
-                          CustomBoxShadow(color: color, blurRadius: elevation),
-                        ],
-                      ),
-                      child: child,
-                    ),
-                  );
-                },
-                child: child,
-              );
-            },
-            padding: const EdgeInsets.symmetric(horizontal: 1),
-            children: c.replied.map((e) {
-              return Obx(
-                key: Key('Handle_${e.value.id}'),
-                () {
-                  return ReorderableDragStartListener(
-                    enabled: !PlatformUtils.isMobile,
-                    index: c.replied.indexOf(e),
-                    child: Dismissible(
-                      key: Key('${e.value.id}'),
-                      direction: DismissDirection.horizontal,
-                      onDismissed: (_) => c.replied.remove(e),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: WidgetButton(
-                          onPressed: () => onItemPressed?.call(e.value),
-                          child: _buildPreview(
-                            context,
-                            e.value,
-                            c,
-                            onClose: () => c.replied.remove(e),
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              );
-            }).toList(),
-          );
-        }
-
-        return ConditionalBackdropFilter(
-          condition: style.cardBlur > 0,
-          filter: ImageFilter.blur(sigmaX: 100, sigmaY: 100),
-          borderRadius: BorderRadius.only(
-            topLeft: style.cardRadius.topLeft,
-            topRight: style.cardRadius.topRight,
-          ),
-          child: Container(
-            color: style.colors.onPrimaryOpacity50,
-            child: AnimatedSize(
-              duration: 400.milliseconds,
-              alignment: Alignment.bottomCenter,
-              curve: Curves.ease,
-              child: Container(
-                width: double.infinity,
-                padding: c.replied.isNotEmpty ||
-                        c.attachments.isNotEmpty ||
-                        c.edited.value != null
-                    ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                    : EdgeInsets.zero,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (c.edited.value != null)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2),
-                        child: WidgetButton(
-                          onPressed: () => onItemPressed?.call(c.edited.value!),
-                          child: _buildPreview(
-                            context,
-                            c.edited.value!,
-                            c,
-                            onClose: () => c.edited.value = null,
-                            edited: true,
-                          ),
-                        ),
-                      ),
-                    if (previews != null)
-                      ConstrainedBox(
-                        constraints: this.constraints ??
-                            BoxConstraints(
-                              maxHeight: max(
-                                100,
-                                MediaQuery.of(context).size.height / 3.4,
-                              ),
-                            ),
-                        child: Scrollbar(
-                          controller: c.scrollController,
-                          child: previews,
-                        ),
-                      ),
-                    if (c.attachments.isNotEmpty) ...[
-                      const SizedBox(height: 4),
-                      Align(
-                        alignment: Alignment.centerLeft,
-                        child: MouseRegion(
-                          cursor: grab
-                              ? CustomMouseCursors.grab
-                              : MouseCursor.defer,
-                          opaque: false,
-                          child: ScrollConfiguration(
-                            behavior: CustomScrollBehavior(),
-                            child: SingleChildScrollView(
-                              clipBehavior: Clip.none,
-                              physics: grab
-                                  ? null
-                                  : const NeverScrollableScrollPhysics(),
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                mainAxisSize: MainAxisSize.max,
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: c.attachments
-                                    .map((e) => _buildAttachment(context, e, c))
-                                    .toList(),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]
-                  ],
                 ),
               ),
             ),
-          ),
-        );
-      });
-    });
+          );
+        });
+      },
+    );
   }
 
   /// Builds a visual representation of the send field itself along with its
@@ -433,105 +460,111 @@ class MessageFieldView extends StatelessWidget {
   Widget _buildField(MessageFieldController c, BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      return Container(
-        key: c.fieldKey,
-        constraints: const BoxConstraints(minHeight: 56),
-        decoration: BoxDecoration(color: style.cardColor),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            WidgetButton(
-              onPressed: canAttach ? c.toggleMore : null,
-              child: AnimatedButton(
-                child: SizedBox(
-                  width: 50,
-                  height: 56,
-                  child: Center(
-                    child: Obx(() {
-                      return AnimatedScale(
-                        duration: const Duration(milliseconds: 150),
-                        curve: Curves.bounceInOut,
-                        scale: c.moreOpened.value ? 1.1 : 1,
-                        child: const SvgIcon(SvgIcons.chatMore),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          key: c.fieldKey,
+          constraints: const BoxConstraints(minHeight: 56),
+          decoration: BoxDecoration(color: style.cardColor),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              WidgetButton(
+                onPressed: canAttach ? c.toggleMore : null,
+                child: AnimatedButton(
+                  child: SizedBox(
+                    width: 50,
+                    height: 56,
+                    child: Center(
+                      child: Obx(() {
+                        return AnimatedScale(
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.bounceInOut,
+                          scale: c.moreOpened.value ? 1.1 : 1,
+                          child: const SvgIcon(SvgIcons.chatMore),
+                        );
+                      }),
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: 5 + (PlatformUtils.isMobile ? 0 : 8),
+                    bottom: 13,
+                  ),
+                  child: Transform.translate(
+                    offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
+                    child: ReactiveTextField(
+                      onChanged: onChanged,
+                      key: fieldKey ?? const Key('MessageField'),
+                      state: c.field,
+                      hint: 'label_send_message_hint'.l10n,
+                      minLines: 1,
+                      maxLines: 7,
+                      filled: false,
+                      dense: true,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      style: style.fonts.medium.regular.onBackground,
+                      type: TextInputType.multiline,
+                      textInputAction: TextInputAction.newline,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Obx(() {
+                int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+
+                SchedulerBinding.instance.addPostFrameCallback((_) {
+                  c.canPin.value = c.buttons.length < take;
+                });
+
+                final bool sendable =
+                    !c.field.isEmpty.value ||
+                    c.attachments.isNotEmpty ||
+                    c.replied.isNotEmpty;
+
+                final List<Widget> children;
+
+                if (sendable || c.buttons.isEmpty) {
+                  children = [
+                    Obx(() {
+                      return SafeAnimatedSwitcher(
+                        duration: 300.milliseconds,
+                        child: ChatButtonWidget.send(
+                          key:
+                              sendKey ??
+                              (c.forwarding.value
+                                  ? Key('Forward')
+                                  : Key('Send')),
+                          forwarding: c.forwarding.value,
+                          onPressed: c.field.submit,
+                          onLongPress: canForward ? c.forwarding.toggle : null,
+                        ),
                       );
                     }),
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(
-                  top: 5 + (PlatformUtils.isMobile ? 0 : 8),
-                  bottom: 13,
-                ),
-                child: Transform.translate(
-                  offset: Offset(0, PlatformUtils.isMobile ? 6 : 1),
-                  child: ReactiveTextField(
-                    onChanged: onChanged,
-                    key: fieldKey ?? const Key('MessageField'),
-                    state: c.field,
-                    hint: 'label_send_message_hint'.l10n,
-                    minLines: 1,
-                    maxLines: 7,
-                    filled: false,
-                    dense: true,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    style: style.fonts.medium.regular.onBackground,
-                    type: TextInputType.multiline,
-                    textInputAction: TextInputAction.newline,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Obx(() {
-              int take = max(((constraints.maxWidth - 160) / 50).round(), 0);
+                  ];
+                } else {
+                  children =
+                      c.buttons
+                          .take(take)
+                          .toList()
+                          .reversed
+                          .map((e) => ChatButtonWidget(e))
+                          .toList();
+                }
 
-              SchedulerBinding.instance.addPostFrameCallback((_) {
-                c.canPin.value = c.buttons.length < take;
-              });
-
-              final bool sendable = !c.field.isEmpty.value ||
-                  c.attachments.isNotEmpty ||
-                  c.replied.isNotEmpty;
-
-              final List<Widget> children;
-
-              if (sendable || c.buttons.isEmpty) {
-                children = [
-                  Obx(() {
-                    return SafeAnimatedSwitcher(
-                      duration: 300.milliseconds,
-                      child: ChatButtonWidget.send(
-                        key: c.forwarding.value
-                            ? const Key('Forward')
-                            : sendKey ?? const Key('Send'),
-                        forwarding: c.forwarding.value,
-                        onPressed: c.field.submit,
-                        onLongPress: canForward ? c.forwarding.toggle : null,
-                      ),
-                    );
-                  })
-                ];
-              } else {
-                children = c.buttons
-                    .take(take)
-                    .toList()
-                    .reversed
-                    .map((e) => ChatButtonWidget(e))
-                    .toList();
-              }
-
-              return Wrap(children: children);
-            }),
-            const SizedBox(width: 3),
-          ],
-        ),
-      );
-    });
+                return Wrap(children: children);
+              }),
+              const SizedBox(width: 3),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   /// Returns a visual representation of the provided [Attachment].
@@ -545,7 +578,8 @@ class MessageFieldView extends StatelessWidget {
 
     final bool isImage =
         (e is ImageAttachment || (e is LocalAttachment && e.file.isImage));
-    final bool isVideo = (e is FileAttachment && e.isVideo) ||
+    final bool isVideo =
+        (e is FileAttachment && e.isVideo) ||
         (e is LocalAttachment && e.file.isVideo);
 
     const double size = 125;
@@ -563,79 +597,86 @@ class MessageFieldView extends StatelessWidget {
           fit: BoxFit.cover,
         );
 
-        final List<Attachment> attachments = c.attachments
-            .where((e) {
-              final Attachment a = e.value;
-              return a is ImageAttachment ||
-                  (a is FileAttachment && a.isVideo) ||
-                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
-            })
-            .map((e) => e.value)
-            .toList();
+        final List<Attachment> attachments =
+            c.attachments
+                .where((e) {
+                  final Attachment a = e.value;
+                  return a is ImageAttachment ||
+                      (a is FileAttachment && a.isVideo) ||
+                      (a is LocalAttachment &&
+                          (a.file.isImage || a.file.isVideo));
+                })
+                .map((e) => e.value)
+                .toList();
 
         return WidgetButton(
           key: key,
-          onPressed: e is LocalAttachment
-              ? null
-              : () {
-                  final int index =
-                      c.attachments.indexWhere((m) => m.value == e);
-                  if (index != -1) {
-                    GalleryPopup.show(
-                      context: context,
-                      gallery: GalleryPopup(
-                        initial: index,
-                        initialKey: key,
-                        onTrashPressed: (int i) {
-                          c.attachments
-                              .removeWhere((o) => o.value == attachments[i]);
-                        },
-                        children: attachments.map((o) {
-                          if (o is ImageAttachment) {
-                            return GalleryItem.image(
-                              o.original.url,
-                              o.filename,
-                              size: o.original.size,
-                              width: (o.original as ImageFile).width,
-                              height: (o.original as ImageFile).height,
-                              checksum: o.original.checksum,
-                              thumbhash: o.big.thumbhash,
-                            );
-                          }
-                          return GalleryItem.video(
-                            o.original.url,
-                            o.filename,
-                            size: o.original.size,
-                            checksum: o.original.checksum,
-                          );
-                        }).toList(),
-                      ),
+          onPressed:
+              e is LocalAttachment
+                  ? null
+                  : () {
+                    final int index = c.attachments.indexWhere(
+                      (m) => m.value == e,
                     );
-                  }
-                },
-          child: isVideo
-              ? IgnorePointer(
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      child,
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: style.colors.onBackgroundOpacity50,
+                    if (index != -1) {
+                      GalleryPopup.show(
+                        context: context,
+                        gallery: GalleryPopup(
+                          initial: index,
+                          initialKey: key,
+                          onTrashPressed: (int i) {
+                            c.attachments.removeWhere(
+                              (o) => o.value == attachments[i],
+                            );
+                          },
+                          children:
+                              attachments.map((o) {
+                                if (o is ImageAttachment) {
+                                  return GalleryItem.image(
+                                    o.original.url,
+                                    o.filename,
+                                    size: o.original.size,
+                                    width: (o.original as ImageFile).width,
+                                    height: (o.original as ImageFile).height,
+                                    checksum: o.original.checksum,
+                                    thumbhash: o.big.thumbhash,
+                                  );
+                                }
+                                return GalleryItem.video(
+                                  o.original.url,
+                                  o.filename,
+                                  size: o.original.size,
+                                  checksum: o.original.checksum,
+                                );
+                              }).toList(),
                         ),
-                        child: Icon(
-                          Icons.play_arrow,
-                          color: style.colors.onPrimary,
-                          size: 48,
+                      );
+                    }
+                  },
+          child:
+              isVideo
+                  ? IgnorePointer(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        child,
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: style.colors.onBackgroundOpacity50,
+                          ),
+                          child: Icon(
+                            Icons.play_arrow,
+                            color: style.colors.onPrimary,
+                            size: 48,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                )
-              : child,
+                      ],
+                    ),
+                  )
+                  : child,
         );
       }
 
@@ -663,7 +704,7 @@ class MessageFieldView extends StatelessWidget {
                   Text(
                     p.extension(e.filename),
                     style: style.fonts.small.regular.onBackground,
-                  )
+                  ),
                 ],
               ),
             ),
@@ -671,11 +712,7 @@ class MessageFieldView extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 3),
               child: Text(
-                'label_kb'.l10nfmt({
-                  'amount': e.original.size == null
-                      ? 'dot'.l10n * 3
-                      : e.original.size! ~/ 1024
-                }),
+                e.original.size.asBytes(),
                 style: style.fonts.small.regular.secondary,
                 textAlign: TextAlign.center,
                 maxLines: 1,
@@ -714,22 +751,23 @@ class MessageFieldView extends StatelessWidget {
                 child: SizedBox.square(
                   dimension: 30,
                   child: ElasticAnimatedSwitcher(
-                    child: e is LocalAttachment
-                        ? e.status.value == SendingStatus.error
-                            ? Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: style.colors.onPrimary,
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: style.colors.danger,
+                    child:
+                        e is LocalAttachment
+                            ? e.status.value == SendingStatus.error
+                                ? Container(
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: style.colors.onPrimary,
                                   ),
-                                ),
-                              )
-                            : const SizedBox()
-                        : const SizedBox(),
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.error,
+                                      color: style.colors.danger,
+                                    ),
+                                  ),
+                                )
+                                : const SizedBox()
+                            : const SizedBox(),
                   ),
                 ),
               ),
@@ -741,14 +779,17 @@ class MessageFieldView extends StatelessWidget {
                     child: Obx(() {
                       return AnimatedOpacity(
                         duration: 200.milliseconds,
-                        opacity: c.hoveredAttachment.value == e ||
-                                PlatformUtils.isMobile
-                            ? 1
-                            : 0,
+                        opacity:
+                            c.hoveredAttachment.value == e ||
+                                    PlatformUtils.isMobile
+                                ? 1
+                                : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed: () =>
-                              c.attachments.removeWhere((a) => a.value == e),
+                          onPressed:
+                              () => c.attachments.removeWhere(
+                                (a) => a.value == e,
+                              ),
                         ),
                       );
                     }),
@@ -760,21 +801,18 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    return ObxValue(
-      (p) {
-        return Opacity(
-          opacity: 1 - p.value,
-          child: Dismissible(
-            key: Key(e.id.val),
-            direction: DismissDirection.up,
-            onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
-            onUpdate: (d) => p.value = d.progress,
-            child: attachment(),
-          ),
-        );
-      },
-      RxDouble(0),
-    );
+    return ObxValue((p) {
+      return Opacity(
+        opacity: 1 - p.value,
+        child: Dismissible(
+          key: Key(e.id.val),
+          direction: DismissDirection.up,
+          onDismissed: (_) => c.attachments.removeWhere((a) => a.value == e),
+          onUpdate: (d) => p.value = d.progress,
+          child: attachment(),
+        ),
+      );
+    }, RxDouble(0));
   }
 
   /// Returns a visual representation of the provided [item] as a preview.
@@ -795,9 +833,7 @@ class MessageFieldView extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
         margin: const EdgeInsets.fromLTRB(2, 0, 2, 0),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -814,7 +850,7 @@ class MessageFieldView extends StatelessWidget {
                 'btn_cancel'.l10n,
                 style: style.fonts.small.regular.primary,
               ),
-            )
+            ),
           ],
         ),
       );
@@ -832,32 +868,35 @@ class MessageFieldView extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
-                color: fromMe
-                    ? style.colors.onPrimaryOpacity25
-                    : style.colors.onBackgroundOpacity2,
+                color:
+                    fromMe
+                        ? style.colors.onPrimaryOpacity25
+                        : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
               height: 30,
-              child: image == null
-                  ? Icon(
-                      Icons.file_copy,
-                      color: fromMe
-                          ? style.colors.onPrimary
-                          : style.colors.secondaryHighlightDarkest,
-                      size: 16,
-                    )
-                  : RetryImage(
-                      image.small.url,
-                      checksum: image.small.checksum,
-                      thumbhash: image.small.thumbhash,
-                      fit: BoxFit.cover,
-                      height: 30,
-                      width: 30,
-                      borderRadius: BorderRadius.circular(4),
-                      onForbidden: () async =>
-                          await onAttachmentError?.call(item),
-                    ),
+              child:
+                  image == null
+                      ? Icon(
+                        Icons.file_copy,
+                        color:
+                            fromMe
+                                ? style.colors.onPrimary
+                                : style.colors.secondaryHighlightDarkest,
+                        size: 16,
+                      )
+                      : RetryImage(
+                        image.small.url,
+                        checksum: image.small.checksum,
+                        thumbhash: image.small.thumbhash,
+                        fit: BoxFit.cover,
+                        height: 30,
+                        width: 30,
+                        borderRadius: BorderRadius.circular(4),
+                        onForbidden:
+                            () async => await onAttachmentError?.call(item),
+                      ),
             );
           }).toList(),
         );
@@ -880,18 +919,21 @@ class MessageFieldView extends StatelessWidget {
         title = 'label_chat_call_ongoing'.l10n;
       } else if (item.finishReason != null) {
         title = item.finishReason!.localizedString(fromMe) ?? title;
-        isMissed = item.finishReason == ChatCallFinishReason.dropped ||
+        isMissed =
+            item.finishReason == ChatCallFinishReason.dropped ||
             item.finishReason == ChatCallFinishReason.unanswered;
 
         if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time = item.conversationStartedAt!.val
-              .difference(item.finishedAt!.val)
-              .localizedString();
+          time =
+              item.conversationStartedAt!.val
+                  .difference(item.finishedAt!.val)
+                  .localizedString();
         }
       } else {
-        title = item.author.id == c.me
-            ? 'label_outgoing_call'.l10n
-            : 'label_incoming_call'.l10n;
+        title =
+            item.author.id == c.me
+                ? 'label_outgoing_call'.l10n
+                : 'label_incoming_call'.l10n;
       }
 
       content = Row(
@@ -905,8 +947,8 @@ class MessageFieldView extends StatelessWidget {
                       ? SvgIcons.callVideoMissed
                       : SvgIcons.callVideo
                   : isMissed && !fromMe
-                      ? SvgIcons.callAudioMissed
-                      : SvgIcons.callAudio,
+                  ? SvgIcons.callAudioMissed
+                  : SvgIcons.callAudio,
             ),
           ),
           Flexible(
@@ -949,10 +991,12 @@ class MessageFieldView extends StatelessWidget {
       future: userOrFuture is RxUser? ? null : userOrFuture,
       initialData: userOrFuture is RxUser? ? userOrFuture : null,
       builder: (context, snapshot) {
-        final Color color = snapshot.data?.user.value.id == c.me
-            ? style.colors.primary
-            : style.colors.userColors[
-                (snapshot.data?.user.value.num.val.sum() ?? 3) %
+        final Color color =
+            snapshot.data?.user.value.id == c.me
+                ? style.colors.primary
+                : style
+                    .colors
+                    .userColors[(snapshot.data?.user.value.num.val.sum() ?? 3) %
                     style.colors.userColors.length];
 
         return Container(
@@ -968,16 +1012,17 @@ class MessageFieldView extends StatelessWidget {
             children: [
               snapshot.data != null
                   ? Obx(() {
-                      return Text(
-                        snapshot.data!.title,
-                        style: style.fonts.medium.regular.onBackground
-                            .copyWith(color: color),
-                      );
-                    })
+                    return Text(
+                      snapshot.data!.title,
+                      style: style.fonts.medium.regular.onBackground.copyWith(
+                        color: color,
+                      ),
+                    );
+                  })
                   : Text(
-                      'dot'.l10n * 3,
-                      style: style.fonts.medium.regular.primary,
-                    ),
+                    'dot'.l10n * 3,
+                    style: style.fonts.medium.regular.primary,
+                  ),
               if (content != null) ...[
                 const SizedBox(height: 2),
                 DefaultTextStyle.merge(maxLines: 1, child: content),
@@ -1009,9 +1054,10 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               return AnimatedOpacity(
                 duration: 200.milliseconds,
-                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
-                    ? 1
-                    : 0,
+                opacity:
+                    c.hoveredReply.value == item || PlatformUtils.isMobile
+                        ? 1
+                        : 0,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
                   child: CloseButton(

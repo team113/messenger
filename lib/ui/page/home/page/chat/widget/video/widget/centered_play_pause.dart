@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -66,12 +66,13 @@ class CenteredPlayPause extends StatelessWidget {
               ),
               child: IconButton(
                 iconSize: 32,
-                icon: isFinished
-                    ? Icon(Icons.replay, color: style.colors.onPrimary)
-                    : AnimatedPlayPause(
-                        controller.player.state.playing,
-                        color: style.colors.onPrimary,
-                      ),
+                icon:
+                    isFinished
+                        ? Icon(Icons.replay, color: style.colors.onPrimary)
+                        : AnimatedPlayPause(
+                          controller.player.state.playing,
+                          color: style.colors.onPrimary,
+                        ),
                 onPressed: onPressed,
               ),
             ),

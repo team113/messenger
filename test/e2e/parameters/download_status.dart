@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,22 +21,22 @@ import 'package:messenger/ui/worker/cache.dart';
 /// [CustomParameter] representing a [DownloadStatus].
 class DownloadStatusParameter extends CustomParameter<DownloadStatus> {
   DownloadStatusParameter()
-      : super(
-          'downloadStatus',
-          RegExp('(not downloaded|downloading|downloaded)'),
-          (c) {
-            switch (c) {
-              case 'not downloaded':
-                return DownloadStatus.notStarted;
+    : super(
+        'downloadStatus',
+        RegExp('(not downloaded|downloading|downloaded)'),
+        (c) {
+          switch (c) {
+            case 'not downloaded':
+              return DownloadStatus.notStarted;
 
-              case 'downloading':
-                return DownloadStatus.inProgress;
+            case 'downloading':
+              return DownloadStatus.inProgress;
 
-              case 'downloaded':
-                return DownloadStatus.isFinished;
-            }
+            case 'downloaded':
+              return DownloadStatus.isFinished;
+          }
 
-            throw ArgumentError.value(c);
-          },
-        );
+          throw ArgumentError.value(c);
+        },
+      );
 }

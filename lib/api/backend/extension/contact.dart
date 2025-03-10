@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,31 +18,29 @@
 import '../schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
-import '/provider/hive/contact.dart';
-import '/provider/hive/user.dart';
 import '/store/model/contact.dart';
+import '/store/model/user.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [ChatContactMixin].
 extension ChatContactConversion on ChatContactMixin {
   /// Constructs a new [ChatContact] from this [ChatContactMixin].
   ChatContact toModel() => ChatContact(
-        id,
-        name: name,
-        users: users.map((e) => e.toModel()).toList(),
-        groups: groups.map((e) => Chat(e.id)).toList(),
-        emails: emails.map((e) => e.email).toList(),
-        phones: phones.map((e) => e.phone).toList(),
-        favoritePosition: favoritePosition,
-      );
+    id,
+    name: name,
+    users: users.map((e) => e.toModel()).toList(),
+    groups: groups.map((e) => Chat(e.id)).toList(),
+    emails: emails.map((e) => e.email).toList(),
+    phones: phones.map((e) => e.phone).toList(),
+    favoritePosition: favoritePosition,
+  );
 
-  /// Constructs a new list of [HiveUser]s from this [ChatContactMixin].
-  List<HiveUser> getHiveUsers() => users.map((e) => e.toHive()).toList();
+  /// Constructs a new list of [DtoUser]s from this [ChatContactMixin].
+  List<DtoUser> getDtoUsers() => users.map((e) => e.toDto()).toList();
 
-  /// Constructs a new [HiveChatContact] from this [ChatContactMixin].
-  HiveChatContact toHive({
+  /// Constructs a new [DtoChatContact] from this [ChatContactMixin].
+  DtoChatContact toDto({
     ChatContactsCursor? cursor,
     FavoriteChatContactsCursor? favoriteCursor,
-  }) =>
-      HiveChatContact(toModel(), ver, cursor, favoriteCursor);
+  }) => DtoChatContact(toModel(), ver, cursor, favoriteCursor);
 }

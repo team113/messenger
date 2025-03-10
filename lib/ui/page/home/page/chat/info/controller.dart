@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -26,8 +26,10 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '/api/backend/schema.dart' show CropAreaInput, PointInput;
 import '/config.dart';
 import '/domain/model/chat.dart';
+import '/domain/model/file.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
@@ -46,7 +48,9 @@ import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
+import '/ui/page/home/page/my_profile/crop_avatar/view.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/worker/cache.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
@@ -79,7 +83,7 @@ class ChatInfoController extends GetxController {
   final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
   /// Status of the [Chat.avatar] upload or removal.
-  final Rx<RxStatus> avatar = Rx<RxStatus>(RxStatus.empty());
+  final Rx<RxStatus> avatarUpload = Rx<RxStatus>(RxStatus.empty());
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
@@ -98,6 +102,10 @@ class ChatInfoController extends GetxController {
   /// enabled.
   final RxBool nameEditing = RxBool(false);
 
+  /// Indicator whether the [Chat.avatar] and [Chat.name] editing mode is
+  /// enabled.
+  final RxBool profileEditing = RxBool(false);
+
   /// [Chat.name] field state.
   late final TextFieldState name;
 
@@ -113,6 +121,18 @@ class ChatInfoController extends GetxController {
   /// Index of an item from the page's [ScrollablePositionedList] that should
   /// be highlighted.
   final RxnInt highlighted = RxnInt();
+
+  /// [CropAreaInput] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
+  final Rx<CropAreaInput?> avatarCrop = Rx(null);
+
+  /// [NativeFile] of the currently edited [ChatAvatar] to upload in
+  /// [submitAvatar].
+  final Rx<NativeFile?> avatarImage = Rx(null);
+
+  /// Indicator whether the currently edited [ChatAvatar] should be deleted in
+  /// [submitAvatar].
+  final RxBool avatarDeleted = RxBool(false);
 
   /// [Chat]s service used to get the [chat] value.
   final ChatService _chatService;
@@ -170,6 +190,9 @@ class ChatInfoController extends GetxController {
 
   /// Returns the current background's [Uint8List] value.
   Rx<Uint8List?> get background => _settingsRepo.background;
+
+  /// Indicates whether the [Chat.avatar] and [Chat.name] can be edited.
+  bool get canEdit => !isMonolog;
 
   @override
   void onInit() {
@@ -243,15 +266,26 @@ class ChatInfoController extends GetxController {
   /// Opens a file choose popup and updates the [Chat.avatar] with the selected
   /// image, if any.
   Future<void> pickAvatar() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withReadStream: !PlatformUtils.isWeb,
-      withData: PlatformUtils.isWeb,
+    final FilePickerResult? result = await PlatformUtils.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: NativeFile.images,
+      allowMultiple: false,
+      withData: true,
       lockParentWindow: true,
     );
 
     if (result != null) {
-      updateChatAvatar(result.files.first);
+      final PlatformFile file = result.files.first;
+
+      final CropAreaInput? crop = await CropAvatarView.show(
+        router.context!,
+        file.bytes!,
+      );
+      if (crop == null) {
+        return;
+      }
+
+      await updateChatAvatar(file, crop: crop);
     }
   }
 
@@ -260,20 +294,24 @@ class ChatInfoController extends GetxController {
 
   /// Updates the [Chat.avatar] with the provided [image], or resets it to
   /// `null`.
-  Future<void> updateChatAvatar(PlatformFile? image) async {
-    avatar.value = RxStatus.loading();
+  Future<void> updateChatAvatar(
+    PlatformFile? image, {
+    CropAreaInput? crop,
+  }) async {
+    avatarUpload.value = RxStatus.loading();
 
     try {
       await _chatService.updateChatAvatar(
         chatId,
         file: image == null ? null : NativeFile.fromPlatformFile(image),
+        crop: crop,
       );
 
-      avatar.value = RxStatus.empty();
+      avatarUpload.value = RxStatus.empty();
     } on UpdateChatAvatarException catch (e) {
-      avatar.value = RxStatus.error(e.toMessage());
+      avatarUpload.value = RxStatus.error(e.toMessage());
     } catch (e) {
-      avatar.value = RxStatus.empty();
+      avatarUpload.value = RxStatus.empty();
       MessagePopup.error(e);
       rethrow;
     }
@@ -322,8 +360,10 @@ class ChatInfoController extends GetxController {
   Future<void> reportChat() async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
     }
 
@@ -333,15 +373,17 @@ class ChatInfoController extends GetxController {
           scheme: 'mailto',
           path: Config.support,
           query: encodeQueryParameters({
-            'subject': '[App] Report on ChatId($chatId)',
+            'subject': '[Abuse] Report on ChatId($chatId)',
             'body': '${reporting.text}\n\n',
           }),
         ),
       );
     } catch (e) {
-      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
-        'email': Config.support,
-      }));
+      await MessagePopup.error(
+        'label_contact_us_via_provided_email'.l10nfmt({
+          'email': Config.support,
+        }),
+      );
     }
   }
 
@@ -470,6 +512,66 @@ class ChatInfoController extends GetxController {
     }
   }
 
+  /// Uploads the current edits ([avatarCrop], [avatarImage] and
+  /// [avatarDeleted]).
+  Future<void> submitAvatar() async {
+    if (avatarCrop.value != null ||
+        avatarImage.value != null ||
+        avatarDeleted.value) {
+      if (avatarCrop.value == null && chat?.chat.value.avatar?.crop != null) {
+        avatarCrop.value = CropAreaInput(
+          bottomRight: PointInput(
+            x: chat!.chat.value.avatar!.crop!.bottomRight.x,
+            y: chat!.chat.value.avatar!.crop!.bottomRight.y,
+          ),
+          topLeft: PointInput(
+            x: chat!.chat.value.avatar!.crop!.topLeft.x,
+            y: chat!.chat.value.avatar!.crop!.topLeft.y,
+          ),
+          angle: chat?.chat.value.avatar?.crop?.angle,
+        );
+      }
+
+      if (avatarImage.value == null && !avatarDeleted.value) {
+        final ImageFile? file = chat?.chat.value.avatar?.original;
+
+        if (file != null) {
+          final CacheEntry cache = await CacheWorker.instance.get(
+            url: file.url,
+            checksum: file.checksum,
+          );
+
+          avatarImage.value = NativeFile(
+            name: file.name,
+            size: cache.bytes!.lengthInBytes,
+            bytes: cache.bytes,
+          );
+        }
+      }
+
+      if (avatarImage.value != null || avatarDeleted.value) {
+        await _chatService.updateChatAvatar(
+          chatId,
+          file: avatarImage.value,
+          crop: avatarCrop.value,
+        );
+      }
+    }
+
+    avatarImage.value = null;
+    avatarCrop.value = null;
+    avatarDeleted.value = false;
+  }
+
+  /// Exits the [profileEditing].
+  void closeEditing() {
+    profileEditing.value = false;
+    avatarCrop.value = null;
+    avatarImage.value = null;
+    avatarDeleted.value = false;
+    name.clear();
+  }
+
   /// Highlights the item with the provided [index].
   void highlight(int index) {
     highlighted.value = index;
@@ -478,6 +580,45 @@ class ChatInfoController extends GetxController {
     _highlightTimer = Timer(_highlightTimeout, () {
       highlighted.value = null;
     });
+  }
+
+  /// Opens the [CropAvatarView] to update the [MyUser.avatar] with the
+  /// [CropAreaInput] returned from it.
+  Future<void> editAvatar() async {
+    final ImageFile? file = chat?.chat.value.avatar?.original;
+    if (file == null) {
+      return;
+    }
+
+    avatarUpload.value = RxStatus.loading();
+
+    try {
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: file.url,
+        checksum: file.checksum,
+      );
+
+      if (cache.bytes != null) {
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          cache.bytes!,
+        );
+
+        if (crop != null) {
+          await _chatService.updateChatAvatar(
+            chatId,
+            file: NativeFile(
+              name: file.name,
+              size: cache.bytes!.lengthInBytes,
+              bytes: cache.bytes,
+            ),
+            crop: crop,
+          );
+        }
+      }
+    } finally {
+      avatarUpload.value = RxStatus.empty();
+    }
   }
 
   /// Fetches the [chat].
@@ -497,16 +638,13 @@ class ChatInfoController extends GetxController {
 
         name.unchecked = chat!.chat.value.name?.val;
 
-        _worker = ever(
-          chat!.chat,
-          (Chat chat) {
-            if (!name.focus.hasFocus &&
-                !name.changed.value &&
-                name.editable.value) {
-              name.unchecked = chat.name?.val;
-            }
-          },
-        );
+        _worker = ever(chat!.chat, (Chat chat) {
+          if (!name.focus.hasFocus &&
+              !name.changed.value &&
+              name.editable.value) {
+            name.unchecked = chat.name?.val;
+          }
+        });
 
         _membersSubscription = chat!.members.items.changes.listen((event) {
           switch (event.op) {

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -69,17 +69,14 @@ class _InteractiveLogoState extends State<InteractiveLogo> {
   void _animate() {
     _frame = 1;
     _timer?.cancel();
-    _timer = Timer.periodic(
-      const Duration(milliseconds: 45),
-      (t) {
-        ++_frame;
-        if (_frame >= 9) t.cancel();
+    _timer = Timer.periodic(const Duration(milliseconds: 45), (t) {
+      ++_frame;
+      if (_frame >= 9) t.cancel();
 
-        if (mounted) {
-          setState(() {});
-        }
-      },
-    );
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
     if (mounted) {
       setState(() {});

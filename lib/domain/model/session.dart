@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,46 +15,49 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
-import '/domain/model_type_id.dart';
 import '/util/new_type.dart';
 import 'precise_date_time/precise_date_time.dart';
 
 part 'session.g.dart';
 
 /// Session of a [MyUser] being signed-in.
-@HiveType(typeId: ModelTypeId.session)
-class Session {
+class Session implements Comparable<Session> {
   const Session({
     required this.id,
+    required this.ip,
     required this.userAgent,
-    this.isCurrent = true,
     required this.lastActivatedAt,
   });
 
   /// Unique ID of this [Session].
-  @HiveField(0)
   final SessionId id;
 
-  /// [UserAgent] of the device, that used this [Session] last time.
-  @HiveField(1)
-  final UserAgent userAgent;
+  /// [IpAddress] of the device, that used this [Session] last time.
+  final IpAddress ip;
 
-  /// Indicator whether this [Session] is [MyUser]'s current [Session].
-  @HiveField(2)
-  final bool isCurrent;
+  /// [UserAgent] of the device, that used this [Session] last time.
+  final UserAgent userAgent;
 
   /// [DateTime] when this [Session] was activated last time (either created or
   /// refreshed).
-  @HiveField(3)
   final PreciseDateTime lastActivatedAt;
+
+  @override
+  int compareTo(Session other) {
+    final result = other.lastActivatedAt.compareTo(lastActivatedAt);
+    if (result == 0) {
+      return id.val.compareTo(other.id.val);
+    }
+
+    return result;
+  }
 }
 
 /// Type of [Session]'s ID.
-@HiveType(typeId: ModelTypeId.sessionId)
 class SessionId extends NewType<String> {
   const SessionId(super.val);
 }
@@ -65,13 +68,43 @@ class SessionId extends NewType<String> {
 /// requirements:
 /// - consist only from ASCII characters;
 /// - contain at least one non-space-like character.
-@HiveType(typeId: ModelTypeId.userAgent)
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
 }
 
+/// Either an IPv4 or IPv6 address.
+class IpAddress extends NewType<String> {
+  const IpAddress(super.val);
+}
+
+/// Geographical location information regarding certain [IpAddress].
+@JsonSerializable()
+class IpGeoLocation {
+  const IpGeoLocation({
+    required this.country,
+    required this.countryCode,
+    required this.city,
+  });
+
+  /// Constructs an [IpGeoLocation] from the provided [json].
+  factory IpGeoLocation.fromJson(Map<String, dynamic> json) =>
+      _$IpGeoLocationFromJson(json);
+
+  /// Localized name of the country.
+  final String country;
+
+  /// Country code.
+  @JsonKey(name: 'country_code')
+  final String countryCode;
+
+  /// Localized name of the city.
+  final String city;
+
+  /// Returns a [Map] representing this [IpGeoLocation].
+  Map<String, dynamic> toJson() => _$IpGeoLocationToJson(this);
+}
+
 /// Token used for authenticating a [Session].
-@HiveType(typeId: ModelTypeId.accessToken)
 class AccessToken {
   const AccessToken(this.secret, this.expireAt);
 
@@ -80,7 +113,6 @@ class AccessToken {
   /// This one should be used as a [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
-  @HiveField(0)
   final AccessTokenSecret secret;
 
   /// [DateTime] of this [AccessToken] expiration.
@@ -91,18 +123,15 @@ class AccessToken {
   /// Client applications are supposed to use this field for tracking
   /// [AccessToken]'s expiration and refresh the [Session] before an
   /// authentication error occurs.
-  @HiveField(1)
   final PreciseDateTime expireAt;
 }
 
 /// Type of [AccessToken]'s secret.
-@HiveType(typeId: ModelTypeId.accessTokenSecret)
 class AccessTokenSecret extends NewType<String> {
   const AccessTokenSecret(super.val);
 }
 
 /// Token used for refreshing a [Session].
-@HiveType(typeId: ModelTypeId.refreshToken)
 class RefreshToken {
   const RefreshToken(this.secret, this.expireAt);
 
@@ -112,7 +141,6 @@ class RefreshToken {
   /// **NOT** usable as a [Bearer authentication token][1].
   ///
   /// [1]: https://tools.ietf.org/html/rfc6750#section-2.1
-  @HiveField(0)
   final RefreshTokenSecret secret;
 
   /// [DateTime] of this [RefreshToken] expiration.
@@ -125,34 +153,31 @@ class RefreshToken {
   ///
   /// Expiration of a [RefreshToken] is not prolonged on refreshing, and remains
   /// the same for all the [RefreshToken]s obtained.
-  @HiveField(1)
   final PreciseDateTime expireAt;
 }
 
 /// Type of [RefreshToken]'s secret.
-@HiveType(typeId: ModelTypeId.refreshTokenSecret)
 class RefreshTokenSecret extends NewType<String> {
   const RefreshTokenSecret(super.val);
 }
 
 /// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
-@HiveType(typeId: ModelTypeId.credentials)
 class Credentials {
-  const Credentials(this.access, this.refresh, this.userId);
+  const Credentials(this.access, this.refresh, this.sessionId, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
   /// It will expire in 30 minutes after creation.
-  @HiveField(0)
   final AccessToken access;
 
   /// [RefreshToken] of these [Credentials].
-  @HiveField(1)
   final RefreshToken refresh;
 
+  /// ID of the [Session] these [Credentials] represent.
+  final SessionId sessionId;
+
   /// ID of the currently authenticated [MyUser].
-  @HiveField(2)
   final UserId userId;
 
   /// Constructs [Credentials] from the provided [data].
@@ -166,6 +191,7 @@ class Credentials {
         RefreshTokenSecret(data['refresh']['secret']),
         PreciseDateTime.parse(data['refresh']['expireAt']),
       ),
+      SessionId(data['sessionId'] ?? ''),
       UserId(data['userId']),
     );
   }
@@ -181,6 +207,7 @@ class Credentials {
         'secret': refresh.secret.val,
         'expireAt': refresh.expireAt.toString(),
       },
+      'sessionId': sessionId.val,
       'userId': userId.val,
     };
   }

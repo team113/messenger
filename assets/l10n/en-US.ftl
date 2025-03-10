@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -179,6 +179,7 @@ btn_change_account_desc =
     account
 btn_change_avatar = Change avatar
 btn_change_password = Change password
+btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
@@ -199,10 +200,11 @@ btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
 btn_dismiss = Dismiss
 btn_do_not_allow = Do not allow
+btn_done = Done
 btn_download = Download
 btn_download_all = Download all
+btn_download_all_as = Download all as
 btn_download_as = Download as
-btn_download_as_all = Download all as
 btn_download_application = Download application
 btn_edit = Edit
 btn_email = E-mail
@@ -225,6 +227,7 @@ btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
 btn_leave_group = Leave group
+btn_login_and_password = Login and password
 btn_logout = Logout
 btn_media_settings = Media settings
 btn_message_info = Message info
@@ -234,6 +237,7 @@ btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
 btn_open_separately = open separately
+btn_or_input_someones_link = Input someone's link
 btn_participants = Participants
 btn_participants_desc =
     Call
@@ -290,24 +294,21 @@ btn_work_with_us = Work with us
 btn_write_message = Write a message
 btn_your_profile = Your profile
 colon_space = :{" "}
+comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_password_recovery =
-    {$domain} recovery code is: {$token}
+email_confirmation_code =
+    {$domain} confirmation code is: {$token}
     Valid until {$expiresAt}.
     {$domain}
-email_password_recovery_subject = {$domain} recovery code
-email_verification_code =
-    {$domain} verification code is: {$token}
-    Valid until {$expiresAt}.
-    {$domain}
-email_verification_code_subject = {$domain} verification code
+email_confirmation_code_subject = {$domain} confirmation code
 err_account_not_found = Indicated account is not found
 err_account_unavailable = This account is not available. Please, log in again.
 err_blocked = You've been added to the blocklist of this user.
 err_blocked_by = {$user} has added you to their blocklist.
 err_blocked_by_multiple = One or more of the selected users have added you to their blocklist.
+err_blocklist_reason_does_not_meet_regexp = Blocklist reason must be 2 to 100 symbols long.
 err_call_already_exists = Call already exists
 err_call_already_joined = Already joined the call
 err_call_is_in_popup = Call is used in a separate popup
@@ -315,11 +316,13 @@ err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
+err_camera_permission_denied = Camera permission is denied. Please, ensure application has camera permissions.
 err_cant_forward_calls = Call forwarding is not allowed
 err_chat_contact_not_owner = Access to contact denied
 err_chat_direct_link_occupied = Link is occupied.
 err_code_limit_exceeded =
     Exceeded limit of sending recovery code. Try again in 1 hour.
+err_confirmation_required = A password must be provided to acomplish that action.
 err_contact_not_group = Chat with the provided ID is not a group
 err_contact_too_many = Contact can\'t be created with more than 20 users
 err_contact_unknown_chat = Chat with the provided ID doesn\'t exist
@@ -330,6 +333,7 @@ err_data_transfer =
 err_dialog = Can't perform this action in a dialog
 err_dimensions_too_big = File dimensions exceed 32767 x 32767 pixels.
 err_email_occupied = Specified E-mail is linked to another account. Please, annulate the previous verification.
+err_fcm_unavailable = FCM is unavailable.
 err_incorrect_chat_name = Incorrect name
 err_incorrect_email = Incorrect E-mail.
 err_incorrect_input = Incorrect input.
@@ -343,8 +347,9 @@ err_invalid_registration_token = Invalid registration token
 err_invalid_symbols_in_link = Unacceptable symbols. The following symbols are allowed: A-z, -, _ and 0-9
 err_unknown_registration_token = Unknown registration token
 err_login_occupied = This login is already taken.
-err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser\'s configuration doesn\'t allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
+err_media_devices_are_null = Cannot retrieve `MediaStream` with `video` constraints due to `window.navigator.mediaDevices` being `null`. Seems like your browser's configuration doesn't allow media devices to be retrieved. Tune up the settings, or ensure the devices are available.
 err_message_was_read = Message was read
+err_microphone_permission_denied = Microphone permission is denied. Please, ensure application has microphone permissions.
 err_monolog = Can't perform this action in a monolog
 err_network = Connection to the server refused
 err_no_access_to_gallery = Access to the gallery denied. Please, make sure the application has permissions to access the gallery.
@@ -366,6 +371,8 @@ err_password_empty = Please, enter the password
 err_password_incorrect = Password is too long and/or starts/ends with a space
 err_passwords_mismatch = Passwords do not match.
 err_phone_occupied = Phone number is already occupied
+err_popup_call_cant_be_closed = It seems like an unexpected error has occurred and a call won't be displayed, however this window can't be closed due to browser not allowing it. Please, close it and try again.
+err_push_device_occupied = This device is already registered to receive push notifications.
 err_quoted_message = Message was quoted
 err_size_too_big = File size exceeds 15 MB.
 err_stale_version = Provided version is too stale
@@ -391,6 +398,7 @@ err_unsupported_forwarded_item = Unsupported forwarded item
 err_uploaded_file_malformed = File is malformed. Please, ensure uploaded file integrity.
 err_use_monolog = Can't create dialog with yourself
 err_wrong_attachments_items_count = Wrong attachments count
+err_wrong_code = Provided code is wrong.
 err_wrong_items_count = Wrong items count
 err_wrong_members_count = No more that 100 members is allowed
 err_wrong_old_password = Wrong password.
@@ -412,14 +420,14 @@ fcm_group_avatar_changed = {$userName ->
        *[other] {$userName}
     } {$operation ->
           [update] updated avatar
-         *[delete] removed avatar
+         *[remove] removed avatar
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
           [update] renamed chat to {$groupName}
-         *[delete] removed name
+         *[remove] removed name
       }
 fcm_group_title =
     {$user1Name ->
@@ -431,20 +439,33 @@ fcm_group_title =
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-               *[other] {$user2Num}
+               *[other] , {$user2Num}
             }
        *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-               *[other] {$user3Num}
+               *[other] , {$user3Num}
             }
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
-fcm_incoming_call = Incoming call
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } started { $isVideo ->
+            [yes] a
+            *[other] an
+        }
+        *[dialog] Incoming
+    } { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -476,6 +497,17 @@ fcm_message =
             [0] {$text}
             *[other] {" "}{$text}
         }
+    }
+fcm_missed_call =
+    Missed { $isVideo ->
+        [yes] video
+        *[other] audio
+    } call{ $type ->
+        [group] {" from "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
     }
 fcm_user_added_user =
     {$authorName ->
@@ -513,6 +545,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } removed you from group
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
@@ -528,6 +561,7 @@ label_add_chat_member = Add member
 label_add_email = Add E-mail
 label_add_email_confirmation_sent = A confirmation code has been sent to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_confirmation_sent_again = A confirmation code has been sent again to the indicated email. The confirmation code is valid for 30 minutes. Please enter it below.
+label_add_email_confirmation_sent_to = A confirmation code has been sent to the {$email}. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_email_description = A confirmation code will be sent to the indicated E-mail.
 label_add_email_hint = Write your email address
 label_add_number = Add phone
@@ -638,8 +672,8 @@ label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
-label_chat_monolog = Notes
-label_chat_monolog_description = Write down notes, ideas or forward other messages to save them here. Only you can see this chat.
+label_chat_monolog = Your notes
+label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
 label_chat_name_hint = Chat name
 label_chats = Chats
 label_chats_section_hint = Audio and video call buttons
@@ -656,24 +690,22 @@ label_code_requirements_tests = - the code needs to be covered with unit, widget
 label_code_sent_again = The code has been re-sent.
 label_conditions = Conditions
 label_conditions_backend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_frontend_developer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_conditions_ui_ux_designer =
+    - Remote work;
     - Daily payments;
-    - From 1500 EUR per month;
     - 4-, 6- or 8-hour work day;
-    - Relocation possible to one of the company offices;
-    - Remote work.
+    - Relocation possible to one of the company offices.
 label_confirm = Confirm
+label_confirm_account_deletion = Confirm account deletion
 label_confirmation_code = Confirmation code
 label_connection_lost = Connection lost
 label_connection_restored = Connection restored
@@ -753,6 +785,7 @@ label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
+label_enter_password_below = Please, enter your password in the field below.
 label_entrance = Login
 label_error = Error
 label_favorite_contacts = Favorite
@@ -805,7 +838,12 @@ label_introduction_description1 =
     To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
+label_b = {$amount} B
 label_kb = {$amount} KB
+label_mb = {$amount} MB
+label_gb = {$amount} GB
+label_tb = {$amount} TB
+label_pb = {$amount} PB
 label_keep_credentials = Keep credentials
 label_language = Language
 label_language_entry = {$code}, {$name}
@@ -876,17 +914,22 @@ label_no_contacts = No contacts
 label_no_limit = ∞
 label_no_messages = No messages
 label_no_registration = no registration
+label_no_updates_are_available_subtitle = You have the latest version installed.
+label_no_updates_are_available_title = No updates are available
 label_no_users = No users
+label_no_welcome_message = Welcome message has not been added
 label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
 label_off = Off
 label_offline = offline
+label_one_time_password = One-time password
 label_online = online
 label_open_calls_in_app = In the application
 label_open_calls_in_window = In a separate window
 label_open_chat = Open chat
+label_or = Or
 label_or_register = or register
 label_outgoing_call = Calling
 label_participants = Participants: {$count}
@@ -909,10 +952,8 @@ label_personal_data_deletion_description =
     - your avatar;
     - your name;
     - your biography;
-    - your login;
     - all of your emails;
-    - all of your phone numbers;
-    - your contacts list.
+    - all of your phone numbers.
 
     The data that will not be deleted:
     - your Gapopa ID, as is does not represent personal information;
@@ -1016,6 +1057,7 @@ label_sign_in_required = Sign in required
 label_sign_in_with_password = Sign in with password
 label_sign_up = Sign up
 label_sign_up_code_email_sent = Verification code has been sent to the e-mail {$text}
+label_sign_up_with_password = Sign up with password
 label_sort_by_name = Sort by name
 label_sort_by_visit = Sort by visit
 label_sound_and_vibrations = Sound and vibration
@@ -1048,7 +1090,7 @@ label_tech_stack_freelance =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
@@ -1057,7 +1099,7 @@ label_tech_stack_frontend_developer =
     - Flutter - Framework;
     - GetX - Dependency Injection and State Management;
     - Navigator 2.0 (Router) - navigation;
-    - Hive - local database;
+    - Drift - local database;
     - Firebase - push notifications;
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
@@ -1069,11 +1111,13 @@ label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
 label_unknown_page = Unknown page
+label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
 label_update_is_available = Update is available
+label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
 label_user = User
 label_user_added_user = {$author} added {$user}
@@ -1089,6 +1133,7 @@ label_users = Users
 label_users_count = Users: {$count}
 label_verify = Verify
 label_verify_number = Verify phone number
+label_version_semicolon = Version: {$version}
 label_video = Video
 label_video_call = Video call{$by ->
         [x]{""}
@@ -1099,9 +1144,11 @@ label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s
+label_waiting_for_connection = Waiting for connection...
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link
+label_was_at = last seen {$at}
 label_was_removed = {$author} left the group
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}left the group
@@ -1112,18 +1159,15 @@ label_we_welcome_backend_developer =
     - Skill in Memcached technologies;
     - Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - Skill in other programming languages: Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Welcome message
+label_welcome_message_description = Greeting is automatically displayed to the users who added you to their chats list, but it is not displayed to the users added by you.
+label_welcome_message_hint = Add, edit, delete
 label_welcome_message_freelance =
     Good afternoon. Please, specify:
     - login on GitHub;
     - PR number (Pull Request);
     - estimated time for completing the task (deadline);
     - the proposed method for solving the problem.
-label_welcome_message_vacancy =
-    Good afternoon.
-    Please upload your resume in PDF format.
-label_welcome_message_vacancy_24_hours =
-    Good afternoon.
-    Please upload your resume in PDF format. Within 24 hours you will be sent the date and time of the interview.
 label_what_we_can_help_you_with = What can we help you with?
 label_work_with_us = Work with us
 label_work_with_us_desc =

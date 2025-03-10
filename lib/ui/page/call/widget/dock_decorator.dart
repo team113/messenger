@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -89,7 +89,7 @@ class DockDecorator extends StatelessWidget {
                   color: style.colors.onBackgroundOpacity20,
                   blurRadius: 8,
                   blurStyle: BlurStyle.outer,
-                )
+                ),
               ],
             ),
             margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),
@@ -99,7 +99,10 @@ class DockDecorator extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
                 decoration: BoxDecoration(
-                  color: style.colors.primaryAuxiliaryOpacity25,
+                  color:
+                      ConditionalBackdropFilter.enabled
+                          ? style.colors.primaryAuxiliaryOpacity25
+                          : style.colors.primaryAuxiliaryOpacity55,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(

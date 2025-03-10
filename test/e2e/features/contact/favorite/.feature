@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,43 +15,44 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Favorite contacts
+# TODO: Uncomment, when contacts are implemented.
+# Feature: Favorite contacts
 
-  Background: User has contacts Bob and Charlie
-    Given I am Alice
-    And users Bob and Charlie
-    And contacts Bob and Charlie
-    And I wait until `HomeView` is present
-    And I tap `ContactsButton` button
-    And I wait until `ContactsTab` is present
-    And I wait until "Bob" contact is present
-    And I wait until "Charlie" contact is present
+#   Background: User has contacts Bob and Charlie
+#     Given I am Alice
+#     And users Bob and Charlie
+#     And contacts Bob and Charlie
+#     And I wait until `HomeView` is present
+#     And I tap `ContactsButton` button
+#     And I wait until `ContactsTab` is present
+#     And I wait until "Bob" contact is present
+#     And I wait until "Charlie" contact is present
 
-  Scenario: User adds contact to favorites
-    When I long press "Bob" contact
-    And I tap `FavoriteContactButton` button
-    Then I see "Bob" contact as favorite
-    And I see "Bob" contact first in contacts list
+#   Scenario: User adds contact to favorites
+#     When I long press "Bob" contact
+#     And I tap `FavoriteContactButton` button
+#     Then I see "Bob" contact as favorite
+#     And I see "Bob" contact first in contacts list
 
-    When I long press "Charlie" contact
-    And I tap `FavoriteContactButton` button
-    Then I see "Charlie" contact as favorite
-    And I see "Charlie" contact first in contacts list
+#     When I long press "Charlie" contact
+#     And I tap `FavoriteContactButton` button
+#     Then I see "Charlie" contact as favorite
+#     And I see "Charlie" contact first in contacts list
 
-  Scenario: User removes contact from favorites
-    Given "Bob" contact is favorite
-    And I see "Bob" contact as favorite
+#   Scenario: User removes contact from favorites
+#     Given "Bob" contact is favorite
+#     And I see "Bob" contact as favorite
 
-    When I long press "Bob" contact
-    And I tap `UnfavoriteContactButton` button
-    Then I see "Bob" contact as unfavorited
+#     When I long press "Bob" contact
+#     And I tap `UnfavoriteContactButton` button
+#     Then I see "Bob" contact as unfavorited
 
-  Scenario: User reorders favorite contacts
-    Given "Bob" contact is favorite
-    And "Charlie" contact is favorite
+#   Scenario: User reorders favorite contacts
+#     Given "Bob" contact is favorite
+#     And "Charlie" contact is favorite
 
-    When I drag "Charlie" contact 200 pixels down
-    Then I see "Charlie" contact last in contacts list
+#     When I drag "Charlie" contact 200 pixels down
+#     Then I see "Charlie" contact last in contacts list
 
-    When I drag "Bob" contact 200 pixels down
-    Then I see "Bob" contact last in contacts list
+#     When I drag "Bob" contact 200 pixels down
+#     Then I see "Bob" contact last in contacts list

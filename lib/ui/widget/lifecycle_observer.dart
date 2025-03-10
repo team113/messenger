@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,11 +19,7 @@ import 'package:flutter/material.dart';
 
 /// Reporter of [AppLifecycleState] changes via a [onStateChange].
 class LifecycleObserver extends StatefulWidget {
-  const LifecycleObserver({
-    super.key,
-    required this.child,
-    this.onStateChange,
-  });
+  const LifecycleObserver({super.key, required this.child, this.onStateChange});
 
   /// [Widget] to wrap this [LifecycleObserver] into.
   final Widget child;

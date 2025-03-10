@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -101,39 +101,44 @@ class FitWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      double size = calculateSize(
-        maxSize: maxSize,
-        constraints: Size(constraints.maxWidth, constraints.maxHeight),
-        length: children.length,
-        axis: axis,
-      );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double size = calculateSize(
+          maxSize: maxSize,
+          constraints: Size(constraints.maxWidth, constraints.maxHeight),
+          length: children.length,
+          axis: axis,
+        );
 
-      bool fitView = useFitView(
-        maxSize: maxSize,
-        constraints: Size(constraints.maxWidth, constraints.maxHeight),
-        length: children.length,
-        axis: axis,
-      );
+        bool fitView = useFitView(
+          maxSize: maxSize,
+          constraints: Size(constraints.maxWidth, constraints.maxHeight),
+          length: children.length,
+          axis: axis,
+        );
 
-      if (fitView) {
-        return FitView(children: children);
-      }
+        if (fitView) {
+          return FitView(children: children);
+        }
 
-      return Wrap(
-        direction: axis,
-        alignment: alignment,
-        runAlignment: alignment,
-        spacing: spacing,
-        runSpacing: spacing,
-        children: children
-            .map((e) => SizedBox(
-                  width: axis == Axis.horizontal ? size : size - spacing,
-                  height: axis == Axis.horizontal ? size - spacing : size,
-                  child: e,
-                ))
-            .toList(),
-      );
-    });
+        return Wrap(
+          direction: axis,
+          alignment: alignment,
+          runAlignment: alignment,
+          spacing: spacing,
+          runSpacing: spacing,
+          children:
+              children
+                  .map(
+                    (e) => SizedBox(
+                      width: axis == Axis.horizontal ? size : size - spacing,
+                      height: axis == Axis.horizontal ? size - spacing : size,
+                      child: e,
+                    ),
+                  )
+                  .toList(),
+        );
+      },
+    );
   }
 }

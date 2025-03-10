@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -117,8 +117,11 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _selected = widget
-        .variants[max(min(widget.initial, widget.variants.length - 1), 0)];
+    _selected =
+        widget.variants[max(
+          min(widget.initial, widget.variants.length - 1),
+          0,
+        )];
     super.initState();
   }
 
@@ -171,9 +174,10 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                     child: RectangleButton(
                       key: variant.key,
                       selected: _selected == variant,
-                      onPressed: _selected == variant
-                          ? null
-                          : () => setState(() => _selected = variant),
+                      onPressed:
+                          _selected == variant
+                              ? null
+                              : () => setState(() => _selected = variant),
                       label: variant.label,
                       radio: true,
                     ),

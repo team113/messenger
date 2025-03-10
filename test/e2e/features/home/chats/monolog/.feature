@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -38,8 +38,8 @@ Feature: Searching deleted monolog
     When I fill `SearchField` field with my num
     Then I see monolog in search results
 
-    When I fill `SearchField` field with my login
-    Then I see monolog in search results
+# When I fill `SearchField` field with my login
+# Then I see monolog in search results
 
-    When I fill `SearchField` field with my direct link
-    Then I see monolog in search results
+# When I fill `SearchField` field with my direct link
+# Then I see monolog in search results

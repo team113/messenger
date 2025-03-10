@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,29 +34,26 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
   RegExp(r'I see chat avatar as {string}'),
   // TODO: [filename] should be used.
   (String filename, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver
-              .findBy('ChatAvatar_${chat?.id}', FindType.key),
-          context.world.appDriver.findBy(
-            'Image_${chat?.avatar.value?.full.url}',
-            FindType.key,
-          ),
-          firstMatchOnly: true,
-        );
+      final finder = context.world.appDriver.findByDescendant(
+        context.world.appDriver.findBy('ChatAvatar_${chat?.id}', FindType.key),
+        context.world.appDriver.findBy(
+          'Image_${chat?.avatar.value?.big.url}',
+          FindType.key,
+        ),
+        firstMatchOnly: true,
+      );
 
-        return context.world.appDriver.isPresent(finder);
-      },
-    );
+      return context.world.appDriver.isPresent(finder);
+    }, timeout: const Duration(seconds: 30));
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );
 
 /// Waits until the [ChatAvatar] being displayed has no image in it.
@@ -66,23 +63,23 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
 final StepDefinitionGeneric seeChatAvatarAsNone = then<CustomWorld>(
   RegExp(r'I see chat avatar as none'),
   (context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/')[2])];
 
-        if (chat?.avatar.value == null) {
-          final finder = context.world.appDriver
-              .findBy('ChatAvatar_${chat?.id}', FindType.key);
-          return context.world.appDriver.isPresent(finder);
-        }
+      if (chat?.avatar.value == null) {
+        final finder = context.world.appDriver.findBy(
+          'ChatAvatar_${chat?.id}',
+          FindType.key,
+        );
+        return context.world.appDriver.isPresent(finder);
+      }
 
-        return false;
-      },
-    );
+      return false;
+    });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

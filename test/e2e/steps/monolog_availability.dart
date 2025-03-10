@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,11 +29,11 @@ import '../world/custom_world.dart';
 /// - Then monolog is indeed local
 /// - Then monolog is indeed remote
 final StepDefinitionGeneric monologAvailability =
-    then1<AvailabilityStatus, CustomWorld>(
-  'monolog is indeed {availability}',
-  (status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
+    then1<AvailabilityStatus, CustomWorld>('monolog is indeed {availability}', (
+      status,
+      context,
+    ) async {
+      await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
         final provider = GraphQlProvider();
@@ -49,8 +49,5 @@ final StepDefinitionGeneric monologAvailability =
           case AvailabilityStatus.remote:
             return !isLocal;
         }
-      },
-      timeout: const Duration(seconds: 30),
-    );
-  },
-);
+      }, timeout: const Duration(seconds: 30));
+    });

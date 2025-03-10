@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,17 +28,15 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeContactAsDismissed = then1<String, CustomWorld>(
   'I see {string} contact as dismissed',
   (name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final ChatContactId contactId = context.world.contacts[name]!;
+      final ChatContactId contactId = context.world.contacts[name]!;
 
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver.findByKeySkipOffstage('Dismissed_$contactId'),
-        );
-      },
-    );
+      return await context.world.appDriver.isPresent(
+        context.world.appDriver.findByKeySkipOffstage('Dismissed_$contactId'),
+      );
+    });
   },
 );
 
@@ -49,13 +47,11 @@ final StepDefinitionGeneric seeContactAsDismissed = then1<String, CustomWorld>(
 final StepDefinitionGeneric seeNoContactsDismissed = then<CustomWorld>(
   'I see no contacts dismissed',
   (context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
-        );
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+      return await context.world.appDriver.isPresent(
+        context.world.appDriver.findByKeySkipOffstage('NoDismissed'),
+      );
+    });
   },
 );

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,32 +24,40 @@ import '../parameters/keys.dart';
 /// Taps the provided [WidgetKey] item within the specified by its [WidgetKey]
 /// dropdown.
 final tapDropdownItem = given2<WidgetKey, WidgetKey, FlutterWorld>(
-    RegExp(r'I tap {key} within {key} dropdown'),
-    (item, dropdown, context) async {
-  await context.world.appDriver.waitForAppToSettle();
-  var finder = context.world.appDriver.findBy(dropdown.name, FindType.key);
+  RegExp(r'I tap {key} within {key} dropdown'),
+  (item, dropdown, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+    var finder = context.world.appDriver.findBy(dropdown.name, FindType.key);
 
-  await context.world.appDriver.scrollIntoView(finder);
-  await context.world.appDriver.waitForAppToSettle();
-  await context.world.appDriver
-      .tap(finder, timeout: context.configuration.timeout);
-  await context.world.appDriver.waitForAppToSettle();
-
-  finder =
-      (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last;
-  final timeout = context.configuration.timeout ?? const Duration(seconds: 20);
-  final isPresent =
-      await context.world.appDriver.isPresent(finder, timeout: timeout);
-
-  if (!isPresent) {
-    await context.world.appDriver.scrollUntilVisible(
-      (context.world.appDriver.findBy(item.name, FindType.key) as Finder).last,
-      dy: -5.0,
-      timeout: timeout,
+    await context.world.appDriver.scrollIntoView(finder);
+    await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.tap(
+      finder,
+      timeout: context.configuration.timeout,
     );
     await context.world.appDriver.waitForAppToSettle();
-  }
 
-  await context.world.appDriver.tap(finder, timeout: timeout);
-  await context.world.appDriver.waitForAppToSettle();
-});
+    finder =
+        (context.world.appDriver.findBy(item.name, FindType.key) as Finder)
+            .last;
+    final timeout =
+        context.configuration.timeout ?? const Duration(seconds: 20);
+    final isPresent = await context.world.appDriver.isPresent(
+      finder,
+      timeout: timeout,
+    );
+
+    if (!isPresent) {
+      await context.world.appDriver.scrollUntilVisible(
+        (context.world.appDriver.findBy(item.name, FindType.key) as Finder)
+            .last,
+        dy: -5.0,
+        timeout: timeout,
+      );
+      await context.world.appDriver.waitForAppToSettle();
+    }
+
+    await context.world.appDriver.tap(finder, timeout: timeout);
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);

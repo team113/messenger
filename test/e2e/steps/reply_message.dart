@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,7 @@ import 'package:messenger/api/backend/extension/chat.dart';
 import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/chat_item.dart';
+import 'package:messenger/store/model/chat_item.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -33,32 +33,31 @@ import '../world/custom_world.dart';
 ///   group.
 final StepDefinitionGeneric repliesToMessage =
     when4<TestUser, String, String, String, CustomWorld>(
-  '{user} replies to {string} message with {string} text in {string} group',
-  (TestUser user, String text, String reply, String name, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} replies to {string} message with {string} text in {string} group',
+      (TestUser user, String text, String reply, String name, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    final ChatId chatId = context.world.groups[name]!;
+        final ChatId chatId = context.world.groups[name]!;
 
-    // TODO: Should use `searchItems` query or something, when backend
-    //       introduces such a query.
-    final HiveChatMessage message =
-        (await provider.chatItems(chatId, first: 120))
-            .chat!
-            .items
-            .edges
-            .map((e) => e.toHive())
-            .whereType<HiveChatMessage>()
+        // TODO: Should use `searchItems` query or something, when backend
+        //       introduces such a query.
+        final DtoChatMessage message = (await provider.chatItems(
+              chatId,
+              first: 120,
+            )).chat!.items.edges
+            .map((e) => e.toDto())
+            .whereType<DtoChatMessage>()
             .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 
-    await provider.postChatMessage(
-      chatId,
-      text: ChatMessageText(reply),
-      repliesTo: [message.value.id],
-    );
+        await provider.postChatMessage(
+          chatId,
+          text: ChatMessageText(reply),
+          repliesTo: [message.value.id],
+        );
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

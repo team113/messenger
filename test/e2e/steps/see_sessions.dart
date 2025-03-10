@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,18 +30,15 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeCountSessions = then1<int, CustomWorld>(
   'I see {int} active session(s)?',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<MyProfileController>();
-        if (controller.sessions.length == count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<MyProfileController>();
+      if (controller.sessions.length == count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );

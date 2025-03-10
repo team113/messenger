@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -84,8 +84,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     final Attachment attachment = widget.attachment;
 
-    final bool isImage = (attachment is ImageAttachment ||
-        (attachment is LocalAttachment && attachment.file.isImage));
+    final bool isImage =
+        (attachment is ImageAttachment ||
+            (attachment is LocalAttachment && attachment.file.isImage));
 
     Widget? preview;
     Widget? child;
@@ -142,7 +143,8 @@ class _MediaAttachmentState extends State<MediaAttachment> {
                 attachment.file.bytes.value!,
                 fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
                 width: widget.width,
-                height: widget.height ??
+                height:
+                    widget.height ??
                     max(100, min(dimensions?.height ?? 300, 300)),
               );
             }
@@ -152,13 +154,15 @@ class _MediaAttachmentState extends State<MediaAttachment> {
         final ImageFile file = attachment.original as ImageFile;
         final double ratio = (file.width ?? 300) / (file.height ?? 300);
         final bool narrow = ratio > 3 || ratio < 0.33;
+        final bool single =
+            widget.width != double.infinity && widget.height != double.infinity;
 
-        if (narrow) {
+        if (narrow || single) {
           final ThumbHash? thumbhash =
               (attachment.original as ImageFile).thumbhash ??
-                  attachment.big.thumbhash ??
-                  attachment.medium.thumbhash ??
-                  attachment.small.thumbhash;
+              attachment.big.thumbhash ??
+              attachment.medium.thumbhash ??
+              attachment.small.thumbhash;
 
           // Display only the [ThumbHash], if [attachment] has any, to reduce
           // possible overhead caused by a [RetryImage].
@@ -185,11 +189,9 @@ class _MediaAttachmentState extends State<MediaAttachment> {
           fit: widget.fit ?? (narrow ? BoxFit.contain : BoxFit.cover),
           width: widget.width,
           minWidth: 75,
-          height: widget.height ??
-              max(
-                100,
-                min(file.height?.toDouble() ?? 300, 300),
-              ),
+          height:
+              widget.height ??
+              max(100, min(file.height?.toDouble() ?? 300, 300)),
           onForbidden: widget.onError,
           cancelable: true,
         );
@@ -233,6 +235,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
     }
 
     return Stack(
+      key: Key('Attachment_${widget.attachment.id}'),
       fit: StackFit.passthrough,
       children: [
         if (preview != null) Positioned.fill(child: preview),

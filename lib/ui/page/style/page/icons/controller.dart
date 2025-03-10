@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,18 +33,12 @@ class IconsController extends GetxController {
 
 /// [SvgData] or its path representing a single icon.
 class IconDetails {
-  IconDetails(
-    String asset, {
-    this.invert = false,
-    this.download,
-  })  : data = null,
-        asset = asset.replaceFirst('assets/icons/', '');
+  IconDetails(String asset, {this.invert = false, this.download})
+    : data = null,
+      asset = asset.replaceFirst('assets/icons/', '');
 
-  IconDetails.svg(
-    this.data, {
-    this.invert = false,
-    this.download,
-  }) : asset = null;
+  IconDetails.svg(this.data, {this.invert = false, this.download})
+    : asset = null;
 
   /// Path to the asset these details represent.
   final String? asset;

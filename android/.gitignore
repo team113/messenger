@@ -3,11 +3,13 @@
 gradle-wrapper.jar
 /gradlew
 /gradlew.bat
+/app/.cxx/
 
 GeneratedPluginRegistrant.java
 
 /local.properties
 /key.properties
+/service_account.json
 
 **/*.keystore
 **/*.jks

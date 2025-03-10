@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -136,19 +136,21 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           ),
         );
       } else {
-        child = LayoutBuilder(builder: (context, constraints) {
-          return Center(
-            child: SizedBox(
-              width: (constraints.maxWidth / 60) * (widget.icon?.width ?? 60),
-              height:
-                  (constraints.maxHeight / 60) * (widget.icon?.height ?? 60),
-              child: Transform.translate(
-                offset: widget.offset ?? Offset.zero,
-                child: SvgIcon(widget.icon!),
+        child = LayoutBuilder(
+          builder: (context, constraints) {
+            return Center(
+              child: SizedBox(
+                width: (constraints.maxWidth / 60) * (widget.icon?.width ?? 60),
+                height:
+                    (constraints.maxHeight / 60) * (widget.icon?.height ?? 60),
+                child: Transform.translate(
+                  offset: widget.offset ?? Offset.zero,
+                  child: SvgIcon(widget.icon!),
+                ),
               ),
-            ),
-          );
-        });
+            );
+          },
+        );
       }
     }
 
@@ -167,16 +169,17 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           type: MaterialType.circle,
           child: InkWell(
             borderRadius: BorderRadius.circular(300),
-            onHover: widget.hint != null
-                ? (b) {
-                    if (b) {
-                      _populateOverlay();
-                    } else {
-                      _hintEntry?.remove();
-                      _hintEntry = null;
+            onHover:
+                widget.hint != null
+                    ? (b) {
+                      if (b) {
+                        _populateOverlay();
+                      } else {
+                        _hintEntry?.remove();
+                        _hintEntry = null;
+                      }
                     }
-                  }
-                : null,
+                    : null,
             onTap: widget.onPressed,
             child: child,
           ),
@@ -187,8 +190,10 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     if (widget.border != null) {
       button = DecoratedBox(
         position: DecorationPosition.foreground,
-        decoration:
-            BoxDecoration(border: widget.border, shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          border: widget.border,
+          shape: BoxShape.circle,
+        ),
         child: button,
       );
     }
@@ -201,29 +206,30 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              button,
-              const SizedBox(height: 5),
-              IgnorePointer(
-                child: AnimatedOpacity(
-                  opacity: widget.showText ? 1 : 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Text(
-                    widget.text!,
-                    textAlign: TextAlign.center,
-                    style: widget.minified
-                        ? style.fonts.smaller.regular.onPrimary
-                        : style.fonts.small.regular.onPrimary.copyWith(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            button,
+            const SizedBox(height: 5),
+            IgnorePointer(
+              child: AnimatedOpacity(
+                opacity: widget.showText ? 1 : 0,
+                duration: const Duration(milliseconds: 200),
+                child: Text(
+                  widget.text!,
+                  textAlign: TextAlign.center,
+                  style:
+                      widget.minified
+                          ? style.fonts.smaller.regular.onPrimary
+                          : style.fonts.small.regular.onPrimary.copyWith(
                             shadows: widget.withBlur ? shadows : null,
                           ),
-                    maxLines: 2,
-                  ),
+                  maxLines: 2,
                 ),
               ),
-            ],
-          );
+            ),
+          ],
+        );
   }
 
   /// Populates the [_hintEntry].
@@ -244,55 +250,57 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     // Add a rebuild to take possible animations into the account.
     Future.delayed(300.milliseconds, _hintEntry?.markNeedsBuild);
 
-    _hintEntry = OverlayEntry(builder: (ctx) {
-      if (!firstLayout) {
-        final box = _key.currentContext?.findRenderObject() as RenderBox?;
-        if (box != null) {
-          offset = box.localToGlobal(Offset.zero);
-          size = box.size;
+    _hintEntry = OverlayEntry(
+      builder: (ctx) {
+        if (!firstLayout) {
+          final box = _key.currentContext?.findRenderObject() as RenderBox?;
+          if (box != null) {
+            offset = box.localToGlobal(Offset.zero);
+            size = box.size;
+          }
+        } else {
+          firstLayout = false;
         }
-      } else {
-        firstLayout = false;
-      }
 
-      final style = Theme.of(context).style;
+        final style = Theme.of(context).style;
 
-      return IgnorePointer(
-        child: Stack(
-          children: [
-            Positioned(
-              left: offset.dx,
-              top: offset.dy,
-              width: size.width,
-              height: size.height,
-              child: Transform.translate(
-                offset: Offset(0, -size.height - 2),
-                child: AllowOverflow(
-                  child: UnconstrainedBox(
-                    child: Text(
-                      widget.hint!,
-                      textAlign: TextAlign.center,
-                      style: style.fonts.small.regular.onPrimary.copyWith(
-                        shadows: [
-                          Shadow(
-                            blurRadius: 6,
-                            color: style.colors.onBackground,
-                          ),
-                          Shadow(
-                            blurRadius: 6,
-                            color: style.colors.onBackground,
-                          ),
-                        ],
+        return IgnorePointer(
+          child: Stack(
+            children: [
+              Positioned(
+                left: offset.dx,
+                top: offset.dy,
+                width: size.width,
+                height: size.height,
+                child: Transform.translate(
+                  offset: Offset(0, -size.height - 2),
+                  child: AllowOverflow(
+                    child: UnconstrainedBox(
+                      child: Text(
+                        widget.hint!,
+                        textAlign: TextAlign.center,
+                        style: style.fonts.small.regular.onPrimary.copyWith(
+                          shadows: [
+                            Shadow(
+                              blurRadius: 6,
+                              color: style.colors.onBackground,
+                            ),
+                            Shadow(
+                              blurRadius: 6,
+                              color: style.colors.onBackground,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+            ],
+          ),
+        );
+      },
+    );
 
     Overlay.of(context, rootOverlay: true).insert(_hintEntry!);
   }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,23 +15,26 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:async/async.dart' show StreamGroup, StreamQueue;
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:json_annotation/json_annotation.dart';
 import 'package:mime/mime.dart';
 import 'package:mutex/mutex.dart';
 
-import '../model_type_id.dart';
 import '/util/mime.dart';
 import '/util/platform_utils.dart';
 
+part 'native_file.g.dart';
+
 /// Native file representation.
+@JsonSerializable()
 class NativeFile {
   NativeFile({
     required this.name,
@@ -41,9 +44,9 @@ class NativeFile {
     Stream<List<int>>? stream,
     this.mime,
     Size? dimensions,
-  })  : bytes = Rx(bytes),
-        dimensions = Rx(dimensions),
-        _readStream = stream {
+  }) : bytes = Rx(bytes),
+       dimensions = Rx(dimensions),
+       _readStream = stream {
     // If possible, determine the `MIME` type right away.
     if (mime == null) {
       if (path != null) {
@@ -66,20 +69,26 @@ class NativeFile {
 
   /// Constructs a [NativeFile] from a [PlatformFile].
   factory NativeFile.fromPlatformFile(PlatformFile file) => NativeFile(
-        name: file.name,
-        size: file.size,
-        path: PlatformUtils.isWeb ? null : file.path,
-        bytes: file.bytes,
-        stream: file.readStream?.asBroadcastStream(),
-      );
+    name: file.name,
+    size: file.size,
+    path: PlatformUtils.isWeb ? null : file.path,
+    bytes: file.bytes,
+    stream: file.readStream?.asBroadcastStream(),
+  );
 
   /// Constructs a [NativeFile] from an [XFile].
   factory NativeFile.fromXFile(XFile file, int size) => NativeFile(
-        name: file.name,
-        size: size,
-        path: PlatformUtils.isWeb ? null : file.path,
-        stream: file.openRead().asBroadcastStream(),
-      );
+    name: file.name,
+    size: size,
+    path: PlatformUtils.isWeb ? null : file.path,
+    stream: file.openRead().asBroadcastStream(),
+  );
+
+  /// Constructs a [NativeFile] from the provided [json].
+  factory NativeFile.fromJson(Map<String, dynamic> json) =>
+      _$NativeFileFromJson(json)
+        ..dimensions.value = _SizeExtension.fromJson(json['dimensions'])
+        ..bytes.value = _Uint8ListExtension.fromJson(json['bytes']);
 
   /// Absolute path for a cached copy of this file.
   final String? path;
@@ -88,6 +97,7 @@ class NativeFile {
   final String name;
 
   /// Byte data of this file.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Uint8List?> bytes;
 
   /// Size of this file in bytes.
@@ -97,19 +107,33 @@ class NativeFile {
   ///
   /// __Note:__ To ensure [MediaType] is correct, invoke
   ///           [ensureCorrectMediaType] before accessing this field.
+  @JsonKey(fromJson: _MediaType.fromValue, toJson: _MediaType.toValue)
   MediaType? mime;
 
   /// [Size] of the image this [NativeFile] represents, if [isImage].
+  @JsonKey(includeFromJson: false, includeToJson: false)
   final Rx<Size?> dimensions;
 
   /// [Mutex] for synchronized access to the [readFile].
   final Mutex _readGuard = Mutex();
 
   /// Content of this file as a stream.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? _readStream;
 
   /// Merged stream of [bytes] and [_readStream] representing the whole file.
   Stream<List<int>>? _mergedStream;
+
+  /// Returns the extensions of files considered to be images.
+  static const List<String> images = [
+    'jpg',
+    'jpeg',
+    'png',
+    'gif',
+    'jfif',
+    'svg',
+    'webp',
+  ];
 
   /// Returns an extension of this file.
   String get extension => name.split('.').last;
@@ -118,15 +142,7 @@ class NativeFile {
   bool get isImage {
     // Best effort if [mime] is `null`.
     if (mime == null) {
-      return [
-        'jpg',
-        'jpeg',
-        'png',
-        'gif',
-        'jfif',
-        'svg',
-        'webp',
-      ].contains(extension.toLowerCase());
+      return images.contains(extension.toLowerCase());
     }
 
     return mime?.type == 'image';
@@ -162,6 +178,7 @@ class NativeFile {
   /// Returns contents of this file as a broadcast [Stream].
   ///
   /// Once read, it cannot be rewinded.
+  @JsonKey(includeFromJson: false, includeToJson: false)
   Stream<List<int>>? get stream {
     if (_readStream == null) return null;
 
@@ -173,6 +190,12 @@ class NativeFile {
     return _mergedStream;
   }
 
+  /// Returns a [Map] representing this [NativeFile].
+  Map<String, dynamic> toJson() =>
+      _$NativeFileToJson(this)
+        ..['dimensions'] = dimensions.value?.toJson()
+        ..['bytes'] = bytes.value?.toJson();
+
   /// Ensures [mime] is correctly assigned.
   ///
   /// Tries to determine the [mime] type by reading the [stream].
@@ -181,8 +204,10 @@ class NativeFile {
       if (_readStream != null) {
         return Future(() async {
           bytes.value = Uint8List.fromList(await _readStream!.first);
-          var type =
-              MimeResolver.lookup(path ?? name, headerBytes: bytes.value);
+          var type = MimeResolver.lookup(
+            path ?? name,
+            headerBytes: bytes.value,
+          );
           if (type != null) {
             mime = MediaType.parse(type);
           }
@@ -241,52 +266,50 @@ class NativeFile {
   }
 }
 
-/// [Hive] adapter for a [MediaType].
-class MediaTypeAdapter extends TypeAdapter<MediaType> {
-  @override
-  int get typeId => ModelTypeId.mediaType;
+/// Extension adding methods to construct the [MediaType] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _MediaType on MediaType {
+  /// Returns a [MediaType] constructed from the provided [val].
+  static MediaType? fromValue(String? val) =>
+      val == null ? null : MediaType.parse(val);
 
-  @override
-  MediaType read(BinaryReader reader) {
-    return MediaType(
-      reader.read() as String,
-      reader.read() as String,
-      (reader.read() as Map).cast<String, String>(),
-    );
-  }
-
-  @override
-  void write(BinaryWriter writer, MediaType obj) {
-    writer
-      ..write(obj.type)
-      ..write(obj.subtype)
-      ..write(obj.parameters);
-  }
+  /// Returns a [String] representing this [MediaType].
+  static String? toValue(MediaType? val) => val?.toString();
 }
 
-/// [Hive] adapter for a [NativeFile].
-class NativeFileAdapter extends TypeAdapter<NativeFile> {
-  @override
-  final int typeId = ModelTypeId.nativeFile;
+/// Extension adding methods to construct the [Size] to/from primitive types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _SizeExtension on Size {
+  /// Returns a [Size] constructed from the provided [json].
+  static Size? fromJson(Map<String, dynamic>? json) {
+    if (json == null) {
+      return null;
+    }
 
-  @override
-  NativeFile read(BinaryReader reader) {
-    return NativeFile(
-      path: reader.read() as String?,
-      name: reader.read() as String,
-      bytes: reader.read() as Uint8List?,
-      size: reader.read() as int,
-      mime: reader.read() as MediaType?,
-    );
+    return Size(json['width'] as double, json['height'] as double);
   }
 
-  @override
-  void write(BinaryWriter writer, NativeFile obj) {
-    writer
-      ..write(obj.path)
-      ..write(obj.name)
-      ..write(obj.bytes.value)
-      ..write(obj.size)
-      ..write(obj.mime);
+  /// Returns a [String] representing this [Size].
+  Map<String, dynamic> toJson() => {'width': width, 'height': height};
+}
+
+/// Extension adding methods to construct the [Uint8List] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension _Uint8ListExtension on Uint8List {
+  /// Returns a [Uint8List] constructed from the provided [val].
+  static Uint8List? fromJson(String? val) {
+    if (val == null) {
+      return null;
+    }
+
+    return base64.decode(val);
   }
+
+  /// Returns a [String] representing this [Uint8List].
+  String toJson() => base64.encode(this);
 }

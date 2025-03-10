@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-/// Controller of the [HomeTab.work] tab.
+/// Controller of the `HomeTab.work` tab.
 class WorkTabController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();

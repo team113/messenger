@@ -2,14 +2,11 @@ dartdoc:
   errors:
     - ambiguous-doc-reference
     - ambiguous-reexport
-    - broken-link
     - category-order-gives-missing-package-name
-    - deprecated
     - duplicate-file
     - ignored-canonical-for
     - invalid-parameter
     - missing-from-search-index
-    - no-canonical-found
     - no-defining-library-found
     - no-documentable-libraries
     - no-library-level-docs

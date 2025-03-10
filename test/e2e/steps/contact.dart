@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -40,18 +40,19 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
     final contact = await provider.createChatContact(
       name: UserName(user.name),
       records: [
-        ChatContactRecord(userId: context.world.sessions[user.name]!.userId)
+        ChatContactRecord(userId: context.world.sessions[user.name]!.userId),
       ],
     );
 
-    context.world.contacts[user.name] = contact.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-        .contactId;
+    context.world.contacts[user.name] =
+        contact.events
+            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+            .contactId;
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );
 
 /// Creates two [ChatContact]s of the provided [User]s.
@@ -69,28 +70,30 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
       name: UserName(user1.name),
       records: [
         if (context.world.sessions[user1.name] != null)
-          ChatContactRecord(userId: context.world.sessions[user1.name]!.userId)
+          ChatContactRecord(userId: context.world.sessions[user1.name]!.userId),
       ],
     );
 
-    context.world.contacts[user1.name] = contact1.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-        .contactId;
+    context.world.contacts[user1.name] =
+        contact1.events
+            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+            .contactId;
 
     final contact2 = await provider.createChatContact(
       name: UserName(user2.name),
       records: [
         if (context.world.sessions[user2.name] != null)
-          ChatContactRecord(userId: context.world.sessions[user2.name]!.userId)
+          ChatContactRecord(userId: context.world.sessions[user2.name]!.userId),
       ],
     );
 
-    context.world.contacts[user2.name] = contact2.events
-        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-        .contactId;
+    context.world.contacts[user2.name] =
+        contact2.events
+            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+            .contactId;
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

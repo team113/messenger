@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -36,7 +36,7 @@ Feature: Messages selection
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-    When I long press "01" message
+    When I right click "01" message
     And I tap `Select` button
     And I tap "02" message
     And I tap "03" message
@@ -61,7 +61,7 @@ Feature: Messages selection
     And I wait until status of "02" message is sent
     And I wait until status of "03" message is sent
 
-    When I long press "01" message
+    When I right click "01" message
     And I tap `Select` button
     And I tap "02" message
     And I tap "03" message
@@ -70,3 +70,4 @@ Feature: Messages selection
     Then I wait until "01" message is absent
     And I wait until "02" message is absent
     And I wait until "03" message is absent
+    And I pause for 5 seconds

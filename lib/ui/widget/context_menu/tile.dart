@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -94,9 +94,10 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
       onExit: (_) => setState(() => _hovered = false),
       opaque: false,
       child: WidgetButton(
-        onPressed: widget.onPressed == null
-            ? null
-            : () => widget.onPressed?.call(context),
+        onPressed:
+            widget.onPressed == null
+                ? null
+                : () => widget.onPressed?.call(context),
         child: Container(
           width: double.infinity,
           color: _hovered ? style.colors.onBackgroundOpacity2 : null,
@@ -120,13 +121,16 @@ class _ContextMenuTileState extends State<ContextMenuTile> {
                   child: Center(
                     child: SafeAnimatedSwitcher(
                       duration: const Duration(milliseconds: 100),
-                      child: widget.pinned!
-                          ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                          : Transform.translate(
-                              offset: const Offset(0.5, 0),
-                              child:
-                                  const SvgIcon(SvgIcons.pin, key: Key('Pin')),
-                            ),
+                      child:
+                          widget.pinned!
+                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
+                              : Transform.translate(
+                                offset: const Offset(0.5, 0),
+                                child: const SvgIcon(
+                                  SvgIcons.pin,
+                                  key: Key('Pin'),
+                                ),
+                              ),
                     ),
                   ),
                 ),

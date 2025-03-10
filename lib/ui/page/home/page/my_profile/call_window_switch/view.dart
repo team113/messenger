@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -71,9 +71,10 @@ class CallWindowSwitchView extends StatelessWidget {
                       }
 
                       return RectangleButton(
-                        label: i == 0
-                            ? 'label_open_calls_in_window'.l10n
-                            : 'label_open_calls_in_app'.l10n,
+                        label:
+                            i == 0
+                                ? 'label_open_calls_in_window'.l10n
+                                : 'label_open_calls_in_app'.l10n,
                         selected: selected,
                         onPressed: () => c.setPopupsEnabled(i == 0),
                       );

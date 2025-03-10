@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,6 +21,7 @@ import 'package:get/get.dart';
 
 import '/domain/repository/settings.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
@@ -47,6 +48,8 @@ class LanguageSelectionView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: LanguageSelectionController(settingsRepository),
       builder: (LanguageSelectionController c) {
@@ -70,13 +73,11 @@ class LanguageSelectionView extends StatelessWidget {
                       final Language e = L10n.languages[i];
 
                       return Obx(() {
+                        final bool selected = c.selected.value == e;
+
                         return RectangleButton(
                           key: Key('Language_${e.locale.languageCode}'),
-                          label: 'label_language_entry'.l10nfmt({
-                            'code': e.locale.languageCode.toUpperCase(),
-                            'name': e.name,
-                          }),
-                          selected: c.selected.value == e,
+                          selected: selected,
                           onPressed: () async {
                             c.selected.value = e;
 
@@ -84,6 +85,24 @@ class LanguageSelectionView extends StatelessWidget {
                               await c.setLocalization(c.selected.value!);
                             }
                           },
+                          child: Row(
+                            children: [
+                              Text(e.locale.languageCode.toUpperCase()),
+                              const SizedBox(width: 12),
+                              Container(
+                                width: 1,
+                                height: 14,
+                                color:
+                                    selected
+                                        ? style.colors.onPrimary
+                                        : style
+                                            .colors
+                                            .secondaryHighlightDarkest,
+                              ),
+                              const SizedBox(width: 12),
+                              Text(e.name),
+                            ],
+                          ),
                         );
                       });
                     },

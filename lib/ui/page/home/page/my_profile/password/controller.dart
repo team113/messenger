@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -183,9 +183,10 @@ class ChangePasswordController extends GetxController {
               myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
           newPassword: UserPassword(newPassword.text),
         );
-        stage.value = hadPassword
-            ? ChangePasswordFlowStage.changed
-            : ChangePasswordFlowStage.set;
+        stage.value =
+            hadPassword
+                ? ChangePasswordFlowStage.changed
+                : ChangePasswordFlowStage.set;
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,13 +30,11 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeNamedChat = then1<String, CustomWorld>(
   'I see {string} chat',
   (name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ChatsTabController>();
-        return controller.chats.any((c) => c.rx.title == name);
-      },
-    );
+      final controller = Get.find<ChatsTabController>();
+      return controller.chats.any((c) => c.rx.title == name);
+    });
   },
 );

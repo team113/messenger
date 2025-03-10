@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,7 +18,6 @@
 import 'package:graphql_flutter/graphql_flutter.dart';
 
 import '../base.dart';
-import '../exceptions.dart';
 import '/api/backend/schema.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/user.dart';
@@ -56,26 +55,28 @@ mixin ContactGraphQlMixin {
     ChatContactsCursor? before,
     bool noFavorite = false,
   }) async {
-    Log.debug(
-      'chatContacts($first, $after, $last, $before, $noFavorite)',
-      '$runtimeType',
-    );
+    throw UnimplementedError();
 
-    final variables = ContactsArguments(
-      first: first,
-      last: last,
-      before: before,
-      after: after,
-      noFavorite: noFavorite,
-    );
-    final QueryResult result = await client.query(
-      QueryOptions(
-        operationName: 'Contacts',
-        document: ContactsQuery(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return Contacts$Query.fromJson(result.data!).chatContacts;
+    // Log.debug(
+    //   'chatContacts($first, $after, $last, $before, $noFavorite)',
+    //   '$runtimeType',
+    // );
+
+    // final variables = ContactsArguments(
+    //   first: first,
+    //   last: last,
+    //   before: before,
+    //   after: after,
+    //   noFavorite: noFavorite,
+    // );
+    // final QueryResult result = await client.query(
+    //   QueryOptions(
+    //     operationName: 'Contacts',
+    //     document: ContactsQuery(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    // );
+    // return Contacts$Query.fromJson(result.data!).chatContacts;
   }
 
   /// Returns favorited [ChatContact]s of the authenticated [MyUser] ordered by
@@ -111,20 +112,22 @@ mixin ContactGraphQlMixin {
     int? last,
     FavoriteChatContactsCursor? before,
   }) async {
-    final variables = FavoriteContactsArguments(
-      first: first,
-      last: last,
-      before: before,
-      after: after,
-    );
-    final QueryResult result = await client.query(
-      QueryOptions(
-        operationName: 'FavoriteContacts',
-        document: FavoriteContactsQuery(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return FavoriteContacts$Query.fromJson(result.data!).favoriteChatContacts;
+    throw UnimplementedError();
+
+    // final variables = FavoriteContactsArguments(
+    //   first: first,
+    //   last: last,
+    //   before: before,
+    //   after: after,
+    // );
+    // final QueryResult result = await client.query(
+    //   QueryOptions(
+    //     operationName: 'FavoriteContacts',
+    //     document: FavoriteContactsQuery(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    // );
+    // return FavoriteContacts$Query.fromJson(result.data!).favoriteChatContacts;
   }
 
   /// Creates a new [ChatContact] in the authenticated [MyUser]'s address book.
@@ -153,23 +156,25 @@ mixin ContactGraphQlMixin {
     required UserName name,
     List<ChatContactRecord>? records,
   }) async {
-    Log.debug('createChatContact($name, $records)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = CreateChatContactArguments(name: name, records: records);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'CreateChatContact',
-        document: CreateChatContactMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => CreateChatContactException((CreateChatContact$Mutation
-                      .fromJson(data)
-                  .createChatContact
-              as CreateChatContact$Mutation$CreateChatContact$CreateChatContactError)
-          .code),
-    );
-    return CreateChatContact$Mutation.fromJson(result.data!).createChatContact
-        as ChatContactEventsVersionedMixin;
+    // Log.debug('createChatContact($name, $records)', '$runtimeType');
+
+    // final variables = CreateChatContactArguments(name: name, records: records);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'CreateChatContact',
+    //     document: CreateChatContactMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => CreateChatContactException((CreateChatContact$Mutation
+    //                   .fromJson(data)
+    //               .createChatContact
+    //           as CreateChatContact$Mutation$CreateChatContact$CreateChatContactError)
+    //       .code),
+    // );
+    // return CreateChatContact$Mutation.fromJson(result.data!).createChatContact
+    //     as ChatContactEventsVersionedMixin;
   }
 
   /// Deletes the specified [ChatContact] from the authenticated [MyUser]'s
@@ -189,17 +194,19 @@ mixin ContactGraphQlMixin {
   /// Succeeds as no-op (and returns no [ChatContactEvent]) if the specified
   /// [ChatContact] doesn't exist already.
   Future<DeleteChatContact$Mutation> deleteChatContact(ChatContactId id) async {
-    Log.debug('deleteChatContact($id)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = DeleteChatContactArguments(id: id);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'DeleteChatContact',
-        document: DeleteChatContactMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-    );
-    return DeleteChatContact$Mutation.fromJson(result.data!);
+    // Log.debug('deleteChatContact($id)', '$runtimeType');
+
+    // final variables = DeleteChatContactArguments(id: id);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'DeleteChatContact',
+    //     document: DeleteChatContactMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    // );
+    // return DeleteChatContact$Mutation.fromJson(result.data!);
   }
 
   /// Subscribes to [ChatContactEvent]s of all [ChatContact]s of the
@@ -287,22 +294,24 @@ mixin ContactGraphQlMixin {
     ChatContactId id,
     UserName name,
   ) async {
-    Log.debug('changeContactName($id, $name)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = UpdateChatContactNameArguments(id: id, name: name);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UpdateChatContactName',
-        document: UpdateChatContactNameMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UpdateChatContactNameException(
-          (UpdateChatContactName$Mutation.fromJson(data).updateChatContactName
-                  as UpdateChatContactName$Mutation$UpdateChatContactName$UpdateChatContactNameError)
-              .code),
-    );
-    return UpdateChatContactName$Mutation.fromJson(result.data!)
-        .updateChatContactName as ChatContactEventsVersionedMixin;
+    // Log.debug('changeContactName($id, $name)', '$runtimeType');
+
+    // final variables = UpdateChatContactNameArguments(id: id, name: name);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'UpdateChatContactName',
+    //     document: UpdateChatContactNameMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => UpdateChatContactNameException(
+    //       (UpdateChatContactName$Mutation.fromJson(data).updateChatContactName
+    //               as UpdateChatContactName$Mutation$UpdateChatContactName$UpdateChatContactNameError)
+    //           .code),
+    // );
+    // return UpdateChatContactName$Mutation.fromJson(result.data!)
+    //     .updateChatContactName as ChatContactEventsVersionedMixin;
   }
 
   /// Marks the specified [ChatContact] as favorited for the authenticated
@@ -329,22 +338,24 @@ mixin ContactGraphQlMixin {
     ChatContactId id,
     ChatContactFavoritePosition position,
   ) async {
-    Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = FavoriteChatContactArguments(id: id, pos: position);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'FavoriteChatContact',
-        document: FavoriteChatContactMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => FavoriteChatContactException(
-          (FavoriteChatContact$Mutation.fromJson(data).favoriteChatContact
-                  as FavoriteChatContact$Mutation$FavoriteChatContact$FavoriteChatContactError)
-              .code),
-    );
-    return FavoriteChatContact$Mutation.fromJson(result.data!)
-        .favoriteChatContact as ChatContactEventsVersionedMixin?;
+    // Log.debug('favoriteChatContact($id, $position)', '$runtimeType');
+
+    // final variables = FavoriteChatContactArguments(id: id, pos: position);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'FavoriteChatContact',
+    //     document: FavoriteChatContactMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => FavoriteChatContactException(
+    //       (FavoriteChatContact$Mutation.fromJson(data).favoriteChatContact
+    //               as FavoriteChatContact$Mutation$FavoriteChatContact$FavoriteChatContactError)
+    //           .code),
+    // );
+    // return FavoriteChatContact$Mutation.fromJson(result.data!)
+    //     .favoriteChatContact as ChatContactEventsVersionedMixin?;
   }
 
   /// Removes the specified [ChatContact] from the favorites list of the
@@ -366,22 +377,24 @@ mixin ContactGraphQlMixin {
   Future<ChatContactEventsVersionedMixin?> unfavoriteChatContact(
     ChatContactId id,
   ) async {
-    Log.debug('unfavoriteChatContact($id)', '$runtimeType');
+    throw UnimplementedError();
 
-    final variables = UnfavoriteChatContactArguments(id: id);
-    final QueryResult result = await client.mutate(
-      MutationOptions(
-        operationName: 'UnfavoriteChatContact',
-        document: UnfavoriteChatContactMutation(variables: variables).document,
-        variables: variables.toJson(),
-      ),
-      onException: (data) => UnfavoriteChatContactException(
-          (UnfavoriteChatContact$Mutation.fromJson(data).unfavoriteChatContact
-                  as UnfavoriteChatContact$Mutation$UnfavoriteChatContact$UnfavoriteChatContactError)
-              .code),
-    );
-    return UnfavoriteChatContact$Mutation.fromJson(result.data!)
-        .unfavoriteChatContact as ChatContactEventsVersionedMixin?;
+    // Log.debug('unfavoriteChatContact($id)', '$runtimeType');
+
+    // final variables = UnfavoriteChatContactArguments(id: id);
+    // final QueryResult result = await client.mutate(
+    //   MutationOptions(
+    //     operationName: 'UnfavoriteChatContact',
+    //     document: UnfavoriteChatContactMutation(variables: variables).document,
+    //     variables: variables.toJson(),
+    //   ),
+    //   onException: (data) => UnfavoriteChatContactException(
+    //       (UnfavoriteChatContact$Mutation.fromJson(data).unfavoriteChatContact
+    //               as UnfavoriteChatContact$Mutation$UnfavoriteChatContact$UnfavoriteChatContactError)
+    //           .code),
+    // );
+    // return UnfavoriteChatContact$Mutation.fromJson(result.data!)
+    //     .unfavoriteChatContact as ChatContactEventsVersionedMixin?;
   }
 
   /// Searches [ChatContact]s by the given criteria.
@@ -443,11 +456,13 @@ mixin ContactGraphQlMixin {
       last: last,
       before: before,
     );
-    final QueryResult res = await client.query(QueryOptions(
-      operationName: 'SearchChatContacts',
-      document: SearchChatContactsQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    final QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'SearchChatContacts',
+        document: SearchChatContactsQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return SearchChatContacts$Query.fromJson(res.data!);
   }
 
@@ -460,11 +475,13 @@ mixin ContactGraphQlMixin {
     Log.debug('chatContact($id)', '$runtimeType');
 
     final variables = GetContactArguments(id: id);
-    final QueryResult res = await client.query(QueryOptions(
-      operationName: 'GetContact',
-      document: GetContactQuery(variables: variables).document,
-      variables: variables.toJson(),
-    ));
+    final QueryResult res = await client.query(
+      QueryOptions(
+        operationName: 'GetContact',
+        document: GetContactQuery(variables: variables).document,
+        variables: variables.toJson(),
+      ),
+    );
     return GetContact$Query.fromJson(res.data!);
   }
 }

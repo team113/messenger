@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,9 +34,9 @@ export 'view.dart';
 /// Controller of a [CameraSwitchView].
 class CameraSwitchController extends GetxController {
   CameraSwitchController(this._settingsRepository, {String? camera})
-      : camera = RxnString(
-          camera ?? _settingsRepository.mediaSettings.value?.videoDevice,
-        );
+    : camera = RxnString(
+        camera ?? _settingsRepository.mediaSettings.value?.videoDevice,
+      );
 
   /// Settings repository updating the [MediaSettings.videoDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -66,23 +66,32 @@ class CameraSwitchController extends GetxController {
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
 
+  /// [WebUtils.cameraPermission] subscription.
+  StreamSubscription? _permissionSubscription;
+
   @override
   void onInit() async {
     _cameraWorker = ever(camera, (e) => initRenderer());
-    _devicesSubscription = MediaUtils.onDeviceChange
-        .listen((e) => devices.value = e.video().toList());
+    _devicesSubscription = MediaUtils.onDeviceChange.listen(
+      (e) => devices.value = e.video().toList(),
+    );
 
     try {
-      await WebUtils.cameraPermission();
-      devices.value =
-          await MediaUtils.enumerateDevices(MediaDeviceKind.videoInput);
+      _permissionSubscription = await WebUtils.cameraPermission();
+      devices.value = await MediaUtils.enumerateDevices(
+        MediaDeviceKind.videoInput,
+      );
 
       initRenderer();
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;
     } catch (e) {
-      error.value = e.toString();
-      rethrow;
+      if (e.toString().contains('Permission denied')) {
+        error.value = 'err_camera_permission_denied'.l10n;
+      } else {
+        error.value = e.toString();
+        rethrow;
+      }
     }
 
     super.onInit();
@@ -96,6 +105,7 @@ class CameraSwitchController extends GetxController {
     _localTrack = null;
     _cameraWorker?.dispose();
     _devicesSubscription?.cancel();
+    _permissionSubscription?.cancel();
     super.onClose();
   }
 
@@ -118,8 +128,9 @@ class CameraSwitchController extends GetxController {
     String? camera = this.camera.value;
 
     await _initRendererGuard.protect(() async {
-      final List<LocalMediaTrack> tracks =
-          await MediaUtils.getTracks(video: VideoPreferences(device: camera));
+      final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
+        video: VideoPreferences(device: camera),
+      );
 
       if (isClosed) {
         tracks.firstOrNull?.free();

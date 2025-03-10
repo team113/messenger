@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -77,7 +77,7 @@ class OutputSwitchView extends StatelessWidget {
                       }
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                         child: Text(
                           c.error.value!,
                           style: style.fonts.normal.regular.danger,
@@ -96,16 +96,19 @@ class OutputSwitchView extends StatelessWidget {
 
                             final bool selected =
                                 (c.selected.value == null && i == 0) ||
-                                    c.selected.value?.id() == e.id();
+                                c.selected.value?.id() == e.id();
 
                             return RectangleButton(
                               selected: selected,
-                              onPressed: selected
-                                  ? null
-                                  : () {
-                                      c.selected.value = e;
-                                      (onChanged ?? c.setOutputDevice).call(e);
-                                    },
+                              onPressed:
+                                  selected
+                                      ? null
+                                      : () {
+                                        c.selected.value = e;
+                                        (onChanged ?? c.setOutputDevice).call(
+                                          e,
+                                        );
+                                      },
                               label: e.label(),
                             );
                           });

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,14 +39,23 @@ class AndroidUtils {
     required String sound,
     String description = '',
   }) async {
-    await platform.invokeMethod(
-      'createNotificationChannel',
-      {
-        'id': id,
-        'name': name,
-        'sound': sound,
-        'description': description,
-      },
-    );
+    await platform.invokeMethod('createNotificationChannel', {
+      'id': id,
+      'name': name,
+      'sound': sound,
+      'description': description,
+    });
+  }
+
+  /// Removes the delivered notification with the provided [tag].
+  static Future<void> cancelNotification(String tag) async {
+    await platform.invokeMethod('cancelNotification', {'tag': tag});
+  }
+
+  /// Removes the delivered notifications containing the provided [thread].
+  static Future<bool> cancelNotificationsContaining(String thread) async {
+    return await platform.invokeMethod('cancelNotificationsContaining', {
+      'thread': thread,
+    });
   }
 }

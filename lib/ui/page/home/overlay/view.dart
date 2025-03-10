@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,29 +34,28 @@ class CallOverlayView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<CallOverlayController>(
-      init: CallOverlayController(Get.find(), Get.find()),
-      builder: (CallOverlayController c) => Obx(
-        () {
+      init: CallOverlayController(Get.find(), Get.find(), Get.find()),
+      builder: (CallOverlayController c) {
+        return Obx(() {
           return Stack(
             children: [
               child,
-              ...c.calls.map(
-                (e) => Obx(
-                  () => e.call.value.state.value == OngoingCallState.ended
-                      ? const SizedBox()
-                      : Listener(
-                          onPointerDown: (_) => c.orderFirst(e),
-                          child: CallView(
-                            e.call,
-                            key: e.key,
-                          ),
-                        ),
-                ),
-              ),
+              ...c.calls.map((e) {
+                return Obx(() {
+                  if (e.call.value.state.value == OngoingCallState.ended) {
+                    return const SizedBox();
+                  }
+
+                  return Listener(
+                    onPointerDown: (_) => c.orderFirst(e),
+                    child: CallView(e.call, key: e.key),
+                  );
+                });
+              }),
             ],
           );
-        },
-      ),
+        });
+      },
     );
   }
 }

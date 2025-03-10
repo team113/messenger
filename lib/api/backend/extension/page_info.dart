@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,9 +22,9 @@ import '/store/model/page_info.dart';
 extension PageInfoConversion on PageInfoMixin {
   /// Constructs a new [PageInfo] from this [PageInfoMixin].
   PageInfo<T> toModel<T>(T Function(String cursor) cursor) => PageInfo<T>(
-        hasPrevious: hasPreviousPage,
-        hasNext: hasNextPage,
-        startCursor: startCursor == null ? null : cursor(startCursor!),
-        endCursor: endCursor == null ? null : cursor(endCursor!),
-      );
+    hasPrevious: hasPreviousPage,
+    hasNext: hasNextPage,
+    startCursor: startCursor == null ? null : cursor(startCursor!),
+    endCursor: endCursor == null ? null : cursor(endCursor!),
+  );
 }

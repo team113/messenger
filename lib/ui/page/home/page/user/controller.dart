@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -260,7 +260,7 @@ class UserController extends GetxController {
     if (user?.id == me) {
       router.chat(_chatService.monolog, push: true);
     } else {
-      router.chat(user!.user.value.dialog, push: true);
+      router.chat(ChatId.local(user!.user.value.id), push: true);
     }
   }
 
@@ -294,6 +294,10 @@ class UserController extends GetxController {
         reason.text.isEmpty ? null : BlocklistReason(reason.text),
       );
       reason.clear();
+    } on FormatException {
+      MessagePopup.error('err_blocklist_reason_does_not_meet_regexp'.l10n);
+    } catch (e) {
+      MessagePopup.error('err_data_transfer'.l10n);
     } finally {
       blocklistStatus.value = RxStatus.empty();
     }
@@ -304,8 +308,10 @@ class UserController extends GetxController {
   Future<void> report() async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
     }
 
@@ -315,15 +321,17 @@ class UserController extends GetxController {
           scheme: 'mailto',
           path: Config.support,
           query: encodeQueryParameters({
-            'subject': '[App] Report on UserId($id)',
+            'subject': '[Abuse] Report on UserId($id)',
             'body': '${reporting.text}\n\n',
           }),
         ),
       );
     } catch (e) {
-      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
-        'email': Config.support,
-      }));
+      await MessagePopup.error(
+        'label_contact_us_via_provided_email'.l10nfmt({
+          'email': Config.support,
+        }),
+      );
     }
   }
 
@@ -434,7 +442,7 @@ class UserController extends GetxController {
   /// Opens a file choose popup and updates the `ChatContact.avatar` with the
   /// selected image, if any.
   Future<void> pickAvatar() async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await PlatformUtils.pickFiles(
       type: FileType.image,
       withReadStream: !PlatformUtils.isWeb,
       withData: PlatformUtils.isWeb,
@@ -596,6 +604,39 @@ extension UserViewExt on User {
         return null;
     }
   }
+
+  /// Returns the string representation of this [User] to display as a subtitle.
+  String? getSubtitle([PreciseDateTime? lastSeen]) {
+    switch (presence) {
+      case Presence.present:
+        if (online) {
+          return 'label_online'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case Presence.away:
+        if (online) {
+          return 'label_away'.l10n;
+        } else if (lastSeenAt != null) {
+          return 'label_was_at'.l10nfmt({
+            'at': (lastSeen ?? lastSeenAt)!.val.toDifferenceAgo().toLowerCase(),
+          });
+        } else {
+          return 'label_offline'.l10n;
+        }
+
+      case null:
+        return 'label_hidden'.l10n;
+
+      case Presence.artemisUnknown:
+        return null;
+    }
+  }
 }
 
 /// Extension adding an ability to get text represented indication of how long
@@ -614,7 +655,7 @@ extension DateTimeToAgo on DateTime {
       'weeks': diff.inDays ~/ 7,
       'days': diff.inDays,
       'hours': diff.inHours,
-      'minutes': diff.inMinutes
+      'minutes': diff.inMinutes,
     });
   }
 }

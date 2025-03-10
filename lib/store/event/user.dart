@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,12 +18,12 @@
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
-import '/store/model/my_user.dart';
+import '/domain/model/user.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/user.dart';
-import 'my_user.dart' show BlocklistEvent;
+import 'blocklist.dart';
+import 'changed.dart';
 
 /// Possible kinds of [UserEvent].
 enum UserEventKind {
@@ -41,22 +41,12 @@ enum UserEventKind {
   statusDeleted,
   statusUpdated,
   userDeleted,
+  welcomeMessageDeleted,
+  welcomeMessageUpdated,
 }
 
 /// Tag representing a [UserEvents] kind.
-enum UserEventsKind {
-  blocklistEvent,
-  initialized,
-  isBlocked,
-  user,
-  event,
-}
-
-/// Tag representing a [BlocklistEvent] kind.
-enum BlocklistEventsKind {
-  recordAdded,
-  recordRemoved,
-}
+enum UserEventsKind { blocklistEvent, initialized, isBlocked, user, event }
 
 /// [User] event union.
 abstract class UserEvents {
@@ -100,25 +90,10 @@ class UserEventsIsBlocked extends UserEvents {
   final BlocklistRecord? record;
 
   /// Version of the authenticated [MyUser]'s state.
-  final MyUserVersion ver;
+  final BlocklistVersion ver;
 
   @override
   UserEventsKind get kind => UserEventsKind.isBlocked;
-}
-
-/// [BlocklistEventsVersioned] along with the corresponding [MyUserVersion].
-class BlocklistEventsVersioned extends UserEvents {
-  BlocklistEventsVersioned(this.events, this.ver);
-
-  /// [BlocklistEvent]s themselves.
-  final List<BlocklistEvent> events;
-
-  /// Version of the [MyUser]'s state updated by these
-  /// [BlocklistEventsVersioned].
-  final MyUserVersion ver;
-
-  @override
-  UserEventsKind get kind => UserEventsKind.blocklistEvent;
 }
 
 class UserEventsBlocklistEventsEvent extends UserEvents {
@@ -147,7 +122,7 @@ class UserEventsUser extends UserEvents {
   const UserEventsUser(this.user);
 
   /// Initial state itself.
-  final HiveUser user;
+  final DtoUser user;
 
   @override
   UserEventsKind get kind => UserEventsKind.user;
@@ -331,4 +306,56 @@ class EventUserStatusUpdated extends UserEvent {
 
   @override
   UserEventKind get kind => UserEventKind.statusUpdated;
+}
+
+/// Event of a [WelcomeMessage] being deleted by its author.
+class EventUserWelcomeMessageDeleted extends UserEvent {
+  EventUserWelcomeMessageDeleted(super.userId, this.at);
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
+  final PreciseDateTime at;
+
+  @override
+  UserEventKind get kind => UserEventKind.welcomeMessageDeleted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageDeleted && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
+}
+
+/// Event of a [WelcomeMessage] being updated by its author.
+class EventUserWelcomeMessageUpdated extends UserEvent {
+  EventUserWelcomeMessageUpdated(
+    super.userId,
+    this.at,
+    this.text,
+    this.attachments,
+  );
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was updated.
+  final PreciseDateTime at;
+
+  /// Edited [WelcomeMessage.text].
+  ///
+  /// `null` means that the previous [WelcomeMessage.text] remains unchanged.
+  final ChangedChatMessageText? text;
+
+  /// Edited [WelcomeMessage.attachments].
+  ///
+  /// `null` means that the previous [WelcomeMessage.attachments] remain
+  /// unchanged.
+  final ChangedChatMessageAttachments? attachments;
+
+  @override
+  UserEventKind get kind => UserEventKind.welcomeMessageUpdated;
+
+  @override
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageUpdated && other.at == at;
+
+  @override
+  int get hashCode => kind.hashCode;
 }

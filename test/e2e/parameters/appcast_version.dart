@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,12 @@ enum AppcastVersion { current, newer, critical }
 /// [CustomParameter] representing an [AppcastVersion].
 class AppcastVersionParameter extends CustomParameter<AppcastVersion> {
   AppcastVersionParameter()
-      : super(
-          'version',
-          RegExp(
-            '(${AppcastVersion.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => AppcastVersion.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'version',
+        RegExp(
+          '(${AppcastVersion.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => AppcastVersion.values.firstWhere((e) => e.name == c),
+      );
 }

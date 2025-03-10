@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -89,9 +89,9 @@ class ChatInfoCard extends StatelessWidget {
                             duration == null
                                 ? const SizedBox()
                                 : Text(
-                                    duration!.hhMmSs(),
-                                    style: style.fonts.normal.regular.onPrimary,
-                                  ),
+                                  duration!.hhMmSs(),
+                                  style: style.fonts.normal.regular.onPrimary,
+                                ),
                           ],
                         ),
                         Padding(

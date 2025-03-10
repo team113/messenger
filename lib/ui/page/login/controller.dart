@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,7 +20,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
+import '/api/backend/schema.dart'
+    show CreateSessionErrorCode, UpdateUserPasswordErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
@@ -28,12 +29,11 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
         AddUserEmailException,
-        ConfirmUserEmailException,
         ConnectionException,
         CreateSessionException,
-        ResendUserEmailConfirmationException,
-        ResetUserPasswordException,
-        ValidateUserPasswordRecoveryCodeException;
+        SignUpException,
+        UpdateUserPasswordException,
+        ValidateConfirmationCodeException;
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
@@ -45,7 +45,10 @@ enum LoginViewStage {
   recoveryPassword,
   signIn,
   signInWithPassword,
+  signInWithEmail,
+  signInWithEmailCode,
   signUp,
+  signUpWithPassword,
   signUpWithEmail,
   signUpWithEmailCode,
   signUpOrSignIn,
@@ -58,8 +61,8 @@ class LoginController extends GetxController {
     LoginViewStage initial = LoginViewStage.signUp,
     MyUser? myUser,
     this.onSuccess,
-  })  : stage = Rx(initial),
-        _myUser = myUser;
+  }) : stage = Rx(initial),
+       _myUser = myUser;
 
   /// [TextFieldState] of a login text input.
   late final TextFieldState login;
@@ -168,6 +171,7 @@ class LoginController extends GetxController {
       onChanged: (_) {
         password.error.value = null;
         password.unsubmit();
+        repeatPassword.unsubmit();
       },
       onSubmitted: (s) {
         password.focus.requestFocus();
@@ -177,6 +181,12 @@ class LoginController extends GetxController {
 
     password = TextFieldState(
       onFocus: (s) => s.unsubmit(),
+      onChanged: (_) {
+        password.error.value = null;
+        password.unsubmit();
+        repeatPassword.error.value = null;
+        repeatPassword.unsubmit();
+      },
       onSubmitted: (s) => signIn(),
     );
 
@@ -197,11 +207,51 @@ class LoginController extends GetxController {
 
     repeatPassword = TextFieldState(
       onFocus: (s) {
-        if (s.text != newPassword.text && newPassword.isValidated) {
-          s.error.value = 'err_passwords_mismatch'.l10n;
+        switch (stage.value) {
+          case LoginViewStage.signUpWithPassword:
+            if (s.text != password.text && password.isValidated) {
+              s.error.value = 'err_passwords_mismatch'.l10n;
+            }
+            break;
+
+          default:
+            if (s.text != newPassword.text && newPassword.isValidated) {
+              s.error.value = 'err_passwords_mismatch'.l10n;
+            }
+            break;
         }
       },
-      onSubmitted: (s) => resetUserPassword(),
+      onSubmitted: (s) async {
+        switch (stage.value) {
+          case LoginViewStage.signUpWithPassword:
+            final userLogin = UserLogin.tryParse(login.text);
+            final userPassword = UserPassword.tryParse(password.text);
+
+            if (userLogin == null) {
+              login.error.value = 'err_incorrect_login_input'.l10n;
+              return;
+            }
+
+            if (userPassword == null) {
+              password.error.value = 'err_password_incorrect'.l10n;
+              return;
+            }
+
+            try {
+              await register(login: userLogin, password: userPassword);
+            } on SignUpException catch (e) {
+              login.error.value = e.toMessage();
+            } catch (e) {
+              password.error.value = 'err_data_transfer'.l10n;
+              rethrow;
+            }
+            break;
+
+          default:
+            await resetUserPassword();
+            break;
+        }
+      },
     );
 
     email = TextFieldState(
@@ -221,22 +271,30 @@ class LoginController extends GetxController {
           s.error.value = 'err_incorrect_email'.l10n;
         } else {
           emailCode.clear();
-          stage.value = LoginViewStage.signUpWithEmailCode;
+
+          final LoginViewStage previous = stage.value;
+
+          stage.value = switch (stage.value) {
+            LoginViewStage.signInWithEmail =>
+              LoginViewStage.signInWithEmailCode,
+            (_) => LoginViewStage.signUpWithEmailCode,
+          };
+
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
             _setResendEmailTimer(false);
 
-            stage.value = LoginViewStage.signUpWithEmail;
+            stage.value = previous;
           } catch (_) {
             s.resubmitOnError.value = true;
             s.error.value = 'err_data_transfer'.l10n;
             _setResendEmailTimer(false);
             s.unsubmit();
 
-            stage.value = LoginViewStage.signUpWithEmail;
+            stage.value = previous;
             rethrow;
           }
         }
@@ -247,13 +305,15 @@ class LoginController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService
-              .confirmSignUpEmail(ConfirmationCode(emailCode.text));
+          await _authService.signIn(
+            email: UserEmail(email.text),
+            code: ConfirmationCode(emailCode.text),
+          );
 
           (onSuccess ?? router.home)(signedUp: true);
-        } on ConfirmUserEmailException catch (e) {
+        } on CreateSessionException catch (e) {
           switch (e.code) {
-            case ConfirmUserEmailErrorCode.wrongCode:
+            case CreateSessionErrorCode.wrongCode:
               s.error.value = e.toMessage();
 
               ++codeAttempts;
@@ -313,7 +373,8 @@ class LoginController extends GetxController {
     login.error.value = null;
     password.error.value = null;
 
-    final bool noCredentials = userLogin == null &&
+    final bool noCredentials =
+        userLogin == null &&
         userNum == null &&
         userEmail == null &&
         userPhone == null;
@@ -331,7 +392,7 @@ class LoginController extends GetxController {
       final bool authorized = _authService.isAuthorized();
 
       await _authService.signIn(
-        userPassword,
+        password: userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
@@ -380,10 +441,12 @@ class LoginController extends GetxController {
   }
 
   /// Creates a new one-time account right away.
-  Future<void> register() async {
+  Future<void> register({UserPassword? password, UserLogin? login}) async {
     try {
-      await _authService.register();
+      await _authService.register(password: password, login: login);
       (onSuccess ?? router.home)();
+    } on SignUpException catch (e) {
+      this.login.error.value = e.toMessage();
     } on ConnectionException {
       MessagePopup.error('err_data_transfer'.l10n);
     } catch (e) {
@@ -428,11 +491,12 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.recoverUserPassword(
+      await _authService.createConfirmationCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
         phone: _recoveryPhone,
+        locale: L10n.chosen.value?.toString(),
       );
 
       stage.value = LoginViewStage.recoveryCode;
@@ -468,7 +532,7 @@ class LoginController extends GetxController {
     }
 
     try {
-      await _authService.validateUserPasswordRecoveryCode(
+      await _authService.validateConfirmationCode(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -483,7 +547,7 @@ class LoginController extends GetxController {
       recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
     } on ArgumentError {
       recoveryCode.error.value = 'err_wrong_recovery_code'.l10n;
-    } on ValidateUserPasswordRecoveryCodeException catch (e) {
+    } on ValidateConfirmationCodeException catch (e) {
       recoveryCode.error.value = e.toMessage();
     } catch (e) {
       recoveryCode.unsubmit();
@@ -499,7 +563,9 @@ class LoginController extends GetxController {
   /// Resets password for the [MyUser] identified by the provided in
   /// [recoverAccess] identity and [ConfirmationCode].
   Future<void> resetUserPassword() async {
-    if (newPassword.error.value != null || repeatPassword.error.value != null) {
+    if (newPassword.error.value != null ||
+        repeatPassword.error.value != null ||
+        recoveryCode.error.value != null) {
       return;
     }
 
@@ -538,7 +604,7 @@ class LoginController extends GetxController {
     repeatPassword.status.value = RxStatus.loading();
 
     try {
-      await _authService.resetUserPassword(
+      await _authService.updateUserPassword(
         login: _recoveryLogin,
         num: _recoveryNum,
         email: _recoveryEmail,
@@ -553,8 +619,17 @@ class LoginController extends GetxController {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
     } on ArgumentError {
       repeatPassword.error.value = 'err_incorrect_input'.l10n;
-    } on ResetUserPasswordException catch (e) {
-      repeatPassword.error.value = e.toMessage();
+    } on UpdateUserPasswordException catch (e) {
+      switch (e.code) {
+        case UpdateUserPasswordErrorCode.wrongOldPassword:
+          repeatPassword.error.value = 'err_wrong_old_password'.l10n;
+        case UpdateUserPasswordErrorCode.wrongCode:
+          recoveryCode.error.value = 'err_wrong_code'.l10n;
+        case UpdateUserPasswordErrorCode.confirmationRequired:
+          repeatPassword.error.value = 'err_confirmation_required'.l10n;
+        case UpdateUserPasswordErrorCode.artemisUnknown:
+          repeatPassword.error.value = 'err_unknown'.l10n;
+      }
     } catch (e) {
       repeatPassword.resubmitOnError.value = true;
       repeatPassword.error.value = 'err_data_transfer'.l10n;
@@ -572,8 +647,8 @@ class LoginController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
-    } on ResendUserEmailConfirmationException catch (e) {
+      await _authService.createConfirmationCode(email: UserEmail(email.text));
+    } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.resubmitOnError.value = true;
@@ -588,18 +663,15 @@ class LoginController extends GetxController {
     if (enabled) {
       password.submittable.value = false;
       signInTimeout.value = 30;
-      _signInTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          signInTimeout.value--;
-          if (signInTimeout.value <= 0) {
-            password.submittable.value = true;
-            signInTimeout.value = 0;
-            _signInTimer?.cancel();
-            _signInTimer = null;
-          }
-        },
-      );
+      _signInTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        signInTimeout.value--;
+        if (signInTimeout.value <= 0) {
+          password.submittable.value = true;
+          signInTimeout.value = 0;
+          _signInTimer?.cancel();
+          _signInTimer = null;
+        }
+      });
     } else {
       password.submittable.value = true;
       signInTimeout.value = 0;
@@ -612,17 +684,14 @@ class LoginController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();
@@ -635,18 +704,15 @@ class LoginController extends GetxController {
     if (enabled) {
       emailCode.submittable.value = false;
       codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          codeTimeout.value--;
-          if (codeTimeout.value <= 0) {
-            emailCode.submittable.value = true;
-            codeTimeout.value = 0;
-            _codeTimer?.cancel();
-            _codeTimer = null;
-          }
-        },
-      );
+      _codeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        codeTimeout.value--;
+        if (codeTimeout.value <= 0) {
+          emailCode.submittable.value = true;
+          codeTimeout.value = 0;
+          _codeTimer?.cancel();
+          _codeTimer = null;
+        }
+      });
     } else {
       emailCode.submittable.value = true;
       codeTimeout.value = 0;

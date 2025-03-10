@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,8 +48,8 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );
 
 /// Adds the specified amount of favorite [ChatContact]s for the provided
@@ -57,8 +57,8 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
 ///
 /// Examples:
 /// - Given Alice has 5 favorite contacts.
-final StepDefinitionGeneric hasFavoriteContacts =
-    given2<TestUser, int, CustomWorld>(
+final StepDefinitionGeneric
+hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
   '{user} has {int} favorite contacts',
   (TestUser user, int count, context) async {
     final provider = GraphQlProvider();
@@ -70,9 +70,10 @@ final StepDefinitionGeneric hasFavoriteContacts =
       Future future = Future(() async {
         final ChatContactEventsVersionedMixin result = await provider
             .createChatContact(name: UserName(i.toString().padLeft(2, '0')));
-        final ChatContactId contactId = (result.events.first
-                as ChatContactEventsVersionedMixin$Events$EventChatContactCreated)
-            .contactId;
+        final ChatContactId contactId =
+            (result.events.first
+                    as ChatContactEventsVersionedMixin$Events$EventChatContactCreated)
+                .contactId;
 
         provider.favoriteChatContact(
           contactId,
@@ -87,6 +88,6 @@ final StepDefinitionGeneric hasFavoriteContacts =
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

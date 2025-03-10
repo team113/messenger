@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,7 +36,6 @@ class UnblockButton extends StatelessWidget {
     return Container(
       key: const Key('UnblockButton'),
       decoration: BoxDecoration(
-        borderRadius: style.cardRadius,
         boxShadow: [
           CustomBoxShadow(
             blurRadius: 8,
@@ -48,10 +47,7 @@ class UnblockButton extends StatelessWidget {
         onPressed: onPressed,
         child: Container(
           constraints: const BoxConstraints(minHeight: 56),
-          decoration: BoxDecoration(
-            borderRadius: style.cardRadius,
-            color: style.cardColor,
-          ),
+          decoration: BoxDecoration(color: style.cardColor),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -38,67 +38,63 @@ import 'scroll_until.dart';
 /// Examples:
 /// - Then I see user Bob in search results
 /// - Then I see contact Charlie in search results
-final StepDefinitionGeneric seeUserInSearchResults =
-    then2<SearchCategory, TestUser, CustomWorld>(
+final StepDefinitionGeneric
+seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
   'I see {search_category} {user} in search results',
   (SearchCategory category, TestUser user, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        switch (category) {
-          case SearchCategory.contact:
-            final ContactService contactService = Get.find<ContactService>();
-            final ChatContactId id = contactService.paginated.values
-                .firstWhere((e) => e.contact.value.name.val == user.name)
-                .id;
-            return context.world.appDriver.isPresent(
-              context.world.appDriver.findBy('SearchContact_$id', FindType.key),
-            );
+      switch (category) {
+        case SearchCategory.contact:
+          final ContactService contactService = Get.find<ContactService>();
+          final ChatContactId id =
+              contactService.paginated.values
+                  .firstWhere((e) => e.contact.value.name.val == user.name)
+                  .id;
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findBy('SearchContact_$id', FindType.key),
+          );
 
-          case SearchCategory.user:
-            final UserId userId = context.world.sessions[user.name]!.userId;
+        case SearchCategory.user:
+          final UserId userId = context.world.sessions[user.name]!.userId;
 
-            final finder = context.world.appDriver
-                .findByKeySkipOffstage('SearchUser_$userId');
+          final finder = context.world.appDriver.findByKeySkipOffstage(
+            'SearchUser_$userId',
+          );
 
-            final scrollable = find.descendant(
-              of: find.byKey(const Key('SearchScrollable')),
-              matching: find.byWidgetPredicate((widget) {
-                // TODO: Find a proper way to differentiate [Scrollable]s from
-                //       [TextField]s:
-                //       https://github.com/flutter/flutter/issues/76981
-                if (widget is Scrollable) {
-                  return widget.restorationId == null;
-                }
-                return false;
-              }),
-            );
-
-            if (!await context.world.appDriver.isPresent(scrollable)) {
+          final scrollable = find.descendant(
+            of: find.byKey(const Key('SearchScrollable')),
+            matching: find.byWidgetPredicate((widget) {
+              // TODO: Find a proper way to differentiate [Scrollable]s from
+              //       [TextField]s:
+              //       https://github.com/flutter/flutter/issues/76981
+              if (widget is Scrollable) {
+                return widget.restorationId == null;
+              }
               return false;
-            }
+            }),
+          );
 
-            await context.world.appDriver.scrollIntoVisible(
-              finder,
-              scrollable,
-              dy: 100,
-            );
+          if (!await context.world.appDriver.isPresent(scrollable)) {
+            return false;
+          }
 
-            return context.world.appDriver.isPresent(
-              context.world.appDriver.findBy(
-                'SearchUser_$userId',
-                FindType.key,
-              ),
-            );
+          await context.world.appDriver.scrollIntoVisible(
+            finder,
+            scrollable,
+            dy: 100,
+          );
 
-          case SearchCategory.recent:
-          case SearchCategory.chat:
-            throw Exception('Chat or recent cannot be a TestUser.');
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+          return context.world.appDriver.isPresent(
+            context.world.appDriver.findBy('SearchUser_$userId', FindType.key),
+          );
+
+        case SearchCategory.recent:
+        case SearchCategory.chat:
+          throw Exception('Chat or recent cannot be a TestUser.');
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );
 
@@ -111,20 +107,14 @@ final StepDefinitionGeneric seeUserInSearchResults =
 final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
   'I see chat {string} in search results',
   (String name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy(
-            'SearchChat_$chatId',
-            FindType.key,
-          ),
-        );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final ChatId chatId = context.world.groups[name]!;
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
+      );
+    }, timeout: const Duration(seconds: 30));
   },
 );
 
@@ -134,46 +124,45 @@ final StepDefinitionGeneric seeChatInSearchResults = then1<String, CustomWorld>(
 /// Examples:
 /// - Then I see chat with Bob in search results
 final StepDefinitionGeneric seeChatWithUserInSearchResults =
-    then1<TestUser, CustomWorld>(
-  'I see chat with {user} in search results',
-  (TestUser user, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
+    then1<TestUser, CustomWorld>('I see chat with {user} in search results', (
+      TestUser user,
+      context,
+    ) async {
+      await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatId? chatId = context.world.sessions[user.name]?.dialog;
         if (chatId != null) {
           return context.world.appDriver.isPresent(
-            context.world.appDriver.findBy(
-              'SearchChat_$chatId',
-              FindType.key,
-            ),
+            context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
           );
         }
 
         return false;
-      },
-      timeout: const Duration(seconds: 30),
-    );
-  },
-);
+      }, timeout: const Duration(seconds: 30));
+    });
 
 /// Waits until the monolog is found and displayed in the ongoing search
 /// results.
 final StepDefinitionGeneric seeMonologInSearchResults = then<CustomWorld>(
   'I see monolog in search results',
   (context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      final ChatService chatService = Get.find<ChatService>();
+      final ChatId chatId = chatService.monolog;
+      final ChatId monologId = ChatId.local(chatService.me!);
 
-        final ChatId chatId = Get.find<ChatService>().monolog;
+      final bool isPresent = await context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
+      );
 
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('SearchChat_$chatId', FindType.key),
+      if (!isPresent) {
+        return await context.world.appDriver.isPresent(
+          context.world.appDriver.findBy('SearchChat_$monologId', FindType.key),
         );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      }
+
+      return isPresent;
+    }, timeout: const Duration(seconds: 30));
   },
 );

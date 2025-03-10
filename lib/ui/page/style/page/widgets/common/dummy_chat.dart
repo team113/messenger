@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -101,11 +101,14 @@ class DummyRxChat extends RxChat {
   Future<void> updateAvatar() async {}
 
   @override
-  void setDraft({
+  Future<void> ensureDraft() async {}
+
+  @override
+  Future<void> setDraft({
     ChatMessageText? text,
     List<Attachment> attachments = const [],
     List<ChatItem> repliesTo = const [],
-  }) {}
+  }) async {}
 
   @override
   Future<void> next() async {}
@@ -117,15 +120,12 @@ class DummyRxChat extends RxChat {
   Future<void> remove(ChatItemId itemId) async {}
 
   @override
-  Future<void> addMessage(ChatMessageText text) async {}
-
-  @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> around({
     ChatItemId? item,
     ChatItemId? reply,
     ChatItemId? forward,
-  }) async =>
-      null;
+    ChatMessageText? withText,
+  }) async => null;
 
   @override
   Future<Paginated<ChatItemId, Rx<ChatItem>>?> single(ChatItemId item) async =>
@@ -133,4 +133,9 @@ class DummyRxChat extends RxChat {
 
   @override
   int compareTo(RxChat other) => 0;
+
+  @override
+  Paginated<ChatItemId, Rx<ChatItem>> attachments({ChatItemId? item}) {
+    return PaginatedImpl();
+  }
 }

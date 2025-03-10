@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -112,82 +112,87 @@ class ChatForwardView extends StatelessWidget {
         pop: context.popModal,
       ),
       builder: (ChatForwardController c) {
-        return Obx(() {
-          return CustomDropTarget(
-            key: Key('ChatForwardView_$from'),
-            onDragDone: c.dropFiles,
-            onDragEntered: (_) => c.isDraggingFiles.value = true,
-            onDragExited: (_) => c.isDraggingFiles.value = false,
-            child: Stack(
-              children: [
-                Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.max,
-                    children: [
-                      Expanded(
-                        child: SearchView(
-                          key: const Key('SearchView'),
-                          categories: const [
-                            SearchCategory.chat,
-                            SearchCategory.contact,
-                            SearchCategory.user,
-                          ],
-                          title: 'label_forward_message'.l10n,
-                          onSelected: (r) => c.selected.value = r,
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
-                        child: MessageFieldView(
-                          fieldKey: const Key('ForwardField'),
-                          sendKey: const Key('SendForward'),
-                          constraints: BoxConstraints(
-                            maxHeight: min(
-                                    MediaQuery.of(context).size.height - 10,
-                                    800) /
-                                4,
+        return CustomDropTarget(
+          key: Key('ChatForwardView_$from'),
+          onPerformDrop: c.dropFiles,
+          builder:
+              (dragging) => Stack(
+                children: [
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 2),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.max,
+                      children: [
+                        Expanded(
+                          child: SearchView(
+                            key: const Key('SearchView'),
+                            categories: const [
+                              SearchCategory.chat,
+                              SearchCategory.contact,
+                              SearchCategory.user,
+                            ],
+                            title: 'label_forward_message'.l10n,
+                            onSelected: (r) => c.selected.value = r,
                           ),
-                          controller: c.send,
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(10, 0, 10, 0),
+                          child: MessageFieldView(
+                            fieldKey: const Key('ForwardField'),
+                            sendKey: const Key('SendForward'),
+                            constraints: BoxConstraints(
+                              maxHeight:
+                                  min(
+                                    MediaQuery.of(context).size.height - 10,
+                                    800,
+                                  ) /
+                                  4,
+                            ),
+                            controller: c.send,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                IgnorePointer(
-                  child: SafeAnimatedSwitcher(
-                    duration: 200.milliseconds,
-                    child: c.isDraggingFiles.value
-                        ? Container(
-                            color: style.colors.onBackgroundOpacity27,
-                            child: Center(
-                              child: AnimatedDelayedScale(
-                                duration: const Duration(milliseconds: 300),
-                                beginScale: 1,
-                                endScale: 1.06,
-                                child: ConditionalBackdropFilter(
-                                  borderRadius: BorderRadius.circular(16),
-                                  child: Container(
-                                    decoration: BoxDecoration(
+                  IgnorePointer(
+                    child: SafeAnimatedSwitcher(
+                      duration: 200.milliseconds,
+                      child:
+                          dragging
+                              ? Container(
+                                color: style.colors.onBackgroundOpacity27,
+                                child: Center(
+                                  child: AnimatedDelayedScale(
+                                    duration: const Duration(milliseconds: 300),
+                                    beginScale: 1,
+                                    endScale: 1.06,
+                                    child: ConditionalBackdropFilter(
                                       borderRadius: BorderRadius.circular(16),
-                                      color: style.colors.onBackgroundOpacity27,
-                                    ),
-                                    child: const Padding(
-                                      padding: EdgeInsets.all(16),
-                                      child: SvgIcon(SvgIcons.addBigger),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                          color:
+                                              style
+                                                  .colors
+                                                  .onBackgroundOpacity27,
+                                        ),
+                                        child: const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: SvgIcon(SvgIcons.addBigger),
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
-                          )
-                        : null,
+                              )
+                              : null,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          );
-        });
+                ],
+              ),
+        );
       },
     );
   }

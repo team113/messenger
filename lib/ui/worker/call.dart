@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,24 +18,39 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:base_x/base_x.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_io/io.dart';
+import 'package:uuid/uuid.dart';
 import 'package:vibration/vibration.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
+import '/api/backend/schema.dart';
+import '/domain/model/application_settings.dart';
+import '/domain/model/chat_item.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/ongoing_call.dart';
+import '/domain/model/session.dart';
 import '/domain/repository/chat.dart';
+import '/domain/repository/settings.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/disposable_service.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/notification.dart';
 import '/l10n/l10n.dart';
+import '/provider/gql/graphql.dart';
 import '/routes.dart';
 import '/util/audio_utils.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -48,6 +63,8 @@ class CallWorker extends DisposableService {
     this._chatService,
     this._myUserService,
     this._notificationService,
+    this._authService,
+    this._settingsRepository,
   );
 
   /// [CallService] used to get reactive changes of [OngoingCall]s.
@@ -62,14 +79,27 @@ class CallWorker extends DisposableService {
   /// [NotificationService] used to show an incoming call notification.
   final NotificationService _notificationService;
 
+  /// [AuthService] for retrieving the current [Credentials] in
+  /// [FlutterCallkitIncoming] events handling.
+  final AuthService _authService;
+
+  /// [AbstractSettingsRepository] used to retrieve
+  /// [ApplicationSettings.muteKeys].
+  final AbstractSettingsRepository _settingsRepository;
+
   /// Subscription to [CallService.calls] map.
   late final StreamSubscription _subscription;
 
-  /// Workers of [OngoingCall.state] responsible for stopping the [_audioPlayer]
-  /// when corresponding [OngoingCall] becomes active.
+  /// Workers of [OngoingCall.state] responsible for stopping the
+  /// [_incomingAudio] when corresponding [OngoingCall] becomes active.
   final Map<ChatId, Worker> _workers = {};
 
-  /// Subscription to [WebUtils.onStorageChange] [stop]ping the [_audioPlayer].
+  /// Workers of [OngoingCall.audioState] toggling the
+  /// [FlutterCallkitIncoming.muteCall] on iOS devices.
+  final Map<ChatId, Worker> _audioWorkers = {};
+
+  /// Subscription to [WebUtils.onStorageChange] [stop]ping the
+  /// [_incomingAudio].
   StreamSubscription? _storageSubscription;
 
   /// [ChatId]s of the calls that should be answered right away.
@@ -94,6 +124,23 @@ class CallWorker extends DisposableService {
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
 
+  /// [FlutterCallkitIncoming.onEvent] subscription reacting on the native call
+  /// interface events.
+  StreamSubscription? _callKitSubscription;
+
+  /// [GraphQlProvider.chatEvents] subscriptions for each ongoing
+  /// [FlutterCallkitIncoming] call to be notified about their endings.
+  final Map<ChatId, StreamSubscription> _eventsSubscriptions = {};
+
+  /// [HotKey] used for mute/unmute action of the [OngoingCall]s.
+  HotKey? _hotKey;
+
+  /// Indicator whether the [_hotKey] is already bind or not.
+  bool _bind = false;
+
+  /// Indicator whether all the [OngoingCall]s should be muted or not.
+  final RxBool _muted = RxBool(false);
+
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
   static const Duration _pushTimeout = Duration(seconds: 10);
@@ -111,6 +158,14 @@ class CallWorker extends DisposableService {
   /// Returns the name of an end call sound asset.
   String get _endCall => 'end_call.wav';
 
+  /// Indicator whether this device's [Locale] contains a China country code.
+  bool get _isChina => Platform.localeName.contains('CN');
+
+  /// Indicates whether [FlutterCallkitIncoming] should be considered active.
+  bool get _isCallKit =>
+      !PlatformUtils.isWeb &&
+      ((PlatformUtils.isIOS && !_isChina) || PlatformUtils.isAndroid);
+
   @override
   void onInit() {
     AudioUtils.ensureInitialized();
@@ -124,7 +179,13 @@ class CallWorker extends DisposableService {
     if (PlatformUtils.isAndroid && !PlatformUtils.isWeb) {
       _lifecycleWorker = ever(router.lifecycle, (e) async {
         if (e.inForeground) {
-          await FlutterCallkitIncoming.endAllCalls();
+          if (_isCallKit) {
+            try {
+              await FlutterCallkitIncoming.endAllCalls();
+            } catch (_) {
+              // No-op.
+            }
+          }
 
           _callService.calls.forEach((id, call) {
             if (_answeredCalls.contains(id) && !call.value.isActive) {
@@ -149,10 +210,18 @@ class CallWorker extends DisposableService {
         case OperationKind.added:
           final OngoingCall c = event.value!.value;
 
+          Future.delayed(Duration.zero, () {
+            // Ensure the call is displayed in the application before binding.
+            if (!c.background && c.state.value != OngoingCallState.ended) {
+              _bindHotKey();
+            }
+          });
+
           if (c.state.value == OngoingCallState.pending ||
               c.state.value == OngoingCallState.local) {
             // Indicator whether it is us who are calling.
-            final bool outgoing = (_callService.me == c.caller?.id ||
+            final bool outgoing =
+                (_callService.me == c.caller?.id ||
                     c.state.value == OngoingCallState.local) &&
                 c.conversationStartedAt == null;
 
@@ -172,23 +241,28 @@ class CallWorker extends DisposableService {
               play(_outgoing);
             } else if (!PlatformUtils.isMobile || isInForeground) {
               play(_incoming, fade: true);
-              Vibration.hasVibrator().then((bool? v) {
-                _vibrationTimer?.cancel();
+              Vibration.hasVibrator()
+                  .then((bool? v) {
+                    _vibrationTimer?.cancel();
 
-                if (v == true) {
-                  Vibration.vibrate(pattern: [500, 1000])
-                      .onError((_, __) => false);
-                  _vibrationTimer = Timer.periodic(
-                    const Duration(milliseconds: 1500),
-                    (timer) {
-                      Vibration.vibrate(pattern: [500, 1000], repeat: 0)
-                          .onError((_, __) => false);
-                    },
-                  );
-                }
-              }).catchError((_, __) {
-                // No-op.
-              });
+                    if (v == true) {
+                      Vibration.vibrate(
+                        pattern: [500, 1000],
+                      ).onError((_, __) => false);
+                      _vibrationTimer = Timer.periodic(
+                        const Duration(milliseconds: 1500),
+                        (timer) {
+                          Vibration.vibrate(
+                            pattern: [500, 1000],
+                            repeat: 0,
+                          ).onError((_, __) => false);
+                        },
+                      );
+                    }
+                  })
+                  .catchError((_, __) {
+                    // No-op.
+                  });
 
               // Show a notification of an incoming call.
               if (!outgoing && !PlatformUtils.isMobile && !_focused) {
@@ -230,21 +304,82 @@ class CallWorker extends DisposableService {
                 }
               }
             }
+          }
 
-            _workers[event.key!] = ever(c.state, (OngoingCallState state) {
-              if (state != OngoingCallState.pending &&
-                  state != OngoingCallState.local) {
+          if (_muted.value) {
+            c.setAudioEnabled(!_muted.value);
+          }
+
+          if (_isCallKit) {
+            _audioWorkers[event.key!] = ever(c.audioState, (
+              LocalTrackState state,
+            ) async {
+              final ChatItemId? callId = c.call.value?.id;
+
+              if (callId != null) {
+                await FlutterCallkitIncoming.muteCall(
+                  callId.val.base62ToUuid(),
+                  isMuted: !state.isEnabled,
+                );
+              }
+            });
+          }
+
+          _workers[event.key!] = ever(c.state, (OngoingCallState state) async {
+            final ChatItemId? callId = c.call.value?.id;
+
+            switch (state) {
+              case OngoingCallState.local:
+              case OngoingCallState.pending:
+                // No-op.
+                break;
+
+              case OngoingCallState.joining:
+              case OngoingCallState.active:
                 _workers.remove(event.key!)?.dispose();
                 if (_workers.isEmpty) {
                   stop();
                 }
-              }
-            });
+
+                if (_isCallKit && callId != null) {
+                  await FlutterCallkitIncoming.setCallConnected(
+                    callId.val.base62ToUuid(),
+                  );
+                }
+                break;
+
+              case OngoingCallState.ended:
+                _workers.remove(event.key!)?.dispose();
+                if (_workers.isEmpty) {
+                  stop();
+                }
+
+                if (_isCallKit && callId != null) {
+                  await FlutterCallkitIncoming.endCall(
+                    callId.val.base62ToUuid(),
+                  );
+                }
+                break;
+            }
+          });
+
+          if (_isCallKit) {
+            final RxChat? chat = await _chatService.get(c.chatId.value);
+
+            await FlutterCallkitIncoming.startCall(
+              CallKitParams(
+                nameCaller: chat?.title ?? 'Call',
+                id: (c.call.value?.id.val ?? c.chatId.value.val).base62ToUuid(),
+                handle: c.chatId.value.val,
+                extra: {'chatId': c.chatId.value.val},
+              ),
+            );
           }
           break;
 
         case OperationKind.removed:
           _answeredCalls.remove(event.key);
+          _audioWorkers.remove(event.key)?.dispose();
           _workers.remove(event.key)?.dispose();
           if (_workers.isEmpty) {
             stop();
@@ -255,17 +390,38 @@ class CallWorker extends DisposableService {
           if (call != null) {
             final bool isActiveOrEnded =
                 call.state.value == OngoingCallState.active ||
-                    call.state.value == OngoingCallState.ended;
+                call.state.value == OngoingCallState.ended;
             final bool withMe = call.members.containsKey(call.me.id);
 
             if (withMe && isActiveOrEnded && call.participated) {
               play(_endCall);
             }
+
+            if (_isCallKit) {
+              final ChatItemId? callId = call.call.value?.id;
+              if (callId != null) {
+                await FlutterCallkitIncoming.endCall(callId.val.base62ToUuid());
+              }
+
+              await FlutterCallkitIncoming.endCall(
+                call.chatId.value.val.base62ToUuid(),
+              );
+            }
           }
 
           // Set the default speaker, when all the [OngoingCall]s are ended.
           if (_callService.calls.isEmpty) {
-            await AudioUtils.setDefaultSpeaker();
+            _unbindHotKey();
+
+            try {
+              await AudioUtils.setDefaultSpeaker();
+            } on PlatformException {
+              // No-op.
+            }
+
+            if (_isCallKit) {
+              await FlutterCallkitIncoming.endAllCalls();
+            }
           }
           break;
 
@@ -274,13 +430,142 @@ class CallWorker extends DisposableService {
       }
     });
 
+    if (_isCallKit) {
+      _callKitSubscription = FlutterCallkitIncoming.onEvent.listen((
+        CallEvent? event,
+      ) async {
+        Log.debug('FlutterCallkitIncoming.onEvent -> $event', '$runtimeType');
+
+        switch (event!.event) {
+          case Event.actionCallAccept:
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              await _callService.join(ChatId(chatId));
+            }
+            break;
+
+          case Event.actionCallDecline:
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              await _callService.decline(ChatId(chatId));
+            }
+            break;
+
+          case Event.actionCallEnded:
+          case Event.actionCallTimeout:
+            final String? chatId = event.body['extra']?['chatId'];
+            if (chatId != null) {
+              _callService.remove(ChatId(chatId));
+            }
+            break;
+
+          case Event.actionCallToggleMute:
+            final bool? isMuted = event.body['isMuted'] as bool?;
+            if (isMuted != null) {
+              for (var e in _callService.calls.entries) {
+                e.value.value.setAudioEnabled(!isMuted);
+              }
+            }
+            break;
+
+          case Event.actionCallIncoming:
+            final String? extra = event.body['extra']?['chatId'];
+            final Credentials? credentials = _authService.credentials.value;
+
+            if (extra != null && credentials != null) {
+              final ChatId chatId = ChatId(extra);
+
+              final GraphQlProvider provider = GraphQlProvider();
+              provider.token = credentials.access.secret;
+
+              _eventsSubscriptions[chatId]?.cancel();
+              _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
+                e,
+              ) async {
+                var events =
+                    ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+                if (events.$$typename == 'ChatEventsVersioned') {
+                  var mixin =
+                      events
+                          as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+
+                  for (var e in mixin.events) {
+                    if (e.$$typename == 'EventChatCallFinished') {
+                      final node =
+                          e as ChatEventsVersionedMixin$Events$EventChatCallFinished;
+
+                      if (_isCallKit) {
+                        await FlutterCallkitIncoming.endCall(
+                          node.call.id.val.base62ToUuid(),
+                        );
+                      }
+                    } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                      final node =
+                          e
+                              as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                      final call = _callService.calls[chatId];
+
+                      if (node.user.id == credentials.userId &&
+                          call?.value.connected != true) {
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
+                      }
+                    } else if (e.$$typename == 'EventChatCallDeclined') {
+                      final node =
+                          e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                      if (node.user.id == credentials.userId) {
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.call.id.val.base62ToUuid(),
+                          );
+                        }
+                      }
+                    } else if (e.$$typename ==
+                        'EventChatCallAnswerTimeoutPassed') {
+                      final node =
+                          e
+                              as ChatEventsVersionedMixin$Events$EventChatCallAnswerTimeoutPassed;
+                      if (node.userId == credentials.userId) {
+                        if (_isCallKit) {
+                          await FlutterCallkitIncoming.endCall(
+                            node.callId.val.base62ToUuid(),
+                          );
+                        }
+                      }
+                    }
+                  }
+                }
+              });
+            }
+            break;
+
+          case Event.actionDidUpdateDevicePushTokenVoip:
+          case Event.actionCallStart:
+          case Event.actionCallCallback:
+          case Event.actionCallToggleHold:
+          case Event.actionCallToggleDmtf:
+          case Event.actionCallToggleGroup:
+          case Event.actionCallToggleAudioSession:
+          case Event.actionCallCustom:
+            // No-op.
+            break;
+        }
+      });
+    }
+
+    _hotKey =
+        _settingsRepository.applicationSettings.value?.muteHotKey ??
+        MuteHotKeyExtension.defaultHotKey;
+
     super.onInit();
   }
 
   @override
   void onReady() {
     _onFocusChanged = PlatformUtils.onFocusChanged.listen((f) => _focused = f);
-
     super.onReady();
   }
 
@@ -288,17 +573,21 @@ class CallWorker extends DisposableService {
   void onClose() {
     _outgoingAudio?.cancel();
     _incomingAudio?.cancel();
+    _callKitSubscription?.cancel();
 
     _subscription.cancel();
     _storageSubscription?.cancel();
     _onFocusChanged?.cancel();
     _workers.forEach((_, value) => value.dispose());
+    _audioWorkers.forEach((_, value) => value.dispose());
     _lifecycleWorker?.dispose();
 
     if (_vibrationTimer != null) {
       _vibrationTimer?.cancel();
       Vibration.cancel();
     }
+
+    _unbindHotKey();
 
     super.onClose();
   }
@@ -346,6 +635,7 @@ class CallWorker extends DisposableService {
         final chatId = ChatId(e.key!.replaceAll('call_', ''));
         if (e.newValue == null) {
           _callService.remove(chatId);
+          _audioWorkers.remove(chatId)?.dispose();
           _workers.remove(chatId)?.dispose();
           if (_workers.isEmpty) {
             stop();
@@ -357,10 +647,10 @@ class CallWorker extends DisposableService {
 
             final bool isActiveOrEnded =
                 call.state == OngoingCallState.active ||
-                    call.state == OngoingCallState.ended;
+                call.state == OngoingCallState.ended;
             final bool withMe =
                 call.call?.members.any((m) => m.user.id == _myUser.value?.id) ??
-                    false;
+                false;
 
             if (isActiveOrEnded && withMe) {
               play(_endCall);
@@ -378,5 +668,117 @@ class CallWorker extends DisposableService {
         }
       }
     });
+  }
+
+  /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
+  Future<void> _bindHotKey() async {
+    if (!_bind && _hotKey != null) {
+      _bind = true;
+
+      try {
+        await WebUtils.bindKey(_hotKey!, _toggleMuteOnKey);
+      } catch (e) {
+        Log.warning('Unable to bind hot key: $e', '$runtimeType');
+      }
+    }
+  }
+
+  /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
+  void _unbindHotKey() {
+    if (_bind) {
+      _bind = false;
+      _muted.value = false;
+
+      if (_hotKey != null) {
+        WebUtils.unbindKey(_hotKey!, _toggleMuteOnKey);
+      }
+    }
+  }
+
+  /// Toggles the [_muted] and invokes appropriate [OngoingCall.setAudioEnabled]
+  /// while playing an audio indicating the current [_muted] status.
+  bool _toggleMuteOnKey() {
+    bool muted = _muted.value;
+
+    final List<bool> states =
+        _callService.calls.values
+            .where((e) => !e.value.background)
+            .map((e) => e.value.audioState.value.isEnabled)
+            .toList();
+
+    if (states.isNotEmpty) {
+      muted = states.where((e) => e).length <= states.where((e) => !e).length;
+    }
+
+    _muted.value = !muted;
+
+    AudioUtils.once(
+      AudioSource.asset(
+        _muted.value ? 'audio/pause_off.ogg' : 'audio/pause_on.ogg',
+      ),
+    );
+
+    for (var e in _callService.calls.values) {
+      e.value.setAudioEnabled(!_muted.value);
+    }
+
+    return true;
+  }
+}
+
+/// Extension adding ability for [String] to be converted from base62-encoded
+/// to [Uuid].
+extension Base62ToUuid on String {
+  /// Decodes this base62-encoded [String] to a UUID.
+  String base62ToUuid() {
+    final BaseXCodec codec = BaseXCodec(
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+    );
+
+    final Uint8List bytes = codec.decode(this);
+    return UuidValue.fromByteList(bytes).toString();
+  }
+}
+
+/// Extension adding muting [HotKey] related getters to [ApplicationSettings].
+extension MuteHotKeyExtension on ApplicationSettings {
+  /// Returns the [HotKey] intended to be used as a default mute/unmute one.
+  static HotKey get defaultHotKey => HotKey(
+    key: PhysicalKeyboardKey.keyM,
+    modifiers: [HotKeyModifier.alt],
+    scope: HotKeyScope.system,
+  );
+
+  /// Constructs a [HotKey] for mute/unmute from these [ApplicationSettings].
+  HotKey get muteHotKey {
+    final List<String> keys = muteKeys ?? [];
+
+    final List<HotKeyModifier> modifiers = [];
+    final List<PhysicalKeyboardKey> physicalKeys = [];
+
+    for (var e in keys) {
+      final modifier = HotKeyModifier.values.firstWhereOrNull(
+        (m) => m.name == e,
+      );
+
+      if (modifier != null) {
+        modifiers.add(modifier);
+      } else {
+        final int? hid = int.tryParse(e);
+        if (hid != null) {
+          physicalKeys.add(PhysicalKeyboardKey(hid));
+        }
+      }
+    }
+
+    if (modifiers.isEmpty) {
+      modifiers.addAll(defaultHotKey.modifiers ?? []);
+    }
+
+    return HotKey(
+      key: physicalKeys.lastOrNull ?? defaultHotKey.physicalKey,
+      modifiers: modifiers,
+      scope: HotKeyScope.system,
+    );
   }
 }

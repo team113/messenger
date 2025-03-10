@@ -1,71 +1,74 @@
 name: messenger
-version: 0.1.0-alpha.13.5
+version: 0.3.3
 publish_to: none
 
 environment:
-  flutter: ">=3.19.0"
-  sdk: ">=3.3.0 <4.0.0"
+  flutter: ">=3.29.0"
+  sdk: ">=3.7.0 <4.0.0"
 
 dependencies:
-  all_sensors: ^0.4.2
+  all_sensors:
+    git: https://github.com/SleepySquash/all_sensors
   animated_size_and_fade: ^4.0.0
+  app_links: ^6.1.1
   apple_product_name: ^3.0.0
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
-  collection: ^1.17.2
+  base_x: ^2.0.1
+  collection: ^1.18.0
+  connectivity_plus: ^6.1.0
   crypto: ^3.0.3
-  desktop_drop: ^0.4.1
-  device_info_plus: ^10.1.0
+  device_info_plus: ^11.1.0
   dio: ^5.1.2
-  dough:
-    git:
-      url: https://github.com/krida2000/dough
-      path: packages/dough/
-  email_validator: ^2.1.17
+  dough: ^2.0.0
+  drift: ^2.23.1
+  email_validator: ^3.0.0
+  expandable_text: ^2.3.0
   ffi: ^2.0.2
-  file_picker: ^6.1.1
-  firebase_core: ^2.25.4
-  firebase_messaging: ^14.7.16
+  file_picker: 8.1.4
+  firebase_core: ^3.6.0
+  firebase_messaging: ^15.1.3
   fluent:
     git: https://github.com/sagudev/fluent-dart.git
   flutter:
     sdk: flutter
   flutter_animate: ^4.5.0
-  flutter_app_badger: ^1.5.0
   flutter_callkit_incoming:
-    git: https://github.com/SleepySquash/flutter_callkit_incoming_android
+    git: https://github.com/SleepySquash/flutter_callkit_incoming_android.git
   flutter_custom_cursor: ^0.0.4
   flutter_list_view:
     git: https://github.com/krida2000/flutter_list_view.git
-  flutter_local_notifications: ^16.1.0
-  flutter_markdown: ^0.6.17+2
-  flutter_slidable: ^3.0.1
-  flutter_spinkit: ^5.2.0
+  flutter_local_notifications: ^18.0.0
+  flutter_markdown: ^0.7.1
+  flutter_native_badge: ^1.0.5+dev
+  flutter_slidable: ^3.1.0
+  flutter_spinkit: ^5.2.1
   flutter_staggered_animations: ^1.1.1
-  flutter_svg: ^2.0.6
+  flutter_svg: ^2.0.10+1
   flutter_thumbhash: ^0.1.0+1
   flutter_web_plugins:
     sdk: flutter
-  flutter_widget_from_html_core: ^0.14.11
+  flutter_widget_from_html_core: ^0.15.2
   flutter_xlider: ^3.5.0
   get: ^4.6.5
-  graphql_flutter: ^5.2.0-beta.6
-  hive_flutter: ^1.1.0
-  hive: ^2.2.3
-  http: ^0.13.6
+  graphql_flutter: ^5.2.0-beta.7
+  hotkey_manager: ^0.2.3
+  http: ">=0.13.6 <2.0.0"
   http_parser: ^4.0.2
-  image_gallery_saver: ^2.0.3
-  image_picker:
+  image_gallery_saver:
     git:
-      url: https://github.com/krida2000/image_picker.git
+      url: https://github.com/SleepySquash/image_gallery_saver
+      ref: 30bfe2d373da611879bffc36365b8d26e3d2e065
+  image_picker: ^1.1.1
   intl: ^0.17.0
-  js: ^0.6.5
-  just_audio: ^0.9.36
+  json_annotation: ^4.9.0
+  just_audio: ^0.9.38
   log_me: ^0.1.2
+  macos_haptic_feedback: ^1.0.0
   material_floating_search_bar: ^0.3.7
-  medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
-  medea_jason: 0.5.0-dev+rev.3be6cab97a20c0ed382caf381ad4b44f65f9c97a
+  medea_flutter_webrtc: 0.12.2
+  medea_jason: 0.7.1
   media_kit: ^1.1.5
   media_kit_libs_android_video: ^1.3.2
   media_kit_libs_ios_video: ^1.1.3
@@ -74,84 +77,129 @@ dependencies:
   media_kit_libs_windows_video: ^1.0.7
   media_kit_native_event_loop: ^1.0.7
   media_kit_video: ^1.1.6
-  mime: ^1.0.4
+  mime: ^2.0.0
   mutex: ^3.0.1
   open_file: ^3.3.2
   path: ^1.8.2
-  path_provider: ^2.1.0
+  path_provider: ^2.1.3
   path_provider_android: ^2.1.0
-  permission_handler: ^11.3.0
-  photo_view: ^0.14.0
+  permission_handler: ^11.3.1
+  photo_view: ^0.15.0
   platform_detect: ^2.0.7
   pub_semver: ^2.1.4
+  qr_flutter: ^4.1.0
   scrollable_positioned_list:
     git:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
-  sentry_flutter: ^7.18.0
-  share_plus: ^7.0.0
+  screen_brightness: any
+  sentry_flutter: ^8.12.0
+  share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
   sound_fonts: ^0.1.1
-  qr_flutter: ^4.1.0
+  sqlite3_flutter_libs: ^0.5.28
+  sqlite3: ^2.4.4
   stdlibc: ^0.1.4
-  toml: ^0.15.0
+  super_clipboard: ^0.9.0-dev.3
+  super_drag_and_drop: ^0.9.0-dev.3
+  toml: ^0.16.0
   universal_io: ^2.2.2
   url_launcher: ^6.1.12
   uuid: ^4.3.3
-  vibration: ^1.8.1
+  vibration: ^3.1.2
+  volume_controller: any
   wakelock_plus: ^1.1.4
-  web_socket_channel: ^2.4.0
+  web_socket_channel: ^3.0.1
+  web: ">=0.5.1 <2.0.0"
   win_toast: ^0.3.0
   win32: ^5.0.6
-  window_manager: ^0.3.5
+  win32_registry: ^1.1.3
+  window_manager: ^0.4.3
   windows_taskbar: ^1.1.1
+  xdg_directories: ^1.1.0
   xml: ^6.5.0
+  yaml: ^3.1.2
 
 dev_dependencies:
-  artemis: ^7.13.1
+  artemis:
+    git: https://github.com/SleepySquash/artemis
   build: ^2.4.1
-  build_runner: ^2.4.6
-  dartdoc: ^8.0.5
+  build_runner: ^2.4.11
+  change_app_package_name: ^1.4.0
+  dartdoc: 8.3.0
+  drift_dev: ^2.23.1
   flutter_driver:
     sdk: flutter
   flutter_gherkin:
     git:
       url: https://github.com/jonsamwell/flutter_gherkin.git
       ref: ea59f6376f2d78e5b2140980e74879b862218ea1
-  flutter_lints: ^3.0.1
+  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
   http_mock_adapter: ^0.6.0
   integration_test:
     sdk: flutter
   gherkin: ^2.0.8
-  hive_generator: ^2.0.0
   json_serializable: ^6.6.2
   mockito: ^5.4.2
-  sentry_dart_plugin: ^1.2.0
-  yaml: ^3.1.2
+  sentry_dart_plugin: ^2.2.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^6.2.0
-  # TODO: Remove when `artemis` updates.
-  gql: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_exec: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_http_link: ^1.0.0
-  # TODO: Remove when `artemis` updates.
-  gql_link: ^1.0.0
-  # TODO: Remove when hivedb/hive#1034 is fixed:
-  #       https://github.com/hivedb/hive/issues/1034
-  hive:
+  analyzer: ^6.7.0
+  # TODO: Remove when `graphql` updates.
+  graphql:
     git:
-      url: https://github.com/krida2000/git-hive.git
-  # TODO: Remove when `artemis` updates.
-  http: ^1.1.0
-  # TODO: Remove when `medea_jason` updates.
-  medea_flutter_webrtc: 0.10.0-dev+rev.56483212e465ddaaee4593a4e4b7cc828e3faeb3
+      url: https://github.com/hagen00/graphql-flutter.git
+      path: packages/graphql
+  # TODO: Remove when `graphql_flutter` updates.
+  graphql_flutter:
+    git:
+      url: https://github.com/hagen00/graphql-flutter.git
+      path: packages/graphql_flutter
+  # TODO: Remove when `flutter_gherkin` updates.
+  http: ^1.0.0
+  image_picker_ios:
+    git:
+      url: https://github.com/SleepySquash/image_picker.git
+      path: packages/image_picker/image_picker_ios
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: media_kit
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_libs_android_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: libs/android/media_kit_libs_android_video
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_libs_ios_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: libs/ios/media_kit_libs_ios_video
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_libs_linux:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: libs/linux/media_kit_libs_linux
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_native_event_loop:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: media_kit_native_event_loop
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_libs_windows_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: libs/windows/media_kit_libs_windows_video
+  # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
+  media_kit_video:
+    git:
+      url: https://github.com/SleepySquash/media-kit
+      path: media_kit_video
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
 

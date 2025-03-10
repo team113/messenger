@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,11 +21,7 @@ import 'svg.dart';
 
 /// Data of a SVG to display in [SvgImage].
 class SvgData {
-  const SvgData(
-    this.asset, {
-    this.width,
-    this.height,
-  });
+  const SvgData(this.asset, {this.width, this.height});
 
   /// Asset of the SVG.
   final String asset;
@@ -148,6 +144,12 @@ class SvgIcons {
     height: 17.77,
   );
 
+  static const SvgData searchWhite = SvgData(
+    'assets/icons/search_white.svg',
+    width: 17.76,
+    height: 17.77,
+  );
+
   static const SvgData closePrimary = SvgData(
     'assets/icons/close_primary.svg',
     width: 15,
@@ -206,12 +208,6 @@ class SvgIcons {
     'assets/icons/password_small_white.svg',
     width: 17.1,
     height: 19,
-  );
-
-  static const SvgData qrCode = SvgData(
-    'assets/icons/qr_code.svg',
-    width: 20,
-    height: 20,
   );
 
   static const SvgData googlePlay = SvgData(
@@ -334,40 +330,10 @@ class SvgIcons {
     height: 12,
   );
 
-  static const SvgData wallet = SvgData(
-    'assets/icons/wallet.svg',
-    width: 34.01,
-    height: 29.73,
-  );
-
-  static const SvgData walletOpened = SvgData(
-    'assets/icons/wallet_opened.svg',
-    width: 34.01,
-    height: 29.73,
-  );
-
-  static const SvgData walletClosed = SvgData(
-    'assets/icons/wallet_closed.svg',
-    width: 34.01,
-    height: 26,
-  );
-
   static const SvgData partner = SvgData(
     'assets/icons/partner.svg',
     width: 36,
     height: 28,
-  );
-
-  static const SvgData publics = SvgData(
-    'assets/icons/publics.svg',
-    width: 32,
-    height: 31,
-  );
-
-  static const SvgData publicsMuted = SvgData(
-    'assets/icons/publics_muted.svg',
-    width: 32,
-    height: 31,
   );
 
   static const SvgData chats = SvgData(
@@ -564,10 +530,7 @@ class SvgIcons {
     height: 9,
   );
 
-  static const SvgData read = SvgData(
-    'assets/icons/read.svg',
-    height: 9,
-  );
+  static const SvgData read = SvgData('assets/icons/read.svg', height: 9);
 
   static const SvgData readWhite = SvgData(
     'assets/icons/read_white.svg',
@@ -584,10 +547,7 @@ class SvgIcons {
     height: 13,
   );
 
-  static const SvgData error = SvgData(
-    'assets/icons/error.svg',
-    height: 13,
-  );
+  static const SvgData error = SvgData('assets/icons/error.svg', height: 13);
 
   static const SvgData forward = SvgData(
     'assets/icons/forward.svg',
@@ -607,10 +567,7 @@ class SvgIcons {
     height: 21.91,
   );
 
-  static const SvgData readSmall = SvgData(
-    'assets/icons/read.svg',
-    height: 7,
-  );
+  static const SvgData readSmall = SvgData('assets/icons/read.svg', height: 7);
 
   static const SvgData halfReadSmall = SvgData(
     'assets/icons/half_read.svg',
@@ -632,10 +589,7 @@ class SvgIcons {
     height: 10,
   );
 
-  static const SvgData sentSmall = SvgData(
-    'assets/icons/sent.svg',
-    height: 7,
-  );
+  static const SvgData sentSmall = SvgData('assets/icons/sent.svg', height: 7);
 
   static const SvgData audioMessage = SvgData(
     'assets/icons/audio_message.svg',
@@ -1155,56 +1109,16 @@ class SvgIcons {
   );
 
   static const List<SvgData> head = [
-    SvgData(
-      'assets/images/logo/head_0.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_1.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_2.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_3.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_4.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_5.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_6.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_7.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_8.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
-    SvgData(
-      'assets/images/logo/head_9.svg',
-      width: 206.33,
-      height: 220.68,
-    ),
+    SvgData('assets/images/logo/head_0.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_1.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_2.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_3.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_4.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_5.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_6.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_7.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_8.svg', width: 206.33, height: 220.68),
+    SvgData('assets/images/logo/head_9.svg', width: 206.33, height: 220.68),
   ];
 
   static const SvgData fullscreenEnterSmall = SvgData(
@@ -1509,6 +1423,12 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData blockSmallRed = SvgData(
+    'assets/icons/block_red.svg',
+    width: 16,
+    height: 16,
+  );
+
   static const SvgData cleanHistory = SvgData(
     'assets/icons/clean_history.svg',
     width: 17.21,
@@ -1767,6 +1687,12 @@ class SvgIcons {
     height: 19,
   );
 
+  static const SvgData leaveGroupRed = SvgData(
+    'assets/icons/leave_group_red.svg',
+    width: 16.28,
+    height: 19,
+  );
+
   static const SvgData leaveGroupWhite = SvgData(
     'assets/icons/leave_group_white.svg',
     width: 16.28,
@@ -1902,6 +1828,24 @@ class SvgIcons {
   static const SvgData logoutWhite = SvgData(
     'assets/icons/logout_white.svg',
     width: 16.28,
+    height: 19,
+  );
+
+  static const SvgData directLink = SvgData(
+    'assets/icons/direct_link.svg',
+    width: 32.04,
+    height: 33.5,
+  );
+
+  static const SvgData notesSmall = SvgData(
+    'assets/icons/notes_small.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData notesSmallWhite = SvgData(
+    'assets/icons/notes_small_white.svg',
+    width: 19,
     height: 19,
   );
 }

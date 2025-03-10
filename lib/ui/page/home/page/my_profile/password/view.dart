@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -142,11 +142,13 @@ class ChangePasswordView extends StatelessWidget {
                       if (c.repeatPassword.status.value.isLoading) {
                         enabled = false;
                       } else if (c.myUser.value?.hasPassword == true) {
-                        enabled = !c.oldPassword.isEmpty.value &&
+                        enabled =
+                            !c.oldPassword.isEmpty.value &&
                             !c.newPassword.isEmpty.value &&
                             !c.repeatPassword.isEmpty.value;
                       } else {
-                        enabled = !c.newPassword.isEmpty.value &&
+                        enabled =
+                            !c.newPassword.isEmpty.value &&
                             !c.repeatPassword.isEmpty.value;
                       }
 
@@ -169,10 +171,11 @@ class ChangePasswordView extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 ModalPopupHeader(
-                  text: c.hasPassword &&
-                          c.stage.value != ChangePasswordFlowStage.set
-                      ? 'label_change_password'.l10n
-                      : 'label_set_password'.l10n,
+                  text:
+                      c.hasPassword &&
+                              c.stage.value != ChangePasswordFlowStage.set
+                          ? 'label_change_password'.l10n
+                          : 'label_set_password'.l10n,
                 ),
                 const SizedBox(height: 13),
                 Flexible(

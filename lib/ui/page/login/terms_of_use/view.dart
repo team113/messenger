@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -43,13 +43,11 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
 
   @override
   void initState() {
-    rootBundle.loadString('assets/terms.html').then(
-      (value) {
-        if (mounted) {
-          setState(() => _text = value);
-        }
-      },
-    );
+    rootBundle.loadString('assets/terms.html').then((value) {
+      if (mounted) {
+        setState(() => _text = value);
+      }
+    });
 
     super.initState();
   }
@@ -65,9 +63,9 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
         const ModalPopupHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: ModalPopup.padding(context).add(
-              const EdgeInsets.only(bottom: 16),
-            ),
+            padding: ModalPopup.padding(
+              context,
+            ).add(const EdgeInsets.only(bottom: 16)),
             child: HtmlWidget(
               _text!,
               onTapUrl: launchUrlString,

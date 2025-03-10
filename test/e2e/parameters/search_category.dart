@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,12 +21,12 @@ import 'package:messenger/ui/page/call/search/controller.dart';
 /// [CustomParameter] representing a [SearchCategory].
 class SearchCategoryParameter extends CustomParameter<SearchCategory> {
   SearchCategoryParameter()
-      : super(
-          'search_category',
-          RegExp(
-            '(${SearchCategory.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => SearchCategory.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'search_category',
+        RegExp(
+          '(${SearchCategory.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => SearchCategory.values.firstWhere((e) => e.name == c),
+      );
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -49,10 +49,8 @@ class _AnimatedTypingState extends State<AnimatedTyping>
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      debugLabel: '$runtimeType',
-    )..repeat(period: widget.period);
+    _controller = AnimationController(vsync: this, debugLabel: '$runtimeType')
+      ..repeat(period: widget.period);
   }
 
   @override
@@ -75,12 +73,18 @@ class _AnimatedTypingState extends State<AnimatedTyping>
         const double size = 3;
         const double spacing = 1.6;
 
-        final Color? color1 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
-        final Color? color2 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
-        final Color? color3 = ColorTween(begin: begin, end: end).lerp(
-            sin(pi * const Interval(0.6, 1).transform(_controller.value)));
+        final Color? color1 = ColorTween(
+          begin: begin,
+          end: end,
+        ).lerp(sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
+        final Color? color2 = ColorTween(
+          begin: begin,
+          end: end,
+        ).lerp(sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
+        final Color? color3 = ColorTween(
+          begin: begin,
+          end: end,
+        ).lerp(sin(pi * const Interval(0.6, 1).transform(_controller.value)));
 
         return Row(
           mainAxisSize: MainAxisSize.min,

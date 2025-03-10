@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,25 +15,27 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
-
-import '/domain/model_type_id.dart';
-
-part 'sending_status.g.dart';
+import 'package:get/get.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 /// Sending status of some request, e.g. posting a [ChatItem] or uploading an
 /// [Attachment].
-@HiveType(typeId: ModelTypeId.sendingStatus)
 enum SendingStatus {
   /// Request is sending.
-  @HiveField(0)
   sending,
 
   /// Successfully sent.
-  @HiveField(1)
   sent,
 
   /// Error occurred.
-  @HiveField(2)
-  error
+  error,
+}
+
+/// Extension adding methods to construct the [SendingStatus] to/from primitive
+/// types.
+///
+/// Intended to be used as [JsonKey.toJson] and [JsonKey.fromJson] methods.
+extension SendingStatusJson on SendingStatus {
+  /// Returns a [String] representing the [value].
+  static String toJson(Rx<SendingStatus> value) => value.value.name;
 }

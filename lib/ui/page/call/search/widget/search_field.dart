@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -29,12 +29,7 @@ import '/ui/widget/text_field.dart';
 
 /// [ReactiveTextField] inside a [CustomAppBar] stylized as a search field.
 class SearchField extends StatelessWidget {
-  const SearchField(
-    this.state, {
-    super.key,
-    this.onChanged,
-    this.hint,
-  });
+  const SearchField(this.state, {super.key, this.onChanged, this.hint});
 
   /// State of the search [ReactiveTextField].
   final TextFieldState state;
@@ -55,9 +50,11 @@ class SearchField extends StatelessWidget {
         return CustomAppBar(
           margin: const EdgeInsets.fromLTRB(0, 4, 0, 0),
           top: false,
-          border: state.isFocused.value || !state.isEmpty.value
-              ? Border.all(color: style.colors.primary, width: 2)
-              : null,
+          borderRadius: style.cardRadius,
+          border:
+              state.isFocused.value || !state.isEmpty.value
+                  ? Border.all(color: style.colors.primary, width: 2)
+                  : null,
           title: Theme(
             data: MessageFieldView.theme(context),
             child: Padding(
@@ -96,12 +93,13 @@ class SearchField extends StatelessWidget {
                 child = AnimatedButton(
                   key: const Key('ClearButton'),
                   onPressed: () => state.text = '',
-                  decorator: (child) => Container(
-                    padding: const EdgeInsets.only(right: 20, left: 6),
-                    width: 46,
-                    height: double.infinity,
-                    child: child,
-                  ),
+                  decorator:
+                      (child) => Container(
+                        padding: const EdgeInsets.only(right: 20, left: 6),
+                        width: 46,
+                        height: double.infinity,
+                        child: child,
+                      ),
                   child: const Center(child: SvgIcon(SvgIcons.clearSearch)),
                 );
               }

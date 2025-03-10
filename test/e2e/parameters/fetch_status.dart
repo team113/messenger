@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,12 @@ enum ImageFetchStatus { fetching, fetched }
 /// [CustomParameter] representing an [ImageFetchStatus].
 class ImageFetchStatusParameter extends CustomParameter<ImageFetchStatus> {
   ImageFetchStatusParameter()
-      : super(
-          'fetch_status',
-          RegExp(
-            '(${ImageFetchStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => ImageFetchStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'fetch_status',
+        RegExp(
+          '(${ImageFetchStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => ImageFetchStatus.values.firstWhere((e) => e.name == c),
+      );
 }

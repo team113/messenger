@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,8 +19,9 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:hive/hive.dart';
-import 'package:messenger/provider/hive/cache.dart';
+import 'package:messenger/domain/model/cache_info.dart';
+import 'package:messenger/provider/drift/cache.dart';
+import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/ui/worker/cache.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -29,16 +30,16 @@ import '../mock/platform_utils.dart';
 void main() async {
   PlatformUtils = PlatformUtilsMock();
 
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+
   final Directory cache = (await PlatformUtils.cacheDirectory)!..create();
 
-  Hive.init('./test/.temp_hive/cache_worker_unit');
-  var cacheInfoHiveProvider = CacheInfoHiveProvider();
-  await cacheInfoHiveProvider.init();
+  final cacheProvider = CacheDriftProvider(common);
 
   tearDownAll(() => cache.listSync().forEach((e) => e.deleteSync()));
 
   test('CacheWorker adds files to cache', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
+    final CacheWorker worker = CacheWorker(cacheProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -48,11 +49,11 @@ void main() async {
     expect(cache.listSync().length, 2);
 
     await worker.clear();
-    await cacheInfoHiveProvider.clear();
+    await cacheProvider.clear();
   });
 
   test('CacheWorker clears its files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
+    final CacheWorker worker = CacheWorker(cacheProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'));
@@ -63,12 +64,12 @@ void main() async {
     await worker.ensureOptimized();
 
     await worker.clear();
-    await cacheInfoHiveProvider.clear();
+    await cacheProvider.clear();
     expect(cache.listSync().length, 0);
   });
 
   test('CacheWorker finds stored files', () async {
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
+    final CacheWorker worker = CacheWorker(cacheProvider, null);
     await worker.onInit();
 
     await worker.add(base64Decode('someData'), 'checksum');
@@ -100,13 +101,13 @@ void main() async {
     );
 
     await worker.clear();
-    await cacheInfoHiveProvider.clear();
+    await cacheProvider.clear();
   });
 
   test('CacheWorker optimizes its resources correctly', () async {
-    await cacheInfoHiveProvider.set(maxSize: 1024 * 1024);
+    await cacheProvider.upsert(CacheInfo(maxSize: 1024 * 1024));
 
-    final CacheWorker worker = CacheWorker(cacheInfoHiveProvider, null);
+    final CacheWorker worker = CacheWorker(cacheProvider, null);
     await worker.onInit();
 
     for (int i = 0; i < 100; i++) {
@@ -127,6 +128,6 @@ void main() async {
     );
 
     await worker.clear();
-    await cacheInfoHiveProvider.clear();
+    await cacheProvider.clear();
   });
 }

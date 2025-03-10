@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,6 +45,7 @@ class HomeController extends GetxController {
     this._settings, {
     this.signedUp = false,
     this.link,
+    this.context,
   });
 
   /// Indicator whether the [IntroductionView] should be displayed with
@@ -80,6 +81,9 @@ class HomeController extends GetxController {
   /// [ChatDirectLinkSlug] to display [IntroductionView] with.
   final ChatDirectLinkSlug? link;
 
+  /// [BuildContext] of the [HomeView].
+  final BuildContext? context;
+
   /// Authentication service to determine auth status.
   final AuthService _auth;
 
@@ -112,11 +116,6 @@ class HomeController extends GetxController {
   /// Returns the [List] of the [HomeTab]s to display.
   List<HomeTab> get tabs {
     final List<HomeTab> tabs = HomeTab.values.toList();
-
-    if (settings.value?.workWithUsTabEnabled == false) {
-      tabs.remove(HomeTab.work);
-    }
-
     return tabs;
   }
 
@@ -131,8 +130,9 @@ class HomeController extends GetxController {
       (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
     );
 
-    sideBarWidth =
-        RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
+    sideBarWidth = RxDouble(
+      _settings.applicationSettings.value?.sideBarWidth ?? 350,
+    );
 
     router.addListener(_onRouterChanged);
   }
@@ -148,16 +148,13 @@ class HomeController extends GetxController {
         _displayIntroduction(_myUserService.myUser.value!);
       } else {
         Worker? worker;
-        worker = ever(
-          _myUserService.myUser,
-          (MyUser? myUser) {
-            if (myUser != null && worker != null) {
-              _displayIntroduction(myUser);
-              worker?.dispose();
-              worker = null;
-            }
-          },
-        );
+        worker = ever(_myUserService.myUser, (MyUser? myUser) {
+          if (myUser != null && worker != null) {
+            _displayIntroduction(myUser);
+            worker?.dispose();
+            worker = null;
+          }
+        });
       }
     }
   }
@@ -170,8 +167,8 @@ class HomeController extends GetxController {
   }
 
   /// Returns corrected according to the side bar constraints [width] value.
-  double applySideBarWidth(double width) {
-    double maxWidth = router.context!.width * sideBarMaxWidthPercentage;
+  double applySideBarWidth(BuildContext context, double width) {
+    double maxWidth = context.width * sideBarMaxWidthPercentage;
 
     if (maxWidth < sideBarMinWidth) {
       maxWidth = sideBarMinWidth;
@@ -234,8 +231,10 @@ class HomeController extends GetxController {
     }
 
     if (stage != null) {
-      IntroductionView.show(router.context!, initial: stage)
-          .then((_) => _settings.setShowIntroduction(false));
+      IntroductionView.show(
+        context ?? router.context!,
+        initial: stage,
+      ).then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);
     }

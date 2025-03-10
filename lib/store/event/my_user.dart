@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,15 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import '../model/my_user.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/domain/model/avatar.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/domain/model/user_call_cover.dart';
-import '/provider/hive/user.dart';
+import '/domain/model/user.dart';
+import '/store/model/my_user.dart';
+import 'changed.dart';
 
 /// Possible kinds of [MyUserEvent].
 enum MyUserEventKind {
@@ -31,8 +31,6 @@ enum MyUserEventKind {
   avatarUpdated,
   bioUpdated,
   bioDeleted,
-  blocklistRecordAdded,
-  blocklistRecordRemoved,
   callCoverDeleted,
   callCoverUpdated,
   cameOffline,
@@ -41,7 +39,6 @@ enum MyUserEventKind {
   directLinkDeleted,
   directLinkUpdated,
   emailAdded,
-  emailConfirmed,
   emailDeleted,
   loginDeleted,
   loginUpdated,
@@ -49,7 +46,6 @@ enum MyUserEventKind {
   nameUpdated,
   passwordUpdated,
   phoneAdded,
-  phoneConfirmed,
   phoneDeleted,
   presenceUpdated,
   statusDeleted,
@@ -57,6 +53,8 @@ enum MyUserEventKind {
   unmuted,
   unreadChatsCountUpdated,
   userMuted,
+  welcomeMessageDeleted,
+  welcomeMessageUpdated,
 }
 
 /// [MyUserEvent]s along with the corresponding [MyUserVersion].
@@ -267,35 +265,26 @@ class EventUserDirectLinkUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s [UserEmail] address being added.
 class EventUserEmailAdded extends MyUserEvent {
-  const EventUserEmailAdded(super.userId, this.email);
+  const EventUserEmailAdded(super.userId, this.email, this.confirmed);
 
   /// Added [UserEmail].
   final UserEmail email;
+
+  /// Indicator whether the added [UserEmail] address is confirmed.
+  ///
+  /// If `true`, then the [UserEmail] address was added to the
+  /// [MyUserEmails.confirmed] ones, otherwise was set as the
+  /// [MyUserEmails.unconfirmed] one.
+  final bool confirmed;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.emailAdded;
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserEmailAdded && email == other.email;
-
-  @override
-  int get hashCode => email.hashCode;
-}
-
-/// Event of an [MyUser]'s email address being confirmed.
-class EventUserEmailConfirmed extends MyUserEvent {
-  const EventUserEmailConfirmed(super.userId, this.email);
-
-  /// Confirmed [UserEmail].
-  final UserEmail email;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.emailConfirmed;
-
-  @override
-  bool operator ==(Object other) =>
-      other is EventUserEmailConfirmed && email == other.email;
+      other is EventUserEmailAdded &&
+      email == other.email &&
+      confirmed == other.confirmed;
 
   @override
   int get hashCode => email.hashCode;
@@ -414,35 +403,26 @@ class EventUserPasswordUpdated extends MyUserEvent {
 
 /// Event of an [MyUser]'s phone number being added.
 class EventUserPhoneAdded extends MyUserEvent {
-  const EventUserPhoneAdded(super.userId, this.phone);
+  const EventUserPhoneAdded(super.userId, this.phone, this.confirmed);
 
   /// Added [UserPhone].
   final UserPhone phone;
+
+  /// Indicator whether the added [UserPhone] address is confirmed.
+  ///
+  /// If `true`, then the [UserPhone] address was added to the
+  /// [MyUserPhones.confirmed] ones, otherwise was set as the
+  /// [MyUserPhones.unconfirmed] one.
+  final bool confirmed;
 
   @override
   MyUserEventKind get kind => MyUserEventKind.phoneAdded;
 
   @override
   bool operator ==(Object other) =>
-      other is EventUserPhoneAdded && phone == other.phone;
-
-  @override
-  int get hashCode => phone.hashCode;
-}
-
-/// Event of an [MyUser]'s phone number being confirmed.
-class EventUserPhoneConfirmed extends MyUserEvent {
-  const EventUserPhoneConfirmed(super.userId, this.phone);
-
-  /// Confirmed [UserPhone].
-  final UserPhone phone;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.phoneConfirmed;
-
-  @override
-  bool operator ==(Object other) =>
-      other is EventUserPhoneConfirmed && phone == other.phone;
+      other is EventUserPhoneAdded &&
+      phone == other.phone &&
+      confirmed == other.confirmed;
 
   @override
   int get hashCode => phone.hashCode;
@@ -548,55 +528,56 @@ class EventUserUnreadChatsCountUpdated extends MyUserEvent {
   int get hashCode => count.hashCode;
 }
 
-/// Event of a [User] being added or removed to/from blocklist of the [MyUser].
-abstract class BlocklistEvent extends MyUserEvent {
-  BlocklistEvent(this.user, this.at) : super(user.value.id);
+/// Event of a [WelcomeMessage] being deleted by its author.
+class EventUserWelcomeMessageDeleted extends MyUserEvent {
+  EventUserWelcomeMessageDeleted(super.userId, this.at);
 
-  /// [User] this [BlocklistEvent] is about.
-  final HiveUser user;
-
-  /// [PreciseDateTime] when this [BlocklistEvent] happened.
+  /// [PreciseDateTime] when the [WelcomeMessage] was deleted.
   final PreciseDateTime at;
 
   @override
-  bool operator ==(Object other) =>
-      other is BlocklistEvent &&
-      user.value.id == other.user.value.id &&
-      at == other.at;
-
-  @override
-  int get hashCode => Object.hash(user, at);
-}
-
-/// Event of a [BlocklistRecord] being added to blocklist of the authenticated
-/// [MyUser].
-class EventBlocklistRecordAdded extends BlocklistEvent {
-  EventBlocklistRecordAdded(super.user, super.at, this.reason);
-
-  /// Reason of why the [User] was blocked.
-  final BlocklistReason? reason;
-
-  @override
-  MyUserEventKind get kind => MyUserEventKind.blocklistRecordAdded;
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageDeleted;
 
   @override
   bool operator ==(Object other) =>
-      other is EventBlocklistRecordAdded && reason == other.reason;
+      other is EventUserWelcomeMessageDeleted && other.at == at;
 
   @override
-  int get hashCode => reason.hashCode;
+  int get hashCode => kind.hashCode;
 }
 
-/// Event of a [BlocklistRecord] being removed from blocklist of the
-/// authenticated [MyUser].
-class EventBlocklistRecordRemoved extends BlocklistEvent {
-  EventBlocklistRecordRemoved(super.user, super.at);
+/// Event of a [WelcomeMessage] being updated by its author.
+class EventUserWelcomeMessageUpdated extends MyUserEvent {
+  EventUserWelcomeMessageUpdated(
+    super.userId,
+    this.at,
+    this.text,
+    this.attachments,
+  );
+
+  /// [PreciseDateTime] when the [WelcomeMessage] was updated.
+  final PreciseDateTime at;
+
+  /// Edited [WelcomeMessage.text].
+  ///
+  /// `null` means that the previous [WelcomeMessage.text] remains unchanged.
+  final ChangedChatMessageText? text;
+
+  /// Edited [WelcomeMessage.attachments].
+  ///
+  /// `null` means that the previous [WelcomeMessage.attachments] remain
+  /// unchanged.
+  final ChangedChatMessageAttachments? attachments;
 
   @override
-  MyUserEventKind get kind => MyUserEventKind.blocklistRecordRemoved;
+  MyUserEventKind get kind => MyUserEventKind.welcomeMessageUpdated;
 
   @override
-  bool operator ==(Object other) => other is EventBlocklistRecordRemoved;
+  bool operator ==(Object other) =>
+      other is EventUserWelcomeMessageUpdated &&
+      other.at == at &&
+      other.text == text &&
+      other.attachments == attachments;
 
   @override
   int get hashCode => kind.hashCode;

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -46,36 +46,39 @@ class FadingSlidableAction extends StatelessWidget {
       child: SizedBox.expand(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(6, 3, 3, 3),
-          child: LayoutBuilder(builder: (context, constraints) {
-            return OutlinedButton(
-              onPressed: () {
-                onPressed?.call(context);
-                Slidable.of(context)?.close();
-              },
-              style: OutlinedButton.styleFrom(
-                padding: EdgeInsets.zero,
-                backgroundColor: style.colors.danger,
-                foregroundColor: style.colors.onPrimary,
-                shape: RoundedRectangleBorder(borderRadius: style.cardRadius),
-                side: BorderSide.none,
-              ),
-              child: Opacity(
-                opacity: constraints.maxWidth > 50
-                    ? 1
-                    : constraints.maxWidth > 25
-                        ? (constraints.maxWidth - 25) / 25
-                        : 0,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    icon,
-                    const SizedBox(height: 8),
-                    Text(text, maxLines: 1),
-                  ],
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return OutlinedButton(
+                onPressed: () {
+                  onPressed?.call(context);
+                  Slidable.of(context)?.close();
+                },
+                style: OutlinedButton.styleFrom(
+                  padding: EdgeInsets.zero,
+                  backgroundColor: style.colors.danger,
+                  foregroundColor: style.colors.onPrimary,
+                  shape: RoundedRectangleBorder(borderRadius: style.cardRadius),
+                  side: BorderSide.none,
                 ),
-              ),
-            );
-          }),
+                child: Opacity(
+                  opacity:
+                      constraints.maxWidth > 50
+                          ? 1
+                          : constraints.maxWidth > 25
+                          ? (constraints.maxWidth - 25) / 25
+                          : 0,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      icon,
+                      const SizedBox(height: 8),
+                      Text(text, maxLines: 1),
+                    ],
+                  ),
+                ),
+              );
+            },
+          ),
         ),
       ),
     );

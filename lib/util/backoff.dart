@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -48,14 +48,14 @@ class Backoff {
 
           try {
             return await callback();
-          } catch (e) {
+          } catch (e, _) {
             if (backoff.inMilliseconds == 0) {
               backoff = _minBackoff;
             } else if (backoff < _maxBackoff) {
               backoff *= 2;
             }
 
-            Log.error(e.toString(), 'Backoff');
+            Log.debug(e.toString(), 'Backoff');
           }
         }
       }),

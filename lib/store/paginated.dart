@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -128,6 +128,11 @@ class PaginatedImpl<K, T, V, C> extends Paginated<K, T> {
   }
 
   @override
+  Future<void> clear() async {
+    await pagination?.clear();
+  }
+
+  @override
   Future<void> next() async {
     Log.debug('next()', '$runtimeType');
 
@@ -185,25 +190,12 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     super.initialCursor,
     super.onDispose,
   }) {
+    // TODO: Replace completely with bug-free [_apply]ing of items right away.
     _paginationSubscription = pagination!.changes.listen((event) async {
       switch (event.op) {
         case OperationKind.added:
         case OperationKind.updated:
-          FutureOr<T?> itemOrFuture = transform(
-            previous: items[event.key!],
-            data: event.value as V,
-          );
-          final T? item;
-
-          if (itemOrFuture is T?) {
-            item = itemOrFuture;
-          } else {
-            item = await itemOrFuture;
-          }
-
-          if (item != null) {
-            items[event.key!] = item;
-          }
+          await _apply(event.key as K, event.value as V);
           break;
 
         case OperationKind.removed:
@@ -250,9 +242,20 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
 
     if (!status.value.isSuccess) {
       await ensureInitialized();
+    } else if (items.isNotEmpty) {
+      await clear();
     }
 
-    await pagination?.around(key: initialKey, cursor: initialCursor);
+    final Page<V, C>? page = await pagination?.around(
+      key: initialKey,
+      cursor: initialCursor,
+    );
+
+    if (page != null) {
+      for (var e in page.edges) {
+        await _apply(pagination!.onKey(e), e);
+      }
+    }
   }
 
   @override
@@ -291,9 +294,31 @@ class RxPaginatedImpl<K, T, V, C> extends PaginatedImpl<K, T, V, C> {
     await pagination?.remove(key);
   }
 
-  /// Clears the [pagination].
+  @override
   Future<void> clear() async {
+    items.clear();
     await pagination?.clear();
     status.value = RxStatus.empty();
+  }
+
+  /// Applies [transform] to the [value] item with its [key].
+  FutureOr<void> _apply(K key, V value) {
+    final FutureOr<T?> itemOrFuture = transform(
+      previous: items[key],
+      data: value,
+    );
+
+    if (itemOrFuture is T?) {
+      if (itemOrFuture != null) {
+        items[key] = itemOrFuture;
+      }
+    } else {
+      return Future(() async {
+        final item = await itemOrFuture;
+        if (item != null) {
+          items[key] = item;
+        }
+      });
+    }
   }
 }

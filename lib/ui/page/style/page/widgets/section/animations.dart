@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,19 +41,25 @@ class AnimationsSection {
         children: [
           (
             headline: 'CustomProgressIndicator',
-            widget: SizedBox(child: Center(child: CustomProgressIndicator()))
+            widget: SizedBox(child: Center(child: CustomProgressIndicator())),
+          ),
+          (
+            headline: 'CustomProgressIndicator.small',
+            widget: SizedBox(
+              child: Center(child: CustomProgressIndicator.small()),
+            ),
           ),
           (
             headline: 'CustomProgressIndicator.big',
             widget: SizedBox(
               child: Center(child: CustomProgressIndicator.big()),
-            )
+            ),
           ),
           (
             headline: 'CustomProgressIndicator.primary',
             widget: SizedBox(
               child: Center(child: CustomProgressIndicator.primary()),
-            )
+            ),
           ),
         ],
       ),

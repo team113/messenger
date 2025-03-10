@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,11 +17,12 @@
 
 import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
-import 'package:hive/hive.dart';
 import 'package:messenger/main.dart';
+import 'package:messenger/provider/geo/geo.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
 
+import '../mock/geo.dart';
 import '../mock/graphql.dart';
 import '../world/custom_world.dart';
 
@@ -29,30 +30,31 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I restart app
-final StepDefinitionGeneric restartApp = then<CustomWorld>(
-  'I restart app',
-  (context) async {
-    // Going to [Routes.restart] page ensures all [GetxController]s are properly
-    // released since they depend on the [router].
-    router.go(Routes.restart);
-    await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
+  context,
+) async {
+  // Going to [Routes.restart] page ensures all [GetxController]s are properly
+  // released since they depend on the [router].
+  router.go(Routes.restart);
 
-    final MockGraphQlProvider provider =
-        Get.find<GraphQlProvider>() as MockGraphQlProvider;
+  await context.world.appDriver.waitForAppToSettle();
 
-    await Get.deleteAll(force: true);
-    Get.reset();
+  final MockGraphQlProvider provider =
+      Get.find<GraphQlProvider>() as MockGraphQlProvider;
 
-    await Future.delayed(Duration.zero);
-    await Hive.close();
+  await Get.deleteAll();
 
-    Get.put<GraphQlProvider>(
-      MockGraphQlProvider()
-        ..client.delay = provider.client.delay
-        ..client.throwException = provider.client.throwException,
-    );
+  await Future.delayed(const Duration(seconds: 1));
 
-    await main();
-    await context.world.appDriver.waitForAppToSettle();
-  },
-);
+  Get.put<GraphQlProvider>(
+    MockGraphQlProvider()
+      ..client.delay = provider.client.delay
+      ..client.throwException = provider.client.throwException,
+  );
+
+  Get.put<GeoLocationProvider>(MockGeoLocationProvider());
+
+  await main();
+
+  await Future.delayed(Duration(seconds: 10));
+});

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,37 +36,35 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric rightClickMessage = when1<String, CustomWorld>(
   RegExp(r'I right click {string} message'),
   (text, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      try {
+        RxChat? chat =
+            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+        ChatMessage message = chat!.messages
+            .map((e) => e.value)
+            .whereType<ChatMessage>()
+            .firstWhere((e) => e.text?.val == text);
+
+        Finder finder = context.world.appDriver.findByKeySkipOffstage(
+          'Message_${message.id}',
+        );
+
+        await context.world.appDriver.waitForAppToSettle();
+        await context.world.appDriver.nativeDriver.tap(
+          finder,
+          buttons: kSecondaryMouseButton,
+        );
+
         await context.world.appDriver.waitForAppToSettle();
 
-        try {
-          RxChat? chat = Get.find<ChatService>()
-              .chats[ChatId(router.route.split('/').last)];
-          ChatMessage message = chat!.messages
-              .map((e) => e.value)
-              .whereType<ChatMessage>()
-              .firstWhere((e) => e.text?.val == text);
+        return true;
+      } catch (_) {
+        // No-op.
+      }
 
-          Finder finder = context.world.appDriver
-              .findByKeySkipOffstage('Message_${message.id}');
-
-          await context.world.appDriver.waitForAppToSettle();
-          await context.world.appDriver.nativeDriver.tap(
-            finder,
-            buttons: kSecondaryMouseButton,
-          );
-
-          await context.world.appDriver.waitForAppToSettle();
-
-          return true;
-        } catch (_) {
-          // No-op.
-        }
-
-        return false;
-      },
-      timeout: const Duration(seconds: 20),
-    );
+      return false;
+    }, timeout: const Duration(seconds: 20));
   },
 );

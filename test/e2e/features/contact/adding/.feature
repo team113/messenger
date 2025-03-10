@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,22 +15,23 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Adding contacts
+# TODO: Uncomment, when contacts are implemented.
+# Feature: Adding contacts
 
-  Background: User on Bob's page
-    Given I am Alice
-    And user Bob
-    And I wait until `HomeView` is present
-    And I tap `ContactsButton` button
-    And I go to Bob's page
+#   Background: User on Bob's page
+#     Given I am Alice
+#     And user Bob
+#     And I wait until `HomeView` is present
+#     And I tap `ContactsButton` button
+#     And I go to Bob's page
 
-  Scenario: User adds Bob to their contacts
-    When I tap `MoreButton` button
-    And I tap `AddToContactsButton` button
-    Then I see "Bob" contact as unfavorite
+#   Scenario: User adds Bob to their contacts
+#     When I tap `MoreButton` button
+#     And I tap `AddToContactsButton` button
+#     Then I see "Bob" contact as unfavorite
 
-  Scenario: User adds Bob straight to favorite contacts
-    When I tap `MoreButton` button
-    And I tap `AddToFavoriteButton` button
-    Then I see "Bob" contact as favorite
+#   Scenario: User adds Bob straight to favorite contacts
+#     When I tap `MoreButton` button
+#     And I tap `AddToFavoriteButton` button
+#     Then I see "Bob" contact as favorite
 

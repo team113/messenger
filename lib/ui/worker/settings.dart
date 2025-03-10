@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,16 +47,15 @@ class SettingsWorker extends DisposableService {
       await L10n.set(Language.fromTag(locale));
     }
 
-    _worker = ever(
-      _settingsRepository.applicationSettings,
-      (ApplicationSettings? settings) {
-        if (locale != settings?.locale) {
-          locale = settings?.locale;
-          L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
-          onChanged?.call(locale);
-        }
-      },
-    );
+    _worker = ever(_settingsRepository.applicationSettings, (
+      ApplicationSettings? settings,
+    ) {
+      if (locale != settings?.locale) {
+        locale = settings?.locale;
+        L10n.set(Language.fromTag(locale) ?? L10n.languages.first);
+        onChanged?.call(locale);
+      }
+    });
   }
 
   @override

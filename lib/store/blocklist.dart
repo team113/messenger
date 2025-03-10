@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,30 +17,38 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
-import 'package:hive/hive.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
+import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
-import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
+import '/provider/drift/blocklist.dart';
+import '/provider/drift/version.dart';
+import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
-import '/provider/hive/blocklist.dart';
-import '/provider/hive/blocklist_sorting.dart';
-import '/provider/hive/session_data.dart';
-import '/store/pagination/hive.dart';
-import '/store/pagination/hive_graphql.dart';
 import '/util/log.dart';
-import '/util/obs/obs.dart';
+import '/util/new_type.dart';
+import '/util/stream_utils.dart';
 import '/util/web/web_utils.dart';
+import 'event/blocklist.dart';
+import 'model/blocklist.dart';
 import 'model/my_user.dart';
+import 'model/session_data.dart';
+import 'paginated.dart';
 import 'pagination.dart';
+import 'pagination/drift_graphql.dart';
+import 'pagination/drift.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
+
+typedef BlocklistPaginated =
+    RxPaginatedImpl<UserId, RxUser, DtoBlocklistRecord, BlocklistCursor>;
 
 /// [MyUser]'s blocklist repository.
 class BlocklistRepository extends DisposableInterface
@@ -48,129 +56,130 @@ class BlocklistRepository extends DisposableInterface
   BlocklistRepository(
     this._graphQlProvider,
     this._blocklistLocal,
-    this._blocklistSortingLocal,
-    this._userRepo,
-    this._sessionLocal,
+    this._userRepository,
+    this._sessionLocal, {
+    required this.me,
+  });
+
+  /// [UserId] of the currently authenticated [MyUser] this repository is bound
+  /// to.
+  final UserId me;
+
+  @override
+  final RxInt count = RxInt(0);
+
+  @override
+  late final BlocklistPaginated blocklist = BlocklistPaginated(
+    pagination: Pagination(
+      onKey: (e) => e.userId,
+      perPage: 15,
+      provider: DriftGraphQlPageProvider(
+        driftProvider: DriftPageProvider(
+          fetch: ({required after, required before, UserId? around}) async {
+            return await _blocklistLocal.records(limit: after + before + 1);
+          },
+          onKey: (e) => e.value.userId,
+          onCursor: (e) => e?.cursor,
+          add: (e, {bool toView = true}) async {
+            await _blocklistLocal.upsertBulk(e);
+          },
+          delete: (e) async => await _blocklistLocal.delete(e),
+          reset: () async => await _blocklistLocal.clear(),
+          isFirst:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isLast:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          compare: (a, b) => a.value.compareTo(b.value),
+        ),
+        graphQlProvider: GraphQlPageProvider(
+          fetch: ({after, before, first, last}) async {
+            final Page<DtoBlocklistRecord, BlocklistCursor> page =
+                await _blocklist(
+                  after: after,
+                  before: before,
+                  first: first,
+                  last: last,
+                );
+
+            if (page.info.hasNext == false) {
+              _sessionLocal.upsert(
+                me,
+                SessionData(blocklistSynchronized: true),
+              );
+            }
+
+            return page;
+          },
+        ),
+      ),
+      compare: (a, b) => a.value.compareTo(b.value),
+    ),
+    transform: ({required DtoBlocklistRecord data, RxUser? previous}) {
+      return previous ?? _userRepository.get(data.userId);
+    },
   );
-
-  @override
-  final RxObsMap<UserId, RxUser> blocklist = RxObsMap<UserId, RxUser>();
-
-  @override
-  final Rx<RxStatus> status = Rx<RxStatus>(RxStatus.loading());
 
   /// GraphQL API provider.
   final GraphQlProvider _graphQlProvider;
 
-  /// Blocked [User]s local [Hive] storage.
-  final BlocklistHiveProvider _blocklistLocal;
-
-  /// [UserId]s sorted by [PreciseDateTime] representing [BlocklistRecord]s
-  /// [Hive] storage.
-  final BlocklistSortingHiveProvider _blocklistSortingLocal;
+  /// Blocked [User]s local storage.
+  final BlocklistDriftProvider _blocklistLocal;
 
   /// [User]s repository, used to put the fetched [User]s into it.
-  final UserRepository _userRepo;
+  final UserRepository _userRepository;
 
-  /// [SessionDataHiveProvider] used to store blocked [User]s list related data.
-  final SessionDataHiveProvider _sessionLocal;
+  /// [VersionDriftProvider] used to store blocked [User]s list related data.
+  final VersionDriftProvider _sessionLocal;
 
-  /// [BlocklistHiveProvider.boxEvents] subscription.
-  StreamIterator<BoxEvent>? _localSubscription;
+  /// Total count of blocked users.
+  int? _blocklistCount;
 
-  /// [Pagination] loading [blocklist] with pagination.
-  late final Pagination<HiveBlocklistRecord, BlocklistCursor, UserId>
-      _pagination;
-
-  /// Subscription to the [Pagination.items] changes.
-  StreamSubscription? _paginationSubscription;
-
-  @override
-  RxBool get hasNext => _pagination.hasNext;
-
-  @override
-  RxBool get nextLoading => _pagination.nextLoading;
+  /// [_blocklistRemoteEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamQueue<BlocklistEvents>? _remoteSubscription;
 
   @override
   void onInit() {
-    Log.debug('onInit()', '$runtimeType');
+    _initRemoteSubscription();
 
-    _initLocalSubscription();
-    _initRemotePagination();
+    count.value = _sessionLocal.data[me]?.blocklistCount ?? 0;
 
     super.onInit();
   }
 
   @override
   void onClose() {
-    Log.debug('onClose()', '$runtimeType');
-
-    _localSubscription?.cancel();
-    _paginationSubscription?.cancel();
-    _pagination.dispose();
-
+    _remoteSubscription?.close(immediate: true);
     super.onClose();
   }
 
-  @override
-  Future<void> around() async {
-    Log.debug('around()', '$runtimeType');
-
-    if (status.value.isSuccess) {
-      return;
-    }
-
-    await _pagination.around();
-
-    status.value = RxStatus.success();
-  }
-
-  @override
-  Future<void> next() {
-    Log.debug('next()', '$runtimeType');
-    return _pagination.next();
-  }
-
-  /// Puts the provided [record] to [Pagination] and [Hive].
-  Future<void> put(
-    HiveBlocklistRecord record, {
-    bool pagination = false,
-  }) async {
+  /// Puts the provided [record] to [Pagination] and local storage.
+  Future<void> put(DtoBlocklistRecord record, {bool pagination = false}) async {
     Log.debug('put($record, $pagination)', '$runtimeType');
-
-    // [pagination] is `true`, if the [user] is received from [Pagination],
-    // thus otherwise we should try putting it to it.
-    if (!pagination) {
-      await _pagination.put(record);
-    } else {
-      _add(record.value.userId);
-
-      // TODO: https://github.com/team113/messenger/issues/27
-      // Don't write to [Hive] from popup, as [Hive] doesn't support isolate
-      // synchronization, thus writes from multiple applications may lead to
-      // missing events.
-      if (!WebUtils.isPopup) {
-        await _blocklistLocal.put(record);
-      }
-    }
+    await blocklist.put(record);
   }
 
   /// Removes a [User] identified by the provided [userId] from the [blocklist].
   Future<void> remove(UserId userId) {
     Log.debug('remove($userId)', '$runtimeType');
-    return _blocklistLocal.remove(userId);
+    return blocklist.remove(userId);
   }
 
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.setBlocklistSynchronized(false);
-    await _pagination.clear();
-    await _pagination.around();
+
+    await blocklist.clear();
+    await blocklist.around();
   }
 
   /// Fetches blocked [User]s with pagination.
-  Future<Page<HiveBlocklistRecord, BlocklistCursor>> _blocklist({
+  Future<Page<DtoBlocklistRecord, BlocklistCursor>> _blocklist({
     int? first,
     BlocklistCursor? after,
     int? last,
@@ -185,104 +194,177 @@ class BlocklistRepository extends DisposableInterface
       before: before,
     );
 
-    final users = RxList(query.edges.map((e) => e.node.user.toHive()).toList());
+    final users = RxList(query.edges.map((e) => e.node.user.toDto()).toList());
 
-    // Ensure all [users] are stored in [_userRepo].
-    await Future.wait(users.map(_userRepo.put));
+    // Ensure all [users] are stored in [_userRepository].
+    await Future.wait(users.map(_userRepository.put));
 
     return Page(
-      query.edges.map((e) => e.node.toHive(cursor: e.cursor)).toList(),
+      query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList(),
       query.pageInfo.toModel((c) => BlocklistCursor(c)),
     );
   }
 
-  /// Adds the [User] with the specified [userId] to the [blocklist].
-  FutureOr<void> _add(UserId userId) {
-    Log.debug('_add($userId)', '$runtimeType');
+  /// Initializes [_blocklistRemoteEvents] subscription.
+  Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
 
-    final RxUser? user = blocklist[userId];
-    if (user == null) {
-      final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
+    Log.debug('_initRemoteSubscription()', '$runtimeType');
 
-      if (userOrFuture is RxUser?) {
-        if (userOrFuture != null) {
-          blocklist[userId] = userOrFuture;
-        }
-      } else {
-        return userOrFuture.then(
-          (user) => user != null ? blocklist[userId] = user : null,
+    _remoteSubscription?.close(immediate: true);
+
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _blocklistRemoteEvents(
+          () => _sessionLocal.data[me]?.blocklistVersion,
+        ),
+      );
+
+      await _remoteSubscription!.execute(
+        _blocklistRemoteEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            await reset();
+          }
+        },
+      );
+    }, tag: 'blocklistEvents');
+  }
+
+  /// Subscribes to remote [BlocklistEvent]s.
+  Future<Stream<BlocklistEvents>> _blocklistRemoteEvents(
+    BlocklistVersion? Function() ver,
+  ) async {
+    Log.debug('_blocklistRemoteEvents(ver)', '$runtimeType');
+
+    return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
+      Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
+
+      var events =
+          BlocklistEvents$Subscription.fromJson(event.data!).blocklistEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_blocklistRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+
+        events
+            as BlocklistEvents$Subscription$BlocklistEvents$SubscriptionInitialized;
+        // No-op.
+      } else if (events.$$typename == 'Blocklist') {
+        var list =
+            events as BlocklistEvents$Subscription$BlocklistEvents$Blocklist;
+        yield BlocklistEventsBlocklist(
+          list.blocklist.edges
+              .map(
+                (e) => DtoBlocklistRecord(
+                  BlocklistRecord(
+                    userId: e.node.user.id,
+                    reason: e.node.reason,
+                    at: e.node.at,
+                  ),
+                  e.cursor,
+                ),
+              )
+              .toList(),
+          list.blocklist.totalCount,
+          list.blocklist.ver,
+        );
+      } else if (events.$$typename == 'BlocklistEventsVersioned') {
+        var mixin = events as BlocklistEventsVersionedMixin;
+        yield BlocklistEventsEvent(
+          BlocklistEventsVersioned(
+            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.blocklistVer,
+          ),
         );
       }
-    }
-  }
-
-  /// Initializes [BlocklistHiveProvider.boxEvents] subscription.
-  Future<void> _initLocalSubscription() async {
-    Log.debug('_initLocalSubscription()', '$runtimeType');
-
-    _localSubscription = StreamIterator(_blocklistLocal.boxEvents);
-    while (await _localSubscription!.moveNext()) {
-      final BoxEvent event = _localSubscription!.current;
-      final UserId userId = UserId(event.key);
-      if (event.deleted) {
-        blocklist.remove(userId);
-        _blocklistSortingLocal.remove(userId);
-      } else {
-        _blocklistSortingLocal.put(event.value.value.at, userId);
-      }
-    }
-  }
-
-  /// Initializes the [_pagination].
-  void _initRemotePagination() {
-    Log.debug('_initRemotePagination()', '$runtimeType');
-
-    _pagination = Pagination(
-      onKey: (e) => e.value.userId,
-      perPage: 15,
-      provider: HiveGraphQlPageProvider(
-        hiveProvider: HivePageProvider(
-          _blocklistLocal,
-          getCursor: (e) => e?.cursor,
-          getKey: (e) => e.value.userId,
-          orderBy: (_) => _blocklistSortingLocal.values,
-          isFirst: (_) => _sessionLocal.getBlocklistSynchronized() == true,
-          isLast: (_) => _sessionLocal.getBlocklistSynchronized() == true,
-          reversed: true,
-          strategy: PaginationStrategy.fromEnd,
-        ),
-        graphQlProvider: GraphQlPageProvider(
-          fetch: ({after, before, first, last}) async {
-            final Page<HiveBlocklistRecord, BlocklistCursor> page =
-                await _blocklist(
-              after: after,
-              before: before,
-              first: first,
-              last: last,
-            );
-
-            if (page.info.hasNext == false) {
-              _sessionLocal.setBlocklistSynchronized(true);
-            }
-
-            return page;
-          },
-        ),
-      ),
-      compare: (a, b) => a.value.compareTo(b.value),
-    );
-
-    _paginationSubscription = _pagination.changes.listen((event) {
-      switch (event.op) {
-        case OperationKind.added:
-        case OperationKind.updated:
-          put(event.value!, pagination: true);
-          break;
-
-        case OperationKind.removed:
-          remove(event.key!);
-          break;
-      }
     });
+  }
+
+  /// Constructs a [BlocklistEvent] from the
+  /// [BlocklistEventsVersionedMixin$Events].
+  BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
+    Log.trace('_blocklistEvent($e)', '$runtimeType');
+
+    if (e.$$typename == 'EventBlocklistRecordAdded') {
+      final node =
+          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
+      return EventBlocklistRecordAdded(node.user.toDto(), node.at, node.reason);
+    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
+      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
+    } else {
+      throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
+    }
+  }
+
+  /// Handles [BlocklistEvent] from the [_blocklistRemoteEvents] subscription.
+  Future<void> _blocklistRemoteEvent(BlocklistEvents events) async {
+    switch (events.kind) {
+      case BlocklistEventsKind.blocklist:
+        final blocklist = events as BlocklistEventsBlocklist;
+        count.value = blocklist.totalCount;
+        await _sessionLocal.upsert(
+          me,
+          SessionData(
+            blocklistCount: blocklist.totalCount,
+            blocklistVersion: blocklist.ver,
+          ),
+        );
+        break;
+
+      case BlocklistEventsKind.event:
+        final versioned = (events as BlocklistEventsEvent).event;
+        final listVer = _sessionLocal.data[me]?.blocklistVersion;
+
+        if (versioned.ver < listVer) {
+          Log.debug(
+            '_blocklistRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+        } else {
+          Log.debug(
+            '_blocklistRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+
+          for (final BlocklistEvent event in versioned.events) {
+            switch (event.kind) {
+              case BlocklistEventKind.recordAdded:
+                event as EventBlocklistRecordAdded;
+                ++count.value;
+                put(
+                  DtoBlocklistRecord(
+                    BlocklistRecord(
+                      userId: event.user.id,
+                      reason: event.reason,
+                      at: event.at,
+                    ),
+                    null,
+                  ),
+                );
+                break;
+
+              case BlocklistEventKind.recordRemoved:
+                event as EventBlocklistRecordRemoved;
+                --count.value;
+                remove(event.user.id);
+                break;
+            }
+          }
+
+          await _sessionLocal.upsert(
+            me,
+            SessionData(
+              blocklistCount: count.value,
+              blocklistVersion: versioned.ver,
+            ),
+          );
+        }
+        break;
+    }
   }
 }

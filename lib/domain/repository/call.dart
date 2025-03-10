@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -43,7 +43,7 @@ abstract class AbstractCallRepository {
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
   /// Adds the provided [ChatCall] to the [calls], if not already.
-  Rx<OngoingCall>? add(ChatCall call);
+  Future<Rx<OngoingCall>?> add(ChatCall call);
 
   /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
   /// if not already.
@@ -122,18 +122,18 @@ abstract class AbstractCallRepository {
   /// These [ChatCallCredentials] are considered backup and should be linked to
   /// an [OngoingCall] by calling [transferCredentials] once its [ChatItemId] is
   /// acquired.
-  ChatCallCredentials generateCredentials(ChatId chatId);
+  Future<ChatCallCredentials> generateCredentials(ChatId chatId);
 
   /// Copies the [ChatCallCredentials] from the provided [Chat] and links them
   /// to the specified [OngoingCall].
-  void transferCredentials(ChatId chatId, ChatItemId callId);
+  Future<void> transferCredentials(ChatId chatId, ChatItemId callId);
 
   /// Returns the [ChatCallCredentials] for an [OngoingCall] identified by the
   /// provided [callId].
-  ChatCallCredentials getCredentials(ChatItemId callId);
+  Future<ChatCallCredentials> getCredentials(ChatItemId callId);
 
   /// Moves the [ChatCallCredentials] from the [callId] to the [newCallId].
-  void moveCredentials(
+  Future<void> moveCredentials(
     ChatItemId callId,
     ChatItemId newCallId,
     ChatId chatId,

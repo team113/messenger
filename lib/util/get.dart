@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,5 +27,18 @@ extension GetExtension on GetInterface {
     }
 
     return null;
+  }
+
+  /// Puts the [dependency], if it isn't [Inst.isRegistered].
+  S putOrGet<S>(
+    S Function() dependency, {
+    String? tag,
+    bool permanent = false,
+  }) {
+    if (isRegistered<S>(tag: tag)) {
+      return find<S>(tag: tag);
+    }
+
+    return put<S>(dependency(), tag: tag, permanent: permanent);
   }
 }

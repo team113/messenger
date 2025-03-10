@@ -125,6 +125,14 @@
 # Default:
 #   prefix = ""
 
+# Custom URL scheme to associate the application with when opening the deep
+# links.
+#
+# The trailing `://` should be omitted.
+#
+# Default:
+#   scheme = "gapopa"
+
 [appcast]
 # URL of a Sparkle Appcast XML file.
 #
@@ -148,3 +156,15 @@
 #
 # Default:
 #   repository = "https://github.com/team113/messenger/issues"
+
+[geo]
+# URL address of IP geolocation API server.
+#
+# Default:
+#   endpoint = "http://ip-api.com/json"
+
+[ip]
+# URL address of IP address discovering API server.
+#
+# Default:
+#   endpoint = "https://api.ipify.org?format=json"

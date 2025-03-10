@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -50,11 +50,13 @@ class _AnimatedOffsetState
 
   @override
   void forEachTween(TweenVisitor<dynamic> visitor) {
-    _transform = visitor(
-      _transform,
-      widget.offset,
-      (value) => Tween<Offset>(begin: value as Offset),
-    ) as Tween<Offset>?;
+    _transform =
+        visitor(
+              _transform,
+              widget.offset,
+              (value) => Tween<Offset>(begin: value as Offset),
+            )
+            as Tween<Offset>?;
   }
 
   @override
@@ -64,8 +66,9 @@ class _AnimatedOffsetState
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder: (_, child) =>
-          Transform.translate(offset: _animation.value, child: child!),
+      builder:
+          (_, child) =>
+              Transform.translate(offset: _animation.value, child: child!),
       child: widget.child,
     );
   }

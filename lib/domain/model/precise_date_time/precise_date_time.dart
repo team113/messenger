@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,8 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-export 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
-import 'src/non_web.dart' if (dart.library.html) 'src/web.dart';
+export 'src/non_web.dart' if (dart.library.js_interop) 'src/web.dart';
+import 'src/non_web.dart' if (dart.library.js_interop) 'src/web.dart';
 
 /// Extension adding [DateTime] to [PreciseDateTime] conversion method.
 extension DateTimeToPreciseDateTime on DateTime {

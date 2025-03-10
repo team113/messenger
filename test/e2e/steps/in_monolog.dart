@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,12 +33,10 @@ final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
     final ChatService chatService = Get.find<ChatService>();
     router.chat(chatService.monolog);
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatView', FindType.key),
-        );
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatView', FindType.key),
+      );
+    });
   },
 );

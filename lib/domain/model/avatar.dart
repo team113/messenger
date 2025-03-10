@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -15,11 +15,11 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:hive/hive.dart';
+import 'package:json_annotation/json_annotation.dart';
 
-import '../model_type_id.dart';
 import 'crop_area.dart';
 import 'file.dart';
+import 'native_file.dart';
 
 part 'avatar.g.dart';
 
@@ -39,35 +39,29 @@ abstract class Avatar {
 
   /// Full-sized [ImageFile] representing this [UserAvatar], keeping the
   /// original dimensions.
-  @HiveField(0)
   final ImageFile full;
 
   /// Big view [ImageFile] of this [UserAvatar], square-cropped to its minimum
   /// dimension (either width or height), and scaled to `250px`x`250px`.
-  @HiveField(1)
   final ImageFile big;
 
   /// Medium view [ImageFile] of this [UserAvatar], square-cropped to its
   /// minimum dimension (either width or height), and scaled to `100px`x`100px`.
-  @HiveField(2)
   final ImageFile medium;
 
   /// Small view [ImageFile] of this [UserAvatar], square-cropped to its minimum
   /// dimension (either width or height), and scaled to `46px`x`46px`.
-  @HiveField(3)
   final ImageFile small;
 
   /// Original [ImageFile] representing this [UserAvatar].
-  @HiveField(4)
   final ImageFile original;
 
   /// [CropArea] applied to this [Avatar].
-  @HiveField(5)
   final CropArea? crop;
 }
 
-/// [Avatar] of an [User].
-@HiveType(typeId: ModelTypeId.userAvatar)
+/// [Avatar] of a [User].
+@JsonSerializable()
 class UserAvatar extends Avatar {
   UserAvatar({
     required super.full,
@@ -77,10 +71,17 @@ class UserAvatar extends Avatar {
     required super.original,
     super.crop,
   });
+
+  /// Constructs a [UserAvatar] from the provided [json].
+  factory UserAvatar.fromJson(Map<String, dynamic> json) =>
+      _$UserAvatarFromJson(json);
+
+  /// Returns a [Map] representing this [UserAvatar].
+  Map<String, dynamic> toJson() => _$UserAvatarToJson(this);
 }
 
 /// [Avatar] of a [Chat].
-@HiveType(typeId: ModelTypeId.chatAvatar)
+@JsonSerializable()
 class ChatAvatar extends Avatar {
   ChatAvatar({
     required super.full,
@@ -90,4 +91,26 @@ class ChatAvatar extends Avatar {
     required super.original,
     super.crop,
   });
+
+  /// Constructs a [ChatAvatar] from the provided [json].
+  factory ChatAvatar.fromJson(Map<String, dynamic> json) =>
+      _$ChatAvatarFromJson(json);
+
+  /// Returns a [Map] representing this [ChatAvatar].
+  Map<String, dynamic> toJson() => _$ChatAvatarToJson(this);
+}
+
+/// [Avatar] from the [file].
+class LocalAvatar extends Avatar {
+  LocalAvatar({super.crop, required this.file})
+    : super(
+        full: ImageFile(relativeRef: ''),
+        big: ImageFile(relativeRef: ''),
+        medium: ImageFile(relativeRef: ''),
+        small: ImageFile(relativeRef: ''),
+        original: ImageFile(relativeRef: ''),
+      );
+
+  /// [NativeFile] this avatar should be rendered from.
+  final NativeFile file;
 }

@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -35,5 +35,7 @@ Feature: User email
     Then I wait until `ConfirmedEmail` is present
 
     When I tap `DeleteEmail` widget
+    And I tap `Proceed` button
+    And I fill `PasswordField` field with "123"
     And I tap `Proceed` button
     Then I wait until `ConfirmedEmail` is absent

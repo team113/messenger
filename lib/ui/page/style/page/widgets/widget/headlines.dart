@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,11 +23,7 @@ import '/ui/page/home/widget/block.dart';
 
 /// Custom [Block] with the headlines.
 class Headlines extends StatelessWidget {
-  const Headlines({
-    super.key,
-    required this.children,
-    this.color,
-  });
+  const Headlines({super.key, required this.children, this.color});
 
   /// [Widget]s to display.
   final List<({String headline, Widget widget})> children;

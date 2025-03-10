@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -176,179 +176,189 @@ class _SelectorState<T> extends State<Selector<T>> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      double? left, right;
-      double? top, bottom;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double? left, right;
+        double? top, bottom;
 
-      Offset offset =
-          Offset(constraints.maxWidth / 2, constraints.maxHeight / 2);
-      final keyContext = widget.buttonKey?.currentContext;
-      if (keyContext != null) {
-        final buttonBox = keyContext.findRenderObject() as RenderBox?;
-        offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
-
-        RenderBox? contextBox;
-
-        final BuildContext? itemsContext = _itemsKey.currentContext;
-        if (itemsContext != null) {
-          contextBox = itemsContext.findRenderObject() as RenderBox?;
-        }
-
-        if (widget.alignment == Alignment.topCenter) {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0) / 2,
-            offset.dy,
-          );
-
-          left = offset.dx -
-              (contextBox?.size.width ?? widget.width) / 2 -
-              widget.margin.right +
-              widget.margin.left;
-
-          bottom = MediaQuery.of(context).size.height -
-              offset.dy +
-              widget.margin.bottom;
-        } else if (widget.alignment == Alignment.topLeft) {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0),
-            offset.dy,
-          );
-
-          right = constraints.maxWidth -
-              offset.dx -
-              widget.margin.right +
-              widget.margin.left;
-          bottom = MediaQuery.of(context).size.height -
-              offset.dy +
-              widget.margin.bottom;
-        } else if (widget.alignment == Alignment.topRight) {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0),
-            offset.dy - widget.margin.bottom,
-          );
-
-          left = offset.dx - widget.margin.right + widget.margin.left;
-          bottom = MediaQuery.of(context).size.height - offset.dy;
-        } else if (widget.alignment == Alignment.bottomCenter) {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0) / 2,
-            offset.dy + (buttonBox?.size.height ?? 0),
-          );
-
-          left = offset.dx - widget.width / 2;
-          top = offset.dy;
-        } else if (widget.alignment == Alignment.bottomRight) {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0),
-            offset.dy + (buttonBox?.size.height ?? 0),
-          );
-
-          left = offset.dx - widget.margin.right + widget.margin.left;
-          top = offset.dy - widget.margin.bottom;
-        } else if (widget.alignment == Alignment.bottomLeft) {
-          offset = Offset(
-            offset.dx - (buttonBox?.size.width ?? 0),
-            offset.dy + (buttonBox?.size.height ?? 0),
-          );
-
-          right = constraints.maxWidth -
-              100 -
-              offset.dx -
-              widget.margin.left +
-              widget.margin.right;
-          top = offset.dy - widget.margin.bottom;
-        } else {
-          offset = Offset(
-            offset.dx + (buttonBox?.size.width ?? 0) / 2,
-            offset.dy + (buttonBox?.size.height ?? 0) / 2,
-          );
-
-          left = offset.dx - (contextBox?.size.width ?? widget.width) / 2;
-          top = offset.dy;
-        }
-      }
-
-      if (left != null && left < 0) {
-        left = 0;
-      } else if (right != null && right > constraints.maxWidth) {
-        right = constraints.maxWidth;
-      }
-
-      if (top != null && top < 0) {
-        top = 0;
-      } else if (bottom != null && bottom > constraints.maxHeight) {
-        bottom = constraints.maxHeight;
-      }
-
-      // Builds the provided [item].
-      Widget button(int i, T item) {
-        if (widget.buttonBuilder != null) {
-          return widget.buttonBuilder!(i, item);
-        }
-
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
-          child: Material(
-            borderRadius: BorderRadius.circular(8),
-            color: style.colors.onPrimary,
-            child: InkWell(
-              hoverColor: style.colors.onSecondaryOpacity20,
-              highlightColor: style.colors.onPrimaryOpacity7,
-              borderRadius: BorderRadius.circular(8),
-              onTap: () {
-                _selected.value = item;
-                if (_debounce == null) {
-                  widget.onSelected?.call(_selected.value);
-                }
-              },
-              child: Align(
-                alignment: AlignmentDirectional.centerStart,
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: widget.itemBuilder(item),
-                ),
-              ),
-            ),
-          ),
+        Offset offset = Offset(
+          constraints.maxWidth / 2,
+          constraints.maxHeight / 2,
         );
-      }
+        final keyContext = widget.buttonKey?.currentContext;
+        if (keyContext != null) {
+          final buttonBox = keyContext.findRenderObject() as RenderBox?;
+          offset = buttonBox?.localToGlobal(Offset.zero) ?? offset;
 
-      return Stack(
-        fit: StackFit.expand,
-        children: [
-          Positioned(
-            left: left,
-            right: right,
-            top: top,
-            bottom: bottom,
-            child: Listener(
-              onPointerUp: widget.onPointerUp == null
-                  ? null
-                  : (d) => widget.onPointerUp?.call(context),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: style.contextMenuBackgroundColor,
-                  borderRadius: style.contextMenuRadius,
-                  boxShadow: [
-                    BoxShadow(
-                      blurRadius: 12,
-                      color: style.colors.onBackgroundOpacity27,
-                      blurStyle: BlurStyle.outer.workaround,
-                    )
-                  ],
-                ),
-                child: IntrinsicWidth(
-                  key: _itemsKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: widget.items.mapIndexed(button).toList(),
+          RenderBox? contextBox;
+
+          final BuildContext? itemsContext = _itemsKey.currentContext;
+          if (itemsContext != null) {
+            contextBox = itemsContext.findRenderObject() as RenderBox?;
+          }
+
+          if (widget.alignment == Alignment.topCenter) {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0) / 2,
+              offset.dy,
+            );
+
+            left =
+                offset.dx -
+                (contextBox?.size.width ?? widget.width) / 2 -
+                widget.margin.right +
+                widget.margin.left;
+
+            bottom =
+                MediaQuery.of(context).size.height -
+                offset.dy +
+                widget.margin.bottom;
+          } else if (widget.alignment == Alignment.topLeft) {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0),
+              offset.dy,
+            );
+
+            right =
+                constraints.maxWidth -
+                offset.dx -
+                widget.margin.right +
+                widget.margin.left;
+            bottom =
+                MediaQuery.of(context).size.height -
+                offset.dy +
+                widget.margin.bottom;
+          } else if (widget.alignment == Alignment.topRight) {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0),
+              offset.dy - widget.margin.bottom,
+            );
+
+            left = offset.dx - widget.margin.right + widget.margin.left;
+            bottom = MediaQuery.of(context).size.height - offset.dy;
+          } else if (widget.alignment == Alignment.bottomCenter) {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0) / 2,
+              offset.dy + (buttonBox?.size.height ?? 0),
+            );
+
+            left = offset.dx - widget.width / 2;
+            top = offset.dy;
+          } else if (widget.alignment == Alignment.bottomRight) {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0),
+              offset.dy + (buttonBox?.size.height ?? 0),
+            );
+
+            left = offset.dx - widget.margin.right + widget.margin.left;
+            top = offset.dy - widget.margin.bottom;
+          } else if (widget.alignment == Alignment.bottomLeft) {
+            offset = Offset(
+              offset.dx - (buttonBox?.size.width ?? 0),
+              offset.dy + (buttonBox?.size.height ?? 0),
+            );
+
+            right =
+                constraints.maxWidth -
+                100 -
+                offset.dx -
+                widget.margin.left +
+                widget.margin.right;
+            top = offset.dy - widget.margin.bottom;
+          } else {
+            offset = Offset(
+              offset.dx + (buttonBox?.size.width ?? 0) / 2,
+              offset.dy + (buttonBox?.size.height ?? 0) / 2,
+            );
+
+            left = offset.dx - (contextBox?.size.width ?? widget.width) / 2;
+            top = offset.dy;
+          }
+        }
+
+        if (left != null && left < 0) {
+          left = 0;
+        } else if (right != null && right > constraints.maxWidth) {
+          right = constraints.maxWidth;
+        }
+
+        if (top != null && top < 0) {
+          top = 0;
+        } else if (bottom != null && bottom > constraints.maxHeight) {
+          bottom = constraints.maxHeight;
+        }
+
+        // Builds the provided [item].
+        Widget button(int i, T item) {
+          if (widget.buttonBuilder != null) {
+            return widget.buttonBuilder!(i, item);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 0),
+            child: Material(
+              borderRadius: BorderRadius.circular(8),
+              color: style.colors.onPrimary,
+              child: InkWell(
+                hoverColor: style.colors.onSecondaryOpacity20,
+                highlightColor: style.colors.onPrimaryOpacity7,
+                borderRadius: BorderRadius.circular(8),
+                onTap: () {
+                  _selected.value = item;
+                  if (_debounce == null) {
+                    widget.onSelected?.call(_selected.value);
+                  }
+                },
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: widget.itemBuilder(item),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
-      );
-    });
+          );
+        }
+
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned(
+              left: left,
+              right: right,
+              top: top,
+              bottom: bottom,
+              child: Listener(
+                onPointerUp:
+                    widget.onPointerUp == null
+                        ? null
+                        : (d) => widget.onPointerUp?.call(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: style.contextMenuBackgroundColor,
+                    borderRadius: style.contextMenuRadius,
+                    boxShadow: [
+                      BoxShadow(
+                        blurRadius: 12,
+                        color: style.colors.onBackgroundOpacity27,
+                        blurStyle: BlurStyle.outer.workaround,
+                      ),
+                    ],
+                  ),
+                  child: IntrinsicWidth(
+                    key: _itemsKey,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: widget.items.mapIndexed(button).toList(),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

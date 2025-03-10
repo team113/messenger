@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -76,35 +76,46 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     border: Border(
-                      left: axis == Axis.horizontal
-                          ? BorderSide(color: style.colors.secondary, width: 1)
-                          : BorderSide.none,
-                      bottom: axis == Axis.vertical
-                          ? BorderSide(color: style.colors.secondary, width: 1)
-                          : BorderSide.none,
+                      left:
+                          axis == Axis.horizontal
+                              ? BorderSide(
+                                color: style.colors.secondary,
+                                width: 1,
+                              )
+                              : BorderSide.none,
+                      bottom:
+                          axis == Axis.vertical
+                              ? BorderSide(
+                                color: style.colors.secondary,
+                                width: 1,
+                              )
+                              : BorderSide.none,
                     ),
                     boxShadow: [
                       CustomBoxShadow(
                         color: style.colors.onBackgroundOpacity20,
                         blurRadius: 8,
                         blurStyle: BlurStyle.outer,
-                      )
+                      ),
                     ],
                   ),
                   child: ConditionalBackdropFilter(
                     child: AnimatedContainer(
                       duration: 300.milliseconds,
-                      color: candidate.isNotEmpty
-                          ? style.colors.onPrimaryOpacity7
-                          : style.colors.transparent,
+                      color:
+                          candidate.isNotEmpty
+                              ? style.colors.onPrimaryOpacity7
+                              : style.colors.transparent,
                       child: Center(
                         child: SizedBox(
-                          width: axis == Axis.horizontal
-                              ? min(size, 150 + 44)
-                              : null,
-                          height: axis == Axis.horizontal
-                              ? null
-                              : min(size, 150 + 44),
+                          width:
+                              axis == Axis.horizontal
+                                  ? min(size, 150 + 44)
+                                  : null,
+                          height:
+                              axis == Axis.horizontal
+                                  ? null
+                                  : min(size, 150 + 44),
                           child: const DropBox(withBlur: false, dense: true),
                         ),
                       ),

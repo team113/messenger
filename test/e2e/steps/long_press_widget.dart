@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,12 +32,14 @@ import '../world/custom_world.dart';
 /// - When I long press `WidgetKey` text
 /// - When I long press `WidgetKey` widget
 final StepDefinitionGeneric longPressWidget = when1<WidgetKey, CustomWorld>(
-    RegExp(
-        r'I long press {key} (?:button|element|label|icon|field|text|widget)$'),
-    (key, context) async {
-  await context.world.appDriver.waitForAppToSettle();
-  final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+  RegExp(
+    r'I long press {key} (?:button|element|label|icon|field|text|widget)$',
+  ),
+  (key, context) async {
+    await context.world.appDriver.waitForAppToSettle();
+    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-  await context.world.appDriver.nativeDriver.longPress(finder);
-  await context.world.appDriver.waitForAppToSettle();
-});
+    await context.world.appDriver.nativeDriver.longPress(finder);
+    await context.world.appDriver.waitForAppToSettle();
+  },
+);

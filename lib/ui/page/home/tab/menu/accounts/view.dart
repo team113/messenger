@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -104,17 +104,20 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.login.isEmpty.value &&
+                  final bool enabled =
+                      !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
                       c.signInTimeout.value == 0 &&
                       !c.password.status.value.isLoading;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: c.signInTimeout.value == 0
-                        ? 'btn_sign_in'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.signInTimeout.value}),
+                    title:
+                        c.signInTimeout.value == 0
+                            ? 'btn_sign_in'.l10n
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.signInTimeout.value,
+                            }),
                     onPressed: enabled ? c.password.submit : null,
                   );
                 }),
@@ -130,9 +133,11 @@ class AccountsView extends StatelessWidget {
 
               children = [
                 SignButton(
+                  key: const Key('PasswordButton'),
                   title: 'btn_password'.l10n,
-                  onPressed: () =>
-                      c.stage.value = AccountsViewStage.signInWithPassword,
+                  onPressed:
+                      () =>
+                          c.stage.value = AccountsViewStage.signInWithPassword,
                   icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
@@ -149,10 +154,8 @@ class AccountsView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks(
-                    [],
-                    style.fonts.medium.regular.primary,
-                  ),
+                      .l10nfmt({'text': c.email.text})
+                      .parseLinks([], style.fonts.medium.regular.primary),
                   style: style.fonts.medium.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
@@ -177,11 +180,13 @@ class AccountsView extends StatelessWidget {
                       child: Text(
                         enabled
                             ? 'btn_resend_code'.l10n
-                            : 'label_wait_seconds'
-                                .l10nfmt({'for': c.resendEmailTimeout.value}),
-                        style: enabled
-                            ? style.fonts.medium.regular.primary
-                            : style.fonts.medium.regular.onBackground,
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.resendEmailTimeout.value,
+                            }),
+                        style:
+                            enabled
+                                ? style.fonts.medium.regular.primary
+                                : style.fonts.medium.regular.onBackground,
                       ),
                     );
                   }),
@@ -195,16 +200,19 @@ class AccountsView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.emailCode.isEmpty.value &&
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value &&
                       c.codeTimeout.value == 0 &&
                       !c.emailCode.status.value.isLoading;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
+                    title:
+                        c.codeTimeout.value == 0
+                            ? 'btn_send'.l10n
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.codeTimeout.value,
+                            }),
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),
@@ -239,9 +247,10 @@ class AccountsView extends StatelessWidget {
                       maxWidth: double.infinity,
                       child: Text(
                         'btn_proceed'.l10n,
-                        style: enabled
-                            ? style.fonts.medium.regular.onPrimary
-                            : style.fonts.medium.regular.onBackground,
+                        style:
+                            enabled
+                                ? style.fonts.medium.regular.onPrimary
+                                : style.fonts.medium.regular.onBackground,
                       ),
                     );
                   }),
@@ -259,8 +268,8 @@ class AccountsView extends StatelessWidget {
                 SignButton(
                   title: 'btn_email'.l10n,
                   icon: const SvgIcon(SvgIcons.email),
-                  onPressed: () =>
-                      c.stage.value = AccountsViewStage.signUpWithEmail,
+                  onPressed:
+                      () => c.stage.value = AccountsViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 25 / 2),
                 const SizedBox(height: 16),
@@ -286,12 +295,13 @@ class AccountsView extends StatelessWidget {
                         offset: const Offset(4, 0),
                         child: const SvgIcon(SvgIcons.guest),
                       ),
-                      onPressed: enabled
-                          ? () {
-                              Navigator.of(context).pop();
-                              c.register();
-                            }
-                          : () {},
+                      onPressed:
+                          enabled
+                              ? () {
+                                Navigator.of(context).pop();
+                                c.register();
+                              }
+                              : () {},
                       child: Text('btn_guest'.l10n),
                     );
                   }),
@@ -340,38 +350,43 @@ class AccountsView extends StatelessWidget {
                     final bool active = c.me == myUser.id;
 
                     return ContactTile(
+                      key: Key('Account_${e.value.id}'),
                       myUser: myUser,
 
                       // TODO: Prompt to sign in to the non-[authorized].
-                      onTap: active
-                          ? null
-                          : () async {
-                              if (expired) {
-                                await LoginView.show(
-                                  context,
-                                  initial: LoginViewStage.signIn,
-                                  myUser: myUser,
-                                );
-                              } else {
-                                Navigator.of(context).pop();
-                                await c.switchTo(myUser.id);
-                              }
-                            },
+                      onTap:
+                          active
+                              ? null
+                              : () async {
+                                if (expired) {
+                                  await LoginView.show(
+                                    context,
+                                    initial: LoginViewStage.signIn,
+                                    myUser: myUser,
+                                  );
+                                } else {
+                                  Navigator.of(context).pop();
+                                  await c.switchTo(myUser.id);
+                                }
+                              },
 
                       // TODO: Remove, when [MyUser]s will receive their
                       //       updates in real-time.
-                      avatarBuilder: (_) => AvatarWidget.fromMyUser(
-                        myUser,
-                        radius: AvatarRadius.large,
-                        badge: active,
-                      ),
+                      avatarBuilder:
+                          (_) => AvatarWidget.fromMyUser(
+                            myUser,
+                            radius: AvatarRadius.large,
+                            badge: active,
+                          ),
 
                       trailing: [
                         AnimatedButton(
-                          decorator: (child) => Padding(
-                            padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                            child: child,
-                          ),
+                          key: const Key('RemoveAccount'),
+                          decorator:
+                              (child) => Padding(
+                                padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                                child: child,
+                              ),
                           onPressed: () async {
                             final bool? result = await MessagePopup.alert(
                               'btn_logout'.l10n,
@@ -385,8 +400,12 @@ class AccountsView extends StatelessWidget {
                                               .l10n,
                                     ),
                                     TextSpan(
-                                      style: style
-                                          .fonts.medium.regular.onBackground,
+                                      style:
+                                          style
+                                              .fonts
+                                              .medium
+                                              .regular
+                                              .onBackground,
                                       text: '${myUser.name ?? myUser.num}',
                                     ),
                                     TextSpan(
@@ -409,7 +428,7 @@ class AccountsView extends StatelessWidget {
                                       ),
                                     ],
                                   ],
-                                )
+                                ),
                               ],
                             );
 
@@ -417,9 +436,10 @@ class AccountsView extends StatelessWidget {
                               await c.deleteAccount(myUser.id);
                             }
                           },
-                          child: active
-                              ? const SvgIcon(SvgIcons.logoutWhite)
-                              : const SvgIcon(SvgIcons.logout),
+                          child:
+                              active
+                                  ? const SvgIcon(SvgIcons.logoutWhite)
+                                  : const SvgIcon(SvgIcons.logout),
                         ),
                       ],
                       selected: active,
@@ -434,7 +454,7 @@ class AccountsView extends StatelessWidget {
                           Text(
                             'label_sign_in_required'.l10n,
                             style: style.fonts.small.regular.danger,
-                          )
+                          ),
 
                         // TODO: Uncomment, when [MyUser]s will receive their
                         //       updates in real-time.
@@ -455,6 +475,7 @@ class AccountsView extends StatelessWidget {
                 Padding(
                   padding: ModalPopup.padding(context),
                   child: PrimaryButton(
+                    key: const Key('AddAccountButton'),
                     onPressed: () => c.stage.value = AccountsViewStage.add,
                     title: 'btn_add_account'.l10n,
                   ),

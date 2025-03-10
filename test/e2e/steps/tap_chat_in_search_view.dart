@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,11 +31,12 @@ final StepDefinitionGeneric iTapChatWith = when1<TestUser, CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final finder = context.world.appDriver
-          .findByKeySkipOffstage(
-            'Chat_${context.world.sessions[user.name]!.dialog!.val}',
-          )
-          .last;
+      final finder =
+          context.world.appDriver
+              .findByKeySkipOffstage(
+                'Chat_${context.world.sessions[user.name]!.dialog!.val}',
+              )
+              .last;
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);
@@ -63,9 +64,10 @@ final StepDefinitionGeneric iTapChatGroup = when1<String, CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final finder = context.world.appDriver
-          .findByKeySkipOffstage('Chat_${context.world.groups[name]}')
-          .last;
+      final finder =
+          context.world.appDriver
+              .findByKeySkipOffstage('Chat_${context.world.groups[name]}')
+              .last;
 
       if (await context.world.appDriver.isPresent(finder)) {
         await context.world.appDriver.scrollIntoView(finder);

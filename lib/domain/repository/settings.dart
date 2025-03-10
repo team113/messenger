@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,6 +34,9 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the stored [Uint8List] of the background.
   Rx<Uint8List?> get background;
+
+  /// Initializes the [applicationSettings] and [mediaSettings].
+  Future<void> init();
 
   /// Clears the stored settings.
   Future<void> clearCache();
@@ -77,7 +80,7 @@ abstract class AbstractSettingsRepository {
 
   /// Returns the [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
-  Rect? getCallRect(ChatId id);
+  Future<Rect?> getCallRect(ChatId id);
 
   /// Sets the [ApplicationSettings.pinnedActions] value.
   Future<void> setPinnedActions(List<String> buttons);
@@ -87,4 +90,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setMuteKeys(List<String>? keys);
 }

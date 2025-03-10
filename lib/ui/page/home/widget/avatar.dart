@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -92,17 +92,17 @@ class AvatarWidget extends StatelessWidget {
     Avatar? avatar,
     AvatarRadius? radius,
     double opacity = 1,
-  }) =>
-      AvatarWidget(
-        key: key,
-        avatar: avatar,
-        title: contact?.name.val,
-        color: (contact?.users.isEmpty ?? false)
+  }) => AvatarWidget(
+    key: key,
+    avatar: avatar,
+    title: contact?.name.val,
+    color:
+        (contact?.users.isEmpty ?? false)
             ? contact?.name.val.sum()
             : contact?.users.first.num.val.sum(),
-        radius: radius,
-        opacity: opacity,
-      );
+    radius: radius,
+    opacity: opacity,
+  );
 
   /// Creates an [AvatarWidget] from the specified reactive [contact].
   static Widget fromRxContact(
@@ -126,15 +126,18 @@ class AvatarWidget extends StatelessWidget {
     return Obx(() {
       return AvatarWidget(
         key: key,
-        isOnline: badge &&
+        isOnline:
+            badge &&
             contact.contact.value.users.length == 1 &&
             contact.user.value?.user.value.online == true,
-        isAway: contact.user.value?.user.value.presence == Presence.away,
+        isAway:
+            badge && contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
-        color: contact.user.value == null
-            ? contact.contact.value.name.val.sum()
-            : contact.user.value?.user.value.num.val.sum(),
+        color:
+            contact.user.value == null
+                ? contact.contact.value.name.val.sum()
+                : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
       );
@@ -150,19 +153,18 @@ class AvatarWidget extends StatelessWidget {
     bool badge = true,
     FutureOr<void> Function()? onForbidden,
     BoxShape shape = BoxShape.circle,
-  }) =>
-      AvatarWidget(
-        key: key,
-        isOnline: badge && myUser?.online == true,
-        isAway: myUser?.presence == Presence.away,
-        avatar: myUser?.avatar,
-        title: myUser?.name?.val ?? myUser?.num.toString(),
-        color: myUser?.num.val.sum(),
-        radius: radius,
-        opacity: opacity,
-        onForbidden: onForbidden,
-        shape: shape,
-      );
+  }) => AvatarWidget(
+    key: key,
+    isOnline: badge && myUser?.online == true,
+    isAway: badge && myUser?.presence == Presence.away,
+    avatar: myUser?.avatar,
+    title: myUser?.name?.val ?? myUser?.num.toString(),
+    color: myUser?.num.val.sum(),
+    radius: radius,
+    opacity: opacity,
+    onForbidden: onForbidden,
+    shape: shape,
+  );
 
   /// Creates an [AvatarWidget] from the specified [user].
   factory AvatarWidget.fromUser(
@@ -171,16 +173,15 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     BoxShape shape = BoxShape.circle,
-  }) =>
-      AvatarWidget(
-        key: key,
-        avatar: user?.avatar,
-        title: user?.title,
-        color: user?.num.val.sum(),
-        radius: radius,
-        opacity: opacity,
-        shape: shape,
-      );
+  }) => AvatarWidget(
+    key: key,
+    avatar: user?.avatar,
+    title: user?.title,
+    color: user?.num.val.sum(),
+    radius: radius,
+    opacity: opacity,
+    shape: shape,
+  );
 
   /// Creates an [AvatarWidget] from the specified reactive [user].
   static Widget fromRxUser(
@@ -205,7 +206,7 @@ class AvatarWidget extends StatelessWidget {
       () => AvatarWidget(
         key: key,
         isOnline: badge && user.user.value.online == true,
-        isAway: user.user.value.presence == Presence.away,
+        isAway: badge && user.user.value.presence == Presence.away,
         avatar: user.user.value.avatar,
         title: user.title,
         color: user.user.value.num.val.sum(),
@@ -224,24 +225,23 @@ class AvatarWidget extends StatelessWidget {
     AvatarRadius? radius,
     double opacity = 1,
     BoxShape shape = BoxShape.circle,
-  }) =>
-      AvatarWidget(
-        key: key,
-        label: LayoutBuilder(
-          builder: (context, constraints) {
-            return SvgIcon(
-              SvgIcons.notes,
-              width: constraints.maxWidth,
-              height: constraints.maxWidth / 2,
-            );
-          },
-        ),
-        avatar: chat?.avatar,
-        color: chat?.colorDiscriminant(me).sum(),
-        radius: radius,
-        opacity: opacity,
-        shape: shape,
-      );
+  }) => AvatarWidget(
+    key: key,
+    label: LayoutBuilder(
+      builder: (context, constraints) {
+        return SvgIcon(
+          SvgIcons.notes,
+          width: constraints.maxWidth,
+          height: constraints.maxWidth / 2,
+        );
+      },
+    ),
+    avatar: chat?.avatar,
+    color: 0,
+    radius: radius,
+    opacity: opacity,
+    shape: shape,
+  );
 
   /// Creates an [AvatarWidget] from the specified [Chat] and its parameters.
   factory AvatarWidget.fromChat(
@@ -252,15 +252,14 @@ class AvatarWidget extends StatelessWidget {
     Key? key,
     AvatarRadius? radius,
     double opacity = 1,
-  }) =>
-      AvatarWidget(
-        key: key,
-        avatar: avatar,
-        title: title,
-        color: chat?.colorDiscriminant(me).sum(),
-        radius: radius,
-        opacity: opacity,
-      );
+  }) => AvatarWidget(
+    key: key,
+    avatar: avatar,
+    title: title,
+    color: chat?.colorDiscriminant(me).sum(),
+    radius: radius,
+    opacity: opacity,
+  );
 
   /// Creates an [AvatarWidget] from the specified [RxChat].
   static Widget fromRxChat(
@@ -272,11 +271,7 @@ class AvatarWidget extends StatelessWidget {
     BoxShape shape = BoxShape.circle,
   }) {
     if (chat == null) {
-      return AvatarWidget(
-        key: key,
-        radius: radius,
-        opacity: opacity,
-      );
+      return AvatarWidget(key: key, radius: radius, opacity: opacity);
     }
 
     return Obx(() {
@@ -290,13 +285,16 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
-      final RxUser? user = chat.members.values
-          .firstWhereOrNull((e) => e.user.id != chat.me)
-          ?.user;
+      final RxUser? user =
+          chat.members.values
+              .firstWhereOrNull((e) => e.user.id != chat.me)
+              ?.user;
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
-        isAway: user?.user.value.presence == Presence.away,
+        isAway:
+            chat.chat.value.isDialog &&
+            user?.user.value.presence == Presence.away,
         avatar: chat.avatar.value,
         title: chat.title,
         color: chat.chat.value.colorDiscriminant(chat.me).sum(),
@@ -371,126 +369,115 @@ class AvatarWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return opacity == 1
         ? _avatar(context)
-        : Opacity(
-            opacity: opacity,
-            child: _avatar(context),
-          );
+        : Opacity(opacity: opacity, child: _avatar(context));
   }
 
   /// Returns an actual interface of this [AvatarWidget].
   Widget _avatar(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return LayoutBuilder(builder: (context, constraints) {
-      final Color gradient;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final Color gradient;
 
-      if (color != null) {
-        gradient =
-            style.colors.userColors[color! % style.colors.userColors.length];
-      } else if (title != null) {
-        gradient = style.colors
-            .userColors[(title!.hashCode) % style.colors.userColors.length];
-      } else {
-        gradient = style.colors.secondaryBackgroundLightest;
-      }
+        if (color != null) {
+          if (color == 0) {
+            gradient = style.colors.background;
+          } else {
+            gradient =
+                style.colors.userColors[color! %
+                    style.colors.userColors.length];
+          }
+        } else if (title != null) {
+          gradient =
+              style.colors.userColors[(title!.hashCode) %
+                  style.colors.userColors.length];
+        } else {
+          gradient = style.colors.secondaryBackgroundLightest;
+        }
 
-      double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
-      double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
-      double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
-      double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
+        double minWidth = min(_minDiameter, constraints.smallest.shortestSide);
+        double minHeight = min(_minDiameter, constraints.smallest.shortestSide);
+        double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
+        double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-      final double badgeSize = maxWidth >= 40 ? maxWidth / 5 : maxWidth / 3.75;
+        final ImageFile? image =
+            maxWidth > 100
+                ? avatar?.big
+                : maxWidth > 46
+                ? avatar?.medium
+                : avatar?.small;
 
-      final ImageFile? image = maxWidth > 250
-          ? avatar?.full
-          : maxWidth > 100
-              ? avatar?.big
-              : maxWidth > 46
-                  ? avatar?.medium
-                  : avatar?.small;
-
-      final Widget defaultAvatar = Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [gradient.lighten(), gradient],
+        final Widget defaultAvatar = Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [gradient.lighten(), gradient],
+            ),
+            borderRadius: switch (shape) {
+              BoxShape.circle => null,
+              BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter),
+            },
+            shape: shape,
           ),
-          borderRadius: switch (shape) {
-            BoxShape.circle => null,
-            BoxShape.rectangle => BorderRadius.circular(0.035 * _minDiameter)
-          },
-          shape: shape,
-        ),
-        child: Center(
-          child: label ??
-              SelectionContainer.disabled(
-                child: Text(
-                  (title ?? '??').initials(),
-                  style: style.fonts.normal.bold.onPrimary.copyWith(
-                    fontSize: style.fonts.normal.bold.onPrimary.fontSize! *
-                        (maxWidth / 40.0),
+          child: Center(
+            child:
+                label ??
+                SelectionContainer.disabled(
+                  child: Text(
+                    (title ?? '??').initials(),
+                    style: style.fonts.normal.bold.onPrimary.copyWith(
+                      fontSize:
+                          style.fonts.normal.bold.onPrimary.fontSize! *
+                          (maxWidth / 40.0),
+                    ),
+
+                    // Disable the accessibility size settings for this [Text].
+                    textScaler: const TextScaler.linear(1),
                   ),
-
-                  // Disable the accessibility size settings for this [Text].
-                  textScaler: const TextScaler.linear(1),
                 ),
-              ),
-        ),
-      );
+          ),
+        );
 
-      return ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: minWidth,
-          minHeight: minHeight,
-          maxWidth: maxWidth,
-          maxHeight: maxHeight,
-        ),
-        child: Badge(
-          largeSize: badgeSize * 1.16,
-          isLabelVisible: isOnline,
-          alignment: Alignment.bottomRight,
-          backgroundColor: style.colors.onPrimary,
-          padding: EdgeInsets.all(badgeSize / 12),
-          offset:
-              maxWidth >= 40 ? const Offset(-2.5, -2.5) : const Offset(0, 0),
-          label: SizedBox(
-            width: badgeSize,
-            height: badgeSize,
-            child: Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isAway
-                    ? style.colors.warning
-                    : style.colors.acceptAuxiliary,
-              ),
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: minWidth,
+            minHeight: minHeight,
+            maxWidth: maxWidth,
+            maxHeight: maxHeight,
+          ),
+          child: WithBadge(
+            size: maxWidth,
+            online: isOnline,
+            away: isOnline && isAway,
+            child: Stack(
+              children: [
+                if (avatar == null) defaultAvatar,
+                if (avatar != null || child != null)
+                  Positioned.fill(
+                    child: _clip(
+                      child:
+                          child ??
+                          RetryImage(
+                            image!.url,
+                            checksum: image.checksum,
+                            thumbhash: image.thumbhash,
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                            width: double.infinity,
+                            displayProgress: false,
+                            onForbidden: onForbidden,
+                            loadingBuilder: () => defaultAvatar,
+                          ),
+                    ),
+                  ),
+              ],
             ),
           ),
-          child: Stack(
-            children: [
-              if (avatar == null) defaultAvatar,
-              if (avatar != null || child != null)
-                Positioned.fill(
-                  child: _clip(
-                    child: child ??
-                        RetryImage(
-                          image!.url,
-                          checksum: image.checksum,
-                          thumbhash: image.thumbhash,
-                          fit: BoxFit.cover,
-                          height: double.infinity,
-                          width: double.infinity,
-                          displayProgress: false,
-                          onForbidden: onForbidden,
-                          loadingBuilder: () => defaultAvatar,
-                        ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 
   /// Returns a [ClipRRect] or [ClipOval] widget based on the [shape].
@@ -498,9 +485,9 @@ class AvatarWidget extends StatelessWidget {
     return switch (shape) {
       BoxShape.circle => ClipOval(child: child),
       BoxShape.rectangle => ClipRRect(
-          borderRadius: BorderRadius.circular(0.035 * _minDiameter),
-          child: child,
-        ),
+        borderRadius: BorderRadius.circular(0.035 * _minDiameter),
+        child: child,
+      ),
     };
   }
 }
@@ -542,8 +529,9 @@ extension BrightnessColorExtension on Color {
     }
 
     final hsl = HSLColor.fromColor(this);
-    final hslLight =
-        hsl.withLightness((hsl.lightness + amount).clamp(0.0, 1.0));
+    final hslLight = hsl.withLightness(
+      (hsl.lightness + amount).clamp(0.0, 1.0),
+    );
 
     return hslLight.toColor();
   }
@@ -557,9 +545,84 @@ extension BrightnessColorExtension on Color {
     }
 
     final hsl = HSLColor.fromColor(this);
-    final hslLight =
-        hsl.withLightness((hsl.lightness - amount).clamp(0.0, 1.0));
+    final hslLight = hsl.withLightness(
+      (hsl.lightness - amount).clamp(0.0, 1.0),
+    );
 
     return hslLight.toColor();
+  }
+}
+
+/// [Stack] of the provided [child] with a single circular dot in bottom-right
+/// corner.
+class WithBadge extends StatelessWidget {
+  const WithBadge({
+    super.key,
+    this.size = 16,
+    this.online = false,
+    this.away = false,
+    required this.child,
+  });
+
+  /// Size the [child] is allowed to occupy.
+  final double size;
+
+  /// Indicator whether the dot should be of [Palette.acceptAuxiliary] color.
+  final bool online;
+
+  /// Indicator whether the dot should be of [Palette.warning] color.
+  final bool away;
+
+  /// [Widget] to display the dot over.
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!away && !online) {
+      return child;
+    }
+
+    final style = Theme.of(context).style;
+
+    final double badgeSize =
+        size >= 40
+            ? size / 4
+            : size > 60
+            ? size / 3.75
+            : size > 30
+            ? size / 3
+            : size / 2;
+
+    return Stack(
+      children: [
+        child,
+        Positioned(
+          bottom: 0,
+          right: 0,
+          child: Transform.translate(
+            offset:
+                size > 40
+                    ? const Offset(-1.4, -1.4)
+                    : size > 30
+                    ? const Offset(1, 1)
+                    : const Offset(2.5, 2.5),
+            child: Container(
+              width: badgeSize,
+              height: badgeSize,
+              decoration: BoxDecoration(
+                border: Border.all(color: style.colors.onPrimary),
+                shape: BoxShape.circle,
+                color:
+                    away
+                        ? style.colors.warning
+                        : online
+                        ? style.colors.acceptAuxiliary
+                        : style.colors.transparent,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

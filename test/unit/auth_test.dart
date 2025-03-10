@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -17,18 +17,18 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/my_user.dart';
 import 'package:messenger/domain/model/precise_date_time/precise_date_time.dart';
 import 'package:messenger/domain/model/session.dart';
 import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/my_user.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:mockito/annotations.dart';
@@ -38,13 +38,16 @@ import 'auth_test.mocks.dart';
 
 @GenerateMocks([GraphQlProvider])
 void main() async {
-  Hive.init('./test/.temp_hive/unit_auth');
-  final credsProvider = CredentialsHiveProvider();
-  final accountProvider = AccountHiveProvider();
-  final myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  await credsProvider.init();
-  await accountProvider.init();
+  final CommonDriftProvider common = Get.put(
+    CommonDriftProvider.memory(),
+    permanent: true,
+  );
+
+  Get.put(ScopedDriftProvider.memory(), permanent: true);
+
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final credsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
 
   setUp(() async {
     Get.reset();
@@ -57,19 +60,23 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(
-            UserPassword('123'), UserLogin('user'), null, null, null))
-        .thenAnswer(
+    when(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
+      ),
+    ).thenAnswer(
       (_) => Future.value(
         SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
           'session': {
             '__typename': 'Session',
             'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+            'ip': '127.0.0.1',
             'userAgent':
                 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             'isCurrent': true,
             'lastActivatedAt': DateTime.now().toString(),
-            'ver': '031592915314290362597742826064324903711'
+            'ver': '031592915314290362597742826064324903711',
           },
           'accessToken': {
             '__typename': 'AccessToken',
@@ -99,20 +106,19 @@ void main() async {
       ),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      getStorage,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, getStorage, accountProvider),
+    );
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
 
-    await authService.signIn(UserPassword('123'), login: UserLogin('user'));
+    await authService.signIn(
+      password: UserPassword('123'),
+      login: UserLogin('user'),
+    );
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -123,13 +129,17 @@ void main() async {
     await authService.logout();
 
     expect(authService.status.value.isEmpty, true);
-    verify(graphQlProvider.signIn(
-        UserPassword('123'), UserLogin('user'), null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(login: UserLogin('user')),
+      ),
+    );
   });
 
   test('AuthService successfully logins with saved session', () async {
-    accountProvider.set(const UserId('me'));
-    credsProvider.put(
+    await accountProvider.upsert(const UserId('me'));
+    await credsProvider.upsert(
       Credentials(
         AccessToken(
           const AccessTokenSecret('token'),
@@ -139,24 +149,21 @@ void main() async {
           const RefreshTokenSecret('token'),
           PreciseDateTime.now().add(const Duration(days: 1)),
         ),
+        const SessionId('me'),
         const UserId('me'),
       ),
     );
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
-    expect(authService.init(), null);
+    expect(await authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
     expect(
@@ -174,99 +181,78 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    when(graphQlProvider.signIn(UserPassword('123'), null, null, null, null))
-        .thenThrow(
+    when(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    ).thenThrow(
       const CreateSessionException((CreateSessionErrorCode.wrongPassword)),
     );
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    final AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    final AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
-    expect(authService.init(), Routes.auth);
+    expect(await authService.init(), Routes.auth);
     try {
-      await authService.signIn(UserPassword('123'));
+      await authService.signIn(password: UserPassword('123'));
       fail('Exception is not thrown');
     } catch (e) {
       expect(e, isA<CreateSessionException>());
     }
 
-    verify(graphQlProvider.signIn(UserPassword('123'), null, null, null, null));
+    verify(
+      graphQlProvider.signIn(
+        credentials: MyUserCredentials(password: UserPassword('123')),
+        identifier: MyUserIdentifier(),
+      ),
+    );
   });
 
   test('AuthService successfully resets password', () async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
-
-    when(
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-    ).thenAnswer((_) => Future.value());
-
-    when(
-      graphQlProvider.validateUserPasswordRecoveryCode(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1234'),
-      ),
-    ).thenAnswer((_) => Future.value());
-
-    when(
-      graphQlProvider.resetUserPassword(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1234'),
-        UserPassword('123456'),
-      ),
-    ).thenAnswer((_) => Future.value());
-
-    await authService.recoverUserPassword(login: UserLogin('login'));
-    await authService.validateUserPasswordRecoveryCode(
-      login: UserLogin('login'),
-      code: ConfirmationCode('1234'),
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
-    await authService.resetUserPassword(
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
+
+    when(
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
+      ),
+    ).thenAnswer((_) => Future.value());
+
+    when(
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1234')),
+        newPassword: UserPassword('123456'),
+      ),
+    ).thenAnswer((_) => Future.value());
+
+    await authService.createConfirmationCode(login: UserLogin('login'));
+    await authService.updateUserPassword(
       login: UserLogin('login'),
       code: ConfirmationCode('1234'),
       newPassword: UserPassword('123456'),
     );
+
     verifyInOrder([
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-      graphQlProvider.validateUserPasswordRecoveryCode(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1234'),
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
       ),
-      graphQlProvider.resetUserPassword(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1234'),
-        UserPassword('123456'),
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1234')),
+        newPassword: UserPassword('123456'),
       ),
     ]);
   });
@@ -275,86 +261,51 @@ void main() async {
     final graphQlProvider = MockGraphQlProvider();
     when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
-    AuthRepository authRepository = Get.put(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      credsProvider,
-    ));
-    AuthService authService = Get.put(AuthService(
-      authRepository,
-      credsProvider,
-      accountProvider,
-    ));
+    AuthRepository authRepository = Get.put(
+      AuthRepository(graphQlProvider, myUserProvider, credsProvider),
+    );
+    AuthService authService = Get.put(
+      AuthService(authRepository, credsProvider, accountProvider),
+    );
 
     when(
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
+      ),
     ).thenAnswer((_) => Future.value());
 
     when(
-      graphQlProvider.validateUserPasswordRecoveryCode(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1111'),
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1111')),
+        newPassword: UserPassword('123456'),
       ),
     ).thenThrow(
-      const ValidateUserPasswordRecoveryCodeException(
-        ValidateUserPasswordRecoveryErrorCode.wrongCode,
-      ),
+      const UpdateUserPasswordException(UpdateUserPasswordErrorCode.wrongCode),
     );
 
-    when(
-      graphQlProvider.resetUserPassword(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1111'),
-        UserPassword('123456'),
-      ),
-    ).thenThrow(
-      const ResetUserPasswordException(ResetUserPasswordErrorCode.wrongCode),
-    );
-
-    await authService.recoverUserPassword(login: UserLogin('login'));
+    await authService.createConfirmationCode(login: UserLogin('login'));
 
     expect(
-      () async => await authService.validateUserPasswordRecoveryCode(
-        login: UserLogin('login'),
-        code: ConfirmationCode('1111'),
-      ),
-      throwsA(isA<ValidateUserPasswordRecoveryCodeException>()),
-    );
-
-    expect(
-      () async => await authService.resetUserPassword(
+      () async => await authService.updateUserPassword(
         login: UserLogin('login'),
         code: ConfirmationCode('1111'),
         newPassword: UserPassword('123456'),
       ),
-      throwsA(isA<ResetUserPasswordException>()),
+      throwsA(isA<UpdateUserPasswordException>()),
     );
 
     await Future.delayed(Duration.zero);
 
     verifyInOrder([
-      graphQlProvider.recoverUserPassword(UserLogin('login'), null, null, null),
-      graphQlProvider.validateUserPasswordRecoveryCode(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1111'),
+      graphQlProvider.createConfirmationCode(
+        MyUserIdentifier(login: UserLogin('login')),
       ),
-      graphQlProvider.resetUserPassword(
-        UserLogin('login'),
-        null,
-        null,
-        null,
-        ConfirmationCode('1111'),
-        UserPassword('123456'),
-      )
+      graphQlProvider.updateUserPassword(
+        identifier: MyUserIdentifier(login: UserLogin('login')),
+        confirmation: MyUserCredentials(code: ConfirmationCode('1111')),
+        newPassword: UserPassword('123456'),
+      ),
     ]);
   });
 }

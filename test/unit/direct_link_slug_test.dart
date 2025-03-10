@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,12 +31,14 @@ void main() {
     expect(validChars.hasMatch(slug.val), isTrue);
   });
 
-  test('ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
-      () {
-    for (int i = 0; i < 10; ++i) {
-      final slug = ChatDirectLinkSlug.generate();
-      expect(slug.val.endsWith('-'), isFalse);
-      expect(slug.val.endsWith('_'), isFalse);
-    }
-  });
+  test(
+    'ChatDirectLinkSlug generates slug that doesn\'t end with `-` or `_`',
+    () {
+      for (int i = 0; i < 10; ++i) {
+        final slug = ChatDirectLinkSlug.generate();
+        expect(slug.val.endsWith('-'), isFalse);
+        expect(slug.val.endsWith('_'), isFalse);
+      }
+    },
+  );
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -67,17 +67,15 @@ class BackgroundPreview extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     Positioned.fill(
-                      child: background == null
-                          ? const SvgImage.asset(
-                              'assets/images/background_light.svg',
-                              width: double.infinity,
-                              height: double.infinity,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.memory(
-                              background!,
-                              fit: BoxFit.cover,
-                            ),
+                      child:
+                          background == null
+                              ? const SvgImage.asset(
+                                'assets/images/background_light.svg',
+                                width: double.infinity,
+                                height: double.infinity,
+                                fit: BoxFit.cover,
+                              )
+                              : Image.memory(background!, fit: BoxFit.cover),
                     ),
                     Center(
                       child: Column(

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -27,20 +27,21 @@ import '../world/custom_world.dart';
 /// specified [OnlineStatus] or not.
 final StepDefinitionGeneric seesAs =
     then3<TestUser, TestUser, OnlineStatus, CustomWorld>(
-  '{user} sees {user} as {status}',
-  (TestUser user1, TestUser user2, OnlineStatus status, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user1.name]?.token;
+      '{user} sees {user} as {status}',
+      (TestUser user1, TestUser user2, OnlineStatus status, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user1.name]?.token;
 
-    await context.world.appDriver.waitUntil(() async {
-      var response =
-          await provider.getUser(context.world.sessions[user2.name]!.userId);
-      var user = response.user?.toModel();
+        await context.world.appDriver.waitUntil(() async {
+          var response = await provider.getUser(
+            context.world.sessions[user2.name]!.userId,
+          );
+          var user = response.user?.toModel();
 
-      return (status == OnlineStatus.online && user?.online == true) ||
-          (status == OnlineStatus.offline && user?.online == false);
-    }, pollInterval: const Duration(seconds: 1));
+          return (status == OnlineStatus.online && user?.online == true) ||
+              (status == OnlineStatus.offline && user?.online == false);
+        }, pollInterval: const Duration(seconds: 1));
 
-    provider.disconnect();
-  },
-);
+        provider.disconnect();
+      },
+    );

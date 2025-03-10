@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -39,21 +39,6 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             bio
             at
         }
-        ... on EventBlocklistRecordAdded {
-            user {
-                __typename
-                ...User
-            }
-            reason
-            at
-        }
-        ... on EventBlocklistRecordRemoved {
-            user {
-                __typename
-                ...User
-            }
-            at
-        }
         ... on EventUserCallCoverDeleted {
             userId
             at
@@ -78,17 +63,14 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             directLink {
                 slug
                 usageCount
+                createdAt
             }
         }
         ... on EventUserEmailAdded {
             userId
             email
             at
-        }
-        ... on EventUserEmailConfirmed {
-            userId
-            email
-            at
+            confirmed
         }
         ... on EventUserEmailDeleted {
             userId
@@ -137,11 +119,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             userId
             phone
             at
-        }
-        ... on EventUserPhoneConfirmed {
-            userId
-            phone
-            at
+            confirmed
         }
         ... on EventUserPhoneDeleted {
             userId
@@ -168,6 +146,28 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
         ... on EventUserUnreadChatsCountUpdated {
             userId
             count
+        }
+        ... on EventUserWelcomeMessageDeleted {
+            userId
+            at
+        }
+        ... on EventUserWelcomeMessageUpdated {
+            userId
+            text {
+                changed
+            }
+            attachments {
+                changed {
+                    __typename
+                    ... on ImageAttachment {
+                        ...ImageAttachment
+                    }
+                    ... on FileAttachment {
+                        ...FileAttachment
+                    }
+                }
+            }
+            at
         }
     }
     ver

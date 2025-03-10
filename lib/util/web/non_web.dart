@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,11 +24,13 @@ import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:stdlibc/stdlibc.dart';
 import 'package:win32/win32.dart';
+import 'package:win32_registry/win32_registry.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -36,6 +38,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
@@ -45,8 +48,8 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
-  /// [Mutex] guarding the [protect] method.
-  static final Mutex _guard = Mutex();
+  /// [Mutex]es guarding the [protect] method.
+  static final Map<String, Mutex> _guards = {};
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS => false;
@@ -82,7 +85,7 @@ class WebUtils {
   static bool get isPopup => false;
 
   /// Indicates whether the [protect] is currently locked.
-  static FutureOr<bool> get isLocked => _guard.isLocked;
+  static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -101,8 +104,19 @@ class WebUtils {
 
   /// Guarantees the [callback] is invoked synchronously, only by single tab or
   /// code block at the same time.
-  static Future<T> protect<T>(Future<T> Function() callback) =>
-      _guard.protect(callback);
+  static Future<T> protect<T>(
+    Future<T> Function() callback, {
+    bool exclusive = true,
+    String tag = 'mutex',
+  }) {
+    Mutex? mutex = _guards[tag];
+    if (mutex == null) {
+      mutex = Mutex();
+      _guards[tag] = mutex;
+    }
+
+    return mutex.protect(callback);
+  }
 
   /// Pushes [title] to browser's window title.
   static void title(String title) {
@@ -112,12 +126,6 @@ class WebUtils {
   /// Sets the URL strategy of your web app to using paths instead of a leading
   /// hash (`#`).
   static void setPathUrlStrategy() {
-    // No-op.
-  }
-
-  // TODO: Styles page related, should be removed at some point.
-  /// Downloads the file from [url] and saves it as [filename].
-  static Future<void> download(String url, String filename) async {
     // No-op.
   }
 
@@ -156,8 +164,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-  }) =>
-      false;
+  }) => false;
 
   /// Closes the current window.
   static void closeWindow() {
@@ -170,6 +177,12 @@ class WebUtils {
 
   /// Stores the provided [call] in the browser's storage.
   static void setCall(WebStoredCall call) {
+    // No-op.
+  }
+
+  /// Ensures a call in the provided [chatId] is considered active the browser's
+  /// storage.
+  static void pingCall(ChatId chatId) {
     // No-op.
   }
 
@@ -220,22 +233,27 @@ class WebUtils {
     // No-op.
   }
 
-  /// Requests the permission to use a camera.
-  static Future<void> cameraPermission() async {
+  /// Requests the permission to use a camera and holds it until unsubscribed.
+  static Future<StreamSubscription<void>> cameraPermission() async {
     try {
       await Permission.camera.request();
     } catch (_) {
       // No-op.
     }
+
+    return (const Stream.empty()).listen((_) {});
   }
 
-  /// Requests the permission to use a microphone.
-  static Future<void> microphonePermission() async {
+  /// Requests the permission to use a microphone and holds it until
+  /// unsubscribed.
+  static Future<StreamSubscription<void>> microphonePermission() async {
     try {
       await Permission.microphone.request();
     } catch (_) {
       // No-op.
     }
+
+    return const Stream.empty().listen((_) {});
   }
 
   /// Replaces the provided [from] with the specified [to] in the current URL.
@@ -258,6 +276,34 @@ class WebUtils {
 
   /// Deletes the loader element.
   static void deleteLoader() {
+    // No-op.
+  }
+
+  /// Registers the custom [Config.scheme].
+  static Future<void> registerScheme() async {
+    if (PlatformUtils.isWindows) {
+      final RegistryKey regKey = Registry.currentUser.createKey(
+        'Software\\Classes\\${Config.scheme}',
+      );
+
+      regKey.createValue(
+        const RegistryValue('URL Protocol', RegistryValueType.string, ''),
+      );
+
+      regKey
+          .createKey('shell\\open\\command')
+          .createValue(
+            RegistryValue(
+              '',
+              RegistryValueType.string,
+              '"${Platform.resolvedExecutable}" "%1"',
+            ),
+          );
+    }
+  }
+
+  /// Plays the provided [asset].
+  static Future<void> play(String asset) async {
     // No-op.
   }
 
@@ -299,23 +345,23 @@ class WebUtils {
         String? architecture;
 
         switch (lpSystemInfo.ref.Anonymous.Anonymous.wProcessorArchitecture) {
-          case PROCESSOR_ARCHITECTURE_AMD64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_AMD64:
             architecture = 'x64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_ARM:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_ARM:
             architecture = 'ARM';
             break;
 
-          case PROCESSOR_ARCHITECTURE_ARM64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_ARM64:
             architecture = 'ARM64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_IA64:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_IA64:
             architecture = 'IA64';
             break;
 
-          case PROCESSOR_ARCHITECTURE_INTEL:
+          case PROCESSOR_ARCHITECTURE.PROCESSOR_ARCHITECTURE_INTEL:
             architecture = 'x86';
             break;
         }
@@ -399,5 +445,23 @@ class WebUtils {
     }
 
     return agent;
+  }
+
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
+    try {
+      await hotKeyManager.register(key, keyDownHandler: (_) => handler());
+    } catch (e) {
+      Log.warning('Unable to bind to hot key: $e', 'WebUtils');
+    }
+  }
+
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
+    try {
+      await hotKeyManager.unregister(key);
+    } catch (e) {
+      Log.warning('Unable to unbind hot key: $e', 'WebUtils');
+    }
   }
 }

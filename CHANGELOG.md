@@ -6,18 +6,320 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.1.0-alpha.14] · 2024-??-?? (unreleased)
-[0.1.0-alpha.14]: /../../tree/v0.1.0-alpha.14
+## [0.3.3] · 2025-03-07
+[0.3.3]: /../../tree/v0.3.3
 
-[Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0-alpha.14) | [Milestone](/../../milestone/24)
+[Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Hot key `Alt + M` for toggling microphone on and off. ([#1179])
+
+### Fixed
+
+- UI:
+    - Mobile:
+        - Context menus having meaningless dividers. ([#1170])
+    - Chats tab:
+        - Inability to paste clipboard into search field when chat is open. ([#1170])
+    - Profile page:
+        - Blocklist count not being updated in real time. ([#1175])
+- macOS:
+    - Application becoming unresponsive when drag-n-dropping screenshots to chat. ([#1177])
+
+[#1170]: /../../pull/1170
+[#1175]: /../../pull/1175
+[#1177]: /../../pull/1177
+[#1179]: /../../pull/1179
+
+
+
+
+## [0.3.2] · 2025-02-07
+[0.3.2]: /../../tree/v0.3.2
+
+[Diff](/../../compare/v0.3.1...v0.3.2) | [Milestone](/../../milestone/33)
+
+### Changed
+
+- UI:
+    - Home page:
+        - Updated app bar and navigation panel to be of rectangular shape. ([#1164])
+        - Updated group creating and chats selecting UX. ([#1164])
+    - Updated chat info page editing and overall design. ([#1164])
+    - Updated user page design. ([#1164])
+    - Chat page:
+        - Updated monolog chat description. ([#1164])
+
+### Fixed
+
+- UI:
+    - Mobile:
+        - Auto-capitalization setting being ignored in text fields. ([#1164])
+
+[#1164]: /../../pull/1164
+
+
+
+
+## [0.3.1] · 2025-02-03
+[0.3.1]: /../../tree/v0.3.1
+
+[Diff](/../../compare/v0.3.0...v0.3.1) | [Milestone](/../../milestone/32)
+
+### Added
+
+- iOS:
+    - [VoIP] [CallKit] notifications. ([#1142])
+
+### Fixed
+
+- UI:
+    - User page:
+        - Too large away badge being displayed on avatar. ([#1157])
+    - Profile page:
+        - Inability to crop SVG avatar images. ([#1157])
+        - Initial cropping area being smaller than image's size. ([#1159])
+    - Chat page:
+        - Inability to close chat page when writing to it the first time. ([#1158])
+        - Members count being bigger than actual members number. ([#1159])
+
+[#1142]: /../../pull/1142
+[#1157]: /../../pull/1157
+[#1158]: /../../pull/1158
+[#1159]: /../../pull/1159
+
+
+
+
+## [0.3.0] · 2024-12-25
+[0.3.0]: /../../tree/v0.3.0
+
+[Diff](/../../compare/v0.2.2...v0.3.0) | [Milestone](/../../milestone/31)
+
+### Added
+
+- UI:
+    - Profile page:
+        - Avatar cropping. ([#1143], [#1139], [#1130], [#530])
+    - Chat page:
+        - Image and file attachments pasting from pasteboard. ([#1141])
+    - Chats tab:
+        - Image and file attachments drag-n-drop. ([#1140], [#594])
+
+[#530]: /../../issues/530
+[#594]: /../../issues/594
+[#1130]: /../../pull/1130
+[#1139]: /../../pull/1139
+[#1140]: /../../pull/1140
+[#1141]: /../../pull/1141
+[#1143]: /../../pull/1143
+
+
+
+
+## [0.2.2] · 2024-11-01
+[0.2.2]: /../../tree/v0.2.2
+
+[Diff](/../../compare/v0.2.1...v0.2.2) | [Milestone](/../../milestone/30)
+
+### Added
+
+- UI:
+    - Chat page:
+        - Swipe to reply trackpad gesture. ([#1112], [#296])
+        - Messages searching. ([#1116], [#692])
+    - Chats tab:
+        - Device being offline label. ([#1121], [#547])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - File sizes displayed in B, KB, MB, GB or PB. ([#1115], [#603])
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Invalid diagonal window resize cursors on macOS. ([#1120], [#568])
+    - Chats tab:
+        - Deleted chats still displaying in list after mass clearing. ([#1133])
+- Web:
+    - Invalid camera, microphone and output device names in Firefox. ([#1117])
+
+[#296]: /../../issues/296
+[#547]: /../../issues/547
+[#568]: /../../issues/568
+[#603]: /../../issues/603
+[#692]: /../../issues/692
+[#1112]: /../../pull/1112
+[#1115]: /../../pull/1115
+[#1116]: /../../pull/1116
+[#1117]: /../../pull/1117
+[#1120]: /../../pull/1120
+[#1121]: /../../pull/1121
+[#1133]: /../../pull/1133
+
+
+
+
+## [0.2.1] · 2024-09-12
+[0.2.1]: /../../tree/v0.2.1
+
+[Diff](/../../compare/v0.2.0...v0.2.1) | [Milestone](/../../milestone/29)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Active call's duration not being refreshed every second. ([#1105])
+    - Chats tab:
+        - Restore button clipping chats on mobile platforms. ([#1108], [#758])
+- Web:
+    - Inability to input chat's name during group creation. ([#1103])
+
+[#1103]: /../../pull/1103
+[#1105]: /../../pull/1105
+[#1108]: /../../pull/1108
+
+
+
+
+## [0.2.0] · 2024-09-04
+[0.2.0]: /../../tree/v0.2.0
+
+[Diff](/../../compare/v0.1.4...v0.2.0) | [Milestone](/../../milestone/28)
+
+### Added
+
+- UI:
+    - Support page:
+        - Current version information. ([#1079], [#896])
+    - Profile page:
+        - Credentials confirmation of account deletion. ([#1086])
+        - Welcome message. ([#1090], [#553])
+        - Geolocation of active sessions. ([#1094], [#1005])
+    - Auth page:
+        - Signing up by login and password. ([#1087])
+        - Signing in by one-time password sent to e-mail. ([#1089], [#555])
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Updated messages color. ([#1069])
+    - Upgrade popup:
+        - Binary download progress being displayed on desktop platforms. ([#1079], [#896])
+- iOS:
+    - Better described microphone and camera usage prompts. ([#1066])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Typing being infinitely displayed after focus is lost. ([#995], [#988])
+        - Notes being duplicated when pressing on authorized user's name in chat. ([#1097], [#1083])
+- Web:
+    - Application becoming unresponsive when navigating back with gallery being opened. ([#1078], [#900])
+    - [Progressive Web Application (PWA)][PWA] on iOS missing bottom safe area paddings. ([#1098], [#1015])
+- Windows:
+    - Application not launching due to `MSVCP140.dll` library being missing. ([#1070])
+
+[#553]: /../../issues/553
+[#555]: /../../issues/555
+[#896]: /../../issues/896
+[#900]: /../../issues/900
+[#988]: /../../issues/988
+[#995]: /../../pull/995
+[#1005]: /../../issues/1005
+[#1015]: /../../issues/1015
+[#1066]: /../../pull/1066
+[#1069]: /../../pull/1069
+[#1070]: /../../pull/1070
+[#1078]: /../../pull/1078
+[#1079]: /../../pull/1079
+[#1083]: /../../issues/1083
+[#1086]: /../../pull/1086
+[#1087]: /../../pull/1087
+[#1089]: /../../pull/1089
+[#1090]: /../../pull/1090
+[#1094]: /../../pull/1094
+[#1097]: /../../pull/1097
+[#1098]: /../../pull/1098
+
+
+
+
+## [0.1.4] · 2024-07-11
+[0.1.4]: /../../tree/v0.1.4
+
+[Diff](/../../compare/v0.1.3...v0.1.4) | [Milestone](/../../milestone/27)
+
+### Fixed
+
+- UI:
+    - Selected language not persisting. ([#1055])
+
+[#1055]: /../../pull/1055
+
+
+
+
+## [0.1.3] · 2024-07-04
+[0.1.3]: /../../tree/v0.1.3
+
+[Diff](/../../compare/v0.1.0...v0.1.3) | [Milestone](/../../milestone/26)
+
+### Changed
+
+- UI:
+    - Chat page:
+        - Blurred previews under single images. ([#1057], [#985])
+
+[#985]: /../../issues/985
+[#1057]: /../../pull/1057
+
+
+
+
+## [0.1.0] · 2024-06-27
+[0.1.0]: /../../tree/v0.1.0
+
+[Diff](/../../compare/v0.1.0-alpha.13.5...v0.1.0) | [Milestone](/../../milestone/24)
+
+### Added
+
+- UI:
+    - Home page:
+        - Link tab. ([#1012])
+- Deep links. ([#1035], [#799])
 
 ### Changed
 
 - UI:
     - Update available popup displaying critical updates. ([#973], [#896])
+    - Home page:
+        - Removed contacts tab. ([#1012])
+        - Removed work with us tab. ([#1012])
+    - Chat page:
+        - Direct links in messages opening within application. ([#1012], [#800])
 
+### Fixed
+
+- Web:
+    - Audio playback stopping when receiving or sending message on iOS. ([#1039], [#968])
+
+[#799]: /../../issues/799
+[#800]: /../../issues/800
 [#896]: /../../issues/896
+[#968]: /../../issues/968
 [#973]: /../../pull/973
+[#1012]: /../../pull/1012
+[#1035]: /../../pull/1035
+[#1039]: /../../pull/1039
 
 
 
@@ -1199,7 +1501,9 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+[CallKit]: https://developer.apple.com/documentation/callkit/
 [ConnectionService]: https://developer.android.com/reference/android/telecom/ConnectionService
 [Helm]: https://helm.sh
 [PWA]: https://en.wikipedia.org/wiki/Progressive_web_app
 [Semantic Versioning 2.0.0]: https://semver.org
+[VoIP]: https://wikipedia.org/wiki/Voice_over_IP

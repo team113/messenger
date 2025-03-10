@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,6 @@ import 'package:gherkin/gherkin.dart';
 final StepDefinitionGeneric waitForAppToSettle = then<FlutterWorld>(
   'I wait for app to settle',
   (context) => context.world.appDriver.waitForAppToSettle(),
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 60),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 60),
 );

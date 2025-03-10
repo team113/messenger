@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -69,9 +69,10 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   color.toHex(),
                   textAlign: TextAlign.start,
-                  style: inverted
-                      ? style.fonts.small.regular.onBackground
-                      : style.fonts.small.regular.onPrimary,
+                  style:
+                      inverted
+                          ? style.fonts.small.regular.onBackground
+                          : style.fonts.small.regular.onPrimary,
                 ),
               ),
               const Spacer(),
@@ -81,9 +82,10 @@ class ColorWidget extends StatelessWidget {
                   child: Icon(
                     Icons.info_outline,
                     size: 13,
-                    color: inverted
-                        ? style.colors.onBackground
-                        : style.colors.onPrimary,
+                    color:
+                        inverted
+                            ? style.colors.onBackground
+                            : style.colors.onPrimary,
                   ),
                 ),
             ],
@@ -108,9 +110,10 @@ class ColorWidget extends StatelessWidget {
                 child: Text(
                   subtitle!,
                   textAlign: TextAlign.left,
-                  style: inverted
-                      ? style.fonts.smaller.regular.onBackground
-                      : style.fonts.smaller.regular.onPrimary,
+                  style:
+                      inverted
+                          ? style.fonts.smaller.regular.onBackground
+                          : style.fonts.smaller.regular.onPrimary,
                 ),
               ),
             ),

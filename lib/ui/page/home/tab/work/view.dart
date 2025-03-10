@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -28,7 +28,7 @@ import '/ui/widget/animated_button.dart';
 import '/ui/widget/svg/svg.dart';
 import 'controller.dart';
 
-/// View of the [HomeTab.work] tab.
+/// View of the `HomeTab.work` tab.
 class WorkTabView extends StatelessWidget {
   const WorkTabView({super.key});
 
@@ -78,12 +78,13 @@ class WorkTabView extends StatelessWidget {
             actions: [
               AnimatedButton(
                 onPressed: router.support,
-                decorator: (child) => Padding(
-                  padding: const EdgeInsets.fromLTRB(0, 4, 21, 4),
-                  child: child,
-                ),
+                decorator:
+                    (child) => Padding(
+                      padding: const EdgeInsets.fromLTRB(0, 4, 21, 4),
+                      child: child,
+                    ),
                 child: const SvgIcon(SvgIcons.info),
-              )
+              ),
             ],
           ),
           body: SafeScrollbar(

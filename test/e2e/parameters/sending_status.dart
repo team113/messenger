@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,17 +23,13 @@ enum MessageSentStatus { sending, sent, error, read, halfRead }
 /// [CustomParameter] representing a [MessageSentStatus].
 class MessageSentStatusParameter extends CustomParameter<MessageSentStatus> {
   MessageSentStatusParameter()
-      : super(
-          'sending',
-          RegExp('(sending|sent|error|read|half read)'),
-          (c) {
-            switch (c) {
-              case 'half read':
-                return MessageSentStatus.halfRead;
+    : super('sending', RegExp('(sending|sent|error|read|half read)'), (c) {
+        switch (c) {
+          case 'half read':
+            return MessageSentStatus.halfRead;
 
-              default:
-                return MessageSentStatus.values.firstWhere((e) => e.name == c);
-            }
-          },
-        );
+          default:
+            return MessageSentStatus.values.firstWhere((e) => e.name == c);
+        }
+      });
 }

@@ -3,14 +3,20 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  desktop_drop
+  file_selector_linux
   flutter_custom_cursor
+  gtk
+  hotkey_manager_linux
+  irondash_engine_context
   medea_flutter_webrtc
   medea_jason
   media_kit_libs_linux
   media_kit_video
-  screen_retriever
+  open_file_linux
+  screen_retriever_linux
   sentry_flutter
+  sqlite3_flutter_libs
+  super_native_extensions
   url_launcher_linux
   window_manager
 )

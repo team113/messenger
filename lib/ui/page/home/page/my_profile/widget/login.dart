@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -111,24 +111,27 @@ class _UserLoginFieldState extends State<UserLoginField> {
           key: const Key('LoginField'),
           state: _state,
           onChanged: () => _state.error.value = null,
-          onCanceled: widget.login == null
-              ? null
-              : () {
-                  _state.unchecked = widget.login?.val;
-                  if (mounted) {
-                    setState(() => _editing = false);
-                  }
-                },
+          onCanceled:
+              widget.login == null
+                  ? null
+                  : () {
+                    _state.unchecked = widget.login?.val;
+                    if (mounted) {
+                      setState(() => _editing = false);
+                    }
+                  },
           label: 'label_login'.l10n,
           prefixText: '@',
-          hint: widget.login == null
-              ? 'label_login_hint'.l10n
-              : widget.login!.val,
+          hint:
+              widget.login == null
+                  ? 'label_login_hint'.l10n
+                  : widget.login!.val,
         ),
       );
     } else {
       child = Paddings.basic(
         InfoTile(
+          key: Key('LoginTile'),
           title: 'label_login'.l10n,
           content: '@${_state.text}',
           trailing: AnimatedButton(

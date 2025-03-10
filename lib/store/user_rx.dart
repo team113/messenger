@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,31 +24,32 @@ import '/domain/model/chat.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
+import '/domain/model/welcome_message.dart';
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
-import '/provider/hive/user.dart';
+import '/provider/drift/user.dart';
 import '/store/event/user.dart';
 import '/store/user.dart';
 import '/util/log.dart';
 import '/util/new_type.dart';
 import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
+import 'model/user.dart';
 
-/// [RxUser] implementation backed by local [Hive] storage.
-class HiveRxUser extends RxUser {
-  HiveRxUser(
-    this._userRepository,
-    this._userLocal,
-    HiveUser hiveUser,
-  )   : user = Rx<User>(hiveUser.value),
-        lastSeen = Rx(hiveUser.value.lastSeenAt) {
+/// [RxUser] implementation backed by local [ScopedDriftProvider] storage.
+class RxUserImpl extends RxUser {
+  RxUserImpl(this._userRepository, this._userLocal, DtoUser dto)
+    : user = Rx<User>(dto.value),
+      lastSeen = Rx(dto.value.lastSeenAt) {
     // Start the [_lastSeenTimer] right away.
     _runLastSeenTimer();
 
     final ChatContactId? contactId = user.value.contacts.firstOrNull?.id;
     if (contactId != null) {
-      final FutureOr<RxChatContact?> contactOrFuture =
-          _userRepository.getContact?.call(contactId);
+      final FutureOr<RxChatContact?> contactOrFuture = _userRepository
+          .getContact
+          ?.call(contactId);
 
       if (contactOrFuture is RxChatContact?) {
         contact.value = contactOrFuture;
@@ -68,8 +69,9 @@ class HiveRxUser extends RxUser {
       final ChatContactId? contactId = user.contacts.firstOrNull?.id;
       if (contact.value?.id != contactId) {
         if (contactId != null) {
-          final FutureOr<RxChatContact?> contactOrFuture =
-              _userRepository.getContact?.call(contactId);
+          final FutureOr<RxChatContact?> contactOrFuture = _userRepository
+              .getContact
+              ?.call(contactId);
 
           if (contactOrFuture is RxChatContact?) {
             contact.value = contactOrFuture;
@@ -79,6 +81,12 @@ class HiveRxUser extends RxUser {
         } else {
           contact.value = null;
         }
+      }
+    });
+
+    _localSubscription = _userLocal.watch(id).listen((e) {
+      if (e != null) {
+        user.value = e.value;
       }
     });
   }
@@ -95,8 +103,8 @@ class HiveRxUser extends RxUser {
   /// [UserRepository] providing the [UserEvent]s.
   final UserRepository _userRepository;
 
-  /// [User]s local [Hive] storage.
-  final UserHiveProvider _userLocal;
+  /// [User]s local storage.
+  final UserDriftProvider _userLocal;
 
   /// Reactive value of the [RxChat]-dialog with this [RxUser].
   Rx<RxChat?>? _dialog;
@@ -104,7 +112,10 @@ class HiveRxUser extends RxUser {
   /// [UserRepository.userEvents] subscription.
   StreamQueue<UserEvents>? _remoteSubscription;
 
-  /// [StreamController] for [updates] of this [HiveRxUser].
+  /// [UserDriftProvider.watch] subscription.
+  StreamSubscription? _localSubscription;
+
+  /// [StreamController] for [updates] of this [RxUserImpl].
   ///
   /// Behaves like a reference counter: when [updates] are listened to, this
   /// invokes [_initRemoteSubscription], and when [updates] aren't listened,
@@ -127,8 +138,9 @@ class HiveRxUser extends RxUser {
   Rx<RxChat?> get dialog {
     final ChatId dialogId = user.value.dialog;
     if (_dialog == null) {
-      final FutureOr<RxChat?> chatOrFuture =
-          _userRepository.getChat?.call(dialogId);
+      final FutureOr<RxChat?> chatOrFuture = _userRepository.getChat?.call(
+        dialogId,
+      );
 
       if (chatOrFuture is RxChat?) {
         _dialog = Rx(chatOrFuture);
@@ -144,12 +156,13 @@ class HiveRxUser extends RxUser {
   @override
   Stream<void> get updates => _controller.stream;
 
-  /// Disposes this [HiveRxUser].
+  /// Disposes this [RxUserImpl].
   void dispose() {
     Log.debug('dispose()', '$runtimeType($id)');
 
     _lastSeenTimer?.cancel();
     _worker?.dispose();
+    _localSubscription?.cancel();
   }
 
   /// Initializes [UserRepository.userEvents] subscription.
@@ -157,10 +170,16 @@ class HiveRxUser extends RxUser {
     Log.debug('_initRemoteSubscription()', '$runtimeType($id)');
 
     _remoteSubscription?.close(immediate: true);
-    _remoteSubscription = StreamQueue(
-      _userRepository.userEvents(id, () => _userLocal.get(id)?.ver),
-    );
-    await _remoteSubscription!.execute(_userEvent);
+
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _userRepository.userEvents(
+          id,
+          () async => (await _userLocal.read(id))?.ver,
+        ),
+      );
+      await _remoteSubscription!.execute(_userEvent);
+    }, tag: 'userEvents($id)');
   }
 
   /// Handles [UserEvents] from the [UserRepository.userEvents] subscription.
@@ -174,14 +193,14 @@ class HiveRxUser extends RxUser {
         Log.debug('_userEvent(${events.kind})', '$runtimeType($id)');
 
         events as UserEventsUser;
-        final saved = _userLocal.get(id);
+        final saved = await _userLocal.read(id);
         if (saved == null || saved.ver <= events.user.ver) {
-          await _userLocal.put(events.user);
+          await _userLocal.upsert(events.user);
         }
         break;
 
       case UserEventsKind.event:
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
         final versioned = (events as UserEventsEvent).event;
         if (userEntity == null || versioned.ver < userEntity.ver) {
           Log.debug(
@@ -262,14 +281,33 @@ class HiveRxUser extends RxUser {
             case UserEventKind.userDeleted:
               userEntity.value.isDeleted = true;
               break;
+
+            case UserEventKind.welcomeMessageDeleted:
+              userEntity.value.welcomeMessage = null;
+              break;
+
+            case UserEventKind.welcomeMessageUpdated:
+              event as EventUserWelcomeMessageUpdated;
+              userEntity.value.welcomeMessage = WelcomeMessage(
+                text:
+                    event.text == null
+                        ? userEntity.value.welcomeMessage?.text
+                        : event.text?.changed,
+                attachments:
+                    event.attachments == null
+                        ? userEntity.value.welcomeMessage?.attachments ?? []
+                        : event.attachments?.attachments ?? [],
+                at: event.at,
+              );
+              break;
           }
 
-          _userLocal.put(userEntity);
+          _userLocal.upsert(userEntity);
         }
         break;
 
       case UserEventsKind.blocklistEvent:
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
         final versioned = (events as UserEventsBlocklistEventsEvent).event;
 
         // TODO: Properly account `MyUserVersion` returned.
@@ -278,13 +316,13 @@ class HiveRxUser extends RxUser {
         }
 
         for (var event in versioned.events) {
-          _userLocal.put(event.user);
+          _userLocal.upsert(event.user);
         }
         break;
 
       case UserEventsKind.isBlocked:
         final versioned = events as UserEventsIsBlocked;
-        final userEntity = _userLocal.get(id);
+        final userEntity = await _userLocal.read(id);
 
         if (userEntity != null) {
           // TODO: Properly account `MyUserVersion` returned.
@@ -294,7 +332,7 @@ class HiveRxUser extends RxUser {
 
           userEntity.value.isBlocked = versioned.record;
           userEntity.blockedVer = versioned.ver;
-          _userLocal.put(userEntity);
+          _userLocal.upsert(userEntity);
         }
         break;
     }
@@ -320,19 +358,22 @@ class HiveRxUser extends RxUser {
     if (difference.inHours < 1) {
       period = const Duration(minutes: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerMinute -
+        microseconds:
+            Duration.microsecondsPerMinute -
             difference.inMicroseconds % Duration.microsecondsPerMinute,
       );
     } else if (difference.inDays < 1) {
       period = const Duration(hours: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerHour -
+        microseconds:
+            Duration.microsecondsPerHour -
             difference.inMicroseconds % Duration.microsecondsPerHour,
       );
     } else {
       period = const Duration(days: 1);
       delay = Duration(
-        microseconds: Duration.microsecondsPerDay -
+        microseconds:
+            Duration.microsecondsPerDay -
             difference.inMicroseconds % Duration.microsecondsPerDay,
       );
     }
@@ -340,31 +381,25 @@ class HiveRxUser extends RxUser {
     lastSeen.value = user.value.lastSeenAt;
     lastSeen.refresh();
 
-    _lastSeenTimer = Timer(
-      delay,
-      () {
+    _lastSeenTimer = Timer(delay, () {
+      Log.debug(
+        '_runLastSeenTimer(): delay($delay) has passed',
+        '$runtimeType($id)',
+      );
+
+      lastSeen.value = user.value.lastSeenAt;
+      lastSeen.refresh();
+
+      _lastSeenTimer?.cancel();
+      _lastSeenTimer = Timer.periodic(period, (timer) {
         Log.debug(
-          '_runLastSeenTimer(): delay($delay) has passed',
+          '_runLastSeenTimer(): period($period) has passed',
           '$runtimeType($id)',
         );
 
         lastSeen.value = user.value.lastSeenAt;
         lastSeen.refresh();
-
-        _lastSeenTimer?.cancel();
-        _lastSeenTimer = Timer.periodic(
-          period,
-          (timer) {
-            Log.debug(
-              '_runLastSeenTimer(): period($period) has passed',
-              '$runtimeType($id)',
-            );
-
-            lastSeen.value = user.value.lastSeenAt;
-            lastSeen.refresh();
-          },
-        );
-      },
-    );
+      });
+    });
   }
 }

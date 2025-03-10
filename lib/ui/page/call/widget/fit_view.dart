@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -57,9 +57,10 @@ class FitView extends StatelessWidget {
       int rows = (length / columns).ceil();
 
       // Current diagonal of a single square.
-      double diagonal = (pow(constraints.maxWidth / columns, 2) +
-              pow(constraints.maxHeight / rows, 2))
-          .toDouble();
+      double diagonal =
+          (pow(constraints.maxWidth / columns, 2) +
+                  pow(constraints.maxHeight / rows, 2))
+              .toDouble();
 
       // If there's any [children] left outside, then their diagonal will
       // always be bigger, so we need to recalculate.
@@ -120,11 +121,11 @@ class FitView extends StatelessWidget {
           }
         }
 
-        diagonal = (pow(constraints.maxWidth / outside * coef, 2) +
-                pow(constraints.maxHeight / rows, 2))
-            .toDouble();
+        diagonal =
+            (pow(constraints.maxWidth / outside * coef, 2) +
+                    pow(constraints.maxHeight / rows, 2))
+                .toDouble();
       }
-
       // Tweak of a standard arrangement.
       else if (length == 4) {
         mColumns =
@@ -184,59 +185,67 @@ class FitView extends StatelessWidget {
       return Container();
     }
 
-    return LayoutBuilder(builder: (context, constraints) {
-      // Number of columns.
-      int mColumns =
-          calculate(constraints: constraints, length: children.length);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Number of columns.
+        int mColumns = calculate(
+          constraints: constraints,
+          length: children.length,
+        );
 
-      // Creates a column of a row at [rowIndex] index.
-      List<Widget> createColumn(int rowIndex) {
-        final List<Widget> column = [];
+        // Creates a column of a row at [rowIndex] index.
+        List<Widget> createColumn(int rowIndex) {
+          final List<Widget> column = [];
 
-        for (int columnIndex = 0; columnIndex < mColumns; columnIndex++) {
-          final cellIndex = rowIndex * mColumns + columnIndex;
-          if (cellIndex <= children.length - 1) {
-            column.add(Expanded(child: children[cellIndex]));
-            if (dividerColor != null &&
-                columnIndex < mColumns - 1 &&
-                cellIndex < children.length - 1) {
-              column.add(IgnorePointer(
-                child: Container(
-                  width: dividerSize,
-                  height: double.infinity,
-                  color: dividerColor,
-                ),
-              ));
+          for (int columnIndex = 0; columnIndex < mColumns; columnIndex++) {
+            final cellIndex = rowIndex * mColumns + columnIndex;
+            if (cellIndex <= children.length - 1) {
+              column.add(Expanded(child: children[cellIndex]));
+              if (dividerColor != null &&
+                  columnIndex < mColumns - 1 &&
+                  cellIndex < children.length - 1) {
+                column.add(
+                  IgnorePointer(
+                    child: Container(
+                      width: dividerSize,
+                      height: double.infinity,
+                      color: dividerColor,
+                    ),
+                  ),
+                );
+              }
             }
           }
+
+          return column;
         }
 
-        return column;
-      }
+        // Creates a row of a [_createColumn]s.
+        List<Widget> createRows() {
+          final List<Widget> rows = [];
+          final rowCount = (children.length / mColumns).ceil();
 
-      // Creates a row of a [_createColumn]s.
-      List<Widget> createRows() {
-        final List<Widget> rows = [];
-        final rowCount = (children.length / mColumns).ceil();
-
-        for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
-          final List<Widget> column = createColumn(rowIndex);
-          rows.add(Expanded(child: Row(children: column)));
-          if (dividerColor != null && rowIndex < rowCount - 1) {
-            rows.add(IgnorePointer(
-              child: Container(
-                height: dividerSize,
-                width: double.infinity,
-                color: dividerColor,
-              ),
-            ));
+          for (int rowIndex = 0; rowIndex < rowCount; rowIndex++) {
+            final List<Widget> column = createColumn(rowIndex);
+            rows.add(Expanded(child: Row(children: column)));
+            if (dividerColor != null && rowIndex < rowCount - 1) {
+              rows.add(
+                IgnorePointer(
+                  child: Container(
+                    height: dividerSize,
+                    width: double.infinity,
+                    color: dividerColor,
+                  ),
+                ),
+              );
+            }
           }
+
+          return rows;
         }
 
-        return rows;
-      }
-
-      return Column(children: createRows());
-    });
+        return Column(children: createRows());
+      },
+    );
   }
 }

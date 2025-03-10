@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -33,16 +33,17 @@ class MessagePopup {
 
     await showDialog(
       context: router.context!,
-      builder: (context) => AlertDialog(
-        title: Text('label_error'.l10n),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.l10n),
-          )
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text('label_error'.l10n),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(router.context!).pop(),
+                child: Text('btn_ok'.l10n),
+              ),
+            ],
+          ),
     );
   }
 
@@ -105,8 +106,19 @@ class MessagePopup {
   }
 
   /// Shows a [FloatingSnackBar] with the [title] message.
-  static void success(String title, {double bottom = 16}) =>
-      FloatingSnackBar.show(title, bottom: bottom);
+  static void success(
+    String title, {
+    double bottom = 16,
+    Duration duration = const Duration(seconds: 2),
+    void Function()? onPressed,
+    Offset? at,
+  }) => FloatingSnackBar.show(
+    title,
+    bottom: bottom,
+    duration: duration,
+    onPressed: onPressed,
+    at: at,
+  );
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

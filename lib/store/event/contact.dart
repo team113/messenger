@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,11 +39,7 @@ enum ChatContactEventKind {
 }
 
 /// Tag representing a [ChatContactsEvents] kind.
-enum ChatContactsEventsKind {
-  initialized,
-  chatContactsList,
-  event,
-}
+enum ChatContactsEventsKind { initialized, chatContactsList, event }
 
 /// [ChatContact]s list event union.
 abstract class ChatContactsEvents {
@@ -104,11 +100,7 @@ abstract class ChatContactEvent {
 
 /// Event of a new [ChatContact] being created.
 class EventChatContactCreated extends ChatContactEvent {
-  const EventChatContactCreated(
-    super.contactId,
-    super.at,
-    this.name,
-  );
+  const EventChatContactCreated(super.contactId, super.at, this.name);
 
   /// Name of the created [ChatContact].
   final UserName name;
@@ -119,10 +111,7 @@ class EventChatContactCreated extends ChatContactEvent {
 
 /// Event of a [ChatContact] being deleted.
 class EventChatContactDeleted extends ChatContactEvent {
-  const EventChatContactDeleted(
-    super.contactId,
-    super.at,
-  );
+  const EventChatContactDeleted(super.contactId, super.at);
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.deleted;
@@ -130,11 +119,7 @@ class EventChatContactDeleted extends ChatContactEvent {
 
 /// Event of an [UserEmail] being added to a [ChatContact].
 class EventChatContactEmailAdded extends ChatContactEvent {
-  const EventChatContactEmailAdded(
-    super.contactId,
-    super.at,
-    this.email,
-  );
+  const EventChatContactEmailAdded(super.contactId, super.at, this.email);
 
   /// Added [UserEmail].
   final UserEmail email;
@@ -145,11 +130,7 @@ class EventChatContactEmailAdded extends ChatContactEvent {
 
 /// Event of an [UserEmail] being removed from a [ChatContact].
 class EventChatContactEmailRemoved extends ChatContactEvent {
-  const EventChatContactEmailRemoved(
-    super.contactId,
-    super.at,
-    this.email,
-  );
+  const EventChatContactEmailRemoved(super.contactId, super.at, this.email);
 
   /// Removed [UserEmail].
   final UserEmail email;
@@ -160,11 +141,7 @@ class EventChatContactEmailRemoved extends ChatContactEvent {
 
 /// Event of a [ChatContact] being favorited.
 class EventChatContactFavorited extends ChatContactEvent {
-  const EventChatContactFavorited(
-    super.contactId,
-    super.at,
-    this.position,
-  );
+  const EventChatContactFavorited(super.contactId, super.at, this.position);
 
   /// Position of the [ChatContact] in the favorites list.
   final ChatContactFavoritePosition position;
@@ -175,11 +152,7 @@ class EventChatContactFavorited extends ChatContactEvent {
 
 /// Event of a [Chat]-group being added to the [ChatContact].
 class EventChatContactGroupAdded extends ChatContactEvent {
-  const EventChatContactGroupAdded(
-    super.contactId,
-    super.at,
-    this.group,
-  );
+  const EventChatContactGroupAdded(super.contactId, super.at, this.group);
 
   /// [Chat]-group added to the [ChatContact].
   final Chat group;
@@ -190,11 +163,7 @@ class EventChatContactGroupAdded extends ChatContactEvent {
 
 /// Event of a [Chat]-group being removed from a [ChatContact].
 class EventChatContactGroupRemoved extends ChatContactEvent {
-  const EventChatContactGroupRemoved(
-    super.contactId,
-    super.at,
-    this.groupId,
-  );
+  const EventChatContactGroupRemoved(super.contactId, super.at, this.groupId);
 
   /// ID of the removed [Chat]-group.
   final ChatId groupId;
@@ -205,11 +174,7 @@ class EventChatContactGroupRemoved extends ChatContactEvent {
 
 /// Event of a [ChatContact]'s name being updated.
 class EventChatContactNameUpdated extends ChatContactEvent {
-  const EventChatContactNameUpdated(
-    super.contactId,
-    super.at,
-    this.name,
-  );
+  const EventChatContactNameUpdated(super.contactId, super.at, this.name);
 
   /// Updated name of the [ChatContact].
   final UserName name;
@@ -220,11 +185,7 @@ class EventChatContactNameUpdated extends ChatContactEvent {
 
 /// Event of an [UserPhone] being added to a [ChatContact].
 class EventChatContactPhoneAdded extends ChatContactEvent {
-  const EventChatContactPhoneAdded(
-    super.contactId,
-    super.at,
-    this.phone,
-  );
+  const EventChatContactPhoneAdded(super.contactId, super.at, this.phone);
 
   /// Added [UserPhone].
   final UserPhone phone;
@@ -235,11 +196,7 @@ class EventChatContactPhoneAdded extends ChatContactEvent {
 
 /// Event of an [UserPhone] being removed from a [ChatContact].
 class EventChatContactPhoneRemoved extends ChatContactEvent {
-  const EventChatContactPhoneRemoved(
-    super.contactId,
-    super.at,
-    this.phone,
-  );
+  const EventChatContactPhoneRemoved(super.contactId, super.at, this.phone);
 
   /// Removed [UserPhone].
   final UserPhone phone;
@@ -250,10 +207,7 @@ class EventChatContactPhoneRemoved extends ChatContactEvent {
 
 /// Event of a [ChatContact] being unfavorited.
 class EventChatContactUnfavorited extends ChatContactEvent {
-  const EventChatContactUnfavorited(
-    super.contactId,
-    super.at,
-  );
+  const EventChatContactUnfavorited(super.contactId, super.at);
 
   @override
   ChatContactEventKind get kind => ChatContactEventKind.unfavorited;
@@ -261,11 +215,7 @@ class EventChatContactUnfavorited extends ChatContactEvent {
 
 /// Event of an [User] being added to a [ChatContact].
 class EventChatContactUserAdded extends ChatContactEvent {
-  const EventChatContactUserAdded(
-    super.contactId,
-    super.at,
-    this.user,
-  );
+  const EventChatContactUserAdded(super.contactId, super.at, this.user);
 
   /// [User] added to the [ChatContact].
   final User user;
@@ -276,11 +226,7 @@ class EventChatContactUserAdded extends ChatContactEvent {
 
 /// Event of an [User] being removed from a [ChatContact].
 class EventChatContactUserRemoved extends ChatContactEvent {
-  const EventChatContactUserRemoved(
-    super.contactId,
-    super.at,
-    this.userId,
-  );
+  const EventChatContactUserRemoved(super.contactId, super.at, this.userId);
 
   /// ID of the removed [User].
   final UserId userId;

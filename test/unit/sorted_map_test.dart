@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -21,16 +21,14 @@ import 'package:messenger/util/obs/obs.dart';
 
 void main() {
   test('SortedObsMap sorts inserted values correctly', () {
-    final SortedObsMap<int, _Pair> map = SortedObsMap(
-      (a, b) {
-        final int compare = a.sortBy.compareTo(b.sortBy);
-        if (compare == 0) {
-          return a.value.compareTo(b.value);
-        }
+    final SortedObsMap<int, _Pair> map = SortedObsMap((a, b) {
+      final int compare = a.sortBy.compareTo(b.sortBy);
+      if (compare == 0) {
+        return a.value.compareTo(b.value);
+      }
 
-        return compare;
-      },
-    );
+      return compare;
+    });
 
     map[0] = const _Pair('value0', 0);
     map[1] = const _Pair('value1', -1);
@@ -47,18 +45,21 @@ void main() {
     expect(map.remove(2) != null, true);
 
     expect(
-      const ListEquality().equals(
-        map.keys.toList(),
-        [0, 1, 3, 4, 6, 7, 8, 9],
-      ),
+      const ListEquality().equals(map.keys.toList(), [0, 1, 3, 4, 6, 7, 8, 9]),
       true,
     );
 
     expect(
-      const ListEquality().equals(
-        map.values.map((e) => e.sortBy).toList(),
-        [-5, -2, -1, 0, 0, 2, 10, 32],
-      ),
+      const ListEquality().equals(map.values.map((e) => e.sortBy).toList(), [
+        -5,
+        -2,
+        -1,
+        0,
+        0,
+        2,
+        10,
+        32,
+      ]),
       true,
     );
   });

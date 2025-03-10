@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,6 +20,7 @@ import 'package:flutter/material.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
+import 'safe_area/safe_area.dart';
 import 'widget_button.dart';
 
 /// Stylized modal popup.
@@ -60,19 +61,20 @@ abstract class ModalPopup {
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
-        transitionAnimationController:
-            BottomSheet.createAnimationController(Navigator.of(context))
-              ..duration = const Duration(milliseconds: 350),
+        transitionAnimationController: BottomSheet.createAnimationController(
+          Navigator.of(context),
+        )..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
             topRight: Radius.circular(14),
           ),
         ),
-        constraints:
-            BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height - 60,
+        ),
         builder: (context) {
-          return SafeArea(
+          return CustomSafeArea(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -127,7 +129,7 @@ abstract class ModalPopup {
             ),
           );
 
-          return SafeArea(
+          return CustomSafeArea(
             child: Material(type: MaterialType.transparency, child: body),
           );
         },

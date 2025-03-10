@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ Feature: Chat items are forwarded correctly
     And Bob has dialog with me
     And Charlie has dialog with me
     And I am in chat with Bob
+    And I pause for 5 seconds
 
   Scenario: User forwards message
     When I fill `MessageField` field with "Wow!"
@@ -62,6 +63,7 @@ Feature: Chat items are forwarded correctly
     When I fill `MessageField` field with "Important info"
     And I tap `Send` button
     Then I wait until status of "Important info" message is sent
+    And I pause for 5 seconds
 
     When I long press "Important info" message
     And I tap `ForwardButton` button

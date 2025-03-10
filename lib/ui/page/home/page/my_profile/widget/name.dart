@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -94,18 +94,21 @@ class _UserNameFieldState extends State<UserNameField> {
       label: 'label_name'.l10n,
       hint: 'label_name_hint'.l10n,
       filled: true,
-      onSuffixPressed: _state.text.isEmpty
-          ? null
-          : () {
-              PlatformUtils.copy(text: _state.text);
-              MessagePopup.success('label_copied'.l10n);
-            },
-      trailing: _state.text.isEmpty
-          ? null
-          : Transform.translate(
-              offset: const Offset(0, -1),
-              child: const SvgIcon(SvgIcons.copy),
-            ),
+      floatingLabelBehavior: FloatingLabelBehavior.always,
+      onSuffixPressed:
+          _state.text.isEmpty
+              ? null
+              : () {
+                PlatformUtils.copy(text: _state.text);
+                MessagePopup.success('label_copied'.l10n);
+              },
+      trailing:
+          _state.text.isEmpty
+              ? null
+              : Transform.translate(
+                offset: const Offset(0, -1),
+                child: const SvgIcon(SvgIcons.copy),
+              ),
     );
   }
 }

@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,20 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
- Feature: User sessions
+Feature: User sessions
 
-   Scenario: User deletes session
-     Given I am Alice
-     And Alice has another active session
+  Scenario: User deletes session
+    Given I am Alice
+    And Alice has another active session
 
-     When I tap `MenuButton` button
-     And I scroll `MenuListView` until `Devices` is present
-     And I tap `Devices` button
-     Then I see 2 active sessions
+    When I tap `MenuButton` button
+    And I scroll `MenuListView` until `Devices` is present
+    And I tap `Devices` button
+    Then I see 2 active sessions
 
-     When I tap `DeleteSessionButton` button
-     Then I wait until `PasswordField` is present
+    When I tap `DeleteSessionButton` button
+    Then I wait until `PasswordField` is present
 
-     When I fill `PasswordField` field with "123"
-     And I tap `ProceedButton` button
-     Then I see 1 active session
+    When I fill `PasswordField` field with "123"
+    And I tap `ProceedButton` button
+    Then I see 1 active session

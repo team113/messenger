@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -47,10 +47,7 @@ class BlocklistRecordWidget extends StatelessWidget {
         if (record.reason != null) ...[
           const SizedBox(height: 8),
           Paddings.basic(
-            InfoTile(
-              title: 'label_reason'.l10n,
-              content: record.reason!.val,
-            ),
+            InfoTile(title: 'label_reason'.l10n, content: record.reason!.val),
           ),
         ],
         if (onUnblock != null) ...[

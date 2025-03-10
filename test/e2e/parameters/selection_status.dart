@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,12 @@ enum SelectionStatus { selected, unselected }
 /// [CustomParameter] representing a [SelectionStatus].
 class SelectionStatusParameter extends CustomParameter<SelectionStatus> {
   SelectionStatusParameter()
-      : super(
-          'selection',
-          RegExp(
-            '(${SelectionStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => SelectionStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'selection',
+        RegExp(
+          '(${SelectionStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => SelectionStatus.values.firstWhere((e) => e.name == c),
+      );
 }

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -34,15 +34,16 @@ class ChatMoreWidget extends StatefulWidget {
     this.pinned = false,
     this.onPin,
     void Function()? onPressed,
-  })  : label = button.hint,
-        offset = button.offsetMini,
-        icon = SvgIcon(button.assetMini ?? button.asset) {
-    this.onPressed = button.onPressed == null
-        ? null
-        : () {
-            onPressed?.call();
-            button.onPressed?.call();
-          };
+  }) : label = button.hint,
+       offset = button.offsetMini,
+       icon = SvgIcon(button.assetMini ?? button.asset) {
+    this.onPressed =
+        button.onPressed == null
+            ? null
+            : () {
+              onPressed?.call();
+              button.onPressed?.call();
+            };
   }
 
   /// Callback, called when this [ChatMoreWidget] is pressed.
@@ -88,9 +89,10 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
           onPressed: widget.onPressed,
           child: Container(
             width: double.infinity,
-            color: (_hovered && !disabled)
-                ? style.colors.onBackgroundOpacity2
-                : null,
+            color:
+                (_hovered && !disabled)
+                    ? style.colors.onBackgroundOpacity2
+                    : null,
             constraints: const BoxConstraints(minHeight: 48),
             child: Row(
               mainAxisSize: MainAxisSize.min,
@@ -113,35 +115,43 @@ class _ChatMoreWidgetState extends State<ChatMoreWidget> {
                 const SizedBox(width: 12),
                 Text(
                   widget.label,
-                  style: disabled
-                      ? style.fonts.medium.regular.primaryHighlightLightest
-                      : style.fonts.medium.regular.primary,
+                  style:
+                      disabled
+                          ? style.fonts.medium.regular.primaryHighlightLightest
+                          : style.fonts.medium.regular.primary,
                 ),
                 const Spacer(),
                 const SizedBox(width: 16),
-                WidgetButton(
-                  onPressed: widget.onPin ?? () {},
-                  child: SizedBox(
-                    height: 40,
-                    width: 40,
-                    child: Center(
-                      child: AnimatedButton(
-                        child: SafeAnimatedSwitcher(
-                          duration: 100.milliseconds,
-                          child: widget.pinned
-                              ? const SvgIcon(SvgIcons.unpin, key: Key('Unpin'))
-                              : Opacity(
-                                  key: const Key('Pin'),
-                                  opacity: widget.onPin == null || disabled
-                                      ? 0.6
-                                      : 1,
-                                  child: const SvgIcon(SvgIcons.pin),
-                                ),
+                if (widget.onPin != null) ...[
+                  WidgetButton(
+                    onPressed: widget.onPin ?? () {},
+                    child: SizedBox(
+                      height: 40,
+                      width: 40,
+                      child: Center(
+                        child: AnimatedButton(
+                          child: SafeAnimatedSwitcher(
+                            duration: 100.milliseconds,
+                            child:
+                                widget.pinned
+                                    ? const SvgIcon(
+                                      SvgIcons.unpin,
+                                      key: Key('Unpin'),
+                                    )
+                                    : Opacity(
+                                      key: const Key('Pin'),
+                                      opacity:
+                                          widget.onPin == null || disabled
+                                              ? 0.6
+                                              : 1,
+                                      child: const SvgIcon(SvgIcons.pin),
+                                    ),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
+                ],
               ],
             ),
           ),

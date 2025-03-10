@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,6 +23,7 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '/themes.dart';
 import '/ui/widget/progress_indicator.dart';
+import '/ui/widget/safe_area/safe_area.dart';
 import '/util/platform_utils.dart';
 import 'centered_play_pause.dart';
 import 'position.dart';
@@ -121,11 +122,11 @@ class _MobileControlsState extends State<MobileControls>
               return buffering.data!
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
-                      widget.controller,
-                      size: 56,
-                      show: !_dragging && !_hideStuff,
-                      onPressed: _playPause,
-                    );
+                    widget.controller,
+                    size: 56,
+                    show: !_dragging && !_hideStuff,
+                    onPressed: _playPause,
+                  );
             },
           ),
 
@@ -151,9 +152,10 @@ class _MobileControlsState extends State<MobileControls>
               child: RewindIndicator(
                 seconds: _seekForwardDuration.inSeconds,
                 forward: true,
-                opacity: _showSeekForward && _seekForwardDuration.inSeconds > 0
-                    ? 1
-                    : 0,
+                opacity:
+                    _showSeekForward && _seekForwardDuration.inSeconds > 0
+                        ? 1
+                        : 0,
               ),
             ),
           ),
@@ -217,7 +219,7 @@ class _MobileControlsState extends State<MobileControls>
             ],
           ),
         ),
-        child: SafeArea(
+        child: CustomSafeArea(
           child: Container(
             height: widget.barHeight,
             padding: const EdgeInsets.only(left: 20, bottom: 10),
@@ -234,16 +236,14 @@ class _MobileControlsState extends State<MobileControls>
                         widget.controller,
                         height: widget.barHeight,
                         margin: const EdgeInsets.only(right: 12.0),
-                        padding: const EdgeInsets.only(
-                          left: 8.0,
-                          right: 8.0,
-                        ),
+                        padding: const EdgeInsets.only(left: 8.0, right: 8.0),
                         onTap: () {
                           _cancelAndRestartTimer();
 
                           if (widget.controller.player.state.volume == 0) {
-                            widget.controller.player
-                                .setVolume(_latestVolume ?? 0.5);
+                            widget.controller.player.setVolume(
+                              _latestVolume ?? 0.5,
+                            );
                           } else {
                             _latestVolume =
                                 widget.controller.player.state.volume;
@@ -272,7 +272,7 @@ class _MobileControlsState extends State<MobileControls>
                               _startHideTimer();
                             },
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
@@ -288,7 +288,8 @@ class _MobileControlsState extends State<MobileControls>
   /// Toggles play and pause of the [_controller]. Starts video from the start
   /// if the playback is done.
   void _playPause() {
-    final isFinished = widget.controller.player.state.position >=
+    final isFinished =
+        widget.controller.player.state.position >=
         widget.controller.player.state.duration;
 
     if (widget.controller.player.state.playing) {
@@ -354,19 +355,16 @@ class _MobileControlsState extends State<MobileControls>
   /// Hides the seek forward indicator.
   void _hideSeekForward({Duration timeout = const Duration(seconds: 1)}) {
     _seekForwardTimer?.cancel();
-    _seekForwardTimer = Timer(
-      timeout,
-      () async {
-        if (mounted) {
-          setState(() => _showSeekForward = false);
-        }
+    _seekForwardTimer = Timer(timeout, () async {
+      if (mounted) {
+        setState(() => _showSeekForward = false);
+      }
 
-        await Future.delayed(200.milliseconds);
-        if (!_showSeekForward) {
-          _seekForwardDuration = Duration.zero;
-        }
-      },
-    );
+      await Future.delayed(200.milliseconds);
+      if (!_showSeekForward) {
+        _seekForwardDuration = Duration.zero;
+      }
+    });
   }
 
   /// Seeks backward for the [MobileControls.seekDuration].
@@ -400,18 +398,15 @@ class _MobileControlsState extends State<MobileControls>
   /// Hides the seek backward indicator.
   void _hideSeekBackward({Duration timeout = const Duration(seconds: 1)}) {
     _seekBackwardTimer?.cancel();
-    _seekBackwardTimer = Timer(
-      timeout,
-      () async {
-        if (mounted) {
-          setState(() => _showSeekBackward = false);
-        }
+    _seekBackwardTimer = Timer(timeout, () async {
+      if (mounted) {
+        setState(() => _showSeekBackward = false);
+      }
 
-        await Future.delayed(200.milliseconds);
-        if (!_showSeekBackward) {
-          _seekBackwardDuration = Duration.zero;
-        }
-      },
-    );
+      await Future.delayed(200.milliseconds);
+      if (!_showSeekBackward) {
+        _seekBackwardDuration = Duration.zero;
+      }
+    });
   }
 }

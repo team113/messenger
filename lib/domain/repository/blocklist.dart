@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,26 +20,14 @@ import 'package:get/get.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
-import '/util/obs/obs.dart';
+import 'paginated.dart';
 
 /// [MyUser]'s blocklist repository interface.
 abstract class AbstractBlocklistRepository {
-  /// Returns [User]s blocked by the authenticated [MyUser].
-  RxObsMap<UserId, RxUser> get blocklist;
+  /// Returns [Paginated] of [User]s blocked by the authenticated [MyUser].
+  Paginated<UserId, RxUser> get blocklist;
 
-  /// Returns the initialization [RxStatus] of this repository and its
-  /// [blocklist].
-  Rx<RxStatus> get status;
-
-  /// Indicates whether the [blocklist] have next page.
-  RxBool get hasNext;
-
-  /// Indicator whether a next page of the [blocklist] is loading.
-  RxBool get nextLoading;
-
-  /// Fetches the initial [blocklist] page.
-  Future<void> around();
-
-  /// Fetches the next [blocklist] page.
-  Future<void> next();
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count;
 }

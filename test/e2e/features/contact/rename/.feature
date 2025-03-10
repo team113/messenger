@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,14 +15,15 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Contacts renaming
-
-  Scenario: User sees dialog's title being contact's name
-    Given I am Alice
-    And user Bob
-    And contact Bob
-    And Bob has dialog with me
-    And I see "Bob" chat
-
-    When I rename Bob contact to "Charlie"
-    Then I see "Charlie" chat
+# TODO: Uncomment, when contacts are implemented.
+# Feature: Contacts renaming
+#
+#   Scenario: User sees dialog's title being contact's name
+#     Given I am Alice
+#     And user Bob
+#     And contact Bob
+#     And Bob has dialog with me
+#     And I see "Bob" chat
+#
+#     When I rename Bob contact to "Charlie"
+#     Then I see "Charlie" chat

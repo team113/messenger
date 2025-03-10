@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -42,18 +42,17 @@ Widget svgFromAsset(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    SvgPicture.asset(
-      asset,
-      alignment: Alignment.center,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      key: key,
-      package: package,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => SvgPicture.asset(
+  asset,
+  alignment: Alignment.center,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  key: key,
+  package: package,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -71,17 +70,16 @@ Widget svgFromBytes(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    SvgPicture.memory(
-      bytes,
-      alignment: Alignment.center,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      key: key,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => SvgPicture.memory(
+  bytes,
+  alignment: Alignment.center,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  key: key,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -99,14 +97,13 @@ Widget svgFromFile(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    SvgPicture.file(
-      file,
-      alignment: Alignment.center,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      key: key,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => SvgPicture.file(
+  file,
+  alignment: Alignment.center,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  key: key,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);

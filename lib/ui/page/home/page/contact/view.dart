@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,13 +36,11 @@ class ContactView extends StatelessWidget {
     return GetBuilder<ContactController>(
       init: ContactController(id),
       tag: id.val,
-      builder: (_) => Scaffold(
-        appBar: AppBar(
-          title: Text('Contact $id'),
-          elevation: 0,
-        ),
-        body: Center(child: Text('Contact with tag: $id'.l10n)),
-      ),
+      builder:
+          (_) => Scaffold(
+            appBar: AppBar(title: Text('Contact $id'), elevation: 0),
+            body: Center(child: Text('Contact with tag: $id'.l10n)),
+          ),
     );
   }
 }

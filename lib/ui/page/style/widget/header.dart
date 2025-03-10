@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -36,8 +36,9 @@ class Header extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Text(
           label,
-          style: style.fonts.largest.bold.onBackground
-              .copyWith(color: const Color(0xFF1F3C5D)),
+          style: style.fonts.largest.bold.onBackground.copyWith(
+            color: const Color(0xFF1F3C5D),
+          ),
         ),
       ),
     );

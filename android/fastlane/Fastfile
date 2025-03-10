@@ -1,0 +1,67 @@
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+#                       <https://github.com/team113>
+#
+# This program is free software: you can redistribute it and/or modify it under
+# the terms of the GNU Affero General Public License v3.0 as published by the
+# Free Software Foundation, either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
+# more details.
+#
+# You should have received a copy of the GNU Affero General Public License v3.0
+# along with this program. If not, see
+# <https://www.gnu.org/licenses/agpl-3.0.html>.
+
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+default_platform(:android)
+
+platform :android do
+  desc "Runs all the tests"
+  lane :test do
+    gradle(task: "test")
+  end
+
+  desc "Publish a new internal build to Google Play's internal track"
+  lane :internal do
+    upload_to_play_store(
+      aab: 'app.aab',
+      release_status: 'draft',
+      skip_upload_changelogs: true,
+      skip_upload_images: true,
+      skip_upload_metadata: true,
+      skip_upload_screenshots: true,
+      track: 'internal'
+    )
+  end
+
+  desc "Publish a new version to Google Play"
+  lane :publish do
+    upload_to_play_store(
+      aab: 'app.aab',
+      track: 'beta'
+    )
+  end
+
+  desc "Validate the binary and its metadata against Google Play rules"
+  lane :validate do
+    upload_to_play_store(
+      aab: 'app.aab',
+      track: 'beta',
+      validate_only: true
+    )
+  end
+end

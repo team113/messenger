@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -88,16 +88,17 @@ class CameraSwitchView extends StatelessWidget {
                                 color: style.colors.secondary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: local == null
-                                  ? const Center(
-                                      child: SvgIcon(SvgIcons.noVideo),
-                                    )
-                                  : webrtc.VideoView(
-                                      local.inner,
-                                      objectFit:
-                                          webrtc.VideoViewObjectFit.cover,
-                                      mirror: true,
-                                    ),
+                              child:
+                                  local == null
+                                      ? const Center(
+                                        child: SvgIcon(SvgIcons.noVideo),
+                                      )
+                                      : webrtc.VideoView(
+                                        local.inner,
+                                        objectFit:
+                                            webrtc.VideoViewObjectFit.cover,
+                                        mirror: true,
+                                      ),
                             ),
                           ),
                         );
@@ -110,7 +111,7 @@ class CameraSwitchView extends StatelessWidget {
                       }
 
                       return Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
                         child: Text(
                           c.error.value!,
                           style: style.fonts.normal.regular.danger,
@@ -129,16 +130,17 @@ class CameraSwitchView extends StatelessWidget {
 
                             final bool selected =
                                 (c.camera.value == null && i == 0) ||
-                                    c.camera.value == e.deviceId();
+                                c.camera.value == e.deviceId();
 
                             return RectangleButton(
                               selected: selected,
-                              onPressed: selected
-                                  ? null
-                                  : () {
-                                      c.camera.value = e.deviceId();
-                                      (onChanged ?? c.setVideoDevice).call(e);
-                                    },
+                              onPressed:
+                                  selected
+                                      ? null
+                                      : () {
+                                        c.camera.value = e.deviceId();
+                                        (onChanged ?? c.setVideoDevice).call(e);
+                                      },
                               label: e.label(),
                             );
                           });

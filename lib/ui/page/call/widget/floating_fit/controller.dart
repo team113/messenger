@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -123,7 +123,7 @@ class FloatingFitController extends GetxController {
       final Rect? floatingBounds = floatingKey.globalPaintBounds;
       Rect intersect =
           floatingBounds?.intersect(intersection?.value ?? Rect.zero) ??
-              Rect.zero;
+          Rect.zero;
 
       intersect = Rect.fromLTWH(
         intersect.left,
@@ -169,8 +169,9 @@ class FloatingFitController extends GetxController {
         }
       }
 
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => _floatingRelocated = false);
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => _floatingRelocated = false,
+      );
     }
   }
 
@@ -225,21 +226,25 @@ class FloatingFitController extends GetxController {
       this.left.value = left;
     } else if (align == Alignment.topRight) {
       this.top.value = top;
-      right.value = width.value + left <= size.width
-          ? right.value = size.width - left - width.value
-          : 0;
+      right.value =
+          width.value + left <= size.width
+              ? right.value = size.width - left - width.value
+              : 0;
     } else if (align == Alignment.bottomLeft) {
       this.left.value = left;
-      bottom.value = top + height.value <= size.height
-          ? size.height - top - height.value
-          : 0;
+      bottom.value =
+          top + height.value <= size.height
+              ? size.height - top - height.value
+              : 0;
     } else if (align == Alignment.bottomRight) {
-      right.value = width.value + left <= size.width
-          ? size.width - left - width.value
-          : 0;
-      bottom.value = top + height.value <= size.height
-          ? size.height - top - height.value
-          : 0;
+      right.value =
+          width.value + left <= size.width
+              ? size.width - left - width.value
+              : 0;
+      bottom.value =
+          top + height.value <= size.height
+              ? size.height - top - height.value
+              : 0;
     }
 
     bottomShifted = bottom.value ?? size.height - top - height.value;
@@ -250,13 +255,10 @@ class FloatingFitController extends GetxController {
   void calculatePanning(Offset offset) {
     Offset position =
         (floatingKey.currentContext?.findRenderObject() as RenderBox?)
-                ?.localToGlobal(Offset.zero) ??
-            Offset.zero;
+            ?.localToGlobal(Offset.zero) ??
+        Offset.zero;
 
-    this.offset = Offset(
-      offset.dx - position.dx,
-      offset.dy - position.dy,
-    );
+    this.offset = Offset(offset.dx - position.dx, offset.dy - position.dy);
   }
 
   /// Sets the [left] and [top] correctly to the provided

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ class SignButton extends StatelessWidget {
   const SignButton({
     super.key,
     required this.title,
+    this.subtitle,
     this.icon,
     this.padding = EdgeInsets.zero,
     this.onPressed,
@@ -32,6 +33,9 @@ class SignButton extends StatelessWidget {
 
   /// Title of this [SignButton].
   final String title;
+
+  /// Subtitle of this [SignButton].
+  final String? subtitle;
 
   /// Widget to display as a [PrefixButton.prefix].
   final Widget? icon;
@@ -49,16 +53,19 @@ class SignButton extends StatelessWidget {
     return Center(
       child: PrefixButton(
         title: title,
-        style: onPressed == null
-            ? style.fonts.medium.regular.secondary
-            : style.fonts.medium.regular.onBackground,
+        subtitle: subtitle,
+        style:
+            onPressed == null
+                ? style.fonts.medium.regular.secondary
+                : style.fonts.medium.regular.onBackground,
         onPressed: onPressed,
-        prefix: icon == null
-            ? null
-            : Padding(
-                padding: const EdgeInsets.only(left: 16).add(padding),
-                child: icon,
-              ),
+        prefix:
+            icon == null
+                ? null
+                : Padding(
+                  padding: const EdgeInsets.only(left: 16).add(padding),
+                  child: icon,
+                ),
       ),
     );
   }

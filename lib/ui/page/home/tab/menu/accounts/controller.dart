@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,7 +19,7 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart' show ConfirmUserEmailErrorCode;
+import '/api/backend/schema.dart' show AddUserEmailErrorCode;
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
@@ -189,7 +189,7 @@ class AccountsController extends GetxController {
           emailCode.clear();
           stage.value = AccountsViewStage.signUpWithEmailCode;
           try {
-            await _authService.signUpWithEmail(email);
+            await _authService.createConfirmationCode(email: email);
             s.unsubmit();
           } on AddUserEmailException catch (e) {
             s.error.value = e.toMessage();
@@ -213,8 +213,9 @@ class AccountsController extends GetxController {
       onSubmitted: (s) async {
         s.status.value = RxStatus.loading();
         try {
-          await _authService.confirmSignUpEmail(
-            ConfirmationCode(emailCode.text),
+          await _authService.signIn(
+            email: UserEmail(email.text),
+            code: ConfirmationCode(emailCode.text),
             force: true,
           );
 
@@ -225,9 +226,9 @@ class AccountsController extends GetxController {
           router.go(Routes.nowhere);
           await Future.delayed(const Duration(milliseconds: 500));
           router.home();
-        } on ConfirmUserEmailException catch (e) {
+        } on AddUserEmailException catch (e) {
           switch (e.code) {
-            case ConfirmUserEmailErrorCode.wrongCode:
+            case AddUserEmailErrorCode.wrongCode:
               s.error.value = e.toMessage();
 
               ++codeAttempts;
@@ -283,7 +284,8 @@ class AccountsController extends GetxController {
     login.error.value = null;
     password.error.value = null;
 
-    final bool noCredentials = userLogin == null &&
+    final bool noCredentials =
+        userLogin == null &&
         userNum == null &&
         userEmail == null &&
         userPhone == null;
@@ -299,7 +301,7 @@ class AccountsController extends GetxController {
       password.status.value = RxStatus.loading();
 
       await _authService.signIn(
-        userPassword,
+        password: userPassword,
         login: userLogin,
         num: userNum,
         email: userEmail,
@@ -406,17 +408,14 @@ class AccountsController extends GetxController {
   void _setSignInTimer([bool enabled = true]) {
     if (enabled) {
       signInTimeout.value = 30;
-      _signInTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          signInTimeout.value--;
-          if (signInTimeout.value <= 0) {
-            signInTimeout.value = 0;
-            _signInTimer?.cancel();
-            _signInTimer = null;
-          }
-        },
-      );
+      _signInTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        signInTimeout.value--;
+        if (signInTimeout.value <= 0) {
+          signInTimeout.value = 0;
+          _signInTimer?.cancel();
+          _signInTimer = null;
+        }
+      });
     } else {
       signInTimeout.value = 0;
       _signInTimer?.cancel();
@@ -428,17 +427,14 @@ class AccountsController extends GetxController {
   void _setCodeTimer([bool enabled = true]) {
     if (enabled) {
       codeTimeout.value = 30;
-      _codeTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          codeTimeout.value--;
-          if (codeTimeout.value <= 0) {
-            codeTimeout.value = 0;
-            _codeTimer?.cancel();
-            _codeTimer = null;
-          }
-        },
-      );
+      _codeTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        codeTimeout.value--;
+        if (codeTimeout.value <= 0) {
+          codeTimeout.value = 0;
+          _codeTimer?.cancel();
+          _codeTimer = null;
+        }
+      });
     } else {
       codeTimeout.value = 0;
       _codeTimer?.cancel();
@@ -450,17 +446,14 @@ class AccountsController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();
@@ -473,8 +466,8 @@ class AccountsController extends GetxController {
     _setResendEmailTimer();
 
     try {
-      await _authService.resendSignUpEmail();
-    } on ResendUserEmailConfirmationException catch (e) {
+      await _authService.createConfirmationCode(email: UserEmail(email.text));
+    } on AddUserEmailException catch (e) {
       emailCode.error.value = e.toMessage();
     } catch (e) {
       emailCode.error.value = 'err_data_transfer'.l10n;

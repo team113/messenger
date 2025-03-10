@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -92,10 +92,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     return Obx(() {
       final Chat chat = widget.chat.chat.value;
 
-      final Set<UserId>? actualMembers = widget
-          .chat.chat.value.ongoingCall?.members
-          .map((k) => k.user.id)
-          .toSet();
+      final Set<UserId>? actualMembers =
+          widget.chat.chat.value.ongoingCall?.members
+              .map((k) => k.user.id)
+              .toSet();
 
       if (widget.withActivities) {
         if (chat.ongoingCall != null) {
@@ -183,9 +183,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         return const SizedBox();
       } else if (chat.isDialog) {
-        final RxUser? member = widget.chat.members.values
-            .firstWhereOrNull((u) => u.user.user.value.id != widget.me)
-            ?.user;
+        final RxUser? member =
+            widget.chat.members.values
+                .firstWhereOrNull((u) => u.user.user.value.id != widget.me)
+                ?.user;
 
         if (member != null) {
           return Obx(() {
@@ -196,9 +197,10 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
               return const SizedBox();
             }
 
-            final String subtitle = [presence, bio]
-                .whereNotNull()
-                .join('space_vertical_space'.l10n);
+            final String subtitle = [
+              presence,
+              bio,
+            ].nonNulls.join('space_vertical_space'.l10n);
 
             return Text(subtitle, style: style.fonts.small.regular.secondary);
           });
@@ -220,20 +222,17 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
       _durationTimer = null;
 
       if (chat.ongoingCall != null) {
-        _durationTimer = FixedTimer.periodic(
-          const Duration(seconds: 1),
-          () {
-            if (chat.ongoingCall?.conversationStartedAt != null) {
-              _duration = DateTime.now().difference(
-                chat.ongoingCall!.conversationStartedAt!.val,
-              );
+        _durationTimer = FixedTimer.periodic(const Duration(seconds: 1), () {
+          if (chat.ongoingCall?.conversationStartedAt != null) {
+            _duration = DateTime.now().difference(
+              chat.ongoingCall!.conversationStartedAt!.val,
+            );
 
-              if (mounted) {
-                setState(() {});
-              }
+            if (mounted) {
+              setState(() {});
             }
-          },
-        );
+          }
+        });
       }
     }
   }

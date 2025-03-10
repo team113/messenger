@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -45,6 +45,16 @@ class CallNotificationWidget extends StatelessWidget {
     final String title;
 
     switch (notification.kind) {
+      case CallNotificationKind.cameraPermissionDenied:
+        notification as CameraPermissionDeniedNotification;
+        title = 'err_camera_permission_denied'.l10n;
+        break;
+
+      case CallNotificationKind.microphonePermissionDenied:
+        notification as MicrophonePermissionDeniedNotification;
+        title = 'err_microphone_permission_denied'.l10n;
+        break;
+
       case CallNotificationKind.connectionLost:
         notification as ConnectionLostNotification;
         title = 'label_connection_lost'.l10n;
@@ -59,13 +69,15 @@ class CallNotificationWidget extends StatelessWidget {
         notification as DeviceChangedNotification;
         switch (notification.device.kind()) {
           case MediaDeviceKind.audioInput:
-            title = 'label_microphone_changed'
-                .l10nfmt({'microphone': notification.device.label()});
+            title = 'label_microphone_changed'.l10nfmt({
+              'microphone': notification.device.label(),
+            });
             break;
 
           case MediaDeviceKind.audioOutput:
-            title = 'label_speaker_changed'
-                .l10nfmt({'speaker': notification.device.label()});
+            title = 'label_speaker_changed'.l10nfmt({
+              'speaker': notification.device.label(),
+            });
             break;
 
           case MediaDeviceKind.videoInput:
@@ -89,7 +101,7 @@ class CallNotificationWidget extends StatelessWidget {
             color: style.colors.onBackgroundOpacity20,
             blurRadius: 8,
             blurStyle: BlurStyle.outer.workaround,
-          )
+          ),
         ],
       ),
       margin: const EdgeInsets.fromLTRB(10, 2, 10, 2),

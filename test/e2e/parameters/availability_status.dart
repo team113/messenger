@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -23,12 +23,12 @@ enum AvailabilityStatus { local, remote }
 /// [CustomParameter] representing an [AvailabilityStatus].
 class AvailabilityStatusParameter extends CustomParameter<AvailabilityStatus> {
   AvailabilityStatusParameter()
-      : super(
-          'availability',
-          RegExp(
-            '(${AvailabilityStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => AvailabilityStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'availability',
+        RegExp(
+          '(${AvailabilityStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => AvailabilityStatus.values.firstWhere((e) => e.name == c),
+      );
 }

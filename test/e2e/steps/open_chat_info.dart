@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -31,13 +31,11 @@ final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
   (context) async {
     router.chatInfo(ChatId(router.route.split('/').last));
 
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy('ChatInfoView', FindType.key),
-        );
-      },
-    );
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('ChatInfoView', FindType.key),
+      );
+    });
   },
 );

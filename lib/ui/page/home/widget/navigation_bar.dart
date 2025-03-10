@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -94,63 +94,62 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return Container(
-      margin: const EdgeInsets.fromLTRB(8, 0, 8, 4),
-      decoration: BoxDecoration(
-        boxShadow: [
-          CustomBoxShadow(
-            blurRadius: 8,
-            color: style.colors.onBackgroundOpacity13,
-            blurStyle: BlurStyle.outer.workaround,
-          ),
-        ],
-        borderRadius: style.cardRadius,
-        border: style.cardBorder,
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            borderRadius: style.cardRadius,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
+    return ClipRect(
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: style.colors.onBackgroundOpacity13,
+              blurStyle: BlurStyle.outer.workaround,
             ),
-            child: Container(
-              decoration: BoxDecoration(
-                color: style.cardColor,
-                borderRadius: style.cardRadius,
+          ],
+          border: style.cardBorder,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ConditionalBackdropFilter(
+              condition: style.cardBlur > 0,
+              filter: ImageFilter.blur(
+                sigmaX: style.cardBlur,
+                sigmaY: style.cardBlur,
               ),
-              height: CustomNavigationBar.height,
-              child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 9, horizontal: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: widget.items.mapIndexed((i, b) {
-                    final bool selected = widget.currentIndex == i;
+              child: Container(
+                decoration: BoxDecoration(color: style.cardColor),
+                height: CustomNavigationBar.height,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 9,
+                    horizontal: 12,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children:
+                        widget.items.mapIndexed((i, b) {
+                          final bool selected = widget.currentIndex == i;
 
-                    return AnimatedScale(
-                      key: _keys[i],
-                      duration: const Duration(milliseconds: 150),
-                      curve: Curves.bounceInOut,
-                      scale: selected ? 1.1 : 1,
-                      child: AnimatedOpacity(
-                        duration: const Duration(milliseconds: 150),
-                        opacity: selected ? 1 : 0.7,
-                        child: AnimatedButton(
-                          onPressed: () => widget.onTap?.call(i),
-                          child: b,
-                        ),
-                      ),
-                    );
-                  }).toList(),
+                          return AnimatedScale(
+                            key: _keys[i],
+                            duration: const Duration(milliseconds: 150),
+                            curve: Curves.bounceInOut,
+                            scale: selected ? 1.1 : 1,
+                            child: AnimatedOpacity(
+                              duration: const Duration(milliseconds: 150),
+                              opacity: selected ? 1 : 0.7,
+                              child: AnimatedButton(
+                                onPressed: () => widget.onTap?.call(i),
+                                child: b,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -166,21 +165,29 @@ class CustomNavigationBarItem extends StatelessWidget {
     required this.child,
   });
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.work].
-  const CustomNavigationBarItem.work({Key? key})
-      : this._(
-          key: key,
-          tab: HomeTab.work,
-          child: const SvgIcon(SvgIcons.partner, key: Key('WorkButton')),
-        );
+  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.link].
+  const CustomNavigationBarItem.link({Key? key})
+    : this._(
+        key: key,
+        tab: HomeTab.link,
+        child: const SvgIcon(SvgIcons.directLink, key: Key('LinkButton')),
+      );
 
-  /// Constructs a [CustomNavigationBarItem] for a [HomeTab.contacts].
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.work`.
+  const CustomNavigationBarItem.work({Key? key})
+    : this._(
+        key: key,
+        tab: HomeTab.chats,
+        child: const SvgIcon(SvgIcons.partner, key: Key('WorkButton')),
+      );
+
+  /// Constructs a [CustomNavigationBarItem] for a `HomeTab.contacts`.
   const CustomNavigationBarItem.contacts({Key? key})
-      : this._(
-          key: key,
-          tab: HomeTab.contacts,
-          child: const SvgIcon(SvgIcons.contacts, key: Key('ContactsButton')),
-        );
+    : this._(
+        key: key,
+        tab: HomeTab.chats,
+        child: const SvgIcon(SvgIcons.contacts, key: Key('ContactsButton')),
+      );
 
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.chats].
   CustomNavigationBarItem.chats({
@@ -190,40 +197,41 @@ class CustomNavigationBarItem extends StatelessWidget {
     GlobalKey? selector,
     void Function(bool)? onMute,
   }) : this._(
-          key: key,
-          tab: HomeTab.chats,
-          badge: unread == '' || unread == '0' ? null : unread,
-          danger: danger,
-          child: ContextMenuRegion(
-            key: const Key('ChatsButton'),
-            selector: selector,
-            alignment: Alignment.bottomCenter,
-            margin: const EdgeInsets.only(bottom: 16),
-            actions: [
-              if (danger)
-                ContextMenuTile(
-                  key: const Key('MuteChatsButton'),
-                  asset: SvgIcons.unmuted22,
-                  label: 'btn_mute_chats'.l10n,
-                  onPressed: (_) => onMute?.call(false),
-                )
-              else
-                ContextMenuTile(
-                  key: const Key('UnmuteChatsButton'),
-                  asset: SvgIcons.muted22,
-                  label: 'btn_unmute_chats'.l10n,
-                  onPressed: (_) => onMute?.call(true),
-                ),
-            ],
-            child: SafeAnimatedSwitcher(
-              key: selector,
-              duration: const Duration(milliseconds: 200),
-              child: danger
-                  ? const SvgIcon(SvgIcons.chats, key: Key('Unmuted'))
-                  : const SvgIcon(SvgIcons.chatsMuted, key: Key('Muted')),
-            ),
-          ),
-        );
+         key: key,
+         tab: HomeTab.chats,
+         badge: unread == '' || unread == '0' ? null : unread,
+         danger: danger,
+         child: ContextMenuRegion(
+           key: const Key('ChatsButton'),
+           selector: selector,
+           alignment: Alignment.bottomCenter,
+           margin: const EdgeInsets.only(bottom: 16),
+           actions: [
+             if (danger)
+               ContextMenuTile(
+                 key: const Key('MuteChatsButton'),
+                 asset: SvgIcons.unmuted22,
+                 label: 'btn_mute_chats'.l10n,
+                 onPressed: (_) => onMute?.call(false),
+               )
+             else
+               ContextMenuTile(
+                 key: const Key('UnmuteChatsButton'),
+                 asset: SvgIcons.muted22,
+                 label: 'btn_unmute_chats'.l10n,
+                 onPressed: (_) => onMute?.call(true),
+               ),
+           ],
+           child: SafeAnimatedSwitcher(
+             key: selector,
+             duration: const Duration(milliseconds: 200),
+             child:
+                 danger
+                     ? const SvgIcon(SvgIcons.chats, key: Key('Unmuted'))
+                     : const SvgIcon(SvgIcons.chatsMuted, key: Key('Muted')),
+           ),
+         ),
+       );
 
   /// Constructs a [CustomNavigationBarItem] for a [HomeTab.menu].
   CustomNavigationBarItem.menu({
@@ -236,57 +244,57 @@ class CustomNavigationBarItem extends StatelessWidget {
     void Function(Presence)? onPresence,
     void Function()? onAvatar,
   }) : this._(
-          key: key,
-          tab: HomeTab.menu,
-          child: ContextMenuRegion(
-            selector: selector,
-            selectorClosable: false,
-            key: const Key('MenuButton'),
-            alignment: Alignment.bottomRight,
-            margin: const EdgeInsets.only(bottom: 8, left: 8),
-            actions: [
-              ...actions,
-              ContextMenuTile(
-                label: 'label_presence_present'.l10n,
-                onPressed: (context) {
-                  onPresence?.call(Presence.present);
-                  Navigator.of(context).pop();
-                },
-                trailing: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: acceptAuxiliary,
-                  ),
-                ),
-              ),
-              ContextMenuTile(
-                label: 'label_presence_away'.l10n,
-                onPressed: (context) {
-                  onPresence?.call(Presence.away);
-                  Navigator.of(context).pop();
-                },
-                trailing: Container(
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: warning,
-                  ),
-                ),
-              ),
-            ],
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 2),
-              child: AvatarWidget.fromMyUser(
-                myUser,
-                radius: AvatarRadius.normal,
-                onForbidden: onAvatar,
-              ),
-            ),
-          ),
-        );
+         key: key,
+         tab: HomeTab.menu,
+         child: ContextMenuRegion(
+           selector: selector,
+           selectorClosable: false,
+           key: const Key('MenuButton'),
+           alignment: Alignment.bottomRight,
+           margin: const EdgeInsets.only(bottom: 8, left: 8),
+           actions: [
+             ...actions,
+             ContextMenuTile(
+               label: 'label_presence_present'.l10n,
+               onPressed: (context) {
+                 onPresence?.call(Presence.present);
+                 Navigator.of(context).pop();
+               },
+               trailing: Container(
+                 width: 16,
+                 height: 16,
+                 decoration: BoxDecoration(
+                   shape: BoxShape.circle,
+                   color: acceptAuxiliary,
+                 ),
+               ),
+             ),
+             ContextMenuTile(
+               label: 'label_presence_away'.l10n,
+               onPressed: (context) {
+                 onPresence?.call(Presence.away);
+                 Navigator.of(context).pop();
+               },
+               trailing: Container(
+                 width: 16,
+                 height: 16,
+                 decoration: BoxDecoration(
+                   shape: BoxShape.circle,
+                   color: warning,
+                 ),
+               ),
+             ),
+           ],
+           child: Padding(
+             padding: const EdgeInsets.only(bottom: 2),
+             child: AvatarWidget.fromMyUser(
+               myUser,
+               radius: AvatarRadius.normal,
+               onForbidden: onAvatar,
+             ),
+           ),
+         ),
+       );
 
   /// Optional text to put into a [Badge] over this item.
   final String? badge;
@@ -311,20 +319,23 @@ class CustomNavigationBarItem extends StatelessWidget {
           largeSize: 15,
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4.4),
           offset: const Offset(2, -2),
-          label: badge == null
-              ? null
-              : Transform.translate(
-                  offset: PlatformUtils.isWeb
-                      ? Offset(0, PlatformUtils.isIOS ? 0 : 0.25)
-                      : PlatformUtils.isDesktop
-                          ? const Offset(-0.1, -0.2)
-                          : Offset.zero,
-                  child: Text(badge!, textAlign: TextAlign.center),
-                ),
+          label:
+              badge == null
+                  ? null
+                  : Transform.translate(
+                    offset:
+                        PlatformUtils.isWeb
+                            ? Offset(0, PlatformUtils.isIOS ? 0 : 0.25)
+                            : PlatformUtils.isDesktop
+                            ? const Offset(-0.1, -0.2)
+                            : Offset.zero,
+                    child: Text(badge!, textAlign: TextAlign.center),
+                  ),
           textStyle: style.fonts.smallest.regular.onPrimary,
-          backgroundColor: danger
-              ? style.colors.danger
-              : style.colors.secondaryHighlightDarkest,
+          backgroundColor:
+              danger
+                  ? style.colors.danger
+                  : style.colors.secondaryHighlightDarkest,
           isLabelVisible: badge != null,
           child: child,
         ),

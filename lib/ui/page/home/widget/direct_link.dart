@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -128,7 +128,8 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
         child: Column(
           children: [
             Obx(() {
-              final bool deletable = !_state.isEmpty.value &&
+              final bool deletable =
+                  !_state.isEmpty.value &&
                   _state.error.value == null &&
                   _state.text.isNotEmpty &&
                   widget.link != null;
@@ -137,12 +138,13 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 key: const Key('LinkField'),
                 state: _state,
                 clearable: true,
-                onSuffixPressed: deletable
-                    ? () async {
-                        await widget.onSubmit?.call(null);
-                        setState(() => _editing = false);
-                      }
-                    : null,
+                onSuffixPressed:
+                    deletable
+                        ? () async {
+                          await widget.onSubmit?.call(null);
+                          setState(() => _editing = false);
+                        }
+                        : null,
                 trailing: deletable ? const SvgIcon(SvgIcons.delete) : null,
                 label: '${Config.link}/',
               );
@@ -200,21 +202,25 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: widget.background == null
-                        // TODO: Safari lags.
-                        ? WebUtils.isSafari
-                            ? Container(
-                                width: double.infinity,
-                                height: double.infinity,
-                                color: style.colors.background,
-                              )
-                            : const SvgImage.asset(
-                                'assets/images/background_light.svg',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                        : Image.memory(widget.background!, fit: BoxFit.cover),
+                    child:
+                        widget.background == null
+                            // TODO: Safari lags.
+                            ? WebUtils.isSafari
+                                ? Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  color: style.colors.background,
+                                )
+                                : const SvgImage.asset(
+                                  'assets/images/background_light.svg',
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                            : Image.memory(
+                              widget.background!,
+                              fit: BoxFit.cover,
+                            ),
                   ),
                 ),
               ),
@@ -260,20 +266,24 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(10),
-                    child: widget.background == null
-                        ? WebUtils.isSafari
-                            ? Container(
-                                width: double.infinity,
-                                height: double.infinity,
-                                color: style.colors.background,
-                              )
-                            : const SvgImage.asset(
-                                'assets/images/background_light.svg',
-                                width: double.infinity,
-                                height: double.infinity,
-                                fit: BoxFit.cover,
-                              )
-                        : Image.memory(widget.background!, fit: BoxFit.cover),
+                    child:
+                        widget.background == null
+                            ? WebUtils.isSafari
+                                ? Container(
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  color: style.colors.background,
+                                )
+                                : const SvgImage.asset(
+                                  'assets/images/background_light.svg',
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  fit: BoxFit.cover,
+                                )
+                            : Image.memory(
+                              widget.background!,
+                              fit: BoxFit.cover,
+                            ),
                   ),
                 ),
               ),
@@ -282,7 +292,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   const SizedBox(height: 14),
-                  _info(context, Text(DateTime.now().yMd)),
+                  _info(context, Text('${widget.link?.createdAt.val.yMd}')),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: ContextMenuRegion(
@@ -344,8 +354,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     padding: const EdgeInsets.fromLTRB(48, 0, 0, 0),
                     child: MessagePreviewWidget(
                       fromMe: true,
-                      text: 'label_clicks_count'
-                          .l10nfmt({'count': widget.link?.usageCount ?? 0}),
+                      text: 'label_clicks_count'.l10nfmt({
+                        'count': widget.link?.usageCount ?? 0,
+                      }),
                       style: style.fonts.medium.regular.secondary,
                     ),
                   ),
@@ -390,7 +401,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
               ),
               const SizedBox(width: 16),
             ],
-          )
+          ),
         ],
       );
     }

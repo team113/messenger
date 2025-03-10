@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,11 +39,7 @@ import 'disposable_service.dart';
 
 /// Service controlling incoming and outgoing [OngoingCall]s.
 class CallService extends DisposableService {
-  CallService(
-    this._authService,
-    this._chatService,
-    this._callsRepo,
-  );
+  CallService(this._authService, this._chatService, this._callsRepo);
 
   /// Unmodifiable map of the currently displayed [OngoingCall]s.
   RxObsMap<ChatId, Rx<OngoingCall>> get calls => _callsRepo.calls;
@@ -200,7 +196,7 @@ class CallService extends DisposableService {
   Future<void> decline(ChatId chatId) async {
     Log.debug('decline($chatId)', '$runtimeType');
 
-    Rx<OngoingCall>? call = _callsRepo[chatId];
+    final Rx<OngoingCall>? call = _callsRepo[chatId];
     if (call != null) {
       // Closing the popup window will kill the pending requests, so it's
       // required to await the decline.

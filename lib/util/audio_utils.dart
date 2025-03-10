@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -25,6 +25,7 @@ import 'package:mutex/mutex.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
 import 'platform_utils.dart';
+import 'web/web_utils.dart';
 
 /// Global variable to access [AudioUtilsImpl].
 ///
@@ -84,7 +85,17 @@ class AudioUtilsImpl {
   Future<void> once(AudioSource sound) async {
     ensureInitialized();
 
-    if (_isMobile) {
+    if (PlatformUtils.isWeb) {
+      final String url = switch (sound.kind) {
+        AudioSourceKind.asset => (sound as AssetAudioSource).asset,
+        AudioSourceKind.file => '',
+        AudioSourceKind.url => (sound as UrlAudioSource).url,
+      };
+
+      if (url.isNotEmpty) {
+        await WebUtils.play(url);
+      }
+    } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
       await _jaPlayer?.play();
     } else {
@@ -194,8 +205,9 @@ class AudioUtilsImpl {
   Future<void> setDefaultSpeaker() async {
     if (_isMobile) {
       final AudioSession session = await AudioSession.instance;
-      final Set<AudioDevice> devices =
-          await session.getDevices(includeInputs: false);
+      final Set<AudioDevice> devices = await session.getDevices(
+        includeInputs: false,
+      );
       final bool hasHeadphones = devices.any(
         (e) =>
             e.type == AudioDeviceType.wiredHeadset ||
@@ -248,13 +260,15 @@ class AudioUtilsImpl {
           switch (speaker) {
             case AudioSpeakerKind.headphones:
             case AudioSpeakerKind.earpiece:
-              await AVAudioSession()
-                  .overrideOutputAudioPort(AVAudioSessionPortOverride.none);
+              await AVAudioSession().overrideOutputAudioPort(
+                AVAudioSessionPortOverride.none,
+              );
               break;
 
             case AudioSpeakerKind.speaker:
-              await AVAudioSession()
-                  .overrideOutputAudioPort(AVAudioSessionPortOverride.speaker);
+              await AVAudioSession().overrideOutputAudioPort(
+                AVAudioSessionPortOverride.speaker,
+              );
               break;
           }
 
@@ -275,8 +289,9 @@ class AudioUtilsImpl {
 
         switch (speaker) {
           case AudioSpeakerKind.headphones:
-            await AndroidAudioManager()
-                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().setMode(
+              AndroidAudioHardwareMode.inCommunication,
+            );
             await AndroidAudioManager().startBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(true);
             break;
@@ -291,16 +306,18 @@ class AudioUtilsImpl {
                 ),
               ),
             );
-            await AndroidAudioManager()
-                .setMode(AndroidAudioHardwareMode.inCall);
+            await AndroidAudioManager().setMode(
+              AndroidAudioHardwareMode.inCall,
+            );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(true);
             break;
 
           case AudioSpeakerKind.earpiece:
-            await AndroidAudioManager()
-                .setMode(AndroidAudioHardwareMode.inCommunication);
+            await AndroidAudioManager().setMode(
+              AndroidAudioHardwareMode.inCommunication,
+            );
             await AndroidAudioManager().stopBluetoothSco();
             await AndroidAudioManager().setBluetoothScoOn(false);
             await AndroidAudioManager().setSpeakerphoneOn(false);
@@ -395,21 +412,21 @@ class UrlAudioSource extends AudioSource {
 extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
   Media get media => switch (kind) {
-        AudioSourceKind.asset => Media(
-            'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
-          ),
-        AudioSourceKind.file =>
-          Media('file:///${(this as FileAudioSource).file}'),
-        AudioSourceKind.url => Media((this as UrlAudioSource).url),
-      };
+    AudioSourceKind.asset => Media(
+      'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
+    ),
+    AudioSourceKind.file => Media('file:///${(this as FileAudioSource).file}'),
+    AudioSourceKind.url => Media((this as UrlAudioSource).url),
+  };
 
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
-        AudioSourceKind.asset =>
-          ja.AudioSource.asset('assets/${(this as AssetAudioSource).asset}'),
-        AudioSourceKind.file =>
-          ja.AudioSource.file((this as FileAudioSource).file),
-        AudioSourceKind.url =>
-          ja.AudioSource.uri(Uri.parse((this as UrlAudioSource).url)),
-      };
+    AudioSourceKind.asset => ja.AudioSource.asset(
+      'assets/${(this as AssetAudioSource).asset}',
+    ),
+    AudioSourceKind.file => ja.AudioSource.file((this as FileAudioSource).file),
+    AudioSourceKind.url => ja.AudioSource.uri(
+      Uri.parse((this as UrlAudioSource).url),
+    ),
+  };
 }

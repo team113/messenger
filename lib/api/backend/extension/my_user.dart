@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -20,77 +20,77 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
-import '/provider/hive/blocklist.dart';
-import '/provider/hive/my_user.dart';
+import '/domain/model/welcome_message.dart';
+import '/store/model/blocklist.dart';
 import '/store/model/my_user.dart';
+import 'chat.dart';
 import 'user.dart';
 
 /// Extension adding models construction from a [MyUserMixin].
 extension MyUserConversion on MyUserMixin {
   /// Constructs a new [MyUser] from this [MyUserMixin].
   MyUser toModel() => MyUser(
-        id: id,
-        num: this.num,
-        online: online.$$typename == 'UserOnline',
-        login: login,
-        name: name,
-        bio: bio,
-        hasPassword: hasPassword,
-        unreadChatsCount: unreadChatsCount,
-        chatDirectLink: chatDirectLink != null
+    id: id,
+    num: this.num,
+    online: online.$$typename == 'UserOnline',
+    login: login,
+    name: name,
+    bio: bio,
+    hasPassword: hasPassword,
+    unreadChatsCount: unreadChatsCount,
+    chatDirectLink:
+        chatDirectLink != null
             ? ChatDirectLink(
-                slug: chatDirectLink!.slug,
-                usageCount: chatDirectLink!.usageCount,
-              )
+              slug: chatDirectLink!.slug,
+              usageCount: chatDirectLink!.usageCount,
+              createdAt: chatDirectLink!.createdAt,
+            )
             : null,
-        avatar: avatar?.toModel(),
-        status: status,
-        presenceIndex: presence.index,
-        emails: MyUserEmails(
-          confirmed: emails.confirmed,
-          unconfirmed: emails.unconfirmed,
-        ),
-        phones: MyUserPhones(
-          confirmed: phones.confirmed,
-          unconfirmed: phones.unconfirmed,
-        ),
-        muted: muted != null
+    avatar: avatar?.toModel(),
+    status: status,
+    presenceIndex: presence.index,
+    emails: MyUserEmails(
+      confirmed: emails.confirmed,
+      unconfirmed: emails.unconfirmed,
+    ),
+    phones: MyUserPhones(confirmed: []),
+    muted:
+        muted != null
             ? muted!.$$typename == 'MuteForeverDuration'
                 ? MuteDuration.forever()
                 : MuteDuration.until(
-                    (muted! as MyUserMixin$Muted$MuteUntilDuration).until)
+                  (muted! as MyUserMixin$Muted$MuteUntilDuration).until,
+                )
             : null,
-        lastSeenAt: online.$$typename == 'UserOffline'
+    lastSeenAt:
+        online.$$typename == 'UserOffline'
             ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
             : null,
-      );
+    welcomeMessage: welcomeMessage?.toModel(),
+  );
 
-  /// Constructs a new [HiveMyUser] from this [MyUserMixin].
-  HiveMyUser toHive() => HiveMyUser(toModel(), ver);
+  /// Constructs a new [DtoMyUser] from this [MyUserMixin].
+  DtoMyUser toDto() => DtoMyUser(toModel(), ver);
 }
 
 /// Extension adding models construction from a
 /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
 extension MyUserEventsMyUserConversion
     on MyUserEvents$Subscription$MyUserEvents$MyUser {
-  /// Constructs a new [HiveMyUser] from this
+  /// Constructs a new [DtoMyUser] from this
   /// [MyUserEvents$Subscription$MyUserEvents$MyUser].
-  HiveMyUser toHive() =>
-      HiveMyUser(toModel()..blocklistCount = blocklist.totalCount, ver);
+  DtoMyUser toDto() => DtoMyUser(toModel(), ver);
 }
 
 /// Extension adding models construction from a [BlocklistRecordMixin].
 extension BlocklistRecordConversion on BlocklistRecordMixin {
   /// Constructs a new [BlocklistRecord] from this [BlocklistRecordMixin].
-  BlocklistRecord toModel() => BlocklistRecord(
-        userId: user.id,
-        reason: reason,
-        at: at,
-      );
+  BlocklistRecord toModel() =>
+      BlocklistRecord(userId: user.id, reason: reason, at: at);
 
-  /// Constructs a new [HiveBlocklistRecord] from this [BlocklistRecordMixin].
-  HiveBlocklistRecord toHive({BlocklistCursor? cursor}) =>
-      HiveBlocklistRecord(toModel(), cursor);
+  /// Constructs a new [DtoBlocklistRecord] from this [BlocklistRecordMixin].
+  DtoBlocklistRecord toDto({BlocklistCursor? cursor}) =>
+      DtoBlocklistRecord(toModel(), cursor);
 }
 
 /// Extension adding [Session] model construction from a [SessionMixin].
@@ -99,9 +99,22 @@ extension SessionExtension on SessionMixin {
   Session toModel() {
     return Session(
       id: id,
+      ip: ip,
       lastActivatedAt: lastActivatedAt,
-      isCurrent: isCurrent,
       userAgent: userAgent,
+    );
+  }
+}
+
+/// Extension adding [WelcomeMessage] model construction from a
+/// [WelcomeMessageMixin].
+extension WelcomeMessageExtension on WelcomeMessageMixin {
+  /// Constructs a new [WelcomeMessage] from this [WelcomeMessageMixin].
+  WelcomeMessage toModel() {
+    return WelcomeMessage(
+      text: text,
+      attachments: attachments.map((e) => e.toModel()).toList(),
+      at: at,
     );
   }
 }

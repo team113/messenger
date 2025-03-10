@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -61,9 +61,10 @@ class AnimatedParticipant extends StatelessWidget {
       child: AnimatedContainer(
         duration: 200.milliseconds,
         decoration: BoxDecoration(
-          color: rounded
-              ? style.colors.backgroundAuxiliaryLight
-              : style.colors.transparent,
+          color:
+              rounded
+                  ? style.colors.backgroundAuxiliaryLight
+                  : style.colors.transparent,
         ),
         width: rounded ? MediaQuery.of(context).size.width - 20 : null,
         height: rounded ? MediaQuery.of(context).size.height / 2 : null,

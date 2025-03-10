@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -100,9 +100,11 @@ class ParticipantView extends StatelessWidget {
                     SearchCategory.user,
                   ],
                   title: 'label_add_participants'.l10n,
-                  onBack: initial == ParticipantsFlowStage.participants
-                      ? () => c.stage.value = ParticipantsFlowStage.participants
-                      : null,
+                  onBack:
+                      initial == ParticipantsFlowStage.participants
+                          ? () =>
+                              c.stage.value = ParticipantsFlowStage.participants
+                          : null,
                   submit: 'btn_add'.l10n,
                   onSubmit: c.addMembers,
                   enabled: c.status.value.isEmpty,
@@ -115,15 +117,17 @@ class ParticipantView extends StatelessWidget {
               child = Obx(() {
                 final List<RxUser> members = [];
 
-                for (var u in c.chat.value!.members.values
-                    .where((e) => e.user.id != c.me)) {
+                for (var u in c.chat.value!.members.values.where(
+                  (e) => e.user.id != c.me,
+                )) {
                   members.add(u.user);
                 }
 
-                final Set<UserId> ids = call.value.members.keys
-                    .where((e) => e.deviceId != null)
-                    .map((k) => k.userId)
-                    .toSet();
+                final Set<UserId> ids =
+                    call.value.members.keys
+                        .where((e) => e.deviceId != null)
+                        .map((k) => k.userId)
+                        .toSet();
 
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -159,10 +163,10 @@ class ParticipantView extends StatelessWidget {
                                 bool inCall = false;
                                 bool isRedialed = false;
 
-                                CallMember? member =
-                                    call.value.members.values.firstWhereOrNull(
-                                  (e) => e.id.userId == user.id,
-                                );
+                                CallMember? member = call.value.members.values
+                                    .firstWhereOrNull(
+                                      (e) => e.id.userId == user.id,
+                                    );
 
                                 if (member != null) {
                                   inCall = true;
@@ -178,12 +182,15 @@ class ParticipantView extends StatelessWidget {
 
                                   // TODO: Wait for backend to support removing
                                   //       active call notification.
-                                  onCall: inCall
-                                      ? isRedialed
-                                          ? null
+                                  onCall:
+                                      inCall
+                                          ? isRedialed
+                                              ? null
+                                              : () => c.removeChatCallMember(
+                                                user.id,
+                                              )
                                           : () =>
-                                              c.removeChatCallMember(user.id)
-                                      : () => c.redialChatCallMember(user.id),
+                                              c.redialChatCallMember(user.id),
                                   onKick: () => c.removeChatMember(user.id),
                                 );
                               }

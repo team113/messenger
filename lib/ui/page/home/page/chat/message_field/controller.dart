@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:super_clipboard/super_clipboard.dart';
 
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
@@ -42,6 +43,7 @@ import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/ui/widget/text_field.dart';
+import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'component/more.dart';
@@ -61,76 +63,31 @@ class MessageFieldController extends GetxController {
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
-  })  : quotes = RxList(quotes),
-        attachments =
-            RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()) {
+  }) : quotes = RxList(quotes),
+       attachments = RxList(
+         attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
+       ) {
     field = TextFieldState(
       text: text,
-      onFocus: (_) => onChanged?.call(),
+      onFocus: (s) {
+        onChanged?.call();
+
+        ClipboardEvents.instance?.unregisterPasteEventListener(
+          _pasteEventListener,
+        );
+
+        if (s.focus.hasFocus) {
+          ClipboardEvents.instance?.registerPasteEventListener(
+            _pasteEventListener,
+          );
+        }
+      },
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
         onSubmit?.call();
       },
-      focus: FocusNode(
-        onKeyEvent: (FocusNode node, KeyEvent e) {
-          if ((e.logicalKey == LogicalKeyboardKey.enter ||
-                  e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
-              e is KeyDownEvent) {
-            final Set<PhysicalKeyboardKey> pressed =
-                HardwareKeyboard.instance.physicalKeysPressed;
-
-            final bool isShiftPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.shiftLeft ||
-                key == PhysicalKeyboardKey.shiftRight);
-            final bool isAltPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.altLeft ||
-                key == PhysicalKeyboardKey.altRight);
-            final bool isControlPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.controlLeft ||
-                key == PhysicalKeyboardKey.controlRight);
-            final bool isMetaPressed = pressed.any((key) =>
-                key == PhysicalKeyboardKey.metaLeft ||
-                key == PhysicalKeyboardKey.metaRight);
-
-            bool handled = isShiftPressed;
-
-            if (!PlatformUtils.isWeb) {
-              if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
-                handled = handled || isAltPressed || isControlPressed;
-              }
-            }
-
-            if (!handled) {
-              if (isAltPressed ||
-                  isControlPressed ||
-                  isMetaPressed ||
-                  isShiftPressed) {
-                int cursor;
-
-                if (field.controller.selection.isCollapsed) {
-                  cursor = field.controller.selection.base.offset;
-                  field.text =
-                      '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
-                } else {
-                  cursor = field.controller.selection.start;
-                  field.text =
-                      '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
-                }
-
-                field.controller.selection = TextSelection.fromPosition(
-                  TextPosition(offset: cursor + 1),
-                );
-              } else {
-                field.submit();
-                return KeyEventResult.handled;
-              }
-            }
-          }
-
-          return KeyEventResult.ignored;
-        },
-      ),
+      focus: FocusNode(onKeyEvent: (_, KeyEvent e) => handleNewLines(e, field)),
     );
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
@@ -140,11 +97,12 @@ class MessageFieldController extends GetxController {
         field.text = item.text?.val ?? '';
         this.attachments.value =
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
-        replied.value = item.repliesTo
-            .map((e) => e.original)
-            .whereNotNull()
-            .map((e) => Rx(e))
-            .toList();
+        replied.value =
+            item.repliesTo
+                .map((e) => e.original)
+                .nonNulls
+                .map((e) => Rx(e))
+                .toList();
       } else {
         field.text = '';
         this.attachments.clear();
@@ -273,6 +231,73 @@ class MessageFieldController extends GetxController {
     }
   }
 
+  /// Handles the new lines for the provided [KeyEvent] in the [field].
+  static KeyEventResult handleNewLines(KeyEvent e, TextFieldState field) {
+    if ((e.logicalKey == LogicalKeyboardKey.enter ||
+            e.logicalKey == LogicalKeyboardKey.numpadEnter) &&
+        e is KeyDownEvent) {
+      final Set<PhysicalKeyboardKey> pressed =
+          HardwareKeyboard.instance.physicalKeysPressed;
+
+      final bool isShiftPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.shiftLeft ||
+            key == PhysicalKeyboardKey.shiftRight,
+      );
+      final bool isAltPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.altLeft ||
+            key == PhysicalKeyboardKey.altRight,
+      );
+      final bool isControlPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.controlLeft ||
+            key == PhysicalKeyboardKey.controlRight,
+      );
+      final bool isMetaPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.metaLeft ||
+            key == PhysicalKeyboardKey.metaRight,
+      );
+
+      bool handled = isShiftPressed;
+
+      if (!PlatformUtils.isWeb) {
+        if (PlatformUtils.isMacOS || PlatformUtils.isWindows) {
+          handled = handled || isAltPressed || isControlPressed;
+        }
+      }
+
+      if (!handled) {
+        if (isAltPressed ||
+            isControlPressed ||
+            isMetaPressed ||
+            isShiftPressed) {
+          int cursor;
+
+          if (field.controller.selection.isCollapsed) {
+            cursor = field.controller.selection.base.offset;
+            field.text =
+                '${field.text.substring(0, cursor)}\n${field.text.substring(cursor, field.text.length)}';
+          } else {
+            cursor = field.controller.selection.start;
+            field.text =
+                '${field.text.substring(0, field.controller.selection.start)}\n${field.text.substring(field.controller.selection.end, field.text.length)}';
+          }
+
+          field.controller.selection = TextSelection.fromPosition(
+            TextPosition(offset: cursor + 1),
+          );
+        } else {
+          field.submit();
+          return KeyEventResult.handled;
+        }
+      }
+    }
+
+    return KeyEventResult.ignored;
+  }
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -321,6 +346,8 @@ class MessageFieldController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
+    ClipboardEvents.instance?.unregisterPasteEventListener(_pasteEventListener);
+
     super.onClose();
   }
 
@@ -338,13 +365,14 @@ class MessageFieldController extends GetxController {
   void toggleMore() {
     if (moreOpened.isFalse) {
       _moreEntry = OverlayEntry(
-        builder: (_) => MessageFieldMore(
-          this,
-          onDismissed: () {
-            _moreEntry?.remove();
-            _moreEntry = null;
-          },
-        ),
+        builder:
+            (_) => MessageFieldMore(
+              this,
+              onDismissed: () {
+                _moreEntry?.remove();
+                _moreEntry = null;
+              },
+            ),
       );
       router.overlay!.insert(_moreEntry!);
     }
@@ -410,10 +438,102 @@ class MessageFieldController extends GetxController {
     await _addAttachment(nativeFile);
   }
 
+  /// Reads the [SystemClipboard] and pastes any content contained in it.
+  Future<void> handlePaste() async {
+    final clipboard = SystemClipboard.instance;
+    if (clipboard == null) {
+      return;
+    }
+
+    _pasteItem(await clipboard.read());
+  }
+
+  /// Reads the [event] and pastes any content contained in it.
+  Future<void> _pasteEventListener(ClipboardReadEvent event) async {
+    await _pasteItem(await event.getClipboardReader());
+  }
+
+  /// Handles the [reader] to retrieve any content contained in it.
+  Future<void> _pasteItem(ClipboardReader reader) async {
+    for (var e in reader.items) {
+      bool handled = false;
+
+      final List<DataFormat> formats = e.getFormats(Formats.standardFormats);
+      Log.debug(
+        '_pasteItem() -> formats${formats.map((e) => e.runtimeType)} with mime types${formats.whereType<SimpleFileFormat>().map((e) => e.receiverFormats)}',
+        '$runtimeType',
+      );
+
+      // Tries reading the [ClipboardDataReader] as a file.
+      Future<bool> handleAsFile([bool force = false]) async {
+        final SimpleFileFormat? file =
+            formats.whereType<SimpleFileFormat>().lastOrNull;
+
+        if (file != null) {
+          final String? name = await e.getSuggestedName();
+
+          Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
+
+          if (name != null) {
+            final bool isMacOS = PlatformUtils.isMacOS && !PlatformUtils.isWeb;
+
+            if (force || !isMacOS || formats.length > 3) {
+              e.getFile(file, (f) => _addReaderAttachment(f, suggested: name));
+              handled = true;
+              return true;
+            } else {
+              Log.debug(
+                '_pasteItem() -> `formats.length` is no bigger than 3, thus by heuristic this is considered to be text',
+                '$runtimeType',
+              );
+            }
+          }
+        }
+
+        return false;
+      }
+
+      await handleAsFile();
+
+      if (!handled) {
+        final SimpleValueFormat<String>? text =
+            formats.whereType<SimpleValueFormat<String>>().firstOrNull;
+
+        if (text != null) {
+          final text = await reader.readValue(Formats.plainText);
+
+          if (field.focus.hasFocus) {
+            int cursor;
+            if (field.controller.selection.isCollapsed) {
+              cursor = field.controller.selection.base.offset;
+              field.text =
+                  '${field.text.substring(0, cursor)}$text${field.text.substring(cursor, field.text.length)}';
+            } else {
+              cursor = field.controller.selection.start;
+              field.text =
+                  '${field.text.substring(0, field.controller.selection.start)}$text${field.text.substring(field.controller.selection.end, field.text.length)}';
+            }
+
+            field.controller.selection = TextSelection.fromPosition(
+              TextPosition(offset: cursor + (text?.length ?? 0)),
+            );
+          }
+        } else {
+          if (!await handleAsFile(true)) {
+            Log.warning(
+              '_pasteItem() -> cannot provide a handler for the $e',
+              '$runtimeType',
+            );
+          }
+        }
+      }
+    }
+  }
+
   /// Opens a file choose popup of the specified [type] and adds the selected
   /// files to the [attachments].
   Future<void> _pickAttachment(FileType type) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    FilePickerResult? result = await PlatformUtils.pickFiles(
       type: type,
       allowMultiple: true,
       withReadStream: true,
@@ -479,17 +599,18 @@ class MessageFieldController extends GetxController {
   /// enabling the [AudioCallButton] and [VideoCallButton] according to the
   /// provided [inCall] value.
   void _updateButtons(bool inCall) {
-    panel.value = panel.map((button) {
-      if (button is AudioCallButton) {
-        return AudioCallButton(inCall ? null : () => onCall?.call(false));
-      }
+    panel.value =
+        panel.map((button) {
+          if (button is AudioCallButton) {
+            return AudioCallButton(inCall ? null : () => onCall?.call(false));
+          }
 
-      if (button is VideoCallButton) {
-        return VideoCallButton(inCall ? null : () => onCall?.call(true));
-      }
+          if (button is VideoCallButton) {
+            return VideoCallButton(inCall ? null : () => onCall?.call(true));
+          }
 
-      return button;
-    }).toList();
+          return button;
+        }).toList();
 
     buttons.value = _toButtons(
       _settingsRepository?.applicationSettings.value?.pinnedActions,
@@ -498,13 +619,29 @@ class MessageFieldController extends GetxController {
 
   /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.
   List<ChatButton> _toButtons(List<String>? list) {
-    final List<ChatButton>? persisted = list
-        ?.map(
-          (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
-        )
-        .whereNotNull()
-        .toList();
+    final List<ChatButton>? persisted =
+        list
+            ?.map(
+              (e) =>
+                  panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
+            )
+            .nonNulls
+            .toList();
 
     return persisted ?? [];
+  }
+
+  /// Adds the [DataReaderFile] as an [Attachment] to the [attachments].
+  Future<void> _addReaderAttachment(
+    DataReaderFile file, {
+    String? suggested,
+  }) async {
+    await _addAttachment(
+      NativeFile(
+        name: file.fileName ?? suggested ?? 'attachment',
+        size: file.fileSize ?? 0,
+        bytes: await file.readAll(),
+      ),
+    );
   }
 }

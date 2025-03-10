@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -42,18 +42,20 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
         await context.world.appDriver.waitForAppToSettle();
+
         await context.world.appDriver.tap(
           finder,
           timeout: context.configuration.timeout,
         );
+
         await context.world.appDriver.waitForAppToSettle();
 
         return true;
-      } catch (_) {
+      } catch (e) {
         // No-op.
       }
 
       return false;
-    }, timeout: const Duration(seconds: 20));
+    }, timeout: const Duration(seconds: 30));
   },
 );

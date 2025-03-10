@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 
 import 'src/interface.dart'
     if (dart.library.io) 'src/io.dart'
-    if (dart.library.html) 'src/web.dart';
+    if (dart.library.js_interop) 'src/web.dart';
 import 'svgs.dart';
 
 export 'svgs.dart';
@@ -54,8 +54,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : file = null,
-        bytes = null;
+  }) : file = null,
+       bytes = null;
 
   /// Instantiates a widget rendering an SVG picture from an [Uint8List].
   ///
@@ -73,8 +73,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : file = null,
-        asset = null;
+  }) : file = null,
+       asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [File].
   ///
@@ -92,8 +92,8 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : bytes = null,
-        asset = null;
+  }) : bytes = null,
+       asset = null;
 
   /// Instantiates a widget rendering an SVG picture from a [SvgData].
   SvgImage.icon(
@@ -106,11 +106,11 @@ class SvgImage extends StatelessWidget {
     this.placeholderBuilder,
     this.semanticsLabel,
     this.excludeFromSemantics = false,
-  })  : asset = data.asset,
-        file = null,
-        bytes = null,
-        width = width ?? data.width,
-        height = height ?? data.height;
+  }) : asset = data.asset,
+       file = null,
+       bytes = null,
+       width = width ?? data.width,
+       height = height ?? data.height;
 
   /// Path to an asset containing an SVG image to display.
   final String? asset;

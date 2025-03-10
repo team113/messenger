@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,12 +19,12 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '../model/my_user.dart';
-import '../model/user.dart';
+import '/domain/model/my_user.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/blocklist.dart';
+import '/domain/repository/paginated.dart';
 import '/domain/repository/user.dart';
 import '/util/log.dart';
-import '/util/obs/rxmap.dart';
 import 'disposable_service.dart';
 
 /// Service responsible for [MyUser]'s blocklist.
@@ -35,26 +35,35 @@ class BlocklistService extends DisposableService {
   final AbstractBlocklistRepository _blocklistRepo;
 
   /// Returns [User]s blocked by the authenticated [MyUser].
-  RxObsMap<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
+  Paginated<UserId, RxUser> get blocklist => _blocklistRepo.blocklist;
+
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get count => _blocklistRepo.count;
 
   /// Returns the [RxStatus] of the [blocklist] fetching.
-  Rx<RxStatus> get status => _blocklistRepo.status;
+  Rx<RxStatus> get status => _blocklistRepo.blocklist.status;
 
   /// Indicates whether the [blocklist] have next page.
-  RxBool get hasNext => _blocklistRepo.hasNext;
+  RxBool get hasNext => _blocklistRepo.blocklist.hasNext;
 
   /// Indicator whether a next page of the [blocklist] is loading.
-  RxBool get nextLoading => _blocklistRepo.nextLoading;
+  RxBool get nextLoading => _blocklistRepo.blocklist.nextLoading;
+
+  /// Returns the count of added [RxUser]s per single [next] or [around] invoke.
+  int get perPage => _blocklistRepo.blocklist.perPage;
 
   /// Fetches the initial [blocklist].
-  Future<void> around() {
+  Future<void> around() async {
     Log.debug('around()', '$runtimeType');
-    return _blocklistRepo.around();
+
+    await _blocklistRepo.blocklist.clear();
+    await _blocklistRepo.blocklist.around();
   }
 
   /// Fetches the next [blocklist] page.
   Future<void> next() {
     Log.debug('next()', '$runtimeType');
-    return _blocklistRepo.next();
+    return _blocklistRepo.blocklist.next();
   }
 }

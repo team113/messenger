@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -18,71 +18,63 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:graphql_flutter/graphql_flutter.dart';
-import 'package:hive_flutter/hive_flutter.dart';
 import 'package:messenger/api/backend/schema.dart';
 import 'package:messenger/domain/model/session.dart';
+import 'package:messenger/domain/model/user.dart';
 import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/domain/service/my_user.dart';
-import 'package:messenger/provider/hive/account.dart';
-import 'package:messenger/provider/hive/blocklist.dart';
-import 'package:messenger/provider/hive/blocklist_sorting.dart';
-import 'package:messenger/provider/hive/my_user.dart';
-import 'package:messenger/provider/hive/credentials.dart';
-import 'package:messenger/provider/hive/session_data.dart';
-import 'package:messenger/provider/hive/user.dart';
+import 'package:messenger/provider/drift/account.dart';
+import 'package:messenger/provider/drift/blocklist.dart';
+import 'package:messenger/provider/drift/credentials.dart';
+import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/user.dart';
+import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
+import 'package:messenger/store/model/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
+import 'package:messenger/store/model/session.dart';
 import 'package:messenger/store/my_user.dart';
 import 'package:messenger/store/user.dart';
 
 import '../mock/graphql_provider.dart';
 
 void main() async {
-  Hive.init('./test/.temp_hive/profile_unit');
-  var myUserProvider = MyUserHiveProvider();
-  await myUserProvider.init();
-  var userProvider = UserHiveProvider();
-  await userProvider.init();
-  var blockedUsersProvider = BlocklistHiveProvider();
-  await blockedUsersProvider.init();
-  var sessionProvider = SessionDataHiveProvider();
-  await sessionProvider.init();
-  var blocklistSortingProvider = BlocklistSortingHiveProvider();
-  await blocklistSortingProvider.init();
-  final accountProvider = AccountHiveProvider();
-  await accountProvider.init();
-  final credentialsProvider = CredentialsHiveProvider();
-  await credentialsProvider.init();
+  final CommonDriftProvider common = CommonDriftProvider.memory();
+  final ScopedDriftProvider scoped = ScopedDriftProvider.memory();
+
+  final credentialsProvider = Get.put(CredentialsDriftProvider(common));
+  final accountProvider = Get.put(AccountDriftProvider(common));
+  final myUserProvider = Get.put(MyUserDriftProvider(common));
+  final userProvider = UserDriftProvider(common, scoped);
+  final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
+  final versionProvider = Get.put(VersionDriftProvider(common));
 
   test('MyProfile test', () async {
     Get.reset();
 
-    final getStorage = CredentialsHiveProvider();
-    await getStorage.init();
-
     final graphQlProvider = FakeGraphQlProvider();
 
-    Get.put(AuthService(
-      AuthRepository(
-        graphQlProvider,
-        myUserProvider,
+    Get.put(
+      AuthService(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
         credentialsProvider,
+        accountProvider,
       ),
-      getStorage,
-      accountProvider,
-    ));
+    );
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
         graphQlProvider,
-        blockedUsersProvider,
-        blocklistSortingProvider,
+        blocklistProvider,
         userRepository,
-        sessionProvider,
+        versionProvider,
+        me: const UserId('me'),
       ),
     );
 
@@ -102,6 +94,8 @@ void main() async {
 
     assert(profileService.myUser.value == profileService.myUser.value);
   });
+
+  tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }
 
 class FakeGraphQlProvider extends MockedGraphQlProvider {
@@ -132,11 +126,13 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
   };
 
   @override
-  Stream<QueryResult> myUserEvents(MyUserVersion? Function()? getVer) {
+  Future<Stream<QueryResult>> myUserEvents(
+    Future<MyUserVersion?> Function()? getVer,
+  ) async {
     return Stream.fromIterable([
       QueryResult.internal(
         parserFn: (_) => null,
@@ -144,7 +140,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
         data: {
           'myUserEvents': {'__typename': 'MyUser', ...userData},
         },
-      )
+      ),
     ]);
   }
 
@@ -161,5 +157,17 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
     int? last,
   }) {
     return Future.value(GetBlocklist$Query$Blocklist.fromJson(blocklist));
+  }
+
+  @override
+  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+    return const Stream.empty();
+  }
+
+  @override
+  Stream<QueryResult<Object?>> blocklistEvents(
+    BlocklistVersion? Function() ver,
+  ) {
+    return const Stream.empty();
   }
 }

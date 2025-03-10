@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -179,6 +179,7 @@ btn_change_account_desc =
 btn_change = Изменить
 btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
+btn_check_for_updates = Проверить наличие обновлений
 btn_clear_cache = Очистить кэш
 btn_clear_history = Очистить историю
 btn_close = Закрыть
@@ -199,6 +200,7 @@ btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
 btn_dismiss = Запретить
 btn_do_not_allow = Не разрешать
+btn_done = Готово
 btn_download = Скачать
 btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
@@ -225,6 +227,7 @@ btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
 btn_leave_group = Покинуть группу
+btn_login_and_password = Логин и пароль
 btn_logout = Выйти
 btn_media_settings = Настройки медиа
 btn_message_info = Информация о сообщении
@@ -234,6 +237,7 @@ btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
 btn_open_separately = открыть отдельно
+btn_or_input_someones_link = Ввести прямую ссылку
 btn_participants = Список участников
 btn_participants_desc =
     Список
@@ -290,24 +294,21 @@ btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
 colon_space = :{" "}
+comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
 dot = .
 dot_space = .{" "}
-email_password_recovery =
-    Код восстановления {$domain}: {$token}
-    Действителен до {$expiresAt}.
-    {$domain}
-email_password_recovery_subject = Код восстановления {$domain}
-email_verification_code =
+email_confirmation_code =
     Код подтверждения {$domain}: {$token}
     Действителен до {$expiresAt}.
     {$domain}
-email_verification_code_subject = Код подтверждения {$domain}
+email_confirmation_code_subject = Код подтверждения {$domain}
 err_account_not_found = Указанный аккаунт не найден
 err_account_unavailable = Этот аккаунт недоступен. Пожалуйста, повторите авторизацию.
 err_blocked = Пользователь добавил Вас в чёрный список.
 err_blocked_by = {$user} добавил Вас в чёрный список.
 err_blocked_by_multiple = Один или несколько выбранных пользователей внесли Вас в чёрный список.
+err_blocklist_reason_does_not_meet_regexp = Причина блокировки должна содержать от 2 до 100 символов.
 err_call_already_exists = Звонок уже активен
 err_call_already_joined = Вы уже в звонке
 err_call_is_in_popup = Звонок используется в отдельном окне
@@ -315,12 +316,14 @@ err_call_not_found = Данный звонок не найден
 err_call_popup_was_blocked =
     Всплывающее окно заблокировано.
     Разрешите всплывающие окна, чтобы отображать в них звонки
+err_camera_permission_denied = Доступ к камере отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к камере.
 err_cant_forward_calls = Пересылка звонков не поддерживается
 err_chat_contact_not_owner = Нет доступа к контакту
 err_chat_direct_link_occupied = Ссылка занята.
 err_code_limit_exceeded =
     Превышен лимит отправок кодов восстановления.
     Попробуйте через один час.
+err_confirmation_required = Пароль должен быть предоставлен для данного действия.
 err_contact_not_group = Чат с указанным ID не является группой
 err_contact_too_many = Контакт не может быть создан с более чем 20 пользователями
 err_contact_unknown_chat = Чат с указанным ID не существует
@@ -331,6 +334,7 @@ err_data_transfer =
 err_dialog = Невозможно выполнить данное действие в диалоге
 err_dimensions_too_big = Разрешение файла превышает 32767 x 32767 пикселей.
 err_email_occupied = Указанный E-mail привязан к другому аккаунту. Пожалуйста, сначала аннулируйте предыдущую верификацию.
+err_fcm_unavailable = FCM недоступен.
 err_incorrect_chat_name = Некорректное имя
 err_incorrect_email = Некорректный E-mail.
 err_incorrect_input = Некорректный формат.
@@ -346,6 +350,7 @@ err_unknown_registration_token = Неизвестный регистрацион
 err_login_occupied = Данный логин уже занят.
 err_media_devices_are_null = Невозможно получить `MediaStream` с `video`, т.к. `window.navigator.mediaDevices` является `null`. Вероятно, конфигурация Вашего браузера не позволяет получить медиа устройства. Подкорректируйте настройки и убедитесь в доступности медиа устройств.
 err_message_was_read = Сообщение было прочитано
+err_microphone_permission_denied = Доступ к микрофону отсутствует. Пожалуйста, убедитесь, что приложение имеет доступ к микрофону.
 err_monolog = Невозможно выполнить данное действие в монологе
 err_network = Ошибка подключения к серверу
 err_no_access_to_gallery = Доступ к галерее запрещён. Пожалуйста, убедитесь, что у приложения есть разрешения на доступ к галерее.
@@ -368,6 +373,8 @@ err_password_incorrect =
     Пароль слишком длинный и/или заканчивается/начинается пробелом
 err_passwords_mismatch = Пароли не совпадают.
 err_phone_occupied = Телефон уже привязан к другому аккаунту
+err_popup_call_cant_be_closed = Произошла неожиданная ошибка, однако данное окно не может быть закрыто автоматически из-за ограничений браузера. Пожалуйста, закройте данное окно.
+err_push_device_occupied = Данное устройство уже зарегистрировано для получения пуш уведомлений.
 err_quoted_message = Сообщение было процитировано
 err_size_too_big = Размер файла превышает 15 МБ.
 err_stale_version = Указанная версия слишком старая
@@ -393,6 +400,7 @@ err_unsupported_forwarded_item = Неподдерживаемое пересыл
 err_uploaded_file_malformed = Файл повреждён. Пожалуйста, проверьте загружаемый файл.
 err_use_monolog = Невозможно создать диалог с собой
 err_wrong_attachments_items_count = Некорректное количество прикреплений
+err_wrong_code = Неверный код.
 err_wrong_items_count = Неправильное количество сообщений
 err_wrong_members_count = Участников не может быть больше 100
 err_wrong_old_password = Неправильный пароль.
@@ -415,14 +423,14 @@ fcm_group_avatar_changed = {$userName ->
        *[other] {$userName}
     } {$operation ->
           [update] обновил аватар
-         *[delete] удалил аватар
+         *[remove] удалил аватар
       }
 fcm_group_name_changed = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
     } {$operation ->
           [update] переименовал чат на {$groupName}
-         *[delete] удалил имя
+         *[remove] удалил имя
       }
 fcm_group_title =
     {$user1Name ->
@@ -434,20 +442,30 @@ fcm_group_title =
     }{$user2Name ->
         [x] {$user2Num ->
                 [x] {""}
-               *[other] {$user2Num}
+               *[other] , {$user2Num}
             }
        *[other] , {$user2Name}
     }{$user3Name ->
         [x] {$user3Num ->
                 [x] {""}
-               *[other] {$user3Num}
+               *[other] , {$user3Num}
             }
        *[other] , {$user3Name}
     } {$moreMembers ->
         [yes] ...
        *[no] {""}
     }
-fcm_incoming_call = Входящий звонок
+fcm_incoming_call =
+    { $type ->
+        [group] {$userName ->
+           [x] {$userNum}
+           *[other] {$userName}
+        } начинает
+        *[dialog] Входящий
+    } { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок
 fcm_message =
     { $type ->
         [dialog] {""}
@@ -488,6 +506,17 @@ fcm_message =
             *[other] {" "}{$text}
         }
     }
+fcm_missed_call =
+    Пропущенный { $isVideo ->
+        [yes] видео
+        *[other] аудио
+    } звонок{ $type ->
+        [group] {" от "}{$userName ->
+            [x] {$userNum}
+            *[other] {$userName}
+        }
+        *[dialog] {""}
+    }
 fcm_user_added_user =
     {$authorName ->
         [x] {$authorNum}
@@ -524,6 +553,7 @@ fcm_user_removed_you =
         [x] {$userNum}
        *[other] {$userName}
     } исключил Вас из группы
+fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
@@ -539,6 +569,7 @@ label_add_chat_member = Добавление участника
 label_add_email = Добавить E-mail
 label_add_email_confirmation_sent = На указанный Вами E-mail был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_confirmation_sent_again = На указанный Вами E-mail повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
+label_add_email_confirmation_sent_to = На {$email} был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_email_description = На указанный Вами E-mail будет отправлен код подтверждения.
 label_add_email_hint = Напишите адрес Вашей почты
 label_add_number = Добавить телефон
@@ -662,8 +693,8 @@ label_chat_call_missed = Пропущенный звонок
 label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
-label_chat_monolog = Заметки
-label_chat_monolog_description = Пишите заметки, идеи или пересылайте другие сообщения, чтобы сохранить их здесь. Только Вы видите этот чат.
+label_chat_monolog = Ваши заметки
+label_chat_monolog_description = Отображаются только Вам. Могут содержать любое количество сообщений. Могут содержать любой контент.
 label_chat_name_hint = Название чата
 label_chats = Чаты
 label_chats_section_hint = Кнопки аудио и видео звонка
@@ -680,24 +711,22 @@ label_code_requirements_tests = - код должен быть покрыт мо
 label_code_sent_again = Код отправлен повторно.
 label_conditions = Условия
 label_conditions_backend_developer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_conditions_frontend_developer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_conditions_ui_ux_designer =
+    - удалённое сотрудничество;
     - ежедневная оплата;
-    - от 1500 EUR;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
-    - учёт рабочего времени и оплата переработок;
-    - удалённое сотрудничество.
+    - учёт рабочего времени и оплата переработок.
 label_confirm = Подтвердить
+label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirmation_code = Код подтверждения
 label_connection_lost = Связь с сервером потеряна
 label_connection_restored = Связь восстановлена
@@ -778,6 +807,7 @@ label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
+label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_entrance = Вход
 label_error = Ошибка
 label_favorite_contacts = Избранные
@@ -830,7 +860,12 @@ label_introduction_description1 =
     Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description2 = настройках
 label_introduction_description3 = {" "}задайте пароль или e-mail.
+label_b = {$amount} Б
 label_kb = {$amount} КБ
+label_mb = {$amount} МБ
+label_gb = {$amount} ГБ
+label_tb = {$amount} ТБ
+label_pb = {$amount} ПБ
 label_keep_credentials = Запомнить данные
 label_language = Язык
 label_language_entry = {$code}, {$name}
@@ -903,17 +938,22 @@ label_no_contacts = Нет контактов
 label_no_limit = ∞
 label_no_messages = Нет сообщений
 label_no_registration = без регистрации
+label_no_updates_are_available_subtitle = У Вас установлена наиболее актуальная версия.
+label_no_updates_are_available_title = Нет доступных обновлений
 label_no_users = Нет пользователей
+label_no_welcome_message = Приветственное сообщение не добавлено
 label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
 label_off = Выкл
 label_offline = офлайн
+label_one_time_password = Одноразовый пароль
 label_online = онлайн
 label_open_calls_in_app = В окне приложения
 label_open_calls_in_window = В отдельном окне
 label_open_chat = Открыть чат
+label_or = Или
 label_or_register = или регистрация
 label_outgoing_call = Звоним
 label_participants = Участников: {$count}
@@ -936,10 +976,8 @@ label_personal_data_deletion_description =
     - Ваш аватар;
     - Ваше имя;
     - Ваша биография;
-    - Ваш логин;
     - все Ваши e-mail адреса;
-    - все Ваши номера телефонов;
-    - Ваш список контактов.
+    - все Ваши номера телефонов.
 
     Информация, которая не будет удалена:
     - Ваш Gapopa ID, поскольку он не является персональной информацией;
@@ -1045,6 +1083,7 @@ label_sign_in_with_password = Войти с паролем
 label_sign_up = Регистрация
 label_sign_up_code_email_sent =
     Проверочный код был отправлен на e-mail {$text}
+label_sign_up_with_password = Регистрация с паролем
 label_sort_by_name = Cортировать по имени
 label_sort_by_visit = Сортировать по дате входа
 label_sound_and_vibrations = Звук и вибрация
@@ -1078,7 +1117,7 @@ label_tech_stack_freelance =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1087,7 +1126,7 @@ label_tech_stack_frontend_developer =
     - Flutter - фреймворк;
     - GetX - Dependency Injection и State Management;
     - Navigator 2.0 (Router) - навигация;
-    - Hive - локальная база данных;
+    - Drift - локальная база данных;
     - Firebase - push уведомления;
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
@@ -1099,12 +1138,14 @@ label_transition_count = Переходов: {$count}
 label_typing = Печатает
 label_unconfirmed = Неподтвержденный
 label_unknown_page = Страница не найдена
+label_unknown_chat_direct_link = Данная прямая ссылка недействительна. Она могла быть удалена автором. Перепроверьте, пожалуйста, ссылку.
 label_unread_messages = {$quantity ->
     [one] {$quantity} непрочитанное сообщение
     [few] {$quantity} непрочитанных сообщения
     *[other] {$quantity} непрочитанных сообщений
 }
 label_update_is_available = Доступно обновление
+label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь
 label_user_added_user = {$author} добавил(а) {$user}
@@ -1120,6 +1161,7 @@ label_users = Пользователи
 label_users_count = Пользователей: {$count}
 label_verify = Верифицировать
 label_verify_number = Верифицировать номер телефона
+label_version_semicolon = Версия: {$version}
 label_video = Видео
 label_video_call = Видеозвонок{$by ->
         [x]{""}
@@ -1130,9 +1172,11 @@ label_video_downloading = Видео загружается...
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с
+label_waiting_for_connection = Ожидание подключения...
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
+label_was_at = был(а) {$at}
 label_was_removed = {$author} покинул(а) группу
 label_was_removed1 = {$author}
 label_was_removed2 = {" "}покинул(а) группу
@@ -1142,18 +1186,15 @@ label_we_welcome_backend_developer =
     - навык работы по CQRS+ES парадигме;
     - навык работы с технологиями Memcached, Redis, RabbitMQ, MongoDB, Cassandra, Kafka;
     - навык работы с другими языками Java, Go, Python, Ruby, TypeScript, JavaScript.
+label_welcome_message = Приветственное сообщение
+label_welcome_message_description = Приветствие не отображается пользователям, которым написали Вы. Отображается только у пользователей, которые добавили Вас в свой список чатов.
+label_welcome_message_hint = Добавить, редактировать, удалить
 label_welcome_message_freelance =
     Добрый день. Пожалуйста, укажите:
     - логин на GitHub'е;
     - номер PR (Pull Request);
     - предполагаемый срок выполнения задачи (дедлайн);
     - предполагаемый способ решения задачи.
-label_welcome_message_vacancy =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF.
-label_welcome_message_vacancy_24_hours =
-    Добрый день.
-    Пожалуйста, отправьте Ваше резюме в формате PDF. В течение 24 часов Вам будет отправлена дата и время интервью.
 label_what_we_can_help_you_with = Чем мы можем Вам помочь?
 label_work_with_us = Работайте с нами
 label_work_with_us_desc =

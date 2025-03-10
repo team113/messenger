@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -114,8 +114,9 @@ class _DesktopControlsState extends State<DesktopControls>
 
   @override
   void initState() {
-    _playingSubscription =
-        widget.controller.player.stream.playing.listen((playing) {
+    _playingSubscription = widget.controller.player.stream.playing.listen((
+      playing,
+    ) {
       if (!playing) {
         _startInterfaceTimer(3.seconds);
       }
@@ -187,11 +188,12 @@ class _DesktopControlsState extends State<DesktopControls>
                 return buffering.data!
                     ? const Center(child: CustomProgressIndicator())
                     : CenteredPlayPause(
-                        widget.controller,
-                        show: (!_dragging && !_hideStuff || _showInterface) &&
-                            !widget.controller.player.state.playing,
-                        onPressed: _playPause,
-                      );
+                      widget.controller,
+                      show:
+                          (!_dragging && !_hideStuff || _showInterface) &&
+                          !widget.controller.player.state.playing,
+                      onPressed: _playPause,
+                    );
               },
             ),
             Column(
@@ -282,8 +284,9 @@ class _DesktopControlsState extends State<DesktopControls>
                     onTap: () {
                       _cancelAndRestartTimer();
                       if (widget.controller.player.state.volume == 0) {
-                        widget.controller.player
-                            .setVolume(_latestVolume ?? 0.5);
+                        widget.controller.player.setVolume(
+                          _latestVolume ?? 0.5,
+                        );
                       } else {
                         _latestVolume = widget.controller.player.state.volume;
                         widget.controller.player.setVolume(0.0);
@@ -300,30 +303,33 @@ class _DesktopControlsState extends State<DesktopControls>
                         }
 
                         _volumeEntry = OverlayEntry(
-                          builder: (_) => VolumeOverlay(
-                            widget.controller,
-                            offset: offset,
-                            onExit: (d) {
-                              if (mounted && !_dragging) {
-                                _volumeEntry?.remove();
-                                _volumeEntry = null;
-                                setState(() {});
-                              }
-                            },
-                            onDragStart: () {
-                              setState(() => _dragging = true);
-                            },
-                            onDragEnd: () {
-                              if (!_showBottomBar) {
-                                _volumeEntry?.remove();
-                                _volumeEntry = null;
-                              }
-                              setState(() => _dragging = false);
-                            },
-                          ),
+                          builder:
+                              (_) => VolumeOverlay(
+                                widget.controller,
+                                offset: offset,
+                                onExit: (d) {
+                                  if (mounted && !_dragging) {
+                                    _volumeEntry?.remove();
+                                    _volumeEntry = null;
+                                    setState(() {});
+                                  }
+                                },
+                                onDragStart: () {
+                                  setState(() => _dragging = true);
+                                },
+                                onDragEnd: () {
+                                  if (!_showBottomBar) {
+                                    _volumeEntry?.remove();
+                                    _volumeEntry = null;
+                                  }
+                                  setState(() => _dragging = false);
+                                },
+                              ),
                         );
-                        Overlay.of(context, rootOverlay: true)
-                            .insert(_volumeEntry!);
+                        Overlay.of(
+                          context,
+                          rootOverlay: true,
+                        ).insert(_volumeEntry!);
                         setState(() {});
                       }
                     },

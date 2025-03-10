@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -39,11 +39,13 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
-  })  : _mode = _BigAvatarMode.myUser,
-        user = null,
-        chat = null;
+  }) : _mode = _BigAvatarMode.myUser,
+       user = null,
+       chat = null,
+       builder = _defaultBuilder;
 
   /// Builds a [BigAvatarWidget] of the provided [chat].
   const BigAvatarWidget.chat(
@@ -51,11 +53,13 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
-  })  : _mode = _BigAvatarMode.chat,
-        myUser = null,
-        user = null;
+    this.builder = _defaultBuilder,
+  }) : _mode = _BigAvatarMode.chat,
+       myUser = null,
+       user = null;
 
   /// Builds a [BigAvatarWidget] of the provided [user].
   const BigAvatarWidget.user(
@@ -63,14 +67,13 @@ class BigAvatarWidget extends StatefulWidget {
     super.key,
     this.onUpload,
     this.onDelete,
+    this.onEdit,
     this.loading = false,
     this.error,
-  })  : _mode = _BigAvatarMode.user,
-        myUser = null,
-        chat = null;
-
-  /// [_BigAvatarMode] of this [BigAvatarWidget].
-  final _BigAvatarMode _mode;
+  }) : _mode = _BigAvatarMode.user,
+       myUser = null,
+       chat = null,
+       builder = _defaultBuilder;
 
   /// [MyUser] to display an [Avatar] of.
   final MyUser? myUser;
@@ -93,6 +96,18 @@ class BigAvatarWidget extends StatefulWidget {
   /// Callback, called when delete of [Avatar] is required.
   final void Function()? onDelete;
 
+  /// Callback, called when edit of [Avatar] is required.
+  final void Function()? onEdit;
+
+  /// Builder building the [AvatarWidget] itself.
+  final Widget Function(Widget) builder;
+
+  /// [_BigAvatarMode] of this [BigAvatarWidget].
+  final _BigAvatarMode _mode;
+
+  /// Returns the [child].
+  static Widget _defaultBuilder(Widget child) => child;
+
   @override
   State<BigAvatarWidget> createState() => _BigAvatarWidgetState();
 }
@@ -106,6 +121,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
+    final Iterable<void Function()> callbacks =
+        [widget.onUpload, widget.onEdit, widget.onDelete].nonNulls;
+
     return Column(
       children: [
         Stack(
@@ -115,73 +133,79 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             Positioned.fill(
               child: SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
-                child: widget.loading
-                    ? Container(
-                        width: AvatarRadius.largest.toDouble() * 2,
-                        height: AvatarRadius.largest.toDouble() * 2,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(
-                            0.035 * (AvatarRadius.largest.toDouble() * 2),
+                child:
+                    widget.loading
+                        ? Container(
+                          width: AvatarRadius.largest.toDouble() * 2,
+                          height: AvatarRadius.largest.toDouble() * 2,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(
+                              0.035 * (AvatarRadius.largest.toDouble() * 2),
+                            ),
+                            color: style.colors.onBackgroundOpacity13,
                           ),
-                          color: style.colors.onBackgroundOpacity13,
-                        ),
-                        child: const Center(
-                          // TODO: Remove, when flutter/flutter##120874 is
-                          //       fixed:
-                          //       https://github.com/flutter/flutter/issues/120874
-                          child: RepaintBoundary(
-                            child: CustomProgressIndicator(),
+                          child: const Center(
+                            // TODO: Remove, when flutter/flutter##120874 is
+                            //       fixed:
+                            //       https://github.com/flutter/flutter/issues/120874
+                            child: RepaintBoundary(
+                              child: CustomProgressIndicator(),
+                            ),
                           ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                        )
+                        : const SizedBox.shrink(),
               ),
             ),
           ],
         ),
-        if (widget.onUpload != null || widget.onDelete != null) ...[
+        if (callbacks.isNotEmpty) ...[
           const SizedBox(height: 5),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (widget.onUpload != null && widget.onDelete != null)
-                const SizedBox(width: 16),
-              if (widget.onUpload != null)
-                WidgetButton(
-                  key: const Key('UploadAvatar'),
-                  onPressed: widget.onUpload,
-                  child: Text(
-                    'btn_upload'.l10n,
-                    style: style.fonts.small.regular.primary,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisSize:
+                  callbacks.length == 1 ? MainAxisSize.min : MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (widget.onUpload != null)
+                  WidgetButton(
+                    key: const Key('UploadAvatar'),
+                    onPressed: widget.onUpload,
+                    child: Text(
+                      'btn_upload'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
                   ),
-                ),
-              if (widget.onUpload != null && widget.onDelete != null)
-                const Spacer(),
-              if (widget.onDelete != null) ...[
-                WidgetButton(
-                  key: const Key('DeleteAvatar'),
-                  onPressed: widget.onDelete,
-                  child: Text(
-                    'btn_delete'.l10n,
-                    style: style.fonts.small.regular.primary,
+                if (widget.onEdit != null)
+                  WidgetButton(
+                    key: const Key('EditAvatar'),
+                    onPressed: widget.onEdit,
+                    child: Text(
+                      'btn_edit'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
                   ),
-                ),
-                if (widget.onUpload != null) const SizedBox(width: 16),
+                if (widget.onDelete != null)
+                  WidgetButton(
+                    key: const Key('DeleteAvatar'),
+                    onPressed: widget.onDelete,
+                    child: Text(
+                      'btn_delete'.l10n,
+                      style: style.fonts.small.regular.primary,
+                    ),
+                  ),
               ],
-            ],
-          ),
-          if (widget.error != null) ...[
-            const SizedBox(height: 4),
-            SizedBox(
-              width: AvatarRadius.largest.toDouble() * 2,
-              child: Text(
-                widget.error!,
-                style: style.fonts.small.regular.danger,
-              ),
             ),
-            const SizedBox(height: 8),
-          ],
+          ),
+        ],
+        if (widget.error != null) ...[
+          const SizedBox(height: 4),
+          SizedBox(
+            width: AvatarRadius.largest.toDouble() * 2,
+            child: Text(widget.error!, style: style.fonts.small.regular.danger),
+          ),
+          const SizedBox(height: 8),
         ],
       ],
     );
@@ -204,58 +228,65 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       switch (widget._mode) {
         case _BigAvatarMode.myUser:
           avatar = widget.myUser?.avatar;
-          child = AvatarWidget.fromMyUser(
-            widget.myUser,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            badge: false,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromMyUser(
+              widget.myUser,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              badge: false,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
 
         case _BigAvatarMode.user:
           avatar = widget.user?.user.value.avatar;
-          child = AvatarWidget.fromRxUser(
-            widget.user,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            badge: false,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromRxUser(
+              widget.user,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              badge: false,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
 
         case _BigAvatarMode.chat:
           avatar = widget.chat?.avatar.value;
-          child = AvatarWidget.fromRxChat(
-            widget.chat,
-            key: _avatarKey,
-            radius: AvatarRadius.largest,
-            shape: BoxShape.rectangle,
+          child = widget.builder(
+            AvatarWidget.fromRxChat(
+              widget.chat,
+              key: _avatarKey,
+              radius: AvatarRadius.largest,
+              shape: BoxShape.rectangle,
+            ),
           );
           break;
       }
 
       return WidgetButton(
-        onPressed: avatar == null
-            ? widget.onUpload
-            : () async {
-                await GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    initialKey: _avatarKey,
-                    children: [
-                      GalleryItem.image(
-                        avatar!.original.url,
-                        avatar.original.name,
-                        width: avatar.original.width,
-                        height: avatar.original.height,
-                        checksum: avatar.original.checksum,
-                        thumbhash: avatar.big.thumbhash,
-                      ),
-                    ],
-                  ),
-                );
-              },
+        onPressed:
+            avatar == null
+                ? widget.onUpload
+                : () async {
+                  await GalleryPopup.show(
+                    context: context,
+                    gallery: GalleryPopup(
+                      initialKey: _avatarKey,
+                      children: [
+                        GalleryItem.image(
+                          avatar!.original.url,
+                          avatar.original.name,
+                          width: avatar.original.width,
+                          height: avatar.original.height,
+                          checksum: avatar.original.checksum,
+                          thumbhash: avatar.big.thumbhash,
+                        ),
+                      ],
+                    ),
+                  );
+                },
         child: child,
       );
     });

@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -19,12 +19,7 @@ import 'package:flutter/material.dart';
 
 /// Widget animating implicitly between a play and a pause icon.
 class AnimatedPlayPause extends StatefulWidget {
-  const AnimatedPlayPause(
-    this.playing, {
-    super.key,
-    this.size,
-    this.color,
-  });
+  const AnimatedPlayPause(this.playing, {super.key, this.size, this.color});
 
   /// Indicator whether to display a playing icon, or pause otherwise.
   final bool playing;

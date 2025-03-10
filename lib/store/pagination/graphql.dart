@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -32,11 +32,17 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
     int? last,
     C? before,
     C? after,
-  }) fetch;
+  })
+  fetch;
 
   @override
   Future<Page<T, C>?> init(K? key, int count) async {
     return null;
+  }
+
+  @override
+  void dispose() {
+    // No-op.
   }
 
   @override
@@ -45,17 +51,19 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
     final Page<T, C> page = await fetch(
       after: cursor,
-      last: cursor == null
-          ? reversed
-              ? count
-              : null
-          : half,
+      last:
+          cursor == null
+              ? reversed
+                  ? count
+                  : null
+              : half,
       before: cursor,
-      first: cursor == null
-          ? reversed
-              ? null
-              : count
-          : half,
+      first:
+          cursor == null
+              ? reversed
+                  ? null
+                  : count
+              : half,
     );
 
     return reversed ? page.reversed() : page;
@@ -81,7 +89,7 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
   @override
   Future<void> put(
-    T item, {
+    Iterable<T> items, {
     bool ignoreBounds = false,
     int Function(T, T)? compare,
   }) async {

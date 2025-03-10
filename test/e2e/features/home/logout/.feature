@@ -1,4 +1,4 @@
-# Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -22,6 +22,7 @@ Feature: Logout confirmation
     Then I wait until `IntroductionView` is present
 
     When I copy from `NumCopyable` field
+    And I scroll `IntroductionScrollable` until `ProceedButton` is present
     And I tap `ProceedButton` button
     And I tap `MenuButton` button
     And I scroll `MenuListView` until `LogoutButton` is present
@@ -48,3 +49,4 @@ Feature: Logout confirmation
     And I fill `PasswordField` field with "123"
     And I tap `LoginButton` button
     Then I wait until `HomeView` is present
+    And I pause for 2 seconds

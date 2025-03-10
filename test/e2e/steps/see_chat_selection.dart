@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -30,25 +30,24 @@ import '../world/custom_world.dart';
 /// - Then I see "Dummy" chat as unselected
 final StepDefinitionGeneric seeChatSelection =
     then2<String, SelectionStatus, CustomWorld>(
-  'I see {string} chat as {selection}',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} chat as {selection}',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final ChatId chatId = context.world.groups[name]!;
-        final Finder chat =
-            context.world.appDriver.findByKeySkipOffstage('RecentChat_$chatId');
+          final ChatId chatId = context.world.groups[name]!;
+          final Finder chat = context.world.appDriver.findByKeySkipOffstage(
+            'RecentChat_$chatId',
+          );
 
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver.findByDescendant(
-            chat,
-            context.world.appDriver.findByKeySkipOffstage(
-              status == SelectionStatus.selected ? 'Selected' : 'Unselected',
+          return await context.world.appDriver.isPresent(
+            context.world.appDriver.findByDescendant(
+              chat,
+              context.world.appDriver.findByKeySkipOffstage(
+                status == SelectionStatus.selected ? 'Selected' : 'Unselected',
+              ),
             ),
-          ),
-        );
+          );
+        });
       },
     );
-  },
-);

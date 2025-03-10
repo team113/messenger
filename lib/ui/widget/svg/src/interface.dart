@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -41,8 +41,7 @@ Widget svgFromAsset(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -61,8 +60,7 @@ Widget svgFromBytes(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -80,5 +78,4 @@ Widget svgFromFile(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();

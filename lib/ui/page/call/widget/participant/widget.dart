@@ -1,4 +1,4 @@
-// Copyright © 2022-2024 IT ENGINEERING MANAGEMENT INC,
+// Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 //                       <https://github.com/team113>
 //
 // This program is free software: you can redistribute it and/or modify it under
@@ -87,7 +87,7 @@ class ParticipantWidget extends StatelessWidget {
           CallCoverWidget(
             participant.user.value?.user.value.callCover,
             user: participant.user.value,
-          )
+          ),
         ];
       }
 
@@ -102,27 +102,31 @@ class ParticipantWidget extends StatelessWidget {
               if (!hasVideo) ...background(),
               SafeAnimatedSwitcher(
                 key: const Key('AnimatedSwitcher'),
-                duration: animate
-                    ? const Duration(milliseconds: 200)
-                    : const Duration(seconds: 1),
-                child: !hasVideo
-                    ? Container()
-                    : RtcVideoView(
-                        participant.video.value!.renderer.value
-                            as RtcVideoRenderer,
-                        source: participant.source,
-                        key: participant.videoKey,
-                        fit: fit,
-                        borderRadius: borderRadius ?? BorderRadius.circular(10),
-                        border: outline == null
-                            ? null
-                            : Border.all(color: outline!),
-                        onSizeDetermined: onSizeDetermined,
-                        enableContextMenu: false,
-                        respectAspectRatio: respectAspectRatio,
-                        offstageUntilDetermined: offstageUntilDetermined,
-                        framelessBuilder: () => Stack(children: background()),
-                      ),
+                duration:
+                    animate
+                        ? const Duration(milliseconds: 200)
+                        : const Duration(seconds: 1),
+                child:
+                    !hasVideo
+                        ? Container()
+                        : RtcVideoView(
+                          participant.video.value!.renderer.value
+                              as RtcVideoRenderer,
+                          source: participant.source,
+                          key: participant.videoKey,
+                          fit: fit,
+                          borderRadius:
+                              borderRadius ?? BorderRadius.circular(10),
+                          border:
+                              outline == null
+                                  ? null
+                                  : Border.all(color: outline!),
+                          onSizeDetermined: onSizeDetermined,
+                          enableContextMenu: false,
+                          respectAspectRatio: respectAspectRatio,
+                          offstageUntilDetermined: offstageUntilDetermined,
+                          framelessBuilder: () => Stack(children: background()),
+                        ),
               ),
               Obx(() {
                 final Widget child;
@@ -138,9 +142,10 @@ class ParticipantWidget extends StatelessWidget {
                     child: Padding(
                       padding: const EdgeInsets.all(21.0),
                       child: Center(
-                        child: Config.disableInfiniteAnimations
-                            ? const CustomProgressIndicator.big(value: 0)
-                            : const DoubleBounceLoadingIndicator(),
+                        child:
+                            Config.disableInfiniteAnimations
+                                ? const CustomProgressIndicator.big(value: 0)
+                                : const DoubleBounceLoadingIndicator(),
                       ),
                     ),
                   );
