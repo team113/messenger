@@ -624,7 +624,9 @@ jobs:
       # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
       - run: |
           apt-get install wget gnupg -y
-          wget -O - https://apt.llvm.org/llvm.sh | sudo bash
+          wget -O llvm.sh https://apt.llvm.org/llvm.sh
+          chmod +x llvm.sh
+          ./llvm.sh
           apt-get update -y
           apt-get install lld-19
 
