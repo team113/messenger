@@ -598,31 +598,30 @@ jobs:
           # `git describe` to work.
           fetch-depth: 0
 
+      - run: apt-get update -y
+      - run: apt-get install -y
+                     ninja-build
+                     libunwind-dev
+                     libgtk-3-dev
+                     libpulse-dev
+                     libmpv-dev
+                     libcurl4-openssl-dev
+                     keybinder-3.0
+                     mpv
+                     jq
+                     curl
+                     git
+                     make
+                     procps
+                     cmake
+                     clang
+                     zip
       - run: |
-          apt-get update -y
-          apt-get install -y
-                  ninja-build
-                  libunwind-dev
-                  libgtk-3-dev
-                  libpulse-dev
-                  libmpv-dev
-                  libcurl4-openssl-dev
-                  keybinder-3.0
-                  mpv
-                  jq
-                  curl
-                  git
-                  make
-                  procps
-                  cmake
-                  clang
-                  zip
-                  lld-19
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
-          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-          sudo update-alternatives --config lld
-          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-          sudo update-alternatives --config ld.lld
+        # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
+        sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+        sudo update-alternatives --config lld
+        sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+        sudo update-alternatives --config ld.lld
 
       - run: git config --global --add safe.directory '*'
 
