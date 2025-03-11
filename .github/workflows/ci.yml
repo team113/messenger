@@ -599,10 +599,10 @@ jobs:
           fetch-depth: 0
 
       - run: apt-get update -y
-      - run: apt-get install wget
-      - run: |
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/llvm.asc
-          echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | tee /etc/apt/sources.list.d/llvm.list
+      # - run: apt-get install wget
+      # - run: |
+      #     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | tee /etc/apt/trusted.gpg.d/llvm.asc
+      #     echo "deb http://apt.llvm.org/jammy/ llvm-toolchain-jammy-19 main" | tee /etc/apt/sources.list.d/llvm.list
       - run: apt-get install -y
                      ninja-build
                      libunwind-dev
@@ -620,11 +620,14 @@ jobs:
                      cmake
                      clang
                      zip
-                     lld-19
-                     binutils
 
+      # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
       - run: |
-          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
+          apt-get install wget gnupg -y
+          wget -O - https://apt.llvm.org/llvm.sh | sudo bash
+          apt-get update -y
+          apt-get install lld-19
+
           update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           update-alternatives --config lld
           update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
