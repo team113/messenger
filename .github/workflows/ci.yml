@@ -621,6 +621,7 @@ jobs:
                      clang
                      zip
                      lld-19
+                     binutils
 
       - run: |
           # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
