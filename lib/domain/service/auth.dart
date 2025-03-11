@@ -152,6 +152,7 @@ class AuthService extends DisposableService {
           '_storageSubscription(${e.key}): received a credentials update',
           '$runtimeType',
         );
+
         if (e.newValue != null) {
           final Credentials received = Credentials.fromJson(
             json.decode(e.newValue!),

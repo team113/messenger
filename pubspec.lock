@@ -714,10 +714,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_rust_bridge
-      sha256: "35c257fc7f98e34c1314d6c145e5ed54e7c94e8a9f469947e31c9298177d546f"
+      sha256: "39804d78730d41ecddbe97e38c7dd6c2b43f76e91ef7bbd329f98f9b0bd19e56"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.0"
+    version: "2.8.0"
   flutter_shaders:
     dependency: transitive
     description:
@@ -1330,18 +1330,18 @@ packages:
     dependency: "direct main"
     description:
       name: medea_flutter_webrtc
-      sha256: a438e92b204738d6eaa53eeab67aeba28b1e88c61d66e4c25fb3f1486daf5593
+      sha256: "58f0ba98cc52dbfb18455bd092bce6f69c50475ee4465339cc76a3a86a1f6949"
       url: "https://pub.dev"
     source: hosted
-    version: "0.12.2"
+    version: "0.13.0"
   medea_jason:
     dependency: "direct main"
     description:
       name: medea_jason
-      sha256: "738c1693b5ba5e4a76aaf77f61d94bec87b8fa859f721f2b5adf8912a4f86d2c"
+      sha256: d3eedebbd8a0c4dc645b54ea42e9bd85184f0cc17392d57618e33e564b6fafc5
       url: "https://pub.dev"
     source: hosted
-    version: "0.7.1"
+    version: "0.8.0"
   media_kit:
     dependency: "direct main"
     description:
