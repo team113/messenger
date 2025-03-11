@@ -616,12 +616,13 @@ jobs:
                      cmake
                      clang
                      zip
+
       - run: |
-        # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
-        sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
-        sudo update-alternatives --config lld
-        sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
-        sudo update-alternatives --config ld.lld
+          # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
+          sudo update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
+          sudo update-alternatives --config lld
+          sudo update-alternatives --install /usr/bin/ld.lld ld.lld /usr/bin/ld.lld-19 100
+          sudo update-alternatives --config ld.lld
 
       - run: git config --global --add safe.directory '*'
 
