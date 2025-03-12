@@ -158,7 +158,7 @@ else
 			                   dockerized=no
 endif
 else
-	flutter build $(or $(platform),apk) --verbose \
+	flutter build $(or $(platform),apk) \
 		--build-number=$(flutter-build-number) \
 		$(if $(call eq,$(profile),yes),--profile,--release) \
 		$(if $(call eq,$(platform),web),--source-maps,) \
