@@ -581,10 +581,10 @@ jobs:
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.31 version for better compatibility.
-    container: debian:bullseye
+    # Pin glibc to 2.34 version for better compatibility.
+    container: debian:bookworm
     steps:
-      # `debian:bullseye` doesn't include Git in its `PATH`, which is required
+      # `debian:bookworm` doesn't include Git in its `PATH`, which is required
       # by `PubspecBuilder`.
       - name: Install Git
         run: |
@@ -625,7 +625,7 @@ jobs:
       - name: Install `lld-19`
         run: |
           apt update && apt install -y curl gnupg lsb-release
-          echo "deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-19 main" | tee /etc/apt/sources.list.d/llvm.list
+          echo "deb http://apt.llvm.org/bookworm/ llvm-toolchain-bookworm-19 main" | tee /etc/apt/sources.list.d/llvm.list
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
           apt update
           apt install -y lld-19
