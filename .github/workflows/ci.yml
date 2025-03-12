@@ -622,13 +622,13 @@ jobs:
                      zip
 
       # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
-      - run: |
-          apt-get install lsb-release wget software-properties-common gnupg -y
-          wget -O llvm.sh https://apt.llvm.org/llvm.sh
-          chmod +x llvm.sh
-          ./llvm.sh
-          apt-get update -y
-          apt-get install lld-19
+      - name: Install `lld-19`
+        run: |
+          apt update && apt install -y wget lsb-release
+          echo "deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-19 main" | tee /etc/apt/sources.list.d/llvm.list
+          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          apt update
+          apt install -y lld-19
 
           update-alternatives --install /usr/bin/lld lld /usr/bin/lld-19 100
           update-alternatives --config lld
