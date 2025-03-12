@@ -624,9 +624,9 @@ jobs:
       # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
       - name: Install `lld-19`
         run: |
-          apt update && apt install -y wget lsb-release
+          apt update && apt install -y curl lsb-release
           echo "deb http://apt.llvm.org/bullseye/ llvm-toolchain-bullseye-19 main" | tee /etc/apt/sources.list.d/llvm.list
-          wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
+          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add -
           apt update
           apt install -y lld-19
 
