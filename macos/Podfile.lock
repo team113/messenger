@@ -87,9 +87,9 @@ PODS:
     - FlutterMacOS
   - macos_haptic_feedback (1.0.0):
     - FlutterMacOS
-  - medea_flutter_webrtc (0.12.2):
+  - medea_flutter_webrtc (0.13.0):
     - FlutterMacOS
-  - medea_jason (0.7.1):
+  - medea_jason (0.8.0):
     - FlutterMacOS
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
@@ -100,6 +100,8 @@ PODS:
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
+  - nanopb/decode (3.30910.0)
+  - nanopb/encode (3.30910.0)
   - open_file_mac (0.0.1):
     - FlutterMacOS
   - package_info_plus (0.0.1):
@@ -122,16 +124,16 @@ PODS:
   - shared_preferences_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqlite3 (3.49.0):
-    - sqlite3/common (= 3.49.0)
-  - sqlite3/common (3.49.0)
-  - sqlite3/dbstatvtab (3.49.0):
+  - sqlite3 (3.49.1):
+    - sqlite3/common (= 3.49.1)
+  - sqlite3/common (3.49.1)
+  - sqlite3/dbstatvtab (3.49.1):
     - sqlite3/common
-  - sqlite3/fts5 (3.49.0):
+  - sqlite3/fts5 (3.49.1):
     - sqlite3/common
-  - sqlite3/perf-threadsafe (3.49.0):
+  - sqlite3/perf-threadsafe (3.49.1):
     - sqlite3/common
-  - sqlite3/rtree (3.49.0):
+  - sqlite3/rtree (3.49.1):
     - sqlite3/common
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
@@ -292,8 +294,8 @@ SPEC CHECKSUMS:
   irondash_engine_context: 893c7d96d20ce361d7e996f39d360c4c2f9869ba
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   macos_haptic_feedback: 298e5c06ffc3838e80c557b24a74937a060798e6
-  medea_flutter_webrtc: 9ecfeebe67e42cf768af9592b2c3925880a25dc9
-  medea_jason: e3023606cb9144e4b64ebcbf5b31a6498cb064e2
+  medea_flutter_webrtc: c9bab94d2840c02125801f7c80d5a27c0a9e02cc
+  medea_jason: 351bd7aabdce16a9ac0dc461a59852cd77cbcd05
   media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
   media_kit_native_event_loop: a80d071c835c612fd80173e79390a50ec409f1b1
   media_kit_video: fa6564e3799a0a28bff39442334817088b7ca758
@@ -308,13 +310,13 @@ SPEC CHECKSUMS:
   sentry_flutter: be956a32343176b344ef4b23ecdab47ab6f0ffa6
   share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
   shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
-  sqlite3: 4922312598b67e1825c6a6c821296dcbf6783046
+  sqlite3: fc1400008a9b3525f5914ed715a5d1af0b8f4983
   sqlite3_flutter_libs: 3c323550ef3b928bc0aa9513c841e45a7d242832
   super_native_extensions: c2795d6d9aedf4a79fae25cb6160b71b50549189
   url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
   wakelock_plus: 21ddc249ac4b8d018838dbdabd65c5976c308497
   window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
 
-PODFILE CHECKSUM: 1eb246b7252feb97518a5c5b6e33b324dc30a54d
+PODFILE CHECKSUM: d31615892e294512c5c96e376ac03ed16d1d001d
 
 COCOAPODS: 1.16.2

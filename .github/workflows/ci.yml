@@ -581,10 +581,10 @@ jobs:
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.31 version for better compatibility.
-    container: debian:bullseye
+    # Pin glibc to 2.34 version for better compatibility.
+    container: debian:bookworm
     steps:
-      # `debian:bullseye` doesn't include Git in its `PATH`, which is required
+      # `debian:bookworm` doesn't include Git in its `PATH`, which is required
       # by `PubspecBuilder`.
       - name: Install Git
         run: |
@@ -616,6 +616,7 @@ jobs:
                      cmake
                      clang
                      zip
+                     xz-utils
 
       - run: git config --global --add safe.directory '*'
 
