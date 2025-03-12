@@ -620,6 +620,7 @@ jobs:
                      cmake
                      clang
                      zip
+                     xz-utils
 
       # TODO: Remove once lld-19 becomes the default in Ubuntu repositories.
       - name: Install `lld-19`
