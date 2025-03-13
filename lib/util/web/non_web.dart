@@ -464,9 +464,4 @@ class WebUtils {
       Log.warning('Unable to unbind hot key: $e', 'WebUtils');
     }
   }
-
-  /// Refreshes the current browser's page.
-  static Future<void> refresh() async {
-    // No-op.
-  }
 }

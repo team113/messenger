@@ -21,7 +21,6 @@ import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:pub_semver/pub_semver.dart';
-import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
@@ -34,7 +33,6 @@ import '/ui/widget/upgrade_popup/view.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
-import '/util/web/web_utils.dart';
 
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
@@ -50,23 +48,23 @@ class UpgradeWorker extends DisposableService {
   /// Latest [Release] fetched during the [fetchUpdates].
   Release? _latest;
 
-  /// Latest [String] representing `flutter_bootstrap.js` file fetched.
-  String? _lastBootstrapJs;
-
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
 
   /// [Duration] being the period of [_timer].
-  static const Duration _refreshPeriod = Duration(minutes: 2);
+  static const Duration _refreshPeriod = Duration(minutes: 5);
 
   @override
   void onReady() {
     Log.debug('onReady()', '$runtimeType');
 
-    fetchUpdates();
+    // Web gets its updates out of the box with a simple page refresh.
+    if (!PlatformUtils.isWeb) {
+      fetchUpdates();
+    }
 
-    if (Config.appcast.isNotEmpty || PlatformUtils.isWeb) {
+    if (Config.appcast.isNotEmpty) {
       _timer = Timer.periodic(_refreshPeriod, (_) {
         fetchUpdates();
       });
@@ -87,24 +85,14 @@ class UpgradeWorker extends DisposableService {
     await _skippedLocal?.upsert(release.name);
   }
 
-  /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
-  /// [_fetchAppcast] otherwise to check against any updates being available.
-  Future<bool> fetchUpdates({bool force = false}) async {
-    if (PlatformUtils.isWeb) {
-      return await _fetchBootstrapJs();
-    }
-
-    return await _fetchAppcast(force: force);
-  }
-
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
   ///
   /// Returns `true`, if new update is detected.
   ///
   /// If [force] is `true`, then ignores the [_skippedLocal] stored one.
-  Future<bool> _fetchAppcast({bool force = false}) async {
-    Log.debug('_fetchAppcast(force: $force)', '$runtimeType');
+  Future<bool> fetchUpdates({bool force = false}) async {
+    Log.debug('fetchUpdates(force: $force)', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
       return false;
@@ -194,49 +182,7 @@ class UpgradeWorker extends DisposableService {
         }
       }
     } catch (e) {
-      Log.info('Failed to fetch `appcast.xml` releases: $e', '$runtimeType');
-    }
-
-    return false;
-  }
-
-  /// Fetches the `flutter_bootstrap.js` file hosted over [Config.origin] with
-  /// every Flutter Web build to check whether there's any new build available.
-  ///
-  /// Returns `true`, if new update is detected.
-  Future<bool> _fetchBootstrapJs() async {
-    Log.debug('_fetchBootstrapJs()', '$runtimeType');
-
-    try {
-      final response = await (await PlatformUtils.dio).get(
-        '${Config.origin}/flutter_bootstrap.js?${const Uuid().v4()}',
-      );
-
-      if (response.statusCode != 200 || response.data == null) {
-        throw DioException.connectionError(
-          requestOptions: RequestOptions(),
-          reason: 'Status code ${response.statusCode}',
-        );
-      }
-
-      final String bootstrapJs = response.data as String;
-
-      if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
-        _schedulePopup(
-          Release(
-            name: '${DateTime.now().microsecondsSinceEpoch}',
-            description: null,
-            publishedAt: DateTime.now(),
-            assets: [],
-          ),
-          critical: false,
-          silent: true,
-        );
-      }
-
-      _lastBootstrapJs = bootstrapJs;
-    } catch (e) {
-      Log.info('Failed to fetch `flutter_bootstrap.js`: $e', '$runtimeType');
+      Log.info('Failed to fetch releases: $e', '$runtimeType');
     }
 
     return false;
@@ -257,10 +203,6 @@ class UpgradeWorker extends DisposableService {
           'label_update_is_available'.l10n,
           duration: const Duration(minutes: 5),
           onPressed: () async {
-            if (PlatformUtils.isWeb) {
-              await WebUtils.refresh();
-            }
-
             await UpgradePopupView.show(
               router.context!,
               release: release,
