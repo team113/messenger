@@ -90,11 +90,13 @@ class UpgradeWorker extends DisposableService {
   /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
   /// [_fetchAppcast] otherwise to check against any updates being available.
   Future<bool> fetchUpdates({bool force = false}) async {
-    if (PlatformUtils.isWeb) {
+    if (Config.appcast.isNotEmpty) {
+      return await _fetchAppcast(force: force);
+    } else if (PlatformUtils.isWeb) {
       return await _fetchBootstrapJs();
     }
 
-    return await _fetchAppcast(force: force);
+    return false;
   }
 
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
