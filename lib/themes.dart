@@ -651,6 +651,7 @@ class Palette {
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
     Color? primaryAuxiliaryOpacity90,
+    Color? primaryAuxiliaryOpacity95,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity10,
@@ -710,6 +711,9 @@ class Palette {
        primaryAuxiliaryOpacity90 =
            primaryAuxiliaryOpacity90 ??
            primaryAuxiliary.withValues(alpha: 0.90),
+       primaryAuxiliaryOpacity95 =
+           primaryAuxiliaryOpacity95 ??
+           primaryAuxiliary.withValues(alpha: 0.95),
        onPrimaryOpacity7 =
            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
        onPrimaryOpacity10 =
@@ -818,6 +822,9 @@ class Palette {
 
   /// 90% opacity of the [primaryAuxiliary] color.
   final Color primaryAuxiliaryOpacity90;
+
+  /// 95% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity95;
 
   /// [Color] for elements to put above the [primary] color.
   ///
