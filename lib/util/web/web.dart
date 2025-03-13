@@ -900,6 +900,11 @@ class WebUtils {
 
     return false;
   }
+
+  /// Refreshes the current browser's page.
+  static Future<void> refresh() async {
+    web.window.location.reload();
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].

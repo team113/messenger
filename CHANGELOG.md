@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.4.0] · 2025-??-??
+[0.4.0]: /../../tree/v0.4.0
+
+[Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)
+
+### Added
+
+- Web:
+    - Upgrade popup displaying when new deployment is available. ([#1181])
+
+[#1181]: /../../pull/1181
+
+
+
+
 ## [0.3.3] · 2025-03-07
 [0.3.3]: /../../tree/v0.3.3
 
