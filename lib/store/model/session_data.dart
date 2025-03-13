@@ -18,6 +18,7 @@
 import '/domain/model/chat.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
+import '/util/new_type.dart';
 import 'blocklist.dart';
 import 'session.dart';
 
@@ -66,18 +67,54 @@ class SessionData {
   /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
   int? blocklistCount;
 
-  /// Returns a copy of this [SessionData] from the [other].
-  SessionData copyFrom(SessionData other) {
+  /// Returns a copy of this [SessionData] replaced with the [NewType]s
+  /// provided.
+  SessionData replaceWith({
+    NewType<FavoriteChatsListVersion?>? favoriteChatsListVersion,
+    NewType<bool?>? favoriteChatsSynchronized,
+    NewType<ChatContactsListVersion?>? chatContactsListVersion,
+    NewType<bool?>? favoriteContactsSynchronized,
+    NewType<bool?>? contactsSynchronized,
+    NewType<bool?>? blocklistSynchronized,
+    NewType<SessionsListVersion?>? sessionsListVersion,
+    NewType<BlocklistVersion?>? blocklistVersion,
+    NewType<int?>? blocklistCount,
+  }) {
     return copyWith(
-      favoriteChatsListVersion: other.favoriteChatsListVersion,
-      favoriteChatsSynchronized: other.favoriteChatsSynchronized,
-      chatContactsListVersion: other.chatContactsListVersion,
-      favoriteContactsSynchronized: other.favoriteContactsSynchronized,
-      contactsSynchronized: other.contactsSynchronized,
-      blocklistSynchronized: other.blocklistSynchronized,
-      sessionsListVersion: other.sessionsListVersion,
-      blocklistVersion: other.blocklistVersion,
-      blocklistCount: other.blocklistCount,
+      favoriteChatsListVersion:
+          favoriteChatsListVersion == null
+              ? this.favoriteChatsListVersion
+              : favoriteChatsListVersion.val,
+      favoriteChatsSynchronized:
+          favoriteChatsSynchronized == null
+              ? this.favoriteChatsSynchronized
+              : favoriteChatsSynchronized.val,
+      chatContactsListVersion:
+          chatContactsListVersion == null
+              ? this.chatContactsListVersion
+              : chatContactsListVersion.val,
+      favoriteContactsSynchronized:
+          favoriteContactsSynchronized == null
+              ? this.favoriteContactsSynchronized
+              : favoriteContactsSynchronized.val,
+      contactsSynchronized:
+          contactsSynchronized == null
+              ? this.contactsSynchronized
+              : contactsSynchronized.val,
+      blocklistSynchronized:
+          blocklistSynchronized == null
+              ? this.blocklistSynchronized
+              : blocklistSynchronized.val,
+      sessionsListVersion:
+          sessionsListVersion == null
+              ? this.sessionsListVersion
+              : sessionsListVersion.val,
+      blocklistVersion:
+          blocklistVersion == null
+              ? this.blocklistVersion
+              : blocklistVersion.val,
+      blocklistCount:
+          blocklistCount == null ? this.blocklistCount : blocklistCount.val,
     );
   }
 
@@ -95,19 +132,19 @@ class SessionData {
   }) {
     return SessionData(
       favoriteChatsListVersion:
-          this.favoriteChatsListVersion ?? favoriteChatsListVersion,
+          favoriteChatsListVersion ?? this.favoriteChatsListVersion,
       favoriteChatsSynchronized:
-          this.favoriteChatsSynchronized ?? favoriteChatsSynchronized,
+          favoriteChatsSynchronized ?? this.favoriteChatsSynchronized,
       chatContactsListVersion:
-          this.chatContactsListVersion ?? chatContactsListVersion,
+          chatContactsListVersion ?? this.chatContactsListVersion,
       favoriteContactsSynchronized:
-          this.favoriteContactsSynchronized ?? favoriteContactsSynchronized,
-      contactsSynchronized: this.contactsSynchronized ?? contactsSynchronized,
+          favoriteContactsSynchronized ?? this.favoriteContactsSynchronized,
+      contactsSynchronized: contactsSynchronized ?? this.contactsSynchronized,
       blocklistSynchronized:
-          this.blocklistSynchronized ?? blocklistSynchronized,
-      sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
-      blocklistVersion: this.blocklistVersion ?? blocklistVersion,
-      blocklistCount: this.blocklistCount ?? blocklistCount,
+          blocklistSynchronized ?? this.blocklistSynchronized,
+      sessionsListVersion: sessionsListVersion ?? this.sessionsListVersion,
+      blocklistVersion: blocklistVersion ?? this.blocklistVersion,
+      blocklistCount: blocklistCount ?? this.blocklistCount,
     );
   }
 }

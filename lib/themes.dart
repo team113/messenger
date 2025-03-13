@@ -90,7 +90,7 @@ class Themes {
       primaryLight: const Color(0xFFD2E9FE),
       primaryLightest: const Color(0xFFD5EDFE),
       primaryDark: const Color(0xFF1F3C5D),
-      primaryAuxiliary: const Color(0xFF165084),
+      primaryAuxiliary: const Color(0xFF0A2E4F),
       onPrimary: const Color(0xFFFFFFFF),
       secondary: const Color(0xFF888888),
       secondaryLight: const Color(0xFFCCCCCC),
@@ -650,9 +650,10 @@ class Palette {
     Color? primaryDarkOpacity90,
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity55,
+    Color? primaryAuxiliaryOpacity90,
     required this.onPrimary,
     Color? onPrimaryOpacity7,
+    Color? onPrimaryOpacity10,
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity50,
     Color? onPrimaryOpacity95,
@@ -706,11 +707,13 @@ class Palette {
        primaryAuxiliaryOpacity25 =
            primaryAuxiliaryOpacity25 ??
            primaryAuxiliary.withValues(alpha: 0.25),
-       primaryAuxiliaryOpacity55 =
-           primaryAuxiliaryOpacity55 ??
-           primaryAuxiliary.withValues(alpha: 0.55),
+       primaryAuxiliaryOpacity90 =
+           primaryAuxiliaryOpacity90 ??
+           primaryAuxiliary.withValues(alpha: 0.90),
        onPrimaryOpacity7 =
            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
+       onPrimaryOpacity10 =
+           onPrimaryOpacity10 ?? onPrimary.withValues(alpha: 0.10),
        onPrimaryOpacity25 =
            onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
        onPrimaryOpacity50 =
@@ -813,8 +816,8 @@ class Palette {
   /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
-  /// 55% opacity of the [primaryAuxiliary] color.
-  final Color primaryAuxiliaryOpacity55;
+  /// 90% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity90;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -840,6 +843,9 @@ class Palette {
   ///
   /// Used to highlight some [DragTarget]s and backgrounds.
   final Color onPrimaryOpacity7;
+
+  /// 10% opacity of the [onPrimary] color.
+  final Color onPrimaryOpacity10;
 
   /// Secondary [Color] used alongside with [primary].
   ///
@@ -1077,6 +1083,8 @@ class Palette {
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
+      onPrimaryOpacity10:
+          Color.lerp(color.onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
       onPrimaryOpacity25:
           Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
       onPrimaryOpacity50:

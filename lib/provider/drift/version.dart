@@ -27,6 +27,7 @@ import '/store/model/chat.dart';
 import '/store/model/contact.dart';
 import '/store/model/session_data.dart';
 import '/store/model/session.dart';
+import '/util/new_type.dart';
 import 'drift.dart';
 
 /// [SessionData] to be stored in a [Table].
@@ -93,9 +94,32 @@ class VersionDriftProvider extends DriftProviderBase {
   }
 
   /// Creates or updates the provided [data] in the database.
-  Future<SessionData> upsert(UserId userId, SessionData data) async {
-    final SessionData? existing = this.data[userId];
-    this.data[userId] = (existing ?? SessionData()).copyFrom(data);
+  Future<SessionData> upsert(
+    UserId userId, {
+    NewType<FavoriteChatsListVersion?>? favoriteChatsListVersion,
+    NewType<bool?>? favoriteChatsSynchronized,
+    NewType<ChatContactsListVersion?>? chatContactsListVersion,
+    NewType<bool?>? favoriteContactsSynchronized,
+    NewType<bool?>? contactsSynchronized,
+    NewType<bool?>? blocklistSynchronized,
+    NewType<SessionsListVersion?>? sessionsListVersion,
+    NewType<BlocklistVersion?>? blocklistVersion,
+    NewType<int?>? blocklistCount,
+  }) async {
+    final SessionData? existing = data[userId];
+    final SessionData session = (existing ?? SessionData()).replaceWith(
+      favoriteChatsListVersion: favoriteChatsListVersion,
+      favoriteChatsSynchronized: favoriteChatsSynchronized,
+      chatContactsListVersion: chatContactsListVersion,
+      favoriteContactsSynchronized: favoriteContactsSynchronized,
+      contactsSynchronized: contactsSynchronized,
+      blocklistSynchronized: blocklistSynchronized,
+      sessionsListVersion: sessionsListVersion,
+      blocklistVersion: blocklistVersion,
+      blocklistCount: blocklistCount,
+    );
+
+    data[userId] = session;
 
     final result = await safe((db) async {
       try {
@@ -103,8 +127,8 @@ class VersionDriftProvider extends DriftProviderBase {
           await db
               .into(db.versions)
               .insertReturning(
-                data.toDb(userId),
-                onConflict: DoUpdate((_) => data.toDb(userId)),
+                session.toDb(userId),
+                onConflict: DoUpdate((_) => session.toDb(userId)),
               ),
         );
 
@@ -116,7 +140,7 @@ class VersionDriftProvider extends DriftProviderBase {
       }
     });
 
-    return result ?? data;
+    return result ?? session;
   }
 
   /// Returns the [SessionData] stored in the database by the provided [id], if

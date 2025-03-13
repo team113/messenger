@@ -424,7 +424,7 @@ class ContactRepository extends DisposableInterface
           if (page.info.hasNext == false) {
             _sessionLocal.upsert(
               me,
-              SessionData(favoriteContactsSynchronized: true),
+              favoriteContactsSynchronized: NewType(true),
             );
           }
 
@@ -449,7 +449,7 @@ class ContactRepository extends DisposableInterface
               );
 
           if (page.info.hasNext == false) {
-            _sessionLocal.upsert(me, SessionData(contactsSynchronized: true));
+            _sessionLocal.upsert(me, contactsSynchronized: NewType(true));
           }
 
           return page;
@@ -627,10 +627,9 @@ class ContactRepository extends DisposableInterface
           await _pagination?.clear();
           _sessionLocal.upsert(
             me,
-            SessionData(
-              favoriteContactsSynchronized: false,
-              contactsSynchronized: false,
-            ),
+            favoriteContactsSynchronized: NewType(false),
+            contactsSynchronized: NewType(false),
+            chatContactsListVersion: NewType(null),
           );
 
           await _pagination?.around();
@@ -672,7 +671,7 @@ class ContactRepository extends DisposableInterface
           if (updateVersion) {
             _sessionLocal.upsert(
               me,
-              SessionData(chatContactsListVersion: versioned.listVer),
+              chatContactsListVersion: NewType(versioned.listVer),
             );
           }
 
@@ -839,7 +838,7 @@ class ContactRepository extends DisposableInterface
       noFavorite: noFavorite,
     );
 
-    _sessionLocal.upsert(me, SessionData(chatContactsListVersion: query.ver));
+    _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
     for (var c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();
@@ -874,7 +873,7 @@ class ContactRepository extends DisposableInterface
       before: before,
     );
 
-    _sessionLocal.upsert(me, SessionData(chatContactsListVersion: query.ver));
+    _sessionLocal.upsert(me, chatContactsListVersion: NewType(query.ver));
 
     for (var c in query.edges) {
       final List<DtoUser> users = c.node.getDtoUsers();

@@ -248,6 +248,10 @@ class SessionRepository extends DisposableInterface
         _sessionRemoteEvent,
         onError: (e) {
           if (e is StaleVersionException) {
+            _versionLocal.upsert(
+              _accountLocal.userId!,
+              sessionsListVersion: NewType(null),
+            );
             sessions.clear();
           }
         },
@@ -278,7 +282,7 @@ class SessionRepository extends DisposableInterface
     if (_accountLocal.userId != null) {
       _versionLocal.upsert(
         _accountLocal.userId!,
-        SessionData(sessionsListVersion: versioned.listVer),
+        sessionsListVersion: NewType(versioned.listVer),
       );
     }
 
@@ -357,7 +361,7 @@ class SessionRepository extends DisposableInterface
         if (_accountLocal.userId != null) {
           _versionLocal.upsert(
             _accountLocal.userId!,
-            SessionData(sessionsListVersion: e.listVer),
+            sessionsListVersion: NewType(e.listVer),
           );
         }
 

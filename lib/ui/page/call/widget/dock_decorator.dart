@@ -102,7 +102,7 @@ class DockDecorator extends StatelessWidget {
                   color:
                       ConditionalBackdropFilter.enabled
                           ? style.colors.primaryAuxiliaryOpacity25
-                          : style.colors.primaryAuxiliaryOpacity55,
+                          : style.colors.primaryAuxiliaryOpacity90,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(
