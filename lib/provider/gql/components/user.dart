@@ -1453,7 +1453,7 @@ mixin UserGraphQlMixin {
   /// side is expected to handle all the events idempotently considering the
   /// [ver].
   Stream<QueryResult> sessionsEvents(SessionsListVersion? Function() ver) {
-    Log.debug('sessionsEvents($ver)', '$runtimeType');
+    Log.debug('sessionsEvents(ver)', '$runtimeType');
 
     final variables = SessionsEventsArguments(ver: ver());
     return client.subscribe(
