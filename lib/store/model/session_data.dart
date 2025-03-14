@@ -80,7 +80,7 @@ class SessionData {
     NewType<BlocklistVersion?>? blocklistVersion,
     NewType<int?>? blocklistCount,
   }) {
-    return copyWith(
+    return SessionData(
       favoriteChatsListVersion:
           favoriteChatsListVersion == null
               ? this.favoriteChatsListVersion
@@ -146,5 +146,10 @@ class SessionData {
       blocklistVersion: blocklistVersion ?? this.blocklistVersion,
       blocklistCount: blocklistCount ?? this.blocklistCount,
     );
+  }
+
+  @override
+  String toString() {
+    return 'SessionData(favoriteChatsListVersion: $favoriteChatsListVersion, favoriteChatsSynchronized: $favoriteChatsSynchronized, chatContactsListVersion: $chatContactsListVersion, favoriteContactsSynchronized: $favoriteContactsSynchronized, contactsSynchronized: $contactsSynchronized, blocklistSynchronized: $blocklistSynchronized, sessionsListVersion: $sessionsListVersion, blocklistVersion: $blocklistVersion, blocklistCount: $blocklistCount)';
   }
 }

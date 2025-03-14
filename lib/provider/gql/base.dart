@@ -708,9 +708,7 @@ class SubscriptionHandle {
   void _resubscribe({bool noVersion = false}) async {
     Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
-    if (ver != null) {
-      _options.variables['ver'] = noVersion ? null : (await ver!())?.val;
-    }
+    _options.variables['ver'] = noVersion ? null : (await ver?.call())?.val;
 
     if (_backoff?.isActive != true) {
       _backoff?.cancel();

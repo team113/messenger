@@ -240,7 +240,7 @@ class SessionRepository extends DisposableInterface
     await WebUtils.protect(() async {
       _remoteSubscription = StreamQueue(
         await _sessionRemoteEvents(
-          _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
+          () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
         ),
       );
 
@@ -333,7 +333,7 @@ class SessionRepository extends DisposableInterface
 
   /// Subscribes to remote [SessionEvent]s of the authenticated [MyUser].
   Future<Stream<SessionEventsVersioned>> _sessionRemoteEvents(
-    SessionsListVersion? ver,
+    SessionsListVersion? Function() ver,
   ) async {
     Log.debug('_sessionRemoteEvents(ver)', '$runtimeType');
 

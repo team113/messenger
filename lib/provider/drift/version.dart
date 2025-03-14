@@ -123,16 +123,11 @@ class VersionDriftProvider extends DriftProviderBase {
 
     final result = await safe((db) async {
       try {
-        final SessionData stored = _SessionDataDb.fromDb(
+        return _SessionDataDb.fromDb(
           await db
               .into(db.versions)
-              .insertReturning(
-                session.toDb(userId),
-                onConflict: DoUpdate((_) => session.toDb(userId)),
-              ),
+              .insertReturning(session.toDb(userId), mode: InsertMode.replace),
         );
-
-        return stored;
       } on DriftRemoteException {
         // Upsert may fail during E2E tests due to rapid database resetting and
         // creating.
