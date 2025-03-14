@@ -257,7 +257,7 @@ class UpgradeWorker extends DisposableService {
       if (silent && !critical) {
         return MessagePopup.success(
           'label_update_is_available'.l10n,
-          duration: const Duration(minutes: 5),
+          duration: const Duration(days: 365),
           onPressed: () async {
             if (PlatformUtils.isWeb) {
               await WebUtils.refresh();
