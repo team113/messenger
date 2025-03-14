@@ -172,9 +172,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
                 color:
-                    preferBackdrop
+                    preferBackdrop && ConditionalBackdropFilter.enabled
                         ? style.colors.primaryAuxiliaryOpacity25
-                        : style.colors.primaryDarkOpacity70,
+                        : style.colors.primaryAuxiliaryOpacity90,
               ),
               padding: EdgeInsets.only(
                 left: 6,

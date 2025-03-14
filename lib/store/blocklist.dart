@@ -39,7 +39,6 @@ import '/util/web/web_utils.dart';
 import 'event/blocklist.dart';
 import 'model/blocklist.dart';
 import 'model/my_user.dart';
-import 'model/session_data.dart';
 import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/drift_graphql.dart';
@@ -106,10 +105,7 @@ class BlocklistRepository extends DisposableInterface
                 );
 
             if (page.info.hasNext == false) {
-              _sessionLocal.upsert(
-                me,
-                SessionData(blocklistSynchronized: true),
-              );
+              _sessionLocal.upsert(me, blocklistSynchronized: NewType(true));
             }
 
             return page;
@@ -226,6 +222,11 @@ class BlocklistRepository extends DisposableInterface
         _blocklistRemoteEvent,
         onError: (e) async {
           if (e is StaleVersionException) {
+            _sessionLocal.upsert(
+              me,
+              blocklistSynchronized: NewType(true),
+              blocklistVersion: NewType(null),
+            );
             await reset();
           }
         },
@@ -309,10 +310,9 @@ class BlocklistRepository extends DisposableInterface
         count.value = blocklist.totalCount;
         await _sessionLocal.upsert(
           me,
-          SessionData(
-            blocklistCount: blocklist.totalCount,
-            blocklistVersion: blocklist.ver,
-          ),
+
+          blocklistCount: NewType(blocklist.totalCount),
+          blocklistVersion: NewType(blocklist.ver),
         );
         break;
 
@@ -358,10 +358,9 @@ class BlocklistRepository extends DisposableInterface
 
           await _sessionLocal.upsert(
             me,
-            SessionData(
-              blocklistCount: count.value,
-              blocklistVersion: versioned.ver,
-            ),
+
+            blocklistCount: NewType(count.value),
+            blocklistVersion: NewType(versioned.ver),
           );
         }
         break;

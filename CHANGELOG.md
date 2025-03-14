@@ -16,7 +16,14 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Upgrade popup displaying when new deployment is available. ([#1181])
 
+### Changed
+
+- UI:
+    - Media panel:
+        - Dock and panels redesigned contrast colors. ([#1182])
+
 [#1181]: /../../pull/1181
+[#1182]: /../../pull/1182
 
 
 

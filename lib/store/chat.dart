@@ -74,7 +74,6 @@ import 'event/chat.dart';
 import 'event/favorite_chat.dart';
 import 'model/chat.dart';
 import 'model/chat_member.dart';
-import 'model/session_data.dart';
 import 'pagination.dart';
 import 'pagination/drift.dart';
 import 'pagination/drift_graphql.dart';
@@ -1867,7 +1866,7 @@ class ChatRepository extends DisposableInterface
             if (!page.info.hasNext) {
               _sessionLocal.upsert(
                 me,
-                SessionData(favoriteChatsSynchronized: true),
+                favoriteChatsSynchronized: NewType(true),
               );
             }
 
@@ -2091,7 +2090,7 @@ class ChatRepository extends DisposableInterface
           before: before,
         )).favoriteChats;
 
-    _sessionLocal.upsert(me, SessionData(favoriteChatsListVersion: query.ver));
+    _sessionLocal.upsert(me, favoriteChatsListVersion: NewType(query.ver));
 
     return Page(
       RxList(
@@ -2246,7 +2245,8 @@ class ChatRepository extends DisposableInterface
             await _pagination?.clear();
             await _sessionLocal.upsert(
               me,
-              SessionData(favoriteChatsSynchronized: false),
+              favoriteChatsSynchronized: NewType(false),
+              favoriteChatsListVersion: NewType(null),
             );
 
             await _pagination?.around();
@@ -2273,7 +2273,7 @@ class ChatRepository extends DisposableInterface
         if (versioned.ver >= listVer) {
           _sessionLocal.upsert(
             me,
-            SessionData(favoriteChatsListVersion: versioned.ver),
+            favoriteChatsListVersion: NewType(versioned.ver),
           );
 
           Log.debug(
