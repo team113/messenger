@@ -260,7 +260,7 @@ class UpgradeWorker extends DisposableService {
           duration: const Duration(days: 365),
           onPressed: () async {
             if (PlatformUtils.isWeb) {
-              await WebUtils.refresh();
+              return await WebUtils.refresh();
             }
 
             await UpgradePopupView.show(
