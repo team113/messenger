@@ -240,7 +240,7 @@ class SessionRepository extends DisposableInterface
     await WebUtils.protect(() async {
       _remoteSubscription = StreamQueue(
         await _sessionRemoteEvents(
-          _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
+          () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
         ),
       );
 
@@ -248,6 +248,10 @@ class SessionRepository extends DisposableInterface
         _sessionRemoteEvent,
         onError: (e) {
           if (e is StaleVersionException) {
+            _versionLocal.upsert(
+              _accountLocal.userId!,
+              sessionsListVersion: NewType(null),
+            );
             sessions.clear();
           }
         },
@@ -278,7 +282,7 @@ class SessionRepository extends DisposableInterface
     if (_accountLocal.userId != null) {
       _versionLocal.upsert(
         _accountLocal.userId!,
-        SessionData(sessionsListVersion: versioned.listVer),
+        sessionsListVersion: NewType(versioned.listVer),
       );
     }
 
@@ -329,7 +333,7 @@ class SessionRepository extends DisposableInterface
 
   /// Subscribes to remote [SessionEvent]s of the authenticated [MyUser].
   Future<Stream<SessionEventsVersioned>> _sessionRemoteEvents(
-    SessionsListVersion? ver,
+    SessionsListVersion? Function() ver,
   ) async {
     Log.debug('_sessionRemoteEvents(ver)', '$runtimeType');
 
@@ -357,7 +361,7 @@ class SessionRepository extends DisposableInterface
         if (_accountLocal.userId != null) {
           _versionLocal.upsert(
             _accountLocal.userId!,
-            SessionData(sessionsListVersion: e.listVer),
+            sessionsListVersion: NewType(e.listVer),
           );
         }
 

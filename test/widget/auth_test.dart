@@ -291,7 +291,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+  Stream<QueryResult<Object?>> sessionsEvents(
+    SessionsListVersion? Function() ver,
+  ) {
     return const Stream.empty();
   }
 

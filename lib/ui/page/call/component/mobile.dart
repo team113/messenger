@@ -565,7 +565,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   color:
                       ConditionalBackdropFilter.enabled
                           ? style.colors.primaryDarkOpacity70
-                          : style.colors.primaryDarkOpacity90,
+                          : style.colors.primaryAuxiliaryOpacity90,
                   backdropEnabled: true,
                   backdropOpacity: 0,
                   minHeight: minHeight,

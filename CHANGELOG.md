@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.4.0] · 2025-??-??
+[0.4.0]: /../../tree/v0.4.0
+
+[Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Dock and panels redesigned contrast colors. ([#1182])
+
+[#1182]: /../../pull/1182
+
+
+
+
 ## [0.3.3] · 2025-03-07
 [0.3.3]: /../../tree/v0.3.3
 

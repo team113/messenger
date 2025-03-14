@@ -96,8 +96,8 @@ class Launchpad extends StatelessWidget {
                       color:
                           onWillAccept != null
                               ? candidate.any(onWillAccept!)
-                                  ? style.colors.primaryDarkOpacity90
-                                  : style.colors.primaryDarkOpacity70
+                                  ? style.colors.primaryAuxiliaryOpacity95
+                                  : style.colors.primaryAuxiliaryOpacity90
                               : null,
                       borderRadius: BorderRadius.circular(30),
                     ),

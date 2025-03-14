@@ -105,7 +105,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                 color:
                     ConditionalBackdropFilter.enabled
                         ? style.colors.primaryAuxiliaryOpacity25
-                        : style.colors.primaryAuxiliaryOpacity55,
+                        : style.colors.primaryAuxiliaryOpacity90,
               ),
             ),
           );
@@ -766,7 +766,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           color:
                               ConditionalBackdropFilter.enabled
                                   ? style.colors.primaryAuxiliaryOpacity25
-                                  : style.colors.primaryAuxiliaryOpacity55,
+                                  : style.colors.primaryAuxiliaryOpacity90,
                           borderRadius: BorderRadius.circular(11),
                         ),
                         padding: const EdgeInsets.symmetric(

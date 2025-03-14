@@ -1452,16 +1452,17 @@ mixin UserGraphQlMixin {
   /// which have already been applied to the state of some Session, so a client
   /// side is expected to handle all the events idempotently considering the
   /// [ver].
-  Stream<QueryResult> sessionsEvents(SessionsListVersion? ver) {
-    Log.debug('sessionsEvents($ver)', '$runtimeType');
+  Stream<QueryResult> sessionsEvents(SessionsListVersion? Function() ver) {
+    Log.debug('sessionsEvents(ver)', '$runtimeType');
 
-    final variables = SessionsEventsArguments(ver: ver);
+    final variables = SessionsEventsArguments(ver: ver());
     return client.subscribe(
       SubscriptionOptions(
         operationName: 'SessionsEvents',
         document: SessionsEventsSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      ver: ver,
     );
   }
 
