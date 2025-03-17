@@ -272,11 +272,27 @@ class UpgradeWorker extends DisposableService {
         );
       }
 
-      await UpgradePopupView.show(
-        router.context!,
-        release: release,
-        critical: critical,
-      );
+      // Schedules the [UpgradePopupView] to be displayed only when context is
+      // not `null`.
+      Future<void> schedulePopup() async {
+        SchedulerBinding.instance.addPostFrameCallback((_) async {
+          if (isClosed) {
+            return;
+          }
+
+          if (router.context == null) {
+            return schedulePopup();
+          }
+
+          await UpgradePopupView.show(
+            router.context!,
+            release: release,
+            critical: critical,
+          );
+        });
+      }
+
+      schedulePopup();
     }
 
     if (delay) {
