@@ -75,7 +75,7 @@ class NotificationService extends DisposableService {
   /// push notifications in foreground.
   StreamSubscription? _foregroundSubscription;
 
-  /// Subscription to the [PlatformUtils.onActivityChanged] updating the
+  /// Subscription to the [PlatformUtilsImpl.onActivityChanged] updating the
   /// [_active].
   StreamSubscription? _onActivityChanged;
 
