@@ -1177,6 +1177,13 @@ label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist
 label_your_direct_link = Direct link to chat with you
+password_recovery =
+    {$domain} recovery code: {$token}
+    Valid until {$expiresAt}.
+
+    Best regards,
+    Administration of {$domain}
+password_recovery_subject = {$domain} recovery code
 plus = +
 space = {" "}
 space_or_space = {" "}or{" "}
