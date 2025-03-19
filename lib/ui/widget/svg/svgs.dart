@@ -451,39 +451,39 @@ class SvgIcons {
   );
 
   static const SvgData menuSigning = SvgData(
-    'assets/icons/menu_signing.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/signing.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuBackground = SvgData(
-    'assets/icons/menu_background.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/background.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuChats = SvgData(
-    'assets/icons/menu_chats.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/chats.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLink = SvgData(
-    'assets/icons/menu_link.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/link.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuMedia = SvgData(
-    'assets/icons/menu_media.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/media.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuCalls = SvgData(
-    'assets/icons/menu_calls.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/calls.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData blocked = SvgData(
@@ -1013,99 +1013,111 @@ class SvgIcons {
   );
 
   static const SvgData menuBlocklist = SvgData(
-    'assets/icons/menu_blocklist.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/blocklist.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDanger = SvgData(
-    'assets/icons/menu_danger.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/danger.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDonate = SvgData(
-    'assets/icons/menu_donate.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/donate.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDownload = SvgData(
-    'assets/icons/menu_download.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/download.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLanguage = SvgData(
-    'assets/icons/menu_language.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/language.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLogout = SvgData(
-    'assets/icons/menu_logout.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/logout.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuNotifications = SvgData(
-    'assets/icons/menu_notifications.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/notifications.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuPayment = SvgData(
-    'assets/icons/menu_payment.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/payment.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuStorage = SvgData(
-    'assets/icons/menu_storage.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/storage.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuWelcome = SvgData(
-    'assets/icons/menu_welcome.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/welcome.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuConfidentiality = SvgData(
+    'assets/icons/menu/confidentiality.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuInterface = SvgData(
+    'assets/icons/menu/interface.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuWork = SvgData(
-    'assets/icons/menu_work.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/work.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDevices = SvgData(
-    'assets/icons/menu_devices.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/devices.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuStyle = SvgData(
-    'assets/icons/menu_style.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/style.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuProfile = SvgData(
-    'assets/icons/menu_profile.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/profile.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLegal = SvgData(
-    'assets/icons/menu_legal.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/legal.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuSupport = SvgData(
-    'assets/icons/menu_help.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/help.svg',
+    width: 50,
+    height: 50,
   );
 
   static const List<SvgData> head = [
@@ -1772,9 +1784,9 @@ class SvgIcons {
   );
 
   static const SvgData menuNav = SvgData(
-    'assets/icons/menu_nav.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/nav.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData logo = SvgData(

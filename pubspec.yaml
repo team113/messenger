@@ -211,6 +211,7 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/icons/application/
+    - assets/icons/menu/
     - assets/icons/notification/
     - assets/images/
     - assets/images/logo/

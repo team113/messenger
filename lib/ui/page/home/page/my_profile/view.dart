@@ -285,7 +285,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         ],
       );
 
-    case ProfileTab.background:
+    case ProfileTab.interface:
       return block(
         children: [
           Obx(() {
@@ -298,15 +298,15 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         ],
       );
 
-    case ProfileTab.chats:
-      return block(children: [_chats(context, c)]);
+    // case ProfileTab.chats:
+    //   return block(children: [_chats(context, c)]);
 
-    case ProfileTab.calls:
-      if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-        return const SizedBox();
-      }
+    // case ProfileTab.calls:
+    //   if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
+    //     return const SizedBox();
+    //   }
 
-      return block(children: [_call(context, c)]);
+    //   return block(children: [_call(context, c)]);
 
     case ProfileTab.media:
       if (PlatformUtils.isMobile) {
@@ -350,10 +350,10 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 
       return block(children: [_storage(context, c)]);
 
-    case ProfileTab.language:
-      return block(children: [_language(context, c)]);
+    // case ProfileTab.language:
+    //   return block(children: [_language(context, c)]);
 
-    case ProfileTab.blocklist:
+    case ProfileTab.confidential:
       return block(children: [_blockedUsers(context, c)]);
 
     case ProfileTab.devices:
