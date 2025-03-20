@@ -557,6 +557,10 @@ fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} из {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = О себе
+label_about_you = О Вас
+label_about_you_description =
+    Любые подробности о Вас.
+    Максимум 4096 символа.
 label_account = Аккаунт
 label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
@@ -662,6 +666,7 @@ label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Заблокировать
 label_blocked = Заблокирован
 label_blocked_users = Заблокированные пользователи
+label_blocked_users_count = Заблокированные пользователи: {$count}
 label_cache = Кэш
 label_cache_and_downloads = Кэш
 label_call_active = Активный звонок
@@ -725,6 +730,7 @@ label_conditions_ui_ux_designer =
     - ежедневная оплата;
     - 4-х, 6-ти или 8-ми часовой рабочий день;
     - учёт рабочего времени и оплата переработок.
+label_confidentiality = Конфиденциальность
 label_confirm = Подтвердить
 label_confirm_account_deletion = Подтверждение удаления аккаунта
 label_confirmation_code = Код подтверждения
@@ -789,6 +795,7 @@ label_display_audio_and_video_call_buttons = Отображать кнопки �
 label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
+label_download_path = Путь для загрузок
 label_draft = Черновик
 label_drop_here =
     Перетащите сюда,
@@ -851,6 +858,7 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_info = Информация
+label_interface = Интерфейс
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:
 
@@ -860,6 +868,15 @@ label_introduction_description1 =
     Чтобы сохранить доступ к аккаунту, пожалуйста, в{" "}
 label_introduction_description2 = настройках
 label_introduction_description3 = {" "}задайте пароль или e-mail.
+label_introduction_description =
+    Доступ к аккаунту сохраняется в течение одного года или пока:
+
+        • Вы не удалите куки / кэш;
+        • Вы не нажмёте кнопку "Выйти".
+
+    Для сохранения доступа к Вашему аккаунту задайте пароль или e-mail.
+label_introduction_description_email = E-mail не привязан. В случае утери пароля восстановление доступа невозможно.
+label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} Б
 label_kb = {$amount} КБ
 label_mb = {$amount} МБ
@@ -868,10 +885,11 @@ label_tb = {$amount} ТБ
 label_pb = {$amount} ПБ
 label_keep_credentials = Запомнить данные
 label_language = Язык
+label_language_and_background = Язык, бэкграунд
 label_language_entry = {$code}, {$name}
 label_leave_group = Покинуть группу
 label_legal_information = Юридическая информация
-label_link_to_chat = Ссылка на чат
+label_link_to_chat = Ссылка на Вас
 label_linked_devices = Связанные устройства
 label_load_images = Загружать изображения
 label_login = Логин
@@ -887,10 +905,11 @@ label_media_buttons_in_context_menu = В контекстном меню
 label_media_buttons_in_more = В поле сообщения
 label_media_buttons_in_top = В чате сверху
 label_media_camera = Камера
+label_media_devices = Медиа устройства
 label_media_microphone = Микрофон
 label_media_no_device_available = Нет доступных устройств
 label_media_output = Спикер
-label_media_section_hint = Аудио и видео устройства
+label_media_section_hint = Микрофон, спикер, камера
 label_media_settings = Настройки медиа
 label_menu = Меню
 label_message = Сообщение
@@ -921,6 +940,7 @@ label_mute_for = {$days ->
     *[other] {$days} дней
 }
 label_mute_chat_for = Заглушить чат на
+label_mute_or_unmute_chats = Выключить или включить уведомления
 label_my_contacts = Мои контакты
 label_name = Имя
 label_name_hint = Ваше видимое всем имя
@@ -1059,6 +1079,7 @@ label_review = Ревью
 label_review_freelance =
     - выполненная задача должна пройти ревью кода;
     - запрос на ревью выполненной задачи, комментарии, пояснения, аргументы должны размещаться публично на GitHub в соответствующей ветке или пул-реквесте.
+label_saved_files = Сохранённые файлы
 label_screen_sharing = Демонстрация экрана
 label_search = Поиск
 label_search_hint = Поиск по Gapopa ID, логину или имени
@@ -1072,6 +1093,7 @@ label_service_connected = Сервис успешно подключен
 label_service_encountered_error = Сервис столкнулся с ошибкой
 label_service_initialized = Сервис инициализирован
 label_service_reconnecting = Сервис переподключается...
+label_set_cache_limits = Установить лимиты кэша
 label_set_new_password = Задайте новый пароль для входа в аккаунт
 label_set_password = Задать пароль
 label_settings = Настройки
@@ -1131,6 +1153,8 @@ label_tech_stack_frontend_developer =
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
 label_tech_stack_ui_ux_designer = - Figma - вёрстка и прототипирование.
+label_text_status = Текстовый статус
+label_text_status_description = Максимум 25 символов
 label_this_device = Это устройство
 label_to_restore_chat_use_search = Чтобы восстановить чат, пожалуйста, воспользуйтесь поиском.
 label_to_restore_chats_use_search = Чтобы восстановить чаты, пожалуйста, воспользуйтесь поиском.
@@ -1173,6 +1197,7 @@ label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с
 label_waiting_for_connection = Ожидание подключения...
+label_warning = Внимание
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
@@ -1204,6 +1229,9 @@ label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
 label_your_blocklist = Ваш чёрный список
 label_your_direct_link = Прямая ссылка на чат с Вами
+label_your_name = Ваше имя
+label_your_password = Ваш пароль
+label_your_status = Ваш статус
 plus = +
 space = {" "}
 space_or_space = {" "}или{" "}

@@ -15,12 +15,15 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../../domain/repository/session.dart';
+import '../../../../../../themes.dart';
+import '../widget/session_tile.dart';
 import '/domain/model/session.dart';
 import '/l10n/l10n.dart';
-import '/ui/page/home/widget/info_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -32,78 +35,164 @@ import 'controller.dart';
 ///
 /// Intended to be displayed with the [show] method.
 class DeleteSessionView extends StatelessWidget {
-  const DeleteSessionView({super.key, required this.session});
+  const DeleteSessionView({
+    super.key,
+    this.sessions = const [],
+    this.exceptCurrent = false,
+  });
 
-  /// [Session] to delete.
-  final Session session;
+  /// [Session]s to delete.
+  final List<RxSession> sessions;
+
+  final bool exceptCurrent;
 
   /// Displays a [DeleteSessionView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(BuildContext context, Session session) {
+  static Future<T?> show<T>(
+    BuildContext context,
+    List<RxSession> sessions, {
+    bool exceptCurrent = false,
+  }) {
     return ModalPopup.show(
       context: context,
-      child: DeleteSessionView(session: session),
+      child: DeleteSessionView(
+        sessions: sessions,
+        exceptCurrent: exceptCurrent,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final style = Theme.of(context).style;
+
     return GetBuilder(
       init: DeleteSessionController(
         Get.find(),
         pop: context.popModal,
-        session: session,
+        sessions: sessions,
       ),
       builder: (DeleteSessionController c) {
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ModalPopupHeader(text: 'label_delete_device'.l10n),
-            const SizedBox(height: 13),
-            Flexible(
-              child: Padding(
-                padding: ModalPopup.padding(context),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InfoTile(
-                      title: session.lastActivatedAt.val.yMdHm,
-                      content: session.userAgent.localized,
-                    ),
-                    const SizedBox(height: 21),
-                    Obx(() {
-                      return ReactiveTextField(
-                        key: const Key('PasswordField'),
-                        state: c.password,
-                        label: 'label_current_password'.l10n,
-                        obscure: c.obscurePassword.value,
-                        onSuffixPressed: c.obscurePassword.toggle,
-                        treatErrorAsStatus: false,
-                        trailing: SvgIcon(
-                          c.obscurePassword.value
-                              ? SvgIcons.visibleOff
-                              : SvgIcons.visibleOn,
-                        ),
-                      );
-                    }),
-                    const SizedBox(height: 21),
-                    Obx(() {
-                      return PrimaryButton(
+        return Obx(() {
+          final List<Widget> children;
+
+          switch (c.stage.value) {
+            case DeleteSessionStage.info:
+              children = [
+                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                const SizedBox(height: 13),
+                Flexible(
+                  child: ListView(
+                    padding: ModalPopup.padding(context),
+                    shrinkWrap: true,
+                    children: [
+                      if (sessions.length > 1 || exceptCurrent)
+                        Center(
+                          child: Text(
+                            'All sessions except this one will be terminated',
+                            style: style.fonts.small.regular.secondary,
+                          ),
+                        )
+                      else
+                        SessionTileWidget(sessions.first),
+                      SizedBox(height: 21),
+                      PrimaryButton(
                         key: const Key('ProceedButton'),
                         onPressed:
-                            c.password.isEmpty.isTrue
-                                ? null
-                                : c.password.submit,
+                            () => c.stage.value = DeleteSessionStage.confirm,
                         title: 'btn_proceed'.l10n,
-                      );
-                    }),
-                  ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case DeleteSessionStage.confirm:
+              children = [
+                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                const SizedBox(height: 13),
+                Flexible(
+                  child: ListView(
+                    padding: ModalPopup.padding(context),
+                    shrinkWrap: true,
+                    children: [
+                      // SizedBox(height: 21),
+                      Text(
+                        'Please, enter your password or one-time code. The one-time code has been sent to your e-mails and is valid for 30 minutes.\n'
+                        '\n'
+                        'If you did not receive e-mail, please check your spam folder.',
+                        style: style.fonts.small.regular.secondary,
+                      ),
+                      const SizedBox(height: 21),
+                      Obx(() {
+                        return ReactiveTextField(
+                          key: const Key('PasswordField'),
+                          state: c.password,
+                          label: 'Password or one-time code'.l10n,
+                          hint: 'Enter password or code',
+                          obscure: c.obscurePassword.value,
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          onSuffixPressed: c.obscurePassword.toggle,
+                          treatErrorAsStatus: false,
+                          trailing: Center(
+                            child: SvgIcon(
+                              c.obscurePassword.value
+                                  ? SvgIcons.visibleOff
+                                  : SvgIcons.visibleOn,
+                            ),
+                          ),
+                        );
+                      }),
+                      const SizedBox(height: 21),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            child: Obx(() {
+                              return PrimaryButton(
+                                key: const Key('ProceedButton'),
+                                onPressed:
+                                    c.password.isEmpty.isTrue
+                                        ? null
+                                        : c.password.submit,
+                                danger: true,
+                                title: 'Terminate'.l10n,
+                              );
+                            }),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+
+            case DeleteSessionStage.done:
+              children = [
+                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                const SizedBox(height: 13),
+                PrimaryButton(
+                  onPressed: Navigator.of(context).pop,
+                  title: 'Ok'.l10n,
+                ),
+                const SizedBox(height: 16),
+              ];
+              break;
+          }
+
+          return AnimatedSizeAndFade(
+            fadeDuration: Duration(milliseconds: 250),
+            sizeDuration: Duration(milliseconds: 250),
+            child: Column(
+              key: Key('${c.stage.value}'),
+              mainAxisSize: MainAxisSize.min,
+              children: children,
             ),
-            const SizedBox(height: 16),
-          ],
-        );
+          );
+        });
       },
     );
   }

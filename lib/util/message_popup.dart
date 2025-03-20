@@ -17,6 +17,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../ui/widget/outlined_rounded_button.dart';
+import '../ui/widget/svg/svg.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -119,6 +121,37 @@ class MessagePopup {
     onPressed: onPressed,
     at: at,
   );
+
+  /// Returns the proceed button, which invokes [NavigatorState.pop].
+  static Widget deleteButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        OutlinedRoundedButton(
+          maxWidth: double.infinity,
+          onPressed: () => Navigator.of(context).pop(true),
+          color: style.colors.danger,
+          child: Text(
+            label ?? 'btn_delete'.l10n,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onPrimary,
+          ),
+        ),
+        Positioned(
+          top: 0,
+          bottom: 0,
+          left: 16,
+          child: IgnorePointer(child: SvgIcon(icon ?? SvgIcons.delete19White)),
+        ),
+      ],
+    );
+  }
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

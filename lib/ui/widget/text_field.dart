@@ -57,6 +57,7 @@ class ReactiveTextField extends StatelessWidget {
     this.padding,
     this.prefix,
     this.prefixText,
+    this.prefixStyle,
     this.style,
     this.suffix,
     this.textAlign = TextAlign.start,
@@ -149,6 +150,8 @@ class ReactiveTextField extends StatelessWidget {
 
   /// Optional text prefix to display before the input.
   final String? prefixText;
+
+  final TextStyle? prefixStyle;
 
   /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
   /// be treated as a [RxStatus.error].
@@ -372,6 +375,7 @@ class ReactiveTextField extends StatelessWidget {
                           color: style.colors.secondaryHighlightDarkest,
                         ),
                 prefixText: prefixText,
+                prefixStyle: prefixStyle,
                 prefix: prefix,
                 fillColor: fillColor ?? style.colors.onPrimary,
                 filled: filled ?? true,

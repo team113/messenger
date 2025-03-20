@@ -1738,6 +1738,17 @@ class OngoingCall {
 
       try {
         await initLocalTracks();
+      } on LocalMediaInitException catch (e) {
+        audioState.value = LocalTrackState.disabled;
+        videoState.value = LocalTrackState.disabled;
+        screenShareState.value = LocalTrackState.disabled;
+
+        if (e.message().contains('Permission denied')) {
+          _notifications.add(MicrophonePermissionDeniedNotification());
+        } else {
+          addError('initLocalTracks() call failed due to: ${e.message()}');
+          rethrow;
+        }
       } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;

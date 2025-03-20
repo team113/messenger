@@ -1860,4 +1860,70 @@ class SvgIcons {
     width: 19,
     height: 19,
   );
+
+  static const SvgData emailWhite = SvgData(
+    'assets/icons/email_white.svg',
+    width: 21.93,
+    height: 22.5,
+  );
+
+  static const SvgData emailGrey = SvgData(
+    'assets/icons/email_grey.svg',
+    width: 21.93,
+    height: 22.5,
+  );
+
+  static const SvgData mediaDevicesCamera = SvgData(
+    'assets/icons/media_devices_camera.svg',
+    width: 22,
+    height: 20,
+  );
+
+  static const SvgData mediaDevicesMicrophone = SvgData(
+    'assets/icons/media_devices_microphone.svg',
+    width: 18,
+    height: 22,
+  );
+
+  static const SvgData mediaDevicesSpeaker = SvgData(
+    'assets/icons/media_devices_speaker.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData userAgentMacOs = SvgData(
+    'assets/icons/user_agent/macos.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentIOs = SvgData(
+    'assets/icons/user_agent/ios.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentAndroid = SvgData(
+    'assets/icons/user_agent/android.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentLinux = SvgData(
+    'assets/icons/user_agent/linux.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentWindows = SvgData(
+    'assets/icons/user_agent/windows.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData none = SvgData(
+    'assets/icons/none.svg',
+    width: 1,
+    height: 1,
+  );
 }

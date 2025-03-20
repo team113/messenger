@@ -162,7 +162,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
-btn_call_uncenter = Uncenter
+btn_call_uncenter = De-center
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
@@ -549,6 +549,10 @@ fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
+label_about_you = About you
+label_about_you_description =
+    Any details about you.
+    4096 symbols max.
 label_account = Account
 label_accounts = Your accounts
 label_account_created = Account is created
@@ -641,6 +645,7 @@ label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Block
 label_blocked = Blocked
 label_blocked_users = Blocked users
+label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
 label_cache_and_downloads = Cache
 label_call_active = Active call
@@ -704,6 +709,7 @@ label_conditions_ui_ux_designer =
     - Daily payments;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices.
+label_confidentiality = Confidentiality
 label_confirm = Confirm
 label_confirm_account_deletion = Confirm account deletion
 label_confirmation_code = Confirmation code
@@ -767,6 +773,7 @@ label_display_audio_and_video_call_buttons = Display audio and video call button
 label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
+label_download_path = Download path
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -786,7 +793,7 @@ label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
 label_enter_password_below = Please, enter your password in the field below.
-label_entrance = Login
+label_entrance = Sign in
 label_error = Error
 label_favorite_contacts = Favorite
 label_file_downloaded = File downloaded
@@ -829,6 +836,7 @@ label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_info = Info
+label_interface = Interface
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 
@@ -838,6 +846,15 @@ label_introduction_description1 =
     To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
+label_introduction_description =
+    You have access to your account during one year or until:
+
+         • you click the button "Sign out";
+         • the token has been invalidated due to technical issues (cookie / cache lost; OS / browser / application updated; connection certifications changed; etc...).
+
+    To save access to your account, set a password and/or e-mail.
+label_introduction_description_email = No e-mail is linked. Access to your account will be lost if you forget the password.
+label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} B
 label_kb = {$amount} KB
 label_mb = {$amount} MB
@@ -846,16 +863,17 @@ label_tb = {$amount} TB
 label_pb = {$amount} PB
 label_keep_credentials = Keep credentials
 label_language = Language
+label_language_and_background = Language, background
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
 label_leave_group = Leave group
 label_legal_information = Legal information
-label_link_to_chat = Chat link
+label_link_to_chat = Links to you
 label_linked_devices = Linked devices
 label_load_images = Load images
 label_login = Login
 label_login_hint = Your unique login
-label_login_options = Login options
+label_login_options = Sign in options
 label_login_section_hint = Password and e-mail
 label_login_visibility_hint = Unique login is an additional unique identifier for your account.
 label_login_visible = Your login is visible to:{" "}
@@ -866,10 +884,11 @@ label_media_buttons_in_context_menu = In the context menu
 label_media_buttons_in_more = In the message field
 label_media_buttons_in_top = In the chat above
 label_media_camera = Camera
+label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Speaker
-label_media_section_hint = Audio and video devices
+label_media_section_hint = Microphone, speaker, camera
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
@@ -897,6 +916,7 @@ label_mute_for = {$days ->
     *[other] {$days} days
 }
 label_mute_chat_for = Mute chat for
+label_mute_or_unmute_chats = Mute or unmute chats
 label_my_contacts = My contacts
 label_name = Name
 label_name_hint = Your publicly visible name
@@ -1034,6 +1054,7 @@ label_review = Review
 label_review_freelance =
     - a completed task should pass the review of the code;
     - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
+label_saved_files = Saved files
 label_screen_sharing = Screen sharing
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
@@ -1047,6 +1068,7 @@ label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
+label_set_cache_limits = Set cache limits
 label_set_new_password = Set a new password to log into your account
 label_set_password = Set password
 label_settings = Settings
@@ -1104,6 +1126,8 @@ label_tech_stack_frontend_developer =
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
 label_tech_stack_ui_ux_designer = - Figma - layout and prototyping.
+label_text_status = Text status
+label_text_status_description = 25 symbols max
 label_this_device = This device
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
@@ -1145,6 +1169,7 @@ label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
+label_warning = Warning
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link
@@ -1177,6 +1202,9 @@ label_you = You
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist
 label_your_direct_link = Links to the chat with you
+label_your_name = Your name
+label_your_password = Your password
+label_your_status = Your status
 plus = +
 space = {" "}
 space_or_space = {" "}or{" "}
