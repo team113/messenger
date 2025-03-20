@@ -25,7 +25,7 @@ import '/domain/service/my_user.dart';
 
 export 'view.dart';
 
-/// Controller of a [CallWindowSwitchView].
+/// Controller of a [PresenceSwitchView].
 class PresenceSwitchController extends GetxController {
   PresenceSwitchController(this._myUserService);
 

@@ -35,10 +35,7 @@ class PresenceSwitchView extends StatelessWidget {
 
   /// Displays a [PresenceSwitchView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(
-      context: context,
-      child: const PresenceSwitchView(),
-    );
+    return ModalPopup.show(context: context, child: const PresenceSwitchView());
   }
 
   @override
@@ -54,7 +51,7 @@ class PresenceSwitchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              ModalPopupHeader(text: 'Your status'.l10n),
+              ModalPopupHeader(text: 'label_your_status'.l10n),
               const SizedBox(height: 13),
               Flexible(
                 child: ListView(
@@ -91,13 +88,12 @@ class PresenceSwitchView extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(width: 5),
-                                Text(
-                                  switch (e) {
-                                    Presence.present => 'Online',
-                                    Presence.away => 'Away',
-                                    (_) => '',
-                                  },
-                                ),
+                                Text(switch (e) {
+                                  Presence.present =>
+                                    'label_presence_present'.l10n,
+                                  Presence.away => 'label_presence_away'.l10n,
+                                  (_) => '',
+                                }),
                               ],
                             ),
                           ),

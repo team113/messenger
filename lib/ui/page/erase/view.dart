@@ -62,7 +62,7 @@ class EraseView extends StatelessWidget {
             key: const Key('EraseScrollable'),
             children: [
               Block(
-                title: 'WARNING'.l10n,
+                title: 'label_warning_uppercase'.l10n,
                 titleStyle: style.fonts.large.regular.onBackground.copyWith(
                   color: style.colors.danger,
                 ),

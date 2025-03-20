@@ -1170,6 +1170,7 @@ label_visible_to = Visible to:
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
 label_warning = Warning
+label_warning_uppercase = WARNING
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link

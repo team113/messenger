@@ -1198,6 +1198,7 @@ label_visible_to = Видят:
 label_wait_seconds = Подождите {$for} с
 label_waiting_for_connection = Ожидание подключения...
 label_warning = Внимание
+label_warning_uppercase = ВНИМАНИЕ
 label_was_added = {$author} вступил(а) по прямой ссылке
 label_was_added1 = {$author}
 label_was_added2 = {" "}вступил(а) по прямой ссылке
