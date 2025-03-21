@@ -21,9 +21,19 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Dock and panels redesigned contrast colors. ([#1182])
+    - Redesigned my profile page. ([#1185])
+    - Redesigned menu tab labels and icons. ([#1185])
+
+### Fixed
+
+- UI:
+    - User page:
+        - Missing localization for biography expand button. ([#1185], [#1186])
 
 [#1181]: /../../pull/1181
 [#1182]: /../../pull/1182
+[#1185]: /../../pull/1185
+[#1186]: /../../issues/1186
 
 
 

@@ -206,6 +206,7 @@ btn_download_all = Download all
 btn_download_all_as = Download all as
 btn_download_as = Download as
 btn_download_application = Download application
+btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
 btn_feedback = Feedback
@@ -223,6 +224,7 @@ btn_help = Help
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
+btn_install_web_app = Install Web App
 btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
@@ -279,6 +281,8 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terminate_all_other_sessions = Terminate all other sessions
+btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
@@ -558,6 +562,8 @@ label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
 label_active_account = Active
+label_active_devices = Active devices
+label_active_sessions = Active sessions
 label_add_account = Add account
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
@@ -618,6 +624,8 @@ label_ago_date = {$years ->
     *[other] {$years} years ago
 }
 label_all = All
+label_all_chats_and_groups = All chats and groups
+label_always_muted = Always muted
 label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
@@ -648,6 +656,7 @@ label_blocked_users = Blocked users
 label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
 label_cache_and_downloads = Cache
+label_cache_limit_gb = Cache limit: {$gb} GB
 label_call_active = Active call
 label_call_calling = Calling
 label_call_connecting = Connection preparing
@@ -681,6 +690,7 @@ label_chat_monolog = Your notes
 label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
 label_chat_name_hint = Chat name
 label_chats = Chats
+label_chats_and_groups = Chats and groups: {$count}
 label_chats_section_hint = Audio and video call buttons
 label_clear_history = Clear history
 label_clicks_count = {$count} clicks
@@ -749,6 +759,7 @@ label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_description = Description
+label_desktop_apps = Desktop apps
 label_details = Details.
 label_device_by_default = By default - {$device}
 label_devices = Devices
@@ -773,6 +784,7 @@ label_display_audio_and_video_call_buttons = Display audio and video call button
 label_display_timestamps = Display timestamps
 label_download = Download
 label_download_application = Download application
+label_download_and_update = Download and update
 label_download_path = Download path
 label_draft = Draft
 label_drop_here =
@@ -795,6 +807,7 @@ label_enter_confirmation_code_hint = Enter confirmation code
 label_enter_password_below = Please, enter your password in the field below.
 label_entrance = Sign in
 label_error = Error
+label_expandable_more = more
 label_favorite_contacts = Favorite
 label_file_downloaded = File downloaded
 label_files_downloaded = Files are downloaded
@@ -831,6 +844,7 @@ label_hint_drag_n_drop_video =
 
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
+label_identifiers = Identifiers
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
@@ -866,6 +880,7 @@ label_language = Language
 label_language_and_background = Language, background
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
+label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
 label_legal_information = Legal information
 label_link_to_chat = Links to you
@@ -896,6 +911,7 @@ label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_messages_will_deleted_for_you = The messages will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
+label_mobile_apps = Mobile apps
 label_money = Money
 label_money_freelance =
     - payment upon completion of the task. A task is considered completed when it passes the review.
@@ -917,6 +933,10 @@ label_mute_for = {$days ->
 }
 label_mute_chat_for = Mute chat for
 label_mute_or_unmute_chats = Mute or unmute chats
+label_muted = Muted
+label_muted_chats = Muted chats
+label_muted_until_i_turn_on = Muted until I turn it on
+label_muted_until_period = Muted until: {$period}
 label_my_contacts = My contacts
 label_name = Name
 label_name_hint = Your publicly visible name
@@ -942,6 +962,7 @@ label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
+label_occupied_space = Occupied
 label_off = Off
 label_offline = offline
 label_one_time_password = One-time password
@@ -965,8 +986,12 @@ label_password_not_set_info = No password has been set for your account. Consequ
 label_password_set = Password has been set.
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
-label_personal_data_deletion_description =
-    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+label_personal_data_deletion_description1 = This process is{" "}
+label_personal_data_deletion_description2 = IRREVERSIBLE
+label_personal_data_deletion_description3 = . Restoration of your account is{" "}
+label_personal_data_deletion_description4 = IMPOSSIBLE
+label_personal_data_deletion_description5 =
+    {"."}
 
     The data that will be deleted is:
     - your avatar;
@@ -974,12 +999,6 @@ label_personal_data_deletion_description =
     - your biography;
     - all of your emails;
     - all of your phone numbers.
-
-    The data that will not be deleted:
-    - your Gapopa ID, as is does not represent personal information;
-    - the messages you have sent, however no one will see you as an author of those messages.
-
-    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
@@ -997,6 +1016,7 @@ label_public_section_hint = Name, profile picture, about
 label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
+label_reason_described = Reason: {$reason}
 label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
@@ -1134,12 +1154,13 @@ label_to_restore_chats_use_search = To restore the chats, please, use the search
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
-label_unknown_page = Unknown page
 label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
+label_unknown_page = Unknown page
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
+label_unmuted = Unmuted
 label_update_is_available = Update is available
 label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user

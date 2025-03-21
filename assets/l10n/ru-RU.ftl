@@ -206,6 +206,7 @@ btn_download_all = Скачать всё
 btn_download_all_as = Скачать всё как
 btn_download_as = Скачать как
 btn_download_application = Скачать приложение
+btn_download_version = Скачать {$version}
 btn_edit = Редактировать
 btn_email = E-mail
 btn_feedback = Пожелания и предложения
@@ -223,6 +224,7 @@ btn_help = Помощь
 btn_hide = Скрыть
 btn_hide_chat = Скрыть чат
 btn_info = Информация
+btn_install_web_app = Установить Веб приложение
 btn_join_call = Присоединиться к звонку
 btn_leave = Выйти
 btn_leave_chat = Выйти из чата
@@ -280,6 +282,8 @@ btn_submit = Применить
 btn_take_photo = Фото
 btn_take_video = Видео
 btn_terms_and_conditions = Условия использования
+btn_terminate_all_other_sessions = Завершить все остальные сессии
+btn_terminate_this_session = Завершить данную сессию
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
 btn_undo_delete = Отменить удаление
@@ -566,6 +570,8 @@ label_accounts = Ваши аккаунты
 label_account_created = Аккаунт создан
 label_actions = Действия
 label_active_account = Текущий
+label_active_devices = Активные устройства
+label_active_sessions = Активные сессии
 label_add_account = Добавить аккаунт
 label_add_additional_email = Добавить дополнительный E-mail
 label_add_additional_number = Добавить дополнительный телефон
@@ -638,6 +644,8 @@ label_ago_date = {$years ->
     *[other] {$years} лет назад
 }
 label_all = Все
+label_all_chats_and_groups = Все чаты и группы
+label_always_muted = Приглушенные чаты
 label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
@@ -669,6 +677,7 @@ label_blocked_users = Заблокированные пользователи
 label_blocked_users_count = Заблокированные пользователи: {$count}
 label_cache = Кэш
 label_cache_and_downloads = Кэш
+label_cache_limit_gb = Лимит кэша: {$gb} ГБ
 label_call_active = Активный звонок
 label_call_calling = Звоним
 label_call_connecting = Подготовка соединения
@@ -702,6 +711,7 @@ label_chat_monolog = Ваши заметки
 label_chat_monolog_description = Отображаются только Вам. Могут содержать любое количество сообщений. Могут содержать любой контент.
 label_chat_name_hint = Название чата
 label_chats = Чаты
+label_chats_and_groups = Чаты и группы: {$count}
 label_chats_section_hint = Кнопки аудио и видео звонка
 label_clear_history = Очистить историю
 label_clicks_count = {$count} кликов
@@ -771,6 +781,7 @@ label_delete_messages = Удалить сообщения?
 label_delete_phone_number = Удалить номер телефона
 label_delivered = Доставлено
 label_description = Описание
+label_desktop_apps = Десктопные приложения
 label_details = Подробнее.
 label_device_by_default = По умолчанию - {$device}
 label_devices = Устройства
@@ -795,6 +806,7 @@ label_display_audio_and_video_call_buttons = Отображать кнопки �
 label_display_timestamps = Отображать метки времени
 label_download = Скачать
 label_download_application = Скачать приложение
+label_download_and_update = Скачать и обновить
 label_download_path = Путь для загрузок
 label_draft = Черновик
 label_drop_here =
@@ -817,6 +829,7 @@ label_enter_confirmation_code_hint = Введите проверочный ко�
 label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
 label_entrance = Вход
 label_error = Ошибка
+label_expandable_more = ещё
 label_favorite_contacts = Избранные
 label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
@@ -853,6 +866,7 @@ label_hint_drag_n_drop_video =
 
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
+label_identifiers = Идентификаторы
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
@@ -887,6 +901,8 @@ label_keep_credentials = Запомнить данные
 label_language = Язык
 label_language_and_background = Язык, бэкграунд
 label_language_entry = {$code}, {$name}
+label_last_seen = Был(а) в сети
+label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
 label_legal_information = Юридическая информация
 label_link_to_chat = Ссылка на Вас
@@ -917,6 +933,7 @@ label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.
 label_messages_will_deleted_for_you = Сообщения будут удалены только для Вас.
 label_microphone_changed = Микрофон был изменён на {$microphone}
+label_mobile_apps = Мобильные приложения
 label_money = Деньги
 label_money_freelance =
     - оплата по факту выполнения задачи. Выполненной считается задача, прошедшая ревью;
@@ -941,6 +958,10 @@ label_mute_for = {$days ->
 }
 label_mute_chat_for = Заглушить чат на
 label_mute_or_unmute_chats = Выключить или включить уведомления
+label_muted = Выключен звук
+label_muted_chats = Приглушённые чаты
+label_muted_until_i_turn_on = Выключено пока я не включу
+label_muted_until_period = Выключено до: {$period}
 label_my_contacts = Мои контакты
 label_name = Имя
 label_name_hint = Ваше видимое всем имя
@@ -966,6 +987,7 @@ label_nobody = Никто
 label_nothing_found = Ничего не найдено
 label_notifications = Уведомления
 label_num = Gapopa ID
+label_occupied_space = Занято
 label_off = Выкл
 label_offline = офлайн
 label_one_time_password = Одноразовый пароль
@@ -989,21 +1011,19 @@ label_password_not_set_info = Для Вашего аккаунта не зада
 label_password_set = Пароль задан.
 label_personal_data_deletion = Удалить аккаунт
 label_personal_data_deletion_authorize = Чтобы удалить Ваш аккаунт, пожалуйста, авторизуйтесь в форме ниже.
-label_personal_data_deletion_description =
-    Запрос на удаление аккаунта может быть отправлен с данной страницы. Этот процесс НЕОБРАТИМ - Вы не сможете восстановить свой аккаунт.
+label_personal_data_deletion_description1 = Данный процесс{" "}
+label_personal_data_deletion_description2 = НЕОБРАТИМ
+label_personal_data_deletion_description3 = . Восстановление Вашего аккаунта{" "}
+label_personal_data_deletion_description4 = НЕВОЗМОЖНО
+label_personal_data_deletion_description5 =
+    {"."}
 
-    Информация, которая будет удалена:
+    Данные, которые будут удалены:
     - Ваш аватар;
     - Ваше имя;
     - Ваша биография;
-    - все Ваши e-mail адреса;
+    - все Ваши e-mail'ы;
     - все Ваши номера телефонов.
-
-    Информация, которая не будет удалена:
-    - Ваш Gapopa ID, поскольку он не является персональной информацией;
-    - отправленные Вами сообщения, при этом никто не сможет идентифицировать, что автором этих сообщений были или являетесь Вы.
-
-    Ни один пользователь не сможет найти, идентифицировать или обнаружить информацию о Вашем присутствии в системе.
 label_personalization = Персонализация
 label_phone = Телефон
 label_phone_confirmation_code_was_send =
@@ -1021,6 +1041,7 @@ label_public_section_hint = Аватар, имя, о себе
 label_read_at = Прочитано: {$date}
 label_read_by = Прочитано
 label_reason = Причина
+label_reason_described = Причина: {$reason}
 label_recent = Недавние
 label_reconnecting_ellipsis = Переподключение...
 label_recover_account = Восстановление доступа
@@ -1168,6 +1189,7 @@ label_unread_messages = {$quantity ->
     [few] {$quantity} непрочитанных сообщения
     *[other] {$quantity} непрочитанных сообщений
 }
+label_unmuted = Включен звук
 label_update_is_available = Доступно обновление
 label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя

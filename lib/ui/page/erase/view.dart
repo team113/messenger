@@ -70,26 +70,27 @@ class EraseView extends StatelessWidget {
                   Text.rich(
                     TextSpan(
                       children: [
-                        TextSpan(text: 'This process is '),
                         TextSpan(
-                          text: 'IRREVERSIBLE',
-                          style: style.fonts.small.regular.onBackground,
+                          text:
+                              'label_personal_data_deletion_description1'.l10n,
                         ),
-                        TextSpan(text: '. Restoration of your account is '),
                         TextSpan(
-                          text: 'IMPOSSIBLE',
+                          text:
+                              'label_personal_data_deletion_description2'.l10n,
                           style: style.fonts.small.regular.onBackground,
                         ),
                         TextSpan(
                           text:
-                              '.\n'
-                              '\n'
-                              'The data that will be deleted is:\n'
-                              '- your avatar;\n'
-                              '- your name;\n'
-                              '- your biography;\n'
-                              '- all of your emails;\n'
-                              '- all of your phone numbers.',
+                              'label_personal_data_deletion_description3'.l10n,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description4'.l10n,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description5'.l10n,
                         ),
                       ],
                     ),

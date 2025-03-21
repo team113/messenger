@@ -25,9 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-// import 'package:universal_io/io.dart';
 
-import '../../../../worker/upgrade.dart';
 import '/api/backend/schema.dart'
     show AddUserEmailErrorCode, AddUserPhoneErrorCode, Presence, CropAreaInput;
 import '/domain/model/application_settings.dart';
@@ -53,6 +51,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/ui/worker/upgrade.dart';
 import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -301,6 +300,11 @@ class MyProfileController extends GetxController {
   Rx<Release?> get latestRelease => _upgradeWorker.latest;
 
   Rx<Directory?> get downloadsDirectory => _cacheWorker.downloadsDirectory;
+
+  int get mutedChatsCount =>
+      _chatService.paginated.values
+          .where((e) => e.chat.value.muted != null)
+          .length;
 
   @override
   void onInit() {

@@ -79,6 +79,7 @@ import 'controller.dart';
 import 'delete_email/view.dart';
 import 'language/view.dart';
 import 'microphone_switch/view.dart';
+import 'muted_chats/view.dart';
 import 'output_switch/view.dart';
 import 'password/view.dart';
 import 'presence_switch/view.dart';
@@ -363,21 +364,30 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
     case ProfileTab.notifications:
       return block(
         children: [
-          LineDivider('All chats and groups'),
+          LineDivider('label_all_chats_and_groups'.l10n),
           const SizedBox(height: 16),
           Obx(() {
             final bool isMuted = c.myUser.value?.muted == null;
 
             return SwitchField(
-              text: isMuted ? 'Unmuted'.l10n : 'Muted'.l10n,
+              text: isMuted ? 'label_unmuted'.l10n : 'label_muted'.l10n,
               value: isMuted,
               onChanged: c.isMuting.value ? null : c.toggleMute,
             );
           }),
           const SizedBox(height: 20),
-          LineDivider('Always muted'),
+          LineDivider('label_always_muted'.l10n),
           const SizedBox(height: 16),
-          FieldButton(text: 'Chats and groups: 0', onPressed: () {}),
+          Obx(() {
+            return FieldButton(
+              text: 'label_chats_and_groups'.l10nfmt({
+                'count': c.mutedChatsCount,
+              }),
+              onPressed: () async {
+                await MutedChatsView.show(context);
+              },
+            );
+          }),
           const SizedBox(height: 8),
         ],
       );
@@ -553,7 +563,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 4),
-        LineDivider('Identifiers'.l10n),
+        LineDivider('label_identifiers'.l10n),
         const SizedBox(height: 20),
         Obx(() {
           return ReactiveTextField(
@@ -1146,7 +1156,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
               shrinkWrap: true,
               children: [
                 if (current != null) ...[
-                  LineDivider('This device'),
+                  LineDivider('label_this_device'.l10n),
                   SizedBox(height: 12),
                   SessionTileWidget(current, isCurrent: true),
                   if (sessions.isNotEmpty) ...[
@@ -1161,7 +1171,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
                           );
                         },
                         child: Text(
-                          'Terminate all other sessions',
+                          'btn_terminate_all_other_sessions'.l10n,
                           style: style.fonts.small.regular.danger,
                         ),
                       ),
@@ -1170,7 +1180,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
                 ],
                 if (sessions.isNotEmpty) ...[
                   if (current != null) SizedBox(height: 20),
-                  LineDivider('Active devices'),
+                  LineDivider('label_active_devices'.l10n),
                   SizedBox(height: 12),
                   ...sessions.map((e) {
                     return Column(
@@ -1183,7 +1193,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
                               await DeleteSessionView.show(context, [e]);
                             },
                             child: Text(
-                              'Terminate this session',
+                              'btn_terminate_this_session'.l10n,
                               style: style.fonts.small.regular.danger,
                             ),
                           ),
@@ -1229,15 +1239,17 @@ Widget _downloads(BuildContext context, MyProfileController c) {
         return PrimaryButton(
           title:
               latest
-                  ? 'Latest version is installed'
-                  : 'Download ${c.latestRelease.value?.name}',
+                  ? 'label_latest_version_is_installed'.l10n
+                  : 'btn_download_version'.l10nfmt({
+                    'version': '${c.latestRelease.value?.name}}',
+                  }),
           onPressed: latest ? null : () {},
         );
       }),
       if (PWAInstall().installPromptEnabled) ...[
         SizedBox(height: 8),
         FieldButton(
-          text: 'Install Web App',
+          text: 'btn_install_web_app'.l10n,
           onPressed: () async {
             if (PWAInstall().installPromptEnabled) {
               PWAInstall().promptInstall_();
@@ -1250,7 +1262,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
         ),
       ],
       SizedBox(height: 20),
-      LineDivider('Mobile apps'),
+      LineDivider('label_mobile_apps'.l10n),
       SizedBox(height: 16),
       if (Config.appStoreUrl.isNotEmpty) ...[
         DownloadButton.appStore(),
@@ -1264,7 +1276,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
       ],
       const DownloadButton.android(),
       SizedBox(height: 20),
-      LineDivider('Desktop apps'),
+      LineDivider('label_desktop_apps'.l10n),
       SizedBox(height: 16),
       const DownloadButton.windows(),
       const SizedBox(height: 8),
@@ -1489,13 +1501,15 @@ Widget _storage(BuildContext context, MyProfileController c) {
                     ],
                   ),
                 ),
-                WidgetButton(
-                  onPressed: () {},
-                  child: Text(
-                    'btn_change'.l10n,
-                    style: style.fonts.medium.regular.primary,
-                  ),
-                ),
+
+                // TODO: Uncomment when implement.
+                // WidgetButton(
+                //   onPressed: () {},
+                //   child: Text(
+                //     'btn_change'.l10n,
+                //     style: style.fonts.medium.regular.primary,
+                //   ),
+                // ),
               ],
             ),
           ],

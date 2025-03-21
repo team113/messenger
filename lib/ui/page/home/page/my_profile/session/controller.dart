@@ -21,11 +21,11 @@ import 'package:apple_product_name/apple_product_name.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../domain/repository/session.dart';
 import '/config.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/domain/repository/session.dart';
 import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart';
@@ -98,7 +98,6 @@ class DeleteSessionController extends GetxController {
           await Future.wait(futures);
 
           stage.value = DeleteSessionStage.done;
-          // pop?.call();
         } on DeleteSessionException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {

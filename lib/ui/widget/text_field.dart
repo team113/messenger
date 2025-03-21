@@ -151,6 +151,7 @@ class ReactiveTextField extends StatelessWidget {
   /// Optional text prefix to display before the input.
   final String? prefixText;
 
+  /// [TextStyle] of the [prefixText].
   final TextStyle? prefixStyle;
 
   /// Indicator whether the [ReactiveFieldState.error] being non-`null` should
@@ -366,18 +367,14 @@ class ReactiveTextField extends StatelessWidget {
                     state.editable.value
                         ? null
                         : Theme.of(context).inputDecorationTheme.border,
-                floatingLabelStyle:
-                    state.editable.value
-                        ? null
-                        : Theme.of(
-                          context,
-                        ).inputDecorationTheme.floatingLabelStyle?.copyWith(
-                          color: style.colors.secondaryHighlightDarkest,
-                        ),
                 prefixText: prefixText,
                 prefixStyle: prefixStyle,
                 prefix: prefix,
-                fillColor: fillColor ?? style.colors.onPrimary,
+                fillColor:
+                    fillColor ??
+                    (state.editable.value
+                        ? style.colors.onPrimary
+                        : style.colors.onPrimaryLight),
                 filled: filled ?? true,
                 contentPadding: contentPadding,
                 suffixIcon: dense == true ? null : buildSuffix(),
@@ -391,7 +388,7 @@ class ReactiveTextField extends StatelessWidget {
                         ),
                 labelText: label,
                 hintText: hint,
-                hintMaxLines: 1,
+                hintMaxLines: maxLines,
                 hintStyle: this.style?.copyWith(
                   color:
                       Theme.of(context).inputDecorationTheme.hintStyle?.color,

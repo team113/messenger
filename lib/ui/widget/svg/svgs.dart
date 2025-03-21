@@ -246,10 +246,22 @@ class SvgIcons {
     height: 27,
   );
 
+  static const SvgData appleBlack = SvgData(
+    'assets/icons/apple_black.svg',
+    width: 25,
+    height: 25,
+  );
+
   static const SvgData windows = SvgData(
     'assets/icons/windows.svg',
     width: 23.93,
     height: 24,
+  );
+
+  static const SvgData windows11 = SvgData(
+    'assets/icons/windows11.svg',
+    width: 25,
+    height: 25,
   );
 
   static const SvgData linux = SvgData(
@@ -457,7 +469,7 @@ class SvgIcons {
   );
 
   static const SvgData menuBackground = SvgData(
-    'assets/icons/menu/background.svg',
+    'assets/icons/menu/interface.svg',
     width: 50,
     height: 50,
   );
@@ -1781,6 +1793,12 @@ class SvgIcons {
     'assets/icons/unblock.svg',
     width: 16,
     height: 16,
+  );
+
+  static const SvgData unblockSmall = SvgData(
+    'assets/icons/unblock_blue.svg',
+    width: 19,
+    height: 19,
   );
 
   static const SvgData menuNav = SvgData(

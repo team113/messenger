@@ -19,11 +19,11 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../domain/repository/session.dart';
-import '../../../../../../themes.dart';
-import '../widget/session_tile.dart';
 import '/domain/model/session.dart';
+import '/domain/repository/session.dart';
 import '/l10n/l10n.dart';
+import '/themes.dart';
+import '/ui/page/home/page/my_profile/widget/session_tile.dart';
 import '/ui/widget/modal_popup.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
@@ -117,7 +117,6 @@ class DeleteSessionView extends StatelessWidget {
                     padding: ModalPopup.padding(context),
                     shrinkWrap: true,
                     children: [
-                      // SizedBox(height: 21),
                       Text(
                         'Please, enter your password or one-time code. The one-time code has been sent to your e-mails and is valid for 30 minutes.\n'
                         '\n'
