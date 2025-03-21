@@ -92,6 +92,7 @@ class Themes {
       primaryDark: const Color(0xFF1F3C5D),
       primaryAuxiliary: const Color(0xFF0A2E4F),
       onPrimary: const Color(0xFFFFFFFF),
+      onPrimaryLight: const Color(0xFFF5F5F5),
       secondary: const Color(0xFF888888),
       secondaryLight: const Color(0xFFCCCCCC),
       secondaryHighlight: const Color(0xFFEFEFEF),
@@ -653,6 +654,7 @@ class Palette {
     Color? primaryAuxiliaryOpacity90,
     Color? primaryAuxiliaryOpacity95,
     required this.onPrimary,
+    required this.onPrimaryLight,
     Color? onPrimaryOpacity7,
     Color? onPrimaryOpacity10,
     Color? onPrimaryOpacity25,
@@ -853,6 +855,9 @@ class Palette {
 
   /// 10% opacity of the [onPrimary] color.
   final Color onPrimaryOpacity10;
+
+  /// Lighter version of [onPrimary] for elements to put above the [primary].
+  final Color onPrimaryLight;
 
   /// Secondary [Color] used alongside with [primary].
   ///
@@ -1098,6 +1103,8 @@ class Palette {
           Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
       onPrimaryOpacity95:
           Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
+      onPrimaryLight:
+          Color.lerp(color.onPrimaryLight, other.onPrimaryLight, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
       secondaryLight:
           Color.lerp(color.secondaryLight, other.secondaryLight, t)!,

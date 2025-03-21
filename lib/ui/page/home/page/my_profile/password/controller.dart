@@ -178,11 +178,20 @@ class ChangePasswordController extends GetxController {
       repeatPassword.status.value = RxStatus.loading();
       try {
         final bool hadPassword = myUser.value?.hasPassword ?? false;
-        await _myUserService.updateUserPassword(
-          oldPassword:
-              myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
-          newPassword: UserPassword(newPassword.text),
-        );
+
+        if (hadPassword && newPassword.text.isEmpty) {
+          myUser.value?.hasPassword = false;
+          myUser.refresh();
+        } else {
+          await _myUserService.updateUserPassword(
+            oldPassword:
+                myUser.value!.hasPassword
+                    ? UserPassword(oldPassword.text)
+                    : null,
+            newPassword: UserPassword(newPassword.text),
+          );
+        }
+
         stage.value =
             hadPassword
                 ? ChangePasswordFlowStage.changed

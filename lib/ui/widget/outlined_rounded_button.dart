@@ -166,14 +166,14 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                 minHeight: widget.height ?? 0,
                 maxHeight: widget.maxHeight ?? widget.height ?? double.infinity,
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 8 * 0.7,
+              padding: EdgeInsets.symmetric(
+                horizontal: widget.leading == null ? 0 : 8 * 0.7,
                 vertical: 6 * 0.7,
               ),
               child: Row(
                 children: [
-                  const SizedBox(width: 8),
                   if (widget.leading != null) ...[
+                    const SizedBox(width: 8),
                     SizedBox(child: Center(child: widget.leading!)),
                     const SizedBox(width: 8),
                   ],
@@ -217,8 +217,8 @@ class _OutlinedRoundedButtonState extends State<OutlinedRoundedButton> {
                         child: Opacity(opacity: 0, child: widget.leading!),
                       ),
                     ),
+                    const SizedBox(width: 8),
                   ],
-                  const SizedBox(width: 8),
                 ],
               ),
             ),

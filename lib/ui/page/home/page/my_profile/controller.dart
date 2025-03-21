@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -50,6 +51,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/ui/worker/upgrade.dart';
 import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -70,6 +72,8 @@ class MyProfileController extends GetxController {
     this._authService,
     this._chatService,
     this._blocklistService,
+    this._upgradeWorker,
+    this._cacheWorker,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -130,6 +134,105 @@ class MyProfileController extends GetxController {
   /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
   final GlobalKey welcomeFieldKey = GlobalKey();
 
+  /// [Chat.name] field state.
+  late final TextFieldState name = TextFieldState(
+    text: myUser.value?.name?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserName(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserName? name = UserName.tryParse(s.text);
+
+      try {
+        await updateUserName(name);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  late final TextFieldState login = TextFieldState(
+    text: myUser.value?.login?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserLogin(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserLogin? login = UserLogin.tryParse(s.text);
+
+      try {
+        await updateUserLogin(login);
+      } on UpdateUserLoginException catch (e) {
+        s.error.value = e.toMessage();
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  late final TextFieldState about = TextFieldState(
+    text: myUser.value?.bio?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserBio(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserBio? bio = UserBio.tryParse(s.text);
+
+      try {
+        await updateUserBio(bio);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  late final TextFieldState status = TextFieldState(
+    text: myUser.value?.status?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserTextStatus(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserTextStatus? status = UserTextStatus.tryParse(s.text);
+
+      try {
+        await updateUserStatus(status);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -147,6 +250,9 @@ class MyProfileController extends GetxController {
 
   /// [BlocklistService] for retrieving the [BlocklistService.count].
   final BlocklistService _blocklistService;
+
+  final UpgradeWorker _upgradeWorker;
+  final CacheWorker _cacheWorker;
 
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
@@ -190,6 +296,15 @@ class MyProfileController extends GetxController {
   /// Total [BlocklistRecord]s count in the blocklist of the currently
   /// authenticated [MyUser].
   RxInt get blocklistCount => _blocklistService.count;
+
+  Rx<Release?> get latestRelease => _upgradeWorker.latest;
+
+  Rx<Directory?> get downloadsDirectory => _cacheWorker.downloadsDirectory;
+
+  int get mutedChatsCount =>
+      _chatService.paginated.values
+          .where((e) => e.chat.value.muted != null)
+          .length;
 
   @override
   void onInit() {
@@ -573,6 +688,11 @@ class MyProfileController extends GetxController {
   /// If [name] is null, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets [MyUser.status] field for the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
   }
 
   /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].

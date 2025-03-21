@@ -60,11 +60,13 @@ class ChangePasswordView extends StatelessWidget {
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 8),
-                      child: Text(
-                        c.stage.value == ChangePasswordFlowStage.set
-                            ? 'label_password_set'.l10n
-                            : 'label_password_changed'.l10n,
-                        style: style.fonts.normal.regular.secondary,
+                      child: Center(
+                        child: Text(
+                          c.stage.value == ChangePasswordFlowStage.set
+                              ? 'label_password_set'.l10n
+                              : 'label_password_changed'.l10n,
+                          style: style.fonts.normal.regular.secondary,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -85,27 +87,21 @@ class ChangePasswordView extends StatelessWidget {
                   controller: c.scrollController,
                   shrinkWrap: true,
                   children: [
-                    if (!c.hasPassword)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 25),
-                        child: Text(
-                          'label_password_not_set_info'.l10n,
-                          style: style.fonts.normal.regular.secondary,
-                        ),
-                      )
-                    else
+                    if (c.hasPassword)
                       Padding(
                         padding: const EdgeInsets.only(bottom: 16),
                         child: ReactiveTextField(
                           state: c.oldPassword,
                           label: 'label_current_password'.l10n,
                           obscure: c.obscurePassword.value,
-                          onSuffixPressed: c.obscurePassword.toggle,
+                          onSuffixPressed: () => c.obscurePassword.toggle(),
                           treatErrorAsStatus: false,
-                          trailing: SvgIcon(
-                            c.obscurePassword.value
-                                ? SvgIcons.visibleOff
-                                : SvgIcons.visibleOn,
+                          trailing: Center(
+                            child: SvgIcon(
+                              c.obscurePassword.value
+                                  ? SvgIcons.visibleOff
+                                  : SvgIcons.visibleOn,
+                            ),
                           ),
                         ),
                       ),
@@ -114,12 +110,14 @@ class ChangePasswordView extends StatelessWidget {
                       state: c.newPassword,
                       label: 'label_new_password'.l10n,
                       obscure: c.obscureNewPassword.value,
-                      onSuffixPressed: c.obscureNewPassword.toggle,
+                      onSuffixPressed: () => c.obscureNewPassword.toggle(),
                       treatErrorAsStatus: false,
-                      trailing: SvgIcon(
-                        c.obscureNewPassword.value
-                            ? SvgIcons.visibleOff
-                            : SvgIcons.visibleOn,
+                      trailing: Center(
+                        child: SvgIcon(
+                          c.obscureNewPassword.value
+                              ? SvgIcons.visibleOff
+                              : SvgIcons.visibleOn,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -128,12 +126,14 @@ class ChangePasswordView extends StatelessWidget {
                       state: c.repeatPassword,
                       label: 'label_repeat_password'.l10n,
                       obscure: c.obscureRepeatPassword.value,
-                      onSuffixPressed: c.obscureRepeatPassword.toggle,
+                      onSuffixPressed: () => c.obscureRepeatPassword.toggle(),
                       treatErrorAsStatus: false,
-                      trailing: SvgIcon(
-                        c.obscureRepeatPassword.value
-                            ? SvgIcons.visibleOff
-                            : SvgIcons.visibleOn,
+                      trailing: Center(
+                        child: SvgIcon(
+                          c.obscureRepeatPassword.value
+                              ? SvgIcons.visibleOff
+                              : SvgIcons.visibleOn,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 25),
@@ -142,10 +142,7 @@ class ChangePasswordView extends StatelessWidget {
                       if (c.repeatPassword.status.value.isLoading) {
                         enabled = false;
                       } else if (c.myUser.value?.hasPassword == true) {
-                        enabled =
-                            !c.oldPassword.isEmpty.value &&
-                            !c.newPassword.isEmpty.value &&
-                            !c.repeatPassword.isEmpty.value;
+                        enabled = !c.oldPassword.isEmpty.value;
                       } else {
                         enabled =
                             !c.newPassword.isEmpty.value &&

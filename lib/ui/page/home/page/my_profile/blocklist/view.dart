@@ -15,10 +15,14 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../../widget/line_divider.dart';
+import '../../../../../widget/svg/svg.dart';
 import '/config.dart';
+import '/domain/model/user.dart';
 import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
@@ -39,7 +43,13 @@ class BlocklistView extends StatelessWidget {
 
   /// Displays a [BlocklistView] wrapped in a [ModalPopup].
   static Future<T?> show<T>(BuildContext context) {
-    return ModalPopup.show(context: context, child: const BlocklistView());
+    final style = Theme.of(context).style;
+
+    return ModalPopup.show(
+      context: context,
+      child: const BlocklistView(),
+      background: style.colors.background,
+    );
   }
 
   @override
@@ -58,12 +68,7 @@ class BlocklistView extends StatelessWidget {
         return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 4),
-            Obx(() {
-              return ModalPopupHeader(
-                text: 'label_users_count'.l10nfmt({'count': c.count.value}),
-              );
-            }),
+            ModalPopupHeader(text: 'label_blocked_users'.l10n),
             const SizedBox(height: 4),
             Flexible(
               child: SafeAnimatedSwitcher(
@@ -77,7 +82,7 @@ class BlocklistView extends StatelessWidget {
 
                   if (c.status.value.isLoading) {
                     return SizedBox(
-                      height: blocklist.length * 95,
+                      height: c.blocklistCount.value * 95,
                       child: const Center(
                         child: CustomProgressIndicator.primary(),
                       ),
@@ -90,59 +95,70 @@ class BlocklistView extends StatelessWidget {
                   } else {
                     return Scrollbar(
                       controller: c.scrollController,
-                      child: ListView.builder(
+                      child: ListView(
                         controller: c.scrollController,
                         shrinkWrap: true,
-                        padding: ModalPopup.padding(context),
-                        itemBuilder: (context, i) {
-                          final RxUser user = blocklist.elementAt(i);
+                        padding: EdgeInsets.fromLTRB(10, 0, 10, 0),
+                        children: [
+                          SizedBox(height: 12),
+                          LineDivider(
+                            'label_users_count'.l10nfmt({
+                              'count': c.blocklistCount.value,
+                            }),
+                          ),
+                          SizedBox(height: 16),
+                          ...c.blocklist.mapIndexed((i, e) {
+                            final RxUser user = blocklist.elementAt(i);
+                            final BlocklistRecord? blocked =
+                                user.user.value.isBlocked;
 
-                          Widget child = ContactTile(
-                            user: user,
-                            onTap: () {
-                              Navigator.of(context).pop();
-                              router.user(user.id, push: true);
-                            },
-                            darken: 0.03,
-                            subtitle: [
-                              const SizedBox(height: 5),
-                              Text(
-                                user.user.value.isBlocked?.at.val.yMd ?? '',
-                                style: style.fonts.small.regular.secondary,
-                              ),
-                            ],
-                            trailing: [
-                              WidgetButton(
-                                onPressed: () => c.unblock(user),
-                                child: Text(
-                                  'btn_unblock_short'.l10n,
-                                  style: style.fonts.small.regular.primary,
+                            Widget child = ContactTile(
+                              user: user,
+                              onTap: () {
+                                Navigator.of(context).pop();
+                                router.user(user.id, push: true);
+                              },
+                              darken: 0.03,
+                              subtitle: [
+                                const SizedBox(height: 5),
+                                Text(
+                                  blocked?.reason == null
+                                      ? blocked?.at.val.yMd ?? ''
+                                      : 'label_reason_described'.l10nfmt({
+                                        'reason': blocked?.reason?.val,
+                                      }),
+                                  style: style.fonts.normal.regular.secondary,
                                 ),
-                              ),
-                              const SizedBox(width: 4),
-                            ],
-                          );
+                              ],
+                              trailing: [
+                                WidgetButton(
+                                  onPressed: () => c.unblock(user),
+                                  child: SvgIcon(SvgIcons.unblockSmall),
+                                ),
+                                const SizedBox(width: 4),
+                              ],
+                            );
 
-                          if (i == c.blocklist.length - 1) {
-                            if (c.hasNext.isTrue) {
-                              child = Column(
-                                children: [
-                                  child,
-                                  CustomProgressIndicator(
-                                    key: const Key('BlocklistLoading'),
-                                    value:
-                                        Config.disableInfiniteAnimations
-                                            ? 0
-                                            : null,
-                                  ),
-                                ],
-                              );
+                            if (i == c.blocklist.length - 1) {
+                              if (c.hasNext.isTrue) {
+                                child = Column(
+                                  children: [
+                                    child,
+                                    CustomProgressIndicator(
+                                      key: const Key('BlocklistLoading'),
+                                      value:
+                                          Config.disableInfiniteAnimations
+                                              ? 0
+                                              : null,
+                                    ),
+                                  ],
+                                );
+                              }
                             }
-                          }
 
-                          return child;
-                        },
-                        itemCount: blocklist.length,
+                            return child;
+                          }),
+                        ],
                       ),
                     );
                   }

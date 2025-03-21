@@ -145,20 +145,8 @@ class MenuTabView extends StatelessWidget {
                 final ProfileTab tab = ProfileTab.values[i];
 
                 switch (tab) {
-                  case ProfileTab.calls:
-                    if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-                      return const SizedBox();
-                    }
-                    break;
-
                   case ProfileTab.media:
                     if (PlatformUtils.isMobile) {
-                      return const SizedBox();
-                    }
-                    break;
-
-                  case ProfileTab.download:
-                    if (!PlatformUtils.isWeb) {
                       return const SizedBox();
                     }
                     break;

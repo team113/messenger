@@ -87,6 +87,7 @@ dependencies:
   photo_view: ^0.15.0
   platform_detect: ^2.0.7
   pub_semver: ^2.1.4
+  pwa_install: ^0.0.6
   qr_flutter: ^4.1.0
   scrollable_positioned_list:
     git:
@@ -165,6 +166,8 @@ dependency_overrides:
     git:
       url: https://github.com/SleepySquash/image_picker.git
       path: packages/image_picker/image_picker_ios
+  # TODO: Remove when `media_kit` updates.
+  js: ^0.7.1
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit:
     git:
@@ -211,7 +214,9 @@ flutter:
     - assets/fonts/
     - assets/icons/
     - assets/icons/application/
+    - assets/icons/menu/
     - assets/icons/notification/
+    - assets/icons/user_agent/
     - assets/images/
     - assets/images/logo/
     - assets/images/media_buttons/
