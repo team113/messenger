@@ -31,6 +31,7 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible stages of a [AddEmailView] to be displayed.
 enum AddEmailPage { add, confirm }
 
 /// Controller of a [AddEmailView].
@@ -46,6 +47,7 @@ class AddEmailController extends GetxController {
     }
   }
 
+  /// Current [AddEmailPage] displayed.
   final Rx<AddEmailPage> page;
 
   /// [UserEmail] the [AddEmailView] is about.
@@ -58,6 +60,7 @@ class AddEmailController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
+  ///
   late final TextFieldState emailField = TextFieldState(
     onFocus: (s) {
       if (s.text.isNotEmpty) {

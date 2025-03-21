@@ -17,14 +17,14 @@
 
 import 'package:flutter/material.dart';
 
-import '../ui/widget/outlined_rounded_button.dart';
-import '../ui/widget/svg/svg.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/svg/svg.dart';
 import 'localized_exception.dart';
 
 /// Helper to display a popup message in UI.

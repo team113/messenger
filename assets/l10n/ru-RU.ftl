@@ -645,7 +645,7 @@ label_ago_date = {$years ->
 }
 label_all = Все
 label_all_chats_and_groups = Все чаты и группы
-label_always_muted = Приглушенные чаты
+label_always_muted = Заглушённые чаты
 label_app_background = Фон приложения
 label_application = Приложение
 label_are_you_sure_no = Нет
@@ -959,7 +959,7 @@ label_mute_for = {$days ->
 label_mute_chat_for = Заглушить чат на
 label_mute_or_unmute_chats = Выключить или включить уведомления
 label_muted = Выключен звук
-label_muted_chats = Приглушённые чаты
+label_muted_chats = Заглушённые чаты
 label_muted_until_i_turn_on = Выключено пока я не включу
 label_muted_until_period = Выключено до: {$period}
 label_my_contacts = Мои контакты

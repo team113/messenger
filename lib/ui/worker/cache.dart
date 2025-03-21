@@ -97,7 +97,11 @@ class CacheWorker extends DisposableService {
       _updateInfo();
     }
 
-    PlatformUtils.downloadsDirectory.then((e) => downloadsDirectory.value = e);
+    if (!PlatformUtils.isWeb) {
+      PlatformUtils.downloadsDirectory.then(
+        (e) => downloadsDirectory.value = e,
+      );
+    }
 
     super.onInit();
   }
