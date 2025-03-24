@@ -22,7 +22,14 @@ import '/ui/widget/text_field.dart';
 
 /// Custom-styled [ReactiveTextField] with [Switch.adaptive].
 class SwitchField extends StatelessWidget {
-  const SwitchField({super.key, this.text, this.value = false, this.onChanged});
+  const SwitchField({
+    super.key,
+    this.text,
+    this.value = false,
+    this.onChanged,
+    this.background,
+    this.label,
+  });
 
   /// Text of the [ReactiveTextField].
   final String? text;
@@ -32,6 +39,12 @@ class SwitchField extends StatelessWidget {
 
   /// Callback, called when the user toggles the switch.
   final void Function(bool)? onChanged;
+
+  /// Background [Color] of this [SwitchField].
+  final Color? background;
+
+  /// Label to display.
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -43,7 +56,9 @@ class SwitchField extends StatelessWidget {
         IgnorePointer(
           child: ReactiveTextField(
             state: TextFieldState(text: text, editable: false),
-            style: style.fonts.normal.regular.secondary,
+            style: style.fonts.normal.regular.onBackground,
+            label: label,
+            fillColor: background ?? style.colors.onPrimary,
           ),
         ),
         Align(

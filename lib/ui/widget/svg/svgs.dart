@@ -246,10 +246,22 @@ class SvgIcons {
     height: 27,
   );
 
+  static const SvgData appleBlack = SvgData(
+    'assets/icons/apple_black.svg',
+    width: 25,
+    height: 25,
+  );
+
   static const SvgData windows = SvgData(
     'assets/icons/windows.svg',
     width: 23.93,
     height: 24,
+  );
+
+  static const SvgData windows11 = SvgData(
+    'assets/icons/windows11.svg',
+    width: 25,
+    height: 25,
   );
 
   static const SvgData linux = SvgData(
@@ -451,39 +463,39 @@ class SvgIcons {
   );
 
   static const SvgData menuSigning = SvgData(
-    'assets/icons/menu_signing.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/signing.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuBackground = SvgData(
-    'assets/icons/menu_background.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/interface.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuChats = SvgData(
-    'assets/icons/menu_chats.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/chats.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLink = SvgData(
-    'assets/icons/menu_link.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/link.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuMedia = SvgData(
-    'assets/icons/menu_media.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/media.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuCalls = SvgData(
-    'assets/icons/menu_calls.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/calls.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData blocked = SvgData(
@@ -1013,99 +1025,111 @@ class SvgIcons {
   );
 
   static const SvgData menuBlocklist = SvgData(
-    'assets/icons/menu_blocklist.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/blocklist.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDanger = SvgData(
-    'assets/icons/menu_danger.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/danger.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDonate = SvgData(
-    'assets/icons/menu_donate.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/donate.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDownload = SvgData(
-    'assets/icons/menu_download.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/download.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLanguage = SvgData(
-    'assets/icons/menu_language.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/language.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLogout = SvgData(
-    'assets/icons/menu_logout.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/logout.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuNotifications = SvgData(
-    'assets/icons/menu_notifications.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/notifications.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuPayment = SvgData(
-    'assets/icons/menu_payment.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/payment.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuStorage = SvgData(
-    'assets/icons/menu_storage.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/storage.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuWelcome = SvgData(
-    'assets/icons/menu_welcome.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/welcome.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuConfidentiality = SvgData(
+    'assets/icons/menu/confidentiality.svg',
+    width: 50,
+    height: 50,
+  );
+
+  static const SvgData menuInterface = SvgData(
+    'assets/icons/menu/interface.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuWork = SvgData(
-    'assets/icons/menu_work.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/work.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuDevices = SvgData(
-    'assets/icons/menu_devices.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/devices.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuStyle = SvgData(
-    'assets/icons/menu_style.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/style.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuProfile = SvgData(
-    'assets/icons/menu_profile.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/profile.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuLegal = SvgData(
-    'assets/icons/menu_legal.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/legal.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData menuSupport = SvgData(
-    'assets/icons/menu_help.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/help.svg',
+    width: 50,
+    height: 50,
   );
 
   static const List<SvgData> head = [
@@ -1771,10 +1795,16 @@ class SvgIcons {
     height: 16,
   );
 
+  static const SvgData unblockSmall = SvgData(
+    'assets/icons/unblock_blue.svg',
+    width: 19,
+    height: 19,
+  );
+
   static const SvgData menuNav = SvgData(
-    'assets/icons/menu_nav.svg',
-    width: 32,
-    height: 32,
+    'assets/icons/menu/nav.svg',
+    width: 50,
+    height: 50,
   );
 
   static const SvgData logo = SvgData(
@@ -1847,5 +1877,71 @@ class SvgIcons {
     'assets/icons/notes_small_white.svg',
     width: 19,
     height: 19,
+  );
+
+  static const SvgData emailWhite = SvgData(
+    'assets/icons/email_white.svg',
+    width: 21.93,
+    height: 22.5,
+  );
+
+  static const SvgData emailGrey = SvgData(
+    'assets/icons/email_grey.svg',
+    width: 21.93,
+    height: 22.5,
+  );
+
+  static const SvgData mediaDevicesCamera = SvgData(
+    'assets/icons/media_devices_camera.svg',
+    width: 22,
+    height: 20,
+  );
+
+  static const SvgData mediaDevicesMicrophone = SvgData(
+    'assets/icons/media_devices_microphone.svg',
+    width: 18,
+    height: 22,
+  );
+
+  static const SvgData mediaDevicesSpeaker = SvgData(
+    'assets/icons/media_devices_speaker.svg',
+    width: 22,
+    height: 22,
+  );
+
+  static const SvgData userAgentMacOs = SvgData(
+    'assets/icons/user_agent/macos.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentIOs = SvgData(
+    'assets/icons/user_agent/ios.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentAndroid = SvgData(
+    'assets/icons/user_agent/android.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentLinux = SvgData(
+    'assets/icons/user_agent/linux.svg',
+    width: 34,
+    height: 34,
+  );
+
+  static const SvgData userAgentWindows = SvgData(
+    'assets/icons/user_agent/windows.svg',
+    width: 32,
+    height: 32,
+  );
+
+  static const SvgData none = SvgData(
+    'assets/icons/none.svg',
+    width: 1,
+    height: 1,
   );
 }

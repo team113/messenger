@@ -32,7 +32,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/util/get.dart';
 import '/util/message_popup.dart';
-import '/util/platform_utils.dart';
 import 'confirm_delete/view.dart';
 import 'controller.dart';
 
@@ -53,40 +52,56 @@ class EraseView extends StatelessWidget {
       key: const Key('EraseView'),
       init: EraseController(Get.find(), Get.findOrNull<MyUserService>()),
       builder: (EraseController c) {
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            // For web, background color is displayed in `index.html` file.
-            if (!PlatformUtils.isWeb)
-              IgnorePointer(child: ColoredBox(color: style.colors.background)),
-            const IgnorePointer(
-              child: SvgImage.asset(
-                'assets/images/background_light.svg',
-                width: double.infinity,
-                height: double.infinity,
-                fit: BoxFit.cover,
-              ),
-            ),
-            Scaffold(
-              appBar: CustomAppBar(
-                leading: const [StyledBackButton()],
-                title: Text('label_personal_data_deletion'.l10n),
-                actions: const [SizedBox(width: 32)],
-              ),
-              body: ListView(
-                key: const Key('EraseScrollable'),
+        return Scaffold(
+          appBar: CustomAppBar(
+            leading: const [StyledBackButton()],
+            title: Text('label_personal_data_deletion'.l10n),
+            actions: const [SizedBox(width: 32)],
+          ),
+          body: ListView(
+            key: const Key('EraseScrollable'),
+            children: [
+              Block(
+                title: 'label_warning_uppercase'.l10n,
+                titleStyle: style.fonts.large.regular.onBackground.copyWith(
+                  color: style.colors.danger,
+                ),
                 children: [
-                  Block(
-                    title: 'label_description'.l10n,
-                    children: [
-                      Text('label_personal_data_deletion_description'.l10n),
-                    ],
+                  Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description1'.l10n,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description2'.l10n,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description3'.l10n,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description4'.l10n,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
+                        TextSpan(
+                          text:
+                              'label_personal_data_deletion_description5'.l10n,
+                        ),
+                      ],
+                    ),
+                    style: style.fonts.small.regular.secondary,
                   ),
+                  SizedBox(height: 16),
                   _deletion(context, c),
                 ],
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );
@@ -116,10 +131,12 @@ class EraseView extends StatelessWidget {
             obscure: c.obscurePassword.value,
             onSuffixPressed: c.obscurePassword.toggle,
             treatErrorAsStatus: false,
-            trailing: SvgIcon(
-              c.obscurePassword.value
-                  ? SvgIcons.visibleOff
-                  : SvgIcons.visibleOn,
+            trailing: Center(
+              child: SvgIcon(
+                c.obscurePassword.value
+                    ? SvgIcons.visibleOff
+                    : SvgIcons.visibleOn,
+              ),
             ),
           ),
           const SizedBox(height: 25),
@@ -131,6 +148,7 @@ class EraseView extends StatelessWidget {
                 c.password.error.value == null;
 
             return PrimaryButton(
+              key: Key('ProceedButton'),
               title: 'btn_proceed'.l10n,
               onPressed: enabled ? c.signIn : null,
             );
@@ -152,7 +170,7 @@ class EraseView extends StatelessWidget {
       return AnimatedSizeAndFade(
         fadeDuration: const Duration(milliseconds: 250),
         sizeDuration: const Duration(milliseconds: 250),
-        child: Block(
+        child: Column(
           key: Key(
             '${c.authStatus.value.isLoading}${c.authStatus.value.isEmpty}',
           ),
@@ -169,17 +187,30 @@ class EraseView extends StatelessWidget {
     final bool? result = await MessagePopup.alert(
       'label_delete_account'.l10n,
       description: [
-        TextSpan(text: 'alert_account_will_be_deleted1'.l10n),
+        TextSpan(
+          text: 'alert_account_will_be_deleted1'.l10n,
+          style: style.fonts.small.regular.secondary,
+        ),
         TextSpan(
           text:
               c.myUser?.value?.name?.val ??
               c.myUser?.value?.login?.val ??
               c.myUser?.value?.num.toString() ??
               'dot'.l10n * 3,
-          style: style.fonts.normal.regular.onBackground,
+          style: style.fonts.small.regular.onBackground,
         ),
-        TextSpan(text: 'alert_account_will_be_deleted2'.l10n),
+        TextSpan(
+          text: 'alert_account_will_be_deleted2'.l10n,
+          style: style.fonts.small.regular.secondary,
+        ),
       ],
+      button:
+          (context) => MessagePopup.deleteButton(
+            context,
+            key: Key('Proceed'),
+            icon: SvgIcons.none,
+            label: 'btn_confirm'.l10n,
+          ),
     );
 
     if (result == true) {

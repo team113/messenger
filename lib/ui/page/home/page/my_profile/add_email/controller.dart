@@ -31,21 +31,27 @@ import '/util/message_popup.dart';
 
 export 'view.dart';
 
+/// Possible stages of a [AddEmailView] to be displayed.
+enum AddEmailPage { add, confirm }
+
 /// Controller of a [AddEmailView].
 class AddEmailController extends GetxController {
   AddEmailController(
     this._myUserService, {
-    required this.email,
+    this.email,
     this.pop,
     bool timeout = false,
-  }) {
+  }) : page = Rx(email == null ? AddEmailPage.add : AddEmailPage.confirm) {
     if (timeout) {
       _setResendEmailTimer();
     }
   }
 
+  /// Current [AddEmailPage] displayed.
+  final Rx<AddEmailPage> page;
+
   /// [UserEmail] the [AddEmailView] is about.
-  final UserEmail email;
+  UserEmail? email;
 
   /// Callback, called when a [AddEmailView] this controller is bound to should
   /// be popped from the [Navigator].
@@ -53,6 +59,56 @@ class AddEmailController extends GetxController {
 
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
+
+  /// [TextFieldState] for inputting the [email].
+  late final TextFieldState emailField = TextFieldState(
+    onFocus: (s) {
+      if (s.text.isNotEmpty) {
+        try {
+          email = UserEmail(s.text);
+
+          if (myUser.value!.emails.confirmed.contains(email) ||
+              myUser.value?.emails.unconfirmed == email) {
+            s.error.value = 'err_you_already_add_this_email'.l10n;
+          }
+        } catch (e) {
+          s.error.value = 'err_incorrect_email'.l10n;
+        }
+      }
+    },
+    onSubmitted: (s) async {
+      if (s.text.isEmpty ||
+          (s.error.value != null && s.resubmitOnError.isFalse)) {
+        return;
+      }
+
+      page.value = AddEmailPage.confirm;
+
+      email = UserEmail(s.text.toLowerCase());
+
+      try {
+        await _myUserService.addUserEmail(
+          email!,
+          locale: L10n.chosen.value?.toString(),
+        );
+
+        _setResendEmailTimer();
+      } catch (e) {
+        page.value = AddEmailPage.add;
+        s.unchecked = email?.val;
+
+        if (e is AddUserEmailException) {
+          s.error.value = e.toMessage();
+          s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
+        } else {
+          s.error.value = 'err_data_transfer'.l10n;
+          s.resubmitOnError.value = true;
+        }
+
+        s.unsubmit();
+      }
+    },
+  );
 
   /// [TextFieldState] for the [UserEmail] confirmation code.
   late final TextFieldState code;
@@ -94,7 +150,7 @@ class AddEmailController extends GetxController {
           s.status.value = RxStatus.loading();
           try {
             await _myUserService.addUserEmail(
-              email,
+              email!,
               confirmation: code,
               locale: L10n.chosen.value?.toString(),
             );
@@ -134,7 +190,7 @@ class AddEmailController extends GetxController {
   Future<void> resendEmail() async {
     try {
       await _myUserService.addUserEmail(
-        email,
+        email!,
         locale: L10n.chosen.value?.toString(),
       );
       resent.value = true;

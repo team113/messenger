@@ -20,6 +20,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get/get.dart';
 import 'package:pub_semver/pub_semver.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
@@ -41,14 +42,14 @@ import '/util/web/web_utils.dart';
 class UpgradeWorker extends DisposableService {
   UpgradeWorker(this._skippedLocal);
 
+  /// Latest [Release] fetched during the [fetchUpdates].
+  final Rx<Release?> latest = Rx(null);
+
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
 
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
-
-  /// Latest [Release] fetched during the [fetchUpdates].
-  Release? _latest;
 
   /// Latest [String] representing `flutter_bootstrap.js` file fetched.
   String? _lastBootstrapJs;
@@ -137,12 +138,12 @@ class UpgradeWorker extends DisposableService {
 
           // If the latest fetched [Release] is the same as this one, then don't
           // even try to compare it.
-          if (_latest?.name == release.name) {
+          if (latest.value?.name == release.name) {
             return false;
           }
 
-          bool silent = _latest != null;
-          _latest = release;
+          bool silent = latest.value != null;
+          latest.value = release;
 
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',

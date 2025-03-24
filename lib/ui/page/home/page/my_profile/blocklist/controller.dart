@@ -78,7 +78,7 @@ class BlocklistController extends GetxController {
 
   /// Total [BlocklistRecord]s count in the blocklist of the currently
   /// authenticated [MyUser].
-  RxInt get count => _blocklistService.count;
+  RxInt get blocklistCount => _blocklistService.count;
 
   @override
   void onInit() {

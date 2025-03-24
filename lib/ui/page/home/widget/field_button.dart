@@ -116,10 +116,7 @@ class _FieldButtonState extends State<FieldButton> {
                         : style.colors.onBackground,
               ),
           height: 46,
-          leading: Transform.translate(
-            offset: const Offset(0, 1),
-            child: widget.trailing,
-          ),
+          leading: widget.trailing,
           headline: widget.headline,
           maxHeight: double.infinity,
           border:

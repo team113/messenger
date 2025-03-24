@@ -26,7 +26,8 @@ Feature: User sessions
     And I tap `Devices` button
     Then I see 2 active sessions
 
-    When I tap `DeleteSessionButton` button
+    When I tap `TerminateSession_0` button
+    And I tap `ProceedButton` button
     Then I wait until `PasswordField` is present
 
     When I fill `PasswordField` field with "123"

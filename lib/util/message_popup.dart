@@ -22,7 +22,9 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/svg/svg.dart';
 import 'localized_exception.dart';
 
 /// Helper to display a popup message in UI.
@@ -119,6 +121,39 @@ class MessagePopup {
     onPressed: onPressed,
     at: at,
   );
+
+  /// Returns the delete styled [OutlinedRoundedButton].
+  static Widget deleteButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+    Key? key,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        OutlinedRoundedButton(
+          key: key,
+          maxWidth: double.infinity,
+          onPressed: () => Navigator.of(context).pop(true),
+          color: style.colors.danger,
+          child: Text(
+            label ?? 'btn_delete'.l10n,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onPrimary,
+          ),
+        ),
+        Positioned(
+          top: 0,
+          bottom: 0,
+          left: 16,
+          child: IgnorePointer(child: SvgIcon(icon ?? SvgIcons.delete19White)),
+        ),
+      ],
+    );
+  }
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

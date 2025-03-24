@@ -62,6 +62,12 @@ class CacheWorker extends DisposableService {
   /// Checksums of the stored caches.
   final HashSet<String> hashes = HashSet();
 
+  /// [Directory] this [CacheWorker] is to put the [hashes] to.
+  final Rx<Directory?> cacheDirectory = Rx(null);
+
+  /// [Directory] this [CacheWorker] is to put the [downloads] to.
+  final Rx<Directory?> downloadsDirectory = Rx(null);
+
   /// [CacheInfo] local storage.
   final CacheDriftProvider? _cacheLocal;
 
@@ -83,11 +89,18 @@ class CacheWorker extends DisposableService {
 
     info.value = await _cacheLocal?.read() ?? info.value;
 
-    final Directory? cache = await PlatformUtils.cacheDirectory;
+    final Directory? cache =
+        cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
     // Recalculate the [info], if [FileStat.modified] mismatch is detected.
     if (cache != null && info.value.modified != (await cache.stat()).modified) {
       _updateInfo();
+    }
+
+    if (!PlatformUtils.isWeb) {
+      PlatformUtils.downloadsDirectory.then(
+        (e) => downloadsDirectory.value = e,
+      );
     }
 
     super.onInit();
@@ -147,7 +160,8 @@ class CacheWorker extends DisposableService {
 
     return Future(() async {
       if (checksum != null) {
-        final Directory? cache = await PlatformUtils.cacheDirectory;
+        final Directory? cache =
+            cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
         if (cache != null) {
           final File file = File('${cache.path}/$checksum');
@@ -244,7 +258,8 @@ class CacheWorker extends DisposableService {
     }
 
     return _mutex.protect(() async {
-      final Directory? cache = await PlatformUtils.cacheDirectory;
+      final Directory? cache =
+          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
       if (cache != null) {
         final File file = File('${cache.path}/$checksum');
@@ -368,7 +383,8 @@ class CacheWorker extends DisposableService {
   /// Clears the cache in the cache directory.
   Future<void> clear() {
     return _mutex.protect(() async {
-      final Directory? cache = await PlatformUtils.cacheDirectory;
+      final Directory? cache =
+          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
       if (cache != null) {
         final List<File> files =
@@ -416,7 +432,8 @@ class CacheWorker extends DisposableService {
     }
 
     return _mutex.protect(() async {
-      final Directory? cache = await PlatformUtils.cacheDirectory;
+      final Directory? cache =
+          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
       int overflow = info.value.size - info.value.maxSize!;
       if (overflow > 0 && cache != null) {
@@ -470,7 +487,8 @@ class CacheWorker extends DisposableService {
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
   void _updateInfo() async {
-    final Directory? cache = await PlatformUtils.cacheDirectory;
+    final Directory? cache =
+        cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
 
     if (cache != null) {
       final HashSet<String> checksums = HashSet();

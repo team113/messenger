@@ -32,7 +32,7 @@ import 'progress_indicator.dart';
 class DownloadButton extends StatefulWidget {
   /// Constructs a [DownloadButton] for downloading the Windows application.
   const DownloadButton.windows({super.key, this.link = 'messenger-windows.zip'})
-    : asset = SvgIcons.windows,
+    : asset = SvgIcons.windows11,
       title = 'Windows',
       download = true;
 
@@ -50,7 +50,7 @@ class DownloadButton extends StatefulWidget {
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
   const DownloadButton.ios({super.key, this.link = 'messenger-ios.ipa'})
-    : asset = SvgIcons.appStore,
+    : asset = SvgIcons.appleBlack,
       title = 'iOS',
       download = true;
 

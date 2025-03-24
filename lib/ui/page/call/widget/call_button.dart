@@ -94,6 +94,8 @@ class CallButtonWidget extends StatelessWidget {
             color ??
             (opaque
                 ? style.colors.onSecondaryOpacity88
+                : onPressed == null
+                ? style.colors.onBackgroundOpacity7
                 : style.colors.onPrimaryOpacity10),
         hint: !expanded && hinted ? hint : null,
         text: expanded || constrained ? hint : null,
