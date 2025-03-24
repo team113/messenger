@@ -70,5 +70,5 @@ Feature: Account creation
     And I tap `PublicInformation` button
     Then I wait until `MyProfileView` is present
     And I tap `PublicInformation` button
-    And I scroll `MyProfileScrollable` until `LoginTile` is present
+    And I scroll `MyProfileScrollable` until `LoginField` is present
     And I scroll `MyProfileScrollable` until `ChangePassword` is present
