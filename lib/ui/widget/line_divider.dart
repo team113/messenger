@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 
+/// [Text] centered within a line.
 class LineDivider extends StatelessWidget {
   const LineDivider(
     String this.label, {
@@ -27,6 +28,7 @@ class LineDivider extends StatelessWidget {
     this.bold = false,
   }) : span = null;
 
+  /// Builds a [LineDivider] with the [TextSpan] in the center.
   const LineDivider.rich(
     TextSpan this.span, {
     super.key,
@@ -34,9 +36,16 @@ class LineDivider extends StatelessWidget {
     this.bold = false,
   }) : label = null;
 
+  /// Label to put in the centered [Text].
   final String? label;
+
+  /// [TextSpan] to put in the centered [Text].
   final TextSpan? span;
+
+  /// Indicator whether [label] should have a primary style.
   final bool primary;
+
+  /// Indicator whether this [LineDivider] should be opaque.
   final bool bold;
 
   @override

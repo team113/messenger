@@ -60,7 +60,7 @@ class AddEmailController extends GetxController {
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
-  ///
+  /// [TextFieldState] for inputting the [email].
   late final TextFieldState emailField = TextFieldState(
     onFocus: (s) {
       if (s.text.isNotEmpty) {

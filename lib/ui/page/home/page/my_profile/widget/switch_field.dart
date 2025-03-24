@@ -40,8 +40,10 @@ class SwitchField extends StatelessWidget {
   /// Callback, called when the user toggles the switch.
   final void Function(bool)? onChanged;
 
+  /// Background [Color] of this [SwitchField].
   final Color? background;
 
+  /// Label to display.
   final String? label;
 
   @override

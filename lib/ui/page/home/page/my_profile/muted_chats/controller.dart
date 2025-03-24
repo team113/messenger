@@ -19,10 +19,10 @@ import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../util/message_popup.dart';
 import '/domain/model/chat.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/chat.dart';
+import '/util/message_popup.dart';
 
 export 'view.dart';
 
@@ -30,9 +30,10 @@ export 'view.dart';
 class MutedChatsController extends GetxController {
   MutedChatsController(this._chatService);
 
-  /// [Chat]s found under the [SearchCategory.chat] category.
+  /// [Chat]s found being [Chat.muted].
   final RxMap<ChatId, RxChat> chats = RxMap();
 
+  /// [RxStatus] of the [chats].
   final Rx<RxStatus> status = Rx(RxStatus.success());
 
   /// [ChatService] for retrieving [Chat]s.
@@ -74,6 +75,7 @@ class MutedChatsController extends GetxController {
     super.onClose();
   }
 
+  /// Unmutes the [Chat] with the provided [id].
   Future<void> unmute(ChatId id) async {
     final RxChat? chat = chats.remove(id);
 
@@ -95,7 +97,7 @@ class MutedChatsController extends GetxController {
     }
   }
 
-  /// Updates the [chats] according to the [query].
+  /// Updates the [chats] with [RxChat]s that are [Chat.muted].
   void _populateChats() {
     final Iterable<RxChat> allChats = _chatService.paginated.values;
 
@@ -111,7 +113,7 @@ class MutedChatsController extends GetxController {
     chats.value = {for (final RxChat c in filtered) c.chat.value.id: c};
   }
 
-  /// Invokes [_nextContacts] and [_nextUsers] for fetching the next page.
+  /// Invokes [ChatService.next] for fetching the next page.
   Future<void> _next() async {
     // Fetch all the [chats] first to prevent them from appearing in other
     // [SearchCategory]s.
@@ -123,8 +125,7 @@ class MutedChatsController extends GetxController {
         await Future.delayed(1.milliseconds);
 
         // Populate [chats] first until there's no more [Chat]s to fetch from
-        // [ChatService.paginated], then it is safe to populate other
-        // [SearchCategory]s.
+        // [ChatService.paginated].
         if (_chatService.hasNext.value) {
           _populateChats();
         }

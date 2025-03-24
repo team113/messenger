@@ -122,7 +122,7 @@ class MessagePopup {
     at: at,
   );
 
-  /// Returns the proceed button, which invokes [NavigatorState.pop].
+  /// Returns the delete styled [OutlinedRoundedButton].
   static Widget deleteButton(
     BuildContext context, {
     String? label,

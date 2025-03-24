@@ -44,6 +44,7 @@ class DeleteSessionView extends StatelessWidget {
   /// [Session]s to delete.
   final List<RxSession> sessions;
 
+  /// Indicator whether the [sessions] don't include the current.
   final bool exceptCurrent;
 
   /// Displays a [DeleteSessionView] wrapped in a [ModalPopup].
@@ -78,7 +79,7 @@ class DeleteSessionView extends StatelessWidget {
           switch (c.stage.value) {
             case DeleteSessionStage.info:
               children = [
-                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
                 Flexible(
                   child: ListView(
@@ -88,7 +89,7 @@ class DeleteSessionView extends StatelessWidget {
                       if (sessions.length > 1 || exceptCurrent)
                         Center(
                           child: Text(
-                            'All sessions except this one will be terminated',
+                            'label_all_session_except_current_terminated'.l10n,
                             style: style.fonts.small.regular.secondary,
                           ),
                         )
@@ -110,7 +111,7 @@ class DeleteSessionView extends StatelessWidget {
 
             case DeleteSessionStage.confirm:
               children = [
-                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
                 Flexible(
                   child: ListView(
@@ -118,9 +119,7 @@ class DeleteSessionView extends StatelessWidget {
                     shrinkWrap: true,
                     children: [
                       Text(
-                        'Please, enter your password or one-time code. The one-time code has been sent to your e-mails and is valid for 30 minutes.\n'
-                        '\n'
-                        'If you did not receive e-mail, please check your spam folder.',
+                        'label_enter_password_or_one_time_code'.l10n,
                         style: style.fonts.small.regular.secondary,
                       ),
                       const SizedBox(height: 21),
@@ -128,8 +127,8 @@ class DeleteSessionView extends StatelessWidget {
                         return ReactiveTextField(
                           key: const Key('PasswordField'),
                           state: c.password,
-                          label: 'Password or one-time code'.l10n,
-                          hint: 'Enter password or code',
+                          label: 'label_password_or_one_time_code'.l10n,
+                          hint: 'label_enter_password_or_code'.l10n,
                           obscure: c.obscurePassword.value,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           onSuffixPressed: c.obscurePassword.toggle,
@@ -156,7 +155,7 @@ class DeleteSessionView extends StatelessWidget {
                                         ? null
                                         : c.password.submit,
                                 danger: true,
-                                title: 'Terminate'.l10n,
+                                title: 'btn_terminate'.l10n,
                               );
                             }),
                           ),
@@ -171,11 +170,11 @@ class DeleteSessionView extends StatelessWidget {
 
             case DeleteSessionStage.done:
               children = [
-                ModalPopupHeader(text: 'Terminate session(s)'.l10n),
+                ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
                 PrimaryButton(
                   onPressed: Navigator.of(context).pop,
-                  title: 'Ok'.l10n,
+                  title: 'btn_ok'.l10n,
                 ),
                 const SizedBox(height: 16),
               ];

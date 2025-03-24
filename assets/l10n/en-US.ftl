@@ -281,6 +281,7 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terminate = Terminate
 btn_terminate_all_other_sessions = Terminate all other sessions
 btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms and conditions
@@ -415,6 +416,7 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blocked = You are blacklisted
 err_you_are_not_member = Not a member
+exclamation_mark = !
 fcm_dialog_title = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -625,6 +627,7 @@ label_ago_date = {$years ->
 }
 label_all = All
 label_all_chats_and_groups = All chats and groups
+label_all_session_except_current_terminated = All sessions except this one will be terminated
 label_always_muted = Always muted
 label_app_background = Application background
 label_application = Application
@@ -692,6 +695,7 @@ label_chat_name_hint = Chat name
 label_chats = Chats
 label_chats_and_groups = Chats and groups: {$count}
 label_chats_section_hint = Audio and video call buttons
+label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Clear history
 label_clicks_count = {$count} clicks
 label_code_requirements = Requirements for the code
@@ -805,6 +809,11 @@ label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
 label_enter_password_below = Please, enter your password in the field below.
+label_enter_password_or_code = Enter password or code
+label_enter_password_or_one_time_code =
+    Please, enter your password or one-time code. The one-time code has been sent to your e-mails and is valid for 30 minutes.
+
+    If you did not receive e-mail, please check your spam folder.
 label_entrance = Sign in
 label_error = Error
 label_expandable_more = more
@@ -983,6 +992,7 @@ label_password_not_set_info = No password has been set for your account. Consequ
     • access to your account will be lost forever when you close the current window;
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
+label_password_or_one_time_code = Password or one-time code
 label_password_set = Password has been set.
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
@@ -1146,6 +1156,7 @@ label_tech_stack_frontend_developer =
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
 label_tech_stack_ui_ux_designer = - Figma - layout and prototyping.
+label_terminate_sessions = Terminate session(s)
 label_text_status = Text status
 label_text_status_description = 25 symbols max
 label_this_device = This device

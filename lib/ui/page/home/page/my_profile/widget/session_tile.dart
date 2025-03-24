@@ -18,17 +18,22 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../user/controller.dart';
-import '../session/controller.dart';
 import '/domain/model/session.dart';
 import '/domain/repository/session.dart';
+import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/page/my_profile/session/controller.dart';
+import '/ui/page/home/page/user/controller.dart';
 import '/ui/widget/svg/svg.dart';
 
+/// Visual representation of a [RxSession].
 class SessionTileWidget extends StatelessWidget {
   const SessionTileWidget(this.rxSession, {super.key, this.isCurrent = false});
 
+  /// [RxSession] to display.
   final RxSession rxSession;
+
+  /// Indicator whether the [rxSession] should be displayed as current.
   final bool isCurrent;
 
   @override
@@ -84,7 +89,11 @@ class SessionTileWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 4),
                   Text(
-                    '${geo?.city}, ${geo?.country} • ${session.lastActivatedAt.val.toDifferenceAgo()}',
+                    'label_city_country_activated_at'.l10nfmt({
+                      'city': geo?.city,
+                      'country': geo?.country,
+                      'at': session.lastActivatedAt.val.toDifferenceAgo(),
+                    }),
                     style: style.fonts.small.regular.secondary,
                   ),
                 ],

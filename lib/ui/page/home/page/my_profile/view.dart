@@ -210,7 +210,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                       ),
                       child: Center(
                         child: Text(
-                          '!',
+                          'label_exclamation_mark'.l10n,
                           style: style.fonts.smallest.regular.onPrimary,
                         ),
                       ),
@@ -244,7 +244,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
             ),
             _addInfo(context, c),
             const SizedBox(height: 20),
-            LineDivider('Password'.l10n),
+            LineDivider('label_password'.l10n),
             const SizedBox(height: 16),
             _password(context, c),
           ],
@@ -334,16 +334,6 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
         ],
       );
 
-    // case ProfileTab.chats:
-    //   return block(children: [_chats(context, c)]);
-
-    // case ProfileTab.calls:
-    //   if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-    //     return const SizedBox();
-    //   }
-
-    //   return block(children: [_call(context, c)]);
-
     case ProfileTab.media:
       if (PlatformUtils.isMobile) {
         return const SizedBox();
@@ -383,9 +373,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
               text: 'label_chats_and_groups'.l10nfmt({
                 'count': c.mutedChatsCount,
               }),
-              onPressed: () async {
-                await MutedChatsView.show(context);
-              },
+              onPressed: () async => MutedChatsView.show(context),
             );
           }),
           const SizedBox(height: 8),
@@ -1322,7 +1310,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
 
   final v = (index / (values.length - 1) * 100).round();
 
-  /// One gigabyte in bytes.
+  /// One megabyte in bytes.
   // ignore: constant_identifier_names
   const int MB = 1024 * 1024;
 
@@ -1502,7 +1490,7 @@ Widget _storage(BuildContext context, MyProfileController c) {
                   ),
                 ),
 
-                // TODO: Uncomment when implement.
+                // TODO: Uncomment when implemented.
                 // WidgetButton(
                 //   onPressed: () {},
                 //   child: Text(

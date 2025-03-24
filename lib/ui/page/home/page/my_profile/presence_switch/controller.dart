@@ -29,10 +29,13 @@ export 'view.dart';
 class PresenceSwitchController extends GetxController {
   PresenceSwitchController(this._myUserService);
 
+  /// [MyUserService] for retrieving the [myUser].
   final MyUserService _myUserService;
 
+  /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
+  /// Updates [MyUser.presence] to the provided [presence].
   Future<void> setPresence(Presence presence) =>
       _myUserService.updateUserPresence(presence);
 }

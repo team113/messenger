@@ -20,14 +20,13 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/schema.dart' show Presence;
-import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
-/// View for updating the [ApplicationSettings.enablePopups] value.
+/// View for updating the [MyUser.presence] value.
 ///
 /// Intended to be displayed with the [show] method.
 class PresenceSwitchView extends StatelessWidget {

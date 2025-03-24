@@ -19,14 +19,14 @@ import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-import '../../../../../../domain/model/mute_duration.dart';
-import '../../../../../../domain/repository/chat.dart';
-import '../../../../../widget/svg/svg.dart';
-import '../../../../../widget/widget_button.dart';
-import '../../../widget/chat_tile.dart';
+import '/domain/model/mute_duration.dart';
+import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/chat_tile.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/svg/svg.dart';
+import '/ui/widget/widget_button.dart';
 import 'controller.dart';
 
 /// View for displaying muted [Chat]s.

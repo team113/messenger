@@ -134,7 +134,7 @@ class MyProfileController extends GetxController {
   /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
   final GlobalKey welcomeFieldKey = GlobalKey();
 
-  /// [Chat.name] field state.
+  /// [MyUser.name] field state.
   late final TextFieldState name = TextFieldState(
     text: myUser.value?.name?.val,
     onFocus: (s) async {
@@ -159,6 +159,7 @@ class MyProfileController extends GetxController {
     },
   );
 
+  /// [MyUser.login] field state.
   late final TextFieldState login = TextFieldState(
     text: myUser.value?.login?.val,
     onFocus: (s) async {
@@ -185,6 +186,7 @@ class MyProfileController extends GetxController {
     },
   );
 
+  /// [MyUser.bio] field state.
   late final TextFieldState about = TextFieldState(
     text: myUser.value?.bio?.val,
     onFocus: (s) async {
@@ -209,6 +211,7 @@ class MyProfileController extends GetxController {
     },
   );
 
+  /// [MyUser.status] field state.
   late final TextFieldState status = TextFieldState(
     text: myUser.value?.status?.val,
     onFocus: (s) async {
@@ -251,7 +254,10 @@ class MyProfileController extends GetxController {
   /// [BlocklistService] for retrieving the [BlocklistService.count].
   final BlocklistService _blocklistService;
 
+  /// [UpgradeWorker] for retrieving the current application version.
   final UpgradeWorker _upgradeWorker;
+
+  /// [CacheWorker] for retrieving the [CacheWorker.downloadsDirectory].
   final CacheWorker _cacheWorker;
 
   /// Worker to react on [RouterState.profileSection] changes.
@@ -297,10 +303,13 @@ class MyProfileController extends GetxController {
   /// authenticated [MyUser].
   RxInt get blocklistCount => _blocklistService.count;
 
+  /// Returns the latest available fetched [Release] of application.
   Rx<Release?> get latestRelease => _upgradeWorker.latest;
 
+  /// Returns the [Directory] the [CacheWorker] is supposed to put downloads to.
   Rx<Directory?> get downloadsDirectory => _cacheWorker.downloadsDirectory;
 
+  /// Returns the count of [Chat]s being muted.
   int get mutedChatsCount =>
       _chatService.paginated.values
           .where((e) => e.chat.value.muted != null)

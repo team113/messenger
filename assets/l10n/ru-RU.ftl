@@ -282,6 +282,7 @@ btn_submit = Применить
 btn_take_photo = Фото
 btn_take_video = Видео
 btn_terms_and_conditions = Условия использования
+btn_terminate = Завершить
 btn_terminate_all_other_sessions = Завершить все остальные сессии
 btn_terminate_this_session = Завершить данную сессию
 btn_unblock = Разблокировать
@@ -417,6 +418,7 @@ err_you_already_has_unconfirmed_email = Вы имеете неподтвержд
 err_you_already_has_unconfirmed_phone = Вы имеете неподтвержденный телефон.
 err_you_are_blocked = Вы в чёрном списке.
 err_you_are_not_member = Вы не состоите в чате
+exclamation_mark = !
 fcm_dialog_title =
     {$userName ->
         [x] {$userNum}
@@ -645,6 +647,7 @@ label_ago_date = {$years ->
 }
 label_all = Все
 label_all_chats_and_groups = Все чаты и группы
+label_all_session_except_current_terminated = Все сессии, кроме текущей, будут завершены
 label_always_muted = Заглушённые чаты
 label_app_background = Фон приложения
 label_application = Приложение
@@ -713,6 +716,7 @@ label_chat_name_hint = Название чата
 label_chats = Чаты
 label_chats_and_groups = Чаты и группы: {$count}
 label_chats_section_hint = Кнопки аудио и видео звонка
+label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Очистить историю
 label_clicks_count = {$count} кликов
 label_code_requirements = Требования к коду
@@ -827,6 +831,11 @@ label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
 label_enter_password_below = Пожалуйста, введите Ваш пароль в поле ниже.
+label_enter_password_or_code = Введите пароль или код
+label_enter_password_or_one_time_code =
+    Пожалуйста, введите пароль или одноразовый код. Одноразовый код был отправлен на Ваши e-mail'ы и действителен в течение 30-ти минут.
+
+    Если Вы не получили e-mail, пожалуйста, проверьте папку спама.
 label_entrance = Вход
 label_error = Ошибка
 label_expandable_more = ещё
@@ -1008,6 +1017,7 @@ label_password_not_set_info = Для Вашего аккаунта не зада
     • доступ к Вашему аккаунту будет утерян безвозвратно при закрытии текущего окна;
 
     • в случае если Вы используете веб-версию, доступ к Вашему аккаунту будет утрачен безвозвратно при закрытии окна браузера и удалении файлов cookie.
+label_password_or_one_time_code = Пароль или одноразовый код
 label_password_set = Пароль задан.
 label_personal_data_deletion = Удалить аккаунт
 label_personal_data_deletion_authorize = Чтобы удалить Ваш аккаунт, пожалуйста, авторизуйтесь в форме ниже.
@@ -1174,6 +1184,7 @@ label_tech_stack_frontend_developer =
     - GraphQL и Artemis - связь с бэкэндом;
     - Gherkin - E2E тестирование.
 label_tech_stack_ui_ux_designer = - Figma - вёрстка и прототипирование.
+label_terminate_sessions = Завершить сессию(-ии)
 label_text_status = Текстовый статус
 label_text_status_description = Максимум 25 символов
 label_this_device = Это устройство
