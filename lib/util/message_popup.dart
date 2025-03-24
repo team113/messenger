@@ -127,12 +127,14 @@ class MessagePopup {
     BuildContext context, {
     String? label,
     SvgData? icon,
+    Key? key,
   }) {
     final style = Theme.of(context).style;
 
     return Stack(
       children: [
         OutlinedRoundedButton(
+          key: key,
           maxWidth: double.infinity,
           onPressed: () => Navigator.of(context).pop(true),
           color: style.colors.danger,

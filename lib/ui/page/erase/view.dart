@@ -148,6 +148,7 @@ class EraseView extends StatelessWidget {
                 c.password.error.value == null;
 
             return PrimaryButton(
+              key: Key('ProceedButton'),
               title: 'btn_proceed'.l10n,
               onPressed: enabled ? c.signIn : null,
             );
@@ -206,6 +207,7 @@ class EraseView extends StatelessWidget {
       button:
           (context) => MessagePopup.deleteButton(
             context,
+            key: Key('Proceed'),
             icon: SvgIcons.none,
             label: 'btn_confirm'.l10n,
           ),

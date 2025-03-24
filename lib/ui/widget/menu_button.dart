@@ -83,7 +83,7 @@ class MenuButton extends StatelessWidget {
                ProfileTab.public => const Key('PublicInformation'),
                ProfileTab.signing => const Key('Signing'),
                ProfileTab.link => const Key('Link'),
-               ProfileTab.interface => const Key('Appearance'),
+               ProfileTab.interface => const Key('Interface'),
                ProfileTab.media => const Key('Media'),
                ProfileTab.welcome => const Key('WelcomeMessage'),
                ProfileTab.notifications => const Key('Notifications'),

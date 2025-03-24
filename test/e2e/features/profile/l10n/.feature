@@ -22,8 +22,8 @@ Feature: Localization
     And I wait until `HomeView` is present
 
     When I tap `MenuButton` button
-    And I scroll `MenuListView` until `Language` is present
-    And I tap `Language` button
+    And I scroll `MenuListView` until `Interface` is present
+    And I tap `Interface` button
     And I tap `ChangeLanguage` button
     And I tap `Language_ru` button
     And I tap `CloseButton` button

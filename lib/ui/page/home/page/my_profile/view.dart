@@ -428,18 +428,21 @@ Widget _profile(BuildContext context, MyProfileController c) {
     title: 'label_profile'.l10n,
     children: [
       SelectionContainer.disabled(
-        child: BigAvatarWidget.myUser(
-          c.myUser.value,
-          loading: c.avatarUpload.value.isLoading,
-          error: c.avatarUpload.value.errorMessage,
-          onUpload: c.uploadAvatar,
-          onEdit: c.myUser.value?.avatar != null ? c.editAvatar : null,
-          onDelete: c.myUser.value?.avatar != null ? c.deleteAvatar : null,
-        ),
+        child: Obx(() {
+          return BigAvatarWidget.myUser(
+            c.myUser.value,
+            loading: c.avatarUpload.value.isLoading,
+            error: c.avatarUpload.value.errorMessage,
+            onUpload: c.uploadAvatar,
+            onEdit: c.myUser.value?.avatar != null ? c.editAvatar : null,
+            onDelete: c.myUser.value?.avatar != null ? c.deleteAvatar : null,
+          );
+        }),
       ),
       const SizedBox(height: 16),
       const SizedBox(height: 8),
       ReactiveTextField(
+        key: Key('NameField'),
         state: c.name,
         label: 'label_your_name'.l10n,
         hint: '${c.myUser.value?.num}',
@@ -448,6 +451,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 21),
       FieldButton(
+        key: Key('StatusButton'),
         headline: Text('label_your_status'.l10n),
         onPressed: () async {
           await PresenceSwitchView.show(context);
@@ -481,6 +485,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 21),
       ReactiveTextField(
+        key: Key('TextStatusField'),
         state: c.status,
         label: 'label_text_status'.l10n,
         hint: 'label_text_status_description'.l10n,
@@ -490,6 +495,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 21),
       ReactiveTextField(
+        key: Key('BioField'),
         state: c.about,
         label: 'label_about_you'.l10n,
         hint: 'label_about_you_description'.l10n,
@@ -511,12 +517,16 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
 
     final List<UserEmail> emails = [...c.myUser.value?.emails.confirmed ?? []];
 
-    for (UserEmail e in emails) {
+    for (var i = 0; i < emails.length; ++i) {
+      final UserEmail e = emails[i];
+
       widgets.add(
         ReactiveTextField(
+          key: Key('ConfirmedEmail_$i'),
           state: TextFieldState(text: e.val, editable: false),
           label: 'label_email'.l10n,
           trailing: WidgetButton(
+            key: Key('DeleteEmail_$i'),
             onPressed: () => _deleteEmail(c, context, e),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
@@ -555,6 +565,7 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
         const SizedBox(height: 20),
         Obx(() {
           return ReactiveTextField(
+            key: Key('LoginField'),
             state: c.login,
             label: 'label_login'.l10n,
             hint: 'unique_login',
@@ -607,6 +618,9 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           mainAxisSize: MainAxisSize.min,
           children: [
             FieldButton(
+              key: Key(
+                unconfirmed == null ? 'AddEmailButton' : 'VerifyEmailButton',
+              ),
               text:
                   unconfirmed == null
                       ? 'label_add_email'.l10n
@@ -1159,6 +1173,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
                           );
                         },
                         child: Text(
+                          key: Key('TerminateAllSessions'),
                           'btn_terminate_all_other_sessions'.l10n,
                           style: style.fonts.small.regular.danger,
                         ),
@@ -1170,13 +1185,14 @@ Widget _devices(BuildContext context, MyProfileController c) {
                   if (current != null) SizedBox(height: 20),
                   LineDivider('label_active_devices'.l10n),
                   SizedBox(height: 12),
-                  ...sessions.map((e) {
+                  ...sessions.mapIndexed((i, e) {
                     return Column(
                       children: [
                         SessionTileWidget(e),
                         SizedBox(height: 6),
                         Center(
                           child: WidgetButton(
+                            key: Key('TerminateSession_$i'),
                             onPressed: () async {
                               await DeleteSessionView.show(context, [e]);
                             },

@@ -172,9 +172,12 @@ class DeleteSessionView extends StatelessWidget {
               children = [
                 ModalPopupHeader(text: 'label_terminate_sessions'.l10n),
                 const SizedBox(height: 13),
-                PrimaryButton(
-                  onPressed: Navigator.of(context).pop,
-                  title: 'btn_ok'.l10n,
+                Padding(
+                  padding: ModalPopup.padding(context),
+                  child: PrimaryButton(
+                    onPressed: Navigator.of(context).pop,
+                    title: 'btn_ok'.l10n,
+                  ),
                 ),
                 const SizedBox(height: 16),
               ];

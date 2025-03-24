@@ -73,6 +73,7 @@ class AddEmailView extends StatelessWidget {
               children = [
                 const SizedBox(height: 12),
                 ReactiveTextField(
+                  key: Key('EmailField'),
                   state: c.emailField,
                   label: 'label_email'.l10n,
                   hint: 'example@domain.com',

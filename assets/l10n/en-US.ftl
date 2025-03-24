@@ -184,6 +184,7 @@ btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
+btn_confirm_email = Confirm e-mail
 btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
