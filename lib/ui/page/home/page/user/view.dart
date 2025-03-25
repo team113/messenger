@@ -400,6 +400,8 @@ class UserView extends StatelessWidget {
   Future<void> _blockUser(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
+    c.reason.clear();
+
     final bool? result = await MessagePopup.alert(
       'label_block'.l10n,
       description: [

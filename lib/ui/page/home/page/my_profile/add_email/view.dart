@@ -112,6 +112,7 @@ class AddEmailView extends StatelessWidget {
                   state: c.code,
                   label: 'label_confirmation_code'.l10n,
                   formatters: [FilteringTextInputFormatter.digitsOnly],
+                  type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
                 Obx(() {

@@ -641,7 +641,7 @@ class SubscriptionHandle {
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
 
   /// [SubscriptionOptions] to pass to the [_listen].
-  final SubscriptionOptions _options;
+  SubscriptionOptions _options;
 
   /// [StreamController] of the [stream] exposed containing the events.
   late final StreamController<QueryResult> _controller =
@@ -708,7 +708,20 @@ class SubscriptionHandle {
   void _resubscribe({bool noVersion = false}) async {
     Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
-    _options.variables['ver'] = noVersion ? null : (await ver?.call())?.val;
+    _options = SubscriptionOptions(
+      document: _options.document,
+      operationName: _options.operationName,
+      variables: {
+        ..._options.variables,
+        'ver': noVersion ? null : (await ver?.call())?.val,
+      },
+      fetchPolicy: _options.policies.fetch,
+      errorPolicy: _options.policies.error,
+      cacheRereadPolicy: _options.policies.cacheReread,
+      optimisticResult: _options.optimisticResult,
+      context: _options.context,
+      parserFn: _options.parserFn,
+    );
 
     if (_backoff?.isActive != true) {
       _backoff?.cancel();

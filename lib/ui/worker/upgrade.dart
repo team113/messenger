@@ -65,12 +65,15 @@ class UpgradeWorker extends DisposableService {
   void onReady() {
     Log.debug('onReady()', '$runtimeType');
 
-    fetchUpdates();
+    // Don't check for updates in [WebUtils.isPopup].
+    if (!WebUtils.isPopup) {
+      fetchUpdates();
 
-    if (Config.appcast.isNotEmpty || PlatformUtils.isWeb) {
-      _timer = Timer.periodic(_refreshPeriod, (_) {
-        fetchUpdates();
-      });
+      if (Config.appcast.isNotEmpty || PlatformUtils.isWeb) {
+        _timer = Timer.periodic(_refreshPeriod, (_) {
+          fetchUpdates();
+        });
+      }
     }
 
     super.onReady();
