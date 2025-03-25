@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart' show SelectedContent;
 
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/obscured_selection_area.dart';
 import '/util/platform_utils.dart';
 
 /// [Text] wrapped in a [SelectionArea] if [selectable].
@@ -92,7 +93,7 @@ class _SelectionTextState extends State<SelectionText> {
           child: child,
         );
       } else {
-        child = SelectionArea(
+        child = ObscuredSelectionArea(
           onSelectionChanged: widget.onChanged,
           child: child,
         );

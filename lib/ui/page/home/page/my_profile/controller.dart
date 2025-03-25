@@ -263,6 +263,9 @@ class MyProfileController extends GetxController {
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
 
+  /// Worker to update [name], [login] and other fields on the [MyUser] changes.
+  Worker? _myUserWorker;
+
   /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
   /// updating the [devices].
   StreamSubscription? _devicesSubscription;
@@ -511,6 +514,24 @@ class MyProfileController extends GetxController {
       },
     );
 
+    _myUserWorker = ever(myUser, (myUser) {
+      if (!name.focus.hasFocus) {
+        name.unchecked = myUser?.name?.val;
+      }
+
+      if (!about.focus.hasFocus) {
+        about.unchecked = myUser?.bio?.val;
+      }
+
+      if (!status.focus.hasFocus) {
+        status.unchecked = myUser?.status?.val;
+      }
+
+      if (!login.focus.hasFocus) {
+        login.unchecked = myUser?.login?.val;
+      }
+    });
+
     super.onInit();
   }
 
@@ -525,6 +546,7 @@ class MyProfileController extends GetxController {
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
     scrollController.dispose();
+    _myUserWorker?.dispose();
     super.onClose();
   }
 

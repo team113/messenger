@@ -51,6 +51,7 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/menu_interceptor/menu_interceptor.dart';
+import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/selected_dot.dart';
@@ -751,7 +752,7 @@ class ChatView extends StatelessWidget {
                                 }
                               }
 
-                              return SelectionArea(
+                              return ObscuredSelectionArea(
                                 key: Key('${c.selecting.value}'),
                                 onSelectionChanged:
                                     (a) => c.selection.value = a,

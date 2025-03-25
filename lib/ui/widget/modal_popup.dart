@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '../../routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
@@ -49,7 +50,7 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.fromLTRB(0, 0, 0, 10),
     bool isDismissible = true,
     Color? background,
-  }) {
+  }) async {
     final style = Theme.of(context).style;
 
     if (context.isMobile) {
@@ -107,8 +108,7 @@ abstract class ModalPopup {
         },
       );
     } else {
-      return showGeneralDialog(
-        context: context,
+      final route = RawDialogRoute<T>(
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
         pageBuilder: (_, __, ___) {
@@ -143,6 +143,16 @@ abstract class ModalPopup {
           );
         },
       );
+
+      router.obscuring.add(route);
+      print('====== router.obscuring.add -> ${router.obscuring}');
+
+      try {
+        return await Navigator.of(context, rootNavigator: true).push<T>(route);
+      } finally {
+        router.obscuring.remove(route);
+        print('====== router.obscuring.remove -> ${router.obscuring}');
+      }
     }
   }
 }
