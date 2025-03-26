@@ -188,6 +188,9 @@ btn_confirm_email = Подтвердить e-mail
 btn_copy = Копировать
 btn_copy_text = Копировать текст
 btn_create = Создать
+btn_create_and_copy =
+    Создать и
+    копировать
 btn_create_group = Создать группу
 btn_decline = Отклонить
 btn_delete = Удалить
@@ -767,6 +770,7 @@ label_critical_update_is_available = Текущая версия не подде
 label_create_group = Создание группы
 label_create_group_selected = Выбрано
 label_create_group_users = пользователь(ей)
+label_create_link = Создать ссылку
 label_current_language = Текущий язык
 label_current_password = Текущий пароль
 label_danger_zone = Опасная зона
@@ -1229,6 +1233,7 @@ label_video_downloaded = Видео загружено.
 label_video_downloading = Видео загружается...
 label_video_saved_to_gallery = Видео сохранено в галерею.
 label_visible_to = Видят:
+label_visits_count = Посещений: {$count}
 label_wait_seconds = Подождите {$for} с
 label_waiting_for_connection = Ожидание подключения...
 label_warning = Внимание
@@ -1262,8 +1267,9 @@ label_work_with_us_desc =
     с нами
 label_you = Вы
 label_you_were_added_to_group = Вас добавили в группу
+label_you_can_use_randomly_generated_link = Вы можете использовать случайную ссылку или создать собственную.
 label_your_blocklist = Ваш чёрный список
-label_your_direct_link = Прямая ссылка на чат с Вами
+label_your_direct_link = Ссылка на чат с Вами
 label_your_name = Ваше имя
 label_your_password = Ваш пароль
 label_your_status = Ваш статус

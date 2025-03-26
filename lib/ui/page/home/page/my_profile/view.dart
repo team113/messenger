@@ -266,23 +266,6 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                 }
               },
               background: c.background.value,
-              onEditing: (b) {
-                if (b) {
-                  final ItemPosition? first =
-                      c.positionsListener.itemPositions.value.firstOrNull;
-
-                  // If the [Block] containing this widget isn't fully visible,
-                  // then animate to it's beginning.
-                  if (first?.index == i && first!.itemLeadingEdge < 0) {
-                    c.itemScrollController.scrollTo(
-                      index: i,
-                      curve: Curves.ease,
-                      duration: const Duration(milliseconds: 600),
-                    );
-                    c.highlight(ProfileTab.link);
-                  }
-                }
-              },
             );
           }),
         ],
