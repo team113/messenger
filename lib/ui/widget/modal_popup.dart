@@ -17,7 +17,7 @@
 
 import 'package:flutter/material.dart';
 
-import '../../routes.dart';
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
@@ -54,16 +54,24 @@ abstract class ModalPopup {
     final style = Theme.of(context).style;
 
     if (context.isMobile) {
-      return showModalBottomSheet(
-        context: context,
-        barrierColor: style.barrierColor,
+      final NavigatorState navigator = Navigator.of(
+        context,
+        rootNavigator: true,
+      );
+
+      final route = ModalBottomSheetRoute<T>(
+        modalBarrierColor: style.barrierColor,
         isScrollControlled: true,
         backgroundColor: background ?? style.colors.background,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
+        capturedThemes: InheritedTheme.capture(
+          from: context,
+          to: navigator.context,
+        ),
         transitionAnimationController: BottomSheet.createAnimationController(
-          Navigator.of(context),
+          navigator,
         )..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
@@ -107,6 +115,14 @@ abstract class ModalPopup {
           );
         },
       );
+
+      router.obscuring.add(route);
+
+      try {
+        return await Navigator.of(context, rootNavigator: true).push<T>(route);
+      } finally {
+        router.obscuring.remove(route);
+      }
     } else {
       final route = RawDialogRoute<T>(
         barrierColor: style.barrierColor,
@@ -145,13 +161,11 @@ abstract class ModalPopup {
       );
 
       router.obscuring.add(route);
-      print('====== router.obscuring.add -> ${router.obscuring}');
 
       try {
         return await Navigator.of(context, rootNavigator: true).push<T>(route);
       } finally {
         router.obscuring.remove(route);
-        print('====== router.obscuring.remove -> ${router.obscuring}');
       }
     }
   }
