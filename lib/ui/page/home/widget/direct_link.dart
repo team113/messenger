@@ -144,10 +144,13 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                 child: Center(
                   child: WidgetButton(
                     key: const Key('CreateLinkButton'),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_state.text.isEmpty) {
                         _state.text = _generated;
                       }
+
+                      PlatformUtils.copy(text: '${Config.link}${_state.text}');
+                      MessagePopup.success('label_copied'.l10n);
 
                       _submitLink();
                     },
@@ -213,7 +216,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                   child: WidgetButton(
                     key: const Key('CopyLinkButton'),
                     onPressed: () {
-                      PlatformUtils.copy(text: '${Config.link}$_generated');
+                      PlatformUtils.copy(text: '${Config.link}${_state.text}');
                       MessagePopup.success('label_copied'.l10n);
                     },
                     child: Container(
