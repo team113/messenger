@@ -35,6 +35,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/widget/animated_button.dart';
+import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
@@ -93,7 +94,7 @@ class UserView extends StatelessWidget {
             appBar: CustomAppBar(title: _bar(c, context)),
             body: Scrollbar(
               controller: c.scrollController,
-              child: SelectionArea(
+              child: ObscuredSelectionArea(
                 contextMenuBuilder: (_, __) => const SizedBox(),
                 child: ScrollablePositionedList.builder(
                   key: const Key('UserScrollable'),

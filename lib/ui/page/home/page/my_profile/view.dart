@@ -210,7 +210,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
                       ),
                       child: Center(
                         child: Text(
-                          'label_exclamation_mark'.l10n,
+                          'exclamation_mark'.l10n,
                           style: style.fonts.smallest.regular.onPrimary,
                         ),
                       ),
