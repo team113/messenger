@@ -137,6 +137,7 @@ void main() async {
     router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();
     when(router.routes).thenReturn(RxList());
+    when(router.obscuring).thenReturn(RxList());
 
     await tester.pumpWidget(createWidgetForTesting(child: const AuthView()));
     await tester.pumpAndSettle();
