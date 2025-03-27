@@ -702,6 +702,7 @@ label_call_title =
             *[other] Звоним...
         }
     }
+label_call_window = Окно звонка
 label_calls = Звонки
 label_calls_displaying = В отдельном окне или в приложении
 label_camera = Камера

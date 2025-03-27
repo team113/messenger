@@ -681,6 +681,7 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_call_window = Call window
 label_calls = Calls
 label_calls_displaying = In separate window or within app
 label_camera = Camera

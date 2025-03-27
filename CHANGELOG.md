@@ -30,11 +30,14 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - User page:
         - Missing localization for biography expand button. ([#1185], [#1186])
+        - Inability to input block reason in Safari and Firefox. ([#1190], [#1187])
 
 [#1181]: /../../pull/1181
 [#1182]: /../../pull/1182
 [#1185]: /../../pull/1185
 [#1186]: /../../issues/1186
+[#1187]: /../../issues/1187
+[#1190]: /../../pull/1190
 [#1191]: /../../pull/1191
 
 

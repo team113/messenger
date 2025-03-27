@@ -256,6 +256,8 @@ extension UserAgentExtension on UserAgent {
         return 'watchOS';
       } else if (system.startsWith('tvOS')) {
         return 'tvOS';
+      } else if (system.startsWith('Windows')) {
+        return 'Windows';
       } else {
         return system;
       }
