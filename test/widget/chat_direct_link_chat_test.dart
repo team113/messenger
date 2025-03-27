@@ -427,9 +427,6 @@ void main() async {
     await tester.tap(find.byKey(const Key('CreateLinkButton')));
     await tester.pumpAndSettle();
 
-    await tester.tap(find.byKey(const Key('SaveLinkButton')));
-    await tester.pumpAndSettle(const Duration(seconds: 2));
-
     verify(
       graphQlProvider.createChatDirectLink(
         any,
