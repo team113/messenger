@@ -96,7 +96,7 @@ late RouterState router;
 class Routes {
   static const auth = '/';
   static const call = '/call';
-  static const chatDirectLink = '/d';
+  static const chatDirectLink = '/~';
   static const chatInfo = '/info';
   static const chats = '/chats';
   static const contacts = '/contacts';
@@ -896,11 +896,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
           child: SupportView(),
         ),
       ];
-    } else if (_state.route.startsWith('${Routes.chatDirectLink}/')) {
-      final String slug = _state.route.replaceFirst(
-        '${Routes.chatDirectLink}/',
-        '',
-      );
+    } else if (_state.route.startsWith(Routes.chatDirectLink)) {
+      final String slug = _state.route.replaceFirst(Routes.chatDirectLink, '');
       return [
         MaterialPage(
           key: ValueKey('ChatDirectLinkPage$slug'),

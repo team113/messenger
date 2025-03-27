@@ -48,7 +48,6 @@ class LinkView extends StatelessWidget {
                 padding: ModalPopup.padding(context),
                 shrinkWrap: true,
                 children: [
-                  const SizedBox(height: 16),
                   Obx(() {
                     return DirectLinkField(
                       c.myUser.value?.chatDirectLink,

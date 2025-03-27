@@ -23,6 +23,7 @@ All user visible changes to this project will be documented in this file. This p
         - Dock and panels redesigned contrast colors. ([#1182])
     - Redesigned my profile page. ([#1185])
     - Redesigned menu tab labels and icons. ([#1185])
+    - Redesigned share link modal. ([#1191])
 
 ### Fixed
 
@@ -37,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1186]: /../../issues/1186
 [#1187]: /../../issues/1187
 [#1190]: /../../pull/1190
+[#1191]: /../../pull/1191
 
 
 

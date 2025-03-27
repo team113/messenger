@@ -16,7 +16,6 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -367,23 +366,6 @@ class ChatInfoView extends StatelessWidget {
                   }
                 },
                 background: c.background.value,
-                onEditing: (b) {
-                  if (b) {
-                    final ItemPosition? first =
-                        c.positionsListener.itemPositions.value.firstOrNull;
-
-                    // If the [Block] containing this widget isn't fully
-                    // visible, then animate to it's beginning.
-                    if (first?.index == 3 && first!.itemLeadingEdge < 0) {
-                      c.itemScrollController.scrollTo(
-                        index: 3,
-                        curve: Curves.ease,
-                        duration: const Duration(milliseconds: 600),
-                      );
-                      c.highlight(3);
-                    }
-                  }
-                },
               ),
             ],
           );

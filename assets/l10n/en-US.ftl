@@ -188,6 +188,9 @@ btn_confirm_email = Confirm e-mail
 btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
+btn_create_and_copy =
+    Create and
+    copy
 btn_create_group = Create group
 btn_decline = Decline
 btn_delete = Delete
@@ -746,6 +749,7 @@ label_critical_update_is_available = Current version is no longer supported
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
+label_create_link = Create link
 label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
@@ -894,7 +898,7 @@ label_last_seen = Last seen
 label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
 label_legal_information = Legal information
-label_link_to_chat = Links to you
+label_link_to_chat = Link to you
 label_linked_devices = Linked devices
 label_load_images = Load images
 label_login = Login
@@ -1201,6 +1205,7 @@ label_video_downloaded = Video downloaded.
 label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
+label_visits_count = Visits: {$count}
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
 label_warning = Warning
@@ -1234,9 +1239,10 @@ label_work_with_us_desc =
     Work
     with us
 label_you = You
+label_you_can_use_randomly_generated_link = You can use randomly generated link or create your own.
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist
-label_your_direct_link = Links to the chat with you
+label_your_direct_link = Link to the chat with you
 label_your_name = Your name
 label_your_password = Your password
 label_your_status = Your status
