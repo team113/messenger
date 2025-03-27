@@ -84,26 +84,26 @@ class _ObscuredSelectionAreaState extends State<ObscuredSelectionArea> {
     final bool isApplicable =
         PlatformUtils.isWeb && (WebUtils.isSafari || WebUtils.isFirefox);
 
-    final Widget child = KeyedSubtree(key: _key, child: widget.child);
-    final Widget area = SelectionArea(
+    Widget child() => KeyedSubtree(key: _key, child: widget.child);
+    Widget area() => SelectionArea(
       magnifierConfiguration: widget.magnifierConfiguration,
       focusNode: widget.focusNode,
       selectionControls: widget.selectionControls,
       contextMenuBuilder: widget.contextMenuBuilder,
       onSelectionChanged: widget.onSelectionChanged,
-      child: child,
+      child: child(),
     );
 
     if (!isApplicable) {
-      return area;
+      return area();
     }
 
     return Obx(() {
       if (router.obscuring.isNotEmpty) {
-        return child;
+        return child();
       }
 
-      return area;
+      return area();
     });
   }
 }
