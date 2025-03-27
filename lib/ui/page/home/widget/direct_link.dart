@@ -152,7 +152,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       PlatformUtils.copy(text: '${Config.link}${_state.text}');
                       MessagePopup.success('label_copied'.l10n);
 
-                      _submitLink();
+                      await _submitLink();
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -260,7 +260,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                           await Share.share('${Config.link}$_generated');
                         },
                         label: 'btn_share'.l10n,
-                        trailing: SvgIcon(SvgIcons.share19),
+                        trailing: SvgIcon(SvgIcons.share),
                         inverted: SvgIcon(SvgIcons.share19White),
                       ),
                     ContextMenuButton(
