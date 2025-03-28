@@ -109,6 +109,7 @@ class UserView extends StatelessWidget {
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
+                  addAutomaticKeepAlives: false,
                 ),
               ),
             ),

@@ -65,24 +65,24 @@ class _ObscuredMenuInterceptorState extends State<ObscuredMenuInterceptor> {
     final bool isApplicable =
         PlatformUtils.isWeb && (WebUtils.isSafari || WebUtils.isFirefox);
 
-    final Widget child = KeyedSubtree(key: _key, child: widget.child);
-    final Widget interceptor = ContextMenuInterceptor(
+    Widget child() => KeyedSubtree(key: _key, child: widget.child);
+    Widget interceptor() => ContextMenuInterceptor(
       margin: widget.margin,
       enabled: widget.enabled,
       debug: widget.debug,
-      child: child,
+      child: child(),
     );
 
     if (!isApplicable) {
-      return interceptor;
+      return interceptor();
     }
 
     return Obx(() {
       if (router.obscuring.isNotEmpty) {
-        return child;
+        return child();
       }
 
-      return interceptor;
+      return interceptor();
     });
   }
 }
