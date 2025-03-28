@@ -859,6 +859,7 @@ label_hint_drag_n_drop_video =
 
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
+label_hotkey = Hotkey
 label_identifiers = Identifiers
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
@@ -948,6 +949,7 @@ label_mute_for = {$days ->
 }
 label_mute_chat_for = Mute chat for
 label_mute_or_unmute_chats = Mute or unmute chats
+label_mute_slash_unmute = Mute/unmute
 label_muted = Muted
 label_muted_chats = Muted chats
 label_muted_until_i_turn_on = Muted until I turn it on

@@ -236,6 +236,9 @@ class MyProfileController extends GetxController {
     },
   );
 
+  /// Indicator whether mute/unmute hotkey is being recorded right now.
+  final RxBool hotKeyRecording = RxBool(false);
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 

@@ -739,6 +739,13 @@ extension MobileExtensionOnContext on BuildContext {
       PlatformUtils.isDesktop
           ? MediaQuery.sizeOf(this).width < 600
           : MediaQuery.sizeOf(this).shortestSide < 600;
+
+  /// Returns `true` if [MediaQuery]'s width is less than `379p` on desktop and
+  /// [MediaQuery]'s shortest side is less than `379p` on mobile.
+  bool get isTiny =>
+      PlatformUtils.isDesktop
+          ? MediaQuery.sizeOf(this).width < 379
+          : MediaQuery.sizeOf(this).shortestSide < 379;
 }
 
 /// Extension adding an ability to pop the current [ModalRoute].
