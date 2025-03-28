@@ -23,9 +23,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../../widget/upgrade_popup/view.dart';
+import '../../../../worker/call.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -681,6 +684,8 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -775,6 +780,39 @@ Widget _media(BuildContext context, MyProfileController c) {
           );
         }),
       ),
+      SizedBox(height: 20),
+      LineDivider('label_hotkey'.l10n),
+      SizedBox(height: 16),
+      Obx(() {
+        final HotKey key =
+            c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+        return FieldButton(
+          headline: Text('label_mute_slash_unmute'.l10n),
+          onPressed:
+              c.hotKeyRecording.value
+                  ? null
+                  : () {
+                    c.hotKeyRecording.value = true;
+                  },
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  [
+                    ...(key.modifiers ?? []),
+                  ].map((e) => e.physicalKeys.map((e) => e.asKey)).join(' + '),
+                  textAlign: TextAlign.left,
+                ),
+              ),
+              Text(
+                c.hotKeyRecording.value ? 'btn_cancel'.l10n : 'btn_change'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+            ],
+          ),
+        );
+      }),
     ],
   );
 }
@@ -1231,7 +1269,15 @@ Widget _downloads(BuildContext context, MyProfileController c) {
                   : 'btn_download_version'.l10nfmt({
                     'version': '${c.latestRelease.value?.name}}',
                   }),
-          onPressed: latest ? null : () {},
+          onPressed:
+              latest
+                  ? null
+                  : () async {
+                    await UpgradePopupView.show(
+                      context,
+                      release: c.latestRelease.value!,
+                    );
+                  },
         );
       }),
       if (PWAInstall().installPromptEnabled) ...[

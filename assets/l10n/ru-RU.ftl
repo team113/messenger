@@ -881,6 +881,7 @@ label_hint_drag_n_drop_video =
 
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
+label_hotkey = Горячие клавиши
 label_identifiers = Идентификаторы
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
@@ -973,6 +974,7 @@ label_mute_for = {$days ->
 }
 label_mute_chat_for = Заглушить чат на
 label_mute_or_unmute_chats = Выключить или включить уведомления
+label_mute_slash_unmute = Включить/выключить микрофон
 label_muted = Выключен звук
 label_muted_chats = Заглушённые чаты
 label_muted_until_i_turn_on = Выключено пока я не включу
