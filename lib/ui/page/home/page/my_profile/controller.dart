@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -550,6 +551,7 @@ class MyProfileController extends GetxController {
     _devicesSubscription?.cancel();
     scrollController.dispose();
     _myUserWorker?.dispose();
+    HardwareKeyboard.instance.removeHandler(_hotKeyListener);
     super.onClose();
   }
 
@@ -767,6 +769,61 @@ class MyProfileController extends GetxController {
     });
   }
 
+  final List<KeyDownEvent> _keysRecorded = [];
+  Timer? _timer;
+
+  void toggleHotKey([bool? value]) {
+    if (value == false) {
+      if (_keysRecorded.isNotEmpty) {
+        final List<HotKeyModifier> modifiers = [];
+        PhysicalKeyboardKey? lastKey;
+
+        for (var e in _keysRecorded) {
+          if (e.logicalKey.isModifier) {
+            modifiers.add(e.logicalKey.asModifier!);
+          } else {
+            lastKey = e.physicalKey;
+          }
+        }
+
+        _settingsRepo.setMuteKeys([
+          ...modifiers.map((e) => e.name),
+          if (lastKey != null) lastKey.usbHidUsage.toString(),
+        ]);
+      }
+    }
+
+    value ??= !hotKeyRecording.value;
+
+    _timer?.cancel();
+    _timer = null;
+    _keysRecorded.clear();
+
+    hotKeyRecording.value = value;
+
+    if (hotKeyRecording.value) {
+      HardwareKeyboard.instance.addHandler(_hotKeyListener);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_hotKeyListener);
+    }
+  }
+
+  bool _hotKeyListener(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (!event.logicalKey.isModifier) {
+        _timer ??= Timer(
+          Duration(milliseconds: 200),
+          () => toggleHotKey(false),
+        );
+      }
+
+      _keysRecorded.add(event);
+      return true;
+    }
+
+    return false;
+  }
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file]
   /// and [crop].
   ///
@@ -819,4 +876,40 @@ extension PresenceL10n on Presence {
       Presence.artemisUnknown => null,
     };
   }
+}
+
+extension on LogicalKeyboardKey {
+  bool get isModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight ||
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight ||
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight ||
+    LogicalKeyboardKey.fn ||
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => true,
+    (_) => false,
+  };
+
+  HotKeyModifier? get asModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight => HotKeyModifier.alt,
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight => HotKeyModifier.meta,
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight => HotKeyModifier.control,
+    LogicalKeyboardKey.fn => HotKeyModifier.fn,
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => HotKeyModifier.shift,
+    (_) => null,
+  };
 }

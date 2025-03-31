@@ -141,6 +141,10 @@ class CallWorker extends DisposableService {
   /// Indicator whether all the [OngoingCall]s should be muted or not.
   final RxBool _muted = RxBool(false);
 
+  /// [Worker] reacting on the [ApplicationSettings] changes to rebind the
+  /// [_hotKey].
+  Worker? _settingsWorker;
+
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
   static const Duration _pushTimeout = Duration(seconds: 10);
@@ -170,6 +174,29 @@ class CallWorker extends DisposableService {
   void onInit() {
     AudioUtils.ensureInitialized();
     _initWebUtils();
+
+    List<String>? lastKeys =
+        _settingsRepository.applicationSettings.value?.muteKeys?.toList();
+
+    _settingsWorker = ever(_settingsRepository.applicationSettings, (
+      ApplicationSettings? settings,
+    ) {
+      if (settings?.muteKeys != lastKeys) {
+        lastKeys = settings?.muteKeys?.toList();
+
+        final bool shouldBind = _bind;
+
+        if (_bind) {
+          _unbindHotKey();
+        }
+
+        _hotKey = settings?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+        if (shouldBind) {
+          _bindHotKey();
+        }
+      }
+    });
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock && !PlatformUtils.isLinux) {
@@ -581,6 +608,7 @@ class CallWorker extends DisposableService {
     _workers.forEach((_, value) => value.dispose());
     _audioWorkers.forEach((_, value) => value.dispose());
     _lifecycleWorker?.dispose();
+    _settingsWorker?.dispose();
 
     if (_vibrationTimer != null) {
       _vibrationTimer?.cancel();
@@ -672,6 +700,11 @@ class CallWorker extends DisposableService {
 
   /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
   Future<void> _bindHotKey() async {
+    Log.debug(
+      '_bindHotKey() -> ${_hotKey?.modifiers} + ${_hotKey?.physicalKey.usbHidUsage}',
+      '$runtimeType',
+    );
+
     if (!_bind && _hotKey != null) {
       _bind = true;
 
@@ -685,6 +718,8 @@ class CallWorker extends DisposableService {
 
   /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
   void _unbindHotKey() {
+    Log.debug('_unbindHotKey()', '$runtimeType');
+
     if (_bind) {
       _bind = false;
       _muted.value = false;
@@ -771,7 +806,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
       }
     }
 
-    if (modifiers.isEmpty) {
+    if (keys.isEmpty) {
       modifiers.addAll(defaultHotKey.modifiers ?? []);
     }
 
@@ -784,7 +819,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
 }
 
 extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
-  static final Map<PhysicalKeyboardKey, String> _labels =
+  static final Map<PhysicalKeyboardKey, String> labels =
       <PhysicalKeyboardKey, String>{
         PhysicalKeyboardKey.keyA: 'A',
         PhysicalKeyboardKey.keyB: 'B',
@@ -870,6 +905,4 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
         PhysicalKeyboardKey.metaRight: Platform.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.fn: 'fn',
       };
-
-  String get asKey => _labels[this] ?? debugName ?? 'Unknown';
 }

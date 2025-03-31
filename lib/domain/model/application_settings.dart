@@ -68,6 +68,37 @@ class ApplicationSettings {
 
   /// String representation of the [HotKey]s used to mute/unmute [OngoingCall]s.
   List<String>? muteKeys;
+
+  @override
+  bool operator ==(Object other) {
+    return other is ApplicationSettings &&
+        enablePopups == other.enablePopups &&
+        locale == other.locale &&
+        showIntroduction == other.showIntroduction &&
+        sideBarWidth == other.sideBarWidth &&
+        callButtons.toString() == other.callButtons.toString() &&
+        showDragAndDropVideosHint == other.showDragAndDropVideosHint &&
+        showDragAndDropButtonsHint == other.showDragAndDropButtonsHint &&
+        pinnedActions.toString() == other.pinnedActions.toString() &&
+        callButtonsPosition == other.callButtonsPosition &&
+        workWithUsTabEnabled == other.workWithUsTabEnabled &&
+        muteKeys?.toString() == other.muteKeys?.toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    enablePopups,
+    locale,
+    showIntroduction,
+    sideBarWidth,
+    callButtons.toString(),
+    showDragAndDropVideosHint,
+    showDragAndDropButtonsHint,
+    pinnedActions.toString(),
+    callButtonsPosition,
+    workWithUsTabEnabled,
+    muteKeys.toString(),
+  );
 }
 
 /// Possible call buttons position.

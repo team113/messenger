@@ -787,24 +787,53 @@ Widget _media(BuildContext context, MyProfileController c) {
         final HotKey key =
             c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
 
+        final Iterable<String> modifiers =
+            (key.modifiers ?? [])
+                .map(
+                  (e) => e.physicalKeys.map((e) {
+                    return KeyboardKeyToStringExtension.labels[e] ??
+                        e.debugName ??
+                        'question_mark'.l10n;
+                  }),
+                )
+                .expand((e) => e)
+                .toSet();
+
+        final String keys =
+            KeyboardKeyToStringExtension.labels[key.physicalKey] ??
+            key.physicalKey.debugName ??
+            'Unknown';
+
         return FieldButton(
-          headline: Text('label_mute_slash_unmute'.l10n),
-          onPressed:
+          headline: Text(
+            'label_mute_slash_unmute'.l10n,
+            style:
+                c.hotKeyRecording.value
+                    ? style.fonts.big.regular.primary
+                    : style.fonts.big.regular.secondary,
+          ),
+          onPressed: c.toggleHotKey,
+          border:
               c.hotKeyRecording.value
-                  ? null
-                  : () {
-                    c.hotKeyRecording.value = true;
-                  },
+                  ? BorderSide(color: style.colors.primary, width: 1)
+                  : null,
           child: Row(
             children: [
-              Expanded(
-                child: Text(
-                  [
-                    ...(key.modifiers ?? []),
-                  ].map((e) => e.physicalKeys.map((e) => e.asKey)).join(' + '),
-                  textAlign: TextAlign.left,
+              if (c.hotKeyRecording.value)
+                Expanded(
+                  child: Text(
+                    'label_any_button_or_combination'.l10n,
+                    textAlign: TextAlign.left,
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                )
+              else
+                Expanded(
+                  child: Text(
+                    [...modifiers, keys].join(' + '),
+                    textAlign: TextAlign.left,
+                  ),
                 ),
-              ),
               Text(
                 c.hotKeyRecording.value ? 'btn_cancel'.l10n : 'btn_change'.l10n,
                 style: style.fonts.medium.regular.primary,
@@ -813,6 +842,7 @@ Widget _media(BuildContext context, MyProfileController c) {
           ),
         );
       }),
+      SizedBox(height: 8),
     ],
   );
 }
