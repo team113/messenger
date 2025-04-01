@@ -167,6 +167,7 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                       child: Text(
                         'btn_create_and_copy'.l10n,
                         style: style.fonts.small.regular.onPrimary,
+                        textAlign: TextAlign.center,
                       ),
                     ),
                   ),

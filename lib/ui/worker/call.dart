@@ -141,6 +141,10 @@ class CallWorker extends DisposableService {
   /// Indicator whether all the [OngoingCall]s should be muted or not.
   final RxBool _muted = RxBool(false);
 
+  /// [Worker] reacting on the [ApplicationSettings] changes to rebind the
+  /// [_hotKey].
+  Worker? _settingsWorker;
+
   /// [Duration] indicating the time after which the push notification should be
   /// considered as lost.
   static const Duration _pushTimeout = Duration(seconds: 10);
@@ -170,6 +174,28 @@ class CallWorker extends DisposableService {
   void onInit() {
     AudioUtils.ensureInitialized();
     _initWebUtils();
+
+    List<String>? lastKeys =
+        _settingsRepository.applicationSettings.value?.muteKeys?.toList();
+
+    _settingsWorker = ever(_settingsRepository.applicationSettings, (
+      ApplicationSettings? settings,
+    ) {
+      if (settings?.muteKeys != lastKeys) {
+        lastKeys = settings?.muteKeys?.toList();
+
+        final bool shouldBind = _bind;
+        if (_bind) {
+          _unbindHotKey();
+        }
+
+        _hotKey = settings?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+        if (shouldBind) {
+          _bindHotKey();
+        }
+      }
+    });
 
     bool wakelock = _callService.calls.isNotEmpty;
     if (wakelock && !PlatformUtils.isLinux) {
@@ -581,6 +607,7 @@ class CallWorker extends DisposableService {
     _workers.forEach((_, value) => value.dispose());
     _audioWorkers.forEach((_, value) => value.dispose());
     _lifecycleWorker?.dispose();
+    _settingsWorker?.dispose();
 
     if (_vibrationTimer != null) {
       _vibrationTimer?.cancel();
@@ -672,6 +699,11 @@ class CallWorker extends DisposableService {
 
   /// Binds to the [_hotKey] via [WebUtils.bindKey] to [_toggleMuteOnKey].
   Future<void> _bindHotKey() async {
+    Log.debug(
+      '_bindHotKey() -> ${_hotKey?.modifiers} + ${_hotKey?.physicalKey.usbHidUsage}',
+      '$runtimeType',
+    );
+
     if (!_bind && _hotKey != null) {
       _bind = true;
 
@@ -685,6 +717,8 @@ class CallWorker extends DisposableService {
 
   /// Unbinds the [_toggleMuteOnKey] from [_hotKey] via [WebUtils.unbindKey].
   void _unbindHotKey() {
+    Log.debug('_unbindHotKey()', '$runtimeType');
+
     if (_bind) {
       _bind = false;
       _muted.value = false;
@@ -714,7 +748,7 @@ class CallWorker extends DisposableService {
 
     AudioUtils.once(
       AudioSource.asset(
-        _muted.value ? 'audio/pause_off.ogg' : 'audio/pause_on.ogg',
+        _muted.value ? 'audio/note_muted.ogg' : 'audio/note_unmuted.ogg',
       ),
     );
 
@@ -771,7 +805,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
       }
     }
 
-    if (modifiers.isEmpty) {
+    if (keys.isEmpty) {
       modifiers.addAll(defaultHotKey.modifiers ?? []);
     }
 
@@ -781,4 +815,97 @@ extension MuteHotKeyExtension on ApplicationSettings {
       scope: HotKeyScope.system,
     );
   }
+}
+
+/// Extension adding map of visual Unicode [String] representation of the
+/// [PhysicalKeyboardKey].
+extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
+  /// [Map] matching [PhysicalKeyboardKey] with a visual [String]
+  /// representation.
+  static final Map<PhysicalKeyboardKey, String> labels =
+      <PhysicalKeyboardKey, String>{
+        PhysicalKeyboardKey.keyA: 'A',
+        PhysicalKeyboardKey.keyB: 'B',
+        PhysicalKeyboardKey.keyC: 'C',
+        PhysicalKeyboardKey.keyD: 'D',
+        PhysicalKeyboardKey.keyE: 'E',
+        PhysicalKeyboardKey.keyF: 'F',
+        PhysicalKeyboardKey.keyG: 'G',
+        PhysicalKeyboardKey.keyH: 'H',
+        PhysicalKeyboardKey.keyI: 'I',
+        PhysicalKeyboardKey.keyJ: 'J',
+        PhysicalKeyboardKey.keyK: 'K',
+        PhysicalKeyboardKey.keyL: 'L',
+        PhysicalKeyboardKey.keyM: 'M',
+        PhysicalKeyboardKey.keyN: 'N',
+        PhysicalKeyboardKey.keyO: 'O',
+        PhysicalKeyboardKey.keyP: 'P',
+        PhysicalKeyboardKey.keyQ: 'Q',
+        PhysicalKeyboardKey.keyR: 'R',
+        PhysicalKeyboardKey.keyS: 'S',
+        PhysicalKeyboardKey.keyT: 'T',
+        PhysicalKeyboardKey.keyU: 'U',
+        PhysicalKeyboardKey.keyV: 'V',
+        PhysicalKeyboardKey.keyW: 'W',
+        PhysicalKeyboardKey.keyX: 'X',
+        PhysicalKeyboardKey.keyY: 'Y',
+        PhysicalKeyboardKey.keyZ: 'Z',
+        PhysicalKeyboardKey.digit1: '1',
+        PhysicalKeyboardKey.digit2: '2',
+        PhysicalKeyboardKey.digit3: '3',
+        PhysicalKeyboardKey.digit4: '4',
+        PhysicalKeyboardKey.digit5: '5',
+        PhysicalKeyboardKey.digit6: '6',
+        PhysicalKeyboardKey.digit7: '7',
+        PhysicalKeyboardKey.digit8: '8',
+        PhysicalKeyboardKey.digit9: '9',
+        PhysicalKeyboardKey.digit0: '0',
+        PhysicalKeyboardKey.enter: '↩︎',
+        PhysicalKeyboardKey.escape: '⎋',
+        PhysicalKeyboardKey.backspace: '←',
+        PhysicalKeyboardKey.tab: '⇥',
+        PhysicalKeyboardKey.space: '␣',
+        PhysicalKeyboardKey.minus: '-',
+        PhysicalKeyboardKey.equal: '=',
+        PhysicalKeyboardKey.bracketLeft: '[',
+        PhysicalKeyboardKey.bracketRight: ']',
+        PhysicalKeyboardKey.backslash: '\\',
+        PhysicalKeyboardKey.semicolon: ';',
+        PhysicalKeyboardKey.quote: '"',
+        PhysicalKeyboardKey.backquote: '`',
+        PhysicalKeyboardKey.comma: ',',
+        PhysicalKeyboardKey.period: '.',
+        PhysicalKeyboardKey.slash: '/',
+        PhysicalKeyboardKey.capsLock: '⇪',
+        PhysicalKeyboardKey.f1: 'F1',
+        PhysicalKeyboardKey.f2: 'F2',
+        PhysicalKeyboardKey.f3: 'F3',
+        PhysicalKeyboardKey.f4: 'F4',
+        PhysicalKeyboardKey.f5: 'F5',
+        PhysicalKeyboardKey.f6: 'F6',
+        PhysicalKeyboardKey.f7: 'F7',
+        PhysicalKeyboardKey.f8: 'F8',
+        PhysicalKeyboardKey.f9: 'F9',
+        PhysicalKeyboardKey.f10: 'F10',
+        PhysicalKeyboardKey.f11: 'F11',
+        PhysicalKeyboardKey.f12: 'F12',
+        PhysicalKeyboardKey.home: '↖',
+        PhysicalKeyboardKey.pageUp: '⇞',
+        PhysicalKeyboardKey.delete: '⌫',
+        PhysicalKeyboardKey.end: '↘',
+        PhysicalKeyboardKey.pageDown: '⇟',
+        PhysicalKeyboardKey.arrowRight: '→',
+        PhysicalKeyboardKey.arrowLeft: '←',
+        PhysicalKeyboardKey.arrowDown: '↓',
+        PhysicalKeyboardKey.arrowUp: '↑',
+        PhysicalKeyboardKey.controlLeft: '⌃',
+        PhysicalKeyboardKey.shiftLeft: '⇧',
+        PhysicalKeyboardKey.altLeft: '⌥',
+        PhysicalKeyboardKey.metaLeft: Platform.isMacOS ? '⌘' : '⊞',
+        PhysicalKeyboardKey.controlRight: '⌃',
+        PhysicalKeyboardKey.shiftRight: '⇧',
+        PhysicalKeyboardKey.altRight: '⌥',
+        PhysicalKeyboardKey.metaRight: Platform.isMacOS ? '⌘' : '⊞',
+        PhysicalKeyboardKey.fn: 'fn',
+      };
 }

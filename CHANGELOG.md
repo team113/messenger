@@ -15,6 +15,9 @@ All user visible changes to this project will be documented in this file. This p
 
 - Web:
     - Upgrade popup displaying when new deployment is available. ([#1181])
+- UI:
+    - Profile page:
+        - Ability to rebind hot key for toggling microphone on and off. ([#1193])
 
 ### Changed
 
@@ -39,6 +42,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1187]: /../../issues/1187
 [#1190]: /../../pull/1190
 [#1191]: /../../pull/1191
+[#1193]: /../../pull/1193
 
 
 

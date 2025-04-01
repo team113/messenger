@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -236,6 +237,9 @@ class MyProfileController extends GetxController {
     },
   );
 
+  /// Indicator whether mute/unmute hotkey is being recorded right now.
+  final RxBool hotKeyRecording = RxBool(false);
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -283,6 +287,13 @@ class MyProfileController extends GetxController {
     'ui',
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
+
+  /// [KeyDownEvent]s recorded during [hotKeyRecording].
+  final List<KeyDownEvent> _keysRecorded = [];
+
+  /// [Timer] disabling the [hotKeyRecording] after any [_keysRecorded] are
+  /// added.
+  Timer? _timer;
 
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
@@ -547,6 +558,7 @@ class MyProfileController extends GetxController {
     _devicesSubscription?.cancel();
     scrollController.dispose();
     _myUserWorker?.dispose();
+    HardwareKeyboard.instance.removeHandler(_hotKeyListener);
     super.onClose();
   }
 
@@ -764,6 +776,61 @@ class MyProfileController extends GetxController {
     });
   }
 
+  /// Toggles [hotKeyRecording] on and off, storing the [_keysRecorded].
+  void toggleHotKey([bool? value]) {
+    if (value == false) {
+      if (_keysRecorded.isNotEmpty) {
+        final List<HotKeyModifier> modifiers = [];
+        PhysicalKeyboardKey? lastKey;
+
+        for (var e in _keysRecorded) {
+          if (e.logicalKey.isModifier) {
+            modifiers.add(e.logicalKey.asModifier!);
+          } else {
+            lastKey = e.physicalKey;
+          }
+        }
+
+        _settingsRepo.setMuteKeys([
+          ...modifiers.map((e) => e.name),
+          if (lastKey != null) lastKey.usbHidUsage.toString(),
+        ]);
+      }
+    }
+
+    value ??= !hotKeyRecording.value;
+
+    _timer?.cancel();
+    _timer = null;
+    _keysRecorded.clear();
+
+    hotKeyRecording.value = value;
+
+    if (hotKeyRecording.value) {
+      HardwareKeyboard.instance.addHandler(_hotKeyListener);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_hotKeyListener);
+    }
+  }
+
+  /// Records the provided [event] to the [_keysRecorded], if it's not a
+  /// modifier.
+  bool _hotKeyListener(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (!event.logicalKey.isModifier) {
+        _timer ??= Timer(
+          Duration(milliseconds: 200),
+          () => toggleHotKey(false),
+        );
+      }
+
+      _keysRecorded.add(event);
+      return true;
+    }
+
+    return false;
+  }
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file]
   /// and [crop].
   ///
@@ -816,4 +883,44 @@ extension PresenceL10n on Presence {
       Presence.artemisUnknown => null,
     };
   }
+}
+
+/// Extension adding indicators whether a [LogicalKeyboardKey] is a modifier.
+extension on LogicalKeyboardKey {
+  /// Indicates whether this [LogicalKeyboardKey] is a modifier.
+  bool get isModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight ||
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight ||
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight ||
+    LogicalKeyboardKey.fn ||
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => true,
+    (_) => false,
+  };
+
+  /// Returns the [HotKeyModifier] of this [LogicalKeyboardKey], if it is a
+  /// modifier.
+  HotKeyModifier? get asModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight => HotKeyModifier.alt,
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight => HotKeyModifier.meta,
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight => HotKeyModifier.control,
+    LogicalKeyboardKey.fn => HotKeyModifier.fn,
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => HotKeyModifier.shift,
+    (_) => null,
+  };
 }
