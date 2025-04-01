@@ -24,6 +24,8 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned my profile page. ([#1185])
     - Redesigned menu tab labels and icons. ([#1185])
     - Redesigned share link modal. ([#1191])
+    - Redesigned logout modal. ([#1194])
+    - Redesigned call window switch modal. ([#1194])
 
 ### Fixed
 
@@ -39,6 +41,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1187]: /../../issues/1187
 [#1190]: /../../pull/1190
 [#1191]: /../../pull/1191
+[#1194]: /../../pull/1194
 
 
 
