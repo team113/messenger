@@ -30,6 +30,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
+import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
@@ -172,6 +173,13 @@ Future<void> main() async {
     router = RouterState(
       authService,
       initial: initial == null ? null : RouteInformation(uri: initial),
+    );
+
+    PWAInstall().setup(
+      installCallback: () {
+        Log.debug('PWA is detected as installed', 'PWAInstall()');
+        WebUtils.hasPwa = true;
+      },
     );
 
     await authService.init();

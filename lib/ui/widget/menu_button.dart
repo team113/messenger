@@ -55,7 +55,7 @@ class MenuButton extends StatelessWidget {
          ProfileTab.devices => 'label_active_sessions'.l10n,
          ProfileTab.download => 'label_ios_android_windows_macos_linux'.l10n,
          ProfileTab.danger => 'label_delete_account'.l10n,
-         ProfileTab.legal => 'btn_terms_and_conditions'.l10n,
+         ProfileTab.legal => 'label_terms_and_privacy_policy'.l10n,
          ProfileTab.support => null,
          ProfileTab.logout => null,
        },

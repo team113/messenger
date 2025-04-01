@@ -36,12 +36,13 @@ class NotificationService: UNNotificationServiceExtension {
         }
       }
 
-      if (request.content.title == "Canceled" && request.content.body.isEmpty) {
+      if request.content.title == "Canceled" && request.content.body.isEmpty {
         if let thread = userInfo["thread"] as? String {
-          let center = UNUserNotificationCenter.current();
-          let notifications = await center.deliveredNotifications();
+          let center = UNUserNotificationCenter.current()
+          let notifications = await center.deliveredNotifications()
 
-          if (!notifications.filter{$0.request.content.threadIdentifier.contains(thread)}.isEmpty) {
+          if !notifications.filter { $0.request.content.threadIdentifier.contains(thread) }.isEmpty
+          {
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
@@ -49,7 +50,7 @@ class NotificationService: UNNotificationServiceExtension {
             cancelNotificationsContaining(thread: thread)
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
-            return;
+            return
           }
         } else if let tag = userInfo["tag"] as? String {
           cancelNotification(tag: tag)
@@ -79,7 +80,9 @@ class NotificationService: UNNotificationServiceExtension {
   }
 
   func acknowledgeDelivery(chatId: String) async {
-    if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.team113.messenger") {
+    if let containerURL = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")
+    {
       let db = try! Connection("\(containerURL)common.sqlite")
 
       // TODO: Need to understand to who this notification was delivered to.
@@ -109,25 +112,25 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-       if Date() > creds.access.expireAt {
-         if #available(iOS 12.0, macOS 12.0, *) {
-           if let refreshed = await refreshToken(creds: creds) {
-             fresh = refreshed
+        if Date() > creds.access.expireAt {
+          if #available(iOS 12.0, macOS 12.0, *) {
+            if let refreshed = await refreshToken(creds: creds) {
+              fresh = refreshed
 
-             let encoder = JSONEncoder()
-             let dateFormatter = DateFormatter()
-             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
-             dateFormatter.locale = Locale(identifier: "en_US")
-             dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-             encoder.dateEncodingStrategy = .formatted(dateFormatter)
+              let encoder = JSONEncoder()
+              let dateFormatter = DateFormatter()
+              dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
+              dateFormatter.locale = Locale(identifier: "en_US")
+              dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+              encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-             let jsonData = try! encoder.encode(refreshed)
-             let json = String(data: jsonData, encoding: String.Encoding.utf8)
+              let jsonData = try! encoder.encode(refreshed)
+              let json = String(data: jsonData, encoding: String.Encoding.utf8)
 
-             try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
-           }
-         }
-       }
+              try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+            }
+          }
+        }
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
@@ -162,9 +165,9 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-    let baseUrl = defaults!.value(forKey: "url") as! String;
-    let endpoint = defaults!.value(forKey: "endpoint") as! String;
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
 
     if let url = URL(string: baseUrl + endpoint) {
       var request = URLRequest(url: url)
@@ -221,9 +224,9 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-    let baseUrl = defaults!.value(forKey: "url") as! String;
-    let endpoint = defaults!.value(forKey: "endpoint") as! String;
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
 
     if let url = URL(string: baseUrl + endpoint) {
       var request = URLRequest(url: url)
@@ -281,19 +284,19 @@ class NotificationService: UNNotificationServiceExtension {
   /// Remove the delivered notification with the provided tag.
   private func cancelNotification(tag: String) {
     if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current();
-      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+      let center = UNUserNotificationCenter.current()
+      center.removeDeliveredNotifications(withIdentifiers: [tag])
     }
   }
 
   /// Remove the delivered notifications containing the provided thread.
   private func cancelNotificationsContaining(thread: String) {
     if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current();
+      let center = UNUserNotificationCenter.current()
       center.getDeliveredNotifications { (notifications) in
         for notification in notifications {
-          if (notification.request.content.threadIdentifier.contains(thread) == true) {
-            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+          if notification.request.content.threadIdentifier.contains(thread) == true {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier])
           }
         }
       }

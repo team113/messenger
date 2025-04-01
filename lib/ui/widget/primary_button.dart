@@ -29,6 +29,7 @@ class PrimaryButton extends StatelessWidget {
     this.style,
     this.onPressed,
     this.danger = false,
+    this.leading,
   });
 
   /// Text to display.
@@ -44,11 +45,14 @@ class PrimaryButton extends StatelessWidget {
   /// (destructive) style.
   final bool danger;
 
+  /// [Widget] to display as a leading of this button.
+  final Widget? leading;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return FieldButton(
+    final fieldButton = FieldButton(
       onPressed: onPressed,
       warning: true,
       danger: danger,
@@ -65,5 +69,21 @@ class PrimaryButton extends StatelessWidget {
                 : style.fonts.normal.regular.onPrimary),
       ),
     );
+
+    if (leading != null) {
+      return Stack(
+        children: [
+          fieldButton,
+          Positioned(
+            top: 0,
+            bottom: 0,
+            left: 16,
+            child: IgnorePointer(child: leading),
+          ),
+        ],
+      );
+    }
+
+    return fieldButton;
   }
 }

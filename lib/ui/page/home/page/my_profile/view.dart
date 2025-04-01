@@ -54,7 +54,6 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
-import '/ui/page/home/widget/paddings.dart';
 import '/ui/page/login/privacy_policy/view.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';
@@ -663,18 +662,16 @@ Widget _call(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Paddings.dense(
-        Obx(() {
-          return FieldButton(
-            text:
-                (c.settings.value?.enablePopups ?? true)
-                    ? 'label_open_calls_in_window'.l10n
-                    : 'label_open_calls_in_app'.l10n,
-            maxLines: null,
-            onPressed: () => CallWindowSwitchView.show(context),
-          );
-        }),
-      ),
+      Obx(() {
+        return FieldButton(
+          text:
+              (c.settings.value?.enablePopups ?? true)
+                  ? 'label_open_calls_in_window'.l10n
+                  : 'label_open_calls_in_app'.l10n,
+          maxLines: null,
+          onPressed: () => CallWindowSwitchView.show(context),
+        );
+      }),
     ],
   );
 }
@@ -684,97 +681,93 @@ Widget _media(BuildContext context, MyProfileController c) {
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
-      Paddings.dense(
-        Obx(() {
-          final selected =
-              c.devices.audio().firstWhereOrNull(
-                (e) => e.id() == c.media.value?.audioDevice,
-              ) ??
-              c.devices.audio().firstOrNull;
+      Obx(() {
+        final selected =
+            c.devices.audio().firstWhereOrNull(
+              (e) => e.id() == c.media.value?.audioDevice,
+            ) ??
+            c.devices.audio().firstOrNull;
 
-          return FieldButton(
-            text: selected?.label() ?? 'label_media_no_device_available'.l10n,
+        return FieldButton(
+          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
 
-            trailing: Transform.translate(
-              offset: Offset(5, 0),
-              child: SvgIcon(SvgIcons.mediaDevicesMicrophone),
-            ),
-            onPressed: () async {
-              await MicrophoneSwitchView.show(
-                context,
-                mic: c.media.value?.audioDevice,
-              );
+          trailing: Transform.translate(
+            offset: Offset(5, 0),
+            child: SvgIcon(SvgIcons.mediaDevicesMicrophone),
+          ),
+          onPressed: () async {
+            await MicrophoneSwitchView.show(
+              context,
+              mic: c.media.value?.audioDevice,
+            );
 
-              if (c.devices.audio().isEmpty) {
-                c.devices.value = await MediaUtils.enumerateDevices();
-              }
-            },
-          );
-        }),
-      ),
+            if (c.devices.audio().isEmpty) {
+              c.devices.value = await MediaUtils.enumerateDevices();
+            }
+          },
+        );
+      }),
 
       // TODO: Remove, when Safari supports output devices without tweaking the
       //       developer options:
       //       https://bugs.webkit.org/show_bug.cgi?id=216641
       if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
-        const SizedBox(height: 16),
-        Paddings.dense(
-          Obx(() {
-            final selected =
-                c.devices.output().firstWhereOrNull(
-                  (e) => e.id() == c.media.value?.outputDevice,
-                ) ??
-                c.devices.output().firstOrNull;
+        const SizedBox(height: 12),
 
-            return FieldButton(
-              text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-              trailing: Transform.translate(
-                offset: Offset(5, 0),
-                child: SvgIcon(SvgIcons.mediaDevicesSpeaker),
-              ),
-              onPressed: () async {
-                await OutputSwitchView.show(
-                  context,
-                  output: c.media.value?.outputDevice,
-                );
-
-                if (c.devices.output().isEmpty) {
-                  c.devices.value = await MediaUtils.enumerateDevices();
-                }
-              },
-            );
-          }),
-        ),
-      ],
-      const SizedBox(height: 16),
-      Paddings.dense(
         Obx(() {
           final selected =
-              c.devices.video().firstWhereOrNull(
-                (e) => e.deviceId() == c.media.value?.videoDevice,
+              c.devices.output().firstWhereOrNull(
+                (e) => e.id() == c.media.value?.outputDevice,
               ) ??
-              c.devices.video().firstOrNull;
+              c.devices.output().firstOrNull;
 
           return FieldButton(
             text: selected?.label() ?? 'label_media_no_device_available'.l10n,
-
             trailing: Transform.translate(
               offset: Offset(5, 0),
-              child: SvgIcon(SvgIcons.mediaDevicesCamera),
+              child: SvgIcon(SvgIcons.mediaDevicesSpeaker),
             ),
             onPressed: () async {
-              await CameraSwitchView.show(
+              await OutputSwitchView.show(
                 context,
-                camera: c.media.value?.videoDevice,
+                output: c.media.value?.outputDevice,
               );
 
-              if (c.devices.video().isEmpty) {
+              if (c.devices.output().isEmpty) {
                 c.devices.value = await MediaUtils.enumerateDevices();
               }
             },
           );
         }),
-      ),
+      ],
+      const SizedBox(height: 12),
+
+      Obx(() {
+        final selected =
+            c.devices.video().firstWhereOrNull(
+              (e) => e.deviceId() == c.media.value?.videoDevice,
+            ) ??
+            c.devices.video().firstOrNull;
+
+        return FieldButton(
+          text: selected?.label() ?? 'label_media_no_device_available'.l10n,
+
+          trailing: Transform.translate(
+            offset: Offset(5, 0),
+            child: SvgIcon(SvgIcons.mediaDevicesCamera),
+          ),
+          onPressed: () async {
+            await CameraSwitchView.show(
+              context,
+              camera: c.media.value?.videoDevice,
+            );
+
+            if (c.devices.video().isEmpty) {
+              c.devices.value = await MediaUtils.enumerateDevices();
+            }
+          },
+        );
+      }),
     ],
   );
 }
@@ -1215,40 +1208,49 @@ Widget _devices(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.download] section.
 Widget _downloads(BuildContext context, MyProfileController c) {
+  final Widget latestButton = Obx(() {
+    final latest =
+        c.latestRelease.value == null ||
+        c.latestRelease.value?.name == Pubspec.ref;
+
+    return PrimaryButton(
+      title:
+          latest
+              ? 'label_latest_version_is_installed'.l10n
+              : 'btn_download_version'.l10nfmt({
+                'version': '${c.latestRelease.value?.name}}',
+              }),
+      onPressed: latest ? null : () {},
+    );
+  });
+
+  final bool installed =
+      WebUtils.hasPwa || PWAInstall().launchMode != LaunchMode.browser;
+
   return Column(
     children: [
       LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
       SizedBox(height: 16),
-      Obx(() {
-        final latest =
-            c.latestRelease.value == null ||
-            c.latestRelease.value?.name == Pubspec.ref;
 
-        return PrimaryButton(
-          title:
-              latest
-                  ? 'label_latest_version_is_installed'.l10n
-                  : 'btn_download_version'.l10nfmt({
-                    'version': '${c.latestRelease.value?.name}}',
-                  }),
-          onPressed: latest ? null : () {},
-        );
-      }),
-      if (PWAInstall().installPromptEnabled) ...[
-        SizedBox(height: 8),
+      if (installed || PWAInstall().installPromptEnabled) ...[
+        if (!PlatformUtils.isWeb) ...[latestButton, SizedBox(height: 8)],
         FieldButton(
-          text: 'btn_install_web_app'.l10n,
-          onPressed: () async {
-            if (PWAInstall().installPromptEnabled) {
-              PWAInstall().promptInstall_();
-            }
-          },
+          text: installed ? 'btn_pwa_is_installed' : 'btn_install_web_app'.l10n,
+          onPressed:
+              installed
+                  ? null
+                  : () async {
+                    if (PWAInstall().installPromptEnabled) {
+                      PWAInstall().promptInstall_();
+                    }
+                  },
           trailing: Padding(
             padding: const EdgeInsets.only(left: 4),
             child: SvgIcon(SvgIcons.logo, height: 30),
           ),
         ),
-      ],
+      ] else
+        latestButton,
       SizedBox(height: 20),
       LineDivider('label_mobile_apps'.l10n),
       SizedBox(height: 16),
@@ -1280,13 +1282,11 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 Widget _danger(BuildContext context, MyProfileController c) {
   return Column(
     children: [
-      Paddings.dense(
-        FieldButton(
-          key: const Key('DeleteAccount'),
-          text: 'btn_delete_account'.l10n,
-          onPressed: () => _deleteAccount(c, context),
-          danger: true,
-        ),
+      FieldButton(
+        key: const Key('DeleteAccount'),
+        text: 'btn_delete_account'.l10n,
+        onPressed: () => _deleteAccount(c, context),
+        danger: true,
       ),
     ],
   );

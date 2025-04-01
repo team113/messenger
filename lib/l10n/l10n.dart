@@ -304,7 +304,7 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.notifications => 'label_notifications'.l10n,
       ProfileTab.storage => 'label_storage'.l10n,
       ProfileTab.confidential => 'label_confidentiality'.l10n,
-      ProfileTab.devices => 'label_devices'.l10n,
+      ProfileTab.devices => 'label_linked_devices'.l10n,
       ProfileTab.download => 'label_download_and_update'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
       ProfileTab.legal => 'label_legal_information'.l10n,
