@@ -185,7 +185,6 @@ class CallWorker extends DisposableService {
         lastKeys = settings?.muteKeys?.toList();
 
         final bool shouldBind = _bind;
-
         if (_bind) {
           _unbindHotKey();
         }
@@ -818,7 +817,11 @@ extension MuteHotKeyExtension on ApplicationSettings {
   }
 }
 
+/// Extension adding map of visual Unicode [String] representation of the
+/// [PhysicalKeyboardKey].
 extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
+  /// [Map] matching [PhysicalKeyboardKey] with a visual [String]
+  /// representation.
   static final Map<PhysicalKeyboardKey, String> labels =
       <PhysicalKeyboardKey, String>{
         PhysicalKeyboardKey.keyA: 'A',

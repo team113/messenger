@@ -288,6 +288,13 @@ class MyProfileController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [KeyDownEvent]s recorded during [hotKeyRecording].
+  final List<KeyDownEvent> _keysRecorded = [];
+
+  /// [Timer] disabling the [hotKeyRecording] after any [_keysRecorded] are
+  /// added.
+  Timer? _timer;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -769,9 +776,7 @@ class MyProfileController extends GetxController {
     });
   }
 
-  final List<KeyDownEvent> _keysRecorded = [];
-  Timer? _timer;
-
+  /// Toggles [hotKeyRecording] on and off, storing the [_keysRecorded].
   void toggleHotKey([bool? value]) {
     if (value == false) {
       if (_keysRecorded.isNotEmpty) {
@@ -808,6 +813,8 @@ class MyProfileController extends GetxController {
     }
   }
 
+  /// Records the provided [event] to the [_keysRecorded], if it's not a
+  /// modifier.
   bool _hotKeyListener(KeyEvent event) {
     if (event is KeyDownEvent) {
       if (!event.logicalKey.isModifier) {
@@ -878,7 +885,9 @@ extension PresenceL10n on Presence {
   }
 }
 
+/// Extension adding indicators whether a [LogicalKeyboardKey] is a modifier.
 extension on LogicalKeyboardKey {
+  /// Indicates whether this [LogicalKeyboardKey] is a modifier.
   bool get isModifier => switch (this) {
     LogicalKeyboardKey.alt ||
     LogicalKeyboardKey.altLeft ||
@@ -896,6 +905,8 @@ extension on LogicalKeyboardKey {
     (_) => false,
   };
 
+  /// Returns the [HotKeyModifier] of this [LogicalKeyboardKey], if it is a
+  /// modifier.
   HotKeyModifier? get asModifier => switch (this) {
     LogicalKeyboardKey.alt ||
     LogicalKeyboardKey.altLeft ||

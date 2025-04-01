@@ -27,8 +27,6 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../../widget/upgrade_popup/view.dart';
-import '../../../../worker/call.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/attachment.dart';
@@ -68,8 +66,10 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/upgrade_popup/view.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
+import '/ui/worker/call.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -802,7 +802,7 @@ Widget _media(BuildContext context, MyProfileController c) {
         final String keys =
             KeyboardKeyToStringExtension.labels[key.physicalKey] ??
             key.physicalKey.debugName ??
-            'Unknown';
+            'label_unknown'.l10n;
 
         return FieldButton(
           headline: Text(
@@ -822,7 +822,10 @@ Widget _media(BuildContext context, MyProfileController c) {
               if (c.hotKeyRecording.value)
                 Expanded(
                   child: Text(
-                    'label_any_button_or_combination'.l10n,
+                    'label_key_plus_key_by_default'.l10nfmt({
+                      'modifier': '⌥',
+                      'key': 'M',
+                    }),
                     textAlign: TextAlign.left,
                     style: style.fonts.normal.regular.secondary,
                   ),
@@ -830,7 +833,7 @@ Widget _media(BuildContext context, MyProfileController c) {
               else
                 Expanded(
                   child: Text(
-                    [...modifiers, keys].join(' + '),
+                    [...modifiers, keys].join('space_plus_space'.l10n),
                     textAlign: TextAlign.left,
                   ),
                 ),
