@@ -202,8 +202,8 @@ class PopupCallController extends GetxController {
     AudioUtils.once(
       AudioSource.asset(
         call!.value.audioState.value.isEnabled
-            ? 'audio/pause_on.ogg'
-            : 'audio/pause_off.ogg',
+            ? 'audio/note_unmuted.ogg'
+            : 'audio/note_muted.ogg',
       ),
     );
 

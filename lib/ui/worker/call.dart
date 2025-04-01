@@ -748,7 +748,7 @@ class CallWorker extends DisposableService {
 
     AudioUtils.once(
       AudioSource.asset(
-        _muted.value ? 'audio/pause_off.ogg' : 'audio/pause_on.ogg',
+        _muted.value ? 'audio/note_muted.ogg' : 'audio/note_unmuted.ogg',
       ),
     );
 
