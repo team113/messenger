@@ -653,7 +653,8 @@ class ChatsTabController extends GetxController {
         }.where((e) => e != me).toList(),
       );
 
-      router.dialog(chat.chat.value, me);
+      router.chat(chat.id);
+      router.chatInfo(chat.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
