@@ -1309,7 +1309,6 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     children: [
       LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
       SizedBox(height: 16),
-
       if (installed || PWAInstall().installPromptEnabled) ...[
         if (!PlatformUtils.isWeb) ...[latestButton, SizedBox(height: 8)],
         FieldButton(
