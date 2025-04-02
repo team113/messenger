@@ -21,9 +21,8 @@ import 'package:get/get.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/ui/page/home/widget/rectangle_button.dart';
+import '/ui/widget/checkbox_button.dart';
 import '/ui/widget/modal_popup.dart';
-import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -68,10 +67,12 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscurePassword.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscurePassword.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscurePassword.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -83,10 +84,12 @@ class ConfirmLogoutView extends StatelessWidget {
                   style: style.fonts.normal.regular.onBackground,
                   onSuffixPressed: c.obscureRepeat.toggle,
                   treatErrorAsStatus: false,
-                  trailing: SvgIcon(
-                    c.obscureRepeat.value
-                        ? SvgIcons.visibleOff
-                        : SvgIcons.visibleOn,
+                  trailing: Center(
+                    child: SvgIcon(
+                      c.obscureRepeat.value
+                          ? SvgIcons.visibleOff
+                          : SvgIcons.visibleOn,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 25),
@@ -128,109 +131,86 @@ class ConfirmLogoutView extends StatelessWidget {
               header = ModalPopupHeader(text: 'btn_logout'.l10n);
 
               children = [
-                Center(
-                  child: RichText(
-                    text: TextSpan(
-                      style: style.fonts.medium.regular.secondary,
-                      children: [
-                        TextSpan(
-                          text: 'alert_are_you_sure_want_to_log_out1'.l10n,
-                        ),
-                        TextSpan(
-                          style: style.fonts.medium.regular.onBackground,
-                          text:
-                              c.myUser.value?.name?.val ??
-                              c.myUser.value?.num.toString() ??
-                              '',
-                        ),
-                        TextSpan(
-                          text: 'alert_are_you_sure_want_to_log_out2'.l10n,
-                        ),
-                      ],
-                    ),
+                RichText(
+                  text: TextSpan(
+                    style: style.fonts.small.regular.secondary,
+                    children: [
+                      TextSpan(
+                        text: 'alert_are_you_sure_want_to_log_out1'.l10n,
+                      ),
+                      TextSpan(
+                        style: style.fonts.small.regular.onBackground,
+                        text:
+                            c.myUser.value?.name?.val ??
+                            c.myUser.value?.num.toString() ??
+                            '',
+                      ),
+                      TextSpan(
+                        text: 'alert_are_you_sure_want_to_log_out2'.l10n,
+                      ),
+                    ],
                   ),
+                  textAlign: TextAlign.start,
                 ),
-                const SizedBox(height: 25),
+                const SizedBox(height: 16),
                 if (!c.hasPassword.value) ...[
                   RichText(
                     text: TextSpan(
-                      style: style.fonts.medium.regular.secondary,
-                      children: [TextSpan(text: 'label_password_not_set'.l10n)],
+                      style: style.fonts.small.regular.secondary,
+                      children: [
+                        TextSpan(
+                          text: 'label_password_not_set1'.l10n,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
+                        TextSpan(text: 'label_password_not_set2'.l10n),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 16),
                 ],
                 if (!c.canRecover) ...[
                   RichText(
                     text: TextSpan(
-                      style: style.fonts.medium.regular.secondary,
+                      style: style.fonts.small.regular.secondary,
                       children: [
-                        TextSpan(text: 'label_email_or_phone_not_set'.l10n),
+                        TextSpan(text: 'label_email_or_phone_not_set1'.l10n),
+                        TextSpan(
+                          text: 'label_email_or_phone_not_set2'.l10n,
+                          style: style.fonts.small.regular.onBackground,
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 25),
+                  const SizedBox(height: 16),
                 ],
                 Obx(() {
-                  if (!c.hasPassword.value && !c.canRecover) {
-                    // Don't allow user to keep his profile, when no recovery
-                    // methods are available or any password set, as they won't
-                    // be able to sign in.
-                    return const SizedBox();
-                  }
-
                   return Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: RectangleButton(
+                    padding: const EdgeInsets.only(bottom: 24),
+                    child: BigCheckboxButton(
                       key: const Key('KeepCredentialsSwitch'),
-                      label: 'label_keep_credentials'.l10n,
-                      toggleable: true,
-                      radio: true,
-                      selected: c.keep.value,
-                      onPressed: c.keep.toggle,
+                      label: 'btn_save_my_credentials_for_one_click'.l10n,
+                      value: c.keep.value,
+                      onPressed: (e) => c.keep.value = e,
                     ),
                   );
                 }),
-                if (c.hasPassword.value) ...[
-                  OutlinedRoundedButton(
-                    key: const Key('ConfirmLogoutButton'),
-                    maxWidth: double.infinity,
-                    onPressed: c.logout,
-                    color: style.colors.primary,
-                    child: Text(
-                      'btn_logout'.l10n,
-                      style: style.fonts.medium.regular.onPrimary,
-                    ),
+                if (!c.hasPassword.value) ...[
+                  PrimaryButton(
+                    key: const Key('SetPasswordButton'),
+                    onPressed:
+                        () => c.stage.value = ConfirmLogoutViewStage.password,
+                    title: 'btn_set_password'.l10n,
+                    leading: SvgIcon(SvgIcons.passwordWhite),
                   ),
-                ] else ...[
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedRoundedButton(
-                          key: const Key('ConfirmLogoutButton'),
-                          maxWidth: double.infinity,
-                          onPressed: c.logout,
-                          color: style.colors.secondaryHighlight,
-                          child: Text(
-                            'btn_logout'.l10n,
-                            style: style.fonts.medium.regular.onBackground,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: PrimaryButton(
-                          key: const Key('SetPasswordButton'),
-                          onPressed:
-                              () =>
-                                  c.stage.value =
-                                      ConfirmLogoutViewStage.password,
-                          title: 'btn_set_password'.l10n,
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 10),
                 ],
+                PrimaryButton(
+                  key: const Key('ConfirmLogoutButton'),
+                  onPressed: c.logout,
+                  danger: true,
+                  title: 'btn_logout'.l10n,
+                  leading: SvgIcon(SvgIcons.logoutWhite),
+                ),
               ];
               break;
           }
