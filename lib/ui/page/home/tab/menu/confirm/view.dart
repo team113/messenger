@@ -186,7 +186,7 @@ class ConfirmLogoutView extends StatelessWidget {
                 Obx(() {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 24),
-                    child: BigCheckboxButton(
+                    child: RowCheckboxButton(
                       key: const Key('KeepCredentialsSwitch'),
                       label: 'btn_save_my_credentials_for_one_click'.l10n,
                       value: c.keep.value,

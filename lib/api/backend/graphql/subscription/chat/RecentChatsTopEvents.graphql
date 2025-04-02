@@ -16,14 +16,12 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 subscription RecentChatsTopEvents(
+    $with: RecentChatsFilter
     $count: Int!
-    $noFavorite: Boolean = false
-    $withOngoingCalls: Boolean = null
 ) {
     recentChatsTopEvents(
+        with: $with
         count: $count
-        noFavorite: $noFavorite
-        withOngoingCalls: $withOngoingCalls
     ) {
         __typename
         ... on SubscriptionInitialized {
@@ -47,7 +45,7 @@ subscription RecentChatsTopEvents(
                 cursor
             }
         }
-        ... on EventRecentChatsTopChatDeleted {
+        ... on EventRecentChatsTopChatRemoved {
             chatId
         }
     }

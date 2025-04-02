@@ -16,20 +16,12 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 query RecentChats(
-    $first: Int
-    $after: RecentChatsCursor
-    $last: Int
-    $before: RecentChatsCursor
-    $noFavorite: Boolean = false
-    $withOngoingCalls: Boolean = null
+    $with: RecentChatsFilter
+    $pagination: RecentChatsPagination
 ) {
     recentChats(
-        first: $first
-        after: $after
-        last: $last
-        before: $before
-        noFavorite: $noFavorite
-        withOngoingCalls: $withOngoingCalls
+        with: $with
+        pagination: $pagination
     ) {
         edges {
             node {

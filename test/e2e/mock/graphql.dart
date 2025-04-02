@@ -117,7 +117,7 @@ class MockGraphQlProvider extends GraphQlProvider {
   }
 
   @override
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+  Future<MyUserEventsVersionedMixin?> removeUserEmail(
     UserEmail phone, {
     MyUserCredentials? confirmation,
   }) async {
@@ -125,7 +125,7 @@ class MockGraphQlProvider extends GraphQlProvider {
   }
 
   @override
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+  Future<MyUserEventsVersionedMixin?> removeUserPhone(
     UserPhone phone, {
     MyUserCredentials? confirmation,
   }) async {

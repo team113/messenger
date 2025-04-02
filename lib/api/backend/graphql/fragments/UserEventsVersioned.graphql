@@ -19,7 +19,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
     events {
         __typename
         userId
-        ... on EventUserAvatarDeleted {
+        ... on EventUserAvatarRemoved {
             at
         }
         ... on EventUserAvatarUpdated {
@@ -29,7 +29,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
             }
             at
         }
-        ... on EventUserBioDeleted {
+        ... on EventUserBioRemoved {
             userId
             at
         }
@@ -38,7 +38,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
             bio
             at
         }
-        ... on EventUserCallCoverDeleted {
+        ... on EventUserCallCoverRemoved {
             at
         }
         ... on EventUserCallCoverUpdated {
@@ -57,7 +57,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
         ... on EventUserDeleted {
             at
         }
-        ... on EventUserNameDeleted {
+        ... on EventUserNameRemoved {
             at
         }
         ... on EventUserNameUpdated {
@@ -68,7 +68,7 @@ fragment UserEventsVersioned on UserEventsVersioned {
             presence
             at
         }
-        ... on EventUserStatusDeleted {
+        ... on EventUserStatusRemoved {
             at
         }
         ... on EventUserStatusUpdated {

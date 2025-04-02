@@ -1514,41 +1514,41 @@ class DeleteMyUserException with LocalizedExceptionMixin implements Exception {
   }
 }
 
-/// Exception of `Mutation.deleteUserEmail` described in the [code].
-class DeleteUserEmailException
+/// Exception of `Mutation.removeUserEmail` described in the [code].
+class RemoveUserEmailException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteUserEmailException(this.code);
+  const RemoveUserEmailException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteUserEmailErrorCode code;
+  final RemoveUserEmailErrorCode code;
 
   @override
-  String toString() => 'DeleteUserEmailException($code)';
+  String toString() => 'RemoveUserEmailException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case DeleteUserEmailErrorCode.confirmationRequired:
+      case RemoveUserEmailErrorCode.confirmationRequired:
         return 'err_confirmation_required'.l10n;
-      case DeleteUserEmailErrorCode.wrongPassword:
+      case RemoveUserEmailErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
-      case DeleteUserEmailErrorCode.wrongCode:
+      case RemoveUserEmailErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
-      case DeleteUserEmailErrorCode.artemisUnknown:
+      case RemoveUserEmailErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
 }
 
-/// Exception of `Mutation.deleteUserPhone` described in the [code].
-class DeleteUserPhoneException
+/// Exception of `Mutation.removeUserPhone` described in the [code].
+class RemoveUserPhoneException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteUserPhoneException(this.code);
+  const RemoveUserPhoneException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteUserPhoneErrorCode code;
+  final RemoveUserPhoneErrorCode code;
 
   @override
   String toString() => 'DeleteUsePhoneException($code)';
@@ -1556,13 +1556,13 @@ class DeleteUserPhoneException
   @override
   String toMessage() {
     switch (code) {
-      case DeleteUserPhoneErrorCode.confirmationRequired:
+      case RemoveUserPhoneErrorCode.confirmationRequired:
         return 'err_confirmation_required'.l10n;
-      case DeleteUserPhoneErrorCode.wrongPassword:
+      case RemoveUserPhoneErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
-      case DeleteUserPhoneErrorCode.wrongCode:
+      case RemoveUserPhoneErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
-      case DeleteUserPhoneErrorCode.artemisUnknown:
+      case RemoveUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

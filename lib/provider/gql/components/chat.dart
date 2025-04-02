@@ -103,12 +103,16 @@ mixin ChatGraphQlMixin {
     );
 
     final variables = RecentChatsArguments(
-      first: first,
-      after: after,
-      last: last,
-      before: before,
-      noFavorite: noFavorite,
-      withOngoingCalls: withOngoingCalls,
+      pagination: RecentChatsPagination(
+        first: first,
+        after: after,
+        last: last,
+        before: before,
+      ),
+      kw$with: RecentChatsFilter(
+        noFavorite: noFavorite,
+        ongoingCalls: withOngoingCalls,
+      ),
     );
     final QueryResult result = await client.query(
       QueryOptions(
@@ -629,8 +633,10 @@ mixin ChatGraphQlMixin {
 
     final variables = RecentChatsTopEventsArguments(
       count: count,
-      noFavorite: noFavorite,
-      withOngoingCalls: withOngoingCalls,
+      kw$with: RecentChatsFilter(
+        noFavorite: noFavorite,
+        ongoingCalls: withOngoingCalls,
+      ),
     );
     return client.subscribe(
       SubscriptionOptions(

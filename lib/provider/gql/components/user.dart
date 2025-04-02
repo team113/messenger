@@ -157,7 +157,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserNameUpdated] (if [name] argument is specified);
-  /// - [EventUserNameDeleted] (if [name] argument is absent or is `null`).
+  /// - [EventUserNameRemoved] (if [name] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
@@ -187,7 +187,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserBioUpdated] (if the [bio] argument is specified);
-  /// - [EventUserBioDeleted] (if the [bio] argument is absent or is `null`).
+  /// - [EventUserBioRemoved] (if the [bio] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
@@ -217,7 +217,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserStatusUpdated] (if [text] argument is specified);
-  /// - [EventUserStatusDeleted] (if [text] argument is absent or is `null`).
+  /// - [EventUserStatusRemoved] (if [text] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
@@ -249,7 +249,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserLoginUpdated] (if [login] argument is specified);
-  /// - [EventUserLoginDeleted] (if [login] argument is absent or is `null`).
+  /// - [EventUserLoginRemoved] (if [login] argument is absent or is `null`).
   ///
   /// ### Idempotent
   ///
@@ -626,40 +626,40 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserEmailDeleted].
+  /// - [EventUserEmailRemoved].
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [email] in his [MyUser.emails] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserEmail(
+  Future<MyUserEventsVersionedMixin?> removeUserEmail(
     UserEmail email, {
     MyUserCredentials? confirmation,
   }) async {
     Log.debug(
-      'deleteUserEmail($email, confirmation: $confirmation)',
+      'removeUserEmail($email, confirmation: $confirmation)',
       '$runtimeType',
     );
 
-    final variables = DeleteUserEmailArguments(
+    final variables = RemoveUserEmailArguments(
       email: email,
       confirmation: confirmation,
     );
     final QueryResult result = await client.mutate(
       MutationOptions(
-        operationName: 'DeleteUserEmail',
-        document: DeleteUserEmailMutation(variables: variables).document,
+        operationName: 'RemoveUserEmail',
+        document: RemoveUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
       onException:
-          (data) => DeleteUserEmailException(
-            (DeleteUserEmail$Mutation.fromJson(data).deleteUserEmail
-                    as DeleteUserEmail$Mutation$DeleteUserEmail$DeleteUserEmailError)
+          (data) => RemoveUserEmailException(
+            (RemoveUserEmail$Mutation.fromJson(data).removeUserEmail
+                    as RemoveUserEmail$Mutation$RemoveUserEmail$RemoveUserEmailError)
                 .code,
           ),
     );
-    return DeleteUserEmail$Mutation.fromJson(result.data!).deleteUserEmail
-        as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
+    return RemoveUserEmail$Mutation.fromJson(result.data!).removeUserEmail
+        as RemoveUserEmail$Mutation$RemoveUserEmail$MyUserEventsVersioned;
   }
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
@@ -672,30 +672,30 @@ mixin UserGraphQlMixin {
   /// ### Result
   ///
   /// Only the following [MyUserEvent] may be produced on success:
-  /// - [EventUserPhoneDeleted].
+  /// - [EventUserPhoneRemoved].
   ///
   /// ### Idempotent
   ///
   /// Succeeds as no-op (and returns no [MyUserEvent]) if the authenticated
   /// [MyUser] doesn't have the provided [phone] in his [MyUser.phones] already.
-  Future<MyUserEventsVersionedMixin?> deleteUserPhone(
+  Future<MyUserEventsVersionedMixin?> removeUserPhone(
     UserPhone phone, {
     MyUserCredentials? confirmation,
   }) async {
     Log.debug(
-      'deleteUserPhone($phone, confirmation: $confirmation)',
+      'removeUserPhone($phone, confirmation: $confirmation)',
       '$runtimeType',
     );
 
     throw UnimplementedError();
-    // final variables = DeleteUserPhoneArguments(phone: phone);
+    // final variables = RemoveUserPhoneArguments(phone: phone);
     // final QueryResult result = await client.mutate(MutationOptions(
-    //   operationName: 'DeleteUserPhone',
-    //   document: DeleteUserPhoneMutation(variables: variables).document,
+    //   operationName: 'RemoveUserPhone',
+    //   document: RemoveUserPhoneMutation(variables: variables).document,
     //   variables: variables.toJson(),
     // ));
-    // return DeleteUserPhone$Mutation.fromJson(result.data!).deleteUserPhone
-    //     as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned;
+    // return RemoveUserPhone$Mutation.fromJson(result.data!).removeUserPhone
+    //     as RemoveUserPhone$Mutation$RemoveUserPhone$MyUserEventsVersioned;
   }
 
   /// Adds a new email address for the authenticated [MyUser].
@@ -930,7 +930,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserAvatarUpdated] (if image [file] is provided);
-  /// - [EventUserAvatarDeleted] (if image [file] is not provided).
+  /// - [EventUserAvatarRemoved] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///
@@ -1014,7 +1014,7 @@ mixin UserGraphQlMixin {
   ///
   /// One of the following [MyUserEvent]s may be produced on success:
   /// - [EventUserCallCoverUpdated] (if image [file] is provided);
-  /// - [EventUserCallCoverDeleted] (if image [file] is not provided).
+  /// - [EventUserCallCoverRemoved] (if image [file] is not provided).
   ///
   /// ### Idempotent
   ///

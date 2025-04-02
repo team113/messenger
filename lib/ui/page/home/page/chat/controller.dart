@@ -2197,7 +2197,8 @@ class ChatController extends GetxController {
 
     if (fixMotion) {
       SchedulerBinding.instance.addPostFrameCallback((_) {
-        if (listController.hasClients) {
+        if (listController.hasClients &&
+            listController.position.hasContentDimensions) {
           listController.jumpTo(
             listController.position.pixels >
                     listController.position.maxScrollExtent
@@ -2218,12 +2219,14 @@ class ChatController extends GetxController {
         if (chat?.messages.isEmpty == false) {
           var result = _calculateListViewIndex(false);
 
-          listController.jumpTo(
-            listController.position.pixels >
-                    listController.position.maxScrollExtent
-                ? listController.position.maxScrollExtent
-                : listController.position.pixels,
-          );
+          if (listController.position.hasContentDimensions) {
+            listController.jumpTo(
+              listController.position.pixels >
+                      listController.position.maxScrollExtent
+                  ? listController.position.maxScrollExtent
+                  : listController.position.pixels,
+            );
+          }
 
           SchedulerBinding.instance.addPostFrameCallback((_) async {
             _ignorePositionChanges = true;

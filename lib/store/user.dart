@@ -458,9 +458,9 @@ class UserRepository extends DisposableInterface
   UserEvent _userEvent(UserEventsVersionedMixin$Events e) {
     Log.trace('_userEvent($e)', '$runtimeType');
 
-    if (e.$$typename == 'EventUserAvatarDeleted') {
-      final node = e as UserEventsVersionedMixin$Events$EventUserAvatarDeleted;
-      return EventUserAvatarDeleted(node.userId, node.at);
+    if (e.$$typename == 'EventUserAvatarRemoved') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserAvatarRemoved;
+      return EventUserAvatarRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(
@@ -468,10 +468,10 @@ class UserRepository extends DisposableInterface
         node.avatar.toModel(),
         node.at,
       );
-    } else if (e.$$typename == 'EventUserCallCoverDeleted') {
+    } else if (e.$$typename == 'EventUserCallCoverRemoved') {
       final node =
-          e as UserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
-      return EventUserCallCoverDeleted(node.userId, node.at);
+          e as UserEventsVersionedMixin$Events$EventUserCallCoverRemoved;
+      return EventUserCallCoverRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
       final node =
           e as UserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
@@ -489,9 +489,9 @@ class UserRepository extends DisposableInterface
     } else if (e.$$typename == 'EventUserDeleted') {
       final node = e as UserEventsVersionedMixin$Events$EventUserDeleted;
       return EventUserDeleted(node.userId, node.at);
-    } else if (e.$$typename == 'EventUserNameDeleted') {
-      final node = e as UserEventsVersionedMixin$Events$EventUserNameDeleted;
-      return EventUserNameDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserNameRemoved') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserNameRemoved;
+      return EventUserNameRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserNameUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name, node.at);
@@ -499,15 +499,15 @@ class UserRepository extends DisposableInterface
       final node =
           e as UserEventsVersionedMixin$Events$EventUserPresenceUpdated;
       return EventUserPresenceUpdated(node.userId, node.presence, node.at);
-    } else if (e.$$typename == 'EventUserStatusDeleted') {
-      final node = e as UserEventsVersionedMixin$Events$EventUserStatusDeleted;
-      return EventUserStatusDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserStatusRemoved') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserStatusRemoved;
+      return EventUserStatusRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserStatusUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status, node.at);
-    } else if (e.$$typename == 'EventUserBioDeleted') {
-      final node = e as UserEventsVersionedMixin$Events$EventUserBioDeleted;
-      return EventUserBioDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserBioRemoved') {
+      final node = e as UserEventsVersionedMixin$Events$EventUserBioRemoved;
+      return EventUserBioRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserBioUpdated') {
       final node = e as UserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);

@@ -375,13 +375,13 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteUserEmail(
+  Future<void> removeUserEmail(
     UserEmail email, {
     UserPassword? password,
     ConfirmationCode? confirmation,
   }) async {
     Log.debug(
-      'deleteUserEmail($email, password: ${password?.obscured}, confirmation: $confirmation)',
+      'removeUserEmail($email, password: ${password?.obscured}, confirmation: $confirmation)',
       '$runtimeType',
     );
 
@@ -393,7 +393,7 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserEmail(
+            return await _graphQlProvider.removeUserEmail(
               previous,
               confirmation:
                   confirmation == null && password == null
@@ -428,7 +428,7 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserEmail(
+        await _graphQlProvider.removeUserEmail(
           email,
           confirmation:
               confirmation == null && password == null
@@ -446,13 +446,13 @@ class MyUserRepository extends DisposableInterface
   }
 
   @override
-  Future<void> deleteUserPhone(
+  Future<void> removeUserPhone(
     UserPhone phone, {
     UserPassword? password,
     ConfirmationCode? confirmation,
   }) async {
     Log.debug(
-      'deleteUserPhone($phone, password: ${password?.obscured}, confirmation: $confirmation)',
+      'removeUserPhone($phone, password: ${password?.obscured}, confirmation: $confirmation)',
       '$runtimeType',
     );
 
@@ -464,7 +464,7 @@ class MyUserRepository extends DisposableInterface
         value: null,
         mutation: (value, previous) async {
           if (previous != null) {
-            return await _graphQlProvider.deleteUserPhone(
+            return await _graphQlProvider.removeUserPhone(
               previous,
               confirmation:
                   confirmation == null && password == null
@@ -499,7 +499,7 @@ class MyUserRepository extends DisposableInterface
       }
 
       try {
-        await _graphQlProvider.deleteUserPhone(
+        await _graphQlProvider.removeUserPhone(
           phone,
           confirmation:
               confirmation == null && password == null
@@ -573,7 +573,7 @@ class MyUserRepository extends DisposableInterface
       value: phone,
       mutation: (value, previous) async {
         if (previous != null) {
-          return await _graphQlProvider.deleteUserPhone(
+          return await _graphQlProvider.removeUserPhone(
             previous,
             confirmation:
                 confirmation == null
@@ -996,7 +996,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.nameDeleted:
-          event as EventUserNameDeleted;
+          event as EventUserNameRemoved;
           userEntity.value.name = null;
           put((u) => u..name = null);
           break;
@@ -1008,7 +1008,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.avatarDeleted:
-          event as EventUserAvatarDeleted;
+          event as EventUserAvatarRemoved;
           userEntity.value.avatar = null;
           put((u) => u..avatar = null);
           break;
@@ -1020,7 +1020,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.bioDeleted:
-          event as EventUserBioDeleted;
+          event as EventUserBioRemoved;
           userEntity.value.bio = null;
           put((u) => u..bio = null);
           break;
@@ -1032,7 +1032,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.callCoverDeleted:
-          event as EventUserCallCoverDeleted;
+          event as EventUserCallCoverRemoved;
           userEntity.value.callCover = null;
           put((u) => u..callCover = null);
           break;
@@ -1050,7 +1050,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.statusDeleted:
-          event as EventUserStatusDeleted;
+          event as EventUserStatusRemoved;
           userEntity.value.status = null;
           put((u) => u..status = null);
           break;
@@ -1061,7 +1061,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.loginDeleted:
-          event as EventUserLoginDeleted;
+          event as EventUserLoginRemoved;
           userEntity.value.login = null;
           break;
 
@@ -1081,7 +1081,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.emailDeleted:
-          event as EventUserEmailDeleted;
+          event as EventUserEmailRemoved;
           if (userEntity.value.emails.unconfirmed == event.email) {
             userEntity.value.emails.unconfirmed = null;
           }
@@ -1106,7 +1106,7 @@ class MyUserRepository extends DisposableInterface
           break;
 
         case MyUserEventKind.phoneDeleted:
-          event as EventUserPhoneDeleted;
+          event as EventUserPhoneRemoved;
           if (userEntity.value.phones.unconfirmed == event.phone) {
             userEntity.value.phones.unconfirmed = null;
           }
@@ -1249,31 +1249,31 @@ class MyUserRepository extends DisposableInterface
     if (e.$$typename == 'EventUserNameUpdated') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserNameUpdated;
       return EventUserNameUpdated(node.userId, node.name);
-    } else if (e.$$typename == 'EventUserNameDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameDeleted;
-      return EventUserNameDeleted(node.userId);
+    } else if (e.$$typename == 'EventUserNameRemoved') {
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserNameRemoved;
+      return EventUserNameRemoved(node.userId);
     } else if (e.$$typename == 'EventUserAvatarUpdated') {
       final node =
           e as MyUserEventsVersionedMixin$Events$EventUserAvatarUpdated;
       return EventUserAvatarUpdated(node.userId, node.avatar.toModel());
-    } else if (e.$$typename == 'EventUserAvatarDeleted') {
+    } else if (e.$$typename == 'EventUserAvatarRemoved') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserAvatarDeleted;
-      return EventUserAvatarDeleted(node.userId);
+          e as MyUserEventsVersionedMixin$Events$EventUserAvatarRemoved;
+      return EventUserAvatarRemoved(node.userId);
     } else if (e.$$typename == 'EventUserBioUpdated') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserBioUpdated;
       return EventUserBioUpdated(node.userId, node.bio, node.at);
-    } else if (e.$$typename == 'EventUserBioDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioDeleted;
-      return EventUserBioDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserBioRemoved') {
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserBioRemoved;
+      return EventUserBioRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserCallCoverUpdated') {
       final node =
           e as MyUserEventsVersionedMixin$Events$EventUserCallCoverUpdated;
       return EventUserCallCoverUpdated(node.userId, node.callCover.toModel());
-    } else if (e.$$typename == 'EventUserCallCoverDeleted') {
+    } else if (e.$$typename == 'EventUserCallCoverRemoved') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserCallCoverDeleted;
-      return EventUserCallCoverDeleted(node.userId);
+          e as MyUserEventsVersionedMixin$Events$EventUserCallCoverRemoved;
+      return EventUserCallCoverRemoved(node.userId);
     } else if (e.$$typename == 'EventUserPresenceUpdated') {
       final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPresenceUpdated;
@@ -1282,28 +1282,28 @@ class MyUserRepository extends DisposableInterface
       final node =
           e as MyUserEventsVersionedMixin$Events$EventUserStatusUpdated;
       return EventUserStatusUpdated(node.userId, node.status);
-    } else if (e.$$typename == 'EventUserStatusDeleted') {
+    } else if (e.$$typename == 'EventUserStatusRemoved') {
       final node =
-          e as MyUserEventsVersionedMixin$Events$EventUserStatusDeleted;
-      return EventUserStatusDeleted(node.userId);
+          e as MyUserEventsVersionedMixin$Events$EventUserStatusRemoved;
+      return EventUserStatusRemoved(node.userId);
     } else if (e.$$typename == 'EventUserLoginUpdated') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginUpdated;
       return EventUserLoginUpdated(node.userId, node.login);
-    } else if (e.$$typename == 'EventUserLoginDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginDeleted;
-      return EventUserLoginDeleted(node.userId, node.at);
+    } else if (e.$$typename == 'EventUserLoginRemoved') {
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserLoginRemoved;
+      return EventUserLoginRemoved(node.userId, node.at);
     } else if (e.$$typename == 'EventUserEmailAdded') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailAdded;
       return EventUserEmailAdded(node.userId, node.email, node.confirmed);
-    } else if (e.$$typename == 'EventUserEmailDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailDeleted;
-      return EventUserEmailDeleted(node.userId, node.email);
+    } else if (e.$$typename == 'EventUserEmailRemoved') {
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserEmailRemoved;
+      return EventUserEmailRemoved(node.userId, node.email);
     } else if (e.$$typename == 'EventUserPhoneAdded') {
       final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneAdded;
       return EventUserPhoneAdded(node.userId, node.phone, node.confirmed);
-    } else if (e.$$typename == 'EventUserPhoneDeleted') {
-      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneDeleted;
-      return EventUserPhoneDeleted(node.userId, node.phone);
+    } else if (e.$$typename == 'EventUserPhoneRemoved') {
+      final node = e as MyUserEventsVersionedMixin$Events$EventUserPhoneRemoved;
+      return EventUserPhoneRemoved(node.userId, node.phone);
     } else if (e.$$typename == 'EventUserPasswordUpdated') {
       final node =
           e as MyUserEventsVersionedMixin$Events$EventUserPasswordUpdated;

@@ -15,19 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteUserPhone(
-    $phone: UserPhone!
+mutation RemoveUserEmail(
+    $email: UserEmail!
     $confirmation: MyUserCredentials
 ) {
-    deleteUserPhone(
-        phone: $phone
+    removeUserEmail(
+        email: $email
         confirmation: $confirmation
     ) {
         __typename
         ... on MyUserEventsVersioned {
             ...MyUserEventsVersioned
         }
-        ... on DeleteUserPhoneError {
+        ... on RemoveUserEmailError {
             code
         }
     }

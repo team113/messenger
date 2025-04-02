@@ -1312,7 +1312,10 @@ Widget _downloads(BuildContext context, MyProfileController c) {
       if (installed || PWAInstall().installPromptEnabled) ...[
         if (!PlatformUtils.isWeb) ...[latestButton, SizedBox(height: 8)],
         FieldButton(
-          text: installed ? 'btn_pwa_is_installed' : 'btn_install_web_app'.l10n,
+          text:
+              installed
+                  ? 'btn_pwa_is_installed'.l10n
+                  : 'btn_install_web_app'.l10n,
           onPressed:
               installed
                   ? null

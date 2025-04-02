@@ -170,17 +170,17 @@ class MyUserService extends DisposableService {
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
-  Future<void> deleteUserEmail(
+  Future<void> removeUserEmail(
     UserEmail email, {
     UserPassword? password,
     ConfirmationCode? confirmation,
   }) async {
     Log.debug(
-      'deleteUserEmail($email, password: ***, confirmation: $confirmation)',
+      'removeUserEmail($email, password: ***, confirmation: $confirmation)',
       '$runtimeType',
     );
 
-    await _myUserRepository.deleteUserEmail(
+    await _myUserRepository.removeUserEmail(
       email,
       password: password,
       confirmation: confirmation,
@@ -189,17 +189,17 @@ class MyUserService extends DisposableService {
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
-  Future<void> deleteUserPhone(
+  Future<void> removeUserPhone(
     UserPhone phone, {
     UserPassword? password,
     ConfirmationCode? confirmation,
   }) async {
     Log.debug(
-      'deleteUserPhone($phone, password: ***, confirmation: $confirmation)',
+      'removeUserPhone($phone, password: ***, confirmation: $confirmation)',
       '$runtimeType',
     );
 
-    await _myUserRepository.deleteUserPhone(
+    await _myUserRepository.removeUserPhone(
       phone,
       password: password,
       confirmation: confirmation,

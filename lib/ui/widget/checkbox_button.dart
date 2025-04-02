@@ -18,13 +18,12 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
-import '/util/platform_utils.dart';
 import 'svg/svg.dart';
 import 'widget_button.dart';
 
 /// [SvgIcons.sentWhite] button toggling [value] on and off.
-class BigCheckboxButton extends StatelessWidget {
-  const BigCheckboxButton({
+class RowCheckboxButton extends StatelessWidget {
+  const RowCheckboxButton({
     super.key,
     this.value = false,
     this.onPressed,
@@ -46,40 +45,25 @@ class BigCheckboxButton extends StatelessWidget {
 
     return WidgetButton(
       onPressed: () => onPressed?.call(!value),
-      child: Text.rich(
-        TextSpan(
-          children: [
-            WidgetSpan(
-              alignment: PlaceholderAlignment.bottom,
-              child: Transform.translate(
-                offset:
-                    PlatformUtils.isWeb
-                        ? PlatformUtils.isMobile
-                            ? const Offset(0, 5)
-                            : const Offset(0, 3)
-                        : const Offset(0, 3),
-                child: AnimatedContainer(
-                  duration: Duration(milliseconds: 200),
-                  margin: const EdgeInsets.only(right: 6),
-                  decoration: BoxDecoration(
-                    color:
-                        value ? style.colors.primary : style.colors.onPrimary,
-                    borderRadius: BorderRadius.circular(6),
-                    border: Border.all(color: style.colors.primary, width: 1),
-                  ),
-                  width: 24,
-                  height: 24,
-                  child:
-                      value ? Center(child: SvgIcon(SvgIcons.sentWhite)) : null,
-                ),
-              ),
+      child: Row(
+        children: [
+          AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+
+            decoration: BoxDecoration(
+              color: value ? style.colors.primary : style.colors.onPrimary,
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: style.colors.primary, width: 1),
             ),
-            TextSpan(
-              text: label,
-              style: style.fonts.normal.regular.onBackground,
-            ),
-          ],
-        ),
+            width: 24,
+            height: 24,
+            child: value ? Center(child: SvgIcon(SvgIcons.sentWhite)) : null,
+          ),
+          SizedBox(width: 8),
+          Expanded(
+            child: Text(label, style: style.fonts.normal.regular.onBackground),
+          ),
+        ],
       ),
     );
   }

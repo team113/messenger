@@ -805,7 +805,7 @@ extension MuteHotKeyExtension on ApplicationSettings {
       }
     }
 
-    if (keys.isEmpty) {
+    if (keys.where((e) => e.isNotEmpty).isEmpty) {
       modifiers.addAll(defaultHotKey.modifiers ?? []);
     }
 

@@ -5,7 +5,7 @@ debug = true
 name = "backend"
 
 [db.cockroachdb.pool.background]
-total = 20
+total = 30
 [db.cockroachdb.pool.client]
 total = 30
 
@@ -17,7 +17,7 @@ sender_id = 985927661367
 [l10n.fluent]
 locales = ["en-US", "ru-RU"]
 [l10n.fluent.refresh]
-url = "https://raw.githubusercontent.com/team113/messenger/main/assets/l10n"
+url = "https://raw.githubusercontent.com/team113/messenger/14628ecf84fc85105fb6b692a861d70384e0b1cc/assets/l10n"
 
 [smtp]
 port = 1025
@@ -25,6 +25,7 @@ user = "robot"
 pass = "test"
 [smtp.tls]
 verify_cert = false
+verify_host = false
 
 [media_server.medea.server.client.http]
 bind_port = 8090
@@ -66,6 +67,9 @@ timeout = "300ms"
 [background.poll.incoming_calls_events]
 period = "300ms"
 timeout = "300ms"
+[background.poll.unread_chats_count_by_user_id]
+batch_size = 100
+partition_size = 100
 
 [background.watchdog.call_participations]
 timeout = "3s"
@@ -78,4 +82,4 @@ stale_timeout = "24s" # 20s (instance restart time) + 3s (watchdog) + 1s (poller
 period = "500ms"
 stale_timeout = "3s"
 [background.watchdog.push_devices]
-period = "1m"
+period = "1m" # avoid reaching the FCM rate limit
