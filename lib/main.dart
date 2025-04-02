@@ -175,12 +175,16 @@ Future<void> main() async {
       initial: initial == null ? null : RouteInformation(uri: initial),
     );
 
-    PWAInstall().setup(
-      installCallback: () {
-        Log.debug('PWA is detected as installed', 'PWAInstall()');
-        WebUtils.hasPwa = true;
-      },
-    );
+    try {
+      PWAInstall().setup(
+        installCallback: () {
+          Log.debug('PWA is detected as installed', 'PWAInstall()');
+          WebUtils.hasPwa = true;
+        },
+      );
+    } catch (_) {
+      // No-op.
+    }
 
     await authService.init();
     await L10n.init();

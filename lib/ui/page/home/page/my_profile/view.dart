@@ -713,7 +713,6 @@ Widget _media(BuildContext context, MyProfileController c) {
       //       https://bugs.webkit.org/show_bug.cgi?id=216641
       if (!WebUtils.isSafari || c.devices.output().isNotEmpty) ...[
         const SizedBox(height: 12),
-
         Obx(() {
           final selected =
               c.devices.output().firstWhereOrNull(
@@ -741,7 +740,6 @@ Widget _media(BuildContext context, MyProfileController c) {
         }),
       ],
       const SizedBox(height: 12),
-
       Obx(() {
         final selected =
             c.devices.video().firstWhereOrNull(
