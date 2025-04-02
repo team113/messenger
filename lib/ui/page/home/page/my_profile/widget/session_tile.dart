@@ -90,8 +90,8 @@ class SessionTileWidget extends StatelessWidget {
                   SizedBox(height: 4),
                   Text(
                     'label_city_country_activated_at'.l10nfmt({
-                      'city': geo?.city,
-                      'country': geo?.country,
+                      'city': geo?.city ?? '',
+                      'country': geo?.country ?? '',
                       'at': session.lastActivatedAt.val.toDifferenceAgo(),
                     }),
                     style: style.fonts.small.regular.secondary,

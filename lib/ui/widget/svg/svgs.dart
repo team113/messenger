@@ -1944,4 +1944,10 @@ class SvgIcons {
     width: 1,
     height: 1,
   );
+
+  static const SvgData passwordWhite = SvgData(
+    'assets/icons/password_white.svg',
+    width: 18,
+    height: 20,
+  );
 }

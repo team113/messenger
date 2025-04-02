@@ -48,6 +48,9 @@ class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
+  /// Indicator whether this device has a PWA installed.
+  static bool hasPwa = false;
+
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
 
