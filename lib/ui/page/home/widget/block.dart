@@ -15,6 +15,8 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
@@ -123,7 +125,7 @@ class Block extends StatelessWidget {
               children: [
                 Container(
                   width: double.infinity,
-                  padding: padding,
+                  padding: _aspected(context, padding),
                   child: AnimatedSize(
                     duration: const Duration(milliseconds: 300),
                     alignment: Alignment.topCenter,
@@ -164,6 +166,21 @@ class Block extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// Returns the [padding], if not is [MobileExtensionOnContext.isTiny], or
+  /// otherwise shrinks down the left and right paddings.
+  static EdgeInsets _aspected(BuildContext context, EdgeInsets padding) {
+    if (!context.isTiny) {
+      return padding;
+    }
+
+    return EdgeInsets.fromLTRB(
+      min(4, padding.left),
+      padding.top,
+      min(4, padding.right),
+      padding.bottom,
     );
   }
 

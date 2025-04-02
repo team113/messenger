@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -64,8 +65,10 @@ import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/upgrade_popup/view.dart';
 import '/ui/widget/widget_button.dart';
 import '/ui/worker/cache.dart';
+import '/ui/worker/call.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
@@ -678,6 +681,8 @@ Widget _call(BuildContext context, MyProfileController c) {
 
 /// Returns the contents of a [ProfileTab.media] section.
 Widget _media(BuildContext context, MyProfileController c) {
+  final style = Theme.of(context).style;
+
   return Column(
     mainAxisSize: MainAxisSize.min,
     children: [
@@ -766,6 +771,73 @@ Widget _media(BuildContext context, MyProfileController c) {
           },
         );
       }),
+
+      SizedBox(height: 20),
+      LineDivider('label_hotkey'.l10n),
+      SizedBox(height: 16),
+      Obx(() {
+        final HotKey key =
+            c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
+
+        final Iterable<String> modifiers =
+            (key.modifiers ?? [])
+                .map(
+                  (e) => e.physicalKeys.map((e) {
+                    return KeyboardKeyToStringExtension.labels[e] ??
+                        e.debugName ??
+                        'question_mark'.l10n;
+                  }),
+                )
+                .expand((e) => e)
+                .toSet();
+
+        final String keys =
+            KeyboardKeyToStringExtension.labels[key.physicalKey] ??
+            key.physicalKey.debugName ??
+            'label_unknown'.l10n;
+
+        return FieldButton(
+          headline: Text(
+            'label_mute_slash_unmute'.l10n,
+            style:
+                c.hotKeyRecording.value
+                    ? style.fonts.big.regular.primary
+                    : style.fonts.big.regular.secondary,
+          ),
+          onPressed: c.toggleHotKey,
+          border:
+              c.hotKeyRecording.value
+                  ? BorderSide(color: style.colors.primary, width: 1)
+                  : null,
+          child: Row(
+            children: [
+              if (c.hotKeyRecording.value)
+                Expanded(
+                  child: Text(
+                    'label_key_plus_key_by_default'.l10nfmt({
+                      'modifier': '⌥',
+                      'key': 'M',
+                    }),
+                    textAlign: TextAlign.left,
+                    style: style.fonts.normal.regular.secondary,
+                  ),
+                )
+              else
+                Expanded(
+                  child: Text(
+                    [...modifiers, keys].join('space_plus_space'.l10n),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              Text(
+                c.hotKeyRecording.value ? 'btn_cancel'.l10n : 'btn_change'.l10n,
+                style: style.fonts.medium.regular.primary,
+              ),
+            ],
+          ),
+        );
+      }),
+      SizedBox(height: 8),
     ],
   );
 }
@@ -1218,7 +1290,15 @@ Widget _downloads(BuildContext context, MyProfileController c) {
               : 'btn_download_version'.l10nfmt({
                 'version': '${c.latestRelease.value?.name}}',
               }),
-      onPressed: latest ? null : () {},
+      onPressed:
+          latest
+              ? null
+              : () async {
+                await UpgradePopupView.show(
+                  context,
+                  release: c.latestRelease.value!,
+                );
+              },
     );
   });
 
