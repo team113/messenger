@@ -444,6 +444,26 @@ class ChatController extends GetxController {
       _settingsRepository,
       onChanged: updateDraft,
       onCall: call,
+      onKeyUp: (key) {
+        if (send.field.controller.text.isNotEmpty) {
+          return false;
+        }
+
+        if (key == LogicalKeyboardKey.arrowUp) {
+          final previous = chat?.messages.lastWhereOrNull((e) {
+            return e.value is ChatMessage && !e.value.id.isLocal;
+          });
+
+          if (previous != null) {
+            editMessage(previous.value);
+            return true;
+          }
+        } else if (key == LogicalKeyboardKey.arrowDown) {
+          return true;
+        }
+
+        return false;
+      },
       onSubmit: () async {
         _stopTyping();
 
@@ -582,6 +602,11 @@ class ChatController extends GetxController {
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
     _fetchChat();
+
+    if (!PlatformUtils.isMobile) {
+      send.field.focus.requestFocus();
+    }
+
     super.onReady();
   }
 
@@ -715,6 +740,37 @@ class ChatController extends GetxController {
         _userService,
         _settingsRepository,
         text: item.text?.val,
+        onKeyUp: (key) {
+          if (key == LogicalKeyboardKey.escape) {
+            final bool hasChanges =
+                edit.value!.field.text != item.text?.val ||
+                !const ListEquality().equals(
+                  edit.value!.attachments.map((e) => e.value).toList(),
+                  item.attachments,
+                );
+
+            if (hasChanges) {
+              MessagePopup.alert(
+                'label_discard_changes_question'.l10n,
+                button:
+                    (context) => MessagePopup.deleteButton(
+                      context,
+                      label: 'btn_discard'.l10n,
+                    ),
+              ).then((e) {
+                if (e == true) {
+                  closeEditing();
+                }
+              });
+            } else {
+              closeEditing();
+            }
+
+            return true;
+          }
+
+          return false;
+        },
         onSubmit: () async {
           final ChatMessage item = edit.value?.edited.value as ChatMessage;
 
@@ -771,9 +827,15 @@ class ChatController extends GetxController {
 
   /// Closes the [edit]ing if any.
   void closeEditing() {
+    final bool hadFocus = edit.value?.field.focus.hasFocus == true;
+
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
     edit.value?.onClose();
     edit.value = null;
+
+    if (!PlatformUtils.isMobile && hadFocus) {
+      send.field.focus.requestFocus();
+    }
   }
 
   /// Updates [RxChat.draft] with the current values of the [send] field.

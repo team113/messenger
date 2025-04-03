@@ -30,14 +30,14 @@ import 'localized_exception.dart';
 /// Helper to display a popup message in UI.
 class MessagePopup {
   /// Shows an error popup with the provided argument.
-  static Future<void> error(dynamic e) async {
+  static Future<void> error(dynamic e, {String title = 'label_error'}) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
 
     await showDialog(
       context: router.context!,
       builder:
           (context) => AlertDialog(
-            title: Text('label_error'.l10n),
+            title: Text(title.l10n),
             content: Text(message),
             actions: [
               TextButton(
@@ -69,32 +69,34 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(text: title),
               const SizedBox(height: 13),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    if (description.isNotEmpty)
-                      Padding(
-                        padding: ModalPopup.padding(context),
-                        child: Center(
-                          child: RichText(
-                            text: TextSpan(
-                              children: description,
-                              style: style.fonts.normal.regular.secondary,
+              if (description.isNotEmpty || additional.isNotEmpty) ...[
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (description.isNotEmpty)
+                        Padding(
+                          padding: ModalPopup.padding(context),
+                          child: Center(
+                            child: RichText(
+                              text: TextSpan(
+                                children: description,
+                                style: style.fonts.normal.regular.secondary,
+                              ),
                             ),
                           ),
                         ),
+                      ...additional.map(
+                        (e) => Padding(
+                          padding: ModalPopup.padding(context),
+                          child: e,
+                        ),
                       ),
-                    ...additional.map(
-                      (e) => Padding(
-                        padding: ModalPopup.padding(context),
-                        child: e,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
+              ],
               Padding(
                 padding: ModalPopup.padding(context),
                 child: button(context),

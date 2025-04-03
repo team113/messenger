@@ -29,6 +29,9 @@ All user visible changes to this project will be documented in this file. This p
     - Redesigned share link modal. ([#1191])
     - Redesigned logout modal. ([#1194])
     - Redesigned call window switch modal. ([#1194])
+    - Chat page:
+        - Message field gaining focus when entering chat. ([#1196])
+        - Key up presses editing last sent message. ([#1196])
 
 ### Fixed
 
@@ -46,6 +49,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1191]: /../../pull/1191
 [#1193]: /../../pull/1193
 [#1194]: /../../pull/1194
+[#1196]: /../../pull/1196
 
 
 
