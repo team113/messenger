@@ -458,8 +458,6 @@ class ChatController extends GetxController {
             editMessage(previous.value);
             return true;
           }
-        } else if (key == LogicalKeyboardKey.arrowDown) {
-          return true;
         }
 
         return false;
