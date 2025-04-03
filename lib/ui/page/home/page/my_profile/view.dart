@@ -426,14 +426,16 @@ Widget _profile(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 16),
       const SizedBox(height: 8),
-      ReactiveTextField(
-        key: Key('NameField'),
-        state: c.name,
-        label: 'label_your_name'.l10n,
-        hint: '${c.myUser.value?.num}',
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        formatters: [LengthLimitingTextInputFormatter(100)],
-      ),
+      Obx(() {
+        return ReactiveTextField(
+          key: Key('NameField'),
+          state: c.name,
+          label: 'label_your_name'.l10n,
+          hint: '${c.myUser.value?.num}',
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [LengthLimitingTextInputFormatter(100)],
+        );
+      }),
       const SizedBox(height: 21),
       FieldButton(
         key: Key('StatusButton'),
@@ -1306,24 +1308,26 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     children: [
       LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
       SizedBox(height: 16),
-      if (PlatformUtils.isWeb) ...[latestButton, SizedBox(height: 8)],
-      FieldButton(
-        text: 'btn_install_web_app'.l10n,
-        onPressed: () async {
-          if (PWAInstall().installPromptEnabled) {
-            PWAInstall().promptInstall_();
-          } else {
-            MessagePopup.error(
-              'Web App is already installed or not available in your browser',
-              title: 'Installation error',
-            );
-          }
-        },
-        trailing: Padding(
-          padding: const EdgeInsets.only(left: 4),
-          child: SvgIcon(SvgIcons.logo, height: 30),
-        ),
-      ),
+      if (PlatformUtils.isWeb)
+        FieldButton(
+          text: 'btn_install_web_app'.l10n,
+          onPressed: () async {
+            if (PWAInstall().installPromptEnabled) {
+              PWAInstall().promptInstall_();
+            } else {
+              MessagePopup.error(
+                'label_installation_error_description'.l10n,
+                title: 'label_installation_error'.l10n,
+              );
+            }
+          },
+          trailing: Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: SvgIcon(SvgIcons.logo, height: 21),
+          ),
+        )
+      else
+        latestButton,
       SizedBox(height: 20),
       LineDivider('label_mobile_apps'.l10n),
       SizedBox(height: 16),
