@@ -202,6 +202,7 @@ btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
+btn_discard = Discard
 btn_dismiss = Dismiss
 btn_do_not_allow = Do not allow
 btn_done = Done
@@ -793,6 +794,7 @@ label_direct_chat_link_description =
 label_direct_chat_link_in_chat_description =
     Users who come via a direct link automatically become full members of the group.
 label_disabled = Disabled
+label_discard_changes_question = Discard changes?
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
 label_download = Download
@@ -871,6 +873,8 @@ label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_info = Info
+label_installation_error = Installation error
+label_installation_error_description = Web App is already installed or not available in your browser
 label_interface = Interface
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:

@@ -63,6 +63,7 @@ class MessageFieldController extends GetxController {
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
+    this.onKeyUp,
   }) : quotes = RxList(quotes),
        attachments = RxList(
          attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
@@ -71,16 +72,6 @@ class MessageFieldController extends GetxController {
       text: text,
       onFocus: (s) {
         onChanged?.call();
-
-        ClipboardEvents.instance?.unregisterPasteEventListener(
-          _pasteEventListener,
-        );
-
-        if (s.focus.hasFocus) {
-          ClipboardEvents.instance?.registerPasteEventListener(
-            _pasteEventListener,
-          );
-        }
       },
       submitted: false,
       onSubmitted: (s) {
@@ -89,6 +80,8 @@ class MessageFieldController extends GetxController {
       },
       focus: FocusNode(onKeyEvent: (_, KeyEvent e) => handleNewLines(e, field)),
     );
+
+    field.focus.addListener(_focusListener);
 
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
@@ -155,6 +148,10 @@ class MessageFieldController extends GetxController {
 
   /// [GlobalKey] of the text field itself.
   final GlobalKey fieldKey = GlobalKey();
+
+  /// Callback, called when up key is being pressed while this field is in
+  /// focus.
+  final bool Function(LogicalKeyboardKey)? onKeyUp;
 
   /// [ChatButton]s displayed in the more panel.
   late final RxList<ChatButton> panel = RxList([
@@ -346,7 +343,9 @@ class MessageFieldController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
+    field.focus.removeListener(_focusListener);
     ClipboardEvents.instance?.unregisterPasteEventListener(_pasteEventListener);
+    HardwareKeyboard.instance.removeHandler(_keyUpHandler);
 
     super.onClose();
   }
@@ -643,5 +642,29 @@ class MessageFieldController extends GetxController {
         bytes: await file.readAll(),
       ),
     );
+  }
+
+  /// Invokes [onKeyUp] on the [KeyDownEvent] events, if [TextFieldState.focus]
+  /// has a focus.
+  bool _keyUpHandler(KeyEvent key) {
+    if (onKeyUp != null && field.focus.hasFocus && key is KeyDownEvent) {
+      return onKeyUp?.call(key.logicalKey) ?? false;
+    }
+
+    return false;
+  }
+
+  /// Registers or unregisters [_keyUpHandler] and [_pasteEventListener], if
+  /// [TextFieldState.focus] has a focus.
+  void _focusListener() {
+    if (field.focus.hasFocus) {
+      HardwareKeyboard.instance.addHandler(_keyUpHandler);
+      ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_keyUpHandler);
+      ClipboardEvents.instance?.unregisterPasteEventListener(
+        _pasteEventListener,
+      );
+    }
   }
 }

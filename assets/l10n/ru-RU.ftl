@@ -202,6 +202,7 @@ btn_delete_for_all = Удалить для всех
 btn_delete_from_contacts = Удалить из контактов
 btn_delete_from_favorites = Удалить из избранных
 btn_delete_message = Удалить сообщение
+btn_discard = Отменить
 btn_dismiss = Запретить
 btn_do_not_allow = Не разрешать
 btn_done = Готово
@@ -815,6 +816,7 @@ label_direct_chat_link_description =
 label_direct_chat_link_in_chat_description =
     Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
 label_disabled = Отключены
+label_discard_changes_question = Отменить изменения?
 label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
 label_download = Скачать
@@ -893,6 +895,8 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_info = Информация
+label_installation_error = Ошибка инсталляции
+label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
 label_interface = Интерфейс
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:
