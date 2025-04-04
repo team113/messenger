@@ -16,17 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:convert';
 
-import 'package:async/async.dart';
 import 'package:drift/drift.dart';
 
-import '/domain/model/avatar.dart';
-import '/domain/model/chat.dart';
-import '/domain/model/user_call_cover.dart';
+import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/domain/model/welcome_message.dart';
-import '/store/model/blocklist.dart';
 import '/store/model/user.dart';
 import 'common.dart';
 import 'drift.dart';
@@ -42,165 +36,56 @@ class Locks extends Table {
       integer().nullable().map(const PreciseDateTimeConverter())();
 }
 
-/// [DriftProviderBase] for manipulating the persisted [User]s.
-class LockDriftProvider extends DriftProviderBaseWithScope {
+/// [DriftProviderBase] for manipulating the persisted [PreciseDateTime]s.
+class LockDriftProvider extends DriftProviderBase {
   LockDriftProvider(super.common);
 
-  /// Creates or updates the provided [user] in the database.
-  Future<DtoUser> upsert(DtoUser user) async {
-    _cache[user.id] = user;
-
-    final result = await safe((db) async {
-      final DtoUser stored = UserDb.fromDb(
-        await db
-            .into(db.users)
-            .insertReturning(user.toDb(), mode: InsertMode.insertOrReplace),
-      );
-
-      _controllers[stored.id]?.add(stored);
-
-      return stored;
-    }, tag: 'user.upsert(user)');
-
-    _cache.remove(user.id);
-
-    return result ?? user;
+  /// Creates or updates the provided [operation] in the database.
+  Future<void> upsert(String operation) async {
+    await safe((db) async {
+      await db
+          .into(db.locks)
+          .insertReturning(
+            LockRow(operation: operation, lockedAt: PreciseDateTime.now()),
+            mode: InsertMode.insertOrReplace,
+          );
+    }, tag: 'lock.upsert($operation)');
   }
 
-  /// Returns the [DtoUser] stored in the database by the provided [id], if
-  /// any.
-  Future<DateTime?> read(String operation) async {
-    return await safe<DateTime?>(
+  /// Returns the [PreciseDateTime] stored in the database by the provided
+  /// [operation], if any.
+  Future<PreciseDateTime?> read(String operation) async {
+    return await safe<PreciseDateTime?>(
       (db) async {
-        final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
-        final UserRow? row = await stmt.getSingleOrNull();
+        final stmt = db.select(db.locks)
+          ..where((u) => u.operation.equals(operation));
+        final LockRow? row = await stmt.getSingleOrNull();
 
         if (row == null) {
           return null;
         }
 
-        return UserDb.fromDb(row);
+        return row.lockedAt;
       },
-      tag: 'locks.read($id)',
+      tag: 'lock.read($operation)',
       exclusive: false,
     );
   }
 
-  /// Deletes the [DtoUser] identified by the provided [id] from the database.
-  Future<void> delete(UserId id) async {
-    _cache.remove(id);
-
+  /// Deletes the [operation] from the database.
+  Future<void> delete(String operation) async {
     await safe((db) async {
-      final stmt = db.delete(db.users)..where((e) => e.id.equals(id.val));
-      await stmt.go();
+      final stmt = db.delete(db.locks)
+        ..where((e) => e.operation.equals(operation));
 
-      _controllers[id]?.add(null);
-    }, tag: 'user.delete($id)');
+      await stmt.go();
+    }, tag: 'lock.delete($operation)');
   }
 
   /// Deletes all the [DtoUser]s stored in the database.
   Future<void> clear() async {
-    _cache.clear();
-
     await safe((db) async {
-      await db.delete(db.users).go();
-    }, tag: 'user.clear()');
-  }
-
-  /// Returns the [Stream] of real-time changes happening with the [DtoUser]
-  /// identified by the provided [id].
-  Stream<DtoUser?> watch(UserId id) {
-    return stream((db) {
-      final stmt = db.select(db.users)..where((u) => u.id.equals(id.val));
-
-      StreamController<DtoUser?>? controller = _controllers[id];
-      if (controller == null) {
-        controller = StreamController<DtoUser?>.broadcast(sync: true);
-        _controllers[id] = controller;
-      }
-
-      return StreamGroup.merge([
-        controller.stream,
-        stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
-      ]);
-    });
-  }
-}
-
-/// Extension adding conversion methods from [UserRow] to [DtoUser].
-extension UserDb on DtoUser {
-  /// Constructs a [DtoUser] from the provided [UserRow].
-  static DtoUser fromDb(UserRow e) {
-    return DtoUser(
-      User(
-        UserId(e.id),
-        UserNum(e.num),
-        name: e.name == null ? null : UserName(e.name!),
-        bio: e.bio == null ? null : UserBio(e.bio!),
-        avatar:
-            e.avatar == null
-                ? null
-                : UserAvatar.fromJson(jsonDecode(e.avatar!)),
-        callCover:
-            e.callCover == null
-                ? null
-                : UserCallCover.fromJson(jsonDecode(e.callCover!)),
-        mutualContactsCount: e.mutualContactsCount,
-        online: e.online,
-        presenceIndex: e.presenceIndex,
-        status: e.status == null ? null : UserTextStatus(e.status!),
-        isDeleted: e.isDeleted,
-        dialog: e.dialog == null ? null : ChatId(e.dialog!),
-        isBlocked:
-            e.isBlocked == null
-                ? null
-                : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
-        lastSeenAt: e.lastSeenAt,
-        contacts:
-            (jsonDecode(e.contacts) as List)
-                .map((e) => NestedChatContact.fromJson(e))
-                .cast<NestedChatContact>()
-                .toList(),
-        welcomeMessage:
-            e.welcomeMessage == null
-                ? null
-                : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
-      ),
-      UserVersion(e.ver),
-      BlocklistVersion(e.blockedVer),
-    );
-  }
-
-  /// Constructs a [UserRow] from this [DtoUser].
-  UserRow toDb() {
-    return UserRow(
-      id: value.id.val,
-      num: value.num.val,
-      name: value.name?.val,
-      bio: value.bio?.val,
-      avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
-      callCover:
-          value.callCover == null
-              ? null
-              : jsonEncode(value.callCover?.toJson()),
-      mutualContactsCount: value.mutualContactsCount,
-      online: value.online,
-      presenceIndex: value.presenceIndex,
-      status: value.status?.val,
-      isDeleted: value.isDeleted,
-      dialog: value.dialog.val,
-      isBlocked:
-          value.isBlocked == null
-              ? null
-              : jsonEncode(value.isBlocked?.toJson()),
-      lastSeenAt: value.lastSeenAt,
-      contacts: jsonEncode(value.contacts.map((e) => e.toJson()).toList()),
-      ver: ver.val,
-      blockedVer: blockedVer.val,
-      welcomeMessage:
-          value.welcomeMessage == null
-              ? null
-              : jsonEncode(value.welcomeMessage?.toJson()),
-    );
+      await db.delete(db.locks).go();
+    }, tag: 'lock.clear()');
   }
 }
