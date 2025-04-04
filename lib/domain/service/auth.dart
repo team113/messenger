@@ -31,9 +31,10 @@ import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/credentials.dart';
+import '/provider/drift/locks.dart';
+import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -49,6 +50,7 @@ class AuthService extends DisposableService {
     this._authRepository,
     this._credentialsProvider,
     this._accountProvider,
+    this._lockProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -76,6 +78,9 @@ class AuthService extends DisposableService {
 
   /// [AccountDriftProvider] storing the current user's [UserId].
   final AccountDriftProvider _accountProvider;
+
+  /// [LockDriftProvider] storing the database locks.
+  final LockDriftProvider _lockProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -634,6 +639,8 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
+        await _acquireLock();
+
         Credentials? oldCreds;
 
         if (userId != null) {
@@ -745,14 +752,19 @@ class AuthService extends DisposableService {
           rethrow;
         }
       });
+
+      _releaseLock();
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
+      _releaseLock();
       rethrow;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
         '$runtimeType',
       );
+
+      _releaseLock();
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(_refreshRetryDelay);
@@ -868,5 +880,31 @@ class AuthService extends DisposableService {
             .subtract(_accessTokenMinTtl)
             .isBefore(PreciseDateTime.now().toUtc()) ??
         false;
+  }
+
+  /// Awaits a "refreshSession" operation from the [_lockProvider] to be `null`
+  /// or old enough to upsert its own.
+  Future<void> _acquireLock() async {
+    bool acquired = false;
+
+    while (!acquired) {
+      await _lockProvider.txn(() async {
+        final at = await _lockProvider.read('refreshSession');
+
+        if (at == null || DateTime.now().difference(at.val).inSeconds > 30) {
+          await _lockProvider.upsert('refreshSession');
+          acquired = true;
+        }
+      });
+
+      if (!acquired) {
+        await Future.delayed(Duration(milliseconds: 200));
+      }
+    }
+  }
+
+  /// Deletes a "refreshSession" operation from the [_lockProvider].
+  Future<void> _releaseLock() async {
+    await _lockProvider.delete('refreshSession');
   }
 }

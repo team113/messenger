@@ -88,9 +88,59 @@ class NotificationService: UNNotificationServiceExtension {
       // TODO: Need to understand to who this notification was delivered to.
       let accounts = Table("accounts")
       let tokens = Table("tokens")
+      let locks = Table("locks")
 
+      let operation = SQLite.Expression<String>("operation")
+      let lockedAt = SQLite.Expression<Int>("locked_at")
       let userId = SQLite.Expression<String>("user_id")
       let credentials = SQLite.Expression<String>("credentials")
+
+      var acquired = false
+
+      while !acquired {
+        try? db.transaction {
+          let query =
+            try locks
+            .select(lockedAt)
+            .where(operation == "refreshSession")
+            .limit(1)
+
+          let result = try db.pluck(query)
+          let now = Date()
+          let timestamp = now.timeIntervalSince1970
+          let microseconds = Int(timestamp * 1_000_000) & 0xffff_ffff
+
+          var lockedAtValue: Int?
+          if let row = result {
+            lockedAtValue = try row.get(lockedAt)
+          }
+
+          let shouldAcquire: Bool
+          if let lockedAtValue = lockedAtValue {
+            shouldAcquire = microseconds - lockedAtValue > 30 * 1_000_000
+          } else {
+            shouldAcquire = true
+          }
+
+          if shouldAcquire {
+            try db
+              .run(
+                locks
+                  .upsert(
+                    operation <- "refreshSession",
+                    onConflictOf: lockedAt <- microseconds
+                  )
+              )
+
+            acquired = true
+          }
+        }
+
+        if !acquired {
+          let delay = UInt64(0.2 * Double(NSEC_PER_SEC))
+          try? await Task.sleep(nanoseconds: delay)
+        }
+      }
 
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]
