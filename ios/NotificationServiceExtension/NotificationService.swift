@@ -108,7 +108,7 @@ class NotificationService: UNNotificationServiceExtension {
           let result = try db.pluck(query)
           let now = Date()
           let timestamp = now.timeIntervalSince1970
-          let microseconds = Int(timestamp * 1_000_000) & 0xffff_ffff
+          let microseconds = Int(timestamp * 1_000_000)
 
           var lockedAtValue: Int?
           if let row = result {
