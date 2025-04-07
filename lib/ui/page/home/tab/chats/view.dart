@@ -26,7 +26,6 @@ import 'package:get/get.dart';
 
 import '/config.dart';
 import '/domain/repository/chat.dart';
-import '/domain/service/auth.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
@@ -179,13 +178,7 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              WidgetButton(
-                                onPressed: () async {
-                                  final authService = Get.find<AuthService>();
-                                  await authService.refreshSession();
-                                },
-                                child: Text('label_chats'.l10n),
-                              ),
+                              Text('label_chats'.l10n),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),
