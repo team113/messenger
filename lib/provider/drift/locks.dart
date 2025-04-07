@@ -20,7 +20,6 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/store/model/user.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -82,7 +81,7 @@ class LockDriftProvider extends DriftProviderBase {
     }, tag: 'lock.delete($operation)');
   }
 
-  /// Deletes all the [DtoUser]s stored in the database.
+  /// Deletes all the [PreciseDateTime]s stored in the database.
   Future<void> clear() async {
     await safe((db) async {
       await db.delete(db.locks).go();
