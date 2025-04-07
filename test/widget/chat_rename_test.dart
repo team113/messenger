@@ -47,6 +47,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -83,6 +84,7 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credentialsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   await accountProvider.upsert(const UserId('me'));
   await credentialsProvider.upsert(
@@ -127,6 +129,7 @@ void main() async {
     AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
     credentialsProvider,
     accountProvider,
+    locksProvider,
   );
   authService.init();
 
@@ -316,6 +319,7 @@ void main() async {
         ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
     authService.init();

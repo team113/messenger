@@ -26,6 +26,7 @@ import 'package:messenger/domain/service/auth.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -48,6 +49,7 @@ void main() async {
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final credsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   setUp(() async {
     Get.reset();
@@ -110,7 +112,7 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     AuthService authService = Get.put(
-      AuthService(authRepository, getStorage, accountProvider),
+      AuthService(authRepository, getStorage, accountProvider, locksProvider),
     );
 
     expect(await authService.init(), Routes.auth);
@@ -160,7 +162,12 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     AuthService authService = Get.put(
-      AuthService(authRepository, credsProvider, accountProvider),
+      AuthService(
+        authRepository,
+        credsProvider,
+        accountProvider,
+        locksProvider,
+      ),
     );
 
     expect(await authService.init(), null);
@@ -194,7 +201,12 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     final AuthService authService = Get.put(
-      AuthService(authRepository, credsProvider, accountProvider),
+      AuthService(
+        authRepository,
+        credsProvider,
+        accountProvider,
+        locksProvider,
+      ),
     );
 
     expect(await authService.init(), Routes.auth);
@@ -221,7 +233,12 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     AuthService authService = Get.put(
-      AuthService(authRepository, credsProvider, accountProvider),
+      AuthService(
+        authRepository,
+        credsProvider,
+        accountProvider,
+        locksProvider,
+      ),
     );
 
     when(
@@ -265,7 +282,12 @@ void main() async {
       AuthRepository(graphQlProvider, myUserProvider, credsProvider),
     );
     AuthService authService = Get.put(
-      AuthService(authRepository, credsProvider, accountProvider),
+      AuthService(
+        authRepository,
+        credsProvider,
+        accountProvider,
+        locksProvider,
+      ),
     );
 
     when(

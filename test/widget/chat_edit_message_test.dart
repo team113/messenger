@@ -50,6 +50,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -340,6 +341,7 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final versionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -363,6 +365,7 @@ void main() async {
         ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
     authService.init();
