@@ -117,7 +117,7 @@ class NotificationService: UNNotificationServiceExtension {
 
           let shouldAcquire: Bool
           if let lockedAtValue = lockedAtValue {
-            shouldAcquire = microseconds - lockedAtValue > 30 * 1_000_000
+            shouldAcquire = microseconds - lockedAtValue > 30_000_000
           } else {
             shouldAcquire = true
           }
@@ -128,7 +128,8 @@ class NotificationService: UNNotificationServiceExtension {
                 locks
                   .upsert(
                     operation <- "refreshSession",
-                    onConflictOf: lockedAt <- microseconds
+                    lockedAt <- microseconds,
+                    onConflictOf: operation
                   )
               )
 
@@ -186,6 +187,8 @@ class NotificationService: UNNotificationServiceExtension {
           await sendDelivery(creds: fresh, chatId: chatId)
         }
       }
+
+      try? db.run(locks.filter(operation == "refreshSession").delete())
     }
   }
 
