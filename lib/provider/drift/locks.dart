@@ -20,12 +20,12 @@ import 'dart:async';
 import 'package:drift/drift.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/user.dart';
 import '/store/model/user.dart';
 import 'common.dart';
 import 'drift.dart';
 
-/// [User] to be stored in a [Table].
+/// [PreciseDateTime] acting as a timestamp lock for operations to be stored in
+/// a [Table].
 @DataClassName('LockRow')
 class Locks extends Table {
   @override
