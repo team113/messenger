@@ -1302,35 +1302,30 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     );
   });
 
-  final bool installed =
-      WebUtils.hasPwa || PWAInstall().launchMode != LaunchMode.browser;
-
   return Column(
     children: [
       LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
       SizedBox(height: 16),
-      if (installed || PWAInstall().installPromptEnabled) ...[
-        if (!PlatformUtils.isWeb) ...[latestButton, SizedBox(height: 8)],
+      if (!PlatformUtils.isWeb)
+        latestButton
+      else
         FieldButton(
-          text:
-              installed
-                  ? 'btn_pwa_is_installed'.l10n
-                  : 'btn_install_web_app'.l10n,
-          onPressed:
-              installed
-                  ? null
-                  : () async {
-                    if (PWAInstall().installPromptEnabled) {
-                      PWAInstall().promptInstall_();
-                    }
-                  },
+          text: 'btn_install_web_app'.l10n,
+          onPressed: () async {
+            if (PWAInstall().installPromptEnabled) {
+              PWAInstall().promptInstall_();
+            } else {
+              MessagePopup.error(
+                'label_installation_error_description'.l10n,
+                title: 'label_installation_error'.l10n,
+              );
+            }
+          },
           trailing: Padding(
             padding: const EdgeInsets.only(left: 4),
-            child: SvgIcon(SvgIcons.logo, height: 30),
+            child: SvgIcon(SvgIcons.logo, height: 24),
           ),
         ),
-      ] else
-        latestButton,
       SizedBox(height: 20),
       LineDivider('label_mobile_apps'.l10n),
       SizedBox(height: 16),

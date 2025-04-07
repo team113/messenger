@@ -893,6 +893,8 @@ label_image_saved_to_gallery = Изображение сохранено в га
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
 label_info = Информация
+label_installation_error = Ошибка установки
+label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
 label_interface = Интерфейс
 label_introduction_description1 =
     Доступ к гостевому аккаунту сохраняется в течение одного года или пока:

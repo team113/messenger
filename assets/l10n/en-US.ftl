@@ -871,6 +871,8 @@ label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_info = Info
+label_installation_error = Installation error
+label_installation_error_description = Web App is already installed or not available in your browser
 label_interface = Interface
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
