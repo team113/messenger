@@ -900,11 +900,11 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
         PhysicalKeyboardKey.arrowUp: '↑',
         PhysicalKeyboardKey.controlLeft: '⌃',
         PhysicalKeyboardKey.shiftLeft: '⇧',
-        PhysicalKeyboardKey.altLeft: Platform.isMacOS ? '⌥' : 'ALT',
+        PhysicalKeyboardKey.altLeft: Platform.isMacOS ? '⌥' : 'Alt',
         PhysicalKeyboardKey.metaLeft: Platform.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.controlRight: '⌃',
         PhysicalKeyboardKey.shiftRight: '⇧',
-        PhysicalKeyboardKey.altRight: Platform.isMacOS ? '⌥' : 'ALT',
+        PhysicalKeyboardKey.altRight: Platform.isMacOS ? '⌥' : 'Alt',
         PhysicalKeyboardKey.metaRight: Platform.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.fn: 'fn',
       };

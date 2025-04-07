@@ -817,7 +817,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 Expanded(
                   child: Text(
                     'label_key_plus_key_by_default'.l10nfmt({
-                      'modifier': '⌥',
+                      'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
                       'key': 'M',
                     }),
                     textAlign: TextAlign.left,
