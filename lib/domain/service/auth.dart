@@ -639,7 +639,7 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        await _acquireLock();
+        await _acquireLock(userId);
 
         Credentials? oldCreds;
 
@@ -753,10 +753,10 @@ class AuthService extends DisposableService {
         }
       });
 
-      _releaseLock();
+      _releaseLock(userId);
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
-      _releaseLock();
+      _releaseLock(userId);
       rethrow;
     } catch (e) {
       Log.debug(
@@ -764,7 +764,7 @@ class AuthService extends DisposableService {
         '$runtimeType',
       );
 
-      _releaseLock();
+      _releaseLock(userId);
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(_refreshRetryDelay);
@@ -884,15 +884,19 @@ class AuthService extends DisposableService {
 
   /// Awaits a "refreshSession" operation from the [_lockProvider] to be `null`
   /// or old enough to upsert its own.
-  Future<void> _acquireLock() async {
+  Future<void> _acquireLock(UserId? lockedFor) async {
     bool acquired = false;
 
     while (!acquired) {
       await _lockProvider.txn(() async {
-        final at = await _lockProvider.read('refreshSession');
+        final at = await _lockProvider.read('refreshSession($lockedFor)');
 
-        if (at == null || DateTime.now().difference(at.val).inSeconds > 30) {
-          await _lockProvider.upsert('refreshSession');
+        // [Duration] to consider `lockedAt` value as being outdated or stale,
+        // so it can be safely overwritten.
+        const Duration lockedAtTtl = Duration(seconds: 30);
+
+        if (at == null || DateTime.now().difference(at.val) > lockedAtTtl) {
+          await _lockProvider.upsert('refreshSession($lockedFor)');
           acquired = true;
         }
       });
@@ -904,7 +908,7 @@ class AuthService extends DisposableService {
   }
 
   /// Deletes a "refreshSession" operation from the [_lockProvider].
-  Future<void> _releaseLock() async {
-    await _lockProvider.delete('refreshSession');
+  Future<void> _releaseLock(UserId? lockedFor) async {
+    await _lockProvider.delete('refreshSession($lockedFor)');
   }
 }

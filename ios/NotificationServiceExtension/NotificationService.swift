@@ -95,56 +95,10 @@ class NotificationService: UNNotificationServiceExtension {
       let userId = SQLite.Expression<String>("user_id")
       let credentials = SQLite.Expression<String>("credentials")
 
-      var acquired = false
-
-      while !acquired {
-        try? db.transaction {
-          let query =
-            try locks
-            .select(lockedAt)
-            .where(operation == "refreshSession")
-            .limit(1)
-
-          let result = try db.pluck(query)
-          let now = Date()
-          let timestamp = now.timeIntervalSince1970
-          let microseconds = Int(timestamp * 1_000_000)
-
-          var lockedAtValue: Int?
-          if let row = result {
-            lockedAtValue = try row.get(lockedAt)
-          }
-
-          let shouldAcquire: Bool
-          if let lockedAtValue = lockedAtValue {
-            shouldAcquire = microseconds - lockedAtValue > 30_000_000
-          } else {
-            shouldAcquire = true
-          }
-
-          if shouldAcquire {
-            try db
-              .run(
-                locks
-                  .upsert(
-                    operation <- "refreshSession",
-                    lockedAt <- microseconds,
-                    onConflictOf: operation
-                  )
-              )
-
-            acquired = true
-          }
-        }
-
-        if !acquired {
-          let delay = UInt64(0.2 * Double(NSEC_PER_SEC))
-          try? await Task.sleep(nanoseconds: delay)
-        }
-      }
-
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]
+
+        await acquireLock(userId: accountId)
 
         let query = tokens.select(credentials).where(userId == accountId).limit(1)
         let account = try! db.pluck(query)
@@ -186,10 +140,68 @@ class NotificationService: UNNotificationServiceExtension {
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
         }
+
+        await releaseLock(userId: accountId)
+      }
+    }
+  }
+
+  func acquireLock(userId: String) async {
+    var acquired = false
+
+    while !acquired {
+      try? db.transaction {
+        let query =
+          try locks
+          .select(lockedAt)
+          .where(operation == "refreshSession(\(userId))")
+          .limit(1)
+
+        // Time in microseconds to consider `lockedAt` value as being
+        // outdated or stale, so it can be safely overwritten.
+        let lockedAtTtl = 30_000_000
+
+        let result = try db.pluck(query)
+        let now = Date()
+        let timestamp = now.timeIntervalSince1970
+        let microseconds = Int(timestamp * 1_000_000)
+
+        var lockedAtValue: Int?
+        if let row = result {
+          lockedAtValue = try row.get(lockedAt)
+        }
+
+        let shouldAcquire: Bool
+        if let lockedAtValue = lockedAtValue {
+          shouldAcquire = microseconds - lockedAtValue > lockedAtTtl
+        } else {
+          shouldAcquire = true
+        }
+
+        if shouldAcquire {
+          try db
+            .run(
+              locks
+                .upsert(
+                  operation <- "refreshSession(\(userId))",
+                  lockedAt <- microseconds,
+                  onConflictOf: operation
+                )
+            )
+
+          acquired = true
+        }
       }
 
-      try? db.run(locks.filter(operation == "refreshSession").delete())
+      if !acquired {
+        let delay = UInt64(0.2 * Double(NSEC_PER_SEC))
+        try? await Task.sleep(nanoseconds: delay)
+      }
     }
+  }
+
+  func releaseLock(userId: String) async {
+    try? db.run(locks.filter(operation == "refreshSession(\(userId))").delete())
   }
 
   @available(macOS 12.0, *)
