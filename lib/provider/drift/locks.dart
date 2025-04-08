@@ -18,8 +18,10 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '/domain/model/precise_date_time/precise_date_time.dart';
+import '/util/new_type.dart';
 import 'common.dart';
 import 'drift.dart';
 
@@ -31,6 +33,7 @@ class Locks extends Table {
   Set<Column> get primaryKey => {operation};
 
   TextColumn get operation => text()();
+  TextColumn get holder => text()();
   IntColumn get lockedAt =>
       integer().nullable().map(const PreciseDateTimeConverter())();
 }
@@ -39,52 +42,86 @@ class Locks extends Table {
 class LockDriftProvider extends DriftProviderBase {
   LockDriftProvider(super.common);
 
-  /// Creates or updates the provided [operation] in the database.
-  Future<void> upsert(String operation) async {
-    await safe((db) async {
-      await db
-          .into(db.locks)
-          .insertReturning(
-            LockRow(operation: operation, lockedAt: PreciseDateTime.now()),
-            mode: InsertMode.insertOrReplace,
-          );
-    }, tag: 'lock.upsert($operation)');
+  /// Acquires a lock for the provided [operation] and returns a
+  /// [LockIdentifier] holding it.
+  ///
+  /// [ttl] is the time to live for the lock, after which it will be
+  /// automatically released.
+  ///
+  /// [retryPeriod] is the time to wait before retrying to acquire the lock, if
+  /// it is already held by another operation.
+  ///
+  /// This method will keep retrying until the lock is acquired or this
+  /// [LockDriftProvider] is closed.
+  Future<LockIdentifier> acquire(
+    String operation, {
+    Duration ttl = const Duration(seconds: 30),
+    Duration retryPeriod = const Duration(milliseconds: 200),
+  }) async {
+    final LockIdentifier holder = LockIdentifier.generate();
+
+    bool acquired = false;
+
+    while (!acquired && !isClosed) {
+      await safe((db) async {
+        final lock = LockRow(
+          operation: operation,
+          holder: holder.val,
+          lockedAt: PreciseDateTime.now(),
+        );
+
+        final row = await db
+            .into(db.locks)
+            .insertReturningOrNull(
+              lock,
+              onConflict: DoUpdate(
+                (_) => lock,
+                where:
+                    (e) =>
+                        e.operation.equals(operation) &
+                        // TODO: Check whether this accounts `NULL` values.
+                        e.lockedAt.isSmallerOrEqualValue(
+                          (lock.lockedAt!).subtract(ttl).microsecondsSinceEpoch,
+                        ),
+              ),
+              mode: InsertMode.insertOrRollback,
+            );
+
+        acquired = row?.holder == holder.val;
+      }, tag: 'lock.acquire($operation)');
+
+      if (!acquired) {
+        await Future.delayed(retryPeriod);
+      }
+    }
+
+    return holder;
   }
 
-  /// Returns the [PreciseDateTime] stored in the database by the provided
-  /// [operation], if any.
-  Future<PreciseDateTime?> read(String operation) async {
-    return await safe<PreciseDateTime?>(
-      (db) async {
-        final stmt = db.select(db.locks)
-          ..where((u) => u.operation.equals(operation));
-        final LockRow? row = await stmt.getSingleOrNull();
-
-        if (row == null) {
-          return null;
-        }
-
-        return row.lockedAt;
-      },
-      tag: 'lock.read($operation)',
-      exclusive: false,
-    );
-  }
-
-  /// Deletes the [operation] from the database.
-  Future<void> delete(String operation) async {
+  /// Releases a lock with the provided [identifier] from the database.
+  Future<void> release(LockIdentifier identifier) async {
     await safe((db) async {
       final stmt = db.delete(db.locks)
-        ..where((e) => e.operation.equals(operation));
+        ..where((e) => e.holder.equals(identifier.val));
 
       await stmt.go();
-    }, tag: 'lock.delete($operation)');
+    }, tag: 'lock.release($identifier)');
   }
 
-  /// Deletes all the [PreciseDateTime]s stored in the database.
+  /// Deletes all the locks stored in the database.
   Future<void> clear() async {
     await safe((db) async {
       await db.delete(db.locks).go();
     }, tag: 'lock.clear()');
+  }
+}
+
+/// Unique identifier for a lock operation.
+class LockIdentifier extends NewType<String> {
+  const LockIdentifier._(super.val);
+
+  /// Creates a new [LockIdentifier] with a random value.
+  factory LockIdentifier.generate() {
+    return LockIdentifier._(const Uuid().v4());
   }
 }

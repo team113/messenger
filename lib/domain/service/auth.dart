@@ -635,12 +635,16 @@ class AuthService extends DisposableService {
       '$runtimeType',
     );
 
+    LockIdentifier? dbLock;
+
     try {
+      // Acquire a database lock to prevent multiple refreshes of the same
+      // [Credentials] from multiple processes.
+      dbLock = await _lockProvider.acquire('refreshSession($userId)');
+
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
-        await _acquireLock(userId);
-
         Credentials? oldCreds;
 
         if (userId != null) {
@@ -753,10 +757,14 @@ class AuthService extends DisposableService {
         }
       });
 
-      _releaseLock(userId);
+      await _lockProvider.release(dbLock);
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
-      _releaseLock(userId);
+
+      if (dbLock != null) {
+        _lockProvider.release(dbLock);
+      }
+
       rethrow;
     } catch (e) {
       Log.debug(
@@ -764,7 +772,9 @@ class AuthService extends DisposableService {
         '$runtimeType',
       );
 
-      _releaseLock(userId);
+      if (dbLock != null) {
+        _lockProvider.release(dbLock);
+      }
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(_refreshRetryDelay);
@@ -880,35 +890,5 @@ class AuthService extends DisposableService {
             .subtract(_accessTokenMinTtl)
             .isBefore(PreciseDateTime.now().toUtc()) ??
         false;
-  }
-
-  /// Awaits a "refreshSession" operation from the [_lockProvider] to be `null`
-  /// or old enough to upsert its own.
-  Future<void> _acquireLock(UserId? lockedFor) async {
-    bool acquired = false;
-
-    while (!acquired) {
-      await _lockProvider.txn(() async {
-        final at = await _lockProvider.read('refreshSession($lockedFor)');
-
-        // [Duration] to consider `lockedAt` value as being outdated or stale,
-        // so it can be safely overwritten.
-        const Duration lockedAtTtl = Duration(seconds: 30);
-
-        if (at == null || DateTime.now().difference(at.val) > lockedAtTtl) {
-          await _lockProvider.upsert('refreshSession($lockedFor)');
-          acquired = true;
-        }
-      });
-
-      if (!acquired) {
-        await Future.delayed(Duration(milliseconds: 200));
-      }
-    }
-  }
-
-  /// Deletes a "refreshSession" operation from the [_lockProvider].
-  Future<void> _releaseLock(UserId? lockedFor) async {
-    await _lockProvider.delete('refreshSession($lockedFor)');
   }
 }
