@@ -95,6 +95,9 @@ class NotificationService: UNNotificationServiceExtension {
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]
 
+        let locks = LockProvider(db: db)
+        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(userId))")
+
         let query = tokens.select(credentials).where(userId == accountId).limit(1)
         let account = try! db.pluck(query)
 
@@ -134,6 +137,10 @@ class NotificationService: UNNotificationServiceExtension {
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
+        }
+
+        if lock != nil {
+          await locks?.releaseLock(holder: lock!)
         }
       }
     }
@@ -300,6 +307,85 @@ class NotificationService: UNNotificationServiceExtension {
           }
         }
       }
+    }
+  }
+
+  class LockProvider {
+    let db: Connection
+
+    required init?(db: Connection) {
+      self.db = db
+    }
+
+    func acquireLock(asOperation: String) async -> String {
+      let identifier: String = UUID().uuidString
+
+      var acquired: Bool = false
+
+      while !acquired {
+        // Time in microseconds to consider `lockedAt` value as being outdated
+        // or stale, so it can be safely overwritten.
+        let lockedAtTtl: Int = 30_000_000
+
+        let now: Date = Date()
+        let timestamp: TimeInterval = now.timeIntervalSince1970
+        let microseconds: Int = Int(timestamp * 1_000_000)
+
+        // TODO: Replace with `SQLite.swift` statement methods when `RETURNING`
+        //       and `DO UPDATE ... WHERE` are supported.
+        let sql = """
+          INSERT OR ROLLBACK INTO locks (operation, holder, locked_at)
+          VALUES (?, ?, ?)
+          ON CONFLICT(operation) DO UPDATE
+          SET holder = excluded.holder,
+              locked_at = excluded.locked_at
+          WHERE IFNULL(locked_at, 0) <= excluded.locked_at - ?
+          RETURNING *;
+          """
+
+        let statement = try? db.prepare(sql)
+        if let rows = try? statement?.run(
+          asOperation,
+          identifier,
+          microseconds,
+          lockedAtTtl
+        ) {
+          for row in rows {
+            let returnedHolder = row[1] as? String
+            acquired = returnedHolder == identifier
+          }
+        }
+
+        if !acquired {
+          let locksTable = Table("locks")
+          let holderColumn = SQLite.Expression<String>("holder")
+
+          // Run `SELECT` to check if the lock is held by the identifier, since
+          // the previous `INSERT OR ROLLBACK` might not return any rows even if
+          // the query was successful, which seems like a bug in `SQLite.swift`.
+          if let lockOrNil = try? db.pluck(
+            locksTable.select(holderColumn).where(holderColumn == identifier))
+          {
+            if let returnedHolder = try? lockOrNil.get(holderColumn) {
+              acquired = returnedHolder == identifier
+            }
+          }
+
+          if !acquired {
+            let delay = UInt64(5.2 * Double(NSEC_PER_SEC))
+            try? await Task.sleep(nanoseconds: delay)
+          }
+        }
+      }
+
+      return identifier
+    }
+
+    func releaseLock(holder: String) async {
+      let locksTable = Table("locks")
+      let holderColumn = SQLite.Expression<String>("holder")
+
+      try? db.run(locksTable.filter(holderColumn == holder).delete())
     }
   }
 }
