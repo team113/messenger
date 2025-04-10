@@ -322,15 +322,15 @@ class NotificationService: UNNotificationServiceExtension {
 
       // Time in microseconds to consider `lockedAt` value as being outdated
       // or stale, so it can be safely overwritten.
-      let lockedAtTtl: Int = 30_000_000
+      let lockedAtTtl: Int = 30_000_000 // 30s
 
-      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)); // 200ms
+      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)) // 200ms
 
       var acquired: Bool = false
       while !acquired {
         let now: Date = Date()
         let now_timestamp: TimeInterval = now.timeIntervalSince1970
-        let now_microseconds: Int = Int(timestamp * 1_000_000)
+        let now_microseconds: Int = Int(now_timestamp * 1_000_000)
 
         // TODO: Replace with `SQLite.swift` statement methods when `RETURNING`
         //       and `DO UPDATE ... WHERE` are supported.
