@@ -30,14 +30,14 @@ import 'localized_exception.dart';
 /// Helper to display a popup message in UI.
 class MessagePopup {
   /// Shows an error popup with the provided argument.
-  static Future<void> error(dynamic e) async {
+  static Future<void> error(dynamic e, {String title = 'label_error'}) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
 
     await showDialog(
       context: router.context!,
       builder:
           (context) => AlertDialog(
-            title: Text('label_error'.l10n),
+            title: Text(title.l10n),
             content: Text(message),
             actions: [
               TextButton(
