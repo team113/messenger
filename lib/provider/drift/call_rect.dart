@@ -22,10 +22,9 @@ import 'package:drift/drift.dart';
 import 'package:flutter/rendering.dart' show Rect;
 
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import 'drift.dart';
 
-/// [User] to be stored in a [Table].
+/// [Rect]s associated with a [ChatId] to be stored in a [Table].
 @DataClassName('CallRectangleRow')
 class CallRectangles extends Table {
   @override

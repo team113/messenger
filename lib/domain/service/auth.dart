@@ -31,9 +31,10 @@ import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/credentials.dart';
+import '/provider/drift/locks.dart';
+import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -49,6 +50,7 @@ class AuthService extends DisposableService {
     this._authRepository,
     this._credentialsProvider,
     this._accountProvider,
+    this._lockProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -76,6 +78,9 @@ class AuthService extends DisposableService {
 
   /// [AccountDriftProvider] storing the current user's [UserId].
   final AccountDriftProvider _accountProvider;
+
+  /// [LockDriftProvider] storing the database locks.
+  final LockDriftProvider _lockProvider;
 
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
@@ -630,7 +635,13 @@ class AuthService extends DisposableService {
       '$runtimeType',
     );
 
+    LockIdentifier? dbLock;
+
     try {
+      // Acquire a database lock to prevent multiple refreshes of the same
+      // [Credentials] from multiple processes.
+      dbLock = await _lockProvider.acquire('refreshSession($userId)');
+
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
@@ -745,14 +756,25 @@ class AuthService extends DisposableService {
           rethrow;
         }
       });
+
+      await _lockProvider.release(dbLock);
     } on RefreshSessionException catch (_) {
       _refreshRetryDelay = _initialRetryDelay;
+
+      if (dbLock != null) {
+        await _lockProvider.release(dbLock);
+      }
+
       rethrow;
     } catch (e) {
       Log.debug(
         'refreshSession($userId): Exception occurred: $e',
         '$runtimeType',
       );
+
+      if (dbLock != null) {
+        await _lockProvider.release(dbLock);
+      }
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(_refreshRetryDelay);

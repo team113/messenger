@@ -1127,12 +1127,11 @@ class ChatController extends GetxController {
         router.obscuring.isEmpty) {
       try {
         await _chatService.readChat(chat!.chat.value.id, item.id);
-      } on ReadChatException catch (e) {
-        MessagePopup.error(e);
+      } on ReadChatException catch (_) {
+        // No-op.
       } on ConnectionException {
         // No-op.
       } catch (e) {
-        MessagePopup.error(e);
         rethrow;
       }
     }
