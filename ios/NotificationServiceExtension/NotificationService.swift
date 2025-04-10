@@ -322,9 +322,9 @@ class NotificationService: UNNotificationServiceExtension {
 
       // Time in microseconds to consider `lockedAt` value as being outdated
       // or stale, so it can be safely overwritten.
-      let lockedAtTtl: Int = 30_000_000  // 30s
+      let lockedAtTtl: Int = 30_000_000 // 30s
 
-      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC))  // 200ms
+      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)) // 200ms
 
       var acquired: Bool = false
       while !acquired {
