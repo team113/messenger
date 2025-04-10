@@ -320,16 +320,17 @@ class NotificationService: UNNotificationServiceExtension {
     func acquireLock(asOperation: String) async -> String {
       let identifier: String = UUID().uuidString
 
+      // Time in microseconds to consider `lockedAt` value as being outdated
+      // or stale, so it can be safely overwritten.
+      let lockedAtTtl: Int = 30_000_000
+
+      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)); // 200ms
+
       var acquired: Bool = false
-
       while !acquired {
-        // Time in microseconds to consider `lockedAt` value as being outdated
-        // or stale, so it can be safely overwritten.
-        let lockedAtTtl: Int = 30_000_000
-
         let now: Date = Date()
-        let timestamp: TimeInterval = now.timeIntervalSince1970
-        let microseconds: Int = Int(timestamp * 1_000_000)
+        let now_timestamp: TimeInterval = now.timeIntervalSince1970
+        let now_microseconds: Int = Int(timestamp * 1_000_000)
 
         // TODO: Replace with `SQLite.swift` statement methods when `RETURNING`
         //       and `DO UPDATE ... WHERE` are supported.
@@ -347,7 +348,7 @@ class NotificationService: UNNotificationServiceExtension {
         if let rows = try? statement?.run(
           asOperation,
           identifier,
-          microseconds,
+          now_microseconds,
           lockedAtTtl
         ) {
           for row in rows {
@@ -372,8 +373,7 @@ class NotificationService: UNNotificationServiceExtension {
           }
 
           if !acquired {
-            let delay = UInt64(5.2 * Double(NSEC_PER_SEC))
-            try? await Task.sleep(nanoseconds: delay)
+            try? await Task.sleep(nanoseconds: retryDelay)
           }
         }
       }
