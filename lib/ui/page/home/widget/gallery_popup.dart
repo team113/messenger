@@ -201,11 +201,7 @@ class GalleryPopup extends StatefulWidget {
         Animation<double> animation,
         Animation<double> secondaryAnimation,
       ) {
-        final CapturedThemes themes = InheritedTheme.capture(
-          from: context,
-          to: Navigator.of(context, rootNavigator: true).context,
-        );
-        return themes.wrap(gallery);
+        return gallery;
       },
       barrierDismissible: false,
       barrierColor: style.colors.transparent,

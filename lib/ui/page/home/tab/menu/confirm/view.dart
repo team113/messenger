@@ -183,17 +183,22 @@ class ConfirmLogoutView extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                 ],
-                Obx(() {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 24),
-                    child: RowCheckboxButton(
-                      key: const Key('KeepCredentialsSwitch'),
-                      label: 'btn_save_my_credentials_for_one_click'.l10n,
-                      value: c.keep.value,
-                      onPressed: (e) => c.keep.value = e,
-                    ),
-                  );
-                }),
+
+                if (c.canRecover || c.hasPassword.value)
+                  Obx(() {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: RowCheckboxButton(
+                        key: const Key('KeepCredentialsSwitch'),
+                        label: 'btn_save_my_credentials_for_one_click'.l10n,
+                        value: c.keep.value,
+                        onPressed: (e) => c.keep.value = e,
+                      ),
+                    );
+                  })
+                else
+                  SizedBox(height: 8),
+
                 if (!c.hasPassword.value) ...[
                   PrimaryButton(
                     key: const Key('SetPasswordButton'),

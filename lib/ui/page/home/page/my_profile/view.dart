@@ -426,14 +426,16 @@ Widget _profile(BuildContext context, MyProfileController c) {
       ),
       const SizedBox(height: 16),
       const SizedBox(height: 8),
-      ReactiveTextField(
-        key: Key('NameField'),
-        state: c.name,
-        label: 'label_your_name'.l10n,
-        hint: '${c.myUser.value?.num}',
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        formatters: [LengthLimitingTextInputFormatter(100)],
-      ),
+      Obx(() {
+        return ReactiveTextField(
+          key: Key('NameField'),
+          state: c.name,
+          label: 'label_your_name'.l10n,
+          hint: '${c.myUser.value?.num}',
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [LengthLimitingTextInputFormatter(100)],
+        );
+      }),
       const SizedBox(height: 21),
       FieldButton(
         key: Key('StatusButton'),
@@ -815,7 +817,7 @@ Widget _media(BuildContext context, MyProfileController c) {
                 Expanded(
                   child: Text(
                     'label_key_plus_key_by_default'.l10nfmt({
-                      'modifier': '⌥',
+                      'modifier': PlatformUtils.isMacOS ? '⌥' : 'Alt',
                       'key': 'M',
                     }),
                     textAlign: TextAlign.left,
@@ -1323,7 +1325,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           },
           trailing: Padding(
             padding: const EdgeInsets.only(left: 4),
-            child: SvgIcon(SvgIcons.logo, height: 24),
+            child: SvgIcon(SvgIcons.logo, height: 21),
           ),
         ),
       SizedBox(height: 20),

@@ -762,7 +762,7 @@ class AuthService extends DisposableService {
       _refreshRetryDelay = _initialRetryDelay;
 
       if (dbLock != null) {
-        _lockProvider.release(dbLock);
+        await _lockProvider.release(dbLock);
       }
 
       rethrow;
@@ -773,7 +773,7 @@ class AuthService extends DisposableService {
       );
 
       if (dbLock != null) {
-        _lockProvider.release(dbLock);
+        await _lockProvider.release(dbLock);
       }
 
       // If any unexpected exception happens, just retry the mutation.

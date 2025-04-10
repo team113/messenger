@@ -69,32 +69,34 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(text: title),
               const SizedBox(height: 13),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    if (description.isNotEmpty)
-                      Padding(
-                        padding: ModalPopup.padding(context),
-                        child: Center(
-                          child: RichText(
-                            text: TextSpan(
-                              children: description,
-                              style: style.fonts.normal.regular.secondary,
+              if (description.isNotEmpty || additional.isNotEmpty) ...[
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (description.isNotEmpty)
+                        Padding(
+                          padding: ModalPopup.padding(context),
+                          child: Center(
+                            child: RichText(
+                              text: TextSpan(
+                                children: description,
+                                style: style.fonts.normal.regular.secondary,
+                              ),
                             ),
                           ),
                         ),
+                      ...additional.map(
+                        (e) => Padding(
+                          padding: ModalPopup.padding(context),
+                          child: e,
+                        ),
                       ),
-                    ...additional.map(
-                      (e) => Padding(
-                        padding: ModalPopup.padding(context),
-                        child: e,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
+              ],
               Padding(
                 padding: ModalPopup.padding(context),
                 child: button(context),
