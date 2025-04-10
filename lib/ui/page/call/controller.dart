@@ -786,10 +786,14 @@ class CallController extends GetxController {
       AudioButton(this),
     ]);
 
-    _buttonsWorker = ever(buttons, (List<CallButton> list) {
-      _settingsRepository.setCallButtons(
-        list.map((e) => e.runtimeType.toString()).toList(),
-      );
+    List<CallButton> previousButtons = buttons.toList();
+    _buttonsWorker = ever(buttons, (List<CallButton> buttons) {
+      if (!const ListEquality().equals(previousButtons, buttons)) {
+        previousButtons = buttons.toList();
+        _settingsRepository.setCallButtons(
+          buttons.map((e) => e.runtimeType.toString()).toList(),
+        );
+      }
     });
 
     List<String>? previous =
