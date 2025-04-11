@@ -16,6 +16,7 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
@@ -45,6 +46,15 @@ class UpgradeWorker extends DisposableService {
   /// Latest [Release] fetched during the [fetchUpdates].
   final Rx<Release?> latest = Rx(null);
 
+  /// [ReleaseDownload] being active.
+  final Rx<ReleaseDownload?> activeDownload = Rx(null);
+
+  /// Latest [Release] scheduled to be displayed.
+  ///
+  /// This may differ from the [latest], because user might want to dismiss this
+  /// notification.
+  final Rx<Release?> scheduled = Rx(null);
+
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
 
@@ -53,6 +63,10 @@ class UpgradeWorker extends DisposableService {
 
   /// Latest [String] representing `flutter_bootstrap.js` file fetched.
   String? _lastBootstrapJs;
+
+  /// Indicator whether [_schedulePopup] was invoked and there's a
+  /// [MessagePopup.success] invoke being active.
+  bool _scheduled = false;
 
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
@@ -89,6 +103,33 @@ class UpgradeWorker extends DisposableService {
   Future<void> skip(Release release) async {
     Log.debug('skip($release)', '$runtimeType');
     await _skippedLocal?.upsert(release.name);
+  }
+
+  /// Initiates the downloading of the provided [release].
+  Future<void> download(ReleaseArtifact release) async {
+    final releaseDownload = ReleaseDownload(release.url);
+    activeDownload.value?.cancel();
+    activeDownload.value = releaseDownload;
+
+    try {
+      await activeDownload.value?.start();
+      activeDownload.value = releaseDownload;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        activeDownload.value?.cancel();
+        activeDownload.value = null;
+      } else {
+        activeDownload.value?.cancel();
+        activeDownload.value = null;
+        MessagePopup.error(e);
+        rethrow;
+      }
+    } catch (e) {
+      activeDownload.value?.cancel();
+      activeDownload.value = null;
+      MessagePopup.error(e);
+      rethrow;
+    } finally {}
   }
 
   /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
@@ -255,48 +296,25 @@ class UpgradeWorker extends DisposableService {
     bool delay = true,
     bool silent = false,
   }) async {
-    Log.debug('_schedulePopup($release)', '$runtimeType');
+    Log.debug('_schedulePopup($release) ', '$runtimeType');
 
     Future<void> displayPopup() async {
-      if (silent && !critical) {
-        return MessagePopup.success(
-          'label_update_is_available'.l10n,
-          duration: const Duration(days: 365),
-          onPressed: () async {
-            if (PlatformUtils.isWeb) {
-              return await WebUtils.refresh();
-            }
+      if (!critical) {
+        if (_scheduled) {
+          return;
+        }
 
-            await UpgradePopupView.show(
-              router.context!,
-              release: release,
-              critical: critical,
-            );
-          },
-        );
+        _scheduled = true;
+        scheduled.value = release;
+
+        return;
       }
 
-      // Schedules the [UpgradePopupView] to be displayed only when context is
-      // not `null`.
-      Future<void> schedulePopup() async {
-        SchedulerBinding.instance.addPostFrameCallback((_) async {
-          if (isClosed) {
-            return;
-          }
-
-          if (router.context == null) {
-            return schedulePopup();
-          }
-
-          await UpgradePopupView.show(
-            router.context!,
-            release: release,
-            critical: critical,
-          );
-        });
-      }
-
-      schedulePopup();
+      await UpgradePopupView.show(
+        router.context!,
+        release: release,
+        critical: critical,
+      );
     }
 
     if (delay) {
@@ -420,6 +438,62 @@ class ReleaseArtifact {
 
   @override
   int get hashCode => Object.hash(url, os);
+}
+
+/// [Release] being downloaded, exposing its [url], [progress] and [file]
+/// parameters.
+class ReleaseDownload {
+  ReleaseDownload(this.url);
+
+  /// URL to download from.
+  final String url;
+
+  /// Progress of the downloading.
+  final RxDouble progress = RxDouble(0);
+
+  /// Downloaded [File].
+  final Rx<File?> file = Rx(null);
+
+  /// [CancelToken] canceling the download.
+  CancelToken? _cancelToken;
+
+  /// Starts the downloading.
+  Future<void> start() async {
+    if (_cancelToken != null) {
+      return;
+    }
+
+    _cancelToken = CancelToken();
+
+    progress.value = 0;
+
+    try {
+      file.value = await PlatformUtils.download(
+        url,
+        url.split('/').lastOrNull ?? 'file',
+        null,
+        onReceiveProgress: (a, b) {
+          if (b != 0) {
+            progress.value = a / b;
+          }
+        },
+        cancelToken: _cancelToken,
+      );
+
+      if (file.value != null) {
+        progress.value = 1;
+        MessagePopup.success('label_file_downloaded'.l10n);
+      }
+    } finally {
+      progress.value = 0;
+    }
+  }
+
+  /// Cancels the download.
+  void cancel() {
+    _cancelToken?.cancel();
+    _cancelToken = null;
+  }
 }
 
 /// Extension adding parsing of RFC-822 date format to [DateTime].

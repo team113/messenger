@@ -36,4 +36,9 @@ class UpgradePopupController extends GetxController {
   Future<void> skip(Release release) async {
     await _upgradeWorker.skip(release);
   }
+
+  /// Initiates the downloading of the provided [artifact].
+  Future<void> download(ReleaseArtifact artifact) async {
+    await _upgradeWorker.download(artifact);
+  }
 }
