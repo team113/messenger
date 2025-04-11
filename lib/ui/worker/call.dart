@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:base_x/base_x.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
@@ -181,7 +182,7 @@ class CallWorker extends DisposableService {
     _settingsWorker = ever(_settingsRepository.applicationSettings, (
       ApplicationSettings? settings,
     ) {
-      if (settings?.muteKeys != lastKeys) {
+      if (!const ListEquality().equals(settings?.muteKeys, lastKeys)) {
         lastKeys = settings?.muteKeys?.toList();
 
         final bool shouldBind = _bind;
