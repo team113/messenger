@@ -192,7 +192,7 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-    Get.put(UpgradeWorker(Get.findOrNull()));
+    Get.put(UpgradeWorker(Get.findOrNull(), authService));
 
     WebUtils.deleteLoader();
 

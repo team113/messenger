@@ -1950,4 +1950,22 @@ class SvgIcons {
     width: 18,
     height: 20,
   );
+
+  static const SvgData downloadArrow = SvgData(
+    'assets/icons/download_arrow.svg',
+    width: 19,
+    height: 18,
+  );
+
+  static const SvgData downloadRefresh = SvgData(
+    'assets/icons/download_refresh.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData downloadFolder = SvgData(
+    'assets/icons/download_folder.svg',
+    width: 21,
+    height: 19,
+  );
 }

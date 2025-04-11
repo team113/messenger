@@ -32,6 +32,7 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Message field gaining focus when entering chat. ([#1196])
         - Key up presses editing last sent message. ([#1196])
+    - Redesigned upgrade popup. ([#1201])
 
 ### Fixed
 
@@ -53,6 +54,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1194]: /../../pull/1194
 [#1196]: /../../pull/1196
 [#1197]: /../../pull/1197
+[#1201]: /../../pull/1201
 
 
 

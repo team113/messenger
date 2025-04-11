@@ -401,12 +401,14 @@ class PlatformUtilsImpl {
     bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
-      size =
-          size ??
-          int.parse(
-            ((await (await dio).head(url!)).headers['content-length']
-                as List<String>)[0],
-          );
+      if (size == null) {
+        final Headers headers = (await (await dio).head(url!)).headers;
+        final List<String>? contentLength = headers['content-length'];
+
+        if (contentLength != null) {
+          size = int.parse((contentLength)[0]);
+        }
+      }
 
       final Directory directory =
           temporary ? await temporaryDirectory : await downloadsDirectory;
