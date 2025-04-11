@@ -685,7 +685,7 @@ class MyProfileController extends GetxController {
   /// Deletes the provided [email] from [MyUser.emails].
   Future<void> deleteEmail(UserEmail email) async {
     try {
-      await _myUserService.deleteUserEmail(email);
+      await _myUserService.removeUserEmail(email);
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
@@ -695,7 +695,7 @@ class MyProfileController extends GetxController {
   /// Deletes the provided [phone] from [MyUser.phones].
   Future<void> deletePhone(UserPhone phone) async {
     try {
-      await _myUserService.deleteUserPhone(phone);
+      await _myUserService.removeUserPhone(phone);
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;

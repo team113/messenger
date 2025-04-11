@@ -297,6 +297,15 @@ enum CreateGroupChatErrorCode {
   """ WRONG_MEMBERS_COUNT
 }
 
+"Possible error codes of performing `Mutation.createOperationDeposit`."
+enum CreateOperationDepositErrorCode {
+  """
+  Provided `DepositKind` is unavailable.
+
+  Status code: 503 Service Unavailable.
+  """ UNAVAILABLE
+}
+
 "Possible error codes of performing `Mutation.createSession`."
 enum CreateSessionErrorCode {
   """
@@ -430,44 +439,6 @@ enum DeleteMyUserErrorCode {
 
 "Possible error codes of performing `Mutation.deleteSession`."
 enum DeleteSessionErrorCode {
-  """
-  `MyUserCredentials` are required to be provided as the `confirmation` argument.
-
-  Status code: 401 Unauthorized.
-  """ CONFIRMATION_REQUIRED
-  """
-  Provided `ConfirmationCode` is wrong.
-
-  Status code: 403 Forbidden.
-  """ WRONG_CODE
-  """
-  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
-
-  Status code: 403 Forbidden.
-  """ WRONG_PASSWORD
-}
-
-"Possible error codes of performing `Mutation.deleteUserEmail`."
-enum DeleteUserEmailErrorCode {
-  """
-  `MyUserCredentials` are required to be provided as the `confirmation` argument.
-
-  Status code: 401 Unauthorized.
-  """ CONFIRMATION_REQUIRED
-  """
-  Provided `ConfirmationCode` is wrong.
-
-  Status code: 403 Forbidden.
-  """ WRONG_CODE
-  """
-  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
-
-  Status code: 403 Forbidden.
-  """ WRONG_PASSWORD
-}
-
-"Possible error codes of performing `Mutation.deleteUserPhone`."
-enum DeleteUserPhoneErrorCode {
   """
   `MyUserCredentials` are required to be provided as the `confirmation` argument.
 
@@ -653,6 +624,25 @@ enum LeaveChatCallErrorCode {
   """ UNKNOWN_DEVICE
 }
 
+"Possible kinds of an `OperationDeposit`."
+enum OperationDepositKind {
+  """
+  `OperationDeposit` via [PayPal].
+
+  [PayPal]: https://www.paypal.com
+  """ PAY_PAL
+}
+
+"Possible origins of an `Operation`."
+enum OperationOrigin {
+  "`Operation` happened in the `MyUser`'s purse." PURSE
+}
+
+"Possible statuses of an `Operation`."
+enum OperationStatus {
+  "`Operation` created." CREATED
+}
+
 "Possible error codes of performing `Mutation.postChatMessage`."
 enum PostChatMessageErrorCode {
   """
@@ -824,6 +814,44 @@ enum RemoveChatMemberErrorCode {
   """ UNKNOWN_CHAT
 }
 
+"Possible error codes of performing `Mutation.removeUserEmail`."
+enum RemoveUserEmailErrorCode {
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """ CONFIRMATION_REQUIRED
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """ WRONG_CODE
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
+
+  Status code: 403 Forbidden.
+  """ WRONG_PASSWORD
+}
+
+"Possible error codes of performing `Mutation.removeUserPhone`."
+enum RemoveUserPhoneErrorCode {
+  """
+  `MyUserCredentials` are required to be provided as the `confirmation` argument.
+
+  Status code: 401 Unauthorized.
+  """ CONFIRMATION_REQUIRED
+  """
+  Provided `ConfirmationCode` is wrong.
+
+  Status code: 403 Forbidden.
+  """ WRONG_CODE
+  """
+  Provided `UserPassword` is wrong or the authenticated `MyUser` doesn't have one.
+
+  Status code: 403 Forbidden.
+  """ WRONG_PASSWORD
+}
+
 "Possible error codes of performing `Mutation.renameChat`."
 enum RenameChatErrorCode {
   """
@@ -859,6 +887,15 @@ enum StartChatCallErrorCode {
 
   Status code: 404 Not Found.
   """ UNKNOWN_USER
+}
+
+"Possible error codes of performing `Mutation.toggleChatArchivation`."
+enum ToggleChatArchivationErrorCode {
+  """
+  `Chat` with the provided ID doesn't exist.
+
+  Status code: 404 Not Found.
+  """ UNKNOWN_CHAT
 }
 
 "Possible error codes of performing `Mutation.toggleChatCallHand`."
@@ -1321,6 +1358,43 @@ input MyUserIdentifier {
 }
 
 """
+Filter of the `Query.operations`.
+
+Exactly one should be specified.
+"""
+input OperationsFilter {
+  "Unique ID of an `Operation` to search by." id: OperationId
+  "Sequential number of an `Operation` to search by." num: OperationNum
+}
+
+"""
+Pagination arguments of the `Query.operations`.
+
+It's allowed to specify both `first` and `last` counts at the same time,
+provided that `after` and `before` cursors are equal. In such case the
+returned page will include the `Operation` pointed by the cursor and the
+requested count of `Operation`s preceding and following it.
+
+If it's desired to receive the `Operation`, pointed by the cursor, without
+querying in both directions, one can specify `first` or `last` count as `0`.
+
+If no arguments are provided, then `first` parameter will be considered as
+`50`.
+"""
+input OperationsPagination {
+  "Number of next `OperationsEdge`s to return." first: Int
+  """
+  Cursor indicating the `OperationsEdge` position to return next
+  `Operation`s after.
+  """ after: OperationsCursor
+  "Number of prior `OperationsEdge`s to return." last: Int
+  """
+  Cursor indicating the `OperationsEdge` position to return prior
+  `Operation`s before.
+  """ before: OperationsCursor
+}
+
+"""
 2D point on an image.
 
 Same as `Point`, but for using in arguments.
@@ -1379,6 +1453,61 @@ input PushDeviceToken {
 
   [0]: https://firebase.google.com/docs/cloud-messaging
   """ fcm: FcmRegistrationToken
+}
+
+"""
+Filter of the `Query.recentChats` and the
+`Subscription.recentChatsTopEvents`.
+"""
+input RecentChatsFilter {
+  """
+  Indicator whether favorite `Chat`s should be excluded from the result.
+
+  `null` or `false` means omitting filtering by this criterion.
+
+  To get list of favorite `Chat`s only, use `Query.favoriteChats`.
+  """ noFavorite: Boolean
+  """
+  Indicator whether only `Chat`s with ongoing calls should be included
+  into the result (`true`), or whether they should be excluded from the
+  result (`false`).
+
+  `null` means omitting filtering by this criterion.
+  """ ongoingCalls: Boolean
+  """
+  Indicator whether only archived `Chat`s should be included into the
+  result (`true`), or whether they should be excluded from the result
+  (`false`).
+
+  `null` means omitting filtering by this criterion.
+  """ archived: Boolean
+}
+
+"""
+Pagination arguments of the `Query.recentChats`.
+
+It's allowed to specify both `first` and `last` counts at the same time,
+provided that `after` and `before` cursors are equal. In such case the
+returned page will include the `Chat` pointed by the cursor and the
+requested count of `Chat`s preceding and following it.
+
+If it's desired to receive the `Chat`, pointed by the cursor, without
+querying in both directions, one can specify `first` or `last` count as `0`.
+
+If no arguments are provided, then `first` parameter will be considered as
+`50`.
+"""
+input RecentChatsPagination {
+  "Number of next `RecentChatsEdge`s to return." first: Int
+  """
+  Cursor indicating the `RecentChatsEdge` position to return next
+  `RecentChatsEdge`s after.
+  """ after: RecentChatsCursor
+  "Number of prior `RecentChatsEdge`s to return." last: Int
+  """
+  Cursor indicating the `RecentChatsEdge` position to return prior
+  `RecentChatsEdge`s before.
+  """ before: RecentChatsCursor
 }
 
 """
@@ -1558,6 +1687,25 @@ interface File {
   successfully downloaded from a file storage.
   """
   size: Int
+}
+
+"Billing operation."
+interface Operation {
+  "ID of this `Operation`."
+  id: OperationId!
+  "Sequential number of this `Operation`."
+  num: OperationNum!
+  "Status of this `Operation`."
+  status: OperationStatus!
+  "`DateTime` when this `Operation` was created."
+  createdAt: DateTime!
+  """
+  Version of the `Operation`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
 }
 
 "Events happening in a `Session`."
@@ -1773,6 +1921,20 @@ number confirmation, password recovery, etc.).
 scalar ConfirmationCode
 
 """
+Country code in [ISO 3166-1 alpha-2] format.
+
+[ISO 3166-1 alpha-2]: https://iso.org/iso-3166-country-codes.html
+"""
+scalar CountryCode
+
+"""
+Currency as alphabetic code in [ISO 4217] format.
+
+[ISO 4217]: https://iso.org/iso-4217-currency-codes.html
+"""
+scalar Currency
+
+"""
 Combined date and time (with time zone) in [RFC 3339] format with
 microseconds precision.
 
@@ -1835,15 +1997,28 @@ state's actuality.
 """
 scalar MyUserVersion
 
+"ID of an `Operation`."
+scalar OperationId
+
+"Sequential number of an `Operation`."
+scalar OperationNum
+
+"""
+Version of `Operation`'s state.
+
+It increases monotonically, so may be used (and is intended to) for tracking
+state's actuality.
+"""
+scalar OperationVersion
+
+"Cursor of `Operation`s."
+scalar OperationsCursor
+
+"Percentage value in range between `1` and `100` inclusively."
+scalar Percentage
+
 "Cursor of `PromoShare`s in a historical order."
 scalar PromoShareHistoryCursor
-
-"""
-Percentage of a `PromoShare`.
-
-Its values are always in range between `1` and `100` inclusively.
-"""
-scalar PromoSharePercentage
 
 """
 Version of `PromoShare`'s state.
@@ -1853,7 +2028,10 @@ state's actuality.
 """
 scalar PromoShareVersion
 
-"Cursor of `recentChatsEvents` subscription."
+"Non-zero ratio."
+scalar Ratio
+
+"Cursor of recent `Chat`s."
 scalar RecentChatsCursor
 
 """
@@ -1884,6 +2062,9 @@ It increases monotonically, so may be used (and is intended to) for tracking
 state's actuality.
 """
 scalar SessionsListVersion
+
+"Sum of money."
+scalar Sum
 
 """
 [Base64URL]-encoded [ThumbHash].
@@ -2247,12 +2428,14 @@ type Chat {
   """
   members("Number of next `ChatMember`s to return." first: Int, "Cursor indicating the `ChatMembersEdge` position to return next `ChatMember`s after." after: ChatMembersCursor, "Number of prior `ChatMember`s to return." last: Int, "Cursor indicating the `ChatMembersEdge` position to return prior `ChatMember`s before." before: ChatMembersCursor, """
   ID of the `ChatItem` that should be read by returned `ChatMember`s.
-  `null` means omitting filtering by this criteria.
+  `null` means omitting filtering by this criterion.
   """ readItem: ChatItemId): ChatMembersConnection!
   "Kind of this `Chat`."
   kind: ChatKind!
   "Indicator whether this `Chat` is hidden by the authenticated `MyUser`."
   isHidden: Boolean!
+  "Indicator whether this `Chat` is archived by the authenticated `MyUser`."
+  isArchived: Boolean!
   """
   Mute condition of this `Chat` for the authenticated `MyUser`.
 
@@ -3065,6 +3248,12 @@ type CreateGroupChatError {
   code: CreateGroupChatErrorCode!
 }
 
+"Error of performing `Mutation.createOperationDeposit`."
+type CreateOperationDepositError {
+  "Code indicating why this error has happened."
+  code: CreateOperationDepositErrorCode!
+}
+
 "Error of performing `Mutation.createSession`."
 type CreateSessionError {
   "Code indicating why this error has happened."
@@ -3124,6 +3313,16 @@ type CropArea {
   angle: Angle
 }
 
+"[`Currency`] exchange rate."
+type CurrencyExchangeRate {
+  "`Currency` to exchange from."
+  from: Currency!
+  "`Currency` to exchange into."
+  into: Currency!
+  "`Ratio` between the `Currency`s (`from * ratio = into`)."
+  ratio: Ratio!
+}
+
 "Error of performing `Mutation.declineChatCall`."
 type DeclineChatCallError {
   "Code indicating why this error has happened."
@@ -3166,16 +3365,37 @@ type DeleteSessionError {
   code: DeleteSessionErrorCode!
 }
 
-"Error of performing `Mutation.deleteUserEmail`."
-type DeleteUserEmailError {
-  "Code indicating why this error has happened."
-  code: DeleteUserEmailErrorCode!
+"Price of something in two `Currency`s."
+type DualPrice {
+  "`Sum` in the nominal `Currency` (one to be estimated)."
+  nominal: Price!
+  "Equivalent `Sum` in the actual `Currency` (one to use for payment)."
+  actual: Price!
+  """
+  `CurrencyExchangeRate` used for this `DualPrice`.
+
+  Calculated as `actual / nominal` `Ratio`.
+  """
+  exchangeRate: CurrencyExchangeRate!
 }
 
-"Error of performing `Mutation.deleteUserPhone`."
-type DeleteUserPhoneError {
-  "Code indicating why this error has happened."
-  code: DeleteUserPhoneErrorCode!
+"Modifier of a `DualPrice`."
+type DualPriceModifier {
+  """
+  `Percentage` to apply to the `DualPrice`.
+
+  `null` means this `DualPriceModifier` modifies the `DualPrice` by fixed
+  `Sum`s only.
+  """
+  percentage: Percentage
+  """
+  Concrete `Sum` amounts (`nominal` and `actual`) to apply to the
+  `DualPrice`.
+
+  If the `percentage` is not `null`, then it represents the already
+  calculated `Sum`s of the `percentage`.
+  """
+  amount: DualPrice!
 }
 
 "Error of performing `Mutation.editChatMessage`."
@@ -3205,6 +3425,19 @@ type EventBlocklistRecordRemoved implements BlocklistEvent {
   "Unblocked `User`."
   user: User!
   "`DateTime` when the `User` was unblocked."
+  at: DateTime!
+}
+
+"""
+Event of a `Chat` being archived by the authenticated `MyUser`.
+
+Once new `ChatItem` is posted to an unmuted `Chat`, it should be considered
+by a client side as automatically unarchived.
+"""
+type EventChatArchived implements ChatEvent {
+  "ID of the `Chat` being archived by the authenticated `MyUser`."
+  chatId: ChatId!
+  "`DateTime` when the `Chat` was archived."
   at: DateTime!
 }
 
@@ -3840,6 +4073,23 @@ type EventChatTypingStopped implements ChatEvent {
 }
 
 """
+Event of a `Chat` being manually unarchived by the authenticated `MyUser`.
+
+This event means only that the authenticated `MyUser` manually unarchived
+the `Chat`, and doesn't indicate situations when the `Chat` is unarchived
+automatically (new `ChatItem` is posted to an unmuted `Chat`).
+"""
+type EventChatUnarchived implements ChatEvent {
+  """
+  ID of the `Chat` being manually unarchived by the authenticated
+  `MyUser`.
+  """
+  chatId: ChatId!
+  "`DateTime` when the `Chat` was manually unarchived."
+  at: DateTime!
+}
+
+"""
 Event of a `Chat` being removed from the favorites list of the authenticated
 `MyUser`.
 """
@@ -3884,13 +4134,33 @@ type EventIncomingChatCallsTopChatCallRemoved {
   call: ChatCall!
 }
 
-"Event of a `PromoShare` being deleted."
-type EventPromoShareDeleted {
-  "ID of the `User` whose `PromoShare` was deleted."
+"Event of a new `OperationDeposit` being created."
+type EventOperationDepositCreated {
+  "Unique ID of the created `Operation`."
+  id: OperationId!
+  "Sequential `Num` of the created `Operation`."
+  num: OperationNum!
+  "Kind of the created `OperationDeposit`."
+  kind: OperationDepositKind!
+  "Billing country of the created `OperationDeposit`."
+  billingCountry: CountryCode!
+  """
+  Pricing of the created `OperationDeposit`.
+
+  `null` means that the pricing is not yet determined.
+  """
+  price: OperationDepositPricing
+  "`DateTime` when the `OperationDeposit` was created."
+  at: DateTime!
+}
+
+"Event of a `PromoShare` being removed."
+type EventPromoShareRemoved {
+  "ID of the `User` whose `PromoShare` was removed."
   ownerId: UserId!
-  "`PromoSharePercentage` that was deleted."
-  percentage: PromoSharePercentage!
-  "`DateTime` when the `PromoShare` was deleted."
+  "`Percentage` that was removed."
+  percentage: Percentage!
+  "`DateTime` when the `PromoShare` was removed."
   at: DateTime!
 }
 
@@ -3898,16 +4168,16 @@ type EventPromoShareDeleted {
 type EventPromoShareUpdated {
   "ID of the `User` whose `PromoShare` was updated."
   ownerId: UserId!
-  "New `PromoSharePercentage` being set."
-  newPercentage: PromoSharePercentage!
-  "Previous `PromoSharePercentage` that was set before, if any."
-  oldPercentage: PromoSharePercentage
+  "New `Percentage` being set."
+  newPercentage: Percentage!
+  "Previous `Percentage` that was set before, if any."
+  oldPercentage: Percentage
   "`DateTime` when the `PromoShare` was updated."
   at: DateTime!
 }
 
 "Event of a `Chat` being removed from a top of `Query.recentChats` list."
-type EventRecentChatsTopChatDeleted {
+type EventRecentChatsTopChatRemoved {
   "ID of the `Chat` removed from the top."
   chatId: ChatId!
 }
@@ -3955,11 +4225,11 @@ type EventSessionRefreshed implements SessionEvent {
   at: DateTime!
 }
 
-"Event of a `UserAvatar` being deleted."
-type EventUserAvatarDeleted implements UserEvent {
-  "ID of the `User` whose `UserAvatar` was deleted."
+"Event of a `UserAvatar` being removed."
+type EventUserAvatarRemoved implements UserEvent {
+  "ID of the `User` whose `UserAvatar` was removed."
   userId: UserId!
-  "`DateTime` when the `UserAvatar` was deleted."
+  "`DateTime` when the `UserAvatar` was removed."
   at: DateTime!
 }
 
@@ -3973,11 +4243,11 @@ type EventUserAvatarUpdated implements UserEvent {
   at: DateTime!
 }
 
-"Event of a `UserBio` being deleted."
-type EventUserBioDeleted implements UserEvent {
-  "ID of the `User` whose `UserBio` was deleted."
+"Event of a `UserBio` being removed."
+type EventUserBioRemoved implements UserEvent {
+  "ID of the `User` whose `UserBio` was removed."
   userId: UserId!
-  "`DateTime` when the `UserBio` was deleted."
+  "`DateTime` when the `UserBio` was removed."
   at: DateTime!
 }
 
@@ -3991,11 +4261,11 @@ type EventUserBioUpdated implements UserEvent {
   at: DateTime!
 }
 
-"Event of a `UserCallCover` being deleted."
-type EventUserCallCoverDeleted implements UserEvent {
-  "ID of the `User` whose `UserCallCover` was deleted."
+"Event of a `UserCallCover` being removed."
+type EventUserCallCoverRemoved implements UserEvent {
+  "ID of the `User` whose `UserCallCover` was removed."
   userId: UserId!
-  "`DateTime` when the `UserCallCover` was deleted."
+  "`DateTime` when the `UserCallCover` was removed."
   at: DateTime!
 }
 
@@ -4071,21 +4341,21 @@ type EventUserEmailAdded {
   at: DateTime!
 }
 
-"Event of a `UserEmail` address being deleted from `MyUser.emails`."
-type EventUserEmailDeleted {
+"Event of a `UserEmail` address being removed from `MyUser.emails`."
+type EventUserEmailRemoved {
   "ID of the `User` who removed his `UserEmail` address."
   userId: UserId!
-  "Deleted `UserEmail` address."
+  "Removed `UserEmail` address."
   email: UserEmail!
-  "`DateTime` when the `UserEmail` address was deleted."
+  "`DateTime` when the `UserEmail` address was removed."
   at: DateTime!
 }
 
-"Event of a `UserLogin` being deleted."
-type EventUserLoginDeleted {
-  "ID of the `User` whose `UserLogin` was deleted."
+"Event of a `UserLogin` being removed."
+type EventUserLoginRemoved {
+  "ID of the `User` whose `UserLogin` was removed."
   userId: UserId!
-  "`DateTime` when the `UserLogin` was deleted."
+  "`DateTime` when the `UserLogin` was removed."
   at: DateTime!
 }
 
@@ -4107,11 +4377,11 @@ type EventUserMuted {
   until: MuteDuration!
 }
 
-"Event of a `UserName` being deleted."
-type EventUserNameDeleted implements UserEvent {
-  "ID of the `User` whose `UserName` was deleted."
+"Event of a `UserName` being removed."
+type EventUserNameRemoved implements UserEvent {
+  "ID of the `User` whose `UserName` was removed."
   userId: UserId!
-  "`DateTime` when the `UserName` was deleted."
+  "`DateTime` when the `UserName` was removed."
   at: DateTime!
 }
 
@@ -4125,11 +4395,11 @@ type EventUserNameUpdated implements UserEvent {
   at: DateTime!
 }
 
-"Event of a `User`'s password being deleted."
-type EventUserPasswordDeleted {
-  "ID of the `User` whose password was deleted."
+"Event of a `User`'s password being removed."
+type EventUserPasswordRemoved {
+  "ID of the `User` whose password was removed."
   userId: UserId!
-  "`DateTime` when the `User`'s password was deleted."
+  "`DateTime` when the `User`'s password was removed."
   at: DateTime!
 }
 
@@ -4159,13 +4429,13 @@ type EventUserPhoneAdded {
   at: DateTime!
 }
 
-"Event of a `UserPhone` number being deleted from `MyUser.phones`."
-type EventUserPhoneDeleted {
+"Event of a `UserPhone` number being removed from `MyUser.phones`."
+type EventUserPhoneRemoved {
   "ID of the `User` who removed his `UserPhone` number."
   userId: UserId!
-  "Deleted `UserPhone` number."
+  "Removed `UserPhone` number."
   phone: UserPhone!
-  "`DateTime` when the `UserPhone` number was deleted."
+  "`DateTime` when the `UserPhone` number was removed."
   at: DateTime!
 }
 
@@ -4179,11 +4449,11 @@ type EventUserPresenceUpdated implements UserEvent {
   at: DateTime!
 }
 
-"Event of a `UserTextStatus` being deleted."
-type EventUserStatusDeleted implements UserEvent {
-  "ID of the `User` whose `UserTextStatus` was deleted."
+"Event of a `UserTextStatus` being removed."
+type EventUserStatusRemoved implements UserEvent {
+  "ID of the `User` whose `UserTextStatus` was removed."
   userId: UserId!
-  "`DateTime` when the `UserTextStatus` was deleted."
+  "`DateTime` when the `UserTextStatus` was removed."
   at: DateTime!
 }
 
@@ -4784,7 +5054,7 @@ type Mutation {
   If absent or `null` then the `phone` number is added as an `unconfirmed` and a new `ConfirmationCode` is sent to this number.
   """ confirmation: ConfirmationCode): AddUserPhoneResult @deprecated(reason: "Unimplemented. Do not use it.")
   """
-  Deletes the provided `email` address from the `MyUser.emails` field of
+  Removes the provided `email` address from the `MyUser.emails` field of
   the authenticated `MyUser`.
 
   If the provided `email` address is still `unconfirmed`, then the
@@ -4802,7 +5072,7 @@ type Mutation {
   ## Result
 
   Only the following `MyUserEvent` may be produced on success:
-  - `EventUserEmailDeleted`.
+  - `EventUserEmailRemoved`.
 
   ## Idempotent
 
@@ -4815,13 +5085,13 @@ type Mutation {
 
   [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  deleteUserEmail("`UserEmail` address to delete from `MyUser.emails`." email: UserEmail!, """
+  removeUserEmail("`UserEmail` address to remove from `MyUser.emails`." email: UserEmail!, """
   `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
 
-  May be absent or `null` if the deleted `UserEmail` address is still `unconfirmed`.
-  """ confirmation: MyUserCredentials): DeleteUserEmailResult
+  May be absent or `null` if the removed `UserEmail` address is still `unconfirmed`.
+  """ confirmation: MyUserCredentials): RemoveUserEmailResult
   """
-  Deletes the provided `phone` number from the `MyUser.phones` field of
+  Removes the provided `phone` number from the `MyUser.phones` field of
   the authenticated `MyUser`.
 
   If the provided `phone` number is still `unconfirmed`, then the
@@ -4839,7 +5109,7 @@ type Mutation {
   ## Result
 
   Only the following `MyUserEvent` may be produced on success:
-  - `EventUserPhoneDeleted`.
+  - `EventUserPhoneRemoved`.
 
   ## Idempotent
 
@@ -4852,11 +5122,11 @@ type Mutation {
 
   [0]: https://developer.mozilla.org/docs/Web/HTTP/Headers/User-Agent
   """
-  deleteUserPhone("`UserPhone` number to delete from `MyUser.phones`." phone: UserPhone!, """
+  removeUserPhone("`UserPhone` number to remove from `MyUser.phones`." phone: UserPhone!, """
   `MyUserCredentials` confirming and authenticating this operation by the authority of the `MyUser`.
 
-  May be absent or `null` if the deleted `UserPhone` number is still `unconfirmed`.
-  """ confirmation: MyUserCredentials): DeleteUserPhoneResult @deprecated(reason: "Unimplemented. Do not use it.")
+  May be absent or `null` if the removed `UserPhone` number is still `unconfirmed`.
+  """ confirmation: MyUserCredentials): RemoveUserPhoneResult @deprecated(reason: "Unimplemented. Do not use it.")
   """
   Updates or resets the `MyUser.login` field of the authenticated
   `MyUser`.
@@ -4869,7 +5139,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserLoginUpdated` (if `login` argument is specified);
-  - `EventUserLoginDeleted` (if `login` argument is absent or `null`).
+  - `EventUserLoginRemoved` (if `login` argument is absent or `null`).
 
   ## Idempotent
 
@@ -4892,7 +5162,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserNameUpdated` (if `name` argument is specified);
-  - `EventUserNameDeleted` (if `name` argument is absent or `null`).
+  - `EventUserNameRemoved` (if `name` argument is absent or `null`).
 
   ## Idempotent
 
@@ -4915,7 +5185,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserBioUpdated` (if the `bio` argument is specified);
-  - `EventUserBioDeleted` (if the `bio` argument is absent or `null`).
+  - `EventUserBioRemoved` (if the `bio` argument is absent or `null`).
 
   ## Idempotent
 
@@ -4962,7 +5232,7 @@ type Mutation {
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserPasswordUpdated` (always, if the `password` argument is
   specified).
-  - `EventUserPasswordDeleted` (idempotently, if the `password` argument
+  - `EventUserPasswordRemoved` (idempotently, if the `password` argument
   is absent or `null`).
 
   ## Idempotent
@@ -5015,7 +5285,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserAvatarUpdated` (if image `file` is provided);
-  - `EventUserAvatarDeleted` (if image `file` is not provided).
+  - `EventUserAvatarRemoved` (if image `file` is not provided).
 
   ## Idempotent
 
@@ -5062,7 +5332,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserCallCoverUpdated` (if image file is provided);
-  - `EventUserCallCoverDeleted` (if image file is not provided).
+  - `EventUserCallCoverRemoved` (if image file is not provided).
 
   ## Idempotent
 
@@ -5156,7 +5426,7 @@ type Mutation {
 
   One of the following `MyUserEvent`s may be produced on success:
   - `EventUserStatusUpdated` (if `text` argument is specified);
-  - `EventUserStatusDeleted` (if `text` argument is absent or `null`).
+  - `EventUserStatusRemoved` (if `text` argument is absent or `null`).
 
   ## Idempotent
 
@@ -5673,6 +5943,35 @@ type Mutation {
   `null` means unmuting.
   """ mute: Muting): ToggleChatMuteResult
   """
+  Archives or unarchives the specified `Chat` for the authenticated
+  `MyUser`.
+
+  Archived `Chat`s are excluded from the `Query.recentChats` when its
+  `with.archived` argument is set to `false`.
+
+  Once a new `ChatItem` is posted in an archived unmuted `Chat`, it
+  automatically becomes unarchived again, despite no `EventChatUnarchived`
+  is emitted (which means manual unarchivation only). Muted `Chat`s,
+  however, are not unarchived automatically once new `ChatItem`s are
+  posted.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Result
+
+  One of the following `ChatEvent`s may be produced on success:
+  - `EventChatArchived` (if `archive` argument is `true`);
+  - `EventChatUnarchived` (if `archive` argument is `false`).
+
+  ## Idempotent
+
+  Succeeds as no-op (and returns no `ChatEvent`) if the specified `Chat`
+  is already archived (or unarchived) for the authenticated `MyUser`.
+  """
+  toggleChatArchivation("ID of the `Chat` to be archived." id: ChatId!, "Indicator whether the `Chat` should be archived." archive: Boolean!): ToggleChatArchivationResult
+  """
   Posts a new `ChatMessage` to the specified `Chat` by the authenticated
   `MyUser`.
 
@@ -5747,7 +6046,7 @@ type Mutation {
 
   One of the following `PromoShareEvent`s may be produced on success:
   - `EventPromoShareUpdated` (if `percentage` argument is specified);
-  - `EventPromoShareDeleted` (if `percentage` argument is absent or
+  - `EventPromoShareRemoved` (if `percentage` argument is absent or
   `null`).
 
   ## Idempotent
@@ -5757,10 +6056,10 @@ type Mutation {
   `percentage` being set.
   """
   updatePromoShare("""
-  Percentage to set the `MyUser.promo.share.current` field to.
+  `Percentage` to set the `MyUser.promo.share.current` field to.
 
   If absent or `null` then the `MyUser.promo.share.current` field will be reset.
-  """ percentage: PromoSharePercentage): PromoShareEventsVersioned
+  """ percentage: Percentage): PromoShareEventsVersioned
   """
   Marks the specified `Chat` as read for the authenticated `MyUser` until
   the specified `ChatItem` inclusively.
@@ -6656,6 +6955,22 @@ type Mutation {
   Succeeds if the specified `token` is not registered already.
   """
   unregisterPushDevice("Token of the device to unregister." token: PushDeviceToken!): UnregisterPushDeviceErrorCode
+  """
+  Creates a new `OperationDeposit`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Non-idempotent
+
+  Each time creates a new unique `OperationDeposit`.
+  """
+  createOperationDeposit("Kind of `OperationDeposit`." kind: OperationDepositKind!, "Billing `CountryCode` of the created `OperationDeposit`." billingCountry: CountryCode!, """
+  Nominal `Sum` to be deposited in USD.
+
+  `null` means it's not required for this `OperationDepositKind`.
+  """ nominal: Sum): CreateOperationDepositResult!
 }
 
 "Forever mute duration."
@@ -6853,6 +7168,123 @@ type MyUserEventsVersioned {
   ver: MyUserVersion!
 }
 
+"`Operation` of depositing money to `MyUser`'s purse."
+type OperationDeposit implements Operation {
+  "ID of this `OperationDeposit`."
+  id: OperationId!
+  "Sequential number of this `OperationDeposit`."
+  num: OperationNum!
+  "Kind of this `OperationDeposit`."
+  kind: OperationDepositKind!
+  "Status of this `OperationDeposit`."
+  status: OperationStatus!
+  "Country of the billing address of this `OperationDeposit`."
+  billingCountry: CountryCode!
+  "Pricing of this `OperationDeposit`."
+  price: OperationDepositPricing
+  "`DateTime` when this `OperationDeposit` was created."
+  createdAt: DateTime!
+  """
+  Version of the `OperationDeposit`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"Pricing of an `OperationDeposit`."
+type OperationDepositPricing {
+  "Original price of the `OperationDeposit`."
+  clean: DualPrice!
+  """
+  Bonus of the `clean.nominal` `Price` to be granted as a separate
+  `OperationDepositBonus` once the original `OperationDeposit` is
+  completed successfully.
+  """
+  bonus: PriceModifier
+  """
+  Additional commission applied to the `clean` `DualPrice`, imposed by
+  payment processing.
+  """
+  commission: DualPriceModifier
+  """
+  Taxation applied to the `clean` `DualPrice`, according to the billing
+  `CountryCode` of the `OperationDeposit`.
+  """
+  tax: DualPriceModifier
+  """
+  Calculated total price of the `OperationDeposit` after all modifiers
+  being applied.
+
+  It's calculated as: `total = clean - commission - tax`.
+  """
+  total: DualPrice!
+}
+
+"`OperationEvent`s along with the corresponding `OperationVersion`."
+type OperationEventsVersioned {
+  "`OperationEvent`s themselves."
+  events: [OperationEvent!]!
+  """
+  Version of the `Operation`'s state updated by these `OperationEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"""
+[Connection] with `Operation`s.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type OperationsConnection {
+  """
+  List of `Operation` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [OperationsEdge!]!
+  """
+  List of `Operation`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [Operation!]!
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+[Edge] with an `Operation`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type OperationsEdge {
+  """
+  `Operation` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: Operation!
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: OperationsCursor!
+}
+
 """
 [`PageInfo`][1] returned by a [Connection] according to
 [GraphQL Cursor Connections Specification][0].
@@ -6974,21 +7406,47 @@ type PostChatMessageError {
   code: PostChatMessageErrorCode!
 }
 
+"Price of something."
+type Price {
+  "`Sum` of this `Price`."
+  sum: Sum!
+  "`Currency` of this `Price`."
+  currency: Currency!
+}
+
+"Modifier of a `Price`."
+type PriceModifier {
+  """
+  `Percentage` to apply to the `Price`.
+
+  `null` means this `PriceModifier` modifies the `Price` by a fixed
+  `Sum`.
+  """
+  percentage: Percentage
+  """
+  Concrete `Sum` amount to apply to the `Price`.
+
+  If the `percentage` is not `null`, then it represents the already
+  calculated `Sum` of the `percentage`.
+  """
+  amount: Price!
+}
+
 """
 Percentage for each transaction that an author `User` shares with its
 promoter `User`s.
 """
 type PromoShare {
   "Percentage of this `PromoShare`."
-  percentage: PromoSharePercentage!
-  "`DateTime` when this `PromoShare` was created."
-  createdAt: DateTime!
+  percentage: Percentage!
+  "`DateTime` when this `PromoShare` was added."
+  addedAt: DateTime!
   """
-  `DateTime` when this `PromoShare` was deleted, if any.
+  `DateTime` when this `PromoShare` was removed, if any.
 
-  `null` if this `PromoShare` is not deleted and is currently active.
+  `null` if this `PromoShare` is not removed and is currently active.
   """
-  deletedAt: DateTime
+  removedAt: DateTime
   """
   Version of this `PromoShare`'s state.
 
@@ -7272,12 +7730,15 @@ type Query {
   Returns non-hidden `Chat`s of the authenticated `MyUser` ordered
   descending by their last updating `DateTime`.
 
-  Use the `noFavorite` argument to exclude favorited `Chat`s from the
+  Use the `with.noFavorite` argument to exclude favorited `Chat`s from the
   returned result.
 
-  Use the `withOngoingCalls` argument to only include `Chat`s with ongoing
-  `ChatCall`s into the returned result (`true`), or to exclude them
-  (`false`).
+  Use the `with.ongoingCalls` argument to only include `Chat`s with
+  ongoing `ChatCall`s into the returned result (`true`), or to exclude
+  them (`false`).
+
+  Use the `with.archived` argument to only include archived `Chat`s into
+  the returned result (`true`), or to exclude them (`false`).
 
   ## Authentication
 
@@ -7303,10 +7764,7 @@ type Query {
   If no arguments are provided, then `first` parameter will be considered
   as `50`.
   """
-  recentChats("Number of next `Chat`s to return." first: Int, "Cursor indicating the `RecentChatsEdge` position to return next `Chat`s after." after: RecentChatsCursor, "Number of prior `Chat`s to return." last: Int, "Cursor indicating the `RecentChatsEdge` position to return prior `Chat`s before." before: RecentChatsCursor, "Indicator whether favorite `Chat`s should be excluded from the result." noFavorite: Boolean = false, """
-  Indicator whether only `Chat`s with ongoing calls should be included into the result (`true`), or whether they should be excluded from the result (`false`).
-  `null` means omitting filtering by this criteria.
-  """ withOngoingCalls: Boolean = null): RecentChatsConnection!
+  recentChats("Filter applied to the returned `Chat`s." with: RecentChatsFilter, "Pagination arguments to return the `Chat`s by." pagination: RecentChatsPagination): RecentChatsConnection!
   """
   Returns a list of incoming `ChatCall`s of the authenticated `MyUser`.
 
@@ -7604,6 +8062,50 @@ type Query {
 
   If absent or `null` then the `PromoShare`s of the authenticated `MyUser` will be returned.
   """ ownerId: UserId, "Pagination arguments to return the `PromoShare`s by." pagination: PromoShareHistoryPagination): PromoShareHistoryConnection
+  """
+  Returns `Operation`s filtered by the provided criteria in the provided
+  `OperationOrigin`.
+
+  Exactly one of `by` argument's fields must be specified (be non-`null`).
+
+  Searching `by.id` or `by.num` is exact.
+
+  If no `by` argument is provided, then all existing `Operation`s of the
+  provided `OperationOrigin` are returned.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `Operation`s are sorted depending on the provided arguments:
+  - If the `by.id` argument is specified, then an exact `Operation` is
+  returned.
+  - If the `by.num` argument is specified, then an exact `Operation` is
+  returned.
+  - Otherwise, the returned `Operation`s are sorted by their
+  `OperationNum` in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `Operation` pointed by the cursor and the
+  requested count of `Operation`s preceding and following it.
+
+  If it's desired to receive the `Operation`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  If no arguments are provided, then `first` parameter will be considered
+  as `50`.
+  """
+  operations("Origin to return `Operation`s from." origin: OperationOrigin!, "Filter to search `Operation`s by." by: OperationsFilter, """
+  Pagination arguments to return the `Operation`s by.
+
+  Does nothing if the `by.id` or `by.num` argument is specified.
+  """ pagination: OperationsPagination): OperationsConnection!
 }
 
 "Error of performing `Mutation.readChat`."
@@ -7730,6 +8232,18 @@ type RemoveChatCallMemberError {
 type RemoveChatMemberError {
   "Code indicating why this error has happened."
   code: RemoveChatMemberErrorCode!
+}
+
+"Error of performing `Mutation.removeUserEmail`."
+type RemoveUserEmailError {
+  "Code indicating why this error has happened."
+  code: RemoveUserEmailErrorCode!
+}
+
+"Error of performing `Mutation.removeUserPhone`."
+type RemoveUserPhoneError {
+  "Code indicating why this error has happened."
+  code: RemoveUserPhoneErrorCode!
 }
 
 "Error of performing `Mutation.renameChat`."
@@ -8105,9 +8619,9 @@ type Subscription {
   becoming the topmost in `Query.recentChats` list, but never about a
   `Chat` being updated itself.
 
-  Note, that `EventRecentChatsTopChatDeleted` informs about a `Chat` being
-  removed from top `count` items of `Query.recentChats` list, but never
-  about a `Chat` being removed itself.
+  Note, that `EventRecentChatsTopChatRemoved` informs about a `Chat` being
+  removed from the top `count` items of the `Query.recentChats` list, but
+  never about a `Chat` being removed itself.
 
   Instead, use `Subscription.chatEvents` for being informed correctly
   about `Chat` changes.
@@ -8139,14 +8653,11 @@ type Subscription {
   - The server is shutting down or becoming unreachable (unexpectedly
   completes after initialization).
   """
-  recentChatsTopEvents("""
+  recentChatsTopEvents("Filter to subscribe for `Chat`s updates with." with: RecentChatsFilter, """
   Count of top recent `Chat`s to receive updates for. Value must be in range from 1 to 100.
 
   Usually, you need just pass the count of `ChatConnection.nodes` returned by `Query.recentChats`.
-  """ count: Int!, "Indicator whether updates regarding favorite `Chat`s should be excluded from the result." noFavorite: Boolean = false, """
-  Indicator whether only updates regarding `Chat`s with ongoing calls should be included into the result (`true`), or whether they should be excluded from the result (`false`).
-  `null` means omitting filtering by this criteria.
-  """ withOngoingCalls: Boolean = null): RecentChatsTopEvents!
+  """ count: Int!): RecentChatsTopEvents!
   """
   Subscribes to `FavoriteChatsEvent`s of all `Chat`s of the authenticated
   `MyUser`.
@@ -8547,6 +9058,12 @@ initialized.
 type SubscriptionInitialized {
   "Always `true`."
   ok: Boolean!
+}
+
+"Error of performing `Mutation.toggleChatArchivation`."
+type ToggleChatArchivationError {
+  "Code indicating why this error has happened."
+  code: ToggleChatArchivationErrorCode!
 }
 
 "Error of performing `Mutation.toggleChatCallHand`."
@@ -9129,6 +9646,9 @@ union CreateDialogChatResult = Chat | CreateDialogChatError
 "Result of performing `Mutation.createGroupChat`."
 union CreateGroupChatResult = Chat | CreateGroupChatError
 
+"Result of performing `Mutation.createOperationDeposit`."
+union CreateOperationDepositResult = OperationEventsVersioned | CreateOperationDepositError
+
 "Result of performing `Mutation.createSession`."
 union CreateSessionResult = CreateSessionOk | CreateSessionError
 
@@ -9155,12 +9675,6 @@ union DeleteMyUserResult = MyUserEventsVersioned | DeleteMyUserError
 
 "Result of performing `Mutation.deleteSession`."
 union DeleteSessionResult = SessionEventsVersioned | DeleteSessionError
-
-"Result of performing `Mutation.deleteUserEmail`."
-union DeleteUserEmailResult = MyUserEventsVersioned | DeleteUserEmailError
-
-"Result of performing `Mutation.deleteUserPhone`."
-union DeleteUserPhoneResult = MyUserEventsVersioned | DeleteUserPhoneError
 
 "Result of performing `Mutation.editChatMessage`."
 union EditChatMessageResult = ChatEventsVersioned | EditChatMessageError
@@ -9196,16 +9710,19 @@ union LeaveChatCallResult = ChatEventsVersioned | LeaveChatCallError
 union MuteDuration = MuteUntilDuration | MuteForeverDuration
 
 "Events happening with `MyUser`."
-union MyUserEvent = EventUserAvatarDeleted | EventUserAvatarUpdated | EventUserBioDeleted | EventUserBioUpdated | EventUserCallCoverDeleted | EventUserCallCoverUpdated | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserDirectLinkUsageCountUpdated | EventUserEmailAdded | EventUserEmailDeleted | EventUserLoginDeleted | EventUserLoginUpdated | EventUserMuted | EventUserNameDeleted | EventUserNameUpdated | EventUserCameOnline | EventUserCameOffline | EventUserPasswordDeleted | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneDeleted | EventUserPresenceUpdated | EventUserStatusDeleted | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated | EventUserWelcomeMessageDeleted | EventUserWelcomeMessageUpdated
+union MyUserEvent = EventUserAvatarRemoved | EventUserAvatarUpdated | EventUserBioRemoved | EventUserBioUpdated | EventUserCallCoverRemoved | EventUserCallCoverUpdated | EventUserDeleted | EventUserDirectLinkDeleted | EventUserDirectLinkUpdated | EventUserDirectLinkUsageCountUpdated | EventUserEmailAdded | EventUserEmailRemoved | EventUserLoginRemoved | EventUserLoginUpdated | EventUserMuted | EventUserNameRemoved | EventUserNameUpdated | EventUserCameOnline | EventUserCameOffline | EventUserPasswordRemoved | EventUserPasswordUpdated | EventUserPhoneAdded | EventUserPhoneRemoved | EventUserPresenceUpdated | EventUserStatusRemoved | EventUserStatusUpdated | EventUserUnmuted | EventUserUnreadChatsCountUpdated | EventUserWelcomeMessageDeleted | EventUserWelcomeMessageUpdated
 
 "Events emitted by `Subscription.myUserEvents`."
 union MyUserEvents = SubscriptionInitialized | MyUser | MyUserEventsVersioned
+
+"Events happening with an `Operation`."
+union OperationEvent = EventOperationDepositCreated
 
 "Result of performing `Mutation.postChatMessage`."
 union PostChatMessageResult = ChatEventsVersioned | PostChatMessageError
 
 "Events happening with a `PromoShare`."
-union PromoShareEvent = EventPromoShareUpdated | EventPromoShareDeleted
+union PromoShareEvent = EventPromoShareRemoved | EventPromoShareUpdated
 
 """
 Events indicating changes in a `Query.promoShare` and
@@ -9217,7 +9734,7 @@ union PromoShareEvents = SubscriptionInitialized | UserPromoShare | PromoShareEv
 union ReadChatResult = ChatEventsVersioned | ReadChatError
 
 "Events emitted by `Subscription.recentChatsTopEvents`."
-union RecentChatsTopEvents = SubscriptionInitialized | RecentChatsTop | EventRecentChatsTopChatUpdated | EventRecentChatsTopChatDeleted
+union RecentChatsTopEvents = SubscriptionInitialized | RecentChatsTop | EventRecentChatsTopChatUpdated | EventRecentChatsTopChatRemoved
 
 "Result of performing `Mutation.redialChatCallMember`."
 union RedialChatCallMemberResult = ChatCallEventsVersioned | RedialChatCallMemberError
@@ -9231,6 +9748,12 @@ union RemoveChatCallMemberResult = ChatEventsVersioned | RemoveChatCallMemberErr
 "Result of performing `Mutation.removeChatMember`."
 union RemoveChatMemberResult = ChatEventsVersioned | RemoveChatMemberError
 
+"Result of performing `Mutation.removeUserEmail`."
+union RemoveUserEmailResult = MyUserEventsVersioned | RemoveUserEmailError
+
+"Result of performing `Mutation.removeUserPhone`."
+union RemoveUserPhoneResult = MyUserEventsVersioned | RemoveUserPhoneError
+
 "Result of performing `Mutation.renameChat`."
 union RenameChatResult = ChatEventsVersioned | RenameChatError
 
@@ -9239,6 +9762,9 @@ union SessionsEvents = SubscriptionInitialized | SessionsList | SessionEventsVer
 
 "Result of performing `Mutation.startChatCall`."
 union StartChatCallResult = StartChatCallOk | StartChatCallError
+
+"Result of performing `Mutation.toggleChatArchivation`."
+union ToggleChatArchivationResult = ChatEventsVersioned | ToggleChatArchivationError
 
 "Result of performing `Mutation.toggleChatCallHand`."
 union ToggleChatCallHandResult = ChatCallEventsVersioned | ToggleChatCallHandError
