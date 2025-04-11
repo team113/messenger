@@ -27,6 +27,7 @@ import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 import '/provider/drift/skipped_version.dart';
@@ -41,7 +42,7 @@ import '/util/web/web_utils.dart';
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
 class UpgradeWorker extends DisposableService {
-  UpgradeWorker(this._skippedLocal);
+  UpgradeWorker(this._skippedLocal, this._authService);
 
   /// Latest [Release] fetched during the [fetchUpdates].
   final Rx<Release?> latest = Rx(null);
@@ -57,6 +58,9 @@ class UpgradeWorker extends DisposableService {
 
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
+
+  /// [AuthService] used to check whether application has authorization.
+  final AuthService _authService;
 
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
@@ -299,7 +303,8 @@ class UpgradeWorker extends DisposableService {
     Log.debug('_schedulePopup($release) ', '$runtimeType');
 
     Future<void> displayPopup() async {
-      if (!critical) {
+      // Only restrain from displaying the popup if app has authorization.
+      if (!critical && _authService.status.value.isSuccess) {
         if (_scheduled) {
           return;
         }

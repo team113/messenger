@@ -487,6 +487,7 @@ class _HomeViewState extends State<HomeView> {
       );
 
       return Padding(
+        key: Key('UpgradeAlert'),
         padding: const EdgeInsets.only(bottom: 6),
         child: WidgetButton(
           onPressed:

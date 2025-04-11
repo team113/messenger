@@ -203,6 +203,7 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
+  UpgradeAlert,
   UpgradePopup,
   UsernameField,
   UserScrollable,
