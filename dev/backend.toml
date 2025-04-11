@@ -81,5 +81,3 @@ stale_timeout = "24s" # 20s (instance restart time) + 3s (watchdog) + 1s (poller
 [background.watchdog.chat_typings]
 period = "500ms"
 stale_timeout = "3s"
-[background.watchdog.push_devices]
-period = "1m" # avoid reaching the FCM rate limit

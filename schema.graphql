@@ -297,6 +297,15 @@ enum CreateGroupChatErrorCode {
   """ WRONG_MEMBERS_COUNT
 }
 
+"Possible error codes of performing `Mutation.createOperationDeposit`."
+enum CreateOperationDepositErrorCode {
+  """
+  Provided `DepositKind` is unavailable.
+
+  Status code: 503 Service Unavailable.
+  """ UNAVAILABLE
+}
+
 "Possible error codes of performing `Mutation.createSession`."
 enum CreateSessionErrorCode {
   """
@@ -613,6 +622,25 @@ enum LeaveChatCallErrorCode {
 
   Status code: 404 Not Found.
   """ UNKNOWN_DEVICE
+}
+
+"Possible kinds of an `OperationDeposit`."
+enum OperationDepositKind {
+  """
+  `OperationDeposit` via [PayPal].
+
+  [PayPal]: https://www.paypal.com
+  """ PAY_PAL
+}
+
+"Possible origins of an `Operation`."
+enum OperationOrigin {
+  "`Operation` happened in the `MyUser`'s purse." PURSE
+}
+
+"Possible statuses of an `Operation`."
+enum OperationStatus {
+  "`Operation` created." CREATED
 }
 
 "Possible error codes of performing `Mutation.postChatMessage`."
@@ -1330,6 +1358,43 @@ input MyUserIdentifier {
 }
 
 """
+Filter of the `Query.operations`.
+
+Exactly one should be specified.
+"""
+input OperationsFilter {
+  "Unique ID of an `Operation` to search by." id: OperationId
+  "Sequential number of an `Operation` to search by." num: OperationNum
+}
+
+"""
+Pagination arguments of the `Query.operations`.
+
+It's allowed to specify both `first` and `last` counts at the same time,
+provided that `after` and `before` cursors are equal. In such case the
+returned page will include the `Operation` pointed by the cursor and the
+requested count of `Operation`s preceding and following it.
+
+If it's desired to receive the `Operation`, pointed by the cursor, without
+querying in both directions, one can specify `first` or `last` count as `0`.
+
+If no arguments are provided, then `first` parameter will be considered as
+`50`.
+"""
+input OperationsPagination {
+  "Number of next `OperationsEdge`s to return." first: Int
+  """
+  Cursor indicating the `OperationsEdge` position to return next
+  `Operation`s after.
+  """ after: OperationsCursor
+  "Number of prior `OperationsEdge`s to return." last: Int
+  """
+  Cursor indicating the `OperationsEdge` position to return prior
+  `Operation`s before.
+  """ before: OperationsCursor
+}
+
+"""
 2D point on an image.
 
 Same as `Point`, but for using in arguments.
@@ -1624,6 +1689,25 @@ interface File {
   size: Int
 }
 
+"Billing operation."
+interface Operation {
+  "ID of this `Operation`."
+  id: OperationId!
+  "Sequential number of this `Operation`."
+  num: OperationNum!
+  "Status of this `Operation`."
+  status: OperationStatus!
+  "`DateTime` when this `Operation` was created."
+  createdAt: DateTime!
+  """
+  Version of the `Operation`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
 "Events happening in a `Session`."
 interface SessionEvent {
   "ID of the `Session` this `SessionEvent` is related to."
@@ -1837,6 +1921,20 @@ number confirmation, password recovery, etc.).
 scalar ConfirmationCode
 
 """
+Country code in [ISO 3166-1 alpha-2] format.
+
+[ISO 3166-1 alpha-2]: https://iso.org/iso-3166-country-codes.html
+"""
+scalar CountryCode
+
+"""
+Currency as alphabetic code in [ISO 4217] format.
+
+[ISO 4217]: https://iso.org/iso-4217-currency-codes.html
+"""
+scalar Currency
+
+"""
 Combined date and time (with time zone) in [RFC 3339] format with
 microseconds precision.
 
@@ -1899,6 +1997,23 @@ state's actuality.
 """
 scalar MyUserVersion
 
+"ID of an `Operation`."
+scalar OperationId
+
+"Sequential number of an `Operation`."
+scalar OperationNum
+
+"""
+Version of `Operation`'s state.
+
+It increases monotonically, so may be used (and is intended to) for tracking
+state's actuality.
+"""
+scalar OperationVersion
+
+"Cursor of `Operation`s."
+scalar OperationsCursor
+
 "Percentage value in range between `1` and `100` inclusively."
 scalar Percentage
 
@@ -1912,6 +2027,9 @@ It increases monotonically, so may be used (and is intended to) for tracking
 state's actuality.
 """
 scalar PromoShareVersion
+
+"Non-zero ratio."
+scalar Ratio
 
 "Cursor of recent `Chat`s."
 scalar RecentChatsCursor
@@ -1944,6 +2062,9 @@ It increases monotonically, so may be used (and is intended to) for tracking
 state's actuality.
 """
 scalar SessionsListVersion
+
+"Sum of money."
+scalar Sum
 
 """
 [Base64URL]-encoded [ThumbHash].
@@ -3127,6 +3248,12 @@ type CreateGroupChatError {
   code: CreateGroupChatErrorCode!
 }
 
+"Error of performing `Mutation.createOperationDeposit`."
+type CreateOperationDepositError {
+  "Code indicating why this error has happened."
+  code: CreateOperationDepositErrorCode!
+}
+
 "Error of performing `Mutation.createSession`."
 type CreateSessionError {
   "Code indicating why this error has happened."
@@ -3186,6 +3313,16 @@ type CropArea {
   angle: Angle
 }
 
+"[`Currency`] exchange rate."
+type CurrencyExchangeRate {
+  "`Currency` to exchange from."
+  from: Currency!
+  "`Currency` to exchange into."
+  into: Currency!
+  "`Ratio` between the `Currency`s (`from * ratio = into`)."
+  ratio: Ratio!
+}
+
 "Error of performing `Mutation.declineChatCall`."
 type DeclineChatCallError {
   "Code indicating why this error has happened."
@@ -3226,6 +3363,39 @@ type DeleteMyUserError {
 type DeleteSessionError {
   "Code indicating why this error has happened."
   code: DeleteSessionErrorCode!
+}
+
+"Price of something in two `Currency`s."
+type DualPrice {
+  "`Sum` in the nominal `Currency` (one to be estimated)."
+  nominal: Price!
+  "Equivalent `Sum` in the actual `Currency` (one to use for payment)."
+  actual: Price!
+  """
+  `CurrencyExchangeRate` used for this `DualPrice`.
+
+  Calculated as `actual / nominal` `Ratio`.
+  """
+  exchangeRate: CurrencyExchangeRate!
+}
+
+"Modifier of a `DualPrice`."
+type DualPriceModifier {
+  """
+  `Percentage` to apply to the `DualPrice`.
+
+  `null` means this `DualPriceModifier` modifies the `DualPrice` by fixed
+  `Sum`s only.
+  """
+  percentage: Percentage
+  """
+  Concrete `Sum` amounts (`nominal` and `actual`) to apply to the
+  `DualPrice`.
+
+  If the `percentage` is not `null`, then it represents the already
+  calculated `Sum`s of the `percentage`.
+  """
+  amount: DualPrice!
 }
 
 "Error of performing `Mutation.editChatMessage`."
@@ -3962,6 +4132,26 @@ type EventIncomingChatCallsTopChatCallAdded {
 type EventIncomingChatCallsTopChatCallRemoved {
   "`ChatCall` removed from the top."
   call: ChatCall!
+}
+
+"Event of a new `OperationDeposit` being created."
+type EventOperationDepositCreated {
+  "Unique ID of the created `Operation`."
+  id: OperationId!
+  "Sequential `Num` of the created `Operation`."
+  num: OperationNum!
+  "Kind of the created `OperationDeposit`."
+  kind: OperationDepositKind!
+  "Billing country of the created `OperationDeposit`."
+  billingCountry: CountryCode!
+  """
+  Pricing of the created `OperationDeposit`.
+
+  `null` means that the pricing is not yet determined.
+  """
+  price: OperationDepositPricing
+  "`DateTime` when the `OperationDeposit` was created."
+  at: DateTime!
 }
 
 "Event of a `PromoShare` being removed."
@@ -6765,6 +6955,22 @@ type Mutation {
   Succeeds if the specified `token` is not registered already.
   """
   unregisterPushDevice("Token of the device to unregister." token: PushDeviceToken!): UnregisterPushDeviceErrorCode
+  """
+  Creates a new `OperationDeposit`.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Non-idempotent
+
+  Each time creates a new unique `OperationDeposit`.
+  """
+  createOperationDeposit("Kind of `OperationDeposit`." kind: OperationDepositKind!, "Billing `CountryCode` of the created `OperationDeposit`." billingCountry: CountryCode!, """
+  Nominal `Sum` to be deposited in USD.
+
+  `null` means it's not required for this `OperationDepositKind`.
+  """ nominal: Sum): CreateOperationDepositResult!
 }
 
 "Forever mute duration."
@@ -6962,6 +7168,123 @@ type MyUserEventsVersioned {
   ver: MyUserVersion!
 }
 
+"`Operation` of depositing money to `MyUser`'s purse."
+type OperationDeposit implements Operation {
+  "ID of this `OperationDeposit`."
+  id: OperationId!
+  "Sequential number of this `OperationDeposit`."
+  num: OperationNum!
+  "Kind of this `OperationDeposit`."
+  kind: OperationDepositKind!
+  "Status of this `OperationDeposit`."
+  status: OperationStatus!
+  "Country of the billing address of this `OperationDeposit`."
+  billingCountry: CountryCode!
+  "Pricing of this `OperationDeposit`."
+  price: OperationDepositPricing
+  "`DateTime` when this `OperationDeposit` was created."
+  createdAt: DateTime!
+  """
+  Version of the `OperationDeposit`'s state.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"Pricing of an `OperationDeposit`."
+type OperationDepositPricing {
+  "Original price of the `OperationDeposit`."
+  clean: DualPrice!
+  """
+  Bonus of the `clean.nominal` `Price` to be granted as a separate
+  `OperationDepositBonus` once the original `OperationDeposit` is
+  completed successfully.
+  """
+  bonus: PriceModifier
+  """
+  Additional commission applied to the `clean` `DualPrice`, imposed by
+  payment processing.
+  """
+  commission: DualPriceModifier
+  """
+  Taxation applied to the `clean` `DualPrice`, according to the billing
+  `CountryCode` of the `OperationDeposit`.
+  """
+  tax: DualPriceModifier
+  """
+  Calculated total price of the `OperationDeposit` after all modifiers
+  being applied.
+
+  It's calculated as: `total = clean - commission - tax`.
+  """
+  total: DualPrice!
+}
+
+"`OperationEvent`s along with the corresponding `OperationVersion`."
+type OperationEventsVersioned {
+  "`OperationEvent`s themselves."
+  events: [OperationEvent!]!
+  """
+  Version of the `Operation`'s state updated by these `OperationEvent`s.
+
+  It increases monotonically, so may be used (and is intended to) for
+  tracking state's actuality.
+  """
+  ver: OperationVersion!
+}
+
+"""
+[Connection] with `Operation`s.
+
+[Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+"""
+type OperationsConnection {
+  """
+  List of `Operation` [Edges] in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [Edges]: https://tinyurl.com/gql-relay#sel-FAFFFBEAAAACBFpwI
+  """
+  edges: [OperationsEdge!]!
+  """
+  List of `Operation`s in this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  """
+  nodes: [Operation!]!
+  """
+  [PageInfo] of this [Connection].
+
+  [Connection]: https://tinyurl.com/gql-relay#sec-Connection-Types
+  [PageInfo]: https://tinyurl.com/gql-relay#sec-undefined.PageInfo
+  """
+  pageInfo: PageInfo!
+}
+
+"""
+[Edge] with an `Operation`.
+
+[Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+"""
+type OperationsEdge {
+  """
+  `Operation` [Node] at the end of this [Edge].
+
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  [Node]: https://tinyurl.com/gql-relay#sec-Node
+  """
+  node: Operation!
+  """
+  [Cursor] of this [Edge].
+
+  [Cursor]: https://tinyurl.com/gql-relay#sec-Cursor
+  [Edge]: https://tinyurl.com/gql-relay#sec-Edge-Types
+  """
+  cursor: OperationsCursor!
+}
+
 """
 [`PageInfo`][1] returned by a [Connection] according to
 [GraphQL Cursor Connections Specification][0].
@@ -7081,6 +7404,32 @@ type Point {
 type PostChatMessageError {
   "Code indicating why this error has happened."
   code: PostChatMessageErrorCode!
+}
+
+"Price of something."
+type Price {
+  "`Sum` of this `Price`."
+  sum: Sum!
+  "`Currency` of this `Price`."
+  currency: Currency!
+}
+
+"Modifier of a `Price`."
+type PriceModifier {
+  """
+  `Percentage` to apply to the `Price`.
+
+  `null` means this `PriceModifier` modifies the `Price` by a fixed
+  `Sum`.
+  """
+  percentage: Percentage
+  """
+  Concrete `Sum` amount to apply to the `Price`.
+
+  If the `percentage` is not `null`, then it represents the already
+  calculated `Sum` of the `percentage`.
+  """
+  amount: Price!
 }
 
 """
@@ -7713,6 +8062,50 @@ type Query {
 
   If absent or `null` then the `PromoShare`s of the authenticated `MyUser` will be returned.
   """ ownerId: UserId, "Pagination arguments to return the `PromoShare`s by." pagination: PromoShareHistoryPagination): PromoShareHistoryConnection
+  """
+  Returns `Operation`s filtered by the provided criteria in the provided
+  `OperationOrigin`.
+
+  Exactly one of `by` argument's fields must be specified (be non-`null`).
+
+  Searching `by.id` or `by.num` is exact.
+
+  If no `by` argument is provided, then all existing `Operation`s of the
+  provided `OperationOrigin` are returned.
+
+  ## Authentication
+
+  Mandatory.
+
+  ## Sorting
+
+  Returned `Operation`s are sorted depending on the provided arguments:
+  - If the `by.id` argument is specified, then an exact `Operation` is
+  returned.
+  - If the `by.num` argument is specified, then an exact `Operation` is
+  returned.
+  - Otherwise, the returned `Operation`s are sorted by their
+  `OperationNum` in descending order.
+
+  ## Pagination
+
+  It's allowed to specify both `first` and `last` counts at the same time,
+  provided that `after` and `before` cursors are equal. In such case the
+  returned page will include the `Operation` pointed by the cursor and the
+  requested count of `Operation`s preceding and following it.
+
+  If it's desired to receive the `Operation`, pointed by the cursor,
+  without querying in both directions, one can specify `first` or `last`
+  count as `0`.
+
+  If no arguments are provided, then `first` parameter will be considered
+  as `50`.
+  """
+  operations("Origin to return `Operation`s from." origin: OperationOrigin!, "Filter to search `Operation`s by." by: OperationsFilter, """
+  Pagination arguments to return the `Operation`s by.
+
+  Does nothing if the `by.id` or `by.num` argument is specified.
+  """ pagination: OperationsPagination): OperationsConnection!
 }
 
 "Error of performing `Mutation.readChat`."
@@ -9253,6 +9646,9 @@ union CreateDialogChatResult = Chat | CreateDialogChatError
 "Result of performing `Mutation.createGroupChat`."
 union CreateGroupChatResult = Chat | CreateGroupChatError
 
+"Result of performing `Mutation.createOperationDeposit`."
+union CreateOperationDepositResult = OperationEventsVersioned | CreateOperationDepositError
+
 "Result of performing `Mutation.createSession`."
 union CreateSessionResult = CreateSessionOk | CreateSessionError
 
@@ -9318,6 +9714,9 @@ union MyUserEvent = EventUserAvatarRemoved | EventUserAvatarUpdated | EventUserB
 
 "Events emitted by `Subscription.myUserEvents`."
 union MyUserEvents = SubscriptionInitialized | MyUser | MyUserEventsVersioned
+
+"Events happening with an `Operation`."
+union OperationEvent = EventOperationDepositCreated
 
 "Result of performing `Mutation.postChatMessage`."
 union PostChatMessageResult = ChatEventsVersioned | PostChatMessageError
