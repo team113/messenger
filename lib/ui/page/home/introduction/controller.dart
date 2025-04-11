@@ -52,8 +52,9 @@ class IntroductionController extends GetxController {
   );
 
   /// Origin to display withing the [link] field.
-  late final String _origin =
-      '${Config.link.substring(Config.link.indexOf(':') + 3)}/';
+  late final String _origin = Config.link.substring(
+    Config.link.indexOf(':') + 3,
+  );
 
   /// [MyUserService] maintaining the [myUser].
   final MyUserService _myUserService;

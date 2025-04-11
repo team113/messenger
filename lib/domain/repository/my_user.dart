@@ -93,7 +93,7 @@ abstract class AbstractMyUserRepository {
 
   /// Deletes the given [email] from [MyUser.emails] of the authenticated
   /// [MyUser].
-  Future<void> deleteUserEmail(
+  Future<void> removeUserEmail(
     UserEmail email, {
     UserPassword? password,
     ConfirmationCode? confirmation,
@@ -101,7 +101,7 @@ abstract class AbstractMyUserRepository {
 
   /// Deletes the given [phone] from [MyUser.phones] for the authenticated
   /// [MyUser].
-  Future<void> deleteUserPhone(
+  Future<void> removeUserPhone(
     UserPhone phone, {
     UserPassword? password,
     ConfirmationCode? confirmation,

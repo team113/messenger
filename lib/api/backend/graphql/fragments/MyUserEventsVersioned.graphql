@@ -18,7 +18,7 @@
 fragment MyUserEventsVersioned on MyUserEventsVersioned {
     events {
         __typename
-        ... on EventUserAvatarDeleted {
+        ... on EventUserAvatarRemoved {
             userId
             at
         }
@@ -30,7 +30,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             }
             at
         }
-        ... on EventUserBioDeleted {
+        ... on EventUserBioRemoved {
             userId
             at
         }
@@ -39,7 +39,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             bio
             at
         }
-        ... on EventUserCallCoverDeleted {
+        ... on EventUserCallCoverRemoved {
             userId
             at
         }
@@ -72,12 +72,12 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             at
             confirmed
         }
-        ... on EventUserEmailDeleted {
+        ... on EventUserEmailRemoved {
             userId
             email
             at
         }
-        ... on EventUserLoginDeleted {
+        ... on EventUserLoginRemoved {
             userId
             at
         }
@@ -95,7 +95,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
                 }
             }
         }
-        ... on EventUserNameDeleted {
+        ... on EventUserNameRemoved {
             userId
             at
         }
@@ -121,7 +121,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             at
             confirmed
         }
-        ... on EventUserPhoneDeleted {
+        ... on EventUserPhoneRemoved {
             userId
             phone
             at
@@ -131,7 +131,7 @@ fragment MyUserEventsVersioned on MyUserEventsVersioned {
             presence
             at
         }
-        ... on EventUserStatusDeleted {
+        ... on EventUserStatusRemoved {
             userId
             at
         }
