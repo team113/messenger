@@ -1,16 +1,7 @@
-- Added VoIP push notifications for calls.
-- Updated app bar and navigation panel to be of rectangular shape.
-- Updated group creating and chats selecting UX.
-- Updated chat info page editing and overall design.
-- Updated user page design.
-- Updated monolog chat description.
-- Fixed away badges being displayed on avatars with invalid sizes.
-- Fixed inability to crop SVG images in avatar cropping modal.
-- Fixed initial cropping area being smaller than image's size.
-- Fixed inability to close chat page when writing to it the first time.
-- Fixed members count being bigger than actual members number.
-- Fixed auto-capitalization setting being ignored in text fields.
-- Fixed inability to paste clipboard into search field when chat is open.
-- Fixed context menus on mobile platforms having meaningless dividers.
-- Fixed application becoming unresponsive when drag-n-dropping screenshots to chat on macOS.
-- Fixed blocklist count not being updated in real-time in profile.
+- Redesigned dock and panels colors to be more contrast.
+- Redesigned my profile page.
+- Redesigned menu tab labels and icons.
+- Redesigned share link modal.
+- Redesigned logout modal.
+- Fixed missing localization for biography expand button.
+- Fixed authorization sometimes being l

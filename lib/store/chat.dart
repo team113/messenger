@@ -2030,10 +2030,10 @@ class ChatRepository extends DisposableInterface
         yield EventRecentChatsUpdated(
           _chat(mixin.chat.node)..chat.recentCursor = mixin.chat.cursor,
         );
-      } else if (events.$$typename == 'EventRecentChatsTopChatDeleted') {
+      } else if (events.$$typename == 'EventRecentChatsTopChatRemoved') {
         var mixin =
             events
-                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatDeleted;
+                as RecentChatsTopEvents$Subscription$RecentChatsTopEvents$EventRecentChatsTopChatRemoved;
         yield EventRecentChatsDeleted(mixin.chatId);
       }
     });

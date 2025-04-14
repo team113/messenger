@@ -1308,7 +1308,9 @@ Widget _downloads(BuildContext context, MyProfileController c) {
     children: [
       LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
       SizedBox(height: 16),
-      if (PlatformUtils.isWeb)
+      if (!PlatformUtils.isWeb)
+        latestButton
+      else
         FieldButton(
           text: 'btn_install_web_app'.l10n,
           onPressed: () async {
@@ -1325,9 +1327,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
             padding: const EdgeInsets.only(left: 4),
             child: SvgIcon(SvgIcons.logo, height: 21),
           ),
-        )
-      else
-        latestButton,
+        ),
       SizedBox(height: 20),
       LineDivider('label_mobile_apps'.l10n),
       SizedBox(height: 16),

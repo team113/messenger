@@ -145,15 +145,15 @@ void main() async {
       ).thenAnswer((_) => const Stream.empty());
 
       when(
-        graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')),
+        graphQlProvider.removeUserEmail(UserEmail('test@dummy.com')),
       ).thenAnswer(
         (_) async =>
-            DeleteUserEmail$Mutation.fromJson({
-                  'deleteUserEmail': {
+            RemoveUserEmail$Mutation.fromJson({
+                  'removeUserEmail': {
                     '__typename': 'MyUserEventsVersioned',
                     'events': [
                       {
-                        '__typename': 'EventUserEmailDeleted',
+                        '__typename': 'EventUserEmailRemoved',
                         'userId': 'id',
                         'email': 'test@dummy.com',
                         'at': DateTime.now().toString(),
@@ -163,8 +163,8 @@ void main() async {
                     'ver':
                         '${MyUserVersion(('${(await myUserProvider.accounts()).first.ver.val}A'))}',
                   },
-                }).deleteUserEmail
-                as DeleteUserEmail$Mutation$DeleteUserEmail$MyUserEventsVersioned,
+                }).removeUserEmail
+                as RemoveUserEmail$Mutation$RemoveUserEmail$MyUserEventsVersioned,
       );
 
       when(
@@ -221,7 +221,7 @@ void main() async {
         UserEmail('test@dummy.com'),
         confirmation: ConfirmationCode('1234'),
       );
-      await myUserService.deleteUserEmail(UserEmail('test@dummy.com'));
+      await myUserService.removeUserEmail(UserEmail('test@dummy.com'));
 
       verifyInOrder([
         graphQlProvider.addUserEmail(UserEmail('test@dummy.com')),
@@ -229,7 +229,7 @@ void main() async {
           UserEmail('test@dummy.com'),
           confirmation: ConfirmationCode('1234'),
         ),
-        graphQlProvider.deleteUserEmail(UserEmail('test@dummy.com')),
+        graphQlProvider.removeUserEmail(UserEmail('test@dummy.com')),
       ]);
     },
   );

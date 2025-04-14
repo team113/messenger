@@ -140,8 +140,8 @@ abstract class UserEvent {
 }
 
 /// Event of a [UserAvatar] being deleted.
-class EventUserAvatarDeleted extends UserEvent {
-  const EventUserAvatarDeleted(super.userId, this.at);
+class EventUserAvatarRemoved extends UserEvent {
+  const EventUserAvatarRemoved(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserAvatar] was deleted.
   final PreciseDateTime at;
@@ -165,8 +165,8 @@ class EventUserAvatarUpdated extends UserEvent {
 }
 
 /// Event of a [UserBio] being deleted.
-class EventUserBioDeleted extends UserEvent {
-  const EventUserBioDeleted(super.userId, this.at);
+class EventUserBioRemoved extends UserEvent {
+  const EventUserBioRemoved(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserBio] was deleted.
   final PreciseDateTime at;
@@ -190,8 +190,8 @@ class EventUserBioUpdated extends UserEvent {
 }
 
 /// Event of a [UserCallCover] being deleted.
-class EventUserCallCoverDeleted extends UserEvent {
-  const EventUserCallCoverDeleted(super.userId, this.at);
+class EventUserCallCoverRemoved extends UserEvent {
+  const EventUserCallCoverRemoved(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserCallCover] was deleted.
   final PreciseDateTime at;
@@ -245,8 +245,8 @@ class EventUserDeleted extends UserEvent {
 }
 
 /// Event of a [UserName] being deleted.
-class EventUserNameDeleted extends UserEvent {
-  const EventUserNameDeleted(super.userId, this.at);
+class EventUserNameRemoved extends UserEvent {
+  const EventUserNameRemoved(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserName] was deleted.
   final PreciseDateTime at;
@@ -284,8 +284,8 @@ class EventUserPresenceUpdated extends UserEvent {
 }
 
 /// Event of a [UserTextStatus] being deleted.
-class EventUserStatusDeleted extends UserEvent {
-  const EventUserStatusDeleted(super.userId, this.at);
+class EventUserStatusRemoved extends UserEvent {
+  const EventUserStatusRemoved(super.userId, this.at);
 
   /// [PreciseDateTime] when the [UserTextStatus] was deleted.
   final PreciseDateTime at;
