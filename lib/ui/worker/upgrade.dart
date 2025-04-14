@@ -133,7 +133,7 @@ class UpgradeWorker extends DisposableService {
       activeDownload.value = null;
       MessagePopup.error(e);
       rethrow;
-    } finally {}
+    }
   }
 
   /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
@@ -300,7 +300,7 @@ class UpgradeWorker extends DisposableService {
     bool delay = true,
     bool silent = false,
   }) async {
-    Log.debug('_schedulePopup($release) ', '$runtimeType');
+    Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future<void> displayPopup() async {
       // Only restrain from displaying the popup if app has authorization.
@@ -315,11 +315,13 @@ class UpgradeWorker extends DisposableService {
         return;
       }
 
-      await UpgradePopupView.show(
-        router.context!,
-        release: release,
-        critical: critical,
-      );
+      if (router.context != null) {
+        await UpgradePopupView.show(
+          router.context!,
+          release: release,
+          critical: critical,
+        );
+      }
     }
 
     if (delay) {

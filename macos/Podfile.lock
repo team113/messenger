@@ -89,7 +89,7 @@ PODS:
     - FlutterMacOS
   - medea_flutter_webrtc (0.13.3):
     - FlutterMacOS
-  - medea_jason (0.9.0):
+  - medea_jason (0.9.1):
     - FlutterMacOS
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
@@ -293,7 +293,7 @@ SPEC CHECKSUMS:
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   macos_haptic_feedback: 298e5c06ffc3838e80c557b24a74937a060798e6
   medea_flutter_webrtc: 251c07106b23626be784acc5fbe3cd0a8bfd1701
-  medea_jason: 965663711af9f0f21320595c962ff6c13685c86b
+  medea_jason: a7785e2a5fa9125b48bd7956bc496151055029ff
   media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
   media_kit_native_event_loop: a80d071c835c612fd80173e79390a50ec409f1b1
   media_kit_video: fa6564e3799a0a28bff39442334817088b7ca758
