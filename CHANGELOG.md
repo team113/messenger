@@ -6,7 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.4.0] · 2025-??-??
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.0...v0.5.0) | [Milestone](/../../milestone/36)
+
+### Changed
+
+- UI:
+    - Redesigned upgrade popup. ([#1201])
+
+[#1201]: /../../pull/1201
+
+
+
+
+## [0.4.0] · 2025-04-12
 [0.4.0]: /../../tree/v0.4.0
 
 [Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)
@@ -32,7 +47,6 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Message field gaining focus when entering chat. ([#1196])
         - Key up presses editing last sent message. ([#1196])
-    - Redesigned upgrade popup. ([#1201])
 
 ### Fixed
 
@@ -54,7 +68,6 @@ All user visible changes to this project will be documented in this file. This p
 [#1194]: /../../pull/1194
 [#1196]: /../../pull/1196
 [#1197]: /../../pull/1197
-[#1201]: /../../pull/1201
 
 
 
