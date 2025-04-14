@@ -16,6 +16,10 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Redesigned upgrade popup. ([#1201])
 
+### Fixed
+
+- Direct links not working when authorized. ([#1201])
+
 [#1201]: /../../pull/1201
 
 
