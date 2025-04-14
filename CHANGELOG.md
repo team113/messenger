@@ -6,7 +6,29 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.4.0] · 2025-??-??
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.0...v0.5.0) | [Milestone](/../../milestone/36)
+
+### Changed
+
+- UI:
+    - Redesigned upgrade popup. ([#1201])
+
+### Fixed
+
+- Direct links not working when authorized. ([#1201])
+- UI:
+    - Profile page:
+        - Inability to crop SVG avatar images. ([#1201])
+
+[#1201]: /../../pull/1201
+
+
+
+
+## [0.4.0] · 2025-04-12
 [0.4.0]: /../../tree/v0.4.0
 
 [Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)

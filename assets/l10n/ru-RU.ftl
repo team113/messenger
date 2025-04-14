@@ -243,6 +243,7 @@ btn_mute_chat = Отключить звук
 btn_mute_chats = Отключить звук
 btn_next = Далее
 btn_ok = Ок
+btn_open = Открыть
 btn_open_separately = открыть отдельно
 btn_or_input_someones_link = Ввести прямую ссылку
 btn_participants = Список участников
@@ -256,6 +257,7 @@ btn_privacy_policy = Политика конфиденциальности
 btn_proceed = Продолжить
 btn_pwa_is_installed = Веб приложение установлено
 btn_refresh = Обновить
+btn_refresh_page = Обновить страницу
 btn_remove = Удалить
 btn_rename = Переименовать
 btn_reply = Ответить
@@ -820,9 +822,10 @@ label_discard_changes_question = Отменить изменения?
 label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
 label_download = Скачать
-label_download_application = Скачать приложение
 label_download_and_update = Скачать и обновить
+label_download_application = Скачать приложение
 label_download_path = Путь для загрузок
+label_downloading = Скачивается
 label_draft = Черновик
 label_drop_here =
     Перетащите сюда,
@@ -1224,6 +1227,7 @@ label_unread_messages = {$quantity ->
     *[other] {$quantity} непрочитанных сообщений
 }
 label_unmuted = Включен звук
+label_update_available = Доступно обновление
 label_update_is_available = Доступно обновление
 label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя

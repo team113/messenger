@@ -243,6 +243,7 @@ btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
+btn_open = Open
 btn_open_separately = open separately
 btn_or_input_someones_link = Input someone's link
 btn_participants = Participants
@@ -256,6 +257,7 @@ btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
 btn_pwa_is_installed = Web App is installed
 btn_refresh = Refresh
+btn_refresh_page = Refresh page
 btn_remove = Remove
 btn_rename = Rename
 btn_reply = Reply
@@ -798,9 +800,10 @@ label_discard_changes_question = Discard changes?
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
 label_download = Download
-label_download_application = Download application
 label_download_and_update = Download and update
+label_download_application = Download application
 label_download_path = Download path
+label_downloading = Downloading
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -1195,6 +1198,7 @@ label_unread_messages = {$quantity ->
     *[other] {$quantity} unread messages
 }
 label_unmuted = Unmuted
+label_update_available = Update available
 label_update_is_available = Update is available
 label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
