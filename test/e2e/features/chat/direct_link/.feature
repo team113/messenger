@@ -17,16 +17,20 @@
 
 Feature: Direct links
 
-  Scenario: Direct link can be opened in unauthorized mode
+  Background:
     Given user Bob
-    And Bob has its direct link set up
-    And I am Alice
+    And Bob has his direct link set up
+    And I wait until `AuthView` is present
 
+  Scenario: Direct link can be opened in unauthorized mode
+    When I go to Bob's direct link
+    Then I wait until `HomeView` is present
+    And I wait until `ChatView` is present
+
+  Scenario: Direct link can be opened in authorized mode
     Given I am Alice
-    And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
+    And I wait until `HomeView` is present
 
-    When I fill `MessageField` field with "For selection"
-    And I tap `Send` button
-    Then I wait until status of "For selection" message is sent
+    When I go to Bob's direct link
+    And I wait until `ChatView` is present
+

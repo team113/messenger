@@ -92,8 +92,8 @@ Future<void> _setCredentialTo(
       break;
 
     case TestCredential.directLink:
-      final slug = ChatDirectLinkSlug('direct_link_${user.userNum.val}');
-      await provider.createUserDirectLink(slug);
+      user.slug ??= ChatDirectLinkSlug.generate();
+      await provider.createUserDirectLink(user.slug!);
       break;
 
     case TestCredential.num:

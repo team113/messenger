@@ -72,6 +72,7 @@ import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/favorite_group.dart';
 import 'steps/go_to.dart';
+import 'steps/go_to_link.dart';
 import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
@@ -183,6 +184,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldWithMyCredential,
         fillFieldWithRandomLogin,
         fillFieldWithUserCredential,
+        goToUserLink,
         goToUserPage,
         hasContacts,
         hasDialogWithMe,

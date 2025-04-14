@@ -144,9 +144,9 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
             child: SupportView(),
           ),
         );
-      } else if (route.startsWith('${Routes.chatDirectLink}/')) {
+      } else if (route.startsWith(Routes.chatDirectLink)) {
         final String slug = _state.route.replaceFirst(
-          '${Routes.chatDirectLink}/',
+          Routes.chatDirectLink,
           '',
         );
         pages.add(
