@@ -175,7 +175,7 @@ class MyProfileController extends GetxController {
         }
       }
 
-      final UserLogin? login = UserLogin.tryParse(s.text);
+      final UserLogin? login = UserLogin.tryParse(s.text.toLowerCase());
 
       try {
         await updateUserLogin(login);

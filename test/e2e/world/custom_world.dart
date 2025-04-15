@@ -95,6 +95,9 @@ class CustomUser {
   /// [UserId] of this [CustomUser].
   final UserId userId;
 
+  /// [ChatDirectLinkSlug] of this [CustomUser], if any.
+  ChatDirectLinkSlug? slug;
+
   /// [UserPassword] this [CustomUser] uses, if any.
   UserPassword? password;
 

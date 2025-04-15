@@ -506,9 +506,9 @@ class ChatDirectLinkSlug extends NewType<String> {
 
     return ChatDirectLinkSlug(
       List.generate(length, (i) {
-        // `-` and `_` being the last might not be parsed as a link by some
-        // applications.
-        if (i == length - 1) {
+        // `-` and `_` being the last or first might not be parsed as a link by
+        // some applications.
+        if (i == 0 || i == length - 1) {
           final str = chars.replaceFirst('-', '').replaceFirst('_', '');
           return str[r.nextInt(str.length)];
         }

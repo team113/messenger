@@ -15,29 +15,22 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Chat avatar
+Feature: Direct links
 
-  Background: User is in group chat with Bob
+  Background:
+    Given user Bob
+    And Bob has his direct link set up
+    And I wait until `AuthView` is present
+
+  Scenario: Direct link can be opened in unauthorized mode
+    When I go to Bob's direct link
+    Then I wait until `HomeView` is present
+    And I wait until `ChatView` is present
+
+  Scenario: Direct link can be opened in authorized mode
     Given I am Alice
-    And user Bob
-    And I have "Alice and Bob" group with Bob
-    And I am in "Alice and Bob" group
-    And I open chat's info
+    And I wait until `HomeView` is present
 
-  Scenario: User uploads and deletes chat avatar
-    When I update chat avatar with "test.jpg"
-    Then I see chat avatar as "test.jpg"
+    When I go to Bob's direct link
+    And I wait until `ChatView` is present
 
-    When I tap `EditProfileButton` button
-    And I tap `DeleteAvatar` button
-    And I tap `SaveEditingButton` button
-    Then I see chat avatar as none
-
-  Scenario: SVG image can be uploaded as a chat avatar
-    When I tap `EditProfileButton` button
-    And I tap `UploadAvatar` button
-    And I pick "test.svg" file in file picker
-    Then I wait until `CropAvatarView` is present
-
-    When I tap `DoneButton` button
-    Then I see chat avatar as "test.svg"
