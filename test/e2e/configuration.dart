@@ -87,6 +87,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/name_is.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/pick_file_in_picker.dart';
 import 'steps/popup_windows.dart';
 import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
@@ -218,6 +219,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         noInternetConnection,
         openChatInfo,
         pasteToField,
+        pickFileInPicker,
         popupWindows,
         postsNAttachmentsToGroup,
         readsAllMessages,
