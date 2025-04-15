@@ -29,6 +29,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
 ///
@@ -151,7 +152,7 @@ class _AssetSvgLoader implements _SvgLoader {
     }
 
     return Future(() async {
-      String image = await rootBundle.loadString(asset);
+      String image = await PlatformUtils.loadString(asset);
       Uint8List bytes = Uint8List.fromList(utf8.encode(image));
 
       _cache[asset] = bytes;

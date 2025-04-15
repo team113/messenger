@@ -17,7 +17,6 @@
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:toml/toml.dart';
@@ -156,7 +155,7 @@ class Config {
 
     final Map<String, dynamic> document =
         TomlDocument.parse(
-          await rootBundle.loadString('assets/conf.toml'),
+          await PlatformUtils.loadString('assets/conf.toml'),
         ).toMap();
 
     graphql =
