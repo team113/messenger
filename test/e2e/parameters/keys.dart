@@ -205,6 +205,7 @@ enum WidgetKey {
   UnmuteChatsButton,
   Unmuted,
   Unselected,
+  UpgradeAlert,
   UpgradePopup,
   UploadAvatar,
   UsernameField,
