@@ -17,6 +17,7 @@
 
 import 'dart:async';
 
+import 'package:dio/dio.dart' as dio;
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,7 +25,10 @@ import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
+import '/config.dart';
+import '/pubspec.g.dart';
 import '/routes.dart';
+import '/util/platform_utils.dart';
 
 /// Localization of this application.
 class L10n {
@@ -83,9 +87,31 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
+
+      String? lines;
+
+      // Browser may cache the GET request too persistent, even when the file is
+      // indeed changed.
+      if (PlatformUtils.isWeb) {
+        try {
+          final response = await (await (PlatformUtils.dio)).get(
+            '${Config.origin}/assets/assets/l10n/$lang.ftl?${Pubspec.ref}',
+            options: dio.Options(responseType: dio.ResponseType.plain),
+          );
+
+          if (response.data is String) {
+            lines = response.data as String;
+          }
+        } catch (_) {
+          // No-op.
+        }
+      }
+
+      lines ??= await rootBundle.loadString('assets/l10n/$lang.ftl');
+
       _bundle =
           FluentBundle(lang.toString())
-            ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
+            ..addMessages(lines)
             ..addMessages(
               _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
             );
