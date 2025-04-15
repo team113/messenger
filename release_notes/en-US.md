@@ -1,13 +1,3 @@
-- Added upgrade popup displaying when new deployment is available on Web.
-- Added ability to rebind hot key for toggling microphone on and off.
-- Redesigned dock and panels colors in call to be more contrast.
-- Redesigned my profile page.
-- Redesigned menu tab labels and icons.
-- Redesigned share link modal.
-- Redesigned logout modal.
-- Redesigned call window switch modal.
-- Implemented message field to gain focus when entering chat.
-- Implemented key up presses in chat to enter last sent message editing mode.
-- Fixed missing localization for biography expand button.
-- Fixed inability to input block reason in Safari and Firefox.
-- Fixed authorization sometimes being lost when receiving push notifications on iOS.
+- Redesigned upgrade popup.
+- Fixed direct links not working when authorized.
+- Fixed inability to crop SVG avatar images.
