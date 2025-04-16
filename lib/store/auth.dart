@@ -178,9 +178,20 @@ class AuthRepository extends DisposableInterface
     );
 
     if (token != null) {
-      await _graphQlProvider.unregisterPushDevice(
-        PushDeviceToken(apns: token.apns, apnsVoip: token.voip, fcm: token.fcm),
-      );
+      await Future.wait([
+        if (token.fcm != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(fcm: token.fcm),
+          ),
+        if (token.apns != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apns: token.apns),
+          ),
+        if (token.voip != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apnsVoip: token.voip),
+          ),
+      ]);
     }
 
     await _graphQlProvider.deleteSession(
