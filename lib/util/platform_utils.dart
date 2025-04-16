@@ -748,6 +748,34 @@ class PlatformUtilsImpl {
 
     return contents ?? await rootBundle.loadString(asset);
   }
+
+  /// Retrieves a [ByteData] from the asset bundle.
+  ///
+  /// Caches the response with the current [Pubspec.ref] version.
+  Future<ByteData> loadBytes(String asset) async {
+    ByteData? contents;
+
+    // Browser may cache the GET request too persistent, even when the file is
+    // indeed changed.
+    if (PlatformUtils.isWeb) {
+      try {
+        final response = await (await (PlatformUtils.dio)).get(
+          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.data is List<int>) {
+          contents = ByteData.sublistView(
+            Uint8List.fromList(response.data as List<int>),
+          );
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return contents ?? (await rootBundle.load(asset));
+  }
 }
 
 /// Kind of a [PlatformUtilsImpl.haptic] feedback.

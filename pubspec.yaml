@@ -217,13 +217,6 @@ flutter:
     - assets/l10n/
     - assets/privacy.html
     - assets/terms.html
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-          weight: 400
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
 
 sentry:
   upload_debug_symbols: true

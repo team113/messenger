@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
 import 'ui/widget/custom_page.dart';
+import 'util/log.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -79,6 +80,9 @@ part 'themes.g.dart';
   },
 })
 class Themes {
+  /// [FontLoader] of a `Roboto` font.
+  static FontLoader? _roboto;
+
   /// Returns a light theme.
   static ThemeData light() {
     final Palette colors = Palette(
@@ -140,6 +144,17 @@ class Themes {
         Color(0xFFCB9F7A),
       ],
     );
+
+    if (_roboto == null) {
+      _roboto = FontLoader('Roboto');
+      _roboto?.addFont(
+        PlatformUtils.loadBytes('assets/fonts/Roboto-Regular.ttf'),
+      );
+      _roboto?.addFont(PlatformUtils.loadBytes('assets/fonts/Roboto-Bold.ttf'));
+      _roboto?.load().then((_) async {
+        Log.debug('light() -> `FontLoader` has loaded the font', 'Themes');
+      });
+    }
 
     final TextStyle textStyle = TextStyle(
       fontFamily: 'Roboto',

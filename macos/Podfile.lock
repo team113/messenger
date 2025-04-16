@@ -93,8 +93,6 @@ PODS:
     - FlutterMacOS
   - media_kit_libs_macos_video (1.0.4):
     - FlutterMacOS
-  - media_kit_native_event_loop (1.0.0):
-    - FlutterMacOS
   - media_kit_video (0.0.1):
     - FlutterMacOS
   - nanopb (3.30910.0):
@@ -171,7 +169,6 @@ DEPENDENCIES:
   - medea_flutter_webrtc (from `Flutter/ephemeral/.symlinks/plugins/medea_flutter_webrtc/macos`)
   - medea_jason (from `Flutter/ephemeral/.symlinks/plugins/medea_jason/macos`)
   - media_kit_libs_macos_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_libs_macos_video/macos`)
-  - media_kit_native_event_loop (from `Flutter/ephemeral/.symlinks/plugins/media_kit_native_event_loop/macos`)
   - media_kit_video (from `Flutter/ephemeral/.symlinks/plugins/media_kit_video/macos`)
   - open_file_mac (from `Flutter/ephemeral/.symlinks/plugins/open_file_mac/macos`)
   - package_info_plus (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus/macos`)
@@ -240,8 +237,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/medea_jason/macos
   media_kit_libs_macos_video:
     :path: Flutter/ephemeral/.symlinks/plugins/media_kit_libs_macos_video/macos
-  media_kit_native_event_loop:
-    :path: Flutter/ephemeral/.symlinks/plugins/media_kit_native_event_loop/macos
   media_kit_video:
     :path: Flutter/ephemeral/.symlinks/plugins/media_kit_video/macos
   open_file_mac:
@@ -300,7 +295,6 @@ SPEC CHECKSUMS:
   medea_flutter_webrtc: 251c07106b23626be784acc5fbe3cd0a8bfd1701
   medea_jason: a7785e2a5fa9125b48bd7956bc496151055029ff
   media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
-  media_kit_native_event_loop: a80d071c835c612fd80173e79390a50ec409f1b1
   media_kit_video: fa6564e3799a0a28bff39442334817088b7ca758
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_mac: 01874b6d6a2c1485ac9b126d7105b99102dea2cf
