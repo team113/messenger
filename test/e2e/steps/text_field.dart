@@ -243,6 +243,6 @@ String _getCredential(CustomUser customUser, TestCredential credential) {
       return 'lgn_${customUser.userNum.val}';
 
     case TestCredential.directLink:
-      return 'direct_link_${customUser.userNum.val}';
+      return '${customUser.slug}';
   }
 }

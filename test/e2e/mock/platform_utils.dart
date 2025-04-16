@@ -19,6 +19,8 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:file_picker/src/file_picker.dart';
+import 'package:file_picker/src/file_picker_result.dart';
 import 'package:get/get.dart';
 import 'package:messenger/util/platform_utils.dart';
 
@@ -26,6 +28,9 @@ import 'package:messenger/util/platform_utils.dart';
 class PlatformUtilsMock extends PlatformUtilsImpl {
   /// [String] set in a mocked [Clipboard].
   String? clipboard;
+
+  /// [FilePickerResult] completer to be awaited in [pickFiles].
+  Completer<FilePickerResult>? filesCompleter;
 
   @override
   Future<bool> get isActive => Future.value(true);
@@ -63,5 +68,20 @@ class PlatformUtilsMock extends PlatformUtilsImpl {
   @override
   void keepActive([bool active = true]) {
     // No-op.
+  }
+
+  @override
+  Future<FilePickerResult?> pickFiles({
+    FileType type = FileType.any,
+    bool allowCompression = true,
+    int compressionQuality = 30,
+    bool allowMultiple = false,
+    bool withData = false,
+    bool withReadStream = false,
+    bool lockParentWindow = false,
+    List<String>? allowedExtensions,
+  }) async {
+    filesCompleter ??= Completer();
+    return await filesCompleter?.future;
   }
 }
