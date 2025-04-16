@@ -28,6 +28,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:super_drag_and_drop/super_drag_and_drop.dart';
 
@@ -376,6 +377,9 @@ class ChatController extends GetxController {
     'ui',
     autoFinishAfter: const Duration(minutes: 2),
   );
+
+  /// [Mutex] guarding access to [_typingSubscription].
+  final Mutex _typingGuard = Mutex();
 
   /// Returns [MyUser]'s [UserId].
   UserId? get me => _authService.userId;
@@ -1695,34 +1699,38 @@ class ChatController extends GetxController {
 
   /// Keeps the [ChatService.keepTyping] subscription up indicating the ongoing
   /// typing in this [chat].
-  void _keepTyping() {
-    if (_typingSubscription == null) {
-      Log.debug('_keepTyping()', '$runtimeType');
-    }
+  Future<void> _keepTyping() async {
+    await _typingGuard.protect(() async {
+      if (_typingSubscription == null) {
+        Log.debug('_keepTyping()', '$runtimeType');
+      }
 
-    _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
-    _typingTimer?.cancel();
-    _typingTimer = Timer(_typingTimeout, _stopTyping);
+      _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
+      _typingTimer?.cancel();
+      _typingTimer = Timer(_typingTimeout, _stopTyping);
+    });
   }
 
   /// Stops the [ChatService.keepTyping] subscription indicating the typing has
   /// been stopped in this [chat].
-  void _stopTyping() {
-    if (_typingSubscription != null) {
-      Log.debug('_stopTyping()', '$runtimeType');
-    }
+  Future<void> _stopTyping() async {
+    await _typingGuard.protect(() async {
+      if (_typingSubscription != null) {
+        Log.debug('_stopTyping()', '$runtimeType');
+      }
 
-    _typingTimer?.cancel();
-    _typingSubscription?.cancel();
-    _typingSubscription = null;
+      _typingTimer?.cancel();
+      _typingSubscription?.cancel();
+      _typingSubscription = null;
+    });
   }
 
   /// Invokes the [_stopTyping], if [send] or [edit] fields lose its focus.
-  void _stopTypingOnUnfocus() {
+  Future<void> _stopTypingOnUnfocus() async {
     final bool sendHasFocus = send.field.focus.hasFocus;
     final bool editHasFocus = edit.value?.field.focus.hasFocus ?? false;
     if (!sendHasFocus && !editHasFocus) {
-      _stopTyping();
+      await _stopTyping();
     }
   }
 

@@ -36,6 +36,7 @@ import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
 import '/domain/model/native_file.dart';
+import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/log.dart';
@@ -720,6 +721,60 @@ class PlatformUtilsImpl {
           break;
       }
     }
+  }
+
+  /// Retrieves a [String] from the asset bundle.
+  ///
+  /// Caches the response with the current [Pubspec.ref] version.
+  Future<String> loadString(String asset) async {
+    String? contents;
+
+    // Browser may cache the GET request too persistent, even when the file is
+    // indeed changed.
+    if (PlatformUtils.isWeb) {
+      try {
+        final response = await (await (PlatformUtils.dio)).get(
+          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          options: Options(responseType: ResponseType.plain),
+        );
+
+        if (response.data is String) {
+          contents = response.data as String;
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return contents ?? await rootBundle.loadString(asset);
+  }
+
+  /// Retrieves a [ByteData] from the asset bundle.
+  ///
+  /// Caches the response with the current [Pubspec.ref] version.
+  Future<ByteData> loadBytes(String asset) async {
+    ByteData? contents;
+
+    // Browser may cache the GET request too persistent, even when the file is
+    // indeed changed.
+    if (PlatformUtils.isWeb) {
+      try {
+        final response = await (await (PlatformUtils.dio)).get(
+          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.data is List<int>) {
+          contents = ByteData.sublistView(
+            Uint8List.fromList(response.data as List<int>),
+          );
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return contents ?? (await rootBundle.load(asset));
   }
 }
 

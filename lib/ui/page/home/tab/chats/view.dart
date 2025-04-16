@@ -290,13 +290,7 @@ class ChatsTabView extends StatelessWidget {
                                 : null,
                         onPressed: () {
                           if (c.searching.value) {
-                            if (c.search.value?.search.isEmpty.value == false) {
-                              c.search.value?.search.clear();
-                              c.search.value?.query.value = '';
-                              c.search.value?.search.focus.requestFocus();
-                            } else {
-                              c.closeSearch();
-                            }
+                            c.closeSearch();
                           } else if (c.selecting.value) {
                             c.toggleSelecting();
                           } else if (c.groupCreating.value) {
@@ -314,16 +308,10 @@ class ChatsTabView extends StatelessWidget {
                           width: 29.17,
                           child: SafeAnimatedSwitcher(
                             duration: 250.milliseconds,
-                            child:
-                                c.search.value?.search.isEmpty.value == false
-                                    ? const SvgIcon(
-                                      SvgIcons.clearSearch,
-                                      key: Key('ClearSearch'),
-                                    )
-                                    : const SvgIcon(
-                                      SvgIcons.closePrimary,
-                                      key: Key('CloseSearch'),
-                                    ),
+                            child: const SvgIcon(
+                              SvgIcons.closePrimary,
+                              key: Key('CloseSearch'),
+                            ),
                           ),
                         ),
                       );

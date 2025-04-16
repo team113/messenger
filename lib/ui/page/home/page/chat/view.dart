@@ -1032,6 +1032,7 @@ class ChatView extends StatelessWidget {
         ),
         child: FutureBuilder<RxUser?>(
           future: user is Future<RxUser?> ? user : null,
+          initialData: user is Future<RxUser?> ? null : user,
           builder:
               (_, snapshot) => Obx(() {
                 return HighlightedContainer(
@@ -1059,7 +1060,7 @@ class ChatView extends StatelessWidget {
                                     m.memberId != c.me &&
                                     m.memberId != e.value.author.id,
                               ),
-                      user: snapshot.data ?? (user is RxUser? ? user : null),
+                      user: snapshot.data,
                       getUser: c.getUser,
                       getItem: c.getItem,
                       onHide: () => c.hideChatItem(e.value),

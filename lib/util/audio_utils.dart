@@ -22,6 +22,7 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:media_kit/media_kit.dart' hide AudioDevice;
 import 'package:mutex/mutex.dart';
 
+import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
 import 'platform_utils.dart';
@@ -93,7 +94,7 @@ class AudioUtilsImpl {
       };
 
       if (url.isNotEmpty) {
-        await WebUtils.play(url);
+        await WebUtils.play('$url?${Pubspec.ref}');
       }
     } else if (_isMobile) {
       await _jaPlayer?.setAudioSource(sound.source);
@@ -413,7 +414,7 @@ extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
   Media get media => switch (kind) {
     AudioSourceKind.asset => Media(
-      'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}',
+      'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}${PlatformUtils.isWeb ? '?${Pubspec.ref}' : ''}',
     ),
     AudioSourceKind.file => Media('file:///${(this as FileAudioSource).file}'),
     AudioSourceKind.url => Media((this as UrlAudioSource).url),
@@ -422,7 +423,7 @@ extension on AudioSource {
   /// Returns a [ja.AudioSource] corresponding to this [AudioSource].
   ja.AudioSource get source => switch (kind) {
     AudioSourceKind.asset => ja.AudioSource.asset(
-      'assets/${(this as AssetAudioSource).asset}',
+      'assets/${(this as AssetAudioSource).asset}${PlatformUtils.isWeb ? '?${Pubspec.ref}' : ''}',
     ),
     AudioSourceKind.file => ja.AudioSource.file((this as FileAudioSource).file),
     AudioSourceKind.url => ja.AudioSource.uri(

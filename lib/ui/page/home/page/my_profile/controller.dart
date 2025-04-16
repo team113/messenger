@@ -568,7 +568,8 @@ class MyProfileController extends GetxController {
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
     FilePickerResult? result = await PlatformUtils.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: NativeFile.images,
       allowMultiple: false,
       withData: true,
       withReadStream: false,
