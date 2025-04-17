@@ -93,7 +93,7 @@ dependencies:
       url: https://github.com/SleepySquash/scrollable_positioned_list
       path: packages/scrollable_positioned_list/
   screen_brightness: any
-  sentry_flutter: ^8.12.0
+  sentry_flutter: ^8.14.1
   share_plus: ^10.0.0
   shared_preferences: ^2.0.18
   sliding_up_panel: ^2.0.0+1
@@ -144,7 +144,7 @@ dev_dependencies:
   gherkin: ^2.0.8
   json_serializable: ^6.6.2
   mockito: ^5.4.2
-  sentry_dart_plugin: ^2.2.1
+  sentry_dart_plugin: ^2.4.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.

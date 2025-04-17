@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.1...v0.5.0) | [Milestone](/../../milestone/37)
+
+### Changed
+
+- Web:
+    - Updated [Progressive Web Application (PWA)][PWA] icon. ([#1209])
+
+[#1209]: /../../pull/1209
+
+
+
+
 ## [0.4.1] · 2025-04-15
 [0.4.1]: /../../tree/v0.4.1
 

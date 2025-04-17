@@ -5,7 +5,7 @@
   "display": "standalone",
   "background_color": "#0175C2",
   "theme_color": "#0175C2",
-  "description": "Mobile Front-End Application of Social Platform.",
+  "description": "Secure messenger with crystal clear audio and video calls.",
   "orientation": "portrait-primary",
   "prefer_related_applications": false,
   "icons": [
@@ -13,37 +13,79 @@
       "src": "icons/android-icon-36x36.png",
       "sizes": "36x36",
       "type": "image/png",
-      "density": "0.75"
+      "density": "0.75",
+      "purpose": "maskable"
     },
     {
       "src": "icons/android-icon-48x48.png",
       "sizes": "48x48",
       "type": "image/png",
-      "density": "1.0"
+      "density": "1.0",
+      "purpose": "maskable"
     },
     {
       "src": "icons/android-icon-72x72.png",
       "sizes": "72x72",
       "type": "image/png",
-      "density": "1.5"
+      "density": "1.5",
+      "purpose": "maskable"
     },
     {
       "src": "icons/android-icon-96x96.png",
       "sizes": "96x96",
       "type": "image/png",
-      "density": "2.0"
+      "density": "2.0",
+      "purpose": "maskable"
     },
     {
       "src": "icons/android-icon-144x144.png",
       "sizes": "144x144",
       "type": "image/png",
-      "density": "3.0"
+      "density": "3.0",
+      "purpose": "maskable"
     },
     {
       "src": "icons/android-icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "density": "4.0"
+      "density": "4.0",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/maskable_icon_x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "purpose": "any",
+      "sizes": "16x16",
+      "src": "/icons/macOS/icon_16x16.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "32x32",
+      "src": "/icons/macOS/icon_32x32.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "128x128",
+      "src": "/icons/macOS/icon_128x128.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "256x256",
+      "src": "/icons/macOS/icon_256x256.png",
+      "type": "image/png"
+    },
+    {
+      "purpose": "any",
+      "sizes": "512x512",
+      "src": "/icons/macOS/icon_512x512.png",
+      "type": "image/png"
     }
   ]
 }
