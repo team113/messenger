@@ -866,13 +866,13 @@ class ChatRepository extends DisposableInterface
       if (attachment.file.bytes.value != null) {
         upload = dio.MultipartFile.fromBytes(
           attachment.file.bytes.value!,
-          filename: attachment.file.name,
+          filename: filename,
           contentType: attachment.file.mime,
         );
       } else if (attachment.file.path != null) {
         upload = await dio.MultipartFile.fromFile(
           attachment.file.path!,
-          filename: attachment.file.name,
+          filename: filename,
           contentType: attachment.file.mime,
         );
       } else {
