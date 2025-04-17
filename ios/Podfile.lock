@@ -126,11 +126,9 @@ PODS:
   - medea_flutter_webrtc (0.13.3):
     - Flutter
     - instrumentisto-libwebrtc-bin (= 134.0.6998.165)
-  - medea_jason (0.9.0):
+  - medea_jason (0.9.1):
     - Flutter
   - media_kit_libs_ios_video (1.0.4):
-    - Flutter
-  - media_kit_native_event_loop (1.0.0):
     - Flutter
   - media_kit_video (0.0.1):
     - Flutter
@@ -220,7 +218,6 @@ DEPENDENCIES:
   - medea_flutter_webrtc (from `.symlinks/plugins/medea_flutter_webrtc/ios`)
   - medea_jason (from `.symlinks/plugins/medea_jason/ios`)
   - media_kit_libs_ios_video (from `.symlinks/plugins/media_kit_libs_ios_video/ios`)
-  - media_kit_native_event_loop (from `.symlinks/plugins/media_kit_native_event_loop/ios`)
   - media_kit_video (from `.symlinks/plugins/media_kit_video/ios`)
   - open_file_ios (from `.symlinks/plugins/open_file_ios/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
@@ -300,8 +297,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/medea_jason/ios"
   media_kit_libs_ios_video:
     :path: ".symlinks/plugins/media_kit_libs_ios_video/ios"
-  media_kit_native_event_loop:
-    :path: ".symlinks/plugins/media_kit_native_event_loop/ios"
   media_kit_video:
     :path: ".symlinks/plugins/media_kit_video/ios"
   open_file_ios:
@@ -363,9 +358,8 @@ SPEC CHECKSUMS:
   irondash_engine_context: 8e58ca8e0212ee9d1c7dc6a42121849986c88486
   just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
   medea_flutter_webrtc: 5d1329d904af8cdc1763007aaf8bbcd410cc9b7f
-  medea_jason: e5b8d2cc42a5f4124594592a768f8dbab9ddd11a
+  medea_jason: e5c1a250fa2392fd24a59ffe7e06b511feaf5a04
   media_kit_libs_ios_video: 5a18affdb97d1f5d466dc79988b13eff6c5e2854
-  media_kit_native_event_loop: 5fba1a849a6c87a34985f1e178a0de5bd444a0cf
   media_kit_video: 1746e198cb697d1ffb734b1d05ec429d1fcd1474
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   open_file_ios: 5ff7526df64e4394b4fe207636b67a95e83078bb
@@ -373,7 +367,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
   permission_handler_apple: 4ed2196e43d0651e8ff7ca3483a069d469701f2d
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  screen_brightness_ios: 5ed898fa50fa82a26171c086ca5e28228f932576
+  screen_brightness_ios: 28c5fbdb40634de44f86025d84470158ad4df48c
   SDWebImage: f84b0feeb08d2d11e6a9b843cb06d75ebf5b8868
   Sentry: 0f9bc9adfc0b960e7f3bb5ec67e9a3d8193f3bdb
   sentry_flutter: be956a32343176b344ef4b23ecdab47ab6f0ffa6
@@ -386,7 +380,7 @@ SPEC CHECKSUMS:
   SwiftyGif: 706c60cf65fa2bc5ee0313beece843c8eb8194d4
   url_launcher_ios: 694010445543906933d732453a59da0a173ae33d
   vibration: 69774ad57825b11c951ee4c46155f455d7a592ce
-  volume_controller: ca1cde542ee70fad77d388f82e9616488110942b
+  volume_controller: 3657a1f65bedb98fa41ff7dc5793537919f31b12
   wakelock_plus: 04623e3f525556020ebd4034310f20fe7fda8b49
 
 PODFILE CHECKSUM: 9b3462c8576c33ce44d05061d54f03eb9377f0f9
