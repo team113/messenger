@@ -24,14 +24,6 @@ import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
 import 'package:get/get.dart';
 
-import '../../../../../domain/model/chat.dart';
-import '../../../../../domain/model/chat_call.dart';
-import '../../../../../domain/model/chat_item.dart';
-import '../../../../../domain/model/ongoing_call.dart';
-import '../../../../../domain/model/precise_date_time/precise_date_time.dart';
-import '../../../../../domain/model/user.dart';
-import '../../../../../domain/service/call.dart';
-import '../../../../../util/media_utils.dart';
 import '/config.dart';
 import '/domain/repository/chat.dart';
 import '/l10n/l10n.dart';
@@ -186,37 +178,7 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              WidgetButton(
-                                onPressed: () {
-                                  final chatId = ChatId.local(UserId('dummy'));
-                                  final callId = ChatItemId.local();
-
-                                  MediaUtils.enabled = false;
-
-                                  Get.find<CallService>().calls[chatId] = Rx(
-                                    OngoingCall(
-                                      chatId,
-                                      c.me!,
-                                      withAudio: false,
-                                      withVideo: false,
-                                      withScreen: false,
-                                      state: OngoingCallState.active,
-                                      call: ChatCall(
-                                        callId,
-                                        chatId,
-                                        User(
-                                          c.me!,
-                                          UserNum('1234123412341234'),
-                                        ),
-                                        PreciseDateTime.now(),
-                                        members: [],
-                                        withVideo: false,
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Text('label_chats'.l10n),
-                              ),
+                              Text('label_chats'.l10n),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),

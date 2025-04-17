@@ -42,8 +42,6 @@ class MediaUtilsImpl {
   /// [Mutex] guarding synchronized output device updating.
   final Mutex outputGuard = Mutex();
 
-  bool enabled = true;
-
   /// [Jason] communicating with the media resources.
   Jason? _jason;
 
@@ -65,10 +63,6 @@ class MediaUtilsImpl {
 
   /// Returns the [Jason] instance of these [MediaUtils].
   FutureOr<Jason?> get jason {
-    if (!enabled) {
-      return null;
-    }
-
     if (_jason == null) {
       return _guard.protect(() async {
         if (_jason != null) {

@@ -20,10 +20,12 @@ All user visible changes to this project will be documented in this file. This p
 
 - UI:
     - Chat page:
-        - Inability to delete errored messages when chat is read by recipient. ([#1210])
+        - Inability to delete errored messages when chat is read by recipient. ([#1210], [#1207])
 - iOS:
-    - Inability to upload drag-n-dropped files to chat. ([#1210])
+    - Inability to upload drag-n-dropped files to chat. ([#1210], [#1206])
 
+[#1206]: /../../issues/1206
+[#1207]: /../../issues/1207
 [#1209]: /../../pull/1209
 [#1210]: /../../pull/1210
 
