@@ -11,6 +11,11 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.4.1...v0.5.0) | [Milestone](/../../milestone/37)
 
+### Changed
+
+- Web:
+    - Updated [Progressive Web Application (PWA)][PWA] icon. ([#1209])
+
 ### Fixed
 
 - UI:
@@ -19,6 +24,7 @@ All user visible changes to this project will be documented in this file. This p
 - iOS:
     - Inability to upload drag-n-dropped files to chat. ([#1210])
 
+[#1209]: /../../pull/1209
 [#1210]: /../../pull/1210
 
 

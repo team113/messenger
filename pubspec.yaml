@@ -144,7 +144,7 @@ dev_dependencies:
   gherkin: ^2.0.8
   json_serializable: ^6.6.2
   mockito: ^5.4.2
-  sentry_dart_plugin: ^2.2.1
+  sentry_dart_plugin: ^2.4.1
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
