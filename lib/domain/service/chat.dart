@@ -28,6 +28,7 @@ import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
 import '/domain/model/mute_duration.dart';
 import '/domain/model/native_file.dart';
+import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/chat.dart';
 import '/provider/gql/exceptions.dart';
@@ -287,26 +288,34 @@ class ChatService extends DisposableService {
     Chat? chat = chats[item.chatId]?.chat.value;
 
     if (item is ChatMessage) {
-      if (item.author.id != me) {
-        throw const DeleteChatMessageException(
-          DeleteChatMessageErrorCode.notAuthor,
-        );
-      }
+      if (item.status.value != SendingStatus.error) {
+        if (item.author.id != me) {
+          throw const DeleteChatMessageException(
+            DeleteChatMessageErrorCode.notAuthor,
+          );
+        }
 
-      if (me != null && chat?.isRead(item, me!) == true) {
-        throw const DeleteChatMessageException(DeleteChatMessageErrorCode.read);
+        if (me != null && chat?.isRead(item, me!) == true) {
+          throw const DeleteChatMessageException(
+            DeleteChatMessageErrorCode.read,
+          );
+        }
       }
 
       await _chatRepository.deleteChatMessage(item);
     } else if (item is ChatForward) {
-      if (item.author.id != me) {
-        throw const DeleteChatForwardException(
-          DeleteChatForwardErrorCode.notAuthor,
-        );
-      }
+      if (item.status.value != SendingStatus.error) {
+        if (item.author.id != me) {
+          throw const DeleteChatForwardException(
+            DeleteChatForwardErrorCode.notAuthor,
+          );
+        }
 
-      if (me != null && chat?.isRead(item, me!) == true) {
-        throw const DeleteChatForwardException(DeleteChatForwardErrorCode.read);
+        if (me != null && chat?.isRead(item, me!) == true) {
+          throw const DeleteChatForwardException(
+            DeleteChatForwardErrorCode.read,
+          );
+        }
       }
 
       await _chatRepository.deleteChatForward(item);

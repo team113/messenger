@@ -6,6 +6,24 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.1...v0.5.0) | [Milestone](/../../milestone/37)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to delete errored messages when chat is read by recipient. ([#1210])
+- iOS:
+    - Inability to upload drag-n-dropped files to chat. ([#1210])
+
+[#1210]: /../../pull/1210
+
+
+
+
 ## [0.4.1] · 2025-04-15
 [0.4.1]: /../../tree/v0.4.1
 

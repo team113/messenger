@@ -196,6 +196,10 @@ class Chat implements Comparable<Chat> {
     UserId? me, [
     List<ChatMember> members = const [],
   ]) {
+    if (item.id.isLocal) {
+      return false;
+    }
+
     if (members.isNotEmpty) {
       if (members.length <= 1) {
         return true;
