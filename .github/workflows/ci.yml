@@ -606,6 +606,7 @@ jobs:
                      libpulse-dev
                      libmpv-dev
                      libcurl4-openssl-dev
+                     libnative-platform-jni
                      keybinder-3.0
                      mpv
                      jq
