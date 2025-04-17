@@ -606,7 +606,6 @@ jobs:
                      libpulse-dev
                      libmpv-dev
                      libcurl4-openssl-dev
-                     openjdk-17-jdk
                      keybinder-3.0
                      mpv
                      jq
@@ -618,10 +617,6 @@ jobs:
                      clang
                      zip
                      xz-utils
-
-      - run: |
-          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-          export PATH=$JAVA_HOME/bin:$PATH
 
       - run: git config --global --add safe.directory '*'
 
