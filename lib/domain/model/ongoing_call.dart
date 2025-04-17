@@ -957,7 +957,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            if (!e.message().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied') &&
+                !e.message().contains('NotAllowedError')) {
               addError('enableScreenShare() call failed with $e');
               rethrow;
             }
@@ -1014,7 +1015,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
-            if (e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied') ||
+                e.message().contains('NotAllowedError')) {
               _notifications.add(MicrophonePermissionDeniedNotification());
             } else {
               addError('unmuteAudio() call failed due to ${e.message()}');
@@ -1071,7 +1073,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             videoState.value = LocalTrackState.disabled;
-            if (e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied') ||
+                e.message().contains('NotAllowedError')) {
               _notifications.add(CameraPermissionDeniedNotification());
             } else {
               addError('enableVideo() call failed with $e');
@@ -1337,7 +1340,8 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.getDisplayMediaFailed:
-              if (e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied') ||
+                  e.message().contains('NotAllowedError')) {
                 break;
               }
 
@@ -1346,7 +1350,8 @@ class OngoingCall {
               break;
 
             default:
-              if (e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied') ||
+                  e.message().contains('NotAllowedError')) {
                 break;
               }
 
@@ -1743,7 +1748,8 @@ class OngoingCall {
         videoState.value = LocalTrackState.disabled;
         screenShareState.value = LocalTrackState.disabled;
 
-        if (e.message().contains('Permission denied')) {
+        if (e.message().contains('Permission denied') ||
+            e.message().contains('NotAllowedError')) {
           _notifications.add(MicrophonePermissionDeniedNotification());
         } else {
           addError('initLocalTracks() call failed due to: ${e.message()}');

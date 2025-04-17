@@ -452,6 +452,11 @@ class WebUtils {
 
   /// Binds the [handler] to be invoked on the [key] presses.
   static Future<void> bindKey(HotKey key, bool Function() handler) async {
+    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+      // iOS and Android devices don't support hot keys.
+      return;
+    }
+
     try {
       await hotKeyManager.register(key, keyDownHandler: (_) => handler());
     } catch (e) {
@@ -461,6 +466,11 @@ class WebUtils {
 
   /// Unbinds the [handler] from the [key].
   static Future<void> unbindKey(HotKey key, bool Function() handler) async {
+    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+      // iOS and Android devices don't support hot keys.
+      return;
+    }
+
     try {
       await hotKeyManager.unregister(key);
     } catch (e) {
