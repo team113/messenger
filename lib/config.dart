@@ -145,6 +145,16 @@ class Config {
   /// URL address of IP address discovering API server.
   static String ipEndpoint = 'https://api.ipify.org?format=json';
 
+  /// Indicator whether this [Config] should try fetching its data from the
+  /// remote endpoint.
+  static bool confRemote = true;
+
+  /// URL part of the [ws] variable.
+  static String _wsUrl = 'ws://localhost';
+
+  /// Port part of the [ws] variable.
+  static int _wsPort = 80;
+
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
@@ -173,12 +183,12 @@ class Config {
             ? const String.fromEnvironment('SOCAPP_HTTP_URL')
             : (document['server']?['http']?['url'] ?? url);
 
-    String wsUrl =
+    _wsUrl =
         const bool.hasEnvironment('SOCAPP_WS_URL')
             ? const String.fromEnvironment('SOCAPP_WS_URL')
             : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
-    int wsPort =
+    _wsPort =
         const bool.hasEnvironment('SOCAPP_WS_PORT')
             ? const int.fromEnvironment('SOCAPP_WS_PORT')
             : (document['server']?['ws']?['port'] ?? 80);
@@ -303,13 +313,13 @@ class Config {
 
       if (document['server']?['ws']?['url'] == null &&
           !const bool.hasEnvironment('SOCAPP_WS_URL')) {
-        wsUrl =
+        _wsUrl =
             (Uri.base.scheme == 'https' ? 'wss://' : 'ws://') + Uri.base.host;
       }
 
       if (document['server']?['ws']?['port'] == null &&
           !const bool.hasEnvironment('SOCAPP_WS_PORT')) {
-        wsPort = Uri.base.scheme == 'https' ? 443 : 80;
+        _wsPort = Uri.base.scheme == 'https' ? 443 : 80;
       }
     }
 
@@ -318,7 +328,7 @@ class Config {
       files = '$url/files';
     }
 
-    bool confRemote =
+    confRemote =
         const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
             ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
             : (document['conf']?['remote'] ?? true);
@@ -326,58 +336,14 @@ class Config {
     // If [confRemote], then try to fetch and merge the remotely available
     // configuration.
     if (confRemote) {
-      try {
-        final response = await (await PlatformUtils.dio).fetch(
-          RequestOptions(path: '$url:$port/conf'),
-        );
-        if (response.statusCode == 200) {
-          dynamic remote;
-
-          try {
-            remote = TomlDocument.parse(response.data.toString()).toMap();
-          } catch (e) {
-            remote = loadYaml(response.data.toString());
-          }
-
-          confRemote = remote['conf']?['remote'] ?? confRemote;
-          if (confRemote) {
-            graphql = remote['server']?['http']?['graphql'] ?? graphql;
-            port = _asInt(remote['server']?['http']?['port']) ?? port;
-            url = remote['server']?['http']?['url'] ?? url;
-            wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
-            wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
-            files = remote['files']?['url'] ?? files;
-            sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
-            downloads = remote['downloads']?['directory'] ?? downloads;
-            userAgentProduct =
-                remote['user']?['agent']?['product'] ?? userAgentProduct;
-            userAgentVersion =
-                remote['user']?['agent']?['version'] ?? userAgentVersion;
-            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
-            link = remote['link']?['prefix'] ?? link;
-            appcast = remote['appcast']?['url'] ?? appcast;
-            copyright =
-                remote['legal']?[Uri.base.host]?['copyright'] ??
-                remote['legal']?['copyright'] ??
-                copyright;
-            support = remote['legal']?['support'] ?? support;
-            repository = remote['legal']?['repository'] ?? repository;
-            geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
-            ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;
-            if (remote['log']?['level'] != null) {
-              logLevel = me.LogLevel.values.firstWhere(
-                (e) => e.name == remote['log']?['level'],
-                orElse: () => logLevel,
-              );
-            }
-            origin = url;
-          }
-        }
-      } catch (e) {
-        Log.info('Remote configuration fetch failed.', 'Config');
-      }
+      _fetchRemote();
     }
 
+    _finalizeUrl();
+  }
+
+  /// Finalizes the [origin], [link] and [ws] parts of the [Config].
+  static void _finalizeUrl() {
     if (PlatformUtils.isWeb) {
       if ((Uri.base.scheme == 'https' && Uri.base.port != 443) ||
           Uri.base.scheme == 'http' && Uri.base.port != 80) {
@@ -391,13 +357,73 @@ class Config {
       link = '$origin${Routes.chatDirectLink}';
     }
 
-    ws = '$wsUrl:$wsPort$graphql';
+    ws = '$_wsUrl:$_wsPort$graphql';
 
     // Notification Service Extension needs those to send message received
     // notification to backend.
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
+    }
+  }
+
+  /// Fetches this [Config] from the remote [url] and [port] endpoint.
+  static Future<void> _fetchRemote() async {
+    if (!confRemote) {
+      return;
+    }
+
+    try {
+      final response = await (await PlatformUtils.dio).fetch(
+        RequestOptions(path: '$url:$port/conf'),
+      );
+      if (response.statusCode == 200) {
+        dynamic remote;
+
+        try {
+          remote = TomlDocument.parse(response.data.toString()).toMap();
+        } catch (e) {
+          remote = loadYaml(response.data.toString());
+        }
+
+        confRemote = remote['conf']?['remote'] ?? confRemote;
+        if (confRemote) {
+          graphql = remote['server']?['http']?['graphql'] ?? graphql;
+          port = _asInt(remote['server']?['http']?['port']) ?? port;
+          url = remote['server']?['http']?['url'] ?? url;
+          _wsUrl = remote['server']?['ws']?['url'] ?? _wsUrl;
+          _wsPort = _asInt(remote['server']?['ws']?['port']) ?? _wsPort;
+          files = remote['files']?['url'] ?? files;
+          sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
+          downloads = remote['downloads']?['directory'] ?? downloads;
+          userAgentProduct =
+              remote['user']?['agent']?['product'] ?? userAgentProduct;
+          userAgentVersion =
+              remote['user']?['agent']?['version'] ?? userAgentVersion;
+          vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+          link = remote['link']?['prefix'] ?? link;
+          appcast = remote['appcast']?['url'] ?? appcast;
+          copyright =
+              remote['legal']?[Uri.base.host]?['copyright'] ??
+              remote['legal']?['copyright'] ??
+              copyright;
+          support = remote['legal']?['support'] ?? support;
+          repository = remote['legal']?['repository'] ?? repository;
+          geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
+          ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;
+          if (remote['log']?['level'] != null) {
+            logLevel = me.LogLevel.values.firstWhere(
+              (e) => e.name == remote['log']?['level'],
+              orElse: () => logLevel,
+            );
+          }
+          origin = url;
+
+          _finalizeUrl();
+        }
+      }
+    } catch (e) {
+      Log.info('Remote configuration fetch failed.', 'Config');
     }
   }
 }
