@@ -855,16 +855,24 @@ class ChatRepository extends DisposableInterface
       attachment.read.value?.complete(null);
       attachment.status.refresh();
 
+      String filename = attachment.file.name;
+      if (filename.replaceAll(' ', '').isEmpty) {
+        final mime = attachment.file.mime;
+        if (mime != null) {
+          filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
+        }
+      }
+
       if (attachment.file.bytes.value != null) {
         upload = dio.MultipartFile.fromBytes(
           attachment.file.bytes.value!,
-          filename: attachment.file.name,
+          filename: filename,
           contentType: attachment.file.mime,
         );
       } else if (attachment.file.path != null) {
         upload = await dio.MultipartFile.fromFile(
           attachment.file.path!,
-          filename: attachment.file.name,
+          filename: filename,
           contentType: attachment.file.mime,
         );
       } else {
