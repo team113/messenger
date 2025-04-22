@@ -19,7 +19,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:messenger/ui/worker/call.dart';
 
 void main() async {
-  test('CacheWorker clears its files', () async {
+  test('Base62ToUuid converts Base62 to UUID correctly', () async {
     expect(
       '7FdwVhQEjVMHIaeB2t4487'.base62ToUuid(),
       'ee49e501-ce4c-4940-92d2-602c8266ffd7',
