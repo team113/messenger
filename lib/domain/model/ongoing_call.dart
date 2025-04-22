@@ -294,6 +294,9 @@ class OngoingCall {
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
+  /// Mutex for synchronized access to the [devices].
+  final Mutex _devicesGuard = Mutex();
+
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
@@ -395,50 +398,56 @@ class OngoingCall {
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
 
-        final List<DeviceDetails> previous = List.from(
-          devices,
-          growable: false,
-        );
-
-        devices.value = e;
-
-        final List<DeviceDetails> removed = [];
-
-        for (DeviceDetails d in previous) {
-          if (devices.none((p) => p.deviceId() == d.deviceId())) {
-            removed.add(d);
+        await _devicesGuard.protect(() async {
+          if (devices.isEmpty) {
+            devices.value = await MediaUtils.enumerateDevices();
           }
-        }
 
-        final bool audioChanged =
-            !previous
-                .audio()
-                .map((e) => e.deviceId())
-                .sameAs(devices.audio().map((e) => e.deviceId()));
+          final List<DeviceDetails> previous = List.from(
+            devices,
+            growable: false,
+          );
 
-        final bool outputChanged =
-            !previous
-                .output()
-                .map((e) => e.deviceId())
-                .sameAs(devices.output().map((e) => e.deviceId()));
+          devices.value = e;
 
-        final bool videoChanged =
-            !previous
-                .video()
-                .map((e) => e.deviceId())
-                .sameAs(devices.video().map((e) => e.deviceId()));
+          final List<DeviceDetails> removed = [];
 
-        if (audioChanged) {
-          _pickAudioDevice();
-        }
+          for (DeviceDetails d in previous) {
+            if (devices.none((p) => p.deviceId() == d.deviceId())) {
+              removed.add(d);
+            }
+          }
 
-        if (outputChanged) {
-          _pickOutputDevice();
-        }
+          final bool audioChanged =
+              !previous
+                  .audio()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.audio().map((e) => e.deviceId()));
 
-        if (videoChanged) {
-          _pickVideoDevice(previous, removed);
-        }
+          final bool outputChanged =
+              !previous
+                  .output()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.output().map((e) => e.deviceId()));
+
+          final bool videoChanged =
+              !previous
+                  .video()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.video().map((e) => e.deviceId()));
+
+          if (audioChanged) {
+            _pickAudioDevice();
+          }
+
+          if (outputChanged) {
+            _pickOutputDevice();
+          }
+
+          if (videoChanged) {
+            _pickVideoDevice(previous, removed);
+          }
+        });
       });
 
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
@@ -1602,71 +1611,73 @@ class OngoingCall {
     }
 
     await _mediaSettingsGuard.protect(() async {
-      // Populate [devices] with a list of available media input devices.
-      try {
-        await enumerateDevices();
-      } catch (_) {
-        // No-op.
-      }
+      await _devicesGuard.protect(() async {
+        // Populate [devices] with a list of available media input devices.
+        try {
+          await enumerateDevices();
+        } catch (_) {
+          // No-op.
+        }
 
-      // On mobile platforms, output device is picked in the following priority:
-      // - headphones;
-      // - earpiece (if [videoState] is disabled);
-      // - speaker (if [videoState] is enabled).
-      if (PlatformUtils.isMobile) {
-        _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
-          outputDevice.value =
-              devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
-              outputDevice.value;
-        });
-
-        if (outputDevice.value == null) {
-          final Iterable<DeviceDetails> output = devices.output();
-          outputDevice.value = output.firstWhereOrNull(
-            (e) => e.speaker == AudioSpeakerKind.headphones,
-          );
+        // On mobile platforms, output device is picked in the following priority:
+        // - headphones;
+        // - earpiece (if [videoState] is disabled);
+        // - speaker (if [videoState] is enabled).
+        if (PlatformUtils.isMobile) {
+          _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
+            outputDevice.value =
+                devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
+                outputDevice.value;
+          });
 
           if (outputDevice.value == null) {
-            final bool speaker =
-                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+            final Iterable<DeviceDetails> output = devices.output();
+            outputDevice.value = output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.headphones,
+            );
 
-            if (speaker) {
-              outputDevice.value = output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.speaker,
+            if (outputDevice.value == null) {
+              final bool speaker =
+                  PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+
+              if (speaker) {
+                outputDevice.value = output.firstWhereOrNull(
+                  (e) => e.speaker == AudioSpeakerKind.speaker,
+                );
+              }
+
+              outputDevice.value ??= output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.earpiece,
               );
             }
-
-            outputDevice.value ??= output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.earpiece,
-            );
           }
+        } else {
+          // On any other platform the output device is the preferred one.
+          outputDevice.value =
+              devices.output().firstWhereOrNull(
+                (e) => e.id() == _preferredOutputDevice,
+              ) ??
+              devices.output().firstOrNull;
         }
-      } else {
-        // On any other platform the output device is the preferred one.
-        outputDevice.value =
-            devices.output().firstWhereOrNull(
-              (e) => e.id() == _preferredOutputDevice,
+
+        audioDevice.value ??=
+            devices.audio().firstWhereOrNull(
+              (e) => e.id() == _preferredAudioDevice,
             ) ??
-            devices.output().firstOrNull;
-      }
+            devices.audio().firstOrNull;
 
-      audioDevice.value ??=
-          devices.audio().firstWhereOrNull(
-            (e) => e.id() == _preferredAudioDevice,
-          ) ??
-          devices.audio().firstOrNull;
+        videoDevice.value ??= devices.video().firstWhereOrNull(
+          (e) => e.id() == _preferredVideoDevice,
+        );
 
-      videoDevice.value ??= devices.video().firstWhereOrNull(
-        (e) => e.id() == _preferredVideoDevice,
-      );
+        screenDevice.value ??= displays.firstWhereOrNull(
+          (e) => e.deviceId() == _preferredScreenDevice,
+        );
 
-      screenDevice.value ??= displays.firstWhereOrNull(
-        (e) => e.deviceId() == _preferredScreenDevice,
-      );
-
-      if (outputDevice.value != null) {
-        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
-      }
+        if (outputDevice.value != null) {
+          MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
+        }
+      });
 
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
