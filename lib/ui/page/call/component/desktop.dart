@@ -229,7 +229,11 @@ Widget desktopCall(CallController c, BuildContext context) {
 
         // Reconnection indicator.
         Obx(() {
-          final Widget child = IgnorePointer(
+          if (!c.connectionLost.value) {
+            return const SizedBox();
+          }
+
+          return IgnorePointer(
             child: Container(
               width: double.infinity,
               height: double.infinity,
@@ -250,12 +254,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 ),
               ),
             ),
-          );
-
-          return AnimatedOpacity(
-            opacity: c.connectionLost.isTrue ? 1 : 0,
-            duration: 200.milliseconds,
-            child: child,
           );
         }),
 
