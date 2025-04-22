@@ -1,3 +1,2 @@
-- Redesigned upgrade popup.
-- Fixed direct links not working when authorized.
-- Fixed inability to crop SVG avatar images.
+- Updated Progressive Web Application (PWA) icon.
+- Bug fixes and performance improvements.
