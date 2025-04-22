@@ -18,7 +18,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:base_x/base_x.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_callkit_incoming/entities/call_event.dart';
@@ -766,12 +765,40 @@ class CallWorker extends DisposableService {
 extension Base62ToUuid on String {
   /// Decodes this base62-encoded [String] to a UUID.
   String base62ToUuid() {
-    final BaseXCodec codec = BaseXCodec(
-      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
-    );
+    // Define the Base62 character set.
+    final chars =
+        '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-    final Uint8List bytes = codec.decode(this);
-    return UuidValue.fromByteList(bytes).toString();
+    // First of all, convert this [String] into a [BigInt].
+    BigInt decoded = BigInt.zero;
+
+    for (int i = 0; i < length; i++) {
+      // Find the numeric value of the character in the Base62 character set.
+      final int value = chars.indexOf(this[i]);
+
+      if (value == -1) {
+        throw FormatException('Invalid Base62 character: ${this[i]}');
+      }
+
+      decoded = decoded * BigInt.from(62) + BigInt.from(value);
+    }
+
+    // Create a list of 16 bytes (128 bits) to store the UUID.
+    final bytes = Uint8List(16);
+
+    for (int i = 15; i >= 0; i--) {
+      bytes[i] = (decoded & BigInt.from(0xff)).toInt();
+      decoded = decoded >> 8;
+    }
+
+    // Returns the hexadecimal string of the provided part from [bytes].
+    String toHex(int start, int end) =>
+        bytes
+            .sublist(start, end)
+            .map((b) => b.toRadixString(16).padLeft(2, '0'))
+            .join();
+
+    return '${toHex(0, 4)}-${toHex(4, 6)}-${toHex(6, 8)}-${toHex(8, 10)}-${toHex(10, 16)}';
   }
 }
 
