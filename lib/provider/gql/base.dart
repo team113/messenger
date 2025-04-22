@@ -219,7 +219,7 @@ class GraphQlClient {
       return await _transaction(options.operationName, () async {
         final QueryResult result = await (await _newClient(
           raw,
-        )).mutate(options).timeout(timeout);
+        )).mutate(options);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
