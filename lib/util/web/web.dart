@@ -330,7 +330,7 @@ class WebUtils {
   }
 
   /// Returns custom [Client] to use for HTTP requests.
-  Client? get httpClient {
+  static Client? get httpClient {
     return null;
   }
 
