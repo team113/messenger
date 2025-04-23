@@ -71,7 +71,12 @@ class MediaUtilsImpl {
 
         try {
           _jason = await Jason.init();
-        } catch (_) {
+        } catch (e) {
+          Log.debug(
+            'Unable to invoke `Jason.init()` due to: $e',
+            '$runtimeType',
+          );
+
           // TODO: So the test would run. Jason currently only supports Web and
           //       Android, and unit tests run on a host machine.
           _jason = null;

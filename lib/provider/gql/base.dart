@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
+import 'package:cupertino_http/cupertino_http.dart' hide ConnectionException;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -219,7 +220,7 @@ class GraphQlClient {
       return await _transaction(options.operationName, () async {
         final QueryResult result = await (await _newClient(
           raw,
-        )).mutate(options);
+        )).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
@@ -490,8 +491,21 @@ class GraphQlClient {
   Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
     Log.debug('_newClient($raw)', '$runtimeType');
 
+    Client? httpClient;
+    if (!PlatformUtils.isWeb &&
+        (PlatformUtils.isMacOS || PlatformUtils.isIOS)) {
+      final config =
+          URLSessionConfiguration.ephemeralSessionConfiguration()
+            ..cache = URLCache.withCapacity(memoryCapacity: 2 * 1024 * 1024)
+            ..allowsExpensiveNetworkAccess = true
+            ..allowsCellularAccess = true
+            ..httpAdditionalHeaders = {'User-Agent': 'Book Agent'};
+      httpClient = CupertinoClient.fromSessionConfiguration(config);
+    }
+
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
+      httpClient: httpClient,
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
