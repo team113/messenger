@@ -494,12 +494,10 @@ class GraphQlClient {
     Client? httpClient;
     if (!PlatformUtils.isWeb &&
         (PlatformUtils.isMacOS || PlatformUtils.isIOS)) {
-      final config =
-          URLSessionConfiguration.ephemeralSessionConfiguration()
-            ..cache = URLCache.withCapacity(memoryCapacity: 2 * 1024 * 1024)
+      final URLSessionConfiguration config =
+          URLSessionConfiguration.defaultSessionConfiguration()
             ..allowsExpensiveNetworkAccess = true
-            ..allowsCellularAccess = true
-            ..httpAdditionalHeaders = {'User-Agent': 'Book Agent'};
+            ..allowsCellularAccess = true;
       httpClient = CupertinoClient.fromSessionConfiguration(config);
     }
 
