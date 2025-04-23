@@ -743,7 +743,7 @@ Future<T?> _caught<T>(Future<T?>? function) async {
 
 /// Extension adding ability to check whether this error is a `drift` race
 /// related one.
-extension on Object {
+extension on dynamic {
   /// Indicates  whether this error is a `drift` race related one.
   bool get isConnectionClosedException =>
       toString().contains('ConnectionClosedException') ||

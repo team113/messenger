@@ -1,5 +1,5 @@
 name: messenger
-version: 0.4.1
+version: 0.4.2
 publish_to: none
 
 environment:
@@ -15,7 +15,6 @@ dependencies:
   async: ^2.10.0
   audio_session: ^0.1.18
   back_button_interceptor: ^7.0.0
-  base_x: ^2.0.1
   collection: ^1.18.0
   connectivity_plus: ^6.1.0
   crypto: ^3.0.3

@@ -1290,7 +1290,7 @@ Widget _downloads(BuildContext context, MyProfileController c) {
           latest
               ? 'label_latest_version_is_installed'.l10n
               : 'btn_download_version'.l10nfmt({
-                'version': '${c.latestRelease.value?.name}}',
+                'version': '${c.latestRelease.value?.name}',
               }),
       onPressed:
           latest

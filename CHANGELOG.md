@@ -6,17 +6,28 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.5.0] · 2025-??-??
-[0.5.0]: /../../tree/v0.5.0
+## [0.4.2] · 2025-04-22
+[0.4.2]: /../../tree/v0.4.2
 
-[Diff](/../../compare/v0.4.1...v0.5.0) | [Milestone](/../../milestone/37)
+[Diff](/../../compare/v0.4.1...v0.4.2) | [Milestone](/../../milestone/37)
 
 ### Changed
 
 - Web:
     - Updated [Progressive Web Application (PWA)][PWA] icon. ([#1209])
 
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to delete errored messages when chat is read by recipient. ([#1210], [#1207])
+- iOS:
+    - Inability to upload drag-n-dropped files to chat. ([#1210], [#1206])
+
+[#1206]: /../../issues/1206
+[#1207]: /../../issues/1207
 [#1209]: /../../pull/1209
+[#1210]: /../../pull/1210
 
 
 
