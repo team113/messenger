@@ -16,6 +16,7 @@ Prepares [<paste release version>](<paste milestone link>) release.
     - [ ] Changes conform [code style][l:2]
     - [ ] [CHANGELOG entries][l:3] are verified and corrected
         - [ ] [Deployment instructions][l:3] are verified and corrected (if required)
+    - [ ] Performance is profiled and has no critical issues.
     - [ ] FCM (final commit message) is posted or updated
     - [ ] [Draft mode][l:1] is removed
 - [ ] [Review][l:4] is completed and changes are approved
