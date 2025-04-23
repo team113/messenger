@@ -18,7 +18,6 @@
 import 'dart:async';
 
 import 'package:async/async.dart' show StreamGroup;
-import 'package:cupertino_http/cupertino_http.dart' hide ConnectionException;
 import 'package:dio/dio.dart' as dio show DioException, Options, Response;
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -36,6 +35,7 @@ import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/rate_limiter.dart';
+import '/util/web/web_utils.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
@@ -491,19 +491,9 @@ class GraphQlClient {
   Future<GraphQLClient> _newClient([RawClientOptions? raw]) async {
     Log.debug('_newClient($raw)', '$runtimeType');
 
-    Client? httpClient;
-    if (!PlatformUtils.isWeb &&
-        (PlatformUtils.isMacOS || PlatformUtils.isIOS)) {
-      final URLSessionConfiguration config =
-          URLSessionConfiguration.defaultSessionConfiguration()
-            ..allowsExpensiveNetworkAccess = true
-            ..allowsCellularAccess = true;
-      httpClient = CupertinoClient.fromSessionConfiguration(config);
-    }
-
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
-      httpClient: httpClient,
+      httpClient: WebUtils.httpClient,
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
