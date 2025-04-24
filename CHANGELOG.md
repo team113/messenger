@@ -6,6 +6,21 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.2...v0.5.0) | [Milestone](/../../milestone/38)
+
+### Fixed
+
+- Web:
+    - Translate popup displaying in browsers. ([#1215])
+
+[#1215]: /../../pull/1215
+
+
+
+
 ## [0.4.2] · 2025-04-22
 [0.4.2]: /../../tree/v0.4.2
 

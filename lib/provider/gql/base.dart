@@ -35,6 +35,7 @@ import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/rate_limiter.dart';
+import '/util/web/web_utils.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
@@ -219,7 +220,7 @@ class GraphQlClient {
       return await _transaction(options.operationName, () async {
         final QueryResult result = await (await _newClient(
           raw,
-        )).mutate(options);
+        )).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
@@ -492,6 +493,7 @@ class GraphQlClient {
 
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
+      httpClient: WebUtils.httpClient,
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },

@@ -30,6 +30,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:http/http.dart' show Client;
 import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
@@ -326,6 +327,11 @@ class WebUtils {
     }
 
     return _guards['mutex']?.isLocked == true || held;
+  }
+
+  /// Returns custom [Client] to use for HTTP requests.
+  static Client? get httpClient {
+    return null;
   }
 
   /// Removes [Credentials] identified by the provided [UserId] from the

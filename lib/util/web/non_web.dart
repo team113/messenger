@@ -19,12 +19,15 @@ import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
 
+import 'package:cupertino_http/cupertino_http.dart'
+    show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
 import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:http/http.dart' show Client;
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -89,6 +92,19 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
+
+  /// Returns custom [Client] to use for HTTP requests.
+  static Client? get httpClient {
+    if (PlatformUtils.isMacOS || PlatformUtils.isIOS) {
+      final URLSessionConfiguration config =
+          URLSessionConfiguration.defaultSessionConfiguration()
+            ..allowsExpensiveNetworkAccess = true
+            ..allowsCellularAccess = true;
+      return CupertinoClient.fromSessionConfiguration(config);
+    }
+
+    return null;
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
