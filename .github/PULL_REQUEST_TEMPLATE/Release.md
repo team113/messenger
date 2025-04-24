@@ -13,6 +13,7 @@ Prepares [<paste release version>](<paste milestone link>) release.
 - Before [review][l:4]:
     - [ ] Documentation is updated (if required)
     - [ ] Tests are updated (if required)
+    - [ ] Performance is profiled and has no critical issues
     - [ ] Changes conform [code style][l:2]
     - [ ] [CHANGELOG entries][l:3] are verified and corrected
         - [ ] [Deployment instructions][l:3] are verified and corrected (if required)
