@@ -15,8 +15,10 @@ All user visible changes to this project will be documented in this file. This p
 
 - Web:
     - Translate popup displaying in browsers. ([#1215])
+    - Call audio ringtone not being played. ([#1218])
 
 [#1215]: /../../pull/1215
+[#1218]: /../../pull/1218
 
 
 
