@@ -22,6 +22,7 @@ import 'package:just_audio/just_audio.dart' as ja;
 import 'package:media_kit/media_kit.dart' hide AudioDevice;
 import 'package:mutex/mutex.dart';
 
+import '/config.dart';
 import '/pubspec.g.dart';
 import '/util/media_utils.dart';
 import 'log.dart';
@@ -413,9 +414,12 @@ class UrlAudioSource extends AudioSource {
 extension on AudioSource {
   /// Returns a [Media] corresponding to this [AudioSource].
   Media get media => switch (kind) {
-    AudioSourceKind.asset => Media(
-      'asset:///assets/${PlatformUtils.isWeb ? 'assets/' : ''}${(this as AssetAudioSource).asset}${PlatformUtils.isWeb ? '?${Pubspec.ref}' : ''}',
-    ),
+    AudioSourceKind.asset =>
+      PlatformUtils.isWeb
+          ? Media(
+            '${Config.origin}/assets/assets/${(this as AssetAudioSource).asset}?${Pubspec.ref}',
+          )
+          : Media('asset:///assets/${(this as AssetAudioSource).asset}'),
     AudioSourceKind.file => Media('file:///${(this as FileAudioSource).file}'),
     AudioSourceKind.url => Media((this as UrlAudioSource).url),
   };
