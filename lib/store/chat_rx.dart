@@ -1962,7 +1962,8 @@ class RxChatImpl extends RxChat {
 
           switch (event.kind) {
             case ChatEventKind.redialed:
-              // TODO: Implement EventChatCallMemberRedialed.
+              event as EventChatCallMemberRedialed;
+              _chatRepository.addCall(event.call);
               break;
 
             case ChatEventKind.cleared:
@@ -2373,7 +2374,7 @@ class RxChatImpl extends RxChat {
                 }
 
                 write((chat) => chat.value.ongoingCall = event.call);
-                _chatRepository.addCall(event.call);
+                _chatRepository.addCall(event.call, dontAddIfAccounted: true);
               }
               break;
 

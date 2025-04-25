@@ -128,7 +128,10 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<Rx<OngoingCall>?> add(ChatCall call) async {
+  Future<Rx<OngoingCall>?> add(
+    ChatCall call, {
+    bool dontAddIfAccounted = false,
+  }) async {
     Log.debug('add($call)', '$runtimeType');
 
     Rx<OngoingCall>? ongoing = calls[call.chatId];
@@ -159,6 +162,10 @@ class CallRepository extends DisposableInterface
     if (ongoing == null) {
       final DateTime? accountedAt = _accountedCalls[call.id];
       if (accountedAt != null) {
+        if (dontAddIfAccounted) {
+          return null;
+        }
+
         if (accountedAt.difference(DateTime.now()).abs() < _accountedTimeout) {
           // This call is already considered reported, thus don't add it again.
           return null;
@@ -828,6 +835,7 @@ class CallRepository extends DisposableInterface
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
         if (!_accountedCalls.containsKey(e.call.id)) {
+          print('=========== IncomingChatCallsTopEventKind.added');
           add(e.call);
         }
         break;
