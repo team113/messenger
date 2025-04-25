@@ -159,7 +159,7 @@ class RefreshToken {
   final PreciseDateTime expireAt;
 
   @override
-  String toString() => 'RefreshToken(secret: ***, expireAt: $expireAt)';
+  String toString() => 'RefreshToken(secret: $secret, expireAt: $expireAt)';
 }
 
 /// Type of [RefreshToken]'s secret.
