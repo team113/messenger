@@ -94,7 +94,7 @@ class CallRepository extends DisposableInterface
 
   /// [Duration] between [ChatCall]s added via [add] to be considered as a new
   /// call instead of already reported one.
-  static const Duration _accountedTimeout = Duration(seconds: 5);
+  static const Duration _accountedTimeout = Duration(seconds: 1);
 
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
@@ -827,7 +827,9 @@ class CallRepository extends DisposableInterface
 
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
-        add(e.call);
+        if (!_accountedCalls.containsKey(e.call.id)) {
+          add(e.call);
+        }
         break;
 
       case IncomingChatCallsTopEventKind.removed:
@@ -836,6 +838,7 @@ class CallRepository extends DisposableInterface
         // If call is not yet connected to remote updates, then it's still
         // just a notification and it should be removed.
         if (call?.value.connected == false && call?.value.isActive == false) {
+          _accountedCalls.remove(e.call.id);
           remove(e.call.chatId);
         }
         break;
