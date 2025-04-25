@@ -89,8 +89,12 @@ class CallRepository extends DisposableInterface
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamQueue<IncomingChatCallsTopEvent>? _remoteSubscription;
 
-  /// [ChatItemId]s already [add]ed to prevent [OngoingCall]s being added again.
-  final Set<ChatItemId> _accountedCalls = {};
+  /// [ChatCall]s already [add]ed to prevent [OngoingCall]s being added again.
+  final Map<ChatItemId, DateTime> _accountedCalls = {};
+
+  /// [Duration] between [ChatCall]s added via [add] to be considered as a new
+  /// call instead of already reported one.
+  static const Duration _accountedTimeout = Duration(seconds: 5);
 
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
@@ -153,11 +157,15 @@ class CallRepository extends DisposableInterface
     }
 
     if (ongoing == null) {
-      if (_accountedCalls.contains(call.id)) {
-        return null;
+      final DateTime? accountedAt = _accountedCalls[call.id];
+      if (accountedAt != null) {
+        if (accountedAt.difference(DateTime.now()).abs() < _accountedTimeout) {
+          // This call is already considered reported, thus don't add it again.
+          return null;
+        }
       }
 
-      _accountedCalls.add(call.id);
+      _accountedCalls[call.id] = DateTime.now();
 
       ongoing = Rx<OngoingCall>(
         OngoingCall(

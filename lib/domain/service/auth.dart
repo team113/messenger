@@ -99,6 +99,9 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  /// [refreshSession] attempt number counter used purely for [Log]s.
+  static int _refreshAttempt = 0;
+
   /// Initial [Duration] to set [_refreshRetryDelay] to.
   static const Duration _initialRetryDelay = Duration(seconds: 2);
 
@@ -623,6 +626,8 @@ class AuthService extends DisposableService {
   /// Refreshes [Credentials] of the account with the provided [userId] or of
   /// the active one, if [userId] is not provided.
   Future<void> refreshSession({UserId? userId}) async {
+    final int attempt = _refreshAttempt++;
+
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
@@ -631,7 +636,7 @@ class AuthService extends DisposableService {
     final bool areCurrent = userId == this.userId;
 
     Log.debug(
-      'refreshSession($userId) with `isLocked`: $isLocked',
+      'refreshSession($userId |-> $attempt) with `isLocked`: $isLocked',
       '$runtimeType',
     );
 
@@ -645,19 +650,34 @@ class AuthService extends DisposableService {
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
+        Log.debug(
+          'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
+          '$runtimeType',
+        );
+
         Credentials? oldCreds;
 
         if (userId != null) {
           oldCreds = await _credentialsProvider.read(userId, refresh: true);
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) read from `drift` the `oldCreds`: $oldCreds',
+            '$runtimeType',
+          );
         }
 
         if (areCurrent) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) `areCurrent` is `true`, which will apply `credentials.value` to `oldCreds` if ${oldCreds == null} -> ${credentials.value}',
+            '$runtimeType',
+          );
+
           oldCreds ??= credentials.value;
         }
 
         if (userId == null) {
-          Log.debug(
-            'refreshSession($userId): `userId` is `null`, unable to proceed',
+          Log.warning(
+            'refreshSession($userId |-> $attempt): `userId` is `null`, unable to proceed',
             '$runtimeType',
           );
 
@@ -676,7 +696,7 @@ class AuthService extends DisposableService {
             oldCreds.access.secret != credentials.value?.access.secret &&
             !_shouldRefresh(oldCreds)) {
           Log.debug(
-            'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
+            'refreshSession($userId |-> $attempt): false alarm, applying the retrieved fresh credentials',
             '$runtimeType',
           );
 
@@ -693,7 +713,7 @@ class AuthService extends DisposableService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
 
@@ -703,12 +723,17 @@ class AuthService extends DisposableService {
           }
         } else {
           Log.debug(
-            'refreshSession($userId): acquired the lock, while it was unlocked',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked',
             '$runtimeType',
           );
         }
 
         if (oldCreds == null) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt): `oldCreds` are `null`, seems like during the lock those were removed -> unauthorized',
+            '$runtimeType',
+          );
+
           // These [Credentials] were removed while we've been waiting for the
           // lock to be released.
           if (areCurrent) {
@@ -724,6 +749,11 @@ class AuthService extends DisposableService {
             reconnect: areCurrent,
           );
 
+          Log.debug(
+            'refreshSession($userId |-> $attempt): success 🎉 -> writing to `drift`... ✍️',
+            '$runtimeType',
+          );
+
           if (areCurrent) {
             await _authorized(data);
           } else {
@@ -736,11 +766,16 @@ class AuthService extends DisposableService {
             _putCredentials(data);
           }
 
+          Log.debug(
+            'refreshSession($userId |-> $attempt): success 🎉 -> writing to `drift`... done ✅',
+            '$runtimeType',
+          );
+
           _refreshRetryDelay = _initialRetryDelay;
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
           Log.debug(
-            'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
+            'refreshSession($userId |-> $attempt): ⛔️ `RefreshSessionException` occurred ⛔️, removing credentials',
             '$runtimeType',
           );
 
@@ -768,7 +803,7 @@ class AuthService extends DisposableService {
       rethrow;
     } catch (e) {
       Log.debug(
-        'refreshSession($userId): Exception occurred: $e',
+        'refreshSession($userId |-> $attempt): ⛔️ exception occurred: $e',
         '$runtimeType',
       );
 
@@ -781,6 +816,11 @@ class AuthService extends DisposableService {
       if (_refreshRetryDelay.inSeconds < 12) {
         _refreshRetryDelay = _refreshRetryDelay * 2;
       }
+
+      Log.debug(
+        'refreshSession($userId |-> $attempt): backoff passed, trying again',
+        '$runtimeType',
+      );
 
       await refreshSession(userId: userId);
     }
