@@ -835,7 +835,6 @@ class CallRepository extends DisposableInterface
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
         if (!_accountedCalls.containsKey(e.call.id)) {
-          print('=========== IncomingChatCallsTopEventKind.added');
           add(e.call);
         }
         break;
