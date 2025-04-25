@@ -90,7 +90,7 @@ class CallRepository extends DisposableInterface
   StreamQueue<IncomingChatCallsTopEvent>? _remoteSubscription;
 
   /// [ChatItemId]s already [add]ed to prevent [OngoingCall]s being added again.
-  final Set<ChatItemId> _accountsCalls = {};
+  final Set<ChatItemId> _accountedCalls = {};
 
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
@@ -153,11 +153,11 @@ class CallRepository extends DisposableInterface
     }
 
     if (ongoing == null) {
-      if (_accountsCalls.contains(call.id)) {
+      if (_accountedCalls.contains(call.id)) {
         return null;
       }
 
-      _accountsCalls.add(call.id);
+      _accountedCalls.add(call.id);
 
       ongoing = Rx<OngoingCall>(
         OngoingCall(
