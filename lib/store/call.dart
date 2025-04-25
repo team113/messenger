@@ -359,6 +359,7 @@ class CallRepository extends DisposableInterface
       ongoing.value.setAudioEnabled(withAudio);
       ongoing.value.setVideoEnabled(withVideo);
       ongoing.value.setScreenShareEnabled(withScreen);
+      ongoing.refresh();
     } else {
       return null;
     }
