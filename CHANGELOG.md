@@ -19,10 +19,12 @@ All user visible changes to this project will be documented in this file. This p
 - Web:
     - Translate popup displaying in browsers. ([#1215])
     - Call audio ringtone not being played. ([#1218])
+    - Preferred microphone and camera not being used in Safari. ([#1223])
 
 [#1215]: /../../pull/1215
 [#1218]: /../../pull/1218
 [#1219]: /../../pull/1219
+[#1223]: /../../pull/1223
 
 
 

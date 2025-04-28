@@ -28,6 +28,7 @@ import '/domain/repository/settings.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
 import '/l10n/l10n.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
@@ -67,6 +68,11 @@ class CallOverlayController extends GetxController {
   @override
   void onInit() {
     _subscription = _callService.calls.changes.listen((event) {
+      Log.debug(
+        '_callService.calls.changes -> ${event.op}: key(${event.key}), value(${event.value?.value})',
+        '$runtimeType',
+      );
+
       switch (event.op) {
         case OperationKind.added:
           if (WebUtils.containsCall(event.key!)) {
