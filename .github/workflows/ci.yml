@@ -299,7 +299,7 @@ jobs:
       - uses: maxim-lobanov/setup-xcode@v1
         with:
           xcode-version: '16.2'
-        if: ${{ contains('ios', matrix.platform) }}
+        if: ${{ matrix.platform == 'ipa' }}
 
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
