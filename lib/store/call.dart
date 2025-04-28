@@ -89,6 +89,13 @@ class CallRepository extends DisposableInterface
   /// Subscription to a list of [IncomingChatCallsTopEvent]s.
   StreamQueue<IncomingChatCallsTopEvent>? _remoteSubscription;
 
+  /// [ChatCall]s already [add]ed to prevent [OngoingCall]s being added again.
+  final Map<ChatItemId, DateTime> _accountedCalls = {};
+
+  /// [Duration] between [ChatCall]s added via [add] to be considered as a new
+  /// call instead of already reported one.
+  static const Duration _accountedTimeout = Duration(seconds: 1);
+
   /// Returns the current value of [MediaSettings].
   Rx<MediaSettings?> get media => _settingsRepo.mediaSettings;
 
@@ -121,7 +128,10 @@ class CallRepository extends DisposableInterface
   }
 
   @override
-  Future<Rx<OngoingCall>?> add(ChatCall call) async {
+  Future<Rx<OngoingCall>?> add(
+    ChatCall call, {
+    bool dontAddIfAccounted = false,
+  }) async {
     Log.debug('add($call)', '$runtimeType');
 
     Rx<OngoingCall>? ongoing = calls[call.chatId];
@@ -150,6 +160,20 @@ class CallRepository extends DisposableInterface
     }
 
     if (ongoing == null) {
+      final DateTime? accountedAt = _accountedCalls[call.id];
+      if (accountedAt != null) {
+        if (dontAddIfAccounted) {
+          return null;
+        }
+
+        if (accountedAt.difference(DateTime.now()).abs() < _accountedTimeout) {
+          // This call is already considered reported, thus don't add it again.
+          return null;
+        }
+      }
+
+      _accountedCalls[call.id] = DateTime.now();
+
       ongoing = Rx<OngoingCall>(
         OngoingCall(
           call.chatId,
@@ -335,6 +359,7 @@ class CallRepository extends DisposableInterface
       ongoing.value.setAudioEnabled(withAudio);
       ongoing.value.setVideoEnabled(withVideo);
       ongoing.value.setScreenShareEnabled(withScreen);
+      ongoing.refresh();
     } else {
       return null;
     }
@@ -810,7 +835,9 @@ class CallRepository extends DisposableInterface
 
       case IncomingChatCallsTopEventKind.added:
         e as EventIncomingChatCallsTopChatCallAdded;
-        add(e.call);
+        if (!_accountedCalls.containsKey(e.call.id)) {
+          add(e.call);
+        }
         break;
 
       case IncomingChatCallsTopEventKind.removed:
@@ -819,6 +846,7 @@ class CallRepository extends DisposableInterface
         // If call is not yet connected to remote updates, then it's still
         // just a notification and it should be removed.
         if (call?.value.connected == false && call?.value.isActive == false) {
+          _accountedCalls.remove(e.call.id);
           remove(e.call.chatId);
         }
         break;

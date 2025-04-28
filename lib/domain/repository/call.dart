@@ -43,7 +43,13 @@ abstract class AbstractCallRepository {
   void operator []=(ChatId chatId, Rx<OngoingCall> call);
 
   /// Adds the provided [ChatCall] to the [calls], if not already.
-  Future<Rx<OngoingCall>?> add(ChatCall call);
+  ///
+  /// If [dontAddIfAccounted] is `true`, then this [call] won't be added if it
+  /// was [add]ed by anything earlier, even if it's already gone.
+  Future<Rx<OngoingCall>?> add(
+    ChatCall call, {
+    bool dontAddIfAccounted = false,
+  });
 
   /// Transforms the provided [WebStoredCall] into an [OngoingCall] and adds it,
   /// if not already.

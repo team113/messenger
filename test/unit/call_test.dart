@@ -525,6 +525,7 @@ void main() async {
     expect(callService.calls.length, 0);
     await Future.delayed(const Duration(milliseconds: 16));
 
+    await Future.delayed(const Duration(seconds: 2));
     graphQlProvider.ongoingCallStream.add(
       QueryResult.internal(
         source: QueryResultSource.network,
@@ -532,7 +533,7 @@ void main() async {
           'incomingChatCallsTopEvents': {
             '__typename': 'EventIncomingChatCallsTopChatCallAdded',
             'call': {
-              'id': 'id',
+              'id': 'id1',
               'chatId': 'incoming',
               'author': _caller(),
               'answered': false,
