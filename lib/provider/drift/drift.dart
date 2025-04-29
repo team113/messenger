@@ -424,7 +424,7 @@ final class CommonDriftProvider extends DisposableInterface {
           onError: (e) {
             if (e is! StateError &&
                 e is! CouldNotRollBackException &&
-                !e.isConnectionClosedException) {
+                !_isConnectionClosedException(e)) {
               controller?.addError(e);
             }
           },
@@ -733,7 +733,7 @@ Future<T?> _caught<T>(Future<T?>? function) async {
   } on CouldNotRollBackException {
     // No-op.
   } catch (e) {
-    if (!e.isConnectionClosedException) {
+    if (!_isConnectionClosedException(e)) {
       rethrow;
     }
   }
@@ -741,11 +741,8 @@ Future<T?> _caught<T>(Future<T?>? function) async {
   return null;
 }
 
-/// Extension adding ability to check whether this error is a `drift` race
-/// related one.
-extension on dynamic {
-  /// Indicates  whether this error is a `drift` race related one.
-  bool get isConnectionClosedException =>
-      toString().contains('ConnectionClosedException') ||
-      toString().contains('Channel was closed before receiving a response');
+/// Indicates  whether this error is a `drift` race related one.
+bool _isConnectionClosedException(dynamic e) {
+  return e.toString().contains('ConnectionClosedException') ||
+      e.toString().contains('Channel was closed before receiving a response');
 }
