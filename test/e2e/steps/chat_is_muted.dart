@@ -42,6 +42,6 @@ final StepDefinitionGeneric chatIsMuted = given1<String, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

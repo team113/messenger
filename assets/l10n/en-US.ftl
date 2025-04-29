@@ -162,7 +162,7 @@ btn_call_toggle_speaker = Toggle speaker
 btn_call_toggle_speaker_desc =
     Toggle
     speaker
-btn_call_uncenter = Uncenter
+btn_call_uncenter = De-center
 btn_call_video_off = Turn video off
 btn_call_video_off_desc =
     Turn
@@ -184,9 +184,13 @@ btn_clear_cache = Clear cache
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
+btn_confirm_email = Confirm e-mail
 btn_copy = Copy
 btn_copy_text = Copy text
 btn_create = Create
+btn_create_and_copy =
+    Create and
+    copy
 btn_create_group = Create group
 btn_decline = Decline
 btn_delete = Delete
@@ -198,6 +202,7 @@ btn_delete_for_all = Delete for all
 btn_delete_from_contacts = Delete from contacts
 btn_delete_from_favorites = Remove from favorites
 btn_delete_message = Delete message
+btn_discard = Discard
 btn_dismiss = Dismiss
 btn_do_not_allow = Do not allow
 btn_done = Done
@@ -206,6 +211,7 @@ btn_download_all = Download all
 btn_download_all_as = Download all as
 btn_download_as = Download as
 btn_download_application = Download application
+btn_download_version = Download {$version}
 btn_edit = Edit
 btn_email = E-mail
 btn_feedback = Feedback
@@ -223,6 +229,7 @@ btn_help = Help
 btn_hide = Hide
 btn_hide_chat = Hide chat
 btn_info = Info
+btn_install_web_app = Install Web App
 btn_join_call = Join call
 btn_leave = Leave
 btn_leave_chat = Leave chat
@@ -236,6 +243,7 @@ btn_mute_chat = Mute chat
 btn_mute_chats = Mute chats
 btn_next = Next
 btn_ok = Ok
+btn_open = Open
 btn_open_separately = open separately
 btn_or_input_someones_link = Input someone's link
 btn_participants = Participants
@@ -247,7 +255,9 @@ btn_paste = Paste
 btn_personalize = Personalization
 btn_privacy_policy = Privacy policy
 btn_proceed = Proceed
+btn_pwa_is_installed = Web App is installed
 btn_refresh = Refresh
+btn_refresh_page = Refresh page
 btn_remove = Remove
 btn_rename = Rename
 btn_reply = Reply
@@ -262,6 +272,7 @@ btn_save = Save
 btn_save_all = Save all
 btn_save_to_gallery = Save to gallery
 btn_save_to_gallery_all = Save all to gallery
+btn_save_my_credentials_for_one_click = Save my credentials for one-click signing in
 btn_schedule_an_interview = Schedule an interview
 btn_select = Select
 btn_select_and_delete = Select and delete
@@ -279,6 +290,9 @@ btn_sticker = Sticker
 btn_submit = Submit
 btn_take_photo = Take photo
 btn_take_video = Take video
+btn_terminate = Terminate
+btn_terminate_all_other_sessions = Terminate all other sessions
+btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
@@ -411,6 +425,7 @@ err_you_already_has_unconfirmed_email = You already have an unconfirmed E-mail.
 err_you_already_has_unconfirmed_phone = You already have an unconfirmed phone.
 err_you_are_blocked = You are blacklisted
 err_you_are_not_member = Not a member
+exclamation_mark = !
 fcm_dialog_title = {$userName ->
         [x] {$userNum}
        *[other] {$userName}
@@ -549,11 +564,17 @@ fcm_webpush_link = /chats/{$chatId}
 label_a_of_b = {$a} of {$b}
 label_a_slash_b = {$a} / {$b}
 label_about = About
+label_about_you = About you
+label_about_you_description =
+    Any details about you.
+    4096 symbols max.
 label_account = Account
 label_accounts = Your accounts
 label_account_created = Account is created
 label_actions = Actions
 label_active_account = Active
+label_active_devices = Active devices
+label_active_sessions = Active sessions
 label_add_account = Add account
 label_add_additional_email = Add additional E-mail
 label_add_additional_number = Add additional number
@@ -614,6 +635,10 @@ label_ago_date = {$years ->
     *[other] {$years} years ago
 }
 label_all = All
+label_all_chats_and_groups = All chats and groups
+label_all_session_except_current_terminated = All sessions except this one will be terminated
+label_always_muted = Always muted
+label_any_button_or_combination = Any button or combination
 label_app_background = Application background
 label_application = Application
 label_are_you_sure_no = No
@@ -641,8 +666,10 @@ label_besides_freelance_is_an_option_too2 = Freelance.
 label_block = Block
 label_blocked = Blocked
 label_blocked_users = Blocked users
+label_blocked_users_count = Blocked users: {$count}
 label_cache = Cache
 label_cache_and_downloads = Cache
+label_cache_limit_gb = Cache limit: {$gb} GB
 label_call_active = Active call
 label_call_calling = Calling
 label_call_connecting = Connection preparing
@@ -660,6 +687,7 @@ label_call_title =
             *[other] Calling...
         }
     }
+label_call_window = Call window
 label_calls = Calls
 label_calls_displaying = In separate window or within app
 label_camera = Camera
@@ -676,7 +704,9 @@ label_chat_monolog = Your notes
 label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
 label_chat_name_hint = Chat name
 label_chats = Chats
+label_chats_and_groups = Chats and groups: {$count}
 label_chats_section_hint = Audio and video call buttons
+label_city_country_activated_at = {$city}, {$country} • {$at}
 label_clear_history = Clear history
 label_clicks_count = {$count} clicks
 label_code_requirements = Requirements for the code
@@ -704,6 +734,7 @@ label_conditions_ui_ux_designer =
     - Daily payments;
     - 4-, 6- or 8-hour work day;
     - Relocation possible to one of the company offices.
+label_confidentiality = Confidentiality
 label_confirm = Confirm
 label_confirm_account_deletion = Confirm account deletion
 label_confirmation_code = Confirmation code
@@ -724,6 +755,7 @@ label_critical_update_is_available = Current version is no longer supported
 label_create_group = Group creation
 label_create_group_selected = Selected
 label_create_group_users = user(s)
+label_create_link = Create link
 label_current_language = Current language
 label_current_password = Current password
 label_danger_zone = Danger zone
@@ -743,6 +775,7 @@ label_delete_messages = Delete the messages?
 label_delete_phone_number = Delete phone number
 label_delivered = Delivered
 label_description = Description
+label_desktop_apps = Desktop apps
 label_details = Details.
 label_device_by_default = By default - {$device}
 label_devices = Devices
@@ -763,10 +796,14 @@ label_direct_chat_link_description =
 label_direct_chat_link_in_chat_description =
     Users who come via a direct link automatically become full members of the group.
 label_disabled = Disabled
+label_discard_changes_question = Discard changes?
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
 label_download = Download
+label_download_and_update = Download and update
 label_download_application = Download application
+label_download_path = Download path
+label_downloading = Downloading
 label_draft = Draft
 label_drop_here =
     Drop here
@@ -778,6 +815,8 @@ label_edit = Edit
 label_email = E-mail
 label_email_not_verified = E-mail not verified
 label_email_or_phone_not_set = E-mail or phone number is not set. Access to the account will be lost.
+label_email_or_phone_not_set1 = No e-mail is linked.{" "}
+label_email_or_phone_not_set2 = Access to the account cannot be restored.
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
@@ -786,8 +825,14 @@ label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
 label_enter_password_below = Please, enter your password in the field below.
-label_entrance = Login
+label_enter_password_or_code = Enter password or code
+label_enter_password_or_one_time_code =
+    Please, enter your password or one-time code. The one-time code has been sent to your e-mails and is valid for 30 minutes.
+
+    If you did not receive e-mail, please check your spam folder.
+label_entrance = Sign in
 label_error = Error
+label_expandable_more = more
 label_favorite_contacts = Favorite
 label_file_downloaded = File downloaded
 label_files_downloaded = Files are downloaded
@@ -824,11 +869,16 @@ label_hint_drag_n_drop_video =
 
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
+label_hotkey = Hotkey
+label_identifiers = Identifiers
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
 label_info = Info
+label_installation_error = Installation error
+label_installation_error_description = Web App is already installed or not available in your browser
+label_interface = Interface
 label_introduction_description1 =
     Access to a guest account is maintained for one year or until:
 
@@ -838,6 +888,15 @@ label_introduction_description1 =
     To save access to your account, please set a password or e-mail number in the{" "}
 label_introduction_description2 = settings
 label_introduction_description3 = .
+label_introduction_description =
+    You have access to your account during one year or until:
+
+         • you click the button "Sign out";
+         • the token has been invalidated due to technical issues (cookie / cache lost; OS / browser / application updated; connection certifications changed; etc...).
+
+    To save access to your account, set a password and/or e-mail.
+label_introduction_description_email = No e-mail is linked. Access to your account will be lost if you forget the password.
+label_ios_android_windows_macos_linux = iOS, Android, Windows, macOS, Linux
 label_b = {$amount} B
 label_kb = {$amount} KB
 label_mb = {$amount} MB
@@ -845,18 +904,21 @@ label_gb = {$amount} GB
 label_tb = {$amount} TB
 label_pb = {$amount} PB
 label_keep_credentials = Keep credentials
+label_key_plus_key_by_default = {$modifier} + {$key} (by default)
 label_language = Language
+label_language_and_background = Language, background, ...
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
+label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
 label_legal_information = Legal information
-label_link_to_chat = Chat link
+label_link_to_chat = Link to you
 label_linked_devices = Linked devices
 label_load_images = Load images
 label_login = Login
 label_login_hint = Your unique login
-label_login_options = Login options
-label_login_section_hint = Gapopa ID, login, e-mail, phone, password
+label_login_options = Sign in options
+label_login_section_hint = Password and e-mail
 label_login_visibility_hint = Unique login is an additional unique identifier for your account.
 label_login_visible = Your login is visible to:{" "}
 label_media = Media
@@ -866,10 +928,11 @@ label_media_buttons_in_context_menu = In the context menu
 label_media_buttons_in_more = In the message field
 label_media_buttons_in_top = In the chat above
 label_media_camera = Camera
+label_media_devices = Media devices
 label_media_microphone = Microphone
 label_media_no_device_available = No device is available
 label_media_output = Speaker
-label_media_section_hint = Audio and video devices
+label_media_section_hint = Microphone, speaker, camera
 label_media_settings = Media settings
 label_menu = Menu
 label_message = Message
@@ -877,6 +940,7 @@ label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.
 label_messages_will_deleted_for_you = The messages will be deleted only for you.
 label_microphone_changed = Microphone has been changed to {$microphone}
+label_mobile_apps = Mobile apps
 label_money = Money
 label_money_freelance =
     - payment upon completion of the task. A task is considered completed when it passes the review.
@@ -897,6 +961,12 @@ label_mute_for = {$days ->
     *[other] {$days} days
 }
 label_mute_chat_for = Mute chat for
+label_mute_or_unmute_chats = Mute or unmute chats
+label_mute_slash_unmute = Mute/unmute
+label_muted = Muted
+label_muted_chats = Muted chats
+label_muted_until_i_turn_on = Muted until I turn it on
+label_muted_until_period = Muted until: {$period}
 label_my_contacts = My contacts
 label_name = Name
 label_name_hint = Your publicly visible name
@@ -922,6 +992,7 @@ label_nobody = No one
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
+label_occupied_space = Occupied
 label_off = Off
 label_offline = offline
 label_one_time_password = One-time password
@@ -937,16 +1008,23 @@ label_participants_of = Participants: {$a} of {$b}
 label_password = Password
 label_password_changed = Password has been changed.
 label_password_not_set = Password is not set. Access to the account will be lost.
+label_password_not_set1 = The password is not set.{" "}
+label_password_not_set2 = Access to the account may be lost.
 label_password_not_set_info = No password has been set for your account. Consequently:
 
     • access to your account will be lost forever when you close the current window;
 
     • if you use the web version, access to your account will be lost forever when you close the browser window and delete cookies.
+label_password_or_one_time_code = Password or one-time code
 label_password_set = Password has been set.
 label_personal_data_deletion = Delete account
 label_personal_data_deletion_authorize = In order to delete your account, please, authorize first in the form below.
-label_personal_data_deletion_description =
-    Account deletion can be requested from this page. This process in IRREVERSIBLE and you will never be able to restore your account.
+label_personal_data_deletion_description1 = This process is{" "}
+label_personal_data_deletion_description2 = IRREVERSIBLE
+label_personal_data_deletion_description3 = . Restoration of your account is{" "}
+label_personal_data_deletion_description4 = IMPOSSIBLE
+label_personal_data_deletion_description5 =
+    {"."}
 
     The data that will be deleted is:
     - your avatar;
@@ -954,12 +1032,6 @@ label_personal_data_deletion_description =
     - your biography;
     - all of your emails;
     - all of your phone numbers.
-
-    The data that will not be deleted:
-    - your Gapopa ID, as is does not represent personal information;
-    - the messages you have sent, however no one will see you as an author of those messages.
-
-    Not a single user will be able to find, identify or detect the information of your presence within the system.
 label_personalization = Personalization
 label_phone = Phone
 label_phone_confirmation_code_was_send =
@@ -973,10 +1045,11 @@ label_presence_away = Away
 label_presence_hidden = Don't show
 label_presence_present = Online
 label_profile = Profile
-label_public_section_hint = Avatar, name, about
+label_public_section_hint = Name, profile picture, about, ...
 label_read_at = Read at: {$date}
 label_read_by = Read by
 label_reason = Reason
+label_reason_described = Reason: {$reason}
 label_recent = Recent
 label_reconnecting_ellipsis = Reconnecting...
 label_recover_account = Access recovery
@@ -1034,6 +1107,7 @@ label_review = Review
 label_review_freelance =
     - a completed task should pass the review of the code;
     - the request for the review of the completed task, comments, clarifications, and arguments should be posted publicly on GitHub in the corresponding issue or pull request.
+label_saved_files = Saved files
 label_screen_sharing = Screen sharing
 label_search = Search
 label_search_hint = Search by Gapopa ID, login or name
@@ -1047,9 +1121,11 @@ label_service_connected = Service is connected
 label_service_encountered_error = Service encountered an error
 label_service_initialized = Service is initialized
 label_service_reconnecting = Service is reconnecting...
+label_set_cache_limits = Set cache limits
 label_set_new_password = Set a new password to log into your account
 label_set_password = Set password
 label_settings = Settings
+label_show_call_window = Show call window
 label_show_sections = Show sections
 label_sign_in = Sign in
 label_sign_in_input = Gapopa ID, login, E-mail
@@ -1104,18 +1180,25 @@ label_tech_stack_frontend_developer =
     - GraphQL and Artemis - communication with backend;
     - Gherkin - E2E testing.
 label_tech_stack_ui_ux_designer = - Figma - layout and prototyping.
+label_terminate_sessions = Terminate session(s)
+label_terms_and_privacy_policy = Terms & Privacy policy
+label_text_status = Text status
+label_text_status_description = 25 symbols max
 label_this_device = This device
 label_to_restore_chat_use_search = To restore the chat, please, use the search.
 label_to_restore_chats_use_search = To restore the chats, please, use the search.
 label_transition_count = Transitions: {$count}
 label_typing = Typing
 label_unconfirmed = Unconfirmed
-label_unknown_page = Unknown page
+label_unknown = Unknown
 label_unknown_chat_direct_link = This direct link is invalid. It could've been deleted by its author. Please recheck the link.
+label_unknown_page = Unknown page
 label_unread_messages = {$quantity ->
     [1] {$quantity} unread message
     *[other] {$quantity} unread messages
 }
+label_unmuted = Unmuted
+label_update_available = Update available
 label_update_is_available = Update is available
 label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
@@ -1143,8 +1226,11 @@ label_video_downloaded = Video downloaded.
 label_video_downloading = Video is downloading...
 label_video_saved_to_gallery = Video saved to gallery.
 label_visible_to = Visible to:
+label_visits_count = Visits: {$count}
 label_wait_seconds = Wait {$for} s
 label_waiting_for_connection = Waiting for connection...
+label_warning = Warning
+label_warning_uppercase = WARNING
 label_was_added = {$author} joined via direct link
 label_was_added1 = {$author}
 label_was_added2 = {" "}joined via direct link
@@ -1174,10 +1260,16 @@ label_work_with_us_desc =
     Work
     with us
 label_you = You
+label_you_can_use_randomly_generated_link = You can use randomly generated link or create your own.
 label_you_were_added_to_group = You were added to the group
 label_your_blocklist = Your blacklist
-label_your_direct_link = Direct link to chat with you
+label_your_direct_link = Direct link to your chat
+label_your_name = Your name
+label_your_password = Your password
+label_your_status = Your status
 plus = +
+question_mark = ?
 space = {" "}
 space_or_space = {" "}or{" "}
+space_plus_space = {" "}+{" "}
 space_vertical_space = {" "}|{" "}

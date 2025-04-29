@@ -30,30 +30,31 @@ import '../world/custom_world.dart';
 ///
 /// Examples:
 /// - Then I restart app
-final StepDefinitionGeneric restartApp = then<CustomWorld>(
-  'I restart app',
-  (context) async {
-    // Going to [Routes.restart] page ensures all [GetxController]s are properly
-    // released since they depend on the [router].
-    router.go(Routes.restart);
-    await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric restartApp = then<CustomWorld>('I restart app', (
+  context,
+) async {
+  // Going to [Routes.restart] page ensures all [GetxController]s are properly
+  // released since they depend on the [router].
+  router.go(Routes.restart);
 
-    final MockGraphQlProvider provider =
-        Get.find<GraphQlProvider>() as MockGraphQlProvider;
+  await context.world.appDriver.waitForAppToSettle();
 
-    await Get.deleteAll();
+  final MockGraphQlProvider provider =
+      Get.find<GraphQlProvider>() as MockGraphQlProvider;
 
-    await Future.delayed(const Duration(seconds: 1));
+  await Get.deleteAll();
 
-    Get.put<GraphQlProvider>(
-      MockGraphQlProvider()
-        ..client.delay = provider.client.delay
-        ..client.throwException = provider.client.throwException,
-    );
+  await Future.delayed(const Duration(seconds: 1));
 
-    Get.put<GeoLocationProvider>(MockGeoLocationProvider());
+  Get.put<GraphQlProvider>(
+    MockGraphQlProvider()
+      ..client.delay = provider.client.delay
+      ..client.throwException = provider.client.throwException,
+  );
 
-    await main();
-    await context.world.appDriver.waitForAppToSettle();
-  },
-);
+  Get.put<GeoLocationProvider>(MockGeoLocationProvider());
+
+  await main();
+
+  await Future.delayed(Duration(seconds: 10));
+});

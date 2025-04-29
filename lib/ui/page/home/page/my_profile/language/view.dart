@@ -92,9 +92,12 @@ class LanguageSelectionView extends StatelessWidget {
                               Container(
                                 width: 1,
                                 height: 14,
-                                color: selected
-                                    ? style.colors.onPrimary
-                                    : style.colors.secondaryHighlightDarkest,
+                                color:
+                                    selected
+                                        ? style.colors.onPrimary
+                                        : style
+                                            .colors
+                                            .secondaryHighlightDarkest,
                               ),
                               const SizedBox(width: 12),
                               Text(e.name),

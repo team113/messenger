@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.27"
+  FLUTTER_VER: "3.29"
 
 jobs:
 
@@ -296,12 +296,19 @@ jobs:
           cache: gradle
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2'
+        if: ${{ matrix.platform == 'ipa' }}
+
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json
         run: |
           set -ex
-          npm install -g firebase-tools
+          # TODO: Unpin when is flutterfire_cli/issues#372 fixed:
+          #       https://github.com/invertase/flutterfire_cli/issues/372
+          npm install -g firebase-tools@13.30.0
           dart pub global activate flutterfire_cli
           echo '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}' \
           > ${{ runner.temp }}/service_account.json
@@ -579,10 +586,10 @@ jobs:
   build-linux:
     name: build (linux)
     runs-on: ubuntu-latest
-    # Pin glibc to 2.31 version for better compatibility.
-    container: debian:bullseye
+    # Pin glibc to 2.34 version for better compatibility.
+    container: debian:bookworm
     steps:
-      # `debian:bullseye` doesn't include Git in its `PATH`, which is required
+      # `debian:bookworm` doesn't include Git in its `PATH`, which is required
       # by `PubspecBuilder`.
       - name: Install Git
         run: |
@@ -604,6 +611,7 @@ jobs:
                      libpulse-dev
                      libmpv-dev
                      libcurl4-openssl-dev
+                     keybinder-3.0
                      mpv
                      jq
                      curl
@@ -613,6 +621,7 @@ jobs:
                      cmake
                      clang
                      zip
+                     xz-utils
 
       - run: git config --global --add safe.directory '*'
 
@@ -849,7 +858,7 @@ jobs:
         env:
           OMIT: |
             [
-              ":INFO:CONSOLE\\(53103\\)] ",
+              ":INFO:CONSOLE\\(53388\\)] ",
               "\"Got object store box in database",
               "\\[CONFIG\\]: Remote configuration fetch failed"
             ]

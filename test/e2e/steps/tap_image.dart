@@ -35,47 +35,45 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric tapLastImageInChat = then<CustomWorld>(
   'I tap on last image in chat',
   (context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final RxChat? chat =
-            Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-        final ChatMessage? message = chat?.messages
-            .map((e) => e.value)
-            .whereType<ChatMessage>()
-            .lastWhereOrNull(
-              (e) => e.attachments.any((a) => a is ImageAttachment),
-            );
+      final RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      final ChatMessage? message = chat?.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .lastWhereOrNull(
+            (e) => e.attachments.any((a) => a is ImageAttachment),
+          );
 
-        if (message == null) {
-          return false;
-        }
+      if (message == null) {
+        return false;
+      }
 
-        final Attachment? attachment =
-            message.attachments.lastWhereOrNull((e) => e is ImageAttachment);
+      final Attachment? attachment = message.attachments.lastWhereOrNull(
+        (e) => e is ImageAttachment,
+      );
 
-        if (attachment == null) {
-          return false;
-        }
+      if (attachment == null) {
+        return false;
+      }
 
-        final finder = context.world.appDriver.findByDescendant(
-          context.world.appDriver
-              .findByKeySkipOffstage('Message_${message.id}'),
-          context.world.appDriver.findByKeySkipOffstage(
-            'Attachment_${attachment.id}',
-          ),
-        );
+      final finder = context.world.appDriver.findByDescendant(
+        context.world.appDriver.findByKeySkipOffstage('Message_${message.id}'),
+        context.world.appDriver.findByKeySkipOffstage(
+          'Attachment_${attachment.id}',
+        ),
+      );
 
-        if (!finder.tryEvaluate()) {
-          return false;
-        }
+      if (!finder.tryEvaluate()) {
+        return false;
+      }
 
-        await context.world.appDriver.nativeDriver.tap(finder);
-        await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.nativeDriver.tap(finder);
+      await context.world.appDriver.waitForAppToSettle();
 
-        return true;
-      },
-    );
+      return true;
+    });
   },
 );

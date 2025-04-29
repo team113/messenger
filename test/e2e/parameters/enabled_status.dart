@@ -23,12 +23,12 @@ enum EnabledStatus { enabled, disabled }
 /// [CustomParameter] representing an [EnabledStatus] status.
 class EnabledParameter extends CustomParameter<EnabledStatus> {
   EnabledParameter()
-      : super(
-          'enabled',
-          RegExp(
-            '(${EnabledStatus.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => EnabledStatus.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'enabled',
+        RegExp(
+          '(${EnabledStatus.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => EnabledStatus.values.firstWhere((e) => e.name == c),
+      );
 }

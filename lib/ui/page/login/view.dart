@@ -137,9 +137,10 @@ class LoginView extends StatelessWidget {
                 PrimaryButton(
                   key: const Key('Proceed'),
                   title: 'btn_proceed'.l10n,
-                  onPressed: c.recoveryCode.isEmpty.value
-                      ? null
-                      : c.recoveryCode.submit,
+                  onPressed:
+                      c.recoveryCode.isEmpty.value
+                          ? null
+                          : c.recoveryCode.submit,
                 ),
               ];
               break;
@@ -185,7 +186,8 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.newPassword.isEmpty.value &&
+                  final bool enabled =
+                      !c.newPassword.isEmpty.value &&
                       !c.repeatPassword.isEmpty.value;
 
                   return PrimaryButton(
@@ -246,7 +248,8 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.login.isEmpty.value &&
+                  final bool enabled =
+                      !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
                       !c.repeatPassword.isEmpty.value &&
                       !c.authStatus.value.isLoading;
@@ -295,9 +298,10 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signUp:
               header = ModalPopupHeader(
                 text: 'label_sign_up'.l10n,
-                onBack: c.returnTo == null
-                    ? null
-                    : () => c.stage.value = c.returnTo!,
+                onBack:
+                    c.returnTo == null
+                        ? null
+                        : () => c.stage.value = c.returnTo!,
               );
 
               children = [
@@ -305,16 +309,16 @@ class LoginView extends StatelessWidget {
                   key: const Key('LoginAndPassword'),
                   title: 'btn_login_and_password'.l10n,
                   icon: const SvgIcon(SvgIcons.password),
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signUpWithPassword,
+                  onPressed:
+                      () => c.stage.value = LoginViewStage.signUpWithPassword,
                 ),
                 const SizedBox(height: 16),
                 SignButton(
                   key: const Key('Email'),
                   title: 'btn_email'.l10n,
                   icon: const SvgIcon(SvgIcons.email),
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signUpWithEmail,
+                  onPressed:
+                      () => c.stage.value = LoginViewStage.signUpWithEmail,
                 ),
                 const SizedBox(height: 16),
                 _terms(context),
@@ -330,10 +334,8 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks(
-                    [],
-                    style.fonts.normal.regular.primary,
-                  ),
+                      .l10nfmt({'text': c.email.text})
+                      .parseLinks([], style.fonts.normal.regular.primary),
                   style: style.fonts.normal.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
@@ -353,11 +355,13 @@ class LoginView extends StatelessWidget {
                     child: Text(
                       enabled
                           ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: enabled
-                          ? style.fonts.normal.regular.primary
-                          : style.fonts.normal.regular.onBackground,
+                          : 'label_wait_seconds'.l10nfmt({
+                            'for': c.resendEmailTimeout.value,
+                          }),
+                      style:
+                          enabled
+                              ? style.fonts.normal.regular.primary
+                              : style.fonts.normal.regular.onBackground,
                     ),
                   );
                 }),
@@ -370,16 +374,19 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.emailCode.isEmpty.value &&
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value &&
                       c.codeTimeout.value == 0 &&
                       c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
+                    title:
+                        c.codeTimeout.value == 0
+                            ? 'btn_send'.l10n
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.codeTimeout.value,
+                            }),
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),
@@ -433,17 +440,20 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.login.isEmpty.value &&
+                  final bool enabled =
+                      !c.login.isEmpty.value &&
                       !c.password.isEmpty.value &&
                       c.signInTimeout.value == 0 &&
                       !c.authStatus.value.isLoading;
 
                   return PrimaryButton(
                     key: const Key('LoginButton'),
-                    title: c.signInTimeout.value == 0
-                        ? 'btn_sign_in'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.signInTimeout.value}),
+                    title:
+                        c.signInTimeout.value == 0
+                            ? 'btn_sign_in'.l10n
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.signInTimeout.value,
+                            }),
                     onPressed: enabled ? c.password.submit : null,
                   );
                 }),
@@ -491,10 +501,8 @@ class LoginView extends StatelessWidget {
               children = [
                 Text.rich(
                   'label_sign_up_code_email_sent'
-                      .l10nfmt({'text': c.email.text}).parseLinks(
-                    [],
-                    style.fonts.normal.regular.primary,
-                  ),
+                      .l10nfmt({'text': c.email.text})
+                      .parseLinks([], style.fonts.normal.regular.primary),
                   style: style.fonts.normal.regular.onBackground,
                 ),
                 const SizedBox(height: 16),
@@ -514,11 +522,13 @@ class LoginView extends StatelessWidget {
                     child: Text(
                       enabled
                           ? 'btn_resend_code'.l10n
-                          : 'label_wait_seconds'
-                              .l10nfmt({'for': c.resendEmailTimeout.value}),
-                      style: enabled
-                          ? style.fonts.normal.regular.primary
-                          : style.fonts.normal.regular.onBackground,
+                          : 'label_wait_seconds'.l10nfmt({
+                            'for': c.resendEmailTimeout.value,
+                          }),
+                      style:
+                          enabled
+                              ? style.fonts.normal.regular.primary
+                              : style.fonts.normal.regular.onBackground,
                     ),
                   );
                 }),
@@ -531,16 +541,19 @@ class LoginView extends StatelessWidget {
                 ),
                 const SizedBox(height: 25),
                 Obx(() {
-                  final bool enabled = !c.emailCode.isEmpty.value &&
+                  final bool enabled =
+                      !c.emailCode.isEmpty.value &&
                       c.codeTimeout.value == 0 &&
                       c.authStatus.value.isEmpty;
 
                   return PrimaryButton(
                     key: const Key('Proceed'),
-                    title: c.codeTimeout.value == 0
-                        ? 'btn_send'.l10n
-                        : 'label_wait_seconds'
-                            .l10nfmt({'for': c.codeTimeout.value}),
+                    title:
+                        c.codeTimeout.value == 0
+                            ? 'btn_send'.l10n
+                            : 'label_wait_seconds'.l10nfmt({
+                              'for': c.codeTimeout.value,
+                            }),
                     onPressed: enabled ? c.emailCode.submit : null,
                   );
                 }),
@@ -550,17 +563,18 @@ class LoginView extends StatelessWidget {
             case LoginViewStage.signIn:
               header = ModalPopupHeader(
                 text: 'label_sign_in'.l10n,
-                onBack: c.returnTo == null
-                    ? null
-                    : () => c.stage.value = c.returnTo!,
+                onBack:
+                    c.returnTo == null
+                        ? null
+                        : () => c.stage.value = c.returnTo!,
               );
 
               children = [
                 SignButton(
                   key: const Key('PasswordButton'),
                   title: 'btn_password'.l10n,
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signInWithPassword,
+                  onPressed:
+                      () => c.stage.value = LoginViewStage.signInWithPassword,
                   icon: const SvgIcon(SvgIcons.password),
                   padding: const EdgeInsets.only(left: 1),
                 ),
@@ -569,8 +583,8 @@ class LoginView extends StatelessWidget {
                   key: const Key('EmailButton'),
                   title: 'btn_email'.l10n,
                   subtitle: 'label_one_time_password'.l10n,
-                  onPressed: () =>
-                      c.stage.value = LoginViewStage.signInWithEmail,
+                  onPressed:
+                      () => c.stage.value = LoginViewStage.signInWithEmail,
                   icon: const SvgIcon(SvgIcons.email),
                 ),
                 const SizedBox(height: 16),
@@ -632,8 +646,10 @@ class LoginView extends StatelessWidget {
                 children: [
                   header,
                   const SizedBox(height: 12),
-                  ...children.map((e) =>
-                      Padding(padding: ModalPopup.padding(context), child: e)),
+                  ...children.map(
+                    (e) =>
+                        Padding(padding: ModalPopup.padding(context), child: e),
+                  ),
                   const SizedBox(height: 12),
                 ],
               ),
@@ -658,8 +674,9 @@ class LoginView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms2'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => TermsOfUseView.show(context),
+            recognizer:
+                TapGestureRecognizer()
+                  ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
@@ -668,8 +685,9 @@ class LoginView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms4'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer: TapGestureRecognizer()
-              ..onTap = () => PrivacyPolicy.show(context),
+            recognizer:
+                TapGestureRecognizer()
+                  ..onTap = () => PrivacyPolicy.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms5'.l10n,

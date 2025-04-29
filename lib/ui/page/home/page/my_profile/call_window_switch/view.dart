@@ -22,6 +22,7 @@ import 'package:get/get.dart';
 import '/domain/model/application_settings.dart';
 import '/l10n/l10n.dart';
 import '/ui/page/home/widget/rectangle_button.dart';
+import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/modal_popup.dart';
 import 'controller.dart';
 
@@ -50,35 +51,51 @@ class CallWindowSwitchView extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const SizedBox(height: 4),
-              ModalPopupHeader(text: 'label_calls'.l10n),
+              ModalPopupHeader(text: 'label_show_call_window'.l10n),
               const SizedBox(height: 13),
               Flexible(
-                child: ListView.separated(
+                child: ListView(
                   shrinkWrap: true,
                   padding: ModalPopup.padding(context),
-                  separatorBuilder: (_, __) => const SizedBox(height: 8),
-                  itemCount: 2,
-                  itemBuilder: (_, i) {
-                    return Obx(() {
-                      final bool selected;
-                      if (i == 0) {
-                        selected =
-                            (c.settings.value?.enablePopups ?? true) == true;
-                      } else {
-                        selected =
-                            (c.settings.value?.enablePopups ?? true) == false;
-                      }
+                  children: [
+                    Obx(() {
+                      final bool value =
+                          (c.settings.value?.enablePopups ?? true);
 
-                      return RectangleButton(
-                        label: i == 0
-                            ? 'label_open_calls_in_window'.l10n
-                            : 'label_open_calls_in_app'.l10n,
-                        selected: selected,
-                        onPressed: () => c.setPopupsEnabled(i == 0),
+                      final asset = switch (value) {
+                        true => 'calls_in_window',
+                        false => 'calls_in_app',
+                      };
+
+                      return SafeAnimatedSwitcher(
+                        duration: Duration(milliseconds: 250),
+                        child: Image.asset(
+                          'assets/images/$asset.png',
+                          key: Key(asset),
+                          width: 320,
+                          height: 200,
+                        ),
                       );
-                    });
-                  },
+                    }),
+                    const SizedBox(height: 16),
+                    Obx(() {
+                      return RectangleButton(
+                        label: 'label_open_calls_in_window'.l10n,
+                        selected:
+                            (c.settings.value?.enablePopups ?? true) == true,
+                        onPressed: () => c.setPopupsEnabled(true),
+                      );
+                    }),
+                    const SizedBox(height: 8),
+                    Obx(() {
+                      return RectangleButton(
+                        label: 'label_open_calls_in_app'.l10n,
+                        selected:
+                            (c.settings.value?.enablePopups ?? true) == false,
+                        onPressed: () => c.setPopupsEnabled(false),
+                      );
+                    }),
+                  ],
                 ),
               ),
               const SizedBox(height: 16),

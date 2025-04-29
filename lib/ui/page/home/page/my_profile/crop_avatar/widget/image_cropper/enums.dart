@@ -91,7 +91,7 @@ extension CropRotationExtension on CropRotation {
   bool get isSideways {
     return switch (this) {
       CropRotation.up || CropRotation.down => false,
-      CropRotation.right || CropRotation.left => true
+      CropRotation.right || CropRotation.left => true,
     };
   }
 
@@ -103,8 +103,10 @@ extension CropRotationExtension on CropRotation {
   ) {
     return switch (this) {
       CropRotation.up => Offset(width * offset.dx, height * offset.dy),
-      CropRotation.down =>
-        Offset(width * (1 - offset.dx), height * (1 - offset.dy)),
+      CropRotation.down => Offset(
+        width * (1 - offset.dx),
+        height * (1 - offset.dy),
+      ),
       CropRotation.right => Offset(width * offset.dy, height * (1 - offset.dx)),
       CropRotation.left => Offset(width * (1 - offset.dy), height * offset.dx),
     };
@@ -148,23 +150,23 @@ extension RectExtensions on Rect {
     return switch (rotation) {
       CropRotation.up => this,
       CropRotation.right => Rect.fromLTWH(
-          size.height - top - height,
-          left,
-          height,
-          width,
-        ),
+        size.height - top - height,
+        left,
+        height,
+        width,
+      ),
       CropRotation.down => Rect.fromLTWH(
-          size.width - width - left,
-          size.height - height - top,
-          width,
-          height,
-        ),
+        size.width - width - left,
+        size.height - height - top,
+        width,
+        height,
+      ),
       CropRotation.left => Rect.fromLTWH(
-          top,
-          size.width - width - left,
-          width,
-          height,
-        ),
+        top,
+        size.width - width - left,
+        width,
+        height,
+      ),
     };
   }
 }

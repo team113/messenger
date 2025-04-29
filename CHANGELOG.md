@@ -6,6 +6,159 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.2...v0.5.0) | [Milestone](/../../milestone/38)
+
+### Fixed
+
+- UI:
+    - Media panel:
+        - Incoming call displayed multiple times when declined quickly enough. ([#1219])
+- Web:
+    - Translate popup displaying in browsers. ([#1215])
+    - Call audio ringtone not being played. ([#1218])
+    - Preferred microphone and camera not being used in Safari. ([#1223])
+
+[#1215]: /../../pull/1215
+[#1218]: /../../pull/1218
+[#1219]: /../../pull/1219
+[#1223]: /../../pull/1223
+
+
+
+
+## [0.4.2] · 2025-04-22
+[0.4.2]: /../../tree/v0.4.2
+
+[Diff](/../../compare/v0.4.1...v0.4.2) | [Milestone](/../../milestone/37)
+
+### Changed
+
+- Web:
+    - Updated [Progressive Web Application (PWA)][PWA] icon. ([#1209])
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Inability to delete errored messages when chat is read by recipient. ([#1210], [#1207])
+- iOS:
+    - Inability to upload drag-n-dropped files to chat. ([#1210], [#1206])
+
+[#1206]: /../../issues/1206
+[#1207]: /../../issues/1207
+[#1209]: /../../pull/1209
+[#1210]: /../../pull/1210
+
+
+
+
+## [0.4.1] · 2025-04-15
+[0.4.1]: /../../tree/v0.4.1
+
+[Diff](/../../compare/v0.4.0...v0.4.1) | [Milestone](/../../milestone/36)
+
+### Changed
+
+- UI:
+    - Redesigned upgrade popup. ([#1201])
+
+### Fixed
+
+- Direct links not working when authorized. ([#1201])
+- UI:
+    - Profile page:
+        - Inability to crop SVG avatar images. ([#1201])
+
+[#1201]: /../../pull/1201
+
+
+
+
+## [0.4.0] · 2025-04-12
+[0.4.0]: /../../tree/v0.4.0
+
+[Diff](/../../compare/v0.3.3...v0.4.0) | [Milestone](/../../milestone/35)
+
+### Added
+
+- Web:
+    - Upgrade popup displaying when new deployment is available. ([#1181])
+- UI:
+    - Profile page:
+        - Ability to rebind hot key for toggling microphone on and off. ([#1193])
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Dock and panels redesigned contrast colors. ([#1182])
+    - Redesigned my profile page. ([#1185])
+    - Redesigned menu tab labels and icons. ([#1185])
+    - Redesigned share link modal. ([#1191])
+    - Redesigned logout modal. ([#1194])
+    - Redesigned call window switch modal. ([#1194])
+    - Chat page:
+        - Message field gaining focus when entering chat. ([#1196])
+        - Key up presses editing last sent message. ([#1196])
+
+### Fixed
+
+- UI:
+    - User page:
+        - Missing localization for biography expand button. ([#1185], [#1186])
+        - Inability to input block reason in Safari and Firefox. ([#1190], [#1187])
+- iOS:
+    - Authorization sometimes being lost when receiving push notifications. ([#1197])
+
+[#1181]: /../../pull/1181
+[#1182]: /../../pull/1182
+[#1185]: /../../pull/1185
+[#1186]: /../../issues/1186
+[#1187]: /../../issues/1187
+[#1190]: /../../pull/1190
+[#1191]: /../../pull/1191
+[#1193]: /../../pull/1193
+[#1194]: /../../pull/1194
+[#1196]: /../../pull/1196
+[#1197]: /../../pull/1197
+
+
+
+
+## [0.3.3] · 2025-03-07
+[0.3.3]: /../../tree/v0.3.3
+
+[Diff](/../../compare/v0.3.2...v0.3.3) | [Milestone](/../../milestone/34)
+
+### Added
+
+- UI:
+    - Media panel:
+        - Hot key `Alt + M` for toggling microphone on and off. ([#1179])
+
+### Fixed
+
+- UI:
+    - Mobile:
+        - Context menus having meaningless dividers. ([#1170])
+    - Chats tab:
+        - Inability to paste clipboard into search field when chat is open. ([#1170])
+    - Profile page:
+        - Blocklist count not being updated in real time. ([#1175])
+- macOS:
+    - Application becoming unresponsive when drag-n-dropping screenshots to chat. ([#1177])
+
+[#1170]: /../../pull/1170
+[#1175]: /../../pull/1175
+[#1177]: /../../pull/1177
+[#1179]: /../../pull/1179
+
+
+
+
 ## [0.3.2] · 2025-02-07
 [0.3.2]: /../../tree/v0.3.2
 

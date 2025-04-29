@@ -124,6 +124,9 @@ class AccessToken {
   /// [AccessToken]'s expiration and refresh the [Session] before an
   /// authentication error occurs.
   final PreciseDateTime expireAt;
+
+  @override
+  String toString() => 'AccessToken(secret: ***, expireAt: $expireAt)';
 }
 
 /// Type of [AccessToken]'s secret.
@@ -154,6 +157,9 @@ class RefreshToken {
   /// Expiration of a [RefreshToken] is not prolonged on refreshing, and remains
   /// the same for all the [RefreshToken]s obtained.
   final PreciseDateTime expireAt;
+
+  @override
+  String toString() => 'RefreshToken(secret: $secret, expireAt: $expireAt)';
 }
 
 /// Type of [RefreshToken]'s secret.
@@ -213,5 +219,6 @@ class Credentials {
   }
 
   @override
-  String toString() => 'Credentials(userId: $userId)';
+  String toString() =>
+      'Credentials(userId: $userId, sessionId: $sessionId, access: $access refresh: $refresh)';
 }

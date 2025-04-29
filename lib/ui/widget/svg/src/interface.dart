@@ -41,8 +41,7 @@ Widget svgFromAsset(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();
 
 /// Instantiates a widget rendering an SVG picture from an [Uint8List].
 ///
@@ -61,8 +60,7 @@ Widget svgFromBytes(
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
   double? width,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -80,5 +78,4 @@ Widget svgFromFile(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    throw UnimplementedError();
+}) => throw UnimplementedError();

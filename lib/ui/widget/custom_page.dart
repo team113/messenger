@@ -42,9 +42,10 @@ class CustomPage extends Page {
 /// Uses a [FadeUpwardsPageTransitionsBuilder] on Android.
 class _CupertinoPageRoute<T> extends PageRoute<T> {
   _CupertinoPageRoute({super.settings, required this.pageBuilder})
-      : matchingBuilder = PlatformUtils.isAndroid
-            ? const FadeUpwardsPageTransitionsBuilder()
-            : const CustomCupertinoPageTransitionsBuilder();
+    : matchingBuilder =
+          PlatformUtils.isAndroid
+              ? const FadeUpwardsPageTransitionsBuilder()
+              : const CustomCupertinoPageTransitionsBuilder();
 
   /// [PageTransitionsBuilder] transition animation.
   final PageTransitionsBuilder matchingBuilder;
@@ -69,8 +70,7 @@ class _CupertinoPageRoute<T> extends PageRoute<T> {
     BuildContext context,
     Animation<double> animation,
     Animation<double> secondaryAnimation,
-  ) =>
-      pageBuilder(context, animation, secondaryAnimation);
+  ) => pageBuilder(context, animation, secondaryAnimation);
 
   @override
   Widget buildTransitions(
@@ -126,10 +126,10 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
           route.popGestureInProgress
               ? animation
               : CurvedAnimation(
-                  parent: animation,
-                  curve: Curves.linearToEaseOut,
-                  reverseCurve: Curves.linearToEaseOut.flipped,
-                ),
+                parent: animation,
+                curve: Curves.linearToEaseOut,
+                reverseCurve: Curves.linearToEaseOut.flipped,
+              ),
         ),
         child: SlideTransition(
           position: Tween(
@@ -139,10 +139,10 @@ class CustomCupertinoPageTransitionsBuilder extends PageTransitionsBuilder {
             route.popGestureInProgress
                 ? secondaryAnimation
                 : CurvedAnimation(
-                    parent: secondaryAnimation,
-                    curve: Curves.linearToEaseOut,
-                    reverseCurve: Curves.easeInToLinear,
-                  ),
+                  parent: secondaryAnimation,
+                  curve: Curves.linearToEaseOut,
+                  reverseCurve: Curves.easeInToLinear,
+                ),
           ),
           child: widget.child,
         ),

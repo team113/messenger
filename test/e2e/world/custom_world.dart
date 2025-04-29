@@ -82,7 +82,7 @@ extension CustomUserHelpers on List<CustomUser> {
 /// [Session] with some additional info about the [User] it represents.
 class CustomUser {
   CustomUser(Credentials this._credentials, this.userNum)
-      : userId = _credentials.userId;
+    : userId = _credentials.userId;
 
   /// [Credentials] of this [CustomUser].
   ///
@@ -94,6 +94,9 @@ class CustomUser {
 
   /// [UserId] of this [CustomUser].
   final UserId userId;
+
+  /// [ChatDirectLinkSlug] of this [CustomUser], if any.
+  ChatDirectLinkSlug? slug;
 
   /// [UserPassword] this [CustomUser] uses, if any.
   UserPassword? password;
@@ -117,8 +120,9 @@ class CustomUser {
         final provider = GraphQlProvider();
         final response = await provider.signIn(
           identifier: MyUserIdentifier(num: userNum),
-          credentials:
-              MyUserCredentials(password: password ?? UserPassword('123')),
+          credentials: MyUserCredentials(
+            password: password ?? UserPassword('123'),
+          ),
         );
         _credentials = response.toModel();
 

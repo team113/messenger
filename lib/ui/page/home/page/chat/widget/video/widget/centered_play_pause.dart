@@ -66,12 +66,13 @@ class CenteredPlayPause extends StatelessWidget {
               ),
               child: IconButton(
                 iconSize: 32,
-                icon: isFinished
-                    ? Icon(Icons.replay, color: style.colors.onPrimary)
-                    : AnimatedPlayPause(
-                        controller.player.state.playing,
-                        color: style.colors.onPrimary,
-                      ),
+                icon:
+                    isFinished
+                        ? Icon(Icons.replay, color: style.colors.onPrimary)
+                        : AnimatedPlayPause(
+                          controller.player.state.playing,
+                          color: style.colors.onPrimary,
+                        ),
                 onPressed: onPressed,
               ),
             ),

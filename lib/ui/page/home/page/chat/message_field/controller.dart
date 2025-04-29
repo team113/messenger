@@ -63,12 +63,16 @@ class MessageFieldController extends GetxController {
     String? text,
     List<ChatItemQuoteInput> quotes = const [],
     List<Attachment> attachments = const [],
-  })  : quotes = RxList(quotes),
-        attachments =
-            RxList(attachments.map((e) => MapEntry(GlobalKey(), e)).toList()) {
+    this.onKeyUp,
+  }) : quotes = RxList(quotes),
+       attachments = RxList(
+         attachments.map((e) => MapEntry(GlobalKey(), e)).toList(),
+       ) {
     field = TextFieldState(
       text: text,
-      onFocus: (_) => onChanged?.call(),
+      onFocus: (s) {
+        onChanged?.call();
+      },
       submitted: false,
       onSubmitted: (s) {
         field.unsubmit();
@@ -77,6 +81,8 @@ class MessageFieldController extends GetxController {
       focus: FocusNode(onKeyEvent: (_, KeyEvent e) => handleNewLines(e, field)),
     );
 
+    field.focus.addListener(_focusListener);
+
     _repliesWorker ??= ever(replied, (_) => onChanged?.call());
     _attachmentsWorker ??= ever(this.attachments, (_) => onChanged?.call());
     _editedWorker ??= ever(edited, (item) {
@@ -84,11 +90,12 @@ class MessageFieldController extends GetxController {
         field.text = item.text?.val ?? '';
         this.attachments.value =
             item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
-        replied.value = item.repliesTo
-            .map((e) => e.original)
-            .nonNulls
-            .map((e) => Rx(e))
-            .toList();
+        replied.value =
+            item.repliesTo
+                .map((e) => e.original)
+                .nonNulls
+                .map((e) => Rx(e))
+                .toList();
       } else {
         field.text = '';
         this.attachments.clear();
@@ -141,6 +148,10 @@ class MessageFieldController extends GetxController {
 
   /// [GlobalKey] of the text field itself.
   final GlobalKey fieldKey = GlobalKey();
+
+  /// Callback, called when up key is being pressed while this field is in
+  /// focus.
+  final bool Function(LogicalKeyboardKey)? onKeyUp;
 
   /// [ChatButton]s displayed in the more panel.
   late final RxList<ChatButton> panel = RxList([
@@ -225,18 +236,26 @@ class MessageFieldController extends GetxController {
       final Set<PhysicalKeyboardKey> pressed =
           HardwareKeyboard.instance.physicalKeysPressed;
 
-      final bool isShiftPressed = pressed.any((key) =>
-          key == PhysicalKeyboardKey.shiftLeft ||
-          key == PhysicalKeyboardKey.shiftRight);
-      final bool isAltPressed = pressed.any((key) =>
-          key == PhysicalKeyboardKey.altLeft ||
-          key == PhysicalKeyboardKey.altRight);
-      final bool isControlPressed = pressed.any((key) =>
-          key == PhysicalKeyboardKey.controlLeft ||
-          key == PhysicalKeyboardKey.controlRight);
-      final bool isMetaPressed = pressed.any((key) =>
-          key == PhysicalKeyboardKey.metaLeft ||
-          key == PhysicalKeyboardKey.metaRight);
+      final bool isShiftPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.shiftLeft ||
+            key == PhysicalKeyboardKey.shiftRight,
+      );
+      final bool isAltPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.altLeft ||
+            key == PhysicalKeyboardKey.altRight,
+      );
+      final bool isControlPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.controlLeft ||
+            key == PhysicalKeyboardKey.controlRight,
+      );
+      final bool isMetaPressed = pressed.any(
+        (key) =>
+            key == PhysicalKeyboardKey.metaLeft ||
+            key == PhysicalKeyboardKey.metaRight,
+      );
 
       bool handled = isShiftPressed;
 
@@ -305,7 +324,6 @@ class MessageFieldController extends GetxController {
 
   @override
   Future<void> onReady() async {
-    ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
     await CustomMouseCursors.ensureInitialized();
     super.onReady();
   }
@@ -325,7 +343,9 @@ class MessageFieldController extends GetxController {
       BackButtonInterceptor.remove(_onBack);
     }
 
+    field.focus.removeListener(_focusListener);
     ClipboardEvents.instance?.unregisterPasteEventListener(_pasteEventListener);
+    HardwareKeyboard.instance.removeHandler(_keyUpHandler);
 
     super.onClose();
   }
@@ -344,13 +364,14 @@ class MessageFieldController extends GetxController {
   void toggleMore() {
     if (moreOpened.isFalse) {
       _moreEntry = OverlayEntry(
-        builder: (_) => MessageFieldMore(
-          this,
-          onDismissed: () {
-            _moreEntry?.remove();
-            _moreEntry = null;
-          },
-        ),
+        builder:
+            (_) => MessageFieldMore(
+              this,
+              onDismissed: () {
+                _moreEntry?.remove();
+                _moreEntry = null;
+              },
+            ),
       );
       router.overlay!.insert(_moreEntry!);
     }
@@ -577,17 +598,18 @@ class MessageFieldController extends GetxController {
   /// enabling the [AudioCallButton] and [VideoCallButton] according to the
   /// provided [inCall] value.
   void _updateButtons(bool inCall) {
-    panel.value = panel.map((button) {
-      if (button is AudioCallButton) {
-        return AudioCallButton(inCall ? null : () => onCall?.call(false));
-      }
+    panel.value =
+        panel.map((button) {
+          if (button is AudioCallButton) {
+            return AudioCallButton(inCall ? null : () => onCall?.call(false));
+          }
 
-      if (button is VideoCallButton) {
-        return VideoCallButton(inCall ? null : () => onCall?.call(true));
-      }
+          if (button is VideoCallButton) {
+            return VideoCallButton(inCall ? null : () => onCall?.call(true));
+          }
 
-      return button;
-    }).toList();
+          return button;
+        }).toList();
 
     buttons.value = _toButtons(
       _settingsRepository?.applicationSettings.value?.pinnedActions,
@@ -596,12 +618,14 @@ class MessageFieldController extends GetxController {
 
   /// Constructs a list of [ChatButton]s from the provided [list] of [String]s.
   List<ChatButton> _toButtons(List<String>? list) {
-    final List<ChatButton>? persisted = list
-        ?.map(
-          (e) => panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
-        )
-        .nonNulls
-        .toList();
+    final List<ChatButton>? persisted =
+        list
+            ?.map(
+              (e) =>
+                  panel.firstWhereOrNull((m) => m.runtimeType.toString() == e),
+            )
+            .nonNulls
+            .toList();
 
     return persisted ?? [];
   }
@@ -618,5 +642,29 @@ class MessageFieldController extends GetxController {
         bytes: await file.readAll(),
       ),
     );
+  }
+
+  /// Invokes [onKeyUp] on the [KeyDownEvent] events, if [TextFieldState.focus]
+  /// has a focus.
+  bool _keyUpHandler(KeyEvent key) {
+    if (onKeyUp != null && field.focus.hasFocus && key is KeyDownEvent) {
+      return onKeyUp?.call(key.logicalKey) ?? false;
+    }
+
+    return false;
+  }
+
+  /// Registers or unregisters [_keyUpHandler] and [_pasteEventListener], if
+  /// [TextFieldState.focus] has a focus.
+  void _focusListener() {
+    if (field.focus.hasFocus) {
+      HardwareKeyboard.instance.addHandler(_keyUpHandler);
+      ClipboardEvents.instance?.registerPasteEventListener(_pasteEventListener);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_keyUpHandler);
+      ClipboardEvents.instance?.unregisterPasteEventListener(
+        _pasteEventListener,
+      );
+    }
   }
 }

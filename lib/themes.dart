@@ -20,6 +20,7 @@ import 'package:flutter/services.dart';
 import 'package:sound_fonts/sound_fonts.dart';
 
 import 'ui/widget/custom_page.dart';
+import 'util/log.dart';
 import 'util/platform_utils.dart';
 
 part 'themes.g.dart';
@@ -31,13 +32,13 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'onPrimary', 'secondary'],
   },
   'larger': {
-    'regular': ['onBackground', 'secondary']
+    'regular': ['onBackground', 'secondary'],
   },
   'large': {
-    'regular': ['onBackground', 'secondary']
+    'regular': ['onBackground', 'secondary'],
   },
   'big': {
-    'regular': ['onBackground', 'onPrimary', 'secondary'],
+    'regular': ['onBackground', 'onPrimary', 'secondary', 'primary'],
   },
   'medium': {
     'regular': [
@@ -75,10 +76,13 @@ part 'themes.g.dart';
     'regular': ['onBackground', 'secondary', 'onPrimary', 'primary'],
   },
   'smallest': {
-    'regular': ['onBackground', 'onPrimary', 'secondary']
+    'regular': ['onBackground', 'onPrimary', 'secondary'],
   },
 })
 class Themes {
+  /// [FontLoader] of a `Roboto` font.
+  static FontLoader? _roboto;
+
   /// Returns a light theme.
   static ThemeData light() {
     final Palette colors = Palette(
@@ -90,8 +94,9 @@ class Themes {
       primaryLight: const Color(0xFFD2E9FE),
       primaryLightest: const Color(0xFFD5EDFE),
       primaryDark: const Color(0xFF1F3C5D),
-      primaryAuxiliary: const Color(0xFF165084),
+      primaryAuxiliary: const Color(0xFF0A2E4F),
       onPrimary: const Color(0xFFFFFFFF),
+      onPrimaryLight: const Color(0xFFF5F5F5),
       secondary: const Color(0xFF888888),
       secondaryLight: const Color(0xFFCCCCCC),
       secondaryHighlight: const Color(0xFFEFEFEF),
@@ -139,6 +144,17 @@ class Themes {
         Color(0xFFCB9F7A),
       ],
     );
+
+    if (_roboto == null) {
+      _roboto = FontLoader('Roboto');
+      _roboto?.addFont(
+        PlatformUtils.loadBytes('assets/fonts/Roboto-Regular.ttf'),
+      );
+      _roboto?.addFont(PlatformUtils.loadBytes('assets/fonts/Roboto-Bold.ttf'));
+      _roboto?.load().then((_) async {
+        Log.debug('light() -> `FontLoader` has loaded the font', 'Themes');
+      });
+    }
 
     final TextStyle textStyle = TextStyle(
       fontFamily: 'Roboto',
@@ -191,8 +207,10 @@ class Themes {
           fonts: fonts,
           barrierColor: colors.onBackgroundOpacity50,
           cardBlur: 5,
-          cardBorder:
-              Border.all(color: colors.secondaryHighlightDark, width: 0.5),
+          cardBorder: Border.all(
+            color: colors.secondaryHighlightDark,
+            width: 0.5,
+          ),
           cardColor: colors.onPrimaryOpacity95,
           cardHoveredColor: colors.backgroundAuxiliaryLightest,
           cardHoveredBorder: Border.all(
@@ -200,8 +218,10 @@ class Themes {
             width: 0.5,
           ),
           cardRadius: BorderRadius.circular(14),
-          cardSelectedBorder:
-              Border.all(color: colors.primaryHighlightShiny, width: 0.5),
+          cardSelectedBorder: Border.all(
+            color: colors.primaryHighlightShiny,
+            width: 0.5,
+          ),
           contextMenuBackgroundColor: colors.onPrimary,
           contextMenuHoveredColor: colors.backgroundAuxiliaryLightest,
           contextMenuRadius: BorderRadius.circular(11),
@@ -401,9 +421,10 @@ class CustomBoxShadow extends BoxShadow {
 
   @override
   Paint toPaint() {
-    final Paint result = Paint()
-      ..color = color
-      ..maskFilter = MaskFilter.blur(_blurStyle, blurSigma);
+    final Paint result =
+        Paint()
+          ..color = color
+          ..maskFilter = MaskFilter.blur(_blurStyle, blurSigma);
     assert(() {
       if (debugDisableShadows) {
         result.maskFilter = null;
@@ -594,16 +615,18 @@ class Style extends ThemeExtension<Style> {
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
       cardSelectedBorder:
           Border.lerp(cardSelectedBorder, other.cardSelectedBorder, t)!,
-      contextMenuBackgroundColor: Color.lerp(
-        contextMenuBackgroundColor,
-        other.contextMenuBackgroundColor,
-        t,
-      )!,
-      contextMenuHoveredColor: Color.lerp(
-        contextMenuHoveredColor,
-        other.contextMenuHoveredColor,
-        t,
-      )!,
+      contextMenuBackgroundColor:
+          Color.lerp(
+            contextMenuBackgroundColor,
+            other.contextMenuBackgroundColor,
+            t,
+          )!,
+      contextMenuHoveredColor:
+          Color.lerp(
+            contextMenuHoveredColor,
+            other.contextMenuHoveredColor,
+            t,
+          )!,
       contextMenuRadius:
           BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
       linkStyle: TextStyle.lerp(linkStyle, other.linkStyle, t)!,
@@ -617,16 +640,10 @@ class Style extends ThemeExtension<Style> {
           Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
       systemMessageColor:
           Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
-      systemMessageStyle: TextStyle.lerp(
-        systemMessageStyle,
-        other.systemMessageStyle,
-        t,
-      )!,
-      systemMessagePrimary: TextStyle.lerp(
-        systemMessagePrimary,
-        other.systemMessagePrimary,
-        t,
-      )!,
+      systemMessageStyle:
+          TextStyle.lerp(systemMessageStyle, other.systemMessageStyle, t)!,
+      systemMessagePrimary:
+          TextStyle.lerp(systemMessagePrimary, other.systemMessagePrimary, t)!,
       unreadMessageColor:
           Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
     );
@@ -649,9 +666,12 @@ class Palette {
     Color? primaryDarkOpacity90,
     required this.primaryAuxiliary,
     Color? primaryAuxiliaryOpacity25,
-    Color? primaryAuxiliaryOpacity55,
+    Color? primaryAuxiliaryOpacity90,
+    Color? primaryAuxiliaryOpacity95,
     required this.onPrimary,
+    required this.onPrimaryLight,
     Color? onPrimaryOpacity7,
+    Color? onPrimaryOpacity10,
     Color? onPrimaryOpacity25,
     Color? onPrimaryOpacity50,
     Color? onPrimaryOpacity95,
@@ -697,53 +717,60 @@ class Palette {
     required this.danger,
     required this.warning,
     required this.userColors,
-  })  : primaryOpacity20 = primaryOpacity20 ?? primary.withValues(alpha: 0.20),
-        primaryDarkOpacity70 =
-            primaryDarkOpacity70 ?? primaryDark.withValues(alpha: 0.70),
-        primaryDarkOpacity90 =
-            primaryDarkOpacity90 ?? primaryDark.withValues(alpha: 0.90),
-        primaryAuxiliaryOpacity25 = primaryAuxiliaryOpacity25 ??
-            primaryAuxiliary.withValues(alpha: 0.25),
-        primaryAuxiliaryOpacity55 = primaryAuxiliaryOpacity55 ??
-            primaryAuxiliary.withValues(alpha: 0.55),
-        onPrimaryOpacity7 =
-            onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
-        onPrimaryOpacity25 =
-            onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
-        onPrimaryOpacity50 =
-            onPrimaryOpacity50 ?? onPrimary.withValues(alpha: 0.50),
-        onPrimaryOpacity95 =
-            onPrimaryOpacity95 ?? onPrimary.withValues(alpha: 0.95),
-        secondaryOpacity87 =
-            secondaryOpacity87 ?? secondary.withValues(alpha: 0.87),
-        secondaryOpacity40 =
-            secondaryOpacity40 ?? secondary.withValues(alpha: 0.40),
-        onSecondaryOpacity20 =
-            onSecondaryOpacity20 ?? onSecondary.withValues(alpha: 0.20),
-        onSecondaryOpacity50 =
-            onSecondaryOpacity50 ?? onSecondary.withValues(alpha: 0.50),
-        onSecondaryOpacity60 =
-            onSecondaryOpacity60 ?? onSecondary.withValues(alpha: 0.60),
-        onSecondaryOpacity88 =
-            onSecondaryOpacity88 ?? onSecondary.withValues(alpha: 0.88),
-        onBackgroundOpacity2 =
-            onBackgroundOpacity2 ?? onBackground.withValues(alpha: 0.02),
-        onBackgroundOpacity7 =
-            onBackgroundOpacity7 ?? onBackground.withValues(alpha: 0.07),
-        onBackgroundOpacity13 =
-            onBackgroundOpacity13 ?? onBackground.withValues(alpha: 0.13),
-        onBackgroundOpacity20 =
-            onBackgroundOpacity20 ?? onBackground.withValues(alpha: 0.20),
-        onBackgroundOpacity27 =
-            onBackgroundOpacity27 ?? onBackground.withValues(alpha: 0.27),
-        onBackgroundOpacity40 =
-            onBackgroundOpacity40 ?? onBackground.withValues(alpha: 0.40),
-        onBackgroundOpacity50 =
-            onBackgroundOpacity50 ?? onBackground.withValues(alpha: 0.50),
-        onBackgroundOpacity70 =
-            onBackgroundOpacity70 ?? onBackground.withValues(alpha: 0.70),
-        declineOpacity50 = declineOpacity50 ?? decline.withValues(alpha: 0.50),
-        declineOpacity88 = declineOpacity88 ?? decline.withValues(alpha: 0.88);
+  }) : primaryOpacity20 = primaryOpacity20 ?? primary.withValues(alpha: 0.20),
+       primaryDarkOpacity70 =
+           primaryDarkOpacity70 ?? primaryDark.withValues(alpha: 0.70),
+       primaryDarkOpacity90 =
+           primaryDarkOpacity90 ?? primaryDark.withValues(alpha: 0.90),
+       primaryAuxiliaryOpacity25 =
+           primaryAuxiliaryOpacity25 ??
+           primaryAuxiliary.withValues(alpha: 0.25),
+       primaryAuxiliaryOpacity90 =
+           primaryAuxiliaryOpacity90 ??
+           primaryAuxiliary.withValues(alpha: 0.90),
+       primaryAuxiliaryOpacity95 =
+           primaryAuxiliaryOpacity95 ??
+           primaryAuxiliary.withValues(alpha: 0.95),
+       onPrimaryOpacity7 =
+           onPrimaryOpacity7 ?? onPrimary.withValues(alpha: 0.07),
+       onPrimaryOpacity10 =
+           onPrimaryOpacity10 ?? onPrimary.withValues(alpha: 0.10),
+       onPrimaryOpacity25 =
+           onPrimaryOpacity25 ?? onPrimary.withValues(alpha: 0.25),
+       onPrimaryOpacity50 =
+           onPrimaryOpacity50 ?? onPrimary.withValues(alpha: 0.50),
+       onPrimaryOpacity95 =
+           onPrimaryOpacity95 ?? onPrimary.withValues(alpha: 0.95),
+       secondaryOpacity87 =
+           secondaryOpacity87 ?? secondary.withValues(alpha: 0.87),
+       secondaryOpacity40 =
+           secondaryOpacity40 ?? secondary.withValues(alpha: 0.40),
+       onSecondaryOpacity20 =
+           onSecondaryOpacity20 ?? onSecondary.withValues(alpha: 0.20),
+       onSecondaryOpacity50 =
+           onSecondaryOpacity50 ?? onSecondary.withValues(alpha: 0.50),
+       onSecondaryOpacity60 =
+           onSecondaryOpacity60 ?? onSecondary.withValues(alpha: 0.60),
+       onSecondaryOpacity88 =
+           onSecondaryOpacity88 ?? onSecondary.withValues(alpha: 0.88),
+       onBackgroundOpacity2 =
+           onBackgroundOpacity2 ?? onBackground.withValues(alpha: 0.02),
+       onBackgroundOpacity7 =
+           onBackgroundOpacity7 ?? onBackground.withValues(alpha: 0.07),
+       onBackgroundOpacity13 =
+           onBackgroundOpacity13 ?? onBackground.withValues(alpha: 0.13),
+       onBackgroundOpacity20 =
+           onBackgroundOpacity20 ?? onBackground.withValues(alpha: 0.20),
+       onBackgroundOpacity27 =
+           onBackgroundOpacity27 ?? onBackground.withValues(alpha: 0.27),
+       onBackgroundOpacity40 =
+           onBackgroundOpacity40 ?? onBackground.withValues(alpha: 0.40),
+       onBackgroundOpacity50 =
+           onBackgroundOpacity50 ?? onBackground.withValues(alpha: 0.50),
+       onBackgroundOpacity70 =
+           onBackgroundOpacity70 ?? onBackground.withValues(alpha: 0.70),
+       declineOpacity50 = declineOpacity50 ?? decline.withValues(alpha: 0.50),
+       declineOpacity88 = declineOpacity88 ?? decline.withValues(alpha: 0.88);
 
   /// Primary [Color] of the application.
   ///
@@ -810,8 +837,11 @@ class Palette {
   /// Used as [DockDecorator] color.
   final Color primaryAuxiliaryOpacity25;
 
-  /// 55% opacity of the [primaryAuxiliary] color.
-  final Color primaryAuxiliaryOpacity55;
+  /// 90% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity90;
+
+  /// 95% opacity of the [primaryAuxiliary] color.
+  final Color primaryAuxiliaryOpacity95;
 
   /// [Color] for elements to put above the [primary] color.
   ///
@@ -837,6 +867,12 @@ class Palette {
   ///
   /// Used to highlight some [DragTarget]s and backgrounds.
   final Color onPrimaryOpacity7;
+
+  /// 10% opacity of the [onPrimary] color.
+  final Color onPrimaryOpacity10;
+
+  /// Lighter version of [onPrimary] for elements to put above the [primary].
+  final Color onPrimaryLight;
 
   /// Secondary [Color] used alongside with [primary].
   ///
@@ -1029,36 +1065,61 @@ class Palette {
       primary: Color.lerp(color.primary, other.primary, t)!,
       primaryAuxiliary:
           Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
-      primaryAuxiliaryOpacity25: Color.lerp(
-          color.primaryAuxiliaryOpacity25, other.primaryAuxiliaryOpacity25, t)!,
+      primaryAuxiliaryOpacity25:
+          Color.lerp(
+            color.primaryAuxiliaryOpacity25,
+            other.primaryAuxiliaryOpacity25,
+            t,
+          )!,
       primaryHighlight:
           Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
-      primaryHighlightShiny: Color.lerp(
-        color.primaryHighlightShiny,
-        other.primaryHighlightShiny,
-        t,
-      )!,
-      primaryHighlightShiniest: Color.lerp(
-          color.primaryHighlightShiniest, other.primaryHighlightShiniest, t)!,
-      primaryHighlightLightest: Color.lerp(
-          color.primaryHighlightLightest, other.primaryHighlightLightest, t)!,
+      primaryHighlightShiny:
+          Color.lerp(
+            color.primaryHighlightShiny,
+            other.primaryHighlightShiny,
+            t,
+          )!,
+      primaryHighlightShiniest:
+          Color.lerp(
+            color.primaryHighlightShiniest,
+            other.primaryHighlightShiniest,
+            t,
+          )!,
+      primaryHighlightLightest:
+          Color.lerp(
+            color.primaryHighlightLightest,
+            other.primaryHighlightLightest,
+            t,
+          )!,
       primaryLight: Color.lerp(color.primaryLight, other.primaryLight, t)!,
       primaryLightest:
           Color.lerp(color.primaryLightest, other.primaryLightest, t)!,
       primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
-      primaryDarkOpacity70: Color.lerp(
-          color.primaryDarkOpacity70, other.primaryDarkOpacity70, t)!,
-      primaryDarkOpacity90: Color.lerp(
-          color.primaryDarkOpacity90, other.primaryDarkOpacity90, t)!,
+      primaryDarkOpacity70:
+          Color.lerp(
+            color.primaryDarkOpacity70,
+            other.primaryDarkOpacity70,
+            t,
+          )!,
+      primaryDarkOpacity90:
+          Color.lerp(
+            color.primaryDarkOpacity90,
+            other.primaryDarkOpacity90,
+            t,
+          )!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
       onPrimaryOpacity7:
           Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
+      onPrimaryOpacity10:
+          Color.lerp(color.onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
       onPrimaryOpacity25:
           Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
       onPrimaryOpacity50:
           Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
       onPrimaryOpacity95:
           Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
+      onPrimaryLight:
+          Color.lerp(color.onPrimaryLight, other.onPrimaryLight, t)!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
       secondaryLight:
           Color.lerp(color.secondaryLight, other.secondaryLight, t)!,
@@ -1066,49 +1127,121 @@ class Palette {
           Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
       secondaryHighlight:
           Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t)!,
-      secondaryHighlightDark: Color.lerp(
-          color.secondaryHighlightDark, other.secondaryHighlightDark, t)!,
-      secondaryHighlightDarkest: Color.lerp(
-          color.secondaryHighlightDarkest, other.secondaryHighlightDarkest, t)!,
+      secondaryHighlightDark:
+          Color.lerp(
+            color.secondaryHighlightDark,
+            other.secondaryHighlightDark,
+            t,
+          )!,
+      secondaryHighlightDarkest:
+          Color.lerp(
+            color.secondaryHighlightDarkest,
+            other.secondaryHighlightDarkest,
+            t,
+          )!,
       secondaryBackground:
           Color.lerp(color.secondaryBackground, other.secondaryBackground, t)!,
-      secondaryBackgroundLight: Color.lerp(
-          color.secondaryBackgroundLight, other.secondaryBackgroundLight, t)!,
-      secondaryBackgroundLightest: Color.lerp(color.secondaryBackgroundLightest,
-          other.secondaryBackgroundLightest, t)!,
+      secondaryBackgroundLight:
+          Color.lerp(
+            color.secondaryBackgroundLight,
+            other.secondaryBackgroundLight,
+            t,
+          )!,
+      secondaryBackgroundLightest:
+          Color.lerp(
+            color.secondaryBackgroundLightest,
+            other.secondaryBackgroundLightest,
+            t,
+          )!,
       onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t)!,
-      onSecondaryOpacity20: Color.lerp(
-          color.onSecondaryOpacity20, other.onSecondaryOpacity20, t)!,
-      onSecondaryOpacity50: Color.lerp(
-          color.onSecondaryOpacity50, other.onSecondaryOpacity50, t)!,
-      onSecondaryOpacity60: Color.lerp(
-          color.onSecondaryOpacity60, other.onSecondaryOpacity60, t)!,
-      onSecondaryOpacity88: Color.lerp(
-          color.onSecondaryOpacity88, other.onSecondaryOpacity88, t)!,
+      onSecondaryOpacity20:
+          Color.lerp(
+            color.onSecondaryOpacity20,
+            other.onSecondaryOpacity20,
+            t,
+          )!,
+      onSecondaryOpacity50:
+          Color.lerp(
+            color.onSecondaryOpacity50,
+            other.onSecondaryOpacity50,
+            t,
+          )!,
+      onSecondaryOpacity60:
+          Color.lerp(
+            color.onSecondaryOpacity60,
+            other.onSecondaryOpacity60,
+            t,
+          )!,
+      onSecondaryOpacity88:
+          Color.lerp(
+            color.onSecondaryOpacity88,
+            other.onSecondaryOpacity88,
+            t,
+          )!,
       background: Color.lerp(color.background, other.background, t)!,
       backgroundAuxiliary:
           Color.lerp(color.backgroundAuxiliary, other.backgroundAuxiliary, t)!,
-      backgroundAuxiliaryLight: Color.lerp(
-          color.backgroundAuxiliaryLight, other.backgroundAuxiliaryLight, t)!,
-      backgroundAuxiliaryLighter: Color.lerp(color.backgroundAuxiliaryLighter,
-          other.backgroundAuxiliaryLighter, t)!,
-      backgroundAuxiliaryLightest: Color.lerp(color.backgroundAuxiliaryLightest,
-          other.backgroundAuxiliaryLightest, t)!,
+      backgroundAuxiliaryLight:
+          Color.lerp(
+            color.backgroundAuxiliaryLight,
+            other.backgroundAuxiliaryLight,
+            t,
+          )!,
+      backgroundAuxiliaryLighter:
+          Color.lerp(
+            color.backgroundAuxiliaryLighter,
+            other.backgroundAuxiliaryLighter,
+            t,
+          )!,
+      backgroundAuxiliaryLightest:
+          Color.lerp(
+            color.backgroundAuxiliaryLightest,
+            other.backgroundAuxiliaryLightest,
+            t,
+          )!,
       onBackground: Color.lerp(color.onBackground, other.onBackground, t)!,
-      onBackgroundOpacity2: Color.lerp(
-          color.onBackgroundOpacity2, other.onBackgroundOpacity2, t)!,
-      onBackgroundOpacity7: Color.lerp(
-          color.onBackgroundOpacity7, other.onBackgroundOpacity7, t)!,
-      onBackgroundOpacity13: Color.lerp(
-          color.onBackgroundOpacity13, other.onBackgroundOpacity13, t)!,
-      onBackgroundOpacity20: Color.lerp(
-          color.onBackgroundOpacity20, other.onBackgroundOpacity20, t)!,
-      onBackgroundOpacity27: Color.lerp(
-          color.onBackgroundOpacity27, other.onBackgroundOpacity27, t)!,
-      onBackgroundOpacity40: Color.lerp(
-          color.onBackgroundOpacity40, other.onBackgroundOpacity40, t)!,
-      onBackgroundOpacity50: Color.lerp(
-          color.onBackgroundOpacity50, other.onBackgroundOpacity50, t)!,
+      onBackgroundOpacity2:
+          Color.lerp(
+            color.onBackgroundOpacity2,
+            other.onBackgroundOpacity2,
+            t,
+          )!,
+      onBackgroundOpacity7:
+          Color.lerp(
+            color.onBackgroundOpacity7,
+            other.onBackgroundOpacity7,
+            t,
+          )!,
+      onBackgroundOpacity13:
+          Color.lerp(
+            color.onBackgroundOpacity13,
+            other.onBackgroundOpacity13,
+            t,
+          )!,
+      onBackgroundOpacity20:
+          Color.lerp(
+            color.onBackgroundOpacity20,
+            other.onBackgroundOpacity20,
+            t,
+          )!,
+      onBackgroundOpacity27:
+          Color.lerp(
+            color.onBackgroundOpacity27,
+            other.onBackgroundOpacity27,
+            t,
+          )!,
+      onBackgroundOpacity40:
+          Color.lerp(
+            color.onBackgroundOpacity40,
+            other.onBackgroundOpacity40,
+            t,
+          )!,
+      onBackgroundOpacity50:
+          Color.lerp(
+            color.onBackgroundOpacity50,
+            other.onBackgroundOpacity50,
+            t,
+          )!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
       almostTransparent:
           Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
@@ -1141,7 +1274,8 @@ extension ThemeStylesExtension on ThemeData {
 /// Adds the ability to get HEX value of the color.
 extension HexColor on Color {
   /// Returns a HEX string value of this color.
-  String toHex({bool withAlpha = true}) => '#'
+  String toHex({bool withAlpha = true}) =>
+      '#'
       '${(withAlpha ? (a * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0') : '')}'
       '${(r * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'
       '${(g * 255).round().toRadixString(16).toUpperCase().padLeft(2, '0')}'

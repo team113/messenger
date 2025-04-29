@@ -39,6 +39,7 @@ import 'package:messenger/provider/drift/chat_credentials.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
@@ -79,13 +80,16 @@ void main() async {
   final userProvider = UserDriftProvider(common, scoped);
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -99,8 +103,9 @@ void main() async {
     );
   }
 
-  testWidgets('AuthView logins a user and redirects to HomeView',
-      (WidgetTester tester) async {
+  testWidgets('AuthView logins a user and redirects to HomeView', (
+    WidgetTester tester,
+  ) async {
     Get.put(myUserProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -116,13 +121,12 @@ void main() async {
 
     final AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
 
@@ -136,6 +140,7 @@ void main() async {
     router = MockRouterState();
     router.provider = MockedPlatformRouteInformationProvider();
     when(router.routes).thenReturn(RxList());
+    when(router.obscuring).thenReturn(RxList());
 
     await tester.pumpWidget(createWidgetForTesting(child: const AuthView()));
     await tester.pumpAndSettle();
@@ -224,7 +229,7 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
   };
 
   @override
@@ -239,31 +244,29 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
       throw Exception('Username or num or email or phone must not be null');
     }
 
-    return SignIn$Mutation$CreateSession$CreateSessionOk.fromJson(
-      {
-        'session': {
-          '__typename': 'Session',
-          'id': '1ba588ce-d084-486d-9087-3999c8f56596',
-          'ip': '127.0.0.1',
-          'userAgent':
-              'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
-          'isCurrent': true,
-          'lastActivatedAt': DateTime.now().toString(),
-          'ver': '031592915314290362597742826064324903711'
-        },
-        'accessToken': {
-          '__typename': 'AccessToken',
-          'secret': 'token',
-          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
-        },
-        'refreshToken': {
-          '__typename': 'RefreshToken',
-          'secret': 'token',
-          'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
-        },
-        'user': userData,
+    return SignIn$Mutation$CreateSession$CreateSessionOk.fromJson({
+      'session': {
+        '__typename': 'Session',
+        'id': '1ba588ce-d084-486d-9087-3999c8f56596',
+        'ip': '127.0.0.1',
+        'userAgent':
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+        'isCurrent': true,
+        'lastActivatedAt': DateTime.now().toString(),
+        'ver': '031592915314290362597742826064324903711',
       },
-    );
+      'accessToken': {
+        '__typename': 'AccessToken',
+        'secret': 'token',
+        'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
+      },
+      'refreshToken': {
+        '__typename': 'RefreshToken',
+        'secret': 'token',
+        'expiresAt': DateTime.now().add(const Duration(days: 1)).toString(),
+      },
+      'user': userData,
+    });
   }
 
   @override
@@ -278,8 +281,8 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
         data: {
           'recentChatsTopEvents': {
             '__typename': 'SubscriptionInitialized',
-            'ok': true
-          }
+            'ok': true,
+          },
         },
         parserFn: (_) => null,
       ),
@@ -292,7 +295,9 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+  Stream<QueryResult<Object?>> sessionsEvents(
+    SessionsListVersion? Function() ver,
+  ) {
     return const Stream.empty();
   }
 
@@ -324,16 +329,15 @@ class _FakeGraphQlProvider extends MockedGraphQlProvider {
   ) {
     Future.delayed(
       Duration.zero,
-      () => chatEventsStream.add(QueryResult.internal(
-        source: QueryResultSource.network,
-        data: {
-          'chatEvents': {
-            '__typename': 'SubscriptionInitialized',
-            'ok': true,
-          }
-        },
-        parserFn: (_) => null,
-      )),
+      () => chatEventsStream.add(
+        QueryResult.internal(
+          source: QueryResultSource.network,
+          data: {
+            'chatEvents': {'__typename': 'SubscriptionInitialized', 'ok': true},
+          },
+          parserFn: (_) => null,
+        ),
+      ),
     );
     return chatEventsStream.stream;
   }

@@ -53,8 +53,9 @@ class FreelanceWorkController extends GetxController {
   final AuthService _authService;
 
   /// [ChatDirectLinkSlug] to use in the [useLink].
-  static const ChatDirectLinkSlug _link =
-      ChatDirectLinkSlug.unchecked('freelance');
+  static const ChatDirectLinkSlug _link = ChatDirectLinkSlug.unchecked(
+    'freelance',
+  );
 
   /// URL to fetch the [Issue]s from.
   ///
@@ -108,14 +109,15 @@ class FreelanceWorkController extends GetxController {
     final response = await (await PlatformUtils.dio).get(_url);
 
     if (response.statusCode == 200) {
-      issues.value = (response.data as List<dynamic>).map((e) {
-        return Issue(
-          title: e['title'],
-          description: e['body'],
-          url: e['html_url'],
-          number: e['number'],
-        );
-      }).toList();
+      issues.value =
+          (response.data as List<dynamic>).map((e) {
+            return Issue(
+              title: e['title'],
+              description: e['body'],
+              url: e['html_url'],
+              number: e['number'],
+            );
+          }).toList();
 
       issuesStatus.value = RxStatus.success();
     } else {

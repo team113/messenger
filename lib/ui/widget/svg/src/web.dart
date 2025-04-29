@@ -30,6 +30,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 
 /// Instantiates a widget rendering an SVG picture from an [AssetBundle].
 ///
@@ -83,18 +84,17 @@ Widget svgFromBytes(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _BytesSvgLoader(bytes),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => _BrowserSvg(
+  key: key,
+  loader: _BytesSvgLoader(bytes),
+  alignment: alignment,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  placeholderBuilder: placeholderBuilder,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// Instantiates a widget rendering an SVG picture from a [File].
 ///
@@ -112,18 +112,17 @@ Widget svgFromFile(
   double? height,
   WidgetBuilder? placeholderBuilder,
   String? semanticsLabel,
-}) =>
-    _BrowserSvg(
-      key: key,
-      loader: _FileSvgLoader(file),
-      alignment: alignment,
-      excludeFromSemantics: excludeFromSemantics,
-      fit: fit,
-      height: height,
-      placeholderBuilder: placeholderBuilder,
-      semanticsLabel: semanticsLabel,
-      width: width,
-    );
+}) => _BrowserSvg(
+  key: key,
+  loader: _FileSvgLoader(file),
+  alignment: alignment,
+  excludeFromSemantics: excludeFromSemantics,
+  fit: fit,
+  height: height,
+  placeholderBuilder: placeholderBuilder,
+  semanticsLabel: semanticsLabel,
+  width: width,
+);
 
 /// SVG picture loader.
 abstract class _SvgLoader {
@@ -154,7 +153,7 @@ class _AssetSvgLoader implements _SvgLoader {
     }
 
     return Future(() async {
-      String image = await rootBundle.loadString(asset);
+      String image = await PlatformUtils.loadString(asset);
       Uint8List bytes = Uint8List.fromList(utf8.encode(image));
 
       _cache[asset] = bytes;

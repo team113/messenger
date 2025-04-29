@@ -51,7 +51,9 @@ class BackgroundDriftProvider extends DriftProviderBase {
 
     final result = await safe((db) async {
       final DtoBackground stored = _BackgroundDb.fromDb(
-        await db.into(db.background).insertReturning(
+        await db
+            .into(db.background)
+            .insertReturning(
               background.toDb(userId),
               mode: InsertMode.insertOrReplace,
             ),
@@ -73,20 +75,17 @@ class BackgroundDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoBackground?>(
-      (db) async {
-        final stmt = db.select(db.background)
-          ..where((u) => u.userId.equals(id.val));
-        final BackgroundRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoBackground?>((db) async {
+      final stmt = db.select(db.background)
+        ..where((u) => u.userId.equals(id.val));
+      final BackgroundRow? row = await stmt.getSingleOrNull();
 
-        if (row == null) {
-          return null;
-        }
+      if (row == null) {
+        return null;
+      }
 
-        return _BackgroundDb.fromDb(row);
-      },
-      exclusive: false,
-    );
+      return _BackgroundDb.fromDb(row);
+    }, exclusive: false);
   }
 
   /// Deletes the [DtoBackground] identified by the provided [id] from the
@@ -125,14 +124,12 @@ class BackgroundDriftProvider extends DriftProviderBase {
         _controllers[id] = controller;
       }
 
-      return StreamGroup.merge(
-        [
-          controller.stream,
-          stmt
-              .watch()
-              .map((e) => e.isEmpty ? null : _BackgroundDb.fromDb(e.first)),
-        ],
-      );
+      return StreamGroup.merge([
+        controller.stream,
+        stmt.watch().map(
+          (e) => e.isEmpty ? null : _BackgroundDb.fromDb(e.first),
+        ),
+      ]);
     });
   }
 }

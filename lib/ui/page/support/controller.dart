@@ -42,7 +42,7 @@ class SupportController extends GetxController {
         MessagePopup.alert(
           'label_no_updates_are_available_title'.l10n,
           description: [
-            TextSpan(text: 'label_no_updates_are_available_subtitle'.l10n)
+            TextSpan(text: 'label_no_updates_are_available_subtitle'.l10n),
           ],
         );
       }

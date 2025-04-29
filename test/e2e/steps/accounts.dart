@@ -30,22 +30,17 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeAccountInAccounts = then1<TestUser, CustomWorld>(
   'I see {user} account in accounts list',
   (name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final authService = Get.find<AuthService>();
-        final account = authService.profiles
-            .firstWhereOrNull((e) => e.name?.val == name.name);
-        return context.world.appDriver.isPresent(
-          context.world.appDriver.findBy(
-            'Account_${account?.id}',
-            FindType.key,
-          ),
-        );
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final authService = Get.find<AuthService>();
+      final account = authService.profiles.firstWhereOrNull(
+        (e) => e.name?.val == name.name,
+      );
+      return context.world.appDriver.isPresent(
+        context.world.appDriver.findBy('Account_${account?.id}', FindType.key),
+      );
+    }, timeout: const Duration(seconds: 30));
   },
 );
 
@@ -59,8 +54,9 @@ final StepDefinitionGeneric tapAccountInAccounts = then1<TestUser, CustomWorld>(
     await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
     final authService = Get.find<AuthService>();
-    final account =
-        authService.profiles.firstWhereOrNull((e) => e.name?.val == name.name);
+    final account = authService.profiles.firstWhereOrNull(
+      (e) => e.name?.val == name.name,
+    );
     await context.world.appDriver.tap(
       context.world.appDriver.findBy('Account_${account?.id}', FindType.key),
     );
@@ -71,20 +67,20 @@ final StepDefinitionGeneric tapAccountInAccounts = then1<TestUser, CustomWorld>(
 ///
 /// Examples:
 /// - Then I remove Alice account from accounts list
-final StepDefinitionGeneric removeAccountInAccounts =
-    then1<TestUser, CustomWorld>(
-  'I remove {user} account from accounts list',
-  (name, context) async {
-    await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+final StepDefinitionGeneric removeAccountInAccounts = then1<
+  TestUser,
+  CustomWorld
+>('I remove {user} account from accounts list', (name, context) async {
+  await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-    final authService = Get.find<AuthService>();
-    final account =
-        authService.profiles.firstWhereOrNull((e) => e.name?.val == name.name);
-    await context.world.appDriver.tap(
-      context.world.appDriver.findByDescendant(
-        context.world.appDriver.findBy('Account_${account?.id}', FindType.key),
-        context.world.appDriver.findBy('RemoveAccount', FindType.key),
-      ),
-    );
-  },
-);
+  final authService = Get.find<AuthService>();
+  final account = authService.profiles.firstWhereOrNull(
+    (e) => e.name?.val == name.name,
+  );
+  await context.world.appDriver.tap(
+    context.world.appDriver.findByDescendant(
+      context.world.appDriver.findBy('Account_${account?.id}', FindType.key),
+      context.world.appDriver.findBy('RemoveAccount', FindType.key),
+    ),
+  );
+});

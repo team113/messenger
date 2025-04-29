@@ -82,8 +82,8 @@ class CallButtonsSwitchView extends StatelessWidget {
                           CallButtonsPosition.more =>
                             'label_media_buttons_in_more'.l10n,
                         },
-                        selected: position ==
-                                c.settings.value?.callButtonsPosition ||
+                        selected:
+                            position == c.settings.value?.callButtonsPosition ||
                             (c.settings.value?.callButtonsPosition == null &&
                                 position == CallButtonsPosition.appBar),
                         onPressed: () => c.setCallButtonsPosition(position),

@@ -40,6 +40,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -76,14 +77,17 @@ void main() async {
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   when(graphQlProvider.disconnect()).thenAnswer((_) => () {});
 
@@ -105,24 +109,21 @@ void main() async {
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
-    'ver': '0'
+    'ver': '0',
   };
 
   var recentChats = {
     'recentChats': {
       'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
+        {'node': chatData, 'cursor': 'cursor'},
       ],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
-    }
+      },
+    },
   };
 
   var favoriteChats = {
@@ -134,50 +135,62 @@ void main() async {
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
       },
-      'ver': '0'
-    }
+      'ver': '0',
+    },
   };
 
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.recentChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-    noFavorite: anyNamed('noFavorite'),
-    withOngoingCalls: anyNamed('withOngoingCalls'),
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+  when(
+    graphQlProvider.recentChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
+    ),
+  ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-  when(graphQlProvider.favoriteChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
-      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+  when(
+    graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
+    (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+  );
 
-  when(graphQlProvider.getChat(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  )).thenAnswer(
-      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+  when(
+    graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    ),
+  ).thenAnswer((_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -194,19 +207,20 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          graphQlProvider,
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
     authService.init();
 
-    UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider);
+    UserRepository userRepository = UserRepository(
+      graphQlProvider,
+      userProvider,
+    );
 
     final CallRepository callRepository = Get.put(
       CallRepository(
@@ -220,26 +234,31 @@ void main() async {
     );
     final AbstractChatRepository chatRepository =
         Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            sessionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
+    final ChatService chatService = Get.put(
+      ChatService(chatRepository, authService),
     );
-    final ChatService chatService =
-        Get.put(ChatService(chatRepository, authService));
 
-    when(graphQlProvider.editChatMessage(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.editChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: api.ChatMessageTextInput(
+          kw$new: const ChatMessageText('new text'),
+        ),
+      ),
+    ).thenAnswer((_) => Future.value());
 
     await chatService.editChatMessage(
       ChatMessage(
@@ -254,101 +273,121 @@ void main() async {
       text: const ChatMessageTextInput(ChatMessageText('new text')),
     );
 
-    verify(graphQlProvider.editChatMessage(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-    ));
+    verify(
+      graphQlProvider.editChatMessage(
+        const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: api.ChatMessageTextInput(
+          kw$new: const ChatMessageText('new text'),
+        ),
+      ),
+    );
   });
 
   test(
-      'ChatService throws a EditChatMessageException when editing a ChatMessage',
-      () async {
-    final AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        const UserId('me'),
-        settingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-
-    final AuthService authService = Get.put(
-      AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          graphQlProvider,
-          myUserProvider,
-          credentialsProvider,
-        )),
-        credentialsProvider,
-        accountProvider,
-      ),
-    );
-    authService.init();
-
-    final UserRepository userRepository =
-        UserRepository(graphQlProvider, userProvider);
-
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    final AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    when(graphQlProvider.editChatMessage(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-    )).thenThrow(
-      const EditChatMessageException(
-        EditChatMessageErrorCode.unknownReplyingChatItem,
-      ),
-    );
-
-    Get.put(chatProvider);
-
-    expect(
-      () async => await chatService.editChatMessage(
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          User(
-            const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-            UserNum('1234123412341234'),
-          ),
-          PreciseDateTime.now(),
+    'ChatService throws a EditChatMessageException when editing a ChatMessage',
+    () async {
+      final AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
         ),
-        text: const ChatMessageTextInput(ChatMessageText('new text')),
-      ),
-      throwsA(isA<EditChatMessageException>()),
-    );
+      );
 
-    await Future.delayed(Duration.zero);
+      final AuthService authService = Get.put(
+        AuthService(
+          Get.put<AbstractAuthRepository>(
+            AuthRepository(
+              graphQlProvider,
+              myUserProvider,
+              credentialsProvider,
+            ),
+          ),
+          credentialsProvider,
+          accountProvider,
+          locksProvider,
+        ),
+      );
+      authService.init();
 
-    verify(graphQlProvider.editChatMessage(
-      const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: api.ChatMessageTextInput(kw$new: const ChatMessageText('new text')),
-    ));
-  });
+      final UserRepository userRepository = UserRepository(
+        graphQlProvider,
+        userProvider,
+      );
+
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      final AbstractChatRepository chatRepository =
+          Get.put<AbstractChatRepository>(
+            ChatRepository(
+              graphQlProvider,
+              chatProvider,
+              chatItemProvider,
+              chatMemberProvider,
+              callRepository,
+              draftProvider,
+              userRepository,
+              sessionProvider,
+              monologProvider,
+              me: const UserId('me'),
+            ),
+          );
+      ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      when(
+        graphQlProvider.editChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: api.ChatMessageTextInput(
+            kw$new: const ChatMessageText('new text'),
+          ),
+        ),
+      ).thenThrow(
+        const EditChatMessageException(
+          EditChatMessageErrorCode.unknownReplyingChatItem,
+        ),
+      );
+
+      Get.put(chatProvider);
+
+      expect(
+        () async => await chatService.editChatMessage(
+          ChatMessage(
+            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            User(
+              const UserId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+              UserNum('1234123412341234'),
+            ),
+            PreciseDateTime.now(),
+          ),
+          text: const ChatMessageTextInput(ChatMessageText('new text')),
+        ),
+        throwsA(isA<EditChatMessageException>()),
+      );
+
+      await Future.delayed(Duration.zero);
+
+      verify(
+        graphQlProvider.editChatMessage(
+          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: api.ChatMessageTextInput(
+            kw$new: const ChatMessageText('new text'),
+          ),
+        ),
+      );
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

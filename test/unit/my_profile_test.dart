@@ -27,11 +27,13 @@ import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/blocklist.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/blocklist.dart';
+import 'package:messenger/store/model/blocklist.dart';
 import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/model/session.dart';
 import 'package:messenger/store/my_user.dart';
@@ -49,24 +51,25 @@ void main() async {
   final userProvider = UserDriftProvider(common, scoped);
   final blocklistProvider = Get.put(BlocklistDriftProvider(common, scoped));
   final versionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   test('MyProfile test', () async {
     Get.reset();
 
     final graphQlProvider = FakeGraphQlProvider();
 
-    Get.put(AuthService(
-      AuthRepository(
-        graphQlProvider,
-        myUserProvider,
+    Get.put(
+      AuthService(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
         credentialsProvider,
+        accountProvider,
+        locksProvider,
       ),
-      credentialsProvider,
-      accountProvider,
-    ));
+    );
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
 
     BlocklistRepository blocklistRepository = Get.put(
       BlocklistRepository(
@@ -74,7 +77,6 @@ void main() async {
         blocklistProvider,
         userRepository,
         versionProvider,
-        myUserProvider,
         me: const UserId('me'),
       ),
     );
@@ -127,7 +129,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
+    },
   };
 
   @override
@@ -141,7 +143,7 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
         data: {
           'myUserEvents': {'__typename': 'MyUser', ...userData},
         },
-      )
+      ),
     ]);
   }
 
@@ -161,7 +163,16 @@ class FakeGraphQlProvider extends MockedGraphQlProvider {
   }
 
   @override
-  Stream<QueryResult<Object?>> sessionsEvents(SessionsListVersion? ver) {
+  Stream<QueryResult<Object?>> sessionsEvents(
+    SessionsListVersion? Function() ver,
+  ) {
+    return const Stream.empty();
+  }
+
+  @override
+  Stream<QueryResult<Object?>> blocklistEvents(
+    BlocklistVersion? Function() ver,
+  ) {
     return const Stream.empty();
   }
 }

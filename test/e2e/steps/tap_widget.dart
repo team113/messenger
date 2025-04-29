@@ -42,14 +42,16 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
             context.world.appDriver.findByKeySkipOffstage(key.name).first;
 
         await context.world.appDriver.waitForAppToSettle();
+
         await context.world.appDriver.tap(
           finder,
           timeout: context.configuration.timeout,
         );
+
         await context.world.appDriver.waitForAppToSettle();
 
         return true;
-      } catch (_) {
+      } catch (e) {
         // No-op.
       }
 

@@ -55,9 +55,9 @@ class Chat implements Comparable<Chat> {
     this.ongoingCall,
     this.favoritePosition,
     this.membersCount = 0,
-  })  : createdAt = createdAt ?? PreciseDateTime.now(),
-        updatedAt = updatedAt ?? PreciseDateTime.now(),
-        lastDelivery = lastDelivery ?? PreciseDateTime.now();
+  }) : createdAt = createdAt ?? PreciseDateTime.now(),
+       updatedAt = updatedAt ?? PreciseDateTime.now(),
+       lastDelivery = lastDelivery ?? PreciseDateTime.now();
 
   /// Unique ID of this [Chat].
   ChatId id;
@@ -196,20 +196,26 @@ class Chat implements Comparable<Chat> {
     UserId? me, [
     List<ChatMember> members = const [],
   ]) {
+    if (item.id.isLocal) {
+      return false;
+    }
+
     if (members.isNotEmpty) {
       if (members.length <= 1) {
         return true;
       }
 
-      final Iterable<ChatMember> membersWithoutMe =
-          members.where((e) => e.user.id != me);
+      final Iterable<ChatMember> membersWithoutMe = members.where(
+        (e) => e.user.id != me,
+      );
 
       if (membersWithoutMe.isNotEmpty) {
-        final PreciseDateTime firstJoinedAt =
-            membersWithoutMe.fold<PreciseDateTime>(
-          membersWithoutMe.first.joinedAt,
-          (at, member) => member.joinedAt.isBefore(at) ? member.joinedAt : at,
-        );
+        final PreciseDateTime firstJoinedAt = membersWithoutMe
+            .fold<PreciseDateTime>(
+              membersWithoutMe.first.joinedAt,
+              (at, member) =>
+                  member.joinedAt.isBefore(at) ? member.joinedAt : at,
+            );
 
         if (item.at.isBefore(firstJoinedAt)) {
           return true;
@@ -228,8 +234,9 @@ class Chat implements Comparable<Chat> {
         return false;
       }
 
-      final LastChatRead? read =
-          lastReads.firstWhereOrNull((m) => m.memberId == e.user.id);
+      final LastChatRead? read = lastReads.firstWhereOrNull(
+        (m) => m.memberId == e.user.id,
+      );
       return read == null || read.at.isBefore(item.at);
     });
   }
@@ -329,27 +336,27 @@ class Chat implements Comparable<Chat> {
 
   @override
   int get hashCode => Object.hash(
-        id,
-        avatar,
-        name,
-        members,
-        kindIndex,
-        isHidden,
-        muted,
-        directLink,
-        createdAt,
-        updatedAt,
-        lastReads,
-        lastDelivery,
-        firstItem,
-        lastItem,
-        lastReadItem,
-        unreadCount,
-        totalCount,
-        ongoingCall,
-        favoritePosition,
-        membersCount,
-      );
+    id,
+    avatar,
+    name,
+    members,
+    kindIndex,
+    isHidden,
+    muted,
+    directLink,
+    createdAt,
+    updatedAt,
+    lastReads,
+    lastDelivery,
+    firstItem,
+    lastItem,
+    lastReadItem,
+    unreadCount,
+    totalCount,
+    ongoingCall,
+    favoritePosition,
+    membersCount,
+  );
 }
 
 /// Member of a [Chat].
@@ -438,9 +445,10 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
   bool get isLocal => val.startsWith('d_') || val.startsWith('local_');
 
   /// Returns [UserId] part of this [ChatId] if [isLocal].
-  UserId get userId => isLocal
-      ? UserId(val.replaceFirst('d_', ''))
-      : throw Exception('ChatId is not local');
+  UserId get userId =>
+      isLocal
+          ? UserId(val.replaceFirst('d_', ''))
+          : throw Exception('ChatId is not local');
 
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].

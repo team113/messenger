@@ -90,4 +90,7 @@ abstract class AbstractSettingsRepository {
 
   /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
   Future<void> setWorkWithUsTabEnabled(bool enabled);
+
+  /// Sets the [ApplicationSettings.workWithUsTabEnabled] value.
+  Future<void> setMuteKeys(List<String>? keys);
 }

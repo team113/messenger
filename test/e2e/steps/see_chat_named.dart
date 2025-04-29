@@ -30,13 +30,11 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeNamedChat = then1<String, CustomWorld>(
   'I see {string} chat',
   (name, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ChatsTabController>();
-        return controller.chats.any((c) => c.rx.title == name);
-      },
-    );
+      final controller = Get.find<ChatsTabController>();
+      return controller.chats.any((c) => c.rx.title == name);
+    });
   },
 );

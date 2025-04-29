@@ -31,9 +31,10 @@ import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
-import '/provider/gql/exceptions.dart';
 import '/provider/drift/account.dart';
 import '/provider/drift/credentials.dart';
+import '/provider/drift/locks.dart';
+import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
@@ -49,6 +50,7 @@ class AuthService extends DisposableService {
     this._authRepository,
     this._credentialsProvider,
     this._accountProvider,
+    this._lockProvider,
   );
 
   /// Currently authorized session's [Credentials].
@@ -77,6 +79,9 @@ class AuthService extends DisposableService {
   /// [AccountDriftProvider] storing the current user's [UserId].
   final AccountDriftProvider _accountProvider;
 
+  /// [LockDriftProvider] storing the database locks.
+  final LockDriftProvider _lockProvider;
+
   /// Authorization repository containing required authentication methods.
   final AbstractAuthRepository _authRepository;
 
@@ -93,6 +98,9 @@ class AuthService extends DisposableService {
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
   StreamSubscription? _storageSubscription;
+
+  /// [refreshSession] attempt number counter used purely for [Log]s.
+  static int _refreshAttempt = 0;
 
   /// Initial [Duration] to set [_refreshRetryDelay] to.
   static const Duration _initialRetryDelay = Duration(seconds: 2);
@@ -132,8 +140,9 @@ class AuthService extends DisposableService {
 
     _authRepository.authExceptionHandler = (e) async {
       // Try to refresh session, otherwise just force logout.
-      if (credentials.value?.refresh.expireAt
-              .isAfter(PreciseDateTime.now().toUtc()) ==
+      if (credentials.value?.refresh.expireAt.isAfter(
+            PreciseDateTime.now().toUtc(),
+          ) ==
           true) {
         await refreshSession();
       } else {
@@ -151,9 +160,11 @@ class AuthService extends DisposableService {
           '_storageSubscription(${e.key}): received a credentials update',
           '$runtimeType',
         );
+
         if (e.newValue != null) {
-          final Credentials received =
-              Credentials.fromJson(json.decode(e.newValue!));
+          final Credentials received = Credentials.fromJson(
+            json.decode(e.newValue!),
+          );
           Credentials? current = credentials.value;
           final bool authorized = _hasAuthorization;
 
@@ -180,8 +191,9 @@ class AuthService extends DisposableService {
             }
           }
         } else {
-          final UserId? deletedId = accounts.keys
-              .firstWhereOrNull((k) => e.key?.endsWith(k.val) ?? false);
+          final UserId? deletedId = accounts.keys.firstWhereOrNull(
+            (k) => e.key?.endsWith(k.val) ?? false,
+          );
 
           accounts.remove(deletedId);
 
@@ -203,9 +215,10 @@ class AuthService extends DisposableService {
       }
 
       final UserId? userId = _accountProvider.userId;
-      final Credentials? creds = userId != null
-          ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
-          : null;
+      final Credentials? creds =
+          userId != null
+              ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
+              : null;
 
       if (creds == null) {
         return _unauthorized();
@@ -424,8 +437,9 @@ class AuthService extends DisposableService {
     Log.debug('signInWith(credentials)', '$runtimeType');
 
     // Check if the [credentials] are valid.
-    credentials =
-        await _authRepository.refreshSession(credentials.refresh.secret);
+    credentials = await _authRepository.refreshSession(
+      credentials.refresh.secret,
+    );
 
     status.value = RxStatus.loadingMore();
     await WebUtils.protect(() async {
@@ -612,6 +626,8 @@ class AuthService extends DisposableService {
   /// Refreshes [Credentials] of the account with the provided [userId] or of
   /// the active one, if [userId] is not provided.
   Future<void> refreshSession({UserId? userId}) async {
+    final int attempt = _refreshAttempt++;
+
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
@@ -620,27 +636,48 @@ class AuthService extends DisposableService {
     final bool areCurrent = userId == this.userId;
 
     Log.debug(
-      'refreshSession($userId) with `isLocked`: $isLocked',
+      'refreshSession($userId |-> $attempt) with `isLocked`: $isLocked',
       '$runtimeType',
     );
 
+    LockIdentifier? dbLock;
+
     try {
+      // Acquire a database lock to prevent multiple refreshes of the same
+      // [Credentials] from multiple processes.
+      dbLock = await _lockProvider.acquire('refreshSession($userId)');
+
       // Wait for the lock to be released and check the [Credentials] again as
       // some other task may have already refreshed them.
       await WebUtils.protect(() async {
+        Log.debug(
+          'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
+          '$runtimeType',
+        );
+
         Credentials? oldCreds;
 
         if (userId != null) {
           oldCreds = await _credentialsProvider.read(userId, refresh: true);
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) read from `drift` the `oldCreds`: $oldCreds',
+            '$runtimeType',
+          );
         }
 
         if (areCurrent) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) `areCurrent` is `true`, which will apply `credentials.value` to `oldCreds` if ${oldCreds == null} -> ${credentials.value}',
+            '$runtimeType',
+          );
+
           oldCreds ??= credentials.value;
         }
 
         if (userId == null) {
-          Log.debug(
-            'refreshSession($userId): `userId` is `null`, unable to proceed',
+          Log.warning(
+            'refreshSession($userId |-> $attempt): `userId` is `null`, unable to proceed',
             '$runtimeType',
           );
 
@@ -659,7 +696,7 @@ class AuthService extends DisposableService {
             oldCreds.access.secret != credentials.value?.access.secret &&
             !_shouldRefresh(oldCreds)) {
           Log.debug(
-            'refreshSession($userId): false alarm, applying the retrieved fresh credentials',
+            'refreshSession($userId |-> $attempt): false alarm, applying the retrieved fresh credentials',
             '$runtimeType',
           );
 
@@ -676,7 +713,7 @@ class AuthService extends DisposableService {
 
         if (isLocked) {
           Log.debug(
-            'refreshSession($userId): acquired the lock, while it was locked, thus should proceed: ${_shouldRefresh(oldCreds)}',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
 
@@ -686,12 +723,17 @@ class AuthService extends DisposableService {
           }
         } else {
           Log.debug(
-            'refreshSession($userId): acquired the lock, while it was unlocked',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked',
             '$runtimeType',
           );
         }
 
         if (oldCreds == null) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt): `oldCreds` are `null`, seems like during the lock those were removed -> unauthorized',
+            '$runtimeType',
+          );
+
           // These [Credentials] were removed while we've been waiting for the
           // lock to be released.
           if (areCurrent) {
@@ -707,6 +749,11 @@ class AuthService extends DisposableService {
             reconnect: areCurrent,
           );
 
+          Log.debug(
+            'refreshSession($userId |-> $attempt): success 🎉 -> writing to `drift`... ✍️',
+            '$runtimeType',
+          );
+
           if (areCurrent) {
             await _authorized(data);
           } else {
@@ -719,11 +766,16 @@ class AuthService extends DisposableService {
             _putCredentials(data);
           }
 
+          Log.debug(
+            'refreshSession($userId |-> $attempt): success 🎉 -> writing to `drift`... done ✅',
+            '$runtimeType',
+          );
+
           _refreshRetryDelay = _initialRetryDelay;
           status.value = RxStatus.success();
         } on RefreshSessionException catch (_) {
           Log.debug(
-            'refreshSession($userId): `RefreshSessionException` occurred, removing credentials',
+            'refreshSession($userId |-> $attempt): ⛔️ `RefreshSessionException` occurred ⛔️, removing credentials',
             '$runtimeType',
           );
 
@@ -739,20 +791,36 @@ class AuthService extends DisposableService {
           rethrow;
         }
       });
+
+      await _lockProvider.release(dbLock);
     } on RefreshSessionException catch (_) {
-      // No-op, already handled in the callback passed to [WebUtils.protect].
       _refreshRetryDelay = _initialRetryDelay;
+
+      if (dbLock != null) {
+        await _lockProvider.release(dbLock);
+      }
+
+      rethrow;
     } catch (e) {
       Log.debug(
-        'refreshSession($userId): Exception occurred: $e',
+        'refreshSession($userId |-> $attempt): ⛔️ exception occurred: $e',
         '$runtimeType',
       );
+
+      if (dbLock != null) {
+        await _lockProvider.release(dbLock);
+      }
 
       // If any unexpected exception happens, just retry the mutation.
       await Future.delayed(_refreshRetryDelay);
       if (_refreshRetryDelay.inSeconds < 12) {
         _refreshRetryDelay = _refreshRetryDelay * 2;
       }
+
+      Log.debug(
+        'refreshSession($userId |-> $attempt): backoff passed, trying again',
+        '$runtimeType',
+      );
 
       await refreshSession(userId: userId);
     }
@@ -785,26 +853,23 @@ class AuthService extends DisposableService {
     _refreshTimers.clear();
 
     for (final UserId id in accounts.keys) {
-      _refreshTimers[id] = Timer.periodic(
-        _refreshTaskInterval,
-        (_) async {
-          final Credentials? creds = accounts[id]?.value;
-          if (creds == null) {
-            Log.debug(
-              '_initRefreshTimers(): no credentials found for user $id, killing timer',
-              '$runtimeType',
-            );
+      _refreshTimers[id] = Timer.periodic(_refreshTaskInterval, (_) async {
+        final Credentials? creds = accounts[id]?.value;
+        if (creds == null) {
+          Log.debug(
+            '_initRefreshTimers(): no credentials found for user $id, killing timer',
+            '$runtimeType',
+          );
 
-            // Cancel the timer to avoid memory leaks.
-            _refreshTimers.remove(id)?.cancel();
-            return;
-          }
+          // Cancel the timer to avoid memory leaks.
+          _refreshTimers.remove(id)?.cancel();
+          return;
+        }
 
-          if (_shouldRefresh(creds)) {
-            await refreshSession(userId: id);
-          }
-        },
-      );
+        if (_shouldRefresh(creds)) {
+          await refreshSession(userId: id);
+        }
+      });
     }
   }
 

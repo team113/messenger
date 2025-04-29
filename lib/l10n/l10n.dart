@@ -19,12 +19,12 @@ import 'dart:async';
 
 import 'package:fluent/fluent.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import '/routes.dart';
+import '/util/platform_utils.dart';
 
 /// Localization of this application.
 class L10n {
@@ -83,11 +83,15 @@ class L10n {
     if (languages.contains(lang)) {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
-      _bundle = FluentBundle(lang.toString())
-        ..addMessages(await rootBundle.loadString('assets/l10n/$lang.ftl'))
-        ..addMessages(
-          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-        );
+
+      _bundle =
+          FluentBundle(lang.toString())
+            ..addMessages(
+              await PlatformUtils.loadString('assets/l10n/$lang.ftl'),
+            )
+            ..addMessages(
+              _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+            );
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -148,7 +152,9 @@ extension L10nDateExtension on DateTime {
 
   // TODO: Shouldn't do replacements here.
   /// Returns this [DateTime] formatted in `yyMd` format.
-  String get yyMd => DateFormat.yMd().format(this).replaceFirst(
+  String get yyMd => DateFormat.yMd()
+      .format(this)
+      .replaceFirst(
         DateTime.now().year.toString(),
         DateFormat('yy').format(this),
       );
@@ -295,17 +301,14 @@ extension L10nProfileTabExtension on ProfileTab {
       ProfileTab.public => 'label_profile'.l10n,
       ProfileTab.signing => 'label_login_options'.l10n,
       ProfileTab.link => 'label_link_to_chat'.l10n,
-      ProfileTab.background => 'label_background'.l10n,
-      ProfileTab.chats => 'label_chats'.l10n,
-      ProfileTab.calls => 'label_calls'.l10n,
-      ProfileTab.media => 'label_media'.l10n,
+      ProfileTab.interface => 'label_interface'.l10n,
+      ProfileTab.media => 'label_media_devices'.l10n,
       ProfileTab.welcome => 'label_welcome_message'.l10n,
       ProfileTab.notifications => 'label_notifications'.l10n,
       ProfileTab.storage => 'label_storage'.l10n,
-      ProfileTab.language => 'label_language'.l10n,
-      ProfileTab.blocklist => 'label_blocked_users'.l10n,
+      ProfileTab.confidential => 'label_confidentiality'.l10n,
       ProfileTab.devices => 'label_linked_devices'.l10n,
-      ProfileTab.download => 'label_download'.l10n,
+      ProfileTab.download => 'label_download_and_update'.l10n,
       ProfileTab.danger => 'label_danger_zone'.l10n,
       ProfileTab.legal => 'label_legal_information'.l10n,
       ProfileTab.support => 'btn_help'.l10n,

@@ -16,12 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 
@@ -40,6 +42,7 @@ import '/domain/model/user.dart';
 import '/domain/repository/session.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
+import '/domain/service/blocklist.dart';
 import '/domain/service/chat.dart';
 import '/domain/service/my_user.dart';
 import '/domain/service/session.dart';
@@ -49,6 +52,7 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/worker/cache.dart';
+import '/ui/worker/upgrade.dart';
 import '/util/localized_exception.dart';
 import '/util/media_utils.dart';
 import '/util/message_popup.dart';
@@ -68,6 +72,9 @@ class MyProfileController extends GetxController {
     this._settingsRepo,
     this._authService,
     this._chatService,
+    this._blocklistService,
+    this._upgradeWorker,
+    this._cacheWorker,
   );
 
   /// Status of an [uploadAvatar] or [deleteAvatar] completion.
@@ -128,6 +135,111 @@ class MyProfileController extends GetxController {
   /// [GlobalKey] of the [WelcomeFieldView] to prevent its state being rebuilt.
   final GlobalKey welcomeFieldKey = GlobalKey();
 
+  /// [MyUser.name] field state.
+  late final TextFieldState name = TextFieldState(
+    text: myUser.value?.name?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserName(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserName? name = UserName.tryParse(s.text);
+
+      try {
+        await updateUserName(name);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  /// [MyUser.login] field state.
+  late final TextFieldState login = TextFieldState(
+    text: myUser.value?.login?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserLogin(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserLogin? login = UserLogin.tryParse(s.text.toLowerCase());
+
+      try {
+        await updateUserLogin(login);
+      } on UpdateUserLoginException catch (e) {
+        s.error.value = e.toMessage();
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  /// [MyUser.bio] field state.
+  late final TextFieldState about = TextFieldState(
+    text: myUser.value?.bio?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserBio(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserBio? bio = UserBio.tryParse(s.text);
+
+      try {
+        await updateUserBio(bio);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  /// [MyUser.status] field state.
+  late final TextFieldState status = TextFieldState(
+    text: myUser.value?.status?.val,
+    onFocus: (s) async {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          UserTextStatus(s.text);
+        } on FormatException catch (_) {
+          s.error.value = 'err_incorrect_input'.l10n;
+          return;
+        }
+      }
+
+      final UserTextStatus? status = UserTextStatus.tryParse(s.text);
+
+      try {
+        await updateUserStatus(status);
+      } catch (_) {
+        s.error.value = 'err_data_transfer'.l10n;
+      }
+    },
+  );
+
+  /// Indicator whether mute/unmute hotkey is being recorded right now.
+  final RxBool hotKeyRecording = RxBool(false);
+
   /// Service managing current [Credentials].
   final AuthService _authService;
 
@@ -143,8 +255,20 @@ class MyProfileController extends GetxController {
   /// [ChatService] for uploading the [Attachment]s for [WelcomeMessage].
   final ChatService _chatService;
 
+  /// [BlocklistService] for retrieving the [BlocklistService.count].
+  final BlocklistService _blocklistService;
+
+  /// [UpgradeWorker] for retrieving the current application version.
+  final UpgradeWorker _upgradeWorker;
+
+  /// [CacheWorker] for retrieving the [CacheWorker.downloadsDirectory].
+  final CacheWorker _cacheWorker;
+
   /// Worker to react on [RouterState.profileSection] changes.
   Worker? _profileWorker;
+
+  /// Worker to update [name], [login] and other fields on the [MyUser] changes.
+  Worker? _myUserWorker;
 
   /// [StreamSubscription] for the [MediaUtilsImpl.onDeviceChange] stream
   /// updating the [devices].
@@ -164,6 +288,13 @@ class MyProfileController extends GetxController {
     autoFinishAfter: const Duration(minutes: 2),
   )..startChild('ready');
 
+  /// [KeyDownEvent]s recorded during [hotKeyRecording].
+  final List<KeyDownEvent> _keysRecorded = [];
+
+  /// [Timer] disabling the [hotKeyRecording] after any [_keysRecorded] are
+  /// added.
+  Timer? _timer;
+
   /// Returns the currently authenticated [MyUser].
   Rx<MyUser?> get myUser => _myUserService.myUser;
 
@@ -182,12 +313,29 @@ class MyProfileController extends GetxController {
   /// Returns the current [Credentials].
   Rx<Credentials?> get credentials => _authService.credentials;
 
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get blocklistCount => _blocklistService.count;
+
+  /// Returns the latest available fetched [Release] of application.
+  Rx<Release?> get latestRelease => _upgradeWorker.latest;
+
+  /// Returns the [Directory] the [CacheWorker] is supposed to put downloads to.
+  Rx<Directory?> get downloadsDirectory => _cacheWorker.downloadsDirectory;
+
+  /// Returns the count of [Chat]s being muted.
+  int get mutedChatsCount =>
+      _chatService.paginated.values
+          .where((e) => e.chat.value.muted != null)
+          .length;
+
   @override
   void onInit() {
     if (!PlatformUtils.isMobile) {
       try {
-        _devicesSubscription =
-            MediaUtils.onDeviceChange.listen((e) => devices.value = e);
+        _devicesSubscription = MediaUtils.onDeviceChange.listen(
+          (e) => devices.value = e,
+        );
         MediaUtils.enumerateDevices().then((e) => devices.value = e);
       } catch (_) {
         // No-op, shouldn't break the view.
@@ -199,29 +347,30 @@ class MyProfileController extends GetxController {
     bool ignoreWorker = false;
     bool ignorePositions = false;
 
-    _profileWorker = ever(
-      router.profileSection,
-      (ProfileTab? tab) async {
-        if (ignoreWorker) {
-          ignoreWorker = false;
-        } else {
-          ignorePositions = true;
-          await itemScrollController.scrollTo(
-            index: tab?.index ?? 0,
-            duration: 200.milliseconds,
-            curve: Curves.ease,
-          );
-          Future.delayed(Duration.zero, () => ignorePositions = false);
+    _profileWorker = ever(router.profileSection, (ProfileTab? tab) async {
+      if (ignoreWorker) {
+        ignoreWorker = false;
+      } else {
+        ignorePositions = true;
+        await itemScrollController.scrollTo(
+          index: tab?.index ?? 0,
+          duration: 200.milliseconds,
+          curve: Curves.ease,
+        );
+        Future.delayed(Duration.zero, () => ignorePositions = false);
 
-          highlight(tab);
-        }
-      },
-    );
+        highlight(tab);
+      }
+    });
 
     positionsListener.itemPositions.addListener(() {
       if (!ignorePositions) {
-        final ProfileTab tab = ProfileTab
-            .values[positionsListener.itemPositions.value.first.index];
+        final ProfileTab tab =
+            ProfileTab.values[positionsListener
+                .itemPositions
+                .value
+                .first
+                .index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
@@ -259,29 +408,24 @@ class MyProfileController extends GetxController {
         bool modalVisible = true;
 
         _myUserService
-            .addUserPhone(
-          phone,
-          locale: L10n.chosen.value?.toString(),
-        )
-            .onError(
-          (e, __) {
-            s.unchecked = phone.val;
+            .addUserPhone(phone, locale: L10n.chosen.value?.toString())
+            .onError((e, __) {
+              s.unchecked = phone.val;
 
-            if (e is AddUserPhoneException) {
-              s.error.value = e.toMessage();
-              s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
-            } else {
-              s.error.value = 'err_data_transfer'.l10n;
-              s.resubmitOnError.value = true;
-            }
+              if (e is AddUserPhoneException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserPhoneErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-            s.unsubmit();
+              s.unsubmit();
 
-            if (modalVisible) {
-              Navigator.of(router.context!).pop();
-            }
-          },
-        );
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddPhoneView.show(
           router.context!,
@@ -320,27 +464,24 @@ class MyProfileController extends GetxController {
         bool modalVisible = true;
 
         _myUserService
-            .addUserEmail(
-          email,
-          locale: L10n.chosen.value?.toString(),
-        )
+            .addUserEmail(email, locale: L10n.chosen.value?.toString())
             .onError((e, __) {
-          s.unchecked = email.val;
+              s.unchecked = email.val;
 
-          if (e is AddUserEmailException) {
-            s.error.value = e.toMessage();
-            s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
-          } else {
-            s.error.value = 'err_data_transfer'.l10n;
-            s.resubmitOnError.value = true;
-          }
+              if (e is AddUserEmailException) {
+                s.error.value = e.toMessage();
+                s.resubmitOnError.value = e.code == AddUserEmailErrorCode.busy;
+              } else {
+                s.error.value = 'err_data_transfer'.l10n;
+                s.resubmitOnError.value = true;
+              }
 
-          s.unsubmit();
+              s.unsubmit();
 
-          if (modalVisible) {
-            Navigator.of(router.context!).pop();
-          }
-        });
+              if (modalVisible) {
+                Navigator.of(router.context!).pop();
+              }
+            });
 
         await AddEmailView.show(
           router.context!,
@@ -384,6 +525,24 @@ class MyProfileController extends GetxController {
       },
     );
 
+    _myUserWorker = ever(myUser, (myUser) {
+      if (!name.focus.hasFocus) {
+        name.unchecked = myUser?.name?.val;
+      }
+
+      if (!about.focus.hasFocus) {
+        about.unchecked = myUser?.bio?.val;
+      }
+
+      if (!status.focus.hasFocus) {
+        status.unchecked = myUser?.status?.val;
+      }
+
+      if (!login.focus.hasFocus) {
+        login.unchecked = myUser?.login?.val;
+      }
+    });
+
     super.onInit();
   }
 
@@ -398,6 +557,8 @@ class MyProfileController extends GetxController {
     _profileWorker?.dispose();
     _devicesSubscription?.cancel();
     scrollController.dispose();
+    _myUserWorker?.dispose();
+    HardwareKeyboard.instance.removeHandler(_hotKeyListener);
     super.onClose();
   }
 
@@ -407,7 +568,8 @@ class MyProfileController extends GetxController {
   /// Opens an image choose popup and sets the selected file as a [background].
   Future<void> pickBackground() async {
     FilePickerResult? result = await PlatformUtils.pickFiles(
-      type: FileType.image,
+      type: FileType.custom,
+      allowedExtensions: NativeFile.images,
       allowMultiple: false,
       withData: true,
       withReadStream: false,
@@ -466,8 +628,10 @@ class MyProfileController extends GetxController {
       );
 
       if (cache.bytes != null) {
-        final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, cache.bytes!);
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          cache.bytes!,
+        );
 
         if (crop != null) {
           await _updateAvatar(
@@ -490,7 +654,7 @@ class MyProfileController extends GetxController {
   Future<void> uploadAvatar() async {
     try {
       final FilePickerResult? result = await PlatformUtils.pickFiles(
-        type: FileType.image,
+        type: FileType.custom,
         allowedExtensions: NativeFile.images,
         allowMultiple: false,
         withData: true,
@@ -501,8 +665,10 @@ class MyProfileController extends GetxController {
         avatarUpload.value = RxStatus.loading();
 
         final PlatformFile file = result!.files.first;
-        final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, file.bytes!);
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          file.bytes!,
+        );
         if (crop == null) {
           return;
         }
@@ -520,7 +686,7 @@ class MyProfileController extends GetxController {
   /// Deletes the provided [email] from [MyUser.emails].
   Future<void> deleteEmail(UserEmail email) async {
     try {
-      await _myUserService.deleteUserEmail(email);
+      await _myUserService.removeUserEmail(email);
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
@@ -530,7 +696,7 @@ class MyProfileController extends GetxController {
   /// Deletes the provided [phone] from [MyUser.phones].
   Future<void> deletePhone(UserPhone phone) async {
     try {
-      await _myUserService.deleteUserPhone(phone);
+      await _myUserService.removeUserPhone(phone);
     } catch (_) {
       MessagePopup.error('err_data_transfer'.l10n);
       rethrow;
@@ -566,6 +732,11 @@ class MyProfileController extends GetxController {
   /// If [name] is null, then resets [MyUser.name] field.
   Future<void> updateUserName(UserName? name) async {
     await _myUserService.updateUserName(name);
+  }
+
+  /// Updates or resets [MyUser.status] field for the authenticated [MyUser].
+  Future<void> updateUserStatus(UserTextStatus? status) async {
+    await _myUserService.updateUserStatus(status);
   }
 
   /// Updates or resets the [MyUser.bio] field of the authenticated [MyUser].
@@ -606,6 +777,61 @@ class MyProfileController extends GetxController {
     });
   }
 
+  /// Toggles [hotKeyRecording] on and off, storing the [_keysRecorded].
+  void toggleHotKey([bool? value]) {
+    if (value == false) {
+      if (_keysRecorded.isNotEmpty) {
+        final List<HotKeyModifier> modifiers = [];
+        PhysicalKeyboardKey? lastKey;
+
+        for (var e in _keysRecorded) {
+          if (e.logicalKey.isModifier) {
+            modifiers.add(e.logicalKey.asModifier!);
+          } else {
+            lastKey = e.physicalKey;
+          }
+        }
+
+        _settingsRepo.setMuteKeys([
+          ...modifiers.map((e) => e.name),
+          if (lastKey != null) lastKey.usbHidUsage.toString(),
+        ]);
+      }
+    }
+
+    value ??= !hotKeyRecording.value;
+
+    _timer?.cancel();
+    _timer = null;
+    _keysRecorded.clear();
+
+    hotKeyRecording.value = value;
+
+    if (hotKeyRecording.value) {
+      HardwareKeyboard.instance.addHandler(_hotKeyListener);
+    } else {
+      HardwareKeyboard.instance.removeHandler(_hotKeyListener);
+    }
+  }
+
+  /// Records the provided [event] to the [_keysRecorded], if it's not a
+  /// modifier.
+  bool _hotKeyListener(KeyEvent event) {
+    if (event is KeyDownEvent) {
+      if (!event.logicalKey.isModifier) {
+        _timer ??= Timer(
+          Duration(milliseconds: 200),
+          () => toggleHotKey(false),
+        );
+      }
+
+      _keysRecorded.add(event);
+      return true;
+    }
+
+    return false;
+  }
+
   /// Updates [MyUser.avatar] and [MyUser.callCover] with the provided [file]
   /// and [crop].
   ///
@@ -615,7 +841,7 @@ class MyProfileController extends GetxController {
     try {
       await Future.wait([
         _myUserService.updateAvatar(file, crop: crop),
-        _myUserService.updateCallCover(file)
+        _myUserService.updateCallCover(file),
       ]);
     } on UpdateUserAvatarException catch (e) {
       MessagePopup.error(e);
@@ -658,4 +884,44 @@ extension PresenceL10n on Presence {
       Presence.artemisUnknown => null,
     };
   }
+}
+
+/// Extension adding indicators whether a [LogicalKeyboardKey] is a modifier.
+extension on LogicalKeyboardKey {
+  /// Indicates whether this [LogicalKeyboardKey] is a modifier.
+  bool get isModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight ||
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight ||
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight ||
+    LogicalKeyboardKey.fn ||
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => true,
+    (_) => false,
+  };
+
+  /// Returns the [HotKeyModifier] of this [LogicalKeyboardKey], if it is a
+  /// modifier.
+  HotKeyModifier? get asModifier => switch (this) {
+    LogicalKeyboardKey.alt ||
+    LogicalKeyboardKey.altLeft ||
+    LogicalKeyboardKey.altRight => HotKeyModifier.alt,
+    LogicalKeyboardKey.meta ||
+    LogicalKeyboardKey.metaLeft ||
+    LogicalKeyboardKey.metaRight => HotKeyModifier.meta,
+    LogicalKeyboardKey.control ||
+    LogicalKeyboardKey.controlLeft ||
+    LogicalKeyboardKey.controlRight => HotKeyModifier.control,
+    LogicalKeyboardKey.fn => HotKeyModifier.fn,
+    LogicalKeyboardKey.shift ||
+    LogicalKeyboardKey.shiftLeft ||
+    LogicalKeyboardKey.shiftRight => HotKeyModifier.shift,
+    (_) => null,
+  };
 }

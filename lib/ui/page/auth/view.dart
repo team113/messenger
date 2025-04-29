@@ -156,11 +156,12 @@ class AuthView extends StatelessWidget {
 
                     // TODO: Remove, when [MyUser]s will receive their updates
                     //       in real-time.
-                    avatarBuilder: (_) => AvatarWidget.fromMyUser(
-                      e,
-                      radius: AvatarRadius.large,
-                      badge: false,
-                    ),
+                    avatarBuilder:
+                        (_) => AvatarWidget.fromMyUser(
+                          e,
+                          radius: AvatarRadius.large,
+                          badge: false,
+                        ),
 
                     onTap: () async {
                       if (expired) {
@@ -176,10 +177,11 @@ class AuthView extends StatelessWidget {
                     trailing: [
                       AnimatedButton(
                         key: const Key('RemoveAccount'),
-                        decorator: (child) => Padding(
-                          padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                          child: child,
-                        ),
+                        decorator:
+                            (child) => Padding(
+                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                              child: child,
+                            ),
                         onPressed: () async {
                           final result = await MessagePopup.alert(
                             'btn_logout'.l10n,
@@ -188,8 +190,9 @@ class AuthView extends StatelessWidget {
                                 style: style.fonts.medium.regular.secondary,
                                 children: [
                                   TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out1'
-                                        .l10n,
+                                    text:
+                                        'alert_are_you_sure_want_to_log_out1'
+                                            .l10n,
                                   ),
                                   TextSpan(
                                     style:
@@ -197,8 +200,9 @@ class AuthView extends StatelessWidget {
                                     text: '${e.name ?? e.num}',
                                   ),
                                   TextSpan(
-                                    text: 'alert_are_you_sure_want_to_log_out2'
-                                        .l10n,
+                                    text:
+                                        'alert_are_you_sure_want_to_log_out2'
+                                            .l10n,
                                   ),
                                   if (!e.hasPassword) ...[
                                     const TextSpan(text: '\n\n'),
@@ -214,7 +218,7 @@ class AuthView extends StatelessWidget {
                                     ),
                                   ],
                                 ],
-                              )
+                              ),
                             ],
                           );
 
@@ -235,7 +239,7 @@ class AuthView extends StatelessWidget {
                         Text(
                           'label_sign_in_required'.l10n,
                           style: style.fonts.small.regular.danger,
-                        )
+                        ),
 
                       // TODO: Uncomment, when [MyUser]s will receive their
                       //       updates in real-time.
@@ -314,8 +318,11 @@ class AuthView extends StatelessWidget {
                     offset: const Offset(4, 0),
                     child: const SvgIcon(SvgIcons.enter),
                   ),
-                  onPressed: () =>
-                      LoginView.show(context, initial: LoginViewStage.signIn),
+                  onPressed:
+                      () => LoginView.show(
+                        context,
+                        initial: LoginViewStage.signIn,
+                      ),
                   child: Text('btn_sign_in'.l10n),
                 ),
                 const SizedBox(height: 15),

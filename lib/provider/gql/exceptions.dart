@@ -40,16 +40,20 @@ import '/util/localized_exception.dart';
 /// All expected exceptions are mixins of [LocalizedExceptionMixin].
 class GraphQlProviderExceptions {
   /// [parse]s exceptions of the given [result] and throws if any.
-  static void fire(QueryResult result,
-      [Exception Function(Map<String, dynamic>)? handleException]) {
+  static void fire(
+    QueryResult result, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) {
     Object? exception = parse(result, handleException);
     if (exception != null) throw exception;
   }
 
   /// Returns an exception of the given [result] with [handleException] if it
   /// has the specified error code or `null` if no exception was found.
-  static Object? parse(QueryResult result,
-      [Exception Function(Map<String, dynamic>)? handleException]) {
+  static Object? parse(
+    QueryResult result, [
+    Exception Function(Map<String, dynamic>)? handleException,
+  ]) {
     if (result.hasException) {
       if (result.exception == null) {
         return Exception('err_unknown'.l10n);
@@ -60,23 +64,28 @@ class GraphQlProviderExceptions {
         // If `GraphQlException` contains `NOT_CHAT_MEMBER` code, then it's a
         // specific `NotChatMemberException`.
         if (result.exception!.graphqlErrors.firstWhereOrNull(
-                (e) => e.extensions?['code'] == 'NOT_CHAT_MEMBER') !=
+              (e) => e.extensions?['code'] == 'NOT_CHAT_MEMBER',
+            ) !=
             null) {
           return NotChatMemberException(result.exception!.graphqlErrors);
         } else if (result.exception!.graphqlErrors.firstWhereOrNull(
-                (e) => e.extensions?['code'] == 'STALE_VERSION') !=
+              (e) => e.extensions?['code'] == 'STALE_VERSION',
+            ) !=
             null) {
           // If `GraphQlException` contains `STALE_VERSION` code, then it's a
           // specific `StaleVersionException`.
           return StaleVersionException(result.exception!.graphqlErrors);
-        } else if (result.exception!.graphqlErrors.firstWhereOrNull((e) =>
-                e.extensions?['code'] == 'SESSION_EXPIRED' ||
-                e.extensions?['code'] == 'AUTHENTICATION_REQUIRED' ||
-                e.extensions?['code'] == 'AUTHENTICATION_FAILED') !=
+        } else if (result.exception!.graphqlErrors.firstWhereOrNull(
+              (e) =>
+                  e.extensions?['code'] == 'SESSION_EXPIRED' ||
+                  e.extensions?['code'] == 'AUTHENTICATION_REQUIRED' ||
+                  e.extensions?['code'] == 'AUTHENTICATION_FAILED',
+            ) !=
             null) {
           return const AuthorizationException();
         } else if (result.exception!.graphqlErrors.any(
-            (e) => e.message.contains('Expected input scalar `UserPhone`'))) {
+          (e) => e.message.contains('Expected input scalar `UserPhone`'),
+        )) {
           return const InvalidScalarException<UserPhone>();
         }
 
@@ -103,7 +112,8 @@ class GraphQlProviderExceptions {
         // It might be an internal error, bad request or request error.
         if (e.parsedResponse?.errors != null) {
           var found = e.parsedResponse!.errors!.firstWhereOrNull(
-              (v) => v.extensions != null && (v.extensions!['status'] == 401));
+            (v) => v.extensions != null && (v.extensions!['status'] == 401),
+          );
           if (found != null) throw const AuthorizationException();
           return GraphQlException(e.parsedResponse!.errors!);
         }
@@ -132,7 +142,7 @@ class GraphQlProviderExceptions {
 /// etc).
 class GraphQlException with LocalizedExceptionMixin implements Exception {
   GraphQlException([Iterable<GraphQLError> graphqlErrors = const []])
-      : graphqlErrors = graphqlErrors.toList();
+    : graphqlErrors = graphqlErrors.toList();
 
   /// Any GraphQL errors returned from the operation.
   final List<GraphQLError> graphqlErrors;
@@ -1504,41 +1514,41 @@ class DeleteMyUserException with LocalizedExceptionMixin implements Exception {
   }
 }
 
-/// Exception of `Mutation.deleteUserEmail` described in the [code].
-class DeleteUserEmailException
+/// Exception of `Mutation.removeUserEmail` described in the [code].
+class RemoveUserEmailException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteUserEmailException(this.code);
+  const RemoveUserEmailException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteUserEmailErrorCode code;
+  final RemoveUserEmailErrorCode code;
 
   @override
-  String toString() => 'DeleteUserEmailException($code)';
+  String toString() => 'RemoveUserEmailException($code)';
 
   @override
   String toMessage() {
     switch (code) {
-      case DeleteUserEmailErrorCode.confirmationRequired:
+      case RemoveUserEmailErrorCode.confirmationRequired:
         return 'err_confirmation_required'.l10n;
-      case DeleteUserEmailErrorCode.wrongPassword:
+      case RemoveUserEmailErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
-      case DeleteUserEmailErrorCode.wrongCode:
+      case RemoveUserEmailErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
-      case DeleteUserEmailErrorCode.artemisUnknown:
+      case RemoveUserEmailErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }
 }
 
-/// Exception of `Mutation.deleteUserPhone` described in the [code].
-class DeleteUserPhoneException
+/// Exception of `Mutation.removeUserPhone` described in the [code].
+class RemoveUserPhoneException
     with LocalizedExceptionMixin
     implements Exception {
-  const DeleteUserPhoneException(this.code);
+  const RemoveUserPhoneException(this.code);
 
   /// Reason of why the mutation has failed.
-  final DeleteUserPhoneErrorCode code;
+  final RemoveUserPhoneErrorCode code;
 
   @override
   String toString() => 'DeleteUsePhoneException($code)';
@@ -1546,13 +1556,13 @@ class DeleteUserPhoneException
   @override
   String toMessage() {
     switch (code) {
-      case DeleteUserPhoneErrorCode.confirmationRequired:
+      case RemoveUserPhoneErrorCode.confirmationRequired:
         return 'err_confirmation_required'.l10n;
-      case DeleteUserPhoneErrorCode.wrongPassword:
+      case RemoveUserPhoneErrorCode.wrongPassword:
         return 'err_wrong_password'.l10n;
-      case DeleteUserPhoneErrorCode.wrongCode:
+      case RemoveUserPhoneErrorCode.wrongCode:
         return 'err_wrong_code'.l10n;
-      case DeleteUserPhoneErrorCode.artemisUnknown:
+      case RemoveUserPhoneErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
   }

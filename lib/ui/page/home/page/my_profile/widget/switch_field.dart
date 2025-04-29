@@ -27,6 +27,8 @@ class SwitchField extends StatelessWidget {
     this.text,
     this.value = false,
     this.onChanged,
+    this.background,
+    this.label,
   });
 
   /// Text of the [ReactiveTextField].
@@ -38,6 +40,12 @@ class SwitchField extends StatelessWidget {
   /// Callback, called when the user toggles the switch.
   final void Function(bool)? onChanged;
 
+  /// Background [Color] of this [SwitchField].
+  final Color? background;
+
+  /// Label to display.
+  final String? label;
+
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
@@ -48,7 +56,9 @@ class SwitchField extends StatelessWidget {
         IgnorePointer(
           child: ReactiveTextField(
             state: TextFieldState(text: text, editable: false),
-            style: style.fonts.normal.regular.secondary,
+            style: style.fonts.normal.regular.onBackground,
+            label: label,
+            fillColor: background ?? style.colors.onPrimary,
           ),
         ),
         Align(

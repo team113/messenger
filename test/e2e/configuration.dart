@@ -72,6 +72,7 @@ import 'steps/drag_chat.dart';
 import 'steps/drag_contact.dart';
 import 'steps/favorite_group.dart';
 import 'steps/go_to.dart';
+import 'steps/go_to_link.dart';
 import 'steps/has_blocked_users.dart';
 import 'steps/has_contact.dart';
 import 'steps/has_dialog.dart';
@@ -86,6 +87,7 @@ import 'steps/long_press_widget.dart';
 import 'steps/monolog_availability.dart';
 import 'steps/name_is.dart';
 import 'steps/open_chat_info.dart';
+import 'steps/pick_file_in_picker.dart';
 import 'steps/popup_windows.dart';
 import 'steps/posts_images.dart';
 import 'steps/reads_message.dart';
@@ -183,6 +185,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         fillFieldWithMyCredential,
         fillFieldWithRandomLogin,
         fillFieldWithUserCredential,
+        goToUserLink,
         goToUserPage,
         hasContacts,
         hasDialogWithMe,
@@ -216,6 +219,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         noInternetConnection,
         openChatInfo,
         pasteToField,
+        pickFileInPicker,
         popupWindows,
         postsNAttachmentsToGroup,
         readsAllMessages,
@@ -350,6 +354,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
+      ..tagExpression = 'not @disabled'
+      // ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
 /// Application's initialization function.
@@ -384,10 +390,7 @@ Future<CustomUser> createUser({
   final result = await provider.signUp();
   final success = result as SignUp$Mutation$CreateUser$CreateSessionOk;
 
-  final CustomUser customUser = CustomUser(
-    success.toModel(),
-    success.user.num,
-  );
+  final CustomUser customUser = CustomUser(success.toModel(), success.user.num);
 
   if (user != null && world != null) {
     world.sessions[user.name] = [customUser];

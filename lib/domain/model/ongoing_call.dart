@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
@@ -148,12 +149,12 @@ class OngoingCall {
     OngoingCallState state = OngoingCallState.pending,
     this.creds,
     this.deviceId,
-  })  : chatId = Rx(chatId),
-        _me = CallMemberId(me, null),
-        _preferredAudioDevice = mediaSettings?.audioDevice,
-        _preferredOutputDevice = mediaSettings?.outputDevice,
-        _preferredVideoDevice = mediaSettings?.videoDevice,
-        _preferredScreenDevice = mediaSettings?.screenDevice {
+  }) : chatId = Rx(chatId),
+       _me = CallMemberId(me, null),
+       _preferredAudioDevice = mediaSettings?.audioDevice,
+       _preferredOutputDevice = mediaSettings?.outputDevice,
+       _preferredVideoDevice = mediaSettings?.videoDevice,
+       _preferredScreenDevice = mediaSettings?.screenDevice {
     this.state = Rx<OngoingCallState>(state);
     this.call = Rx(call);
 
@@ -294,6 +295,9 @@ class OngoingCall {
   /// Mutex for synchronized access to [RoomHandle.setLocalMediaSettings].
   final Mutex _mediaSettingsGuard = Mutex();
 
+  /// Mutex for synchronized access to the [devices].
+  final Mutex _devicesGuard = Mutex();
+
   /// Mutex guarding [toggleHand].
   final Mutex _toggleHandGuard = Mutex();
 
@@ -353,8 +357,9 @@ class OngoingCall {
       call.value?.conversationStartedAt;
 
   /// Indicates whether this [OngoingCall] is active.
-  bool get isActive => (state.value == OngoingCallState.active ||
-      state.value == OngoingCallState.joining);
+  bool get isActive =>
+      (state.value == OngoingCallState.active ||
+          state.value == OngoingCallState.joining);
 
   /// Indicator whether this [OngoingCall] has any remote connection active.
   bool get hasRemote =>
@@ -362,10 +367,11 @@ class OngoingCall {
 
   /// Indicates whether this [OngoingCall] has an active microphone track.
   bool get hasAudio =>
-      members[_me]
-          ?.tracks
-          .where((t) =>
-              t.kind == MediaKind.audio && t.source == MediaSourceKind.device)
+      members[_me]?.tracks
+          .where(
+            (t) =>
+                t.kind == MediaKind.audio && t.source == MediaSourceKind.device,
+          )
           .isNotEmpty ??
       false;
 
@@ -377,6 +383,9 @@ class OngoingCall {
   ///
   /// Intended be used to determine whether [OngoingCall] is not a notification.
   bool get participated => _participated;
+
+  /// Indicator whether this [OngoingCall] wasn't [init]ed.
+  bool get background => _background;
 
   /// Initializes the media client resources.
   ///
@@ -390,50 +399,63 @@ class OngoingCall {
       _devicesSubscription = MediaUtils.onDeviceChange.listen((e) async {
         Log.debug('onDeviceChange(${e.map((e) => e.label())})', '$runtimeType');
 
-        final List<DeviceDetails> previous =
-            List.from(devices, growable: false);
-
-        devices.value = e;
-
-        final List<DeviceDetails> removed = [];
-
-        for (DeviceDetails d in previous) {
-          if (devices.none((p) => p.deviceId() == d.deviceId())) {
-            removed.add(d);
+        await _devicesGuard.protect(() async {
+          if (devices.isEmpty) {
+            devices.value = await MediaUtils.enumerateDevices();
           }
-        }
 
-        final bool audioChanged = !previous
-            .audio()
-            .map((e) => e.deviceId())
-            .sameAs(devices.audio().map((e) => e.deviceId()));
+          final List<DeviceDetails> previous = List.from(
+            devices,
+            growable: false,
+          );
 
-        final bool outputChanged = !previous
-            .output()
-            .map((e) => e.deviceId())
-            .sameAs(devices.output().map((e) => e.deviceId()));
+          devices.value = e;
 
-        final bool videoChanged = !previous
-            .video()
-            .map((e) => e.deviceId())
-            .sameAs(devices.video().map((e) => e.deviceId()));
+          final List<DeviceDetails> removed = [];
 
-        if (audioChanged) {
-          _pickAudioDevice();
-        }
+          for (DeviceDetails d in previous) {
+            if (devices.none((p) => p.deviceId() == d.deviceId())) {
+              removed.add(d);
+            }
+          }
 
-        if (outputChanged) {
-          _pickOutputDevice();
-        }
+          final bool audioChanged =
+              !previous
+                  .audio()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.audio().map((e) => e.deviceId()));
 
-        if (videoChanged) {
-          _pickVideoDevice(previous, removed);
-        }
+          final bool outputChanged =
+              !previous
+                  .output()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.output().map((e) => e.deviceId()));
+
+          final bool videoChanged =
+              !previous
+                  .video()
+                  .map((e) => e.deviceId())
+                  .sameAs(devices.video().map((e) => e.deviceId()));
+
+          if (audioChanged) {
+            _pickAudioDevice();
+          }
+
+          if (outputChanged) {
+            _pickOutputDevice();
+          }
+
+          if (videoChanged) {
+            _pickVideoDevice(previous, removed);
+          }
+        });
       });
 
       _displaysSubscription = MediaUtils.onDisplayChange.listen((e) async {
-        final List<MediaDisplayDetails> previous =
-            List.from(displays, growable: false);
+        final List<MediaDisplayDetails> previous = List.from(
+          displays,
+          growable: false,
+        );
 
         displays.value = e;
 
@@ -458,7 +480,7 @@ class OngoingCall {
         final int membersCount = chat.chat.value.membersCount;
         final bool shouldAddDialed =
             (outgoing && conversationStartedAt == null) ||
-                chat.chat.value.isDialog;
+            chat.chat.value.isDialog;
 
         // Dialed [User]s should be added, if [membersCount] is less than a page
         // of [Chat.members].
@@ -470,8 +492,9 @@ class OngoingCall {
           // If [connected], then the dialed [User] will be added in [connect],
           // when handling [ChatMembersDialedAll].
           if (!connected) {
-            for (UserId e
-                in chat.members.items.keys.where((e) => e != me.id.userId)) {
+            for (UserId e in chat.members.items.keys.where(
+              (e) => e != me.id.userId,
+            )) {
               _addDialing(e);
             }
           }
@@ -513,321 +536,350 @@ class OngoingCall {
 
     connected = true;
     _heartbeat?.cancel();
-    _heartbeat = calls.heartbeat(callChatItemId!, deviceId!).listen(
-      (e) async {
-        switch (e.kind) {
-          case ChatCallEventsKind.initialized:
-            Log.debug('heartbeat(): ${e.kind}', '$runtimeType');
-            break;
+    _heartbeat = calls
+        .heartbeat(callChatItemId!, deviceId!)
+        .listen(
+          (e) async {
+            switch (e.kind) {
+              case ChatCallEventsKind.initialized:
+                Log.debug('heartbeat(): ${e.kind}', '$runtimeType');
+                break;
 
-          case ChatCallEventsKind.chatCall:
-            Log.debug('heartbeat(): ${e.kind}', '$runtimeType');
+              case ChatCallEventsKind.chatCall:
+                Log.debug('heartbeat(): ${e.kind}', '$runtimeType');
 
-            final node = e as ChatCallEventsChatCall;
+                final node = e as ChatCallEventsChatCall;
 
-            _handToggles.clear();
+                _handToggles.clear();
 
-            if (node.call.finishReason != null) {
-              // Call is already ended, so remove it.
-              calls.remove(chatId.value);
-              calls.removeCredentials(node.call.chatId, node.call.id);
-            } else {
-              call.value = node.call;
-              call.refresh();
+                if (node.call.finishReason != null) {
+                  // Call is already ended, so remove it.
+                  calls.remove(chatId.value);
+                  calls.removeCredentials(node.call.chatId, node.call.id);
+                } else {
+                  call.value = node.call;
+                  call.refresh();
 
-              if (state.value == OngoingCallState.local) {
-                state.value = node.call.conversationStartedAt == null
-                    ? OngoingCallState.pending
-                    : OngoingCallState.joining;
-              }
-
-              final ChatMembersDialed? dialed = node.call.dialed;
-              if (dialed is ChatMembersDialedConcrete) {
-                // Remove the members, who are not connected and still
-                // redialing, that are missing from the [dialed].
-                members.removeWhere(
-                  (_, v) =>
-                      v.isConnected.isFalse &&
-                      v.isDialing.isTrue &&
-                      dialed.members.none((e) => e.user.id == v.id.userId) &&
-                      node.call.members.none((e) => e.user.id == v.id.userId),
-                );
-
-                for (final ChatMember m in dialed.members) {
-                  _addDialing(m.user.id);
-                }
-              } else if (dialed == null) {
-                // Remove the members, who are not connected and still
-                // redialing, since no one is [dialed].
-                members.removeWhere(
-                  (_, v) =>
-                      v.isConnected.isFalse &&
-                      v.isDialing.isTrue &&
-                      node.call.members.none((e) => e.user.id == v.id.userId),
-                );
-              }
-
-              // Subscribes to the [RxChat.members] changes, adding the dialed
-              // users.
-              //
-              // Additionally handles the case, when [dialed] are
-              // [ChatMembersDialedAll], since we need to have a [RxChat] to
-              // retrieve the whole list of users this way.
-              Future<void> redialAndResubscribe(RxChat? v) async {
-                if (!connected || v == null) {
-                  // [OngoingCall] might have been disposed or disconnected
-                  // while this [Future] was executing.
-                  return;
-                }
-
-                // Add the redialed members of the call to the [members].
-                if (dialed is ChatMembersDialedAll &&
-                    v.chat.value.membersCount <= v.members.perPage) {
-                  if (v.members.length < v.chat.value.membersCount) {
-                    await v.members.around();
+                  if (state.value == OngoingCallState.local) {
+                    state.value =
+                        node.call.conversationStartedAt == null
+                            ? OngoingCallState.pending
+                            : OngoingCallState.joining;
                   }
 
-                  // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
-                  if (call.value?.dialed is ChatMembersDialedAll) {
-                    final Iterable<RxUser> dialings =
-                        v.members.values.map((e) => e.user).where(
-                              (e) =>
-                                  e.id != me.id.userId &&
-                                  dialed.answeredMembers
-                                      .none((a) => a.user.id == e.id),
-                            );
-
+                  final ChatMembersDialed? dialed = node.call.dialed;
+                  if (dialed is ChatMembersDialedConcrete) {
                     // Remove the members, who are not connected and still
-                    // redialing, that are missing from the [dialings].
+                    // redialing, that are missing from the [dialed].
                     members.removeWhere(
                       (_, v) =>
                           v.isConnected.isFalse &&
                           v.isDialing.isTrue &&
-                          dialings.none((e) => e.id == v.id.userId) &&
-                          node.call.members
-                              .none((e) => e.user.id == v.id.userId),
+                          dialed.members.none(
+                            (e) => e.user.id == v.id.userId,
+                          ) &&
+                          node.call.members.none(
+                            (e) => e.user.id == v.id.userId,
+                          ),
                     );
 
-                    for (final RxUser e in dialings) {
-                      _addDialing(e.id);
+                    for (final ChatMember m in dialed.members) {
+                      _addDialing(m.user.id);
                     }
-                  }
-                }
-              }
-
-              // Retrieve the [RxChat] to subscribe to its [RxChat.members]
-              // changes, so that added users are displayed as dialed right
-              // away.
-              final FutureOr<RxChat?> chatOrFuture =
-                  calls.getChat(chatId.value);
-              if (chatOrFuture is RxChat?) {
-                redialAndResubscribe(chatOrFuture);
-              } else {
-                chatOrFuture.then(redialAndResubscribe);
-              }
-
-              members[_me]?.isHandRaised.value = node.call.members
-                      .firstWhereOrNull((e) => e.user.id == _me.userId)
-                      ?.handRaised ??
-                  false;
-            }
-            break;
-
-          case ChatCallEventsKind.event:
-            final versioned = (e as ChatCallEventsEvent).event;
-            Log.debug(
-              'heartbeat(ChatCallEventsEvent): ${versioned.events.map((e) => e.kind)}',
-              '$runtimeType($id)',
-            );
-
-            for (final ChatCallEvent event in versioned.events) {
-              switch (event.kind) {
-                case ChatCallEventKind.roomReady:
-                  final node = event as EventChatCallRoomReady;
-
-                  if (!_background) {
-                    await _joinRoom(node.joinLink);
-                  }
-
-                  state.value = OngoingCallState.active;
-                  break;
-
-                case ChatCallEventKind.finished:
-                  final node = event as EventChatCallFinished;
-                  if (node.chatId == chatId.value) {
-                    calls.removeCredentials(node.call.chatId, node.call.id);
-                    calls.remove(chatId.value);
-                  }
-                  break;
-
-                case ChatCallEventKind.memberLeft:
-                  final node = event as EventChatCallMemberLeft;
-                  if (me.id.userId == node.user.id &&
-                      me.id.deviceId == node.deviceId) {
-                    calls.remove(chatId.value);
-                  }
-
-                  final CallMemberId id =
-                      CallMemberId(node.user.id, node.deviceId);
-
-                  if (members[id]?.isConnected.value == false) {
-                    members.remove(id)?.dispose();
-                  }
-
-                  if (members.keys.none((e) => e.userId == node.user.id)) {
-                    call.value?.members
-                        .removeWhere((e) => e.user.id == node.user.id);
-                  }
-                  break;
-
-                case ChatCallEventKind.memberJoined:
-                  final node = event as EventChatCallMemberJoined;
-
-                  final CallMemberId redialedId =
-                      CallMemberId(node.user.id, null);
-                  final CallMemberId id =
-                      CallMemberId(node.user.id, node.deviceId);
-
-                  final CallMember? redialed = members[redialedId];
-                  if (redialed != null) {
-                    redialed.id = id;
-                    redialed.isDialing.value = false;
-                    redialed.joinedAt.value = node.at;
-                    members.move(redialedId, id);
-                  }
-
-                  final CallMember? member = members[id];
-
-                  if (member == null) {
-                    members[id] = CallMember(
-                      id,
-                      null,
-                      joinedAt: node.at,
-                      isHandRaised: call.value?.members
-                              .firstWhereOrNull((e) => e.user.id == id.userId)
-                              ?.handRaised ??
-                          false,
-                      isConnected: false,
+                  } else if (dialed == null) {
+                    // Remove the members, who are not connected and still
+                    // redialing, since no one is [dialed].
+                    members.removeWhere(
+                      (_, v) =>
+                          v.isConnected.isFalse &&
+                          v.isDialing.isTrue &&
+                          node.call.members.none(
+                            (e) => e.user.id == v.id.userId,
+                          ),
                     );
-                  } else {
-                    member.joinedAt.value = node.at;
                   }
-                  break;
 
-                case ChatCallEventKind.handLowered:
-                  final node = event as EventChatCallHandLowered;
-
-                  // Ignore the event, if it's our hand and is already lowered.
-                  if (node.user.id == _me.userId &&
-                      _handToggles.firstOrNull == false) {
-                    _handToggles.removeAt(0);
-                  } else {
-                    for (MapEntry<CallMemberId, CallMember> m in members.entries
-                        .where((e) => e.key.userId == node.user.id)) {
-                      m.value.isHandRaised.value = false;
+                  // Subscribes to the [RxChat.members] changes, adding the dialed
+                  // users.
+                  //
+                  // Additionally handles the case, when [dialed] are
+                  // [ChatMembersDialedAll], since we need to have a [RxChat] to
+                  // retrieve the whole list of users this way.
+                  Future<void> redialAndResubscribe(RxChat? v) async {
+                    if (!connected || v == null) {
+                      // [OngoingCall] might have been disposed or disconnected
+                      // while this [Future] was executing.
+                      return;
                     }
-                  }
 
-                  for (ChatCallMember m in (call.value?.members ?? [])
-                      .where((e) => e.user.id == node.user.id)) {
-                    m.handRaised = false;
-                  }
-                  break;
-
-                case ChatCallEventKind.handRaised:
-                  final node = event as EventChatCallHandRaised;
-
-                  // Ignore the event, if it's our hand and is already raised.
-                  if (node.user.id == _me.userId &&
-                      _handToggles.firstOrNull == true) {
-                    _handToggles.removeAt(0);
-                  } else {
-                    for (MapEntry<CallMemberId, CallMember> m in members.entries
-                        .where((e) => e.key.userId == node.user.id)) {
-                      m.value.isHandRaised.value = true;
-                    }
-                  }
-
-                  for (ChatCallMember m in (call.value?.members ?? [])
-                      .where((e) => e.user.id == node.user.id)) {
-                    m.handRaised = true;
-                  }
-                  break;
-
-                case ChatCallEventKind.declined:
-                  final node = event as EventChatCallDeclined;
-                  final CallMemberId id = CallMemberId(node.user.id, null);
-                  if (members[id]?.isConnected.value == false) {
-                    members.remove(id)?.dispose();
-                  }
-                  break;
-
-                case ChatCallEventKind.callMoved:
-                  final node = event as EventChatCallMoved;
-                  chatId.value = node.newChatId;
-                  call.value = node.newCall;
-
-                  connected = false;
-                  connect(calls);
-
-                  calls.moveCall(
-                    chatId: node.chatId,
-                    newChatId: node.newChatId,
-                    callId: node.callId,
-                    newCallId: node.newCallId,
-                  );
-                  break;
-
-                case ChatCallEventKind.redialed:
-                  final node = event as EventChatCallMemberRedialed;
-                  _addDialing(node.user.id);
-                  break;
-
-                case ChatCallEventKind.answerTimeoutPassed:
-                  final node = event as EventChatCallAnswerTimeoutPassed;
-
-                  if (node.user?.id != null) {
-                    final CallMemberId id = CallMemberId(node.user!.id, null);
-                    if (members[id]?.isConnected.value == false) {
-                      members.remove(id)?.dispose();
-                    }
-                  } else {
-                    call.value?.dialed = null;
-
-                    members.removeWhere((k, v) {
-                      if (k.deviceId == null && v.isConnected.isFalse) {
-                        v.dispose();
-                        return true;
+                    // Add the redialed members of the call to the [members].
+                    if (dialed is ChatMembersDialedAll &&
+                        v.chat.value.membersCount <= v.members.perPage) {
+                      if (v.members.length < v.chat.value.membersCount) {
+                        await v.members.around();
                       }
 
-                      return false;
-                    });
+                      // Check if [ChatCall.dialed] is still [ChatMembersDialedAll].
+                      if (call.value?.dialed is ChatMembersDialedAll) {
+                        final Iterable<RxUser> dialings = v.members.values
+                            .map((e) => e.user)
+                            .where(
+                              (e) =>
+                                  e.id != me.id.userId &&
+                                  dialed.answeredMembers.none(
+                                    (a) => a.user.id == e.id,
+                                  ),
+                            );
+
+                        // Remove the members, who are not connected and still
+                        // redialing, that are missing from the [dialings].
+                        members.removeWhere(
+                          (_, v) =>
+                              v.isConnected.isFalse &&
+                              v.isDialing.isTrue &&
+                              dialings.none((e) => e.id == v.id.userId) &&
+                              node.call.members.none(
+                                (e) => e.user.id == v.id.userId,
+                              ),
+                        );
+
+                        for (final RxUser e in dialings) {
+                          _addDialing(e.id);
+                        }
+                      }
+                    }
                   }
-                  break;
 
-                case ChatCallEventKind.conversationStarted:
-                  // TODO: Implement [EventChatCallConversationStarted].
-                  break;
-
-                case ChatCallEventKind.undialed:
-                  final node = event as EventChatCallMemberUndialed;
-
-                  final CallMemberId id = CallMemberId(node.user.id, null);
-                  if (members[id]?.isConnected.value == false) {
-                    members.remove(id)?.dispose();
+                  // Retrieve the [RxChat] to subscribe to its [RxChat.members]
+                  // changes, so that added users are displayed as dialed right
+                  // away.
+                  final FutureOr<RxChat?> chatOrFuture = calls.getChat(
+                    chatId.value,
+                  );
+                  if (chatOrFuture is RxChat?) {
+                    redialAndResubscribe(chatOrFuture);
+                  } else {
+                    chatOrFuture.then(redialAndResubscribe);
                   }
-                  break;
-              }
+
+                  members[_me]?.isHandRaised.value =
+                      node.call.members
+                          .firstWhereOrNull((e) => e.user.id == _me.userId)
+                          ?.handRaised ??
+                      false;
+                }
+                break;
+
+              case ChatCallEventsKind.event:
+                final versioned = (e as ChatCallEventsEvent).event;
+                Log.debug(
+                  'heartbeat(ChatCallEventsEvent): ${versioned.events.map((e) => e.kind)}',
+                  '$runtimeType($id)',
+                );
+
+                for (final ChatCallEvent event in versioned.events) {
+                  switch (event.kind) {
+                    case ChatCallEventKind.roomReady:
+                      final node = event as EventChatCallRoomReady;
+
+                      if (!_background) {
+                        await _joinRoom(node.joinLink);
+                      }
+
+                      state.value = OngoingCallState.active;
+                      break;
+
+                    case ChatCallEventKind.finished:
+                      final node = event as EventChatCallFinished;
+                      if (node.chatId == chatId.value) {
+                        calls.removeCredentials(node.call.chatId, node.call.id);
+                        calls.remove(chatId.value);
+                      }
+                      break;
+
+                    case ChatCallEventKind.memberLeft:
+                      final node = event as EventChatCallMemberLeft;
+                      if (me.id.userId == node.user.id &&
+                          me.id.deviceId == node.deviceId) {
+                        calls.remove(chatId.value);
+                      }
+
+                      final CallMemberId id = CallMemberId(
+                        node.user.id,
+                        node.deviceId,
+                      );
+
+                      if (members[id]?.isConnected.value == false) {
+                        members.remove(id)?.dispose();
+                      }
+
+                      if (members.keys.none((e) => e.userId == node.user.id)) {
+                        call.value?.members.removeWhere(
+                          (e) => e.user.id == node.user.id,
+                        );
+                      }
+                      break;
+
+                    case ChatCallEventKind.memberJoined:
+                      final node = event as EventChatCallMemberJoined;
+
+                      final CallMemberId redialedId = CallMemberId(
+                        node.user.id,
+                        null,
+                      );
+                      final CallMemberId id = CallMemberId(
+                        node.user.id,
+                        node.deviceId,
+                      );
+
+                      final CallMember? redialed = members[redialedId];
+                      if (redialed != null) {
+                        redialed.id = id;
+                        redialed.isDialing.value = false;
+                        redialed.joinedAt.value = node.at;
+                        members.move(redialedId, id);
+                      }
+
+                      final CallMember? member = members[id];
+
+                      if (member == null) {
+                        members[id] = CallMember(
+                          id,
+                          null,
+                          joinedAt: node.at,
+                          isHandRaised:
+                              call.value?.members
+                                  .firstWhereOrNull(
+                                    (e) => e.user.id == id.userId,
+                                  )
+                                  ?.handRaised ??
+                              false,
+                          isConnected: false,
+                        );
+                      } else {
+                        member.joinedAt.value = node.at;
+                      }
+                      break;
+
+                    case ChatCallEventKind.handLowered:
+                      final node = event as EventChatCallHandLowered;
+
+                      // Ignore the event, if it's our hand and is already lowered.
+                      if (node.user.id == _me.userId &&
+                          _handToggles.firstOrNull == false) {
+                        _handToggles.removeAt(0);
+                      } else {
+                        for (MapEntry<CallMemberId, CallMember> m in members
+                            .entries
+                            .where((e) => e.key.userId == node.user.id)) {
+                          m.value.isHandRaised.value = false;
+                        }
+                      }
+
+                      for (ChatCallMember m in (call.value?.members ?? [])
+                          .where((e) => e.user.id == node.user.id)) {
+                        m.handRaised = false;
+                      }
+                      break;
+
+                    case ChatCallEventKind.handRaised:
+                      final node = event as EventChatCallHandRaised;
+
+                      // Ignore the event, if it's our hand and is already raised.
+                      if (node.user.id == _me.userId &&
+                          _handToggles.firstOrNull == true) {
+                        _handToggles.removeAt(0);
+                      } else {
+                        for (MapEntry<CallMemberId, CallMember> m in members
+                            .entries
+                            .where((e) => e.key.userId == node.user.id)) {
+                          m.value.isHandRaised.value = true;
+                        }
+                      }
+
+                      for (ChatCallMember m in (call.value?.members ?? [])
+                          .where((e) => e.user.id == node.user.id)) {
+                        m.handRaised = true;
+                      }
+                      break;
+
+                    case ChatCallEventKind.declined:
+                      final node = event as EventChatCallDeclined;
+                      final CallMemberId id = CallMemberId(node.user.id, null);
+                      if (members[id]?.isConnected.value == false) {
+                        members.remove(id)?.dispose();
+                      }
+                      break;
+
+                    case ChatCallEventKind.callMoved:
+                      final node = event as EventChatCallMoved;
+                      chatId.value = node.newChatId;
+                      call.value = node.newCall;
+
+                      connected = false;
+                      connect(calls);
+
+                      calls.moveCall(
+                        chatId: node.chatId,
+                        newChatId: node.newChatId,
+                        callId: node.callId,
+                        newCallId: node.newCallId,
+                      );
+                      break;
+
+                    case ChatCallEventKind.redialed:
+                      final node = event as EventChatCallMemberRedialed;
+                      _addDialing(node.user.id);
+                      break;
+
+                    case ChatCallEventKind.answerTimeoutPassed:
+                      final node = event as EventChatCallAnswerTimeoutPassed;
+
+                      if (node.user?.id != null) {
+                        final CallMemberId id = CallMemberId(
+                          node.user!.id,
+                          null,
+                        );
+                        if (members[id]?.isConnected.value == false) {
+                          members.remove(id)?.dispose();
+                        }
+                      } else {
+                        call.value?.dialed = null;
+
+                        members.removeWhere((k, v) {
+                          if (k.deviceId == null && v.isConnected.isFalse) {
+                            v.dispose();
+                            return true;
+                          }
+
+                          return false;
+                        });
+                      }
+                      break;
+
+                    case ChatCallEventKind.conversationStarted:
+                      // TODO: Implement [EventChatCallConversationStarted].
+                      break;
+
+                    case ChatCallEventKind.undialed:
+                      final node = event as EventChatCallMemberUndialed;
+
+                      final CallMemberId id = CallMemberId(node.user.id, null);
+                      if (members[id]?.isConnected.value == false) {
+                        members.remove(id)?.dispose();
+                      }
+                      break;
+                  }
+                }
+                break;
             }
-            break;
-        }
-      },
-      onError: (e) {
-        if (e is! ResubscriptionRequiredException) {
-          throw e;
-        }
-      },
-    );
+          },
+          onError: (e) {
+            if (e is! ResubscriptionRequiredException) {
+              throw e;
+            }
+          },
+        );
   }
 
   /// Disposes the call and [Jason] client if it was previously initialized.
@@ -877,10 +929,7 @@ class OngoingCall {
     bool withVideo = true,
     bool withScreen = false,
   }) async {
-    Log.debug(
-      'join($withAudio, $withVideo, $withScreen)',
-      '$runtimeType',
-    );
+    Log.debug('join($withAudio, $withVideo, $withScreen)', '$runtimeType');
 
     await calls.join(
       chatId.value,
@@ -918,7 +967,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             screenShareState.value = LocalTrackState.disabled;
-            if (!e.message().contains('Permission denied')) {
+            if (!e.message().contains('Permission denied') &&
+                !e.message().contains('NotAllowedError')) {
               addError('enableScreenShare() call failed with $e');
               rethrow;
             }
@@ -975,7 +1025,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             audioState.value = LocalTrackState.disabled;
-            if (e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied') ||
+                e.message().contains('NotAllowedError')) {
               _notifications.add(MicrophonePermissionDeniedNotification());
             } else {
               addError('unmuteAudio() call failed due to ${e.message()}');
@@ -1032,7 +1083,8 @@ class OngoingCall {
             // No-op.
           } on LocalMediaInitException catch (e) {
             videoState.value = LocalTrackState.disabled;
-            if (e.message().contains('Permission denied')) {
+            if (e.message().contains('Permission denied') ||
+                e.message().contains('NotAllowedError')) {
               _notifications.add(CameraPermissionDeniedNotification());
             } else {
               addError('enableVideo() call failed with $e');
@@ -1298,7 +1350,8 @@ class OngoingCall {
               break;
 
             case LocalMediaInitExceptionKind.getDisplayMediaFailed:
-              if (e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied') ||
+                  e.message().contains('NotAllowedError')) {
                 break;
               }
 
@@ -1307,7 +1360,8 @@ class OngoingCall {
               break;
 
             default:
-              if (e.message().contains('Permission denied')) {
+              if (e.message().contains('Permission denied') ||
+                  e.message().contains('NotAllowedError')) {
                 break;
               }
 
@@ -1368,7 +1422,8 @@ class OngoingCall {
         members[id] = CallMember(
           id,
           conn,
-          isHandRaised: call.value?.members
+          isHandRaised:
+              call.value?.members
                   .firstWhereOrNull((e) => e.user.id == id.userId)
                   ?.handRaised ??
               false,
@@ -1495,8 +1550,9 @@ class OngoingCall {
     Log.debug('toggleHand()', '$runtimeType');
 
     // Toggle the hands of all the devices of the authenticated [MyUser].
-    for (MapEntry<CallMemberId, CallMember> m
-        in members.entries.where((e) => e.key.userId == _me.userId)) {
+    for (MapEntry<CallMemberId, CallMember> m in members.entries.where(
+      (e) => e.key.userId == _me.userId,
+    )) {
       m.value.isHandRaised.toggle();
     }
     return _toggleHand(service);
@@ -1530,7 +1586,8 @@ class OngoingCall {
       members[id] = CallMember(
         id,
         null,
-        isHandRaised: call.value?.members
+        isHandRaised:
+            call.value?.members
                 .firstWhereOrNull((e) => e.user.id == id.userId)
                 ?.handRaised ??
             false,
@@ -1549,77 +1606,86 @@ class OngoingCall {
   Future<void> _initLocalMedia() async {
     Log.debug('_initLocalMedia()', '$runtimeType');
 
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      await Permission.microphone.request();
-      await Permission.camera.request();
+    try {
+      if (hasAudio || audioState.value.isEnabled) {
+        await Permission.microphone.request();
+      }
+
+      if (videoState.value.isEnabled) {
+        await Permission.camera.request();
+      }
+    } on MissingPluginException {
+      // No-op.
     }
 
     await _mediaSettingsGuard.protect(() async {
-      // Populate [devices] with a list of available media input devices.
-      try {
-        await enumerateDevices();
-      } catch (_) {
-        // No-op.
-      }
+      await _devicesGuard.protect(() async {
+        // Populate [devices] with a list of available media input devices.
+        try {
+          await enumerateDevices();
+        } catch (_) {
+          // No-op.
+        }
 
-      // On mobile platforms, output device is picked in the following priority:
-      // - headphones;
-      // - earpiece (if [videoState] is disabled);
-      // - speaker (if [videoState] is enabled).
-      if (PlatformUtils.isMobile) {
-        _outputWorker = ever(
-          MediaUtils.outputDeviceId,
-          (id) {
+        // On mobile platforms, output device is picked in the following priority:
+        // - headphones;
+        // - earpiece (if [videoState] is disabled);
+        // - speaker (if [videoState] is enabled).
+        if (PlatformUtils.isMobile) {
+          _outputWorker = ever(MediaUtils.outputDeviceId, (id) {
             outputDevice.value =
                 devices.output().firstWhereOrNull((e) => e.deviceId() == id) ??
-                    outputDevice.value;
-          },
-        );
-
-        if (outputDevice.value == null) {
-          final Iterable<DeviceDetails> output = devices.output();
-          outputDevice.value = output.firstWhereOrNull(
-            (e) => e.speaker == AudioSpeakerKind.headphones,
-          );
+                outputDevice.value;
+          });
 
           if (outputDevice.value == null) {
-            final bool speaker =
-                PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+            final Iterable<DeviceDetails> output = devices.output();
+            outputDevice.value = output.firstWhereOrNull(
+              (e) => e.speaker == AudioSpeakerKind.headphones,
+            );
 
-            if (speaker) {
-              outputDevice.value = output.firstWhereOrNull(
-                (e) => e.speaker == AudioSpeakerKind.speaker,
+            if (outputDevice.value == null) {
+              final bool speaker =
+                  PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+
+              if (speaker) {
+                outputDevice.value = output.firstWhereOrNull(
+                  (e) => e.speaker == AudioSpeakerKind.speaker,
+                );
+              }
+
+              outputDevice.value ??= output.firstWhereOrNull(
+                (e) => e.speaker == AudioSpeakerKind.earpiece,
               );
             }
-
-            outputDevice.value ??= output.firstWhereOrNull(
-              (e) => e.speaker == AudioSpeakerKind.earpiece,
-            );
           }
+        } else {
+          // On any other platform the output device is the preferred one.
+          outputDevice.value =
+              devices.output().firstWhereOrNull(
+                (e) => e.id() == _preferredOutputDevice,
+              ) ??
+              devices.output().firstOrNull;
         }
-      } else {
-        // On any other platform the output device is the preferred one.
-        outputDevice.value = devices
-                .output()
-                .firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-            devices.output().firstOrNull;
-      }
 
-      audioDevice.value ??= devices
-              .audio()
-              .firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-          devices.audio().firstOrNull;
+        audioDevice.value ??=
+            devices.audio().firstWhereOrNull(
+              (e) => e.id() == _preferredAudioDevice,
+            ) ??
+            devices.audio().firstOrNull;
 
-      videoDevice.value ??= devices
-          .video()
-          .firstWhereOrNull((e) => e.id() == _preferredVideoDevice);
+        videoDevice.value ??= devices.video().firstWhereOrNull(
+          (e) => e.id() == _preferredVideoDevice,
+        );
 
-      screenDevice.value ??= displays
-          .firstWhereOrNull((e) => e.deviceId() == _preferredScreenDevice);
+        screenDevice.value ??= displays.firstWhereOrNull(
+          (e) => e.deviceId() == _preferredScreenDevice,
+        );
 
-      if (outputDevice.value != null) {
-        MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
-      }
+        if (outputDevice.value != null) {
+          MediaUtils.setOutputDevice(outputDevice.value!.deviceId());
+        }
+      });
 
       // First, try to init the local tracks with [_mediaStreamSettings].
       List<LocalMediaTrack> tracks = [];
@@ -1628,26 +1694,32 @@ class OngoingCall {
       Future<void> initLocalTracks() async {
         try {
           tracks = await MediaUtils.getTracks(
-            audio: hasAudio || audioState.value.isEnabled
-                ? AudioPreferences(
-                    device: audioDevice.value?.deviceId() ??
-                        devices.audio().firstOrNull?.deviceId(),
-                  )
-                : null,
-            video: videoState.value.isEnabled
-                ? VideoPreferences(
-                    device: videoDevice.value?.deviceId() ??
-                        devices.video().firstOrNull?.deviceId(),
-                    facingMode:
-                        videoDevice.value == null ? FacingMode.user : null,
-                  )
-                : null,
-            screen: screenShareState.value.isEnabled
-                ? ScreenPreferences(
-                    device: screenDevice.value?.deviceId() ??
-                        displays.firstOrNull?.deviceId(),
-                  )
-                : null,
+            audio:
+                hasAudio || audioState.value.isEnabled
+                    ? AudioPreferences(
+                      device:
+                          audioDevice.value?.deviceId() ??
+                          devices.audio().firstOrNull?.deviceId(),
+                    )
+                    : null,
+            video:
+                videoState.value.isEnabled
+                    ? VideoPreferences(
+                      device:
+                          videoDevice.value?.deviceId() ??
+                          devices.video().firstOrNull?.deviceId(),
+                      facingMode:
+                          videoDevice.value == null ? FacingMode.user : null,
+                    )
+                    : null,
+            screen:
+                screenShareState.value.isEnabled
+                    ? ScreenPreferences(
+                      device:
+                          screenDevice.value?.deviceId() ??
+                          displays.firstOrNull?.deviceId(),
+                    )
+                    : null,
           );
         } on LocalMediaInitException catch (e) {
           switch (e.kind()) {
@@ -1690,6 +1762,18 @@ class OngoingCall {
 
       try {
         await initLocalTracks();
+      } on LocalMediaInitException catch (e) {
+        audioState.value = LocalTrackState.disabled;
+        videoState.value = LocalTrackState.disabled;
+        screenShareState.value = LocalTrackState.disabled;
+
+        if (e.message().contains('Permission denied') ||
+            e.message().contains('NotAllowedError')) {
+          _notifications.add(MicrophonePermissionDeniedNotification());
+        } else {
+          addError('initLocalTracks() call failed due to: ${e.message()}');
+          rethrow;
+        }
       } catch (e) {
         audioState.value = LocalTrackState.disabled;
         videoState.value = LocalTrackState.disabled;
@@ -1702,12 +1786,14 @@ class OngoingCall {
         _addLocalTrack(track);
       }
 
-      audioState.value = audioState.value == LocalTrackState.enabling
-          ? LocalTrackState.enabled
-          : audioState.value;
-      videoState.value = videoState.value == LocalTrackState.enabling
-          ? LocalTrackState.enabled
-          : videoState.value;
+      audioState.value =
+          audioState.value == LocalTrackState.enabling
+              ? LocalTrackState.enabled
+              : audioState.value;
+      videoState.value =
+          videoState.value == LocalTrackState.enabling
+              ? LocalTrackState.enabled
+              : videoState.value;
       screenShareState.value =
           screenShareState.value == LocalTrackState.enabling
               ? LocalTrackState.enabled
@@ -1797,9 +1883,10 @@ class OngoingCall {
         '$runtimeType',
       );
 
-      final List<CallMember> connected = members.values
-          .where((e) => e.isConnected.value == true && e.id != _me)
-          .toList();
+      final List<CallMember> connected =
+          members.values
+              .where((e) => e.isConnected.value == true && e.id != _me)
+              .toList();
 
       await _closeRoom(false);
       await _initRoom();
@@ -1930,18 +2017,21 @@ class OngoingCall {
     Log.debug('_updateTracks($audio, $video, $screen)', '$runtimeType');
 
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-      audio: audioState.value.isEnabled && audio
-          ? AudioPreferences(device: audioDevice.value?.deviceId())
-          : null,
-      video: videoState.value.isEnabled && video
-          ? VideoPreferences(
-              device: videoDevice.value?.deviceId(),
-              facingMode: videoDevice.value == null ? FacingMode.user : null,
-            )
-          : null,
-      screen: screenShareState.value.isEnabled && screen
-          ? ScreenPreferences(device: screenDevice.value?.deviceId())
-          : null,
+      audio:
+          audioState.value.isEnabled && audio
+              ? AudioPreferences(device: audioDevice.value?.deviceId())
+              : null,
+      video:
+          videoState.value.isEnabled && video
+              ? VideoPreferences(
+                device: videoDevice.value?.deviceId(),
+                facingMode: videoDevice.value == null ? FacingMode.user : null,
+              )
+              : null,
+      screen:
+          screenShareState.value.isEnabled && screen
+              ? ScreenPreferences(device: screenDevice.value?.deviceId())
+              : null,
     );
 
     for (LocalMediaTrack track in tracks) {
@@ -2005,14 +2095,16 @@ class OngoingCall {
 
         switch (source) {
           case MediaSourceKind.device:
-            videoDevice.value = videoDevice.value ??
+            videoDevice.value =
+                videoDevice.value ??
                 devices.firstWhereOrNull(
                   (e) => e.deviceId() == track.getTrack().deviceId(),
                 );
             break;
 
           case MediaSourceKind.display:
-            screenDevice.value = screenDevice.value ??
+            screenDevice.value =
+                screenDevice.value ??
                 displays.firstWhereOrNull(
                   (e) => e.deviceId() == track.getTrack().deviceId(),
                 );
@@ -2027,7 +2119,8 @@ class OngoingCall {
       members[_me]?.tracks.add(Track(track));
 
       if (source == MediaSourceKind.device) {
-        audioDevice.value = audioDevice.value ??
+        audioDevice.value =
+            audioDevice.value ??
             devices.firstWhereOrNull(
               (e) => e.deviceId() == track.getTrack().deviceId(),
             );
@@ -2057,7 +2150,7 @@ class OngoingCall {
     final Iterable<DeviceDetails> output = devices.output();
     final DeviceDetails? device =
         output.firstWhereOrNull((e) => e.id() == _preferredOutputDevice) ??
-            output.firstOrNull;
+        output.firstOrNull;
 
     if (device != null && outputDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
@@ -2073,7 +2166,7 @@ class OngoingCall {
     final Iterable<DeviceDetails> audio = devices.audio();
     final DeviceDetails? device =
         audio.firstWhereOrNull((e) => e.id() == _preferredAudioDevice) ??
-            audio.firstOrNull;
+        audio.firstOrNull;
 
     if (device != null && audioDevice.value != device) {
       _notifications.add(DeviceChangedNotification(device: device));
@@ -2093,8 +2186,9 @@ class OngoingCall {
 
     if (removed.any((e) => e.deviceId() == videoDevice.value?.deviceId()) ||
         (videoDevice.value == null &&
-            removed.any((e) =>
-                e.deviceId() == previous.video().firstOrNull?.deviceId()))) {
+            removed.any(
+              (e) => e.deviceId() == previous.video().firstOrNull?.deviceId(),
+            ))) {
       await setVideoEnabled(false);
       videoDevice.value = null;
     }
@@ -2311,11 +2405,11 @@ class CallMember {
     bool isConnected = false,
     bool isDialing = false,
     PreciseDateTime? joinedAt,
-  })  : isHandRaised = RxBool(isHandRaised),
-        isConnected = RxBool(isConnected),
-        isDialing = RxBool(isDialing),
-        joinedAt = Rx(joinedAt),
-        owner = MediaOwnerKind.remote;
+  }) : isHandRaised = RxBool(isHandRaised),
+       isConnected = RxBool(isConnected),
+       isDialing = RxBool(isDialing),
+       joinedAt = Rx(joinedAt),
+       owner = MediaOwnerKind.remote;
 
   CallMember.me(
     this.id, {
@@ -2323,11 +2417,11 @@ class CallMember {
     bool isConnected = false,
     bool isDialing = false,
     PreciseDateTime? joinedAt,
-  })  : isHandRaised = RxBool(isHandRaised),
-        isConnected = RxBool(isConnected),
-        isDialing = RxBool(isDialing),
-        joinedAt = Rx(joinedAt),
-        owner = MediaOwnerKind.local;
+  }) : isHandRaised = RxBool(isHandRaised),
+       isConnected = RxBool(isConnected),
+       isDialing = RxBool(isDialing),
+       joinedAt = Rx(joinedAt),
+       owner = MediaOwnerKind.local;
 
   /// [CallMemberId] of this [CallMember].
   CallMemberId id;
@@ -2393,9 +2487,7 @@ class CallMember {
 
 /// Convenience wrapper around a [MediaTrack].
 class Track {
-  Track(this.track)
-      : kind = track.kind(),
-        source = track.mediaSourceKind() {
+  Track(this.track) : kind = track.kind(), source = track.mediaSourceKind() {
     Log.debug('Track($kind, $source)', '$runtimeType');
 
     if (track is RemoteMediaTrack) {
@@ -2482,10 +2574,7 @@ class Track {
   Future<void> stop() async {
     Log.debug('stop()', '$runtimeType');
 
-    await Future.wait([
-      track.getTrack().stop(),
-      removeRenderer(),
-    ]);
+    await Future.wait([track.getTrack().stop(), removeRenderer()]);
   }
 }
 

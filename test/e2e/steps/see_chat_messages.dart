@@ -35,27 +35,25 @@ import '../world/custom_world.dart';
 /// - Then I see no messages in chat
 final StepDefinitionGeneric seeChatMessages =
     then1<IterableAmount, CustomWorld>(
-  'I see {iterable_amount} messages in chat',
-  (status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {iterable_amount} messages in chat',
+      (status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await Future.delayed(Duration(seconds: 5));
 
-        switch (status) {
-          case IterableAmount.no:
-            return await context.world.appDriver.isPresent(
-              context.world.appDriver.findByKeySkipOffstage('NoMessages'),
-            );
+          switch (status) {
+            case IterableAmount.no:
+              return await context.world.appDriver.isPresent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+              );
 
-          case IterableAmount.some:
-            return await context.world.appDriver.isAbsent(
-              context.world.appDriver.findByKeySkipOffstage('NoMessages'),
-            );
-        }
+            case IterableAmount.some:
+              return await context.world.appDriver.isAbsent(
+                context.world.appDriver.findByKeySkipOffstage('NoMessages'),
+              );
+          }
+        });
       },
     );
-  },
-);
 
 /// Indicates whether a [ChatItem] with the provided text is visible in the
 /// opened [Chat].
@@ -65,26 +63,26 @@ final StepDefinitionGeneric seeChatMessages =
 final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
   'I see {string} message',
   (String text, context) async {
-    final controller =
-        Get.find<ChatController>(tag: router.route.split('/').last);
-
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
-
-        final ChatMessageElement? message = controller.elements.values
-            .whereType<ChatMessageElement>()
-            .firstWhereOrNull(
-              (e) => (e.item.value as ChatMessage).text?.val == text,
-            );
-
-        return await context.world.appDriver.isPresent(
-          context.world.appDriver
-              .findByKeySkipOffstage('Message_${message?.id.id}'),
-        );
-      },
+    final controller = Get.find<ChatController>(
+      tag: router.route.split('/').last,
     );
+
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+
+      final ChatMessageElement? message = controller.elements.values
+          .whereType<ChatMessageElement>()
+          .firstWhereOrNull(
+            (e) => (e.item.value as ChatMessage).text?.val == text,
+          );
+
+      return await context.world.appDriver.isPresent(
+        context.world.appDriver.findByKeySkipOffstage(
+          'Message_${message?.id.id}',
+        ),
+      );
+    });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );

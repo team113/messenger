@@ -35,11 +35,12 @@ class ShareIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedButton(
-      decorator: (child) => Container(
-        padding: const EdgeInsets.only(left: 12, right: 18),
-        height: double.infinity,
-        child: child,
-      ),
+      decorator:
+          (child) => Container(
+            padding: const EdgeInsets.only(left: 12, right: 18),
+            height: double.infinity,
+            child: child,
+          ),
       onPressed: () async {
         if (PlatformUtils.isMobile) {
           await Share.share(share);
@@ -48,9 +49,10 @@ class ShareIconButton extends StatelessWidget {
           MessagePopup.success('label_copied'.l10n);
         }
       },
-      child: PlatformUtils.isMobile
-          ? const SvgIcon(SvgIcons.shareThick)
-          : const SvgIcon(SvgIcons.copyThick),
+      child:
+          PlatformUtils.isMobile
+              ? const SvgIcon(SvgIcons.shareThick)
+              : const SvgIcon(SvgIcons.copyThick),
     );
   }
 }

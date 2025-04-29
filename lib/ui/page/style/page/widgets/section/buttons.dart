@@ -127,10 +127,7 @@ class ButtonsSection {
         children: [
           (
             headline: 'SignButton',
-            widget: SignButton(
-              onPressed: () {},
-              title: 'Label',
-            ),
+            widget: SignButton(onPressed: () {}, title: 'Label'),
           ),
           (
             headline: 'SignButton(asset)',
@@ -146,8 +143,10 @@ class ButtonsSection {
         children: [
           (
             headline: 'StyledCupertinoButton',
-            widget:
-                StyledCupertinoButton(onPressed: () {}, label: 'Clickable text')
+            widget: StyledCupertinoButton(
+              onPressed: () {},
+              label: 'Clickable text',
+            ),
           ),
           (
             headline: 'StyledCupertinoButton.primary',
@@ -295,10 +294,7 @@ class ButtonsSection {
             headline: 'DownloadButton.linux',
             widget: const DownloadButton.linux(),
           ),
-          (
-            headline: 'DownloadButton.ios',
-            widget: const DownloadButton.ios(),
-          ),
+          (headline: 'DownloadButton.ios', widget: const DownloadButton.ios()),
           (
             headline: 'DownloadButton.appStore',
             widget: DownloadButton.appStore(),
@@ -340,14 +336,15 @@ class ButtonsSection {
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
-        children: WorkTab.values
-            .map(
-              (e) => (
-                headline: 'VacancyWorkButton(${e.name})',
-                widget: VacancyWorkButton(e, onPressed: (_) {}),
-              ),
-            )
-            .toList(),
+        children:
+            WorkTab.values
+                .map(
+                  (e) => (
+                    headline: 'VacancyWorkButton(${e.name})',
+                    widget: VacancyWorkButton(e, onPressed: (_) {}),
+                  ),
+                )
+                .toList(),
       ),
     ];
   }

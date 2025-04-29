@@ -147,12 +147,10 @@ class UserDriftProvider extends DriftProviderBaseWithScope {
         _controllers[id] = controller;
       }
 
-      return StreamGroup.merge(
-        [
-          controller.stream,
-          stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
-        ],
-      );
+      return StreamGroup.merge([
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : UserDb.fromDb(e.first)),
+      ]);
     });
   }
 }
@@ -167,29 +165,34 @@ extension UserDb on DtoUser {
         UserNum(e.num),
         name: e.name == null ? null : UserName(e.name!),
         bio: e.bio == null ? null : UserBio(e.bio!),
-        avatar: e.avatar == null
-            ? null
-            : UserAvatar.fromJson(jsonDecode(e.avatar!)),
-        callCover: e.callCover == null
-            ? null
-            : UserCallCover.fromJson(jsonDecode(e.callCover!)),
+        avatar:
+            e.avatar == null
+                ? null
+                : UserAvatar.fromJson(jsonDecode(e.avatar!)),
+        callCover:
+            e.callCover == null
+                ? null
+                : UserCallCover.fromJson(jsonDecode(e.callCover!)),
         mutualContactsCount: e.mutualContactsCount,
         online: e.online,
         presenceIndex: e.presenceIndex,
         status: e.status == null ? null : UserTextStatus(e.status!),
         isDeleted: e.isDeleted,
         dialog: e.dialog == null ? null : ChatId(e.dialog!),
-        isBlocked: e.isBlocked == null
-            ? null
-            : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
+        isBlocked:
+            e.isBlocked == null
+                ? null
+                : BlocklistRecord.fromJson(jsonDecode(e.isBlocked!)),
         lastSeenAt: e.lastSeenAt,
-        contacts: (jsonDecode(e.contacts) as List)
-            .map((e) => NestedChatContact.fromJson(e))
-            .cast<NestedChatContact>()
-            .toList(),
-        welcomeMessage: e.welcomeMessage == null
-            ? null
-            : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
+        contacts:
+            (jsonDecode(e.contacts) as List)
+                .map((e) => NestedChatContact.fromJson(e))
+                .cast<NestedChatContact>()
+                .toList(),
+        welcomeMessage:
+            e.welcomeMessage == null
+                ? null
+                : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
       ),
       UserVersion(e.ver),
       BlocklistVersion(e.blockedVer),
@@ -204,25 +207,28 @@ extension UserDb on DtoUser {
       name: value.name?.val,
       bio: value.bio?.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
-      callCover: value.callCover == null
-          ? null
-          : jsonEncode(value.callCover?.toJson()),
+      callCover:
+          value.callCover == null
+              ? null
+              : jsonEncode(value.callCover?.toJson()),
       mutualContactsCount: value.mutualContactsCount,
       online: value.online,
       presenceIndex: value.presenceIndex,
       status: value.status?.val,
       isDeleted: value.isDeleted,
       dialog: value.dialog.val,
-      isBlocked: value.isBlocked == null
-          ? null
-          : jsonEncode(value.isBlocked?.toJson()),
+      isBlocked:
+          value.isBlocked == null
+              ? null
+              : jsonEncode(value.isBlocked?.toJson()),
       lastSeenAt: value.lastSeenAt,
       contacts: jsonEncode(value.contacts.map((e) => e.toJson()).toList()),
       ver: ver.val,
       blockedVer: blockedVer.val,
-      welcomeMessage: value.welcomeMessage == null
-          ? null
-          : jsonEncode(value.welcomeMessage?.toJson()),
+      welcomeMessage:
+          value.welcomeMessage == null
+              ? null
+              : jsonEncode(value.welcomeMessage?.toJson()),
     );
   }
 }

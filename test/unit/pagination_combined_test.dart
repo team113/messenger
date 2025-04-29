@@ -39,12 +39,10 @@ void main() async {
       compare: (a, b) => a.compareTo(b),
     );
 
-    final CombinedPagination<int, int> combinedPagination = CombinedPagination(
-      [
-        CombinedPaginationEntry(pagination1),
-        CombinedPaginationEntry(pagination2),
-      ],
-    );
+    final CombinedPagination<int, int> combinedPagination = CombinedPagination([
+      CombinedPaginationEntry(pagination1),
+      CombinedPaginationEntry(pagination2),
+    ]);
 
     await combinedPagination.around();
     expect(combinedPagination.items.length, 4);
@@ -63,17 +61,29 @@ void main() async {
 
     await combinedPagination.next();
     expect(combinedPagination.items.length, 14);
-    expect(
-      combinedPagination.items,
-      [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13],
-    );
+    expect(combinedPagination.items, [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+    ]);
     expect(combinedPagination.hasNext.value, false);
   });
 }
 
 class _ListPageProvider implements PageProvider<int, int, int> {
   _ListPageProvider({int start = 0, required int count})
-      : _items = List.generate(count, (i) => start + i);
+    : _items = List.generate(count, (i) => start + i);
 
   final List<int> _items;
 

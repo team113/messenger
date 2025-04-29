@@ -32,6 +32,7 @@ import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/routes.dart';
 import '/ui/page/home/introduction/view.dart';
+import '/ui/worker/upgrade.dart';
 import '/util/message_popup.dart';
 import 'introduction/controller.dart';
 
@@ -42,7 +43,8 @@ class HomeController extends GetxController {
   HomeController(
     this._auth,
     this._myUserService,
-    this._settings, {
+    this._settings,
+    this._upgradeWorker, {
     this.signedUp = false,
     this.link,
     this.context,
@@ -94,6 +96,9 @@ class HomeController extends GetxController {
   /// determine whether an [IntroductionView] was already shown.
   final AbstractSettingsRepository _settings;
 
+  /// [UpgradeWorker] for displaying the [UpgradeWorker.scheduled].
+  final UpgradeWorker _upgradeWorker;
+
   /// Subscription to the [MyUser] changes.
   late final StreamSubscription _myUserSubscription;
 
@@ -119,6 +124,12 @@ class HomeController extends GetxController {
     return tabs;
   }
 
+  /// Returns the latest [Release] being scheduled to be displayed.
+  Rx<Release?> get scheduled => _upgradeWorker.scheduled;
+
+  /// Returns the [ReleaseDownload] being active, if any.
+  Rx<ReleaseDownload?> get activeDownload => _upgradeWorker.activeDownload;
+
   @override
   void onInit() {
     super.onInit();
@@ -130,8 +141,9 @@ class HomeController extends GetxController {
       (u) => unreadChats.value = u?.unreadChatsCount ?? unreadChats.value,
     );
 
-    sideBarWidth =
-        RxDouble(_settings.applicationSettings.value?.sideBarWidth ?? 350);
+    sideBarWidth = RxDouble(
+      _settings.applicationSettings.value?.sideBarWidth ?? 350,
+    );
 
     router.addListener(_onRouterChanged);
   }
@@ -147,16 +159,13 @@ class HomeController extends GetxController {
         _displayIntroduction(_myUserService.myUser.value!);
       } else {
         Worker? worker;
-        worker = ever(
-          _myUserService.myUser,
-          (MyUser? myUser) {
-            if (myUser != null && worker != null) {
-              _displayIntroduction(myUser);
-              worker?.dispose();
-              worker = null;
-            }
-          },
-        );
+        worker = ever(_myUserService.myUser, (MyUser? myUser) {
+          if (myUser != null && worker != null) {
+            _displayIntroduction(myUser);
+            worker?.dispose();
+            worker = null;
+          }
+        });
       }
     }
   }
@@ -233,8 +242,10 @@ class HomeController extends GetxController {
     }
 
     if (stage != null) {
-      IntroductionView.show(context ?? router.context!, initial: stage)
-          .then((_) => _settings.setShowIntroduction(false));
+      IntroductionView.show(
+        context ?? router.context!,
+        initial: stage,
+      ).then((_) => _settings.setShowIntroduction(false));
     } else {
       _settings.setShowIntroduction(false);
     }

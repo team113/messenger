@@ -60,11 +60,7 @@ enum ChatEventKind {
 }
 
 /// Tag representing a [ChatEvents] kind.
-enum ChatEventsKind {
-  initialized,
-  chat,
-  event,
-}
+enum ChatEventsKind { initialized, chat, event }
 
 /// [Chat] event union.
 abstract class ChatEvents {
@@ -430,7 +426,12 @@ class EventChatRead extends ChatEvent {
 /// Event of a [ChatCall] being declined by a [ChatMember].
 class EventChatCallDeclined extends ChatEvent {
   const EventChatCallDeclined(
-      super.chatId, this.callId, this.call, this.user, this.at);
+    super.chatId,
+    this.callId,
+    this.call,
+    this.user,
+    this.at,
+  );
 
   /// ID of the [ChatCall] being declined.
   final ChatItemId callId;
@@ -544,10 +545,7 @@ class EventChatCallConversationStarted extends ChatEvent {
 
 /// Event of an answer timeout being reached in a [ChatCall].
 class EventChatCallAnswerTimeoutPassed extends ChatEvent {
-  const EventChatCallAnswerTimeoutPassed(
-    super.chatId,
-    this.callId,
-  );
+  const EventChatCallAnswerTimeoutPassed(super.chatId, this.callId);
 
   /// ID of the [ChatCall] the conversation started in.
   final ChatItemId callId;

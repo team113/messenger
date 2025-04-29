@@ -42,10 +42,10 @@ class BigAvatarWidget extends StatefulWidget {
     this.onEdit,
     this.loading = false,
     this.error,
-  })  : _mode = _BigAvatarMode.myUser,
-        user = null,
-        chat = null,
-        builder = _defaultBuilder;
+  }) : _mode = _BigAvatarMode.myUser,
+       user = null,
+       chat = null,
+       builder = _defaultBuilder;
 
   /// Builds a [BigAvatarWidget] of the provided [chat].
   const BigAvatarWidget.chat(
@@ -57,9 +57,9 @@ class BigAvatarWidget extends StatefulWidget {
     this.loading = false,
     this.error,
     this.builder = _defaultBuilder,
-  })  : _mode = _BigAvatarMode.chat,
-        myUser = null,
-        user = null;
+  }) : _mode = _BigAvatarMode.chat,
+       myUser = null,
+       user = null;
 
   /// Builds a [BigAvatarWidget] of the provided [user].
   const BigAvatarWidget.user(
@@ -70,10 +70,10 @@ class BigAvatarWidget extends StatefulWidget {
     this.onEdit,
     this.loading = false,
     this.error,
-  })  : _mode = _BigAvatarMode.user,
-        myUser = null,
-        chat = null,
-        builder = _defaultBuilder;
+  }) : _mode = _BigAvatarMode.user,
+       myUser = null,
+       chat = null,
+       builder = _defaultBuilder;
 
   /// [MyUser] to display an [Avatar] of.
   final MyUser? myUser;
@@ -121,11 +121,8 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Iterable<void Function()> callbacks = [
-      widget.onUpload,
-      widget.onEdit,
-      widget.onDelete,
-    ].nonNulls;
+    final Iterable<void Function()> callbacks =
+        [widget.onUpload, widget.onEdit, widget.onDelete].nonNulls;
 
     return Column(
       children: [
@@ -136,27 +133,28 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             Positioned.fill(
               child: SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
-                child: widget.loading
-                    ? Container(
-                        width: AvatarRadius.largest.toDouble() * 2,
-                        height: AvatarRadius.largest.toDouble() * 2,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.rectangle,
-                          borderRadius: BorderRadius.circular(
-                            0.035 * (AvatarRadius.largest.toDouble() * 2),
+                child:
+                    widget.loading
+                        ? Container(
+                          width: AvatarRadius.largest.toDouble() * 2,
+                          height: AvatarRadius.largest.toDouble() * 2,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: BorderRadius.circular(
+                              0.035 * (AvatarRadius.largest.toDouble() * 2),
+                            ),
+                            color: style.colors.onBackgroundOpacity13,
                           ),
-                          color: style.colors.onBackgroundOpacity13,
-                        ),
-                        child: const Center(
-                          // TODO: Remove, when flutter/flutter##120874 is
-                          //       fixed:
-                          //       https://github.com/flutter/flutter/issues/120874
-                          child: RepaintBoundary(
-                            child: CustomProgressIndicator(),
+                          child: const Center(
+                            // TODO: Remove, when flutter/flutter##120874 is
+                            //       fixed:
+                            //       https://github.com/flutter/flutter/issues/120874
+                            child: RepaintBoundary(
+                              child: CustomProgressIndicator(),
+                            ),
                           ),
-                        ),
-                      )
-                    : const SizedBox.shrink(),
+                        )
+                        : const SizedBox.shrink(),
               ),
             ),
           ],
@@ -205,10 +203,7 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           const SizedBox(height: 4),
           SizedBox(
             width: AvatarRadius.largest.toDouble() * 2,
-            child: Text(
-              widget.error!,
-              style: style.fonts.small.regular.danger,
-            ),
+            child: Text(widget.error!, style: style.fonts.small.regular.danger),
           ),
           const SizedBox(height: 8),
         ],
@@ -271,26 +266,27 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       }
 
       return WidgetButton(
-        onPressed: avatar == null
-            ? widget.onUpload
-            : () async {
-                await GalleryPopup.show(
-                  context: context,
-                  gallery: GalleryPopup(
-                    initialKey: _avatarKey,
-                    children: [
-                      GalleryItem.image(
-                        avatar!.original.url,
-                        avatar.original.name,
-                        width: avatar.original.width,
-                        height: avatar.original.height,
-                        checksum: avatar.original.checksum,
-                        thumbhash: avatar.big.thumbhash,
-                      ),
-                    ],
-                  ),
-                );
-              },
+        onPressed:
+            avatar == null
+                ? widget.onUpload
+                : () async {
+                  await GalleryPopup.show(
+                    context: context,
+                    gallery: GalleryPopup(
+                      initialKey: _avatarKey,
+                      children: [
+                        GalleryItem.image(
+                          avatar!.original.url,
+                          avatar.original.name,
+                          width: avatar.original.width,
+                          height: avatar.original.height,
+                          checksum: avatar.original.checksum,
+                          thumbhash: avatar.big.thumbhash,
+                        ),
+                      ],
+                    ),
+                  );
+                },
         child: child,
       );
     });

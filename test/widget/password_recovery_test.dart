@@ -28,6 +28,7 @@ import 'package:messenger/l10n/l10n.dart';
 import 'package:messenger/provider/drift/account.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -61,16 +62,15 @@ void main() async {
   final accountProvider = Get.put(AccountDriftProvider(common));
   final myUserProvider = Get.put(MyUserDriftProvider(common));
   final userProvider = UserDriftProvider(common, scoped);
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(
-      theme: Themes.light(),
-      home: Scaffold(body: child),
-    );
+    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
   }
 
-  testWidgets('LoginView successfully recovers account access',
-      (WidgetTester tester) async {
+  testWidgets('LoginView successfully recovers account access', (
+    WidgetTester tester,
+  ) async {
     Get.put(myUserProvider);
     Get.put(userProvider);
     Get.put<GraphQlProvider>(graphQlProvider);
@@ -78,13 +78,12 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
     authService.init();

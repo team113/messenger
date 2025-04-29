@@ -277,8 +277,10 @@ class ChatInfoController extends GetxController {
     if (result != null) {
       final PlatformFile file = result.files.first;
 
-      final CropAreaInput? crop =
-          await CropAvatarView.show(router.context!, file.bytes!);
+      final CropAreaInput? crop = await CropAvatarView.show(
+        router.context!,
+        file.bytes!,
+      );
       if (crop == null) {
         return;
       }
@@ -358,8 +360,10 @@ class ChatInfoController extends GetxController {
   Future<void> reportChat() async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
     }
 
@@ -375,9 +379,11 @@ class ChatInfoController extends GetxController {
         ),
       );
     } catch (e) {
-      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
-        'email': Config.support,
-      }));
+      await MessagePopup.error(
+        'label_contact_us_via_provided_email'.l10nfmt({
+          'email': Config.support,
+        }),
+      );
     }
   }
 
@@ -593,8 +599,10 @@ class ChatInfoController extends GetxController {
       );
 
       if (cache.bytes != null) {
-        final CropAreaInput? crop =
-            await CropAvatarView.show(router.context!, cache.bytes!);
+        final CropAreaInput? crop = await CropAvatarView.show(
+          router.context!,
+          cache.bytes!,
+        );
 
         if (crop != null) {
           await _chatService.updateChatAvatar(
@@ -630,16 +638,13 @@ class ChatInfoController extends GetxController {
 
         name.unchecked = chat!.chat.value.name?.val;
 
-        _worker = ever(
-          chat!.chat,
-          (Chat chat) {
-            if (!name.focus.hasFocus &&
-                !name.changed.value &&
-                name.editable.value) {
-              name.unchecked = chat.name?.val;
-            }
-          },
-        );
+        _worker = ever(chat!.chat, (Chat chat) {
+          if (!name.focus.hasFocus &&
+              !name.changed.value &&
+              name.editable.value) {
+            name.unchecked = chat.name?.val;
+          }
+        });
 
         _membersSubscription = chat!.members.items.changes.listen((event) {
           switch (event.op) {

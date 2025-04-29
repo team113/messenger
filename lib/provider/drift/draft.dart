@@ -110,8 +110,9 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
     _cache.remove(from);
 
     _controllers[to]?.close();
-    final StreamController<ChatMessage?>? controller =
-        _controllers.remove(from);
+    final StreamController<ChatMessage?>? controller = _controllers.remove(
+      from,
+    );
 
     if (controller != null) {
       _controllers[to] = controller;
@@ -144,12 +145,10 @@ class DraftDriftProvider extends DriftProviderBaseWithScope {
 
       ChatMessage? last;
 
-      return StreamGroup.merge(
-        [
-          controller.stream,
-          stmt.watch().map((e) => e.isEmpty ? null : _DraftDb.fromDb(e.first)),
-        ],
-      ).asyncExpand((e) async* {
+      return StreamGroup.merge([
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : _DraftDb.fromDb(e.first)),
+      ]).asyncExpand((e) async* {
         if (e != last) {
           last = e;
           yield e;

@@ -25,7 +25,7 @@ import '/domain/model/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/my_user.dart';
 import '/l10n/l10n.dart';
-import '/provider/gql/exceptions.dart' show DeleteUserEmailException;
+import '/provider/gql/exceptions.dart' show RemoveUserEmailException;
 import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 
@@ -62,10 +62,10 @@ class DeleteEmailController extends GetxController {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await _myUserService.deleteUserEmail(email, password: password);
+          await _myUserService.removeUserEmail(email, password: password);
           pop?.call();
           s.clear();
-        } on DeleteUserEmailException catch (e) {
+        } on RemoveUserEmailException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {
           s.resubmitOnError.value = true;
@@ -95,10 +95,10 @@ class DeleteEmailController extends GetxController {
         s.editable.value = false;
         s.status.value = RxStatus.loading();
         try {
-          await _myUserService.deleteUserEmail(email, confirmation: code);
+          await _myUserService.removeUserEmail(email, confirmation: code);
           pop?.call();
           s.clear();
-        } on DeleteUserEmailException catch (e) {
+        } on RemoveUserEmailException catch (e) {
           s.error.value = e.toMessage();
         } catch (e) {
           s.resubmitOnError.value = true;
@@ -166,17 +166,14 @@ class DeleteEmailController extends GetxController {
   void _setResendEmailTimer([bool enabled = true]) {
     if (enabled) {
       resendEmailTimeout.value = 30;
-      _resendEmailTimer = Timer.periodic(
-        const Duration(seconds: 1),
-        (_) {
-          resendEmailTimeout.value--;
-          if (resendEmailTimeout.value <= 0) {
-            resendEmailTimeout.value = 0;
-            _resendEmailTimer?.cancel();
-            _resendEmailTimer = null;
-          }
-        },
-      );
+      _resendEmailTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+        resendEmailTimeout.value--;
+        if (resendEmailTimeout.value <= 0) {
+          resendEmailTimeout.value = 0;
+          _resendEmailTimer?.cancel();
+          _resendEmailTimer = null;
+        }
+      });
     } else {
       resendEmailTimeout.value = 0;
       _resendEmailTimer?.cancel();

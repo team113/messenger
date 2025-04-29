@@ -87,9 +87,10 @@ class MessageTimestamp extends StatelessWidget {
                     ? style.fonts.smaller.regular.onPrimary
                     : style.fonts.smaller.regular.secondary)
                 .copyWith(
-              fontSize:
-                  fontSize ?? style.fonts.smaller.regular.onBackground.fontSize,
-            ),
+                  fontSize:
+                      fontSize ??
+                      style.fonts.smaller.regular.onBackground.fontSize,
+                ),
           ),
         ),
         if (status != null &&
@@ -100,12 +101,12 @@ class MessageTimestamp extends StatelessWidget {
               isError
                   ? 'Error'
                   : isSending
-                      ? 'Sending'
-                      : isRead
-                          ? isHalfRead
-                              ? 'HalfRead'
-                              : 'Read'
-                          : 'Sent',
+                  ? 'Sending'
+                  : isRead
+                  ? isHalfRead
+                      ? 'HalfRead'
+                      : 'Read'
+                  : 'Sent',
             ),
             width: 17,
             child: SvgIcon(
@@ -115,21 +116,21 @@ class MessageTimestamp extends StatelessWidget {
                           ? SvgIcons.halfReadWhite
                           : SvgIcons.halfRead
                       : inverted
-                          ? SvgIcons.readWhite
-                          : SvgIcons.read
+                      ? SvgIcons.readWhite
+                      : SvgIcons.read
                   : isDelivered
-                      ? inverted
-                          ? SvgIcons.deliveredWhite
-                          : SvgIcons.delivered
-                      : isError
-                          ? SvgIcons.error
-                          : isSending
-                              ? inverted
-                                  ? SvgIcons.sendingWhite
-                                  : SvgIcons.sending
-                              : inverted
-                                  ? SvgIcons.sentWhite
-                                  : SvgIcons.sent,
+                  ? inverted
+                      ? SvgIcons.deliveredWhite
+                      : SvgIcons.delivered
+                  : isError
+                  ? SvgIcons.error
+                  : isSending
+                  ? inverted
+                      ? SvgIcons.sendingWhite
+                      : SvgIcons.sending
+                  : inverted
+                  ? SvgIcons.sentWhite
+                  : SvgIcons.sent,
             ),
           ),
         ],

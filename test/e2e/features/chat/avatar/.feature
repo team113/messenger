@@ -32,3 +32,12 @@ Feature: Chat avatar
     And I tap `DeleteAvatar` button
     And I tap `SaveEditingButton` button
     Then I see chat avatar as none
+
+  Scenario: SVG image can be uploaded as a chat avatar
+    When I tap `EditProfileButton` button
+    And I tap `UploadAvatar` button
+    And I pick "test.svg" file in file picker
+    Then I wait until `CropAvatarView` is present
+
+    When I tap `DoneButton` button
+    Then I see chat avatar as "test.svg"

@@ -35,19 +35,19 @@ import '../world/custom_world.dart';
 /// - Charlie sends "dummy msg" message to me
 final StepDefinitionGeneric sendsMessageToMe =
     and2<TestUser, String, CustomWorld>(
-  '{user} sends {string} message to me',
-  (TestUser user, String msg, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
-    await provider.postChatMessage(
-      context.world.sessions[user.name]!.dialog!,
-      text: ChatMessageText(msg),
+      '{user} sends {string} message to me',
+      (TestUser user, String msg, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
+        await provider.postChatMessage(
+          context.world.sessions[user.name]!.dialog!,
+          text: ChatMessageText(msg),
+        );
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
     );
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
 
 /// Sends a text message from the specified [User] to the [Chat]-group with the
 /// provided name.
@@ -57,21 +57,21 @@ final StepDefinitionGeneric sendsMessageToMe =
 /// - Charlie sends "dummy msg" message to "Name" group
 final StepDefinitionGeneric sendsMessageToGroup =
     and3<TestUser, String, String, CustomWorld>(
-  '{user} sends {string} message to {string} group',
-  (TestUser user, String msg, String group, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} sends {string} message to {string} group',
+      (TestUser user, String msg, String group, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    await provider.postChatMessage(
-      context.world.groups[group]!,
-      text: ChatMessageText(msg),
+        await provider.postChatMessage(
+          context.world.groups[group]!,
+          text: ChatMessageText(msg),
+        );
+
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
     );
-
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
 /// their [Chat]-dialog ensuring the thrown exception is of the provided kind.
@@ -81,40 +81,40 @@ final StepDefinitionGeneric sendsMessageToGroup =
 /// - Charlie sends message to me and receives no exception
 final StepDefinitionGeneric sendsMessageWithException =
     and2<TestUser, ExceptionType, CustomWorld>(
-  '{user} sends message to me and receives {exception} exception',
-  (TestUser user, ExceptionType type, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} sends message to me and receives {exception} exception',
+      (TestUser user, ExceptionType type, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    Object? exception;
+        Object? exception;
 
-    try {
-      await provider.postChatMessage(
-        context.world.sessions[user.name]!.dialog!,
-        text: const ChatMessageText('111'),
-      );
-    } catch (e) {
-      exception = e;
-    }
+        try {
+          await provider.postChatMessage(
+            context.world.sessions[user.name]!.dialog!,
+            text: const ChatMessageText('111'),
+          );
+        } catch (e) {
+          exception = e;
+        }
 
-    switch (type) {
-      case ExceptionType.blocked:
-        assert(
-          exception is PostChatMessageException &&
-              exception.code == PostChatMessageErrorCode.blocked,
-        );
-        break;
+        switch (type) {
+          case ExceptionType.blocked:
+            assert(
+              exception is PostChatMessageException &&
+                  exception.code == PostChatMessageErrorCode.blocked,
+            );
+            break;
 
-      case ExceptionType.no:
-        assert(exception == null);
-        break;
-    }
+          case ExceptionType.no:
+            assert(exception == null);
+            break;
+        }
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );
 
 /// Sends the provided count of messages from the specified [TestUser] to the
 /// [Chat]-group with the provided name.
@@ -123,18 +123,18 @@ final StepDefinitionGeneric sendsMessageWithException =
 /// - Given Alice sends 100 messages to "Name" group
 final StepDefinitionGeneric sendsCountMessages =
     given3<TestUser, int, String, CustomWorld>(
-  '{user} sends {int} messages to {string} group',
-  (TestUser user, int count, String name, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} sends {int} messages to {string} group',
+      (TestUser user, int count, String name, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    final ChatId chatId = context.world.groups[name]!;
-    for (var i = 0; i < count; ++i) {
-      await provider.postChatMessage(chatId, text: ChatMessageText('$i'));
-    }
+        final ChatId chatId = context.world.groups[name]!;
+        for (var i = 0; i < count; ++i) {
+          await provider.postChatMessage(chatId, text: ChatMessageText('$i'));
+        }
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

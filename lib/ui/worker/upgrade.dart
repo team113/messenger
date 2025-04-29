@@ -16,14 +16,18 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:get/get.dart';
 import 'package:pub_semver/pub_semver.dart';
+import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
+import '/domain/service/auth.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 import '/provider/drift/skipped_version.dart';
@@ -33,41 +37,61 @@ import '/ui/widget/upgrade_popup/view.dart';
 import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
+import '/util/web/web_utils.dart';
 
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
 class UpgradeWorker extends DisposableService {
-  UpgradeWorker(this._skippedLocal);
+  UpgradeWorker(this._skippedLocal, this._authService);
+
+  /// Latest [Release] fetched during the [fetchUpdates].
+  final Rx<Release?> latest = Rx(null);
+
+  /// [ReleaseDownload] being active.
+  final Rx<ReleaseDownload?> activeDownload = Rx(null);
+
+  /// Latest [Release] scheduled to be displayed.
+  ///
+  /// This may differ from the [latest], because user might want to dismiss this
+  /// notification.
+  final Rx<Release?> scheduled = Rx(null);
 
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
 
+  /// [AuthService] used to check whether application has authorization.
+  final AuthService _authService;
+
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
 
-  /// Latest [Release] fetched during the [fetchUpdates].
-  Release? _latest;
+  /// Latest [String] representing `flutter_bootstrap.js` file fetched.
+  String? _lastBootstrapJs;
+
+  /// Indicator whether [_schedulePopup] was invoked and there's a
+  /// [MessagePopup.success] invoke being active.
+  bool _scheduled = false;
 
   /// [Duration] to display the [UpgradePopupView] after, when [_schedulePopup]
   /// is triggered.
   static const Duration _popupDelay = Duration(seconds: 1);
 
   /// [Duration] being the period of [_timer].
-  static const Duration _refreshPeriod = Duration(minutes: 5);
+  static const Duration _refreshPeriod = Duration(minutes: 2);
 
   @override
   void onReady() {
     Log.debug('onReady()', '$runtimeType');
 
-    // Web gets its updates out of the box with a simple page refresh.
-    if (!PlatformUtils.isWeb) {
+    // Don't check for updates in [WebUtils.isPopup].
+    if (!WebUtils.isPopup) {
       fetchUpdates();
-    }
 
-    if (Config.appcast.isNotEmpty) {
-      _timer = Timer.periodic(_refreshPeriod, (_) {
-        fetchUpdates();
-      });
+      if (Config.appcast.isNotEmpty || PlatformUtils.isWeb) {
+        _timer = Timer.periodic(_refreshPeriod, (_) {
+          fetchUpdates();
+        });
+      }
     }
 
     super.onReady();
@@ -85,14 +109,53 @@ class UpgradeWorker extends DisposableService {
     await _skippedLocal?.upsert(release.name);
   }
 
+  /// Initiates the downloading of the provided [release].
+  Future<void> download(ReleaseArtifact release) async {
+    final releaseDownload = ReleaseDownload(release.url);
+    activeDownload.value?.cancel();
+    activeDownload.value = releaseDownload;
+
+    try {
+      await activeDownload.value?.start();
+      activeDownload.value = releaseDownload;
+    } on DioException catch (e) {
+      if (e.type == DioExceptionType.cancel) {
+        activeDownload.value?.cancel();
+        activeDownload.value = null;
+      } else {
+        activeDownload.value?.cancel();
+        activeDownload.value = null;
+        MessagePopup.error(e);
+        rethrow;
+      }
+    } catch (e) {
+      activeDownload.value?.cancel();
+      activeDownload.value = null;
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Invokes [_fetchBootstrapJs] over [PlatformUtilsImpl.isWeb] and
+  /// [_fetchAppcast] otherwise to check against any updates being available.
+  Future<bool> fetchUpdates({bool force = false}) async {
+    if (Config.appcast.isNotEmpty) {
+      return await _fetchAppcast(force: force);
+    } else if (PlatformUtils.isWeb) {
+      return await _fetchBootstrapJs();
+    }
+
+    return false;
+  }
+
   /// Fetches the [Config.appcast] file to [_schedulePopup], if new [Release] is
   /// detected.
   ///
   /// Returns `true`, if new update is detected.
   ///
   /// If [force] is `true`, then ignores the [_skippedLocal] stored one.
-  Future<bool> fetchUpdates({bool force = false}) async {
-    Log.debug('fetchUpdates(force: $force)', '$runtimeType');
+  Future<bool> _fetchAppcast({bool force = false}) async {
+    Log.debug('_fetchAppcast(force: $force)', '$runtimeType');
 
     if (Config.appcast.isEmpty) {
       return false;
@@ -116,17 +179,19 @@ class UpgradeWorker extends DisposableService {
         final Iterable<XmlElement> items = channel.findElements('item');
 
         if (items.isNotEmpty) {
-          final Release release =
-              Release.fromXml(items.first, language: L10n.chosen.value);
+          final Release release = Release.fromXml(
+            items.first,
+            language: L10n.chosen.value,
+          );
 
           // If the latest fetched [Release] is the same as this one, then don't
           // even try to compare it.
-          if (_latest?.name == release.name) {
+          if (latest.value?.name == release.name) {
             return false;
           }
 
-          bool silent = _latest != null;
-          _latest = release;
+          bool silent = latest.value != null;
+          latest.value = release;
 
           Log.debug(
             'Comparing `${release.name}` to `${Pubspec.ref}`',
@@ -149,9 +214,10 @@ class UpgradeWorker extends DisposableService {
             }
 
             // Shouldn't prompt user with versions lower than current.
-            final bool lower = ours != null && their != null
-                ? ours < their
-                : Pubspec.ref.compareTo(release.name) == -1;
+            final bool lower =
+                ours != null && their != null
+                    ? ours < their
+                    : Pubspec.ref.compareTo(release.name) == -1;
             Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
@@ -179,7 +245,49 @@ class UpgradeWorker extends DisposableService {
         }
       }
     } catch (e) {
-      Log.info('Failed to fetch releases: $e', '$runtimeType');
+      Log.info('Failed to fetch `appcast.xml` releases: $e', '$runtimeType');
+    }
+
+    return false;
+  }
+
+  /// Fetches the `flutter_bootstrap.js` file hosted over [Config.origin] with
+  /// every Flutter Web build to check whether there's any new build available.
+  ///
+  /// Returns `true`, if new update is detected.
+  Future<bool> _fetchBootstrapJs() async {
+    Log.debug('_fetchBootstrapJs()', '$runtimeType');
+
+    try {
+      final response = await (await PlatformUtils.dio).get(
+        '${Config.origin}/flutter_bootstrap.js?${const Uuid().v4()}',
+      );
+
+      if (response.statusCode != 200 || response.data == null) {
+        throw DioException.connectionError(
+          requestOptions: RequestOptions(),
+          reason: 'Status code ${response.statusCode}',
+        );
+      }
+
+      final String bootstrapJs = response.data as String;
+
+      if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
+        _schedulePopup(
+          Release(
+            name: '${DateTime.now().microsecondsSinceEpoch}',
+            description: null,
+            publishedAt: DateTime.now(),
+            assets: [],
+          ),
+          critical: false,
+          silent: true,
+        );
+      }
+
+      _lastBootstrapJs = bootstrapJs;
+    } catch (e) {
+      Log.info('Failed to fetch `flutter_bootstrap.js`: $e', '$runtimeType');
     }
 
     return false;
@@ -195,25 +303,25 @@ class UpgradeWorker extends DisposableService {
     Log.debug('_schedulePopup($release)', '$runtimeType');
 
     Future<void> displayPopup() async {
-      if (silent && !critical) {
-        return MessagePopup.success(
-          'label_update_is_available'.l10n,
-          duration: const Duration(minutes: 5),
-          onPressed: () async {
-            await UpgradePopupView.show(
-              router.context!,
-              release: release,
-              critical: critical,
-            );
-          },
-        );
+      // Only restrain from displaying the popup if app has authorization.
+      if (!critical && _authService.status.value.isSuccess) {
+        if (_scheduled) {
+          return;
+        }
+
+        _scheduled = true;
+        scheduled.value = release;
+
+        return;
       }
 
-      await UpgradePopupView.show(
-        router.context!,
-        release: release,
-        critical: critical,
-      );
+      if (router.context != null) {
+        await UpgradePopupView.show(
+          router.context!,
+          release: release,
+          critical: critical,
+        );
+      }
     }
 
     if (delay) {
@@ -251,7 +359,8 @@ class Release {
       title = title.substring(1);
     }
 
-    final String? description = xml
+    final String? description =
+        xml
             .findElements('description')
             .firstWhereOrNull(
               (e) => e.attributes.any(
@@ -264,10 +373,11 @@ class Release {
         xml.findElements('description').firstOrNull?.innerText;
 
     final String date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseArtifact> assets = xml
-        .findElements('enclosure')
-        .map((e) => ReleaseArtifact.fromXml(e))
-        .toList();
+    final List<ReleaseArtifact> assets =
+        xml
+            .findElements('enclosure')
+            .map((e) => ReleaseArtifact.fromXml(e))
+            .toList();
 
     return Release(
       name: title,
@@ -335,6 +445,62 @@ class ReleaseArtifact {
 
   @override
   int get hashCode => Object.hash(url, os);
+}
+
+/// [Release] being downloaded, exposing its [url], [progress] and [file]
+/// parameters.
+class ReleaseDownload {
+  ReleaseDownload(this.url);
+
+  /// URL to download from.
+  final String url;
+
+  /// Progress of the downloading.
+  final RxDouble progress = RxDouble(0);
+
+  /// Downloaded [File].
+  final Rx<File?> file = Rx(null);
+
+  /// [CancelToken] canceling the download.
+  CancelToken? _cancelToken;
+
+  /// Starts the downloading.
+  Future<void> start() async {
+    if (_cancelToken != null) {
+      return;
+    }
+
+    _cancelToken = CancelToken();
+
+    progress.value = 0;
+
+    try {
+      file.value = await PlatformUtils.download(
+        url,
+        url.split('/').lastOrNull ?? 'file',
+        null,
+        onReceiveProgress: (a, b) {
+          if (b != 0) {
+            progress.value = a / b;
+          }
+        },
+        cancelToken: _cancelToken,
+      );
+
+      if (file.value != null) {
+        progress.value = 1;
+        MessagePopup.success('label_file_downloaded'.l10n);
+      }
+    } finally {
+      progress.value = 0;
+    }
+  }
+
+  /// Cancels the download.
+  void cancel() {
+    _cancelToken?.cancel();
+    _cancelToken = null;
+  }
 }
 
 /// Extension adding parsing of RFC-822 date format to [DateTime].
@@ -566,11 +732,12 @@ extension VersionExtension on Version {
       parsed.major,
       parsed.minor,
       parsed.patch,
-      pre: parsed.preRelease.isEmpty
-          ? null
-          : parsed.preRelease
-              .map((e) => e is String ? e.replaceAll('-', '.') : e)
-              .join('.'),
+      pre:
+          parsed.preRelease.isEmpty
+              ? null
+              : parsed.preRelease
+                  .map((e) => e is String ? e.replaceAll('-', '.') : e)
+                  .join('.'),
       build: parsed.build.isEmpty ? null : parsed.build.join('.'),
     );
   }

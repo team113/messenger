@@ -23,12 +23,12 @@ enum ExceptionType { blocked, no }
 /// [CustomParameter] representing a thrown [Exception].
 class ExceptionParameter extends CustomParameter<ExceptionType> {
   ExceptionParameter()
-      : super(
-          'exception',
-          RegExp(
-            '(${ExceptionType.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => ExceptionType.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'exception',
+        RegExp(
+          '(${ExceptionType.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => ExceptionType.values.firstWhere((e) => e.name == c),
+      );
 }

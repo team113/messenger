@@ -36,6 +36,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -73,14 +74,17 @@ void main() async {
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   var chatData = {
     'id': '0d72d245-8425-467a-9ebd-082d4f47850b',
@@ -100,24 +104,21 @@ void main() async {
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
-    'ver': '0'
+    'ver': '0',
   };
 
   var recentChats = {
     'recentChats': {
       'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
+        {'node': chatData, 'cursor': 'cursor'},
       ],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
-    }
+      },
+    },
   };
 
   var favoriteChats = {
@@ -129,41 +130,46 @@ void main() async {
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
       },
-      'ver': '0'
-    }
+      'ver': '0',
+    },
   };
 
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
   AuthService authService = Get.put(
     AuthService(
-      Get.put<AbstractAuthRepository>(AuthRepository(
-        graphQlProvider,
-        myUserProvider,
-        credentialsProvider,
-      )),
+      Get.put<AbstractAuthRepository>(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+      ),
       credentialsProvider,
       accountProvider,
+      locksProvider,
     ),
   );
   authService.init();
 
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -180,19 +186,19 @@ void main() async {
 
     AuthService authService = Get.put(
       AuthService(
-        Get.put<AbstractAuthRepository>(AuthRepository(
-          Get.find(),
-          myUserProvider,
-          credentialsProvider,
-        )),
+        Get.put<AbstractAuthRepository>(
+          AuthRepository(Get.find(), myUserProvider, credentialsProvider),
+        ),
         credentialsProvider,
         accountProvider,
+        locksProvider,
       ),
     );
     authService.init();
 
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -221,27 +227,34 @@ void main() async {
   }
 
   test('ChatService successfully leaves a chat', () async {
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+    when(
+      graphQlProvider.recentChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+        noFavorite: anyNamed('noFavorite'),
+        withOngoingCalls: anyNamed('withOngoingCalls'),
+      ),
+    ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+    when(
+      graphQlProvider.favoriteChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
+      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+    );
 
-    when(graphQlProvider.removeChatMember(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    )).thenAnswer(
+    when(
+      graphQlProvider.removeChatMember(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+      ),
+    ).thenAnswer(
       (_) => Future.value(
         RemoveChatMember$Mutation$RemoveChatMember$ChatEventsVersioned.fromJson(
           {
@@ -300,11 +313,11 @@ void main() async {
                       },
                     },
                   },
-                  'cursor': '123'
+                  'cursor': '123',
                 },
-              }
+              },
             ],
-            'ver': '0'
+            'ver': '0',
           },
         ),
       ),
@@ -318,53 +331,69 @@ void main() async {
       const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
     );
 
-    verify(graphQlProvider.removeChatMember(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    ));
-  });
-
-  test('ChatService throws a RemoveChatMemberErrorCode on a chat leave',
-      () async {
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
-
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
-        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
-
-    when(graphQlProvider.removeChatMember(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    )).thenThrow(
-        const RemoveChatMemberException(RemoveChatMemberErrorCode.unknownChat));
-
-    Get.put<GraphQlProvider>(graphQlProvider);
-    ChatService chatService = await init(graphQlProvider);
-
-    expect(
-      () async => await chatService.removeChatMember(
+    verify(
+      graphQlProvider.removeChatMember(
         const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
         const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
       ),
-      throwsA(isA<RemoveChatMemberException>()),
     );
-
-    verify(graphQlProvider.removeChatMember(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
-    ));
   });
+
+  test(
+    'ChatService throws a RemoveChatMemberErrorCode on a chat leave',
+    () async {
+      when(
+        graphQlProvider.recentChats(
+          first: anyNamed('first'),
+          after: null,
+          last: null,
+          before: null,
+          noFavorite: anyNamed('noFavorite'),
+          withOngoingCalls: anyNamed('withOngoingCalls'),
+        ),
+      ).thenAnswer(
+        (_) => Future.value(RecentChats$Query.fromJson(recentChats)),
+      );
+
+      when(
+        graphQlProvider.favoriteChats(
+          first: anyNamed('first'),
+          after: null,
+          last: null,
+          before: null,
+        ),
+      ).thenAnswer(
+        (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+      );
+
+      when(
+        graphQlProvider.removeChatMember(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+        ),
+      ).thenThrow(
+        const RemoveChatMemberException(RemoveChatMemberErrorCode.unknownChat),
+      );
+
+      Get.put<GraphQlProvider>(graphQlProvider);
+      ChatService chatService = await init(graphQlProvider);
+
+      expect(
+        () async => await chatService.removeChatMember(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+        ),
+        throwsA(isA<RemoveChatMemberException>()),
+      );
+
+      verify(
+        graphQlProvider.removeChatMember(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          const UserId('0d72d245-8425-467a-9ebd-082d4f47850a'),
+        ),
+      );
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

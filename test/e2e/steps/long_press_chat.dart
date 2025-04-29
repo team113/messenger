@@ -34,9 +34,10 @@ final StepDefinitionGeneric longPressChat = when1<String, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle();
 
       try {
-        final finder = context.world.appDriver
-            .findBy('Chat_${context.world.groups[name]}', FindType.key)
-            .first;
+        final finder =
+            context.world.appDriver
+                .findBy('Chat_${context.world.groups[name]}', FindType.key)
+                .first;
 
         await context.world.appDriver.nativeDriver.longPress(finder);
         await context.world.appDriver.waitForAppToSettle();

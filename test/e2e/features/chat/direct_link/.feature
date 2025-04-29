@@ -15,20 +15,22 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-mutation DeleteUserPhone(
-    $phone: UserPhone!
-    $confirmation: MyUserCredentials
-) {
-    deleteUserPhone(
-        phone: $phone
-        confirmation: $confirmation
-    ) {
-        __typename
-        ... on MyUserEventsVersioned {
-            ...MyUserEventsVersioned
-        }
-        ... on DeleteUserPhoneError {
-            code
-        }
-    }
-}
+Feature: Direct links
+
+  Background:
+    Given user Bob
+    And Bob has his direct link set up
+    And I wait until `AuthView` is present
+
+  Scenario: Direct link can be opened in unauthorized mode
+    When I go to Bob's direct link
+    Then I wait until `HomeView` is present
+    And I wait until `ChatView` is present
+
+  Scenario: Direct link can be opened in authorized mode
+    Given I am Alice
+    And I wait until `HomeView` is present
+
+    When I go to Bob's direct link
+    And I wait until `ChatView` is present
+

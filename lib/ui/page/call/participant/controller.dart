@@ -49,10 +49,7 @@ import 'view.dart';
 export 'view.dart';
 
 /// Possible [ParticipantView] flow stage.
-enum ParticipantsFlowStage {
-  search,
-  participants,
-}
+enum ParticipantsFlowStage { search, participants }
 
 /// Controller of a [ParticipantView].
 class ParticipantController extends GetxController {
@@ -218,26 +215,21 @@ class ParticipantController extends GetxController {
     try {
       if (chat.value?.chat.value.isGroup ?? true) {
         final Iterable<Future> futures = ids.map(
-          (id) => _chatService
-              .addChatMember(chatId.value, id)
-              .onError<AddChatMemberException>(
-            (e, _) async {
-              final FutureOr<RxUser?> userOrFuture = _userService.get(id);
-              final User? user =
-                  (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
-                      ?.user
-                      .value;
+          (id) => _chatService.addChatMember(chatId.value, id).onError<
+            AddChatMemberException
+          >((e, _) async {
+            final FutureOr<RxUser?> userOrFuture = _userService.get(id);
+            final User? user =
+                (userOrFuture is RxUser? ? userOrFuture : await userOrFuture)
+                    ?.user
+                    .value;
 
-              if (user != null) {
-                await MessagePopup.error(
-                  'err_blocked_by'.l10nfmt(
-                    {'user': '${user.name ?? user.num}'},
-                  ),
-                );
-              }
-            },
-            test: (e) => e.code == AddChatMemberErrorCode.blocked,
-          ),
+            if (user != null) {
+              await MessagePopup.error(
+                'err_blocked_by'.l10nfmt({'user': '${user.name ?? user.num}'}),
+              );
+            }
+          }, test: (e) => e.code == AddChatMemberErrorCode.blocked),
         );
 
         await Future.wait(futures);

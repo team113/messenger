@@ -29,27 +29,29 @@ import '../world/custom_world.dart';
 /// - When Alice favorites "Name" group
 final StepDefinitionGeneric favoriteGroup =
     when2<TestUser, String, CustomWorld>(
-  RegExp(r'{user} favorites {string} group$'),
-  (TestUser user, String name, context) async {
-    final provider = GraphQlProvider();
+      RegExp(r'{user} favorites {string} group$'),
+      (TestUser user, String name, context) async {
+        final provider = GraphQlProvider();
 
-    final CustomUser customUser = context.world.sessions[user.name]!.first;
-    provider.token = (await customUser.credentials).access.secret;
+        final CustomUser customUser = context.world.sessions[user.name]!.first;
+        provider.token = (await customUser.credentials).access.secret;
 
-    // TODO: Should use `searchChats` query or something, when backend
-    //       introduces such a query.
-    final Chat chat = (await provider.recentChats(first: 10))
-        .recentChats
-        .edges
-        .map((e) => e.node.toModel())
-        .firstWhere((e) => e.name?.val == name);
+        // TODO: Should use `searchChats` query or something, when backend
+        //       introduces such a query.
+        final Chat chat = (await provider.recentChats(first: 10))
+            .recentChats
+            .edges
+            .map((e) => e.node.toModel())
+            .firstWhere((e) => e.name?.val == name);
 
-    await provider.favoriteChat(
-      chat.id,
-      ChatFavoritePosition(DateTime.now().millisecondsSinceEpoch.toDouble()),
+        await provider.favoriteChat(
+          chat.id,
+          ChatFavoritePosition(
+            DateTime.now().millisecondsSinceEpoch.toDouble(),
+          ),
+        );
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
     );
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);

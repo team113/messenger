@@ -24,11 +24,7 @@ import '/ui/widget/svg/svg.dart';
 
 /// Circle button with the provided [icon].
 class CircleButton extends StatelessWidget {
-  const CircleButton(
-    this.icon, {
-    super.key,
-    this.onPressed,
-  });
+  const CircleButton(this.icon, {super.key, this.onPressed});
 
   /// Icon to display.
   final SvgData icon;

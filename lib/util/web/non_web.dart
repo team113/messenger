@@ -19,11 +19,15 @@ import 'dart:async';
 import 'dart:ffi' hide Size;
 import 'dart:io';
 
+import 'package:cupertino_http/cupertino_http.dart'
+    show CupertinoClient, URLSessionConfiguration;
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:ffi/ffi.dart';
 import 'package:flutter/widgets.dart' show Rect;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse;
+import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:http/http.dart' show Client;
 import 'package:medea_jason/medea_jason.dart' as jason;
 import 'package:mutex/mutex.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,6 +41,7 @@ import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/routes.dart';
 import '/util/ios_utils.dart';
+import '/util/log.dart';
 import '/util/platform_utils.dart';
 import 'web_utils.dart';
 
@@ -45,6 +50,9 @@ import 'web_utils.dart';
 class WebUtils {
   /// Callback, called when user taps onto a notification.
   static void Function(NotificationResponse)? onSelectNotification;
+
+  /// Indicator whether this device has a PWA installed.
+  static bool hasPwa = false;
 
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
@@ -84,6 +92,19 @@ class WebUtils {
 
   /// Indicates whether the [protect] is currently locked.
   static FutureOr<bool> get isLocked => _guards['mutex']?.isLocked == true;
+
+  /// Returns custom [Client] to use for HTTP requests.
+  static Client? get httpClient {
+    if (PlatformUtils.isMacOS || PlatformUtils.isIOS) {
+      final URLSessionConfiguration config =
+          URLSessionConfiguration.defaultSessionConfiguration()
+            ..allowsExpensiveNetworkAccess = true
+            ..allowsCellularAccess = true;
+      return CupertinoClient.fromSessionConfiguration(config);
+    }
+
+    return null;
+  }
 
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
@@ -162,8 +183,7 @@ class WebUtils {
     bool withAudio = true,
     bool withVideo = false,
     bool withScreen = false,
-  }) =>
-      false;
+  }) => false;
 
   /// Closes the current window.
   static void closeWindow() {
@@ -281,14 +301,17 @@ class WebUtils {
   /// Registers the custom [Config.scheme].
   static Future<void> registerScheme() async {
     if (PlatformUtils.isWindows) {
-      final RegistryKey regKey =
-          Registry.currentUser.createKey('Software\\Classes\\${Config.scheme}');
+      final RegistryKey regKey = Registry.currentUser.createKey(
+        'Software\\Classes\\${Config.scheme}',
+      );
 
       regKey.createValue(
         const RegistryValue('URL Protocol', RegistryValueType.string, ''),
       );
 
-      regKey.createKey('shell\\open\\command').createValue(
+      regKey
+          .createKey('shell\\open\\command')
+          .createValue(
             RegistryValue(
               '',
               RegistryValueType.string,
@@ -441,5 +464,38 @@ class WebUtils {
     }
 
     return agent;
+  }
+
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
+    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+      // iOS and Android devices don't support hot keys.
+      return;
+    }
+
+    try {
+      await hotKeyManager.register(key, keyDownHandler: (_) => handler());
+    } catch (e) {
+      Log.warning('Unable to bind to hot key: $e', 'WebUtils');
+    }
+  }
+
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
+    if (PlatformUtils.isIOS || PlatformUtils.isAndroid) {
+      // iOS and Android devices don't support hot keys.
+      return;
+    }
+
+    try {
+      await hotKeyManager.unregister(key);
+    } catch (e) {
+      Log.warning('Unable to unbind hot key: $e', 'WebUtils');
+    }
+  }
+
+  /// Refreshes the current browser's page.
+  static Future<void> refresh() async {
+    // No-op.
   }
 }

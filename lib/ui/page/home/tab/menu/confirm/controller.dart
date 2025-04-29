@@ -28,10 +28,7 @@ import '/routes.dart';
 import '/ui/widget/text_field.dart';
 
 /// Possible [ConfirmLogoutView] flow stage.
-enum ConfirmLogoutViewStage {
-  password,
-  success,
-}
+enum ConfirmLogoutViewStage { password, success }
 
 /// Controller of a [ConfirmLogoutView].
 class ConfirmLogoutController extends GetxController {

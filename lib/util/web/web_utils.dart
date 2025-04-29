@@ -23,11 +23,7 @@ export 'non_web.dart' if (dart.library.js_interop) 'web.dart';
 
 /// Event happening in the browser's storage.
 class WebStorageEvent {
-  const WebStorageEvent({
-    this.key,
-    this.newValue,
-    this.oldValue,
-  });
+  const WebStorageEvent({this.key, this.newValue, this.oldValue});
 
   /// Key changed.
   ///
@@ -63,9 +59,10 @@ class WebStoredCall {
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
       deviceId:
           data['deviceId'] == null ? null : ChatCallDeviceId(data['deviceId']),
-      state: data['state'] == null
-          ? OngoingCallState.local
-          : OngoingCallState.values[data['state']],
+      state:
+          data['state'] == null
+              ? OngoingCallState.local
+              : OngoingCallState.values[data['state']],
     );
   }
 

@@ -41,6 +41,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -77,75 +78,90 @@ void main() async {
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
 
   final AuthService authService = Get.put(
     AuthService(
-      Get.put<AbstractAuthRepository>(AuthRepository(
-        graphQlProvider,
-        myUserProvider,
-        credentialsProvider,
-      )),
+      Get.put<AbstractAuthRepository>(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+      ),
       credentialsProvider,
       accountProvider,
+      locksProvider,
     ),
   );
   authService.init();
 
   test('ChatService successfully uploads an attachment', () async {
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+    when(
+      graphQlProvider.recentChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+        noFavorite: anyNamed('noFavorite'),
+        withOngoingCalls: anyNamed('withOngoingCalls'),
+      ),
+    ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.favoriteChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
     );
 
-    when(graphQlProvider.getChat(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer(
+    when(
+      graphQlProvider.getChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ),
+    ).thenAnswer(
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
     );
 
-    when(graphQlProvider.uploadAttachment(
-      any,
-      onSendProgress: anyNamed('onSendProgress'),
-    )).thenAnswer(
+    when(
+      graphQlProvider.uploadAttachment(
+        any,
+        onSendProgress: anyNamed('onSendProgress'),
+      ),
+    ).thenAnswer(
       (_) => Future.value(
         UploadAttachment$Mutation$UploadAttachment$UploadAttachmentOk.fromJson({
           '__typename': 'UploadAttachmentOk',
@@ -157,14 +173,14 @@ void main() async {
             'big': {'relativeRef': 'orig.jpg'},
             'medium': {'relativeRef': 'orig.jpg'},
             'small': {'relativeRef': 'orig.jpg'},
-          }
+          },
         }),
       ),
     );
 
-    when(graphQlProvider.favoriteChatsEvents(any)).thenAnswer(
-      (_) => const Stream.empty(),
-    );
+    when(
+      graphQlProvider.favoriteChatsEvents(any),
+    ).thenAnswer((_) => const Stream.empty());
 
     Get.put<GraphQlProvider>(graphQlProvider);
 
@@ -177,8 +193,9 @@ void main() async {
       ),
     );
 
-    final UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    final UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -190,67 +207,75 @@ void main() async {
       ),
     );
     final AbstractChatRepository chatRepository =
-        Get.put<AbstractChatRepository>(ChatRepository(
-      graphQlProvider,
-      chatProvider,
-      chatItemProvider,
-      chatMemberProvider,
-      callRepository,
-      draftProvider,
-      userRepository,
-      sessionProvider,
-      monologProvider,
-      me: const UserId('me'),
-    ));
+        Get.put<AbstractChatRepository>(
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            sessionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
     final ChatService chatService = Get.put(
       ChatService(chatRepository, authService),
     );
 
     await chatService.uploadAttachment(
       LocalAttachment(
-        NativeFile(
-          bytes: Uint8List.fromList([1, 1]),
-          size: 2,
-          name: 'test',
-        ),
+        NativeFile(bytes: Uint8List.fromList([1, 1]), size: 2, name: 'test'),
       ),
     );
 
-    verify(graphQlProvider.uploadAttachment(
-      any,
-      onSendProgress: anyNamed('onSendProgress'),
-    ));
+    verify(
+      graphQlProvider.uploadAttachment(
+        any,
+        onSendProgress: anyNamed('onSendProgress'),
+      ),
+    );
   });
 
   test('ChatService throws an UploadAttachmentException', () async {
-    when(graphQlProvider.recentChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-      noFavorite: anyNamed('noFavorite'),
-      withOngoingCalls: anyNamed('withOngoingCalls'),
-    )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+    when(
+      graphQlProvider.recentChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+        noFavorite: anyNamed('noFavorite'),
+        withOngoingCalls: anyNamed('withOngoingCalls'),
+      ),
+    ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-    when(graphQlProvider.favoriteChats(
-      first: anyNamed('first'),
-      after: null,
-      last: null,
-      before: null,
-    )).thenAnswer(
+    when(
+      graphQlProvider.favoriteChats(
+        first: anyNamed('first'),
+        after: null,
+        last: null,
+        before: null,
+      ),
+    ).thenAnswer(
       (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
     );
 
-    when(graphQlProvider.getChat(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    )).thenAnswer(
+    when(
+      graphQlProvider.getChat(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      ),
+    ).thenAnswer(
       (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})),
     );
 
-    when(graphQlProvider.uploadAttachment(
-      any,
-      onSendProgress: anyNamed('onSendProgress'),
-    )).thenThrow(
+    when(
+      graphQlProvider.uploadAttachment(
+        any,
+        onSendProgress: anyNamed('onSendProgress'),
+      ),
+    ).thenThrow(
       const UploadAttachmentException(UploadAttachmentErrorCode.artemisUnknown),
     );
 
@@ -265,8 +290,9 @@ void main() async {
       ),
     );
 
-    final UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    final UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -280,30 +306,26 @@ void main() async {
 
     final AbstractChatRepository chatRepository =
         Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
+          ChatRepository(
+            graphQlProvider,
+            chatProvider,
+            chatItemProvider,
+            chatMemberProvider,
+            callRepository,
+            draftProvider,
+            userRepository,
+            sessionProvider,
+            monologProvider,
+            me: const UserId('me'),
+          ),
+        );
 
     final ChatService chatService = Get.put(
       ChatService(chatRepository, authService),
     );
 
     final attachment = LocalAttachment(
-      NativeFile(
-        bytes: Uint8List.fromList([1, 1]),
-        size: 2,
-        name: 'test',
-      ),
+      NativeFile(bytes: Uint8List.fromList([1, 1]), size: 2, name: 'test'),
     );
     attachment.upload.value = Completer();
     attachment.upload.value?.future.then((_) {}, onError: (_) {});
@@ -341,24 +363,21 @@ final chatData = {
   'unreadCount': 0,
   'totalCount': 0,
   'ongoingCall': null,
-  'ver': '0'
+  'ver': '0',
 };
 
 final recentChats = {
   'recentChats': {
     'edges': [
-      {
-        'node': chatData,
-        'cursor': 'cursor',
-      }
+      {'node': chatData, 'cursor': 'cursor'},
     ],
     'pageInfo': {
       'endCursor': 'endCursor',
       'hasNextPage': false,
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
-    }
-  }
+    },
+  },
 };
 
 final favoriteChats = {
@@ -370,6 +389,6 @@ final favoriteChats = {
       'startCursor': 'startCursor',
       'hasPreviousPage': false,
     },
-    'ver': '0'
-  }
+    'ver': '0',
+  },
 };

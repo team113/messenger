@@ -31,6 +31,5 @@ class AudioUtilsMock extends AudioUtilsImpl {
   StreamSubscription<void> play(
     AudioSource music, {
     Duration fade = Duration.zero,
-  }) =>
-      StreamController().stream.listen((_) {});
+  }) => StreamController().stream.listen((_) {});
 }

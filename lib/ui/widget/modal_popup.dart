@@ -17,6 +17,7 @@
 
 import 'package:flutter/material.dart';
 
+import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/svg/svgs.dart';
 import '/util/platform_utils.dart';
@@ -49,29 +50,38 @@ abstract class ModalPopup {
     EdgeInsets desktopPadding = const EdgeInsets.fromLTRB(0, 0, 0, 10),
     bool isDismissible = true,
     Color? background,
-  }) {
+  }) async {
     final style = Theme.of(context).style;
 
     if (context.isMobile) {
-      return showModalBottomSheet(
-        context: context,
-        barrierColor: style.barrierColor,
+      final NavigatorState navigator = Navigator.of(
+        context,
+        rootNavigator: true,
+      );
+
+      final route = ModalBottomSheetRoute<T>(
+        modalBarrierColor: style.barrierColor,
         isScrollControlled: true,
-        backgroundColor: background ?? style.colors.onPrimary,
+        backgroundColor: background ?? style.colors.background,
         isDismissible: isDismissible,
         enableDrag: isDismissible,
         elevation: 0,
-        transitionAnimationController:
-            BottomSheet.createAnimationController(Navigator.of(context))
-              ..duration = const Duration(milliseconds: 350),
+        capturedThemes: InheritedTheme.capture(
+          from: context,
+          to: navigator.context,
+        ),
+        transitionAnimationController: BottomSheet.createAnimationController(
+          navigator,
+        )..duration = const Duration(milliseconds: 350),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.only(
             topLeft: Radius.circular(14),
             topRight: Radius.circular(14),
           ),
         ),
-        constraints:
-            BoxConstraints(maxHeight: MediaQuery.of(context).size.height - 60),
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height - 60,
+        ),
         builder: (context) {
           return CustomSafeArea(
             child: Column(
@@ -105,9 +115,16 @@ abstract class ModalPopup {
           );
         },
       );
+
+      router.obscuring.add(route);
+
+      try {
+        return await Navigator.of(context, rootNavigator: true).push<T>(route);
+      } finally {
+        router.obscuring.remove(route);
+      }
     } else {
-      return showGeneralDialog(
-        context: context,
+      final route = RawDialogRoute<T>(
         barrierColor: style.barrierColor,
         barrierDismissible: isDismissible,
         pageBuilder: (_, __, ___) {
@@ -118,7 +135,7 @@ abstract class ModalPopup {
               margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               padding: desktopPadding,
               decoration: BoxDecoration(
-                color: background ?? style.colors.onPrimary,
+                color: background ?? style.colors.background,
                 borderRadius: style.cardRadius,
               ),
               child: ConstrainedBox(
@@ -142,6 +159,14 @@ abstract class ModalPopup {
           );
         },
       );
+
+      router.obscuring.add(route);
+
+      try {
+        return await Navigator.of(context, rootNavigator: true).push<T>(route);
+      } finally {
+        router.obscuring.remove(route);
+      }
     }
   }
 }

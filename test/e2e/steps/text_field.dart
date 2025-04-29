@@ -39,8 +39,8 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the credential of the given [User] into the widget with the provided
@@ -52,23 +52,23 @@ StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
 /// - When I fill `SearchField` field with Bob's direct link
 StepDefinitionGeneric fillFieldWithUserCredential =
     when3<WidgetKey, TestUser, TestCredential, CustomWorld>(
-  'I fill {key} field with {user}\'s {credential}',
-  (key, user, credential, context) async {
-    final CustomUser? customUser =
-        context.world.sessions[user.name]?.firstOrNull;
+      'I fill {key} field with {user}\'s {credential}',
+      (key, user, credential, context) async {
+        final CustomUser? customUser =
+            context.world.sessions[user.name]?.firstOrNull;
 
-    if (customUser == null) {
-      throw ArgumentError(
-        '`${user.name}` is not found in `CustomWorld.sessions`.',
-      );
-    }
+        if (customUser == null) {
+          throw ArgumentError(
+            '`${user.name}` is not found in `CustomWorld.sessions`.',
+          );
+        }
 
-    final String text = _getCredential(customUser, credential);
-    await _fillField(key, text, context);
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
-);
+        final String text = _getCredential(customUser, credential);
+        await _fillField(key, text, context);
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+    );
 
 /// Enters the credential of [me] into the widget with the provided [WidgetKey].
 ///
@@ -77,23 +77,26 @@ StepDefinitionGeneric fillFieldWithUserCredential =
 /// - When I fill `LoginField` field with my login
 StepDefinitionGeneric fillFieldWithMyCredential =
     when2<WidgetKey, TestCredential, CustomWorld>(
-  'I fill {key} field with my {credential}',
-  (key, credential, context) async {
-    final CustomUser? me = context.world.sessions.values
-        .where((user) => user.userId == context.world.me)
-        .firstOrNull
-        ?.firstOrNull;
+      'I fill {key} field with my {credential}',
+      (key, credential, context) async {
+        final CustomUser? me =
+            context.world.sessions.values
+                .where((user) => user.userId == context.world.me)
+                .firstOrNull
+                ?.firstOrNull;
 
-    if (me == null) {
-      throw ArgumentError('`MyUser` is not found in `CustomWorld.sessions`.');
-    }
+        if (me == null) {
+          throw ArgumentError(
+            '`MyUser` is not found in `CustomWorld.sessions`.',
+          );
+        }
 
-    final String text = _getCredential(me, credential);
-    await _fillField(key, text, context);
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
-);
+        final String text = _getCredential(me, credential);
+        await _fillField(key, text, context);
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+    );
 
 /// Enters the given text into the widget with the provided [WidgetKey].
 ///
@@ -102,8 +105,8 @@ StepDefinitionGeneric fillFieldWithMyCredential =
 StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
   (key, quantity, text, context) => _fillField(key, text * quantity, context),
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
@@ -120,8 +123,8 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
 
     await _fillField(key, context.world.clipboard!.text!, context);
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the random [UserLogin] to the widget with the provided [WidgetKey].
@@ -145,8 +148,8 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
 
     await _fillField(key, '${context.world.randomLogin}', context);
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 18),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 18),
 );
 
 /// Copies the value of the widget with the provided [WidgetKey] to the
@@ -185,8 +188,8 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
 
     context.world.clipboard = ClipboardData(text: text);
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(seconds: 30),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the given [text] into the widget with the provided [WidgetKey].
@@ -195,39 +198,37 @@ Future<void> _fillField(
   String text,
   StepContext<FlutterWorld> context,
 ) async {
-  await context.world.appDriver.waitUntil(
-    () async {
-      final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
+  await context.world.appDriver.waitUntil(() async {
+    final finder = context.world.appDriver.findByKeySkipOffstage(key.name);
 
-      if (await context.world.appDriver.isPresent(finder) &&
-          finder.tryEvaluate()) {
-        await context.world.appDriver.waitForAppToSettle();
+    if (await context.world.appDriver.isPresent(finder) &&
+        finder.tryEvaluate()) {
+      await context.world.appDriver.tap(
+        finder,
+        timeout: const Duration(seconds: 30),
+      );
 
-        await context.world.appDriver.waitForAppToSettle();
-        await context.world.appDriver
-            .tap(finder, timeout: context.configuration.timeout);
-        await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.waitForAppToSettle();
 
-        await context.world.appDriver.enterText(
-          finder,
+      await context.world.appDriver.enterText(
+        finder,
 
-          // TODO: Implement more strict way to localize some phrases.
-          switch (text) {
-            'Notes' => 'label_chat_monolog'.l10n,
-            (_) => text,
-          },
-        );
+        // TODO: Implement more strict way to localize some phrases.
+        switch (text) {
+          'Notes' => 'label_chat_monolog'.l10n,
+          (_) => text,
+        },
+      );
 
-        await context.world.appDriver.waitForAppToSettle();
+      await context.world.appDriver.waitForAppToSettle();
 
-        FocusManager.instance.primaryFocus?.unfocus();
-        return true;
-      }
+      FocusManager.instance.primaryFocus?.unfocus();
 
-      return false;
-    },
-    timeout: const Duration(seconds: 30),
-  );
+      return true;
+    }
+
+    return false;
+  }, timeout: const Duration(seconds: 30));
 }
 
 /// Returns [String] representation of the [CustomUser]'s [TestCredential].
@@ -242,6 +243,6 @@ String _getCredential(CustomUser customUser, TestCredential credential) {
       return 'lgn_${customUser.userNum.val}';
 
     case TestCredential.directLink:
-      return 'direct_link_${customUser.userNum.val}';
+      return '${customUser.slug}';
   }
 }

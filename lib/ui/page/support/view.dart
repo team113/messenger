@@ -97,16 +97,18 @@ class SupportView extends StatelessWidget {
                     Obx(() {
                       return PrefixButton(
                         title: 'btn_check_for_updates'.l10n,
-                        onPressed: c.checkingForUpdates.value
-                            ? null
-                            : c.checkForUpdates,
-                        prefix: c.checkingForUpdates.value
-                            ? const Padding(
-                                key: Key('Loading'),
-                                padding: EdgeInsets.only(left: 14),
-                                child: CustomProgressIndicator(),
-                              )
-                            : null,
+                        onPressed:
+                            c.checkingForUpdates.value
+                                ? null
+                                : c.checkForUpdates,
+                        prefix:
+                            c.checkingForUpdates.value
+                                ? const Padding(
+                                  key: Key('Loading'),
+                                  padding: EdgeInsets.only(left: 14),
+                                  child: CustomProgressIndicator(),
+                                )
+                                : null,
                       );
                     }),
                     const SizedBox(height: 8),
@@ -155,8 +157,10 @@ class SupportView extends StatelessWidget {
   }) async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
-          .map((e) =>
-              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}')
+          .map(
+            (e) =>
+                '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+          )
           .join('&');
     }
 
@@ -172,9 +176,11 @@ class SupportView extends StatelessWidget {
         ),
       );
     } catch (e) {
-      await MessagePopup.error('label_contact_us_via_provided_email'.l10nfmt({
-        'email': Config.support,
-      }));
+      await MessagePopup.error(
+        'label_contact_us_via_provided_email'.l10nfmt({
+          'email': Config.support,
+        }),
+      );
     }
   }
 }

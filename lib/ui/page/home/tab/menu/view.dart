@@ -120,9 +120,10 @@ class MenuTabView extends StatelessWidget {
                   padding: const EdgeInsets.only(right: 16),
                   child: Obx(() {
                     final bool hasMultipleAccounts = c.profiles.length > 1;
-                    final String label = hasMultipleAccounts
-                        ? 'btn_change_account_desc'
-                        : 'btn_add_account_with_desc';
+                    final String label =
+                        hasMultipleAccounts
+                            ? 'btn_change_account_desc'
+                            : 'btn_add_account_with_desc';
 
                     return Text(
                       label.l10n,
@@ -144,20 +145,8 @@ class MenuTabView extends StatelessWidget {
                 final ProfileTab tab = ProfileTab.values[i];
 
                 switch (tab) {
-                  case ProfileTab.calls:
-                    if (!PlatformUtils.isDesktop || !PlatformUtils.isWeb) {
-                      return const SizedBox();
-                    }
-                    break;
-
                   case ProfileTab.media:
                     if (PlatformUtils.isMobile) {
-                      return const SizedBox();
-                    }
-                    break;
-
-                  case ProfileTab.download:
-                    if (!PlatformUtils.isWeb) {
                       return const SizedBox();
                     }
                     break;
@@ -174,7 +163,8 @@ class MenuTabView extends StatelessWidget {
                 }
 
                 return Obx(() {
-                  final bool inverted = tab == router.profileSection.value &&
+                  final bool inverted =
+                      tab == router.profileSection.value &&
                       router.route == Routes.me;
 
                   return Padding(
@@ -189,16 +179,16 @@ class MenuTabView extends StatelessWidget {
                       onPressed: switch (tab) {
                         ProfileTab.support => router.support,
                         ProfileTab.logout => () async {
-                            await ConfirmLogoutView.show(router.context!);
-                          },
+                          await ConfirmLogoutView.show(router.context!);
+                        },
                         (_) => () {
-                            if (router.profileSection.value == tab) {
-                              router.profileSection.refresh();
-                            } else {
-                              router.profileSection.value = tab;
-                            }
-                            router.me();
-                          },
+                          if (router.profileSection.value == tab) {
+                            router.profileSection.refresh();
+                          } else {
+                            router.profileSection.value = tab;
+                          }
+                          router.me();
+                        },
                       },
                     ),
                   );

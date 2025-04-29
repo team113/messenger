@@ -95,27 +95,24 @@ class FieldsSection {
                   ],
                 ),
               ),
-            )
+            ),
           ),
           (
             headline: 'ReactiveTextField(obscure)',
-            widget: ObxValue(
-              (b) {
-                return ReactiveTextField(
-                  state: TextFieldState(text: 'Text'),
-                  label: 'Obscured text',
-                  obscure: b.value,
-                  onSuffixPressed: b.toggle,
-                  treatErrorAsStatus: false,
-                  trailing: SvgImage.asset(
-                    'assets/icons/${b.value ? 'visible_off' : 'visible_on'}.svg',
-                    width: 17.07,
-                    height: b.value ? 15.14 : 11.97,
-                  ),
-                );
-              },
-              RxBool(true),
-            ),
+            widget: ObxValue((b) {
+              return ReactiveTextField(
+                state: TextFieldState(text: 'Text'),
+                label: 'Obscured text',
+                obscure: b.value,
+                onSuffixPressed: b.toggle,
+                treatErrorAsStatus: false,
+                trailing: SvgImage.asset(
+                  'assets/icons/${b.value ? 'visible_off' : 'visible_on'}.svg',
+                  width: 17.07,
+                  height: b.value ? 15.14 : 11.97,
+                ),
+              );
+            }, RxBool(true)),
           ),
         ],
       ),
@@ -125,9 +122,7 @@ class FieldsSection {
           label: 'Label',
         ),
       ),
-      Headline(
-        child: SharableTextField(text: 'Text to share', label: 'Label'),
-      ),
+      Headline(child: SharableTextField(text: 'Text to share', label: 'Label')),
       Headline(
         child: MessageFieldView(
           controller: MessageFieldController(null, null, null),
@@ -162,11 +157,12 @@ class FieldsSection {
             ),
             leading: [
               AnimatedButton(
-                decorator: (child) => Container(
-                  padding: const EdgeInsets.only(left: 20, right: 6),
-                  height: double.infinity,
-                  child: child,
-                ),
+                decorator:
+                    (child) => Container(
+                      padding: const EdgeInsets.only(left: 20, right: 6),
+                      height: double.infinity,
+                      child: child,
+                    ),
                 onPressed: () {},
                 child: const SvgIcon(SvgIcons.back),
               ),

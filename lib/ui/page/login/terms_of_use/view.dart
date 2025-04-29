@@ -16,11 +16,11 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html_core/flutter_widget_from_html_core.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 import '/ui/widget/modal_popup.dart';
+import '/util/platform_utils.dart';
 
 /// Terms and conditions page.
 class TermsOfUseView extends StatefulWidget {
@@ -43,13 +43,11 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
 
   @override
   void initState() {
-    rootBundle.loadString('assets/terms.html').then(
-      (value) {
-        if (mounted) {
-          setState(() => _text = value);
-        }
-      },
-    );
+    PlatformUtils.loadString('assets/terms.html').then((value) {
+      if (mounted) {
+        setState(() => _text = value);
+      }
+    });
 
     super.initState();
   }
@@ -65,9 +63,9 @@ class _TermsOfUseViewState extends State<TermsOfUseView> {
         const ModalPopupHeader(),
         Expanded(
           child: SingleChildScrollView(
-            padding: ModalPopup.padding(context).add(
-              const EdgeInsets.only(bottom: 16),
-            ),
+            padding: ModalPopup.padding(
+              context,
+            ).add(const EdgeInsets.only(bottom: 16)),
             child: HtmlWidget(
               _text!,
               onTapUrl: launchUrlString,

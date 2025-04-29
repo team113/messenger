@@ -40,9 +40,10 @@ class ChatDirectLinkView extends StatelessWidget {
       init: ChatDirectLinkController(_slug, Get.find()),
       builder: (ChatDirectLinkController c) {
         return Scaffold(
-          appBar: ModalRoute.of(context)?.canPop == true
-              ? const CustomAppBar(leading: [StyledBackButton()])
-              : null,
+          appBar:
+              ModalRoute.of(context)?.canPop == true
+                  ? const CustomAppBar(leading: [StyledBackButton()])
+                  : null,
           body: Center(
             child: Obx(() {
               if (c.slug.value == null) {

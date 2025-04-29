@@ -17,23 +17,28 @@
 
 import 'dart:async';
 
+import 'package:async/async.dart';
 import 'package:get/get.dart';
 
 import '/api/backend/extension/my_user.dart';
 import '/api/backend/extension/page_info.dart';
 import '/api/backend/extension/user.dart';
+import '/api/backend/schema.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/blocklist.dart';
 import '/domain/repository/user.dart';
 import '/provider/drift/blocklist.dart';
-import '/provider/drift/my_user.dart';
 import '/provider/drift/version.dart';
+import '/provider/gql/exceptions.dart';
 import '/provider/gql/graphql.dart';
 import '/util/log.dart';
+import '/util/new_type.dart';
+import '/util/stream_utils.dart';
+import '/util/web/web_utils.dart';
+import 'event/blocklist.dart';
 import 'model/blocklist.dart';
 import 'model/my_user.dart';
-import 'model/session_data.dart';
 import 'paginated.dart';
 import 'pagination.dart';
 import 'pagination/drift_graphql.dart';
@@ -41,8 +46,8 @@ import 'pagination/drift.dart';
 import 'pagination/graphql.dart';
 import 'user.dart';
 
-typedef BlocklistPaginated
-    = RxPaginatedImpl<UserId, RxUser, DtoBlocklistRecord, BlocklistCursor>;
+typedef BlocklistPaginated =
+    RxPaginatedImpl<UserId, RxUser, DtoBlocklistRecord, BlocklistCursor>;
 
 /// [MyUser]'s blocklist repository.
 class BlocklistRepository extends DisposableInterface
@@ -51,14 +56,16 @@ class BlocklistRepository extends DisposableInterface
     this._graphQlProvider,
     this._blocklistLocal,
     this._userRepository,
-    this._sessionLocal,
-    this._myUserLocal, {
+    this._sessionLocal, {
     required this.me,
   });
 
   /// [UserId] of the currently authenticated [MyUser] this repository is bound
   /// to.
   final UserId me;
+
+  @override
+  final RxInt count = RxInt(0);
 
   @override
   late final BlocklistPaginated blocklist = BlocklistPaginated(
@@ -77,29 +84,28 @@ class BlocklistRepository extends DisposableInterface
           },
           delete: (e) async => await _blocklistLocal.delete(e),
           reset: () async => await _blocklistLocal.clear(),
-          isFirst: (_) =>
-              _sessionLocal.data[me]?.blocklistSynchronized == true &&
-              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
-          isLast: (_) =>
-              _sessionLocal.data[me]?.blocklistSynchronized == true &&
-              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isFirst:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isLast:
+              (_) =>
+                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
+                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
           fetch: ({after, before, first, last}) async {
             final Page<DtoBlocklistRecord, BlocklistCursor> page =
                 await _blocklist(
-              after: after,
-              before: before,
-              first: first,
-              last: last,
-            );
+                  after: after,
+                  before: before,
+                  first: first,
+                  last: last,
+                );
 
             if (page.info.hasNext == false) {
-              _sessionLocal.upsert(
-                me,
-                SessionData(blocklistSynchronized: true),
-              );
+              _sessionLocal.upsert(me, blocklistSynchronized: NewType(true));
             }
 
             return page;
@@ -125,34 +131,31 @@ class BlocklistRepository extends DisposableInterface
   /// [VersionDriftProvider] used to store blocked [User]s list related data.
   final VersionDriftProvider _sessionLocal;
 
-  /// Local storage of the [MyUser]s.
-  final MyUserDriftProvider _myUserLocal;
-
-  /// [MyUserDriftProvider.watchSingle] subscription.
-  StreamSubscription? _localSubscription;
-
   /// Total count of blocked users.
   int? _blocklistCount;
 
+  /// [_blocklistRemoteEvents] subscription.
+  ///
+  /// May be uninitialized since connection establishment may fail.
+  StreamQueue<BlocklistEvents>? _remoteSubscription;
+
   @override
   void onInit() {
-    _localSubscription = _myUserLocal.watchSingle(me).listen((e) {
-      _blocklistCount = e?.value.blocklistCount;
-    });
+    _initRemoteSubscription();
+
+    count.value = _sessionLocal.data[me]?.blocklistCount ?? 0;
+
     super.onInit();
   }
 
   @override
   void onClose() {
-    _localSubscription?.cancel();
+    _remoteSubscription?.close(immediate: true);
     super.onClose();
   }
 
   /// Puts the provided [record] to [Pagination] and local storage.
-  Future<void> put(
-    DtoBlocklistRecord record, {
-    bool pagination = false,
-  }) async {
+  Future<void> put(DtoBlocklistRecord record, {bool pagination = false}) async {
     Log.debug('put($record, $pagination)', '$runtimeType');
     await blocklist.put(record);
   }
@@ -166,7 +169,7 @@ class BlocklistRepository extends DisposableInterface
   /// Resets this [BlocklistRepository].
   Future<void> reset() async {
     Log.debug('reset()', '$runtimeType');
-    await _sessionLocal.upsert(me, SessionData(blocklistSynchronized: false));
+
     await blocklist.clear();
     await blocklist.around();
   }
@@ -196,5 +199,171 @@ class BlocklistRepository extends DisposableInterface
       query.edges.map((e) => e.node.toDto(cursor: e.cursor)).toList(),
       query.pageInfo.toModel((c) => BlocklistCursor(c)),
     );
+  }
+
+  /// Initializes [_blocklistRemoteEvents] subscription.
+  Future<void> _initRemoteSubscription() async {
+    if (isClosed) {
+      return;
+    }
+
+    Log.debug('_initRemoteSubscription()', '$runtimeType');
+
+    _remoteSubscription?.close(immediate: true);
+
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _blocklistRemoteEvents(
+          () => _sessionLocal.data[me]?.blocklistVersion,
+        ),
+      );
+
+      await _remoteSubscription!.execute(
+        _blocklistRemoteEvent,
+        onError: (e) async {
+          if (e is StaleVersionException) {
+            _sessionLocal.upsert(
+              me,
+              blocklistSynchronized: NewType(true),
+              blocklistVersion: NewType(null),
+            );
+            await reset();
+          }
+        },
+      );
+    }, tag: 'blocklistEvents');
+  }
+
+  /// Subscribes to remote [BlocklistEvent]s.
+  Future<Stream<BlocklistEvents>> _blocklistRemoteEvents(
+    BlocklistVersion? Function() ver,
+  ) async {
+    Log.debug('_blocklistRemoteEvents(ver)', '$runtimeType');
+
+    return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
+      Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
+
+      var events =
+          BlocklistEvents$Subscription.fromJson(event.data!).blocklistEvents;
+
+      if (events.$$typename == 'SubscriptionInitialized') {
+        Log.debug(
+          '_blocklistRemoteEvents(ver): SubscriptionInitialized',
+          '$runtimeType',
+        );
+
+        events
+            as BlocklistEvents$Subscription$BlocklistEvents$SubscriptionInitialized;
+        // No-op.
+      } else if (events.$$typename == 'Blocklist') {
+        var list =
+            events as BlocklistEvents$Subscription$BlocklistEvents$Blocklist;
+        yield BlocklistEventsBlocklist(
+          list.blocklist.edges
+              .map(
+                (e) => DtoBlocklistRecord(
+                  BlocklistRecord(
+                    userId: e.node.user.id,
+                    reason: e.node.reason,
+                    at: e.node.at,
+                  ),
+                  e.cursor,
+                ),
+              )
+              .toList(),
+          list.blocklist.totalCount,
+          list.blocklist.ver,
+        );
+      } else if (events.$$typename == 'BlocklistEventsVersioned') {
+        var mixin = events as BlocklistEventsVersionedMixin;
+        yield BlocklistEventsEvent(
+          BlocklistEventsVersioned(
+            mixin.events.map((e) => _blocklistEvent(e)).toList(),
+            mixin.blocklistVer,
+          ),
+        );
+      }
+    });
+  }
+
+  /// Constructs a [BlocklistEvent] from the
+  /// [BlocklistEventsVersionedMixin$Events].
+  BlocklistEvent _blocklistEvent(BlocklistEventsVersionedMixin$Events e) {
+    Log.trace('_blocklistEvent($e)', '$runtimeType');
+
+    if (e.$$typename == 'EventBlocklistRecordAdded') {
+      final node =
+          e as BlocklistEventsVersionedMixin$Events$EventBlocklistRecordAdded;
+      return EventBlocklistRecordAdded(node.user.toDto(), node.at, node.reason);
+    } else if (e.$$typename == 'EventBlocklistRecordRemoved') {
+      return EventBlocklistRecordRemoved(e.user.toDto(), e.at);
+    } else {
+      throw UnimplementedError('Unknown BlocklistEvent: ${e.$$typename}');
+    }
+  }
+
+  /// Handles [BlocklistEvent] from the [_blocklistRemoteEvents] subscription.
+  Future<void> _blocklistRemoteEvent(BlocklistEvents events) async {
+    switch (events.kind) {
+      case BlocklistEventsKind.blocklist:
+        final blocklist = events as BlocklistEventsBlocklist;
+        count.value = blocklist.totalCount;
+        await _sessionLocal.upsert(
+          me,
+
+          blocklistCount: NewType(blocklist.totalCount),
+          blocklistVersion: NewType(blocklist.ver),
+        );
+        break;
+
+      case BlocklistEventsKind.event:
+        final versioned = (events as BlocklistEventsEvent).event;
+        final listVer = _sessionLocal.data[me]?.blocklistVersion;
+
+        if (versioned.ver < listVer) {
+          Log.debug(
+            '_blocklistRemoteEvent(): ignored ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+        } else {
+          Log.debug(
+            '_blocklistRemoteEvent(): ${versioned.events.map((e) => e.kind)}',
+            '$runtimeType',
+          );
+
+          for (final BlocklistEvent event in versioned.events) {
+            switch (event.kind) {
+              case BlocklistEventKind.recordAdded:
+                event as EventBlocklistRecordAdded;
+                ++count.value;
+                put(
+                  DtoBlocklistRecord(
+                    BlocklistRecord(
+                      userId: event.user.id,
+                      reason: event.reason,
+                      at: event.at,
+                    ),
+                    null,
+                  ),
+                );
+                break;
+
+              case BlocklistEventKind.recordRemoved:
+                event as EventBlocklistRecordRemoved;
+                --count.value;
+                remove(event.user.id);
+                break;
+            }
+          }
+
+          await _sessionLocal.upsert(
+            me,
+
+            blocklistCount: NewType(count.value),
+            blocklistVersion: NewType(versioned.ver),
+          );
+        }
+        break;
+    }
   }
 }

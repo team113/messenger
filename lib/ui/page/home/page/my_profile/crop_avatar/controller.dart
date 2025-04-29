@@ -87,7 +87,8 @@ class CropController extends GetxController {
       );
     } catch (e) {
       if (e.toString().contains('Invalid image data') ||
-          e.toString().contains('The source image cannot be decoded')) {
+          e.toString().contains('The source image cannot be decoded') ||
+          e.toString().contains('Failed to detect image file format')) {
         svg = await vg.loadPicture(
           SvgStringLoader(String.fromCharCodes(image)),
           null,

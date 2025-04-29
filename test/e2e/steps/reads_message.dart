@@ -50,8 +50,8 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
     await provider.readChat(chat.id, message.id);
     provider.disconnect();
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
+  configuration:
+      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
 );
 
 /// Reads all messages by the provided [TestUser] in the [Chat]-group with the
@@ -61,19 +61,19 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
 /// - When Alice reads all messages in "Name" group.
 final StepDefinitionGeneric readsAllMessages =
     when2<TestUser, String, CustomWorld>(
-  '{user} reads all messages in {string} group',
-  (TestUser user, String name, context) async {
-    final provider = GraphQlProvider();
-    provider.token = context.world.sessions[user.name]?.token;
+      '{user} reads all messages in {string} group',
+      (TestUser user, String name, context) async {
+        final provider = GraphQlProvider();
+        provider.token = context.world.sessions[user.name]?.token;
 
-    final ChatId chatId = context.world.groups[name]!;
-    final ChatItemId lastItemId =
-        (await provider.getChat(chatId)).chat!.lastItem!.toDto().value.id;
+        final ChatId chatId = context.world.groups[name]!;
+        final ChatItemId lastItemId =
+            (await provider.getChat(chatId)).chat!.lastItem!.toDto().value.id;
 
-    await provider.readChat(chatId, lastItemId);
+        await provider.readChat(chatId, lastItemId);
 
-    provider.disconnect();
-  },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
-);
+        provider.disconnect();
+      },
+      configuration:
+          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+    );

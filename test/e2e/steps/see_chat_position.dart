@@ -31,25 +31,24 @@ import '../world/custom_world.dart';
 /// - Then I see "Example" chat last in favorites list
 final StepDefinitionGeneric seeFavoriteChatPosition =
     then2<String, PositionStatus, CustomWorld>(
-  'I see {string} chat {position} in favorites list',
-  (name, status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle();
+      'I see {string} chat {position} in favorites list',
+      (name, status, context) async {
+        await context.world.appDriver.waitUntil(() async {
+          await context.world.appDriver.waitForAppToSettle();
 
-        final controller = Get.find<ChatsTabController>();
-        final ChatId chatId = context.world.groups[name]!;
-        final Iterable<ChatEntry> favorites = controller.chats
-            .where((c) => c.chat.value.favoritePosition != null);
+          final controller = Get.find<ChatsTabController>();
+          final ChatId chatId = context.world.groups[name]!;
+          final Iterable<ChatEntry> favorites = controller.chats.where(
+            (c) => c.chat.value.favoritePosition != null,
+          );
 
-        switch (status) {
-          case PositionStatus.first:
-            return favorites.first.id == chatId;
+          switch (status) {
+            case PositionStatus.first:
+              return favorites.first.id == chatId;
 
-          case PositionStatus.last:
-            return favorites.last.id == chatId;
-        }
+            case PositionStatus.last:
+              return favorites.last.id == chatId;
+          }
+        });
       },
     );
-  },
-);

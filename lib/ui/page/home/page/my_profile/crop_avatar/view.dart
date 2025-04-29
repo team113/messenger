@@ -58,6 +58,7 @@ class CropAvatarView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
+      key: Key('CropAvatarView'),
       init: CropController(image),
       builder: (CropController c) {
         return Column(
@@ -120,6 +121,7 @@ class CropAvatarView extends StatelessWidget {
                   Positioned(
                     right: 0,
                     child: TextButton(
+                      key: Key('DoneButton'),
                       onPressed: () => _close(context, c),
                       child: Text(
                         'btn_done'.l10n,

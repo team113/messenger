@@ -66,11 +66,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
         isMuted = muted ?? participant.audio.value?.isMuted.value ?? true;
       }
 
-      bool isVideoDisabled = participant.video.value?.renderer.value == null &&
+      bool isVideoDisabled =
+          participant.video.value?.renderer.value == null &&
           (participant.video.value?.direction.value.isEmitting ?? false) &&
           participant.member.owner == MediaOwnerKind.remote;
 
-      bool isAudioDisabled = participant.audio.value != null &&
+      bool isAudioDisabled =
+          participant.audio.value != null &&
           participant.audio.value!.renderer.value == null &&
           participant.source != MediaSourceKind.display &&
           participant.member.owner == MediaOwnerKind.remote;
@@ -160,7 +162,7 @@ class ParticipantOverlayWidget extends StatelessWidget {
                 color: style.colors.onBackgroundOpacity13,
                 blurRadius: 8,
                 blurStyle: BlurStyle.outer.workaround,
-              )
+              ),
             ],
           ),
           child: ConditionalBackdropFilter(
@@ -169,9 +171,10 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color: preferBackdrop
-                    ? style.colors.primaryAuxiliaryOpacity25
-                    : style.colors.primaryDarkOpacity70,
+                color:
+                    preferBackdrop && ConditionalBackdropFilter.enabled
+                        ? style.colors.primaryAuxiliaryOpacity25
+                        : style.colors.primaryAuxiliaryOpacity90,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -187,12 +190,13 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   if (additionally.isNotEmpty && hovered)
                     const SizedBox(width: 3),
                   Flexible(
-                    child: additionally.isEmpty
-                        ? name
-                        : AnimatedSize(
-                            duration: 150.milliseconds,
-                            child: hovered ? name : const SizedBox(),
-                          ),
+                    child:
+                        additionally.isEmpty
+                            ? name
+                            : AnimatedSize(
+                              duration: 150.milliseconds,
+                              child: hovered ? name : const SizedBox(),
+                            ),
                   ),
                 ],
               ),

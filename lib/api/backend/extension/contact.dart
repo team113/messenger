@@ -26,14 +26,14 @@ import 'user.dart';
 extension ChatContactConversion on ChatContactMixin {
   /// Constructs a new [ChatContact] from this [ChatContactMixin].
   ChatContact toModel() => ChatContact(
-        id,
-        name: name,
-        users: users.map((e) => e.toModel()).toList(),
-        groups: groups.map((e) => Chat(e.id)).toList(),
-        emails: emails.map((e) => e.email).toList(),
-        phones: phones.map((e) => e.phone).toList(),
-        favoritePosition: favoritePosition,
-      );
+    id,
+    name: name,
+    users: users.map((e) => e.toModel()).toList(),
+    groups: groups.map((e) => Chat(e.id)).toList(),
+    emails: emails.map((e) => e.email).toList(),
+    phones: phones.map((e) => e.phone).toList(),
+    favoritePosition: favoritePosition,
+  );
 
   /// Constructs a new list of [DtoUser]s from this [ChatContactMixin].
   List<DtoUser> getDtoUsers() => users.map((e) => e.toDto()).toList();
@@ -42,6 +42,5 @@ extension ChatContactConversion on ChatContactMixin {
   DtoChatContact toDto({
     ChatContactsCursor? cursor,
     FavoriteChatContactsCursor? favoriteCursor,
-  }) =>
-      DtoChatContact(toModel(), ver, cursor, favoriteCursor);
+  }) => DtoChatContact(toModel(), ver, cursor, favoriteCursor);
 }

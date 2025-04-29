@@ -21,11 +21,7 @@ const int GB = 1024 * 1024 * 1024;
 
 /// Info about some cache.
 class CacheInfo {
-  CacheInfo({
-    this.size = 0,
-    this.modified,
-    this.maxSize = GB * 2,
-  });
+  CacheInfo({this.size = 0, this.modified, this.maxSize = GB * 2});
 
   /// [DateTime] of the last cache modification.
   DateTime? modified;

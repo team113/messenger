@@ -33,6 +33,7 @@ class CustomProgressIndicator extends StatelessWidget {
         backgroundColor = null,
         valueColor = null,
         primary = false,
+        onPrimary = false,
         strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `primary` style.
@@ -43,6 +44,7 @@ class CustomProgressIndicator extends StatelessWidget {
         backgroundColor = null,
         valueColor = null,
         primary = true,
+        onPrimary = false,
         strokeWidth = 2;
 
   /// Constructs a [CustomProgressIndicator] with a `big` style.
@@ -53,6 +55,7 @@ class CustomProgressIndicator extends StatelessWidget {
         backgroundColor = null,
         valueColor = null,
         primary = false,
+        onPrimary = false,
         strokeWidth = 2.0;
 
   /// Constructs a [CustomProgressIndicator] with a `small` style.
@@ -63,7 +66,19 @@ class CustomProgressIndicator extends StatelessWidget {
         backgroundColor = null,
         valueColor = null,
         primary = true,
+        onPrimary = false,
         strokeWidth = 2.0;
+
+  /// Constructs a [CustomProgressIndicator] with a `small` style.
+  const CustomProgressIndicator.bold({super.key, this.value})
+      : size = 18,
+        padding = const EdgeInsets.all(0),
+        blur = false,
+        backgroundColor = null,
+        valueColor = null,
+        primary = false,
+        onPrimary = true,
+        strokeWidth = 3;
 
   /// Value of this [CustomProgressIndicator].
   final double? value;
@@ -74,6 +89,10 @@ class CustomProgressIndicator extends StatelessWidget {
   /// Indicator whether this [CustomProgressIndicator] is primary, meaning
   /// [Palette.primary] should be used.
   final bool primary;
+
+  /// Indicator whether this [CustomProgressIndicator] is on primary, meaning
+  /// [Palette.onPrimary] should be used.
+  final bool onPrimary;
 
   /// [Animation] animating the [color] of this [CustomProgressIndicator].
   final Animation<Color?>? valueColor;
@@ -106,9 +125,13 @@ class CustomProgressIndicator extends StatelessWidget {
           value: value,
           color: primary
               ? style.colors.primary
-              : style.colors.secondaryHighlightDarkest,
-          backgroundColor:
-              backgroundColor ?? style.colors.secondaryHighlightDark,
+              : onPrimary
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryHighlightDarkest,
+          backgroundColor: backgroundColor ??
+              (onPrimary
+                  ? style.colors.onPrimaryOpacity50
+                  : style.colors.onPrimaryOpacity50),
           valueColor: valueColor,
           strokeWidth: strokeWidth,
         ),
@@ -262,12 +285,14 @@ class _CircularProgressIndicatorState
   ).chain(CurveTween(curve: const SawTooth(_pathCount)));
 
   /// [Animatable] producing the progress arc offset value.
-  static final Animatable<double> _offsetTween =
-      CurveTween(curve: const SawTooth(_pathCount));
+  static final Animatable<double> _offsetTween = CurveTween(
+    curve: const SawTooth(_pathCount),
+  );
 
   /// [Animatable] producing the progress arc rotation value.
-  static final Animatable<double> _rotationTween =
-      CurveTween(curve: const SawTooth(_rotationCount));
+  static final Animatable<double> _rotationTween = CurveTween(
+    curve: const SawTooth(_rotationCount),
+  );
 
   /// [AnimationController] controlling the progress indicator animation.
   late AnimationController _controller;
@@ -351,7 +376,7 @@ class _CircularProgressIndicatorState
           tailValue: tailValue,
           offsetValue: offsetValue,
           rotationValue: rotationValue,
-          strokeWidth: widget.strokeWidth ?? 1,
+          strokeWidth: widget.strokeWidth ?? 2,
         ),
       ),
     );

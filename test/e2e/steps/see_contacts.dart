@@ -30,18 +30,15 @@ import '../world/custom_world.dart';
 final StepDefinitionGeneric seeCountContacts = then1<int, CustomWorld>(
   'I see {int} contacts',
   (count, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
-        await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-        final controller = Get.find<ContactsTabController>();
-        if (controller.contacts.length == count) {
-          return true;
-        } else {
-          return false;
-        }
-      },
-      timeout: const Duration(seconds: 30),
-    );
+      final controller = Get.find<ContactsTabController>();
+      if (controller.contacts.length == count) {
+        return true;
+      } else {
+        return false;
+      }
+    }, timeout: const Duration(seconds: 30));
   },
 );

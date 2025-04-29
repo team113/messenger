@@ -23,19 +23,20 @@ Feature: User email
 
     When I tap `MenuButton` button
     And I tap `Signing` button
-    And I fill `Email` field with "example@gmail.com"
-    And I tap `Approve` button
+    And I tap `AddEmailButton` button
+    And I fill `EmailField` field with "example@gmail.com"
+    And I tap `Proceed` button
     And I tap `CloseButton` button
     Then I wait until `UnconfirmedEmail` is present
 
-    When I tap `VerifyEmail` widget
+    When I tap `VerifyEmailButton` button
     And I wait until `ConfirmationCode` is present
     And I fill `ConfirmationCode` field with "1234"
     And I tap `Proceed` button
-    Then I wait until `ConfirmedEmail` is present
+    Then I wait until `ConfirmedEmail_0` is present
 
-    When I tap `DeleteEmail` widget
+    When I tap `DeleteEmail_0` button
     And I tap `Proceed` button
     And I fill `PasswordField` field with "123"
     And I tap `Proceed` button
-    Then I wait until `ConfirmedEmail` is absent
+    Then I wait until `ConfirmedEmail_0` is absent

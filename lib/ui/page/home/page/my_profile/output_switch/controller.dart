@@ -32,8 +32,7 @@ export 'view.dart';
 /// Controller of a [OutputSwitchView].
 class OutputSwitchController extends GetxController {
   OutputSwitchController(this._settingsRepository, {String? output})
-      : _output =
-            output ?? _settingsRepository.mediaSettings.value?.outputDevice;
+    : _output = output ?? _settingsRepository.mediaSettings.value?.outputDevice;
 
   /// Settings repository updating the [MediaSettings.outputDevice].
   final AbstractSettingsRepository _settingsRepository;
@@ -62,12 +61,10 @@ class OutputSwitchController extends GetxController {
 
   @override
   void onInit() async {
-    _devicesSubscription = MediaUtils.onDeviceChange.listen(
-      (e) {
-        devices.value = e.output().toList();
-        selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
-      },
-    );
+    _devicesSubscription = MediaUtils.onDeviceChange.listen((e) {
+      devices.value = e.output().toList();
+      selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
+    });
 
     _worker = ever(_settingsRepository.mediaSettings, (e) {
       if (e != null) {
@@ -81,8 +78,9 @@ class OutputSwitchController extends GetxController {
       // Output devices are permitted to be use when requesting a microphone
       // permission.
       _permissionSubscription = await WebUtils.microphonePermission();
-      devices.value =
-          await MediaUtils.enumerateDevices(MediaDeviceKind.audioOutput);
+      devices.value = await MediaUtils.enumerateDevices(
+        MediaDeviceKind.audioOutput,
+      );
       selected.value = devices.firstWhereOrNull((e) => e.id() == _output);
     } on UnsupportedError {
       error.value = 'err_media_devices_are_null'.l10n;

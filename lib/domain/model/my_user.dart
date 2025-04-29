@@ -49,7 +49,6 @@ class MyUser {
     required this.presenceIndex,
     required this.online,
     this.muted,
-    this.blocklistCount,
     this.lastSeenAt,
     this.welcomeMessage,
   });
@@ -136,9 +135,6 @@ class MyUser {
   /// Mute duration of this [MyUser].
   MuteDuration? muted;
 
-  /// Total count of blocked users.
-  int? blocklistCount;
-
   /// [PreciseDateTime] this [MyUser] was last seen online at.
   PreciseDateTime? lastSeenAt;
 
@@ -150,26 +146,26 @@ class MyUser {
 
   /// Returns a copy of this [MyUser].
   MyUser copyWith() => MyUser(
-        id: id,
-        num: num,
-        login: login,
-        name: name,
-        bio: bio,
-        hasPassword: hasPassword,
-        emails: emails.copyWith(),
-        phones: phones.copyWith(),
-        chatDirectLink: chatDirectLink,
-        unreadChatsCount: unreadChatsCount,
-        status: status,
-        callCover: callCover,
-        avatar: avatar,
-        presenceIndex: presenceIndex,
-        online: online,
-        muted: muted,
-        blocklistCount: blocklistCount,
-        lastSeenAt: lastSeenAt,
-        welcomeMessage: welcomeMessage,
-      );
+    id: id,
+    num: num,
+    login: login,
+    name: name,
+    bio: bio,
+    hasPassword: hasPassword,
+    emails: emails.copyWith(),
+    phones: phones.copyWith(),
+    chatDirectLink: chatDirectLink,
+    unreadChatsCount: unreadChatsCount,
+    status: status,
+    callCover: callCover,
+    avatar: avatar,
+    presenceIndex: presenceIndex,
+    online: online,
+    muted: muted,
+
+    lastSeenAt: lastSeenAt,
+    welcomeMessage: welcomeMessage,
+  );
 
   /// Returns a [Map] representing this [MyUser].
   Map<String, dynamic> toJson() => _$MyUserToJson(this);
@@ -178,10 +174,7 @@ class MyUser {
 /// List of [UserPhone]s associated with [MyUser].
 @JsonSerializable()
 class MyUserPhones {
-  MyUserPhones({
-    required this.confirmed,
-    this.unconfirmed,
-  });
+  MyUserPhones({required this.confirmed, this.unconfirmed});
 
   /// Constructs the [MyUserPhones] from the provided [json].
   factory MyUserPhones.fromJson(Map<String, dynamic> json) =>
@@ -213,10 +206,7 @@ class MyUserPhones {
 /// List of [UserEmail]s associated with [MyUser].
 @JsonSerializable()
 class MyUserEmails {
-  MyUserEmails({
-    required this.confirmed,
-    this.unconfirmed,
-  });
+  MyUserEmails({required this.confirmed, this.unconfirmed});
 
   /// Constructs the [MyUserEmails] from the provided [json].
   factory MyUserEmails.fromJson(Map<String, dynamic> json) =>

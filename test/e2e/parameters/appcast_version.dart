@@ -23,12 +23,12 @@ enum AppcastVersion { current, newer, critical }
 /// [CustomParameter] representing an [AppcastVersion].
 class AppcastVersionParameter extends CustomParameter<AppcastVersion> {
   AppcastVersionParameter()
-      : super(
-          'version',
-          RegExp(
-            '(${AppcastVersion.values.map((e) => e.name).join('|')})',
-            caseSensitive: false,
-          ),
-          (c) => AppcastVersion.values.firstWhere((e) => e.name == c),
-        );
+    : super(
+        'version',
+        RegExp(
+          '(${AppcastVersion.values.map((e) => e.name).join('|')})',
+          caseSensitive: false,
+        ),
+        (c) => AppcastVersion.values.firstWhere((e) => e.name == c),
+      );
 }

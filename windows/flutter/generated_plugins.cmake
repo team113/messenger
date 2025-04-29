@@ -8,6 +8,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   file_selector_windows
   firebase_core
   flutter_custom_cursor
+  hotkey_manager_windows
   irondash_engine_context
   medea_flutter_webrtc
   medea_jason
@@ -21,13 +22,13 @@ list(APPEND FLUTTER_PLUGIN_LIST
   sqlite3_flutter_libs
   super_native_extensions
   url_launcher_windows
+  volume_controller
   win_toast
   window_manager
   windows_taskbar
 )
 
 list(APPEND FLUTTER_FFI_PLUGIN_LIST
-  media_kit_native_event_loop
 )
 
 set(PLUGIN_BUNDLED_LIBRARIES)

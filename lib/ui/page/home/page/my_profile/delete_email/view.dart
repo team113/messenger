@@ -39,10 +39,7 @@ class DeleteEmailView extends StatelessWidget {
   final UserEmail email;
 
   /// Displays a [DeleteEmailView] wrapped in a [ModalPopup].
-  static Future<T?> show<T>(
-    BuildContext context, {
-    required UserEmail email,
-  }) {
+  static Future<T?> show<T>(BuildContext context, {required UserEmail email}) {
     return ModalPopup.show(
       context: context,
       child: DeleteEmailView(email: email),
@@ -67,9 +64,9 @@ class DeleteEmailView extends StatelessWidget {
           children = [
             const SizedBox(height: 12),
             Text(
-              'label_add_email_confirmation_sent_to'.l10nfmt(
-                {'email': '${c.myUser.value?.emails.confirmed.firstOrNull}'},
-              ),
+              'label_add_email_confirmation_sent_to'.l10nfmt({
+                'email': '${c.myUser.value?.emails.confirmed.firstOrNull}',
+              }),
               style: style.fonts.normal.regular.onBackground,
             ),
             const SizedBox(height: 16),
@@ -89,11 +86,13 @@ class DeleteEmailView extends StatelessWidget {
                 child: Text(
                   enabled
                       ? 'btn_resend_code'.l10n
-                      : 'label_wait_seconds'
-                          .l10nfmt({'for': c.resendEmailTimeout.value}),
-                  style: enabled
-                      ? style.fonts.normal.regular.primary
-                      : style.fonts.normal.regular.onBackground,
+                      : 'label_wait_seconds'.l10nfmt({
+                        'for': c.resendEmailTimeout.value,
+                      }),
+                  style:
+                      enabled
+                          ? style.fonts.normal.regular.primary
+                          : style.fonts.normal.regular.onBackground,
                 ),
               );
             }),

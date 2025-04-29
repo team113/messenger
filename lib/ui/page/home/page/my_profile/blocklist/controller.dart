@@ -76,6 +76,10 @@ class BlocklistController extends GetxController {
   /// Indicates whether the [blocklist] have a next page.
   RxBool get hasNext => _blocklistService.hasNext;
 
+  /// Total [BlocklistRecord]s count in the blocklist of the currently
+  /// authenticated [MyUser].
+  RxInt get blocklistCount => _blocklistService.count;
+
   @override
   void onInit() {
     scrollController.addListener(_scrollListener);
@@ -83,8 +87,9 @@ class BlocklistController extends GetxController {
     blocklist.value = _blocklistService.blocklist.values.toList();
     _sort();
 
-    _blocklistSubscription =
-        _blocklistService.blocklist.items.changes.listen((e) {
+    _blocklistSubscription = _blocklistService.blocklist.items.changes.listen((
+      e,
+    ) {
       switch (e.op) {
         case OperationKind.added:
           blocklist.add(e.value!);
@@ -131,15 +136,13 @@ class BlocklistController extends GetxController {
 
   /// Sorts the [blocklist] by the [User.isBlocked] value.
   void _sort() {
-    blocklist.sort(
-      (a, b) {
-        if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
-          return 0;
-        }
+    blocklist.sort((a, b) {
+      if (a.user.value.isBlocked == null || b.user.value.isBlocked == null) {
+        return 0;
+      }
 
-        return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
-      },
-    );
+      return b.user.value.isBlocked!.at.compareTo(a.user.value.isBlocked!.at);
+    });
   }
 
   /// Requests the next page of [blocklist] based on the

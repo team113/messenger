@@ -1,7 +1,2 @@
-- Added VoIP push notifications for calls on iOS.
-- Updated app bar and navigation panel to be of rectangular shape.
-- Updated group creating and chats selecting UX.
-- Updated chat info page editing and overall design.
-- Updated user page design.
-- Updated monolog chat description.
-- Fixed auto-capitalization setting being ignored in text fields on iOS and Android.
+- Updated Progressive Web Application (PWA) icon.
+- Bug fixes and performance improvements.

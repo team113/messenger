@@ -35,10 +35,12 @@ import '/store/model/version.dart';
 import '/util/log.dart';
 import '/util/platform_utils.dart';
 import '/util/rate_limiter.dart';
+import '/util/web/web_utils.dart';
 import 'exceptions.dart';
 import 'websocket/interface.dart'
     if (dart.library.io) 'websocket/io.dart'
-    if (dart.library.js_interop) 'websocket/web.dart' as websocket;
+    if (dart.library.js_interop) 'websocket/web.dart'
+    as websocket;
 
 /// Base GraphQl provider.
 class GraphQlProviderBase {
@@ -216,16 +218,18 @@ class GraphQlClient {
   }) async {
     if (raw != null) {
       return await _transaction(options.operationName, () async {
-        final QueryResult result =
-            await (await _newClient(raw)).mutate(options).timeout(timeout);
+        final QueryResult result = await (await _newClient(
+          raw,
+        )).mutate(options).timeout(timeout);
         GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
     } else {
       return await _middleware(() async {
         return await _transaction(options.operationName, () async {
-          final QueryResult result =
-              await (await client).mutate(options).timeout(timeout);
+          final QueryResult result = await (await client)
+              .mutate(options)
+              .timeout(timeout);
           GraphQlProviderExceptions.fire(result, onException);
           return result;
         });
@@ -427,34 +431,34 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          var socket = websocket
-              .connect(
-                uri,
-                protocols: protocols,
-                customClient: PlatformUtils.isWeb
-                    ? null
-                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
-              )
-              .forGraphQL();
+          final GraphQLWebSocketChannel socket =
+              websocket
+                  .connect(
+                    uri,
+                    protocols: protocols,
+                    customClient:
+                        PlatformUtils.isWeb
+                            ? null
+                            : (HttpClient()
+                              ..userAgent = await PlatformUtils.userAgent),
+                  )
+                  .forGraphQL();
 
           socket.stream = socket.stream.handleError((_, __) => false);
 
-          _channelSubscription = socket.stream.listen(
-            (_) {
-              if (!_wsConnected) {
-                Log.info('Connected', 'WebSocket');
-                _checkConnectionTimer?.cancel();
-                _backoffTimer?.cancel();
-                _wsConnected = true;
+          _channelSubscription = socket.stream.listen((_) {
+            if (!_wsConnected) {
+              Log.info('Connected', 'WebSocket');
+              _checkConnectionTimer?.cancel();
+              _backoffTimer?.cancel();
+              _wsConnected = true;
 
-                if (_errored) {
-                  _reportException(null);
-                  _errored = false;
-                }
+              if (_errored) {
+                _reportException(null);
+                _errored = false;
               }
-            },
-            onDone: _reconnect,
-          );
+            }
+          }, onDone: _reconnect);
 
           return socket;
         },
@@ -489,6 +493,7 @@ class GraphQlClient {
 
     final httpLink = HttpLink(
       '${Config.url}:${Config.port}${Config.graphql}',
+      httpClient: WebUtils.httpClient,
       defaultHeaders: {
         if (!PlatformUtils.isWeb) 'User-Agent': await PlatformUtils.userAgent,
       },
@@ -638,7 +643,7 @@ class SubscriptionHandle {
   final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
 
   /// [SubscriptionOptions] to pass to the [_listen].
-  final SubscriptionOptions _options;
+  SubscriptionOptions _options;
 
   /// [StreamController] of the [stream] exposed containing the events.
   late final StreamController<QueryResult> _controller =
@@ -705,9 +710,20 @@ class SubscriptionHandle {
   void _resubscribe({bool noVersion = false}) async {
     Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
 
-    if (ver != null) {
-      _options.variables['ver'] = noVersion ? null : (await ver!())?.val;
-    }
+    _options = SubscriptionOptions(
+      document: _options.document,
+      operationName: _options.operationName,
+      variables: {
+        ..._options.variables,
+        'ver': noVersion ? null : (await ver?.call())?.val,
+      },
+      fetchPolicy: _options.policies.fetch,
+      errorPolicy: _options.policies.error,
+      cacheRereadPolicy: _options.policies.cacheReread,
+      optimisticResult: _options.optimisticResult,
+      context: _options.context,
+      parserFn: _options.parserFn,
+    );
 
     if (_backoff?.isActive != true) {
       _backoff?.cancel();

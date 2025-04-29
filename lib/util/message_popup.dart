@@ -22,27 +22,30 @@ import '/routes.dart';
 import '/themes.dart';
 import '/ui/widget/floating_snack_bar.dart';
 import '/ui/widget/modal_popup.dart';
+import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
+import '/ui/widget/svg/svg.dart';
 import 'localized_exception.dart';
 
 /// Helper to display a popup message in UI.
 class MessagePopup {
   /// Shows an error popup with the provided argument.
-  static Future<void> error(dynamic e) async {
+  static Future<void> error(dynamic e, {String title = 'label_error'}) async {
     var message = e is LocalizedExceptionMixin ? e.toMessage() : e.toString();
 
     await showDialog(
       context: router.context!,
-      builder: (context) => AlertDialog(
-        title: Text('label_error'.l10n),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(router.context!).pop(),
-            child: Text('btn_ok'.l10n),
-          )
-        ],
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text(title.l10n),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(router.context!).pop(),
+                child: Text('btn_ok'.l10n),
+              ),
+            ],
+          ),
     );
   }
 
@@ -66,32 +69,34 @@ class MessagePopup {
               const SizedBox(height: 4),
               ModalPopupHeader(text: title),
               const SizedBox(height: 13),
-              Flexible(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: [
-                    if (description.isNotEmpty)
-                      Padding(
-                        padding: ModalPopup.padding(context),
-                        child: Center(
-                          child: RichText(
-                            text: TextSpan(
-                              children: description,
-                              style: style.fonts.normal.regular.secondary,
+              if (description.isNotEmpty || additional.isNotEmpty) ...[
+                Flexible(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: [
+                      if (description.isNotEmpty)
+                        Padding(
+                          padding: ModalPopup.padding(context),
+                          child: Center(
+                            child: RichText(
+                              text: TextSpan(
+                                children: description,
+                                style: style.fonts.normal.regular.secondary,
+                              ),
                             ),
                           ),
                         ),
+                      ...additional.map(
+                        (e) => Padding(
+                          padding: ModalPopup.padding(context),
+                          child: e,
+                        ),
                       ),
-                    ...additional.map(
-                      (e) => Padding(
-                        padding: ModalPopup.padding(context),
-                        child: e,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 25),
+                const SizedBox(height: 25),
+              ],
               Padding(
                 padding: ModalPopup.padding(context),
                 child: button(context),
@@ -111,14 +116,46 @@ class MessagePopup {
     Duration duration = const Duration(seconds: 2),
     void Function()? onPressed,
     Offset? at,
-  }) =>
-      FloatingSnackBar.show(
-        title,
-        bottom: bottom,
-        duration: duration,
-        onPressed: onPressed,
-        at: at,
-      );
+  }) => FloatingSnackBar.show(
+    title,
+    bottom: bottom,
+    duration: duration,
+    onPressed: onPressed,
+    at: at,
+  );
+
+  /// Returns the delete styled [OutlinedRoundedButton].
+  static Widget deleteButton(
+    BuildContext context, {
+    String? label,
+    SvgData? icon,
+    Key? key,
+  }) {
+    final style = Theme.of(context).style;
+
+    return Stack(
+      children: [
+        OutlinedRoundedButton(
+          key: key,
+          maxWidth: double.infinity,
+          onPressed: () => Navigator.of(context).pop(true),
+          color: style.colors.danger,
+          child: Text(
+            label ?? 'btn_delete'.l10n,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            style: style.fonts.normal.regular.onPrimary,
+          ),
+        ),
+        Positioned(
+          top: 0,
+          bottom: 0,
+          left: 16,
+          child: IgnorePointer(child: SvgIcon(icon ?? SvgIcons.delete19White)),
+        ),
+      ],
+    );
+  }
 
   /// Returns the proceed button, which invokes [NavigatorState.pop].
   static Widget _defaultButton(BuildContext context) {

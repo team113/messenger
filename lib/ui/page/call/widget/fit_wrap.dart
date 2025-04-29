@@ -101,39 +101,44 @@ class FitWrap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      double size = calculateSize(
-        maxSize: maxSize,
-        constraints: Size(constraints.maxWidth, constraints.maxHeight),
-        length: children.length,
-        axis: axis,
-      );
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        double size = calculateSize(
+          maxSize: maxSize,
+          constraints: Size(constraints.maxWidth, constraints.maxHeight),
+          length: children.length,
+          axis: axis,
+        );
 
-      bool fitView = useFitView(
-        maxSize: maxSize,
-        constraints: Size(constraints.maxWidth, constraints.maxHeight),
-        length: children.length,
-        axis: axis,
-      );
+        bool fitView = useFitView(
+          maxSize: maxSize,
+          constraints: Size(constraints.maxWidth, constraints.maxHeight),
+          length: children.length,
+          axis: axis,
+        );
 
-      if (fitView) {
-        return FitView(children: children);
-      }
+        if (fitView) {
+          return FitView(children: children);
+        }
 
-      return Wrap(
-        direction: axis,
-        alignment: alignment,
-        runAlignment: alignment,
-        spacing: spacing,
-        runSpacing: spacing,
-        children: children
-            .map((e) => SizedBox(
-                  width: axis == Axis.horizontal ? size : size - spacing,
-                  height: axis == Axis.horizontal ? size - spacing : size,
-                  child: e,
-                ))
-            .toList(),
-      );
-    });
+        return Wrap(
+          direction: axis,
+          alignment: alignment,
+          runAlignment: alignment,
+          spacing: spacing,
+          runSpacing: spacing,
+          children:
+              children
+                  .map(
+                    (e) => SizedBox(
+                      width: axis == Axis.horizontal ? size : size - spacing,
+                      height: axis == Axis.horizontal ? size - spacing : size,
+                      child: e,
+                    ),
+                  )
+                  .toList(),
+        );
+      },
+    );
   }
 }

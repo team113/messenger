@@ -30,6 +30,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart';
 import 'package:log_me/log_me.dart' as me;
 import 'package:media_kit/media_kit.dart';
+import 'package:pwa_install/pwa_install.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_io/io.dart';
@@ -52,6 +53,7 @@ import 'provider/drift/credentials.dart';
 import 'provider/drift/download.dart';
 import 'provider/drift/drift.dart';
 import 'provider/drift/geolocation.dart';
+import 'provider/drift/locks.dart';
 import 'provider/drift/my_user.dart';
 import 'provider/drift/settings.dart';
 import 'provider/drift/skipped_version.dart';
@@ -105,6 +107,7 @@ Future<void> main() async {
     Get.put(SettingsDriftProvider(Get.find()));
     Get.put(BackgroundDriftProvider(Get.find()));
     Get.put(GeoLocationDriftProvider(Get.find()));
+    Get.put(LockDriftProvider(Get.find()));
 
     if (!PlatformUtils.isWeb) {
       Get.put(WindowRectDriftProvider(Get.find()));
@@ -145,13 +148,11 @@ Future<void> main() async {
     final graphQlProvider = Get.put(GraphQlProvider());
     Get.put(GeoLocationProvider());
 
-    final authRepository = Get.put<AbstractAuthRepository>(AuthRepository(
-      graphQlProvider,
-      myUserProvider,
-      Get.find(),
-    ));
+    final authRepository = Get.put<AbstractAuthRepository>(
+      AuthRepository(graphQlProvider, myUserProvider, Get.find()),
+    );
     final authService = Get.put(
-      AuthService(authRepository, Get.find(), Get.find()),
+      AuthService(authRepository, Get.find(), Get.find(), Get.find()),
     );
 
     Uri? initial;
@@ -176,11 +177,22 @@ Future<void> main() async {
       initial: initial == null ? null : RouteInformation(uri: initial),
     );
 
+    try {
+      PWAInstall().setup(
+        installCallback: () {
+          Log.debug('PWA is detected as installed', 'PWAInstall()');
+          WebUtils.hasPwa = true;
+        },
+      );
+    } catch (_) {
+      // No-op.
+    }
+
     await authService.init();
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-    Get.put(UpgradeWorker(Get.findOrNull()));
+    Get.put(UpgradeWorker(Get.findOrNull(), authService));
 
     WebUtils.deleteLoader();
 
@@ -193,71 +205,71 @@ Future<void> main() async {
     return appRunner();
   }
 
-  await SentryFlutter.init(
-    (options) {
-      options.dsn = Config.sentryDsn;
-      options.tracesSampleRate = 1.0;
-      options.sampleRate = 1.0;
-      options.release = '${Pubspec.name}@${Pubspec.ref}';
-      options.debug = true;
-      options.diagnosticLevel = SentryLevel.info;
-      options.enablePrintBreadcrumbs = true;
-      options.maxBreadcrumbs = 512;
-      options.enableTimeToFullDisplayTracing = true;
-      options.enableAppHangTracking = true;
-      options.beforeSend = (SentryEvent event, Hint? hint) {
-        final exception = event.exceptions?.firstOrNull?.throwable;
+  await SentryFlutter.init((options) {
+    options.dsn = Config.sentryDsn;
+    options.tracesSampleRate = 1.0;
+    options.sampleRate = 1.0;
+    options.release = '${Pubspec.name}@${Pubspec.ref}';
+    options.debug = true;
+    options.diagnosticLevel = SentryLevel.info;
+    options.enablePrintBreadcrumbs = true;
+    options.maxBreadcrumbs = 512;
+    options.enableTimeToFullDisplayTracing = true;
+    options.enableAppHangTracking = true;
+    options.beforeSend = (SentryEvent event, Hint? hint) {
+      final exception = event.exceptions?.firstOrNull?.throwable;
 
-        // Connection related exceptions shouldn't be logged.
-        if (exception is ConnectionException ||
-            exception is SocketException ||
-            exception is WebSocketException ||
-            exception is WebSocketChannelException ||
-            exception is HttpException ||
-            exception is ClientException ||
-            exception is DioException ||
-            exception is TimeoutException ||
-            exception is ResubscriptionRequiredException) {
-          return null;
+      // Connection related exceptions shouldn't be logged.
+      if (exception is ConnectionException ||
+          exception is SocketException ||
+          exception is WebSocketException ||
+          exception is WebSocketChannelException ||
+          exception is HttpException ||
+          exception is ClientException ||
+          exception is DioException ||
+          exception is TimeoutException ||
+          exception is ResubscriptionRequiredException) {
+        return null;
+      }
+
+      // [Backoff] related exceptions shouldn't be logged.
+      if (exception is OperationCanceledException ||
+          exception.toString() == 'Data is not loaded') {
+        return null;
+      }
+
+      return event;
+    };
+    options.logger = (
+      SentryLevel level,
+      String message, {
+      String? logger,
+      Object? exception,
+      StackTrace? stackTrace,
+    }) {
+      if (exception != null) {
+        if (stackTrace == null) {
+          stackTrace = StackTrace.current;
+        } else {
+          stackTrace = FlutterError.demangleStackTrace(stackTrace);
         }
 
-        // [Backoff] related exceptions shouldn't be logged.
-        if (exception is OperationCanceledException ||
-            exception.toString() == 'Data is not loaded') {
-          return null;
-        }
+        final Iterable<String> lines = stackTrace
+            .toString()
+            .trimRight()
+            .split('\n')
+            .take(100);
 
-        return event;
-      };
-      options.logger = (
-        SentryLevel level,
-        String message, {
-        String? logger,
-        Object? exception,
-        StackTrace? stackTrace,
-      }) {
-        if (exception != null) {
-          if (stackTrace == null) {
-            stackTrace = StackTrace.current;
-          } else {
-            stackTrace = FlutterError.demangleStackTrace(stackTrace);
-          }
-
-          final Iterable<String> lines =
-              stackTrace.toString().trimRight().split('\n').take(100);
-
-          Log.error(
-            [
-              exception.toString(),
-              if (lines.where((e) => e.isNotEmpty).isNotEmpty)
-                FlutterError.defaultStackFilter(lines).join('\n')
-            ].join('\n'),
-          );
-        }
-      };
-    },
-    appRunner: appRunner,
-  );
+        Log.error(
+          [
+            exception.toString(),
+            if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+              FlutterError.defaultStackFilter(lines).join('\n'),
+          ].join('\n'),
+        );
+      }
+    };
+  }, appRunner: appRunner);
 
   // Transaction indicating Flutter engine has rasterized the first frame.
   final ISentrySpan ready = Sentry.startTransaction(
@@ -267,8 +279,9 @@ Future<void> main() async {
     startTimestamp: DateTime.now().subtract(watch.elapsed),
   )..startChild('ready');
 
-  WidgetsBinding.instance.waitUntilFirstFrameRasterized
-      .then((_) => ready.finish());
+  WidgetsBinding.instance.waitUntilFirstFrameRasterized.then(
+    (_) => ready.finish(),
+  );
 }
 
 /// Initializes the [FlutterCallkitIncoming] and displays an incoming call
@@ -371,36 +384,38 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         subscription = provider
             .chatEvents(ChatId(message.data['chatId']), null, () => null)
             .listen((e) async {
-          var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
-          if (events.$$typename == 'ChatEventsVersioned') {
-            var mixin = events
-                as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
+              var events = ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+              if (events.$$typename == 'ChatEventsVersioned') {
+                var mixin =
+                    events
+                        as ChatEvents$Subscription$ChatEvents$ChatEventsVersioned;
 
-            for (var e in mixin.events) {
-              if (e.$$typename == 'EventChatCallFinished') {
-                await FlutterCallkitIncoming.endCall(
-                  (message.data['chatId'] as String).base62ToUuid(),
-                );
-              } else if (e.$$typename == 'EventChatCallMemberJoined') {
-                var node = e
-                    as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
-                if (node.user.id == credentials.userId) {
-                  await FlutterCallkitIncoming.endCall(
-                    (message.data['chatId'] as String).base62ToUuid(),
-                  );
-                }
-              } else if (e.$$typename == 'EventChatCallDeclined') {
-                var node =
-                    e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
-                if (node.user.id == credentials.userId) {
-                  await FlutterCallkitIncoming.endCall(
-                    (message.data['chatId'] as String).base62ToUuid(),
-                  );
+                for (var e in mixin.events) {
+                  if (e.$$typename == 'EventChatCallFinished') {
+                    await FlutterCallkitIncoming.endCall(
+                      (message.data['chatId'] as String).base62ToUuid(),
+                    );
+                  } else if (e.$$typename == 'EventChatCallMemberJoined') {
+                    var node =
+                        e
+                            as ChatEventsVersionedMixin$Events$EventChatCallMemberJoined;
+                    if (node.user.id == credentials.userId) {
+                      await FlutterCallkitIncoming.endCall(
+                        (message.data['chatId'] as String).base62ToUuid(),
+                      );
+                    }
+                  } else if (e.$$typename == 'EventChatCallDeclined') {
+                    var node =
+                        e as ChatEventsVersionedMixin$Events$EventChatCallDeclined;
+                    if (node.user.id == credentials.userId) {
+                      await FlutterCallkitIncoming.endCall(
+                        (message.data['chatId'] as String).base62ToUuid(),
+                      );
+                    }
+                  }
                 }
               }
-            }
-          }
-        });
+            });
 
         prefs = await SharedPreferences.getInstance();
         await prefs.remove('answeredCall');
@@ -434,18 +449,15 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         final FlutterLocalNotificationsPlugin plugin =
             FlutterLocalNotificationsPlugin();
 
-        Future.delayed(
-          const Duration(milliseconds: 16),
-          () async {
-            final notifications = await plugin.getActiveNotifications();
+        Future.delayed(const Duration(milliseconds: 16), () async {
+          final notifications = await plugin.getActiveNotifications();
 
-            for (var e in notifications) {
-              if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
-                plugin.cancel(e.id ?? 0, tag: e.tag);
-              }
+          for (var e in notifications) {
+            if (e.tag?.contains(thread ?? tag ?? '.....') == true) {
+              plugin.cancel(e.id ?? 0, tag: e.tag);
             }
-          },
-        );
+          }
+        });
       } else if (PlatformUtils.isIOS) {
         if (thread != null) {
           await IosUtils.cancelNotificationsContaining(thread);
@@ -502,8 +514,9 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MediaQuery(
-      data: MediaQuery.of(context)
-          .copyWith(textScaler: const TextScaler.linear(1)),
+      data: MediaQuery.of(
+        context,
+      ).copyWith(textScaler: const TextScaler.linear(1)),
       child: GetMaterialApp.router(
         routerDelegate: router.delegate,
         routeInformationParser: router.parser,

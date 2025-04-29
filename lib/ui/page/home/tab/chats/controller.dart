@@ -216,16 +216,18 @@ class ChatsTabController extends GetxController {
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
     // listening to its updates.
     Future<void> listenUpdates(ChatEntry chat) async {
-      final UserId? userId = chat.chat.value.members
-          .firstWhereOrNull((u) => u.user.id != me)
-          ?.user
-          .id;
+      final UserId? userId =
+          chat.chat.value.members
+              .firstWhereOrNull((u) => u.user.id != me)
+              ?.user
+              .id;
 
       if (userId != null) {
-        RxUser? rxUser = chat.members.values
-            .toList()
-            .firstWhereOrNull((u) => u.user.id != me)
-            ?.user;
+        RxUser? rxUser =
+            chat.members.values
+                .toList()
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user;
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
           _userSubscriptions.remove(userId)?.cancel();
@@ -258,10 +260,11 @@ class ChatsTabController extends GetxController {
           });
 
           if (event.value!.chat.value.isDialog) {
-            final UserId? userId = event.value!.chat.value.members
-                .firstWhereOrNull((u) => u.user.id != me)
-                ?.user
-                .id;
+            final UserId? userId =
+                event.value!.chat.value.members
+                    .firstWhereOrNull((u) => u.user.id != me)
+                    ?.user
+                    .id;
 
             _userSubscriptions.remove(userId)?.cancel();
           }
@@ -276,13 +279,15 @@ class ChatsTabController extends GetxController {
     });
 
     if (_chatService.status.value.isSuccess) {
-      SchedulerBinding.instance
-          .addPostFrameCallback((_) => _ensureScrollable());
+      SchedulerBinding.instance.addPostFrameCallback(
+        (_) => _ensureScrollable(),
+      );
     } else {
       _statusSubscription = _chatService.status.listen((status) {
         if (status.isSuccess) {
-          SchedulerBinding.instance
-              .addPostFrameCallback((_) => _ensureScrollable());
+          SchedulerBinding.instance.addPostFrameCallback(
+            (_) => _ensureScrollable(),
+          );
         }
       });
     }
@@ -465,10 +470,7 @@ class ChatsTabController extends GetxController {
   }
 
   /// Marks the specified [Chat] identified by its [id] as favorited.
-  Future<void> favoriteChat(
-    ChatId id, [
-    ChatFavoritePosition? position,
-  ]) async {
+  Future<void> favoriteChat(ChatId id, [ChatFavoritePosition? position]) async {
     try {
       await _chatService.favoriteChat(id, position);
     } on FavoriteChatException catch (e) {
@@ -521,11 +523,12 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user = chat.members.values
-        .firstWhereOrNull((e) => e.user.id != me)
-        ?.user
-        .user
-        .value;
+    final User? user =
+        chat.members.values
+            .firstWhereOrNull((e) => e.user.id != me)
+            ?.user
+            .user
+            .value;
     if (user == null) {
       return;
     }
@@ -548,14 +551,15 @@ class ChatsTabController extends GetxController {
     }
 
     try {
-      final ChatContactId? contactId = chat.members.values
-          .firstWhereOrNull((e) => e.user.id != me)
-          ?.user
-          .user
-          .value
-          .contacts
-          .firstOrNull
-          ?.id;
+      final ChatContactId? contactId =
+          chat.members.values
+              .firstWhereOrNull((e) => e.user.id != me)
+              ?.user
+              .user
+              .value
+              .contacts
+              .firstOrNull
+              ?.id;
 
       if (contactId != null) {
         await _contactService.deleteContact(contactId);
@@ -592,9 +596,9 @@ class ChatsTabController extends GetxController {
     }
 
     if (attachments.isNotEmpty) {
-      attachments
-          .whereType<LocalAttachment>()
-          .forEach(_chatService.uploadAttachment);
+      attachments.whereType<LocalAttachment>().forEach(
+        _chatService.uploadAttachment,
+      );
 
       await _chatService.sendChatMessage(id, attachments: attachments);
     }
@@ -642,13 +646,15 @@ class ChatsTabController extends GetxController {
       final RxChat chat = await _chatService.createGroupChat(
         {
           ...search.value!.selectedRecent.map((e) => e.id),
-          ...search.value!.selectedContacts
-              .expand((e) => e.contact.value.users.map((u) => u.id)),
+          ...search.value!.selectedContacts.expand(
+            (e) => e.contact.value.users.map((u) => u.id),
+          ),
           ...search.value!.selectedUsers.map((e) => e.id),
         }.where((e) => e != me).toList(),
       );
 
-      router.dialog(chat.chat.value, me);
+      router.chat(chat.id);
+      router.chatInfo(chat.id, push: true);
 
       closeGroupCreating();
     } on CreateGroupChatException catch (e) {
@@ -682,15 +688,16 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    final List<ChatEntry> favorites = chats
-        .where(
-          (e) =>
-              e.chat.value.ongoingCall == null &&
-              e.chat.value.favoritePosition != null &&
-              !e.chat.value.isHidden &&
-              !e.hidden.value,
-        )
-        .toList();
+    final List<ChatEntry> favorites =
+        chats
+            .where(
+              (e) =>
+                  e.chat.value.ongoingCall == null &&
+                  e.chat.value.favoritePosition != null &&
+                  !e.chat.value.isHidden &&
+                  !e.hidden.value,
+            )
+            .toList();
 
     double position;
 
@@ -699,7 +706,8 @@ class ChatsTabController extends GetxController {
     } else if (to >= favorites.length) {
       position = favorites.last.chat.value.favoritePosition!.val / 2;
     } else {
-      position = (favorites[to].chat.value.favoritePosition!.val +
+      position =
+          (favorites[to].chat.value.favoritePosition!.val +
               favorites[to - 1].chat.value.favoritePosition!.val) /
           2;
     }
@@ -935,17 +943,14 @@ class ChatEntry implements Comparable<ChatEntry> {
     _updatedAt = _chat.chat.value.updatedAt;
     _hasCall = _chat.chat.value.ongoingCall != null;
 
-    _worker = ever(
-      _chat.chat,
-      (Chat chat) {
-        bool hasCall = chat.ongoingCall != null;
-        if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
-          sort?.call();
-          _updatedAt = chat.updatedAt;
-          _hasCall = hasCall;
-        }
-      },
-    );
+    _worker = ever(_chat.chat, (Chat chat) {
+      bool hasCall = chat.ongoingCall != null;
+      if (chat.updatedAt != _updatedAt || hasCall != _hasCall) {
+        sort?.call();
+        _updatedAt = chat.updatedAt;
+        _hasCall = hasCall;
+      }
+    });
   }
 
   /// Indicator whether this [ChatEntry] is hidden.

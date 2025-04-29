@@ -115,12 +115,13 @@ class ChatForwardController extends GetxController {
         send.field.editable.value = false;
 
         try {
-          final List<Future> uploads = send.attachments
-              .map((e) => e.value)
-              .whereType<LocalAttachment>()
-              .map((e) => e.upload.value?.future)
-              .nonNulls
-              .toList();
+          final List<Future> uploads =
+              send.attachments
+                  .map((e) => e.value)
+                  .whereType<LocalAttachment>()
+                  .map((e) => e.upload.value?.future)
+                  .nonNulls
+                  .toList();
           if (uploads.isNotEmpty) {
             await Future.wait(uploads);
           }
@@ -133,9 +134,10 @@ class ChatForwardController extends GetxController {
             );
           }
 
-          final List<AttachmentId>? attachments = send.attachments.isEmpty
-              ? null
-              : send.attachments.map((a) => a.value.id).toList();
+          final List<AttachmentId>? attachments =
+              send.attachments.isEmpty
+                  ? null
+                  : send.attachments.map((a) => a.value.id).toList();
 
           final ChatMessageText? text =
               send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
@@ -158,24 +160,21 @@ class ChatForwardController extends GetxController {
             ...selected.value!.chats.map((e) {
               return _chatService
                   .forwardChatItems(
-                from,
-                e.chat.value.id,
-                quotes,
-                text: text,
-                attachments: attachments,
-              )
-                  .onError<ForwardChatItemsException>(
-                (_, __) async {
-                  await showBlockedPopup(
-                    e.members.values
-                        .firstWhereOrNull((u) => u.user.id != me)
-                        ?.user
-                        .user
-                        .value,
-                  );
-                },
-                test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
-              );
+                    from,
+                    e.chat.value.id,
+                    quotes,
+                    text: text,
+                    attachments: attachments,
+                  )
+                  .onError<ForwardChatItemsException>((_, __) async {
+                    await showBlockedPopup(
+                      e.members.values
+                          .firstWhereOrNull((u) => u.user.id != me)
+                          ?.user
+                          .user
+                          .value,
+                    );
+                  }, test: (e) => e.code == ForwardChatItemsErrorCode.blocked);
             }),
             ...selected.value!.users.map((u) {
               final User user = u.user.value;
@@ -210,7 +209,7 @@ class ChatForwardController extends GetxController {
                     (_, __) => showBlockedPopup(user),
                     test: (e) => e.code == ForwardChatItemsErrorCode.blocked,
                   );
-            })
+            }),
           ];
 
           await Future.wait(futures);

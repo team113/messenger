@@ -104,12 +104,12 @@ void main() async {
     finished.clear();
     futures.clear();
     for (var i = 0; i < requests * 2; ++i) {
-      futures.add(limiter.execute(
-        () async {
+      futures.add(
+        limiter.execute(() async {
           await Future.delayed(per * 5);
           return i;
-        },
-      )..then((v) => finished.add(v)));
+        })..then((v) => finished.add(v)),
+      );
     }
 
     // Wait for [RateLimiter.execute]s to process.

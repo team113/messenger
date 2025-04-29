@@ -39,9 +39,10 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
     this.constrained = false,
     bool big = false,
-  }) : size = constrained
-            ? null
-            : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
+  }) : size =
+           constrained
+               ? null
+               : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
   /// [SvgData] to display.
   final SvgData? asset;
@@ -89,10 +90,13 @@ class CallButtonWidget extends StatelessWidget {
       child: RoundFloatingButton(
         icon: asset,
         offset: offset,
-        color: color ??
+        color:
+            color ??
             (opaque
                 ? style.colors.onSecondaryOpacity88
-                : style.colors.onSecondaryOpacity50),
+                : onPressed == null
+                ? style.colors.onBackgroundOpacity7
+                : style.colors.onPrimaryOpacity10),
         hint: !expanded && hinted ? hint : null,
         text: expanded || constrained ? hint : null,
         minified: !constrained,

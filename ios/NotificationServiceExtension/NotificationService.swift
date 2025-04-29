@@ -36,12 +36,13 @@ class NotificationService: UNNotificationServiceExtension {
         }
       }
 
-      if (request.content.title == "Canceled" && request.content.body.isEmpty) {
+      if request.content.title == "Canceled" && request.content.body.isEmpty {
         if let thread = userInfo["thread"] as? String {
-          let center = UNUserNotificationCenter.current();
-          let notifications = await center.deliveredNotifications();
+          let center = UNUserNotificationCenter.current()
+          let notifications = await center.deliveredNotifications()
 
-          if (!notifications.filter{$0.request.content.threadIdentifier.contains(thread)}.isEmpty) {
+          if !notifications.filter { $0.request.content.threadIdentifier.contains(thread) }.isEmpty
+          {
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
           } else {
@@ -49,7 +50,7 @@ class NotificationService: UNNotificationServiceExtension {
             cancelNotificationsContaining(thread: thread)
             try? await Task.sleep(nanoseconds: UInt64(0.01 * Double(NSEC_PER_SEC)))
             cancelNotificationsContaining(thread: thread)
-            return;
+            return
           }
         } else if let tag = userInfo["tag"] as? String {
           cancelNotification(tag: tag)
@@ -79,7 +80,9 @@ class NotificationService: UNNotificationServiceExtension {
   }
 
   func acknowledgeDelivery(chatId: String) async {
-    if let containerURL = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: "group.com.team113.messenger") {
+    if let containerURL = FileManager.default.containerURL(
+      forSecurityApplicationGroupIdentifier: "group.com.team113.messenger")
+    {
       let db = try! Connection("\(containerURL)common.sqlite")
 
       // TODO: Need to understand to who this notification was delivered to.
@@ -91,6 +94,9 @@ class NotificationService: UNNotificationServiceExtension {
 
       if let user = try! db.pluck(accounts) {
         let accountId = user[userId]
+
+        let locks = LockProvider(db: db)
+        let lock = await locks?.acquireLock(asOperation: "refreshSession(\(userId))")
 
         let query = tokens.select(credentials).where(userId == accountId).limit(1)
         let account = try! db.pluck(query)
@@ -109,28 +115,32 @@ class NotificationService: UNNotificationServiceExtension {
 
         var fresh = creds
 
-       if Date() > creds.access.expireAt {
-         if #available(iOS 12.0, macOS 12.0, *) {
-           if let refreshed = await refreshToken(creds: creds) {
-             fresh = refreshed
+        if Date() > creds.access.expireAt {
+          if #available(iOS 12.0, macOS 12.0, *) {
+            if let refreshed = await refreshToken(creds: creds) {
+              fresh = refreshed
 
-             let encoder = JSONEncoder()
-             let dateFormatter = DateFormatter()
-             dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
-             dateFormatter.locale = Locale(identifier: "en_US")
-             dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
-             encoder.dateEncodingStrategy = .formatted(dateFormatter)
+              let encoder = JSONEncoder()
+              let dateFormatter = DateFormatter()
+              dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss.mmmZ"
+              dateFormatter.locale = Locale(identifier: "en_US")
+              dateFormatter.timeZone = TimeZone(secondsFromGMT: 0)
+              encoder.dateEncodingStrategy = .formatted(dateFormatter)
 
-             let jsonData = try! encoder.encode(refreshed)
-             let json = String(data: jsonData, encoding: String.Encoding.utf8)
+              let jsonData = try! encoder.encode(refreshed)
+              let json = String(data: jsonData, encoding: String.Encoding.utf8)
 
-             try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
-           }
-         }
-       }
+              try! db.run(tokens.insert(or: .replace, userId <- accountId, credentials <- json!))
+            }
+          }
+        }
 
         if #available(iOS 12.0, macOS 12.0, *) {
           await sendDelivery(creds: fresh, chatId: chatId)
+        }
+
+        if lock != nil {
+          await locks?.releaseLock(holder: lock!)
         }
       }
     }
@@ -162,9 +172,9 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-    let baseUrl = defaults!.value(forKey: "url") as! String;
-    let endpoint = defaults!.value(forKey: "endpoint") as! String;
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
 
     if let url = URL(string: baseUrl + endpoint) {
       var request = URLRequest(url: url)
@@ -221,9 +231,9 @@ class NotificationService: UNNotificationServiceExtension {
       """
     ]
 
-    let defaults = UserDefaults(suiteName: "group.com.team113.messenger");
-    let baseUrl = defaults!.value(forKey: "url") as! String;
-    let endpoint = defaults!.value(forKey: "endpoint") as! String;
+    let defaults = UserDefaults(suiteName: "group.com.team113.messenger")
+    let baseUrl = defaults!.value(forKey: "url") as! String
+    let endpoint = defaults!.value(forKey: "endpoint") as! String
 
     if let url = URL(string: baseUrl + endpoint) {
       var request = URLRequest(url: url)
@@ -281,22 +291,101 @@ class NotificationService: UNNotificationServiceExtension {
   /// Remove the delivered notification with the provided tag.
   private func cancelNotification(tag: String) {
     if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current();
-      center.removeDeliveredNotifications(withIdentifiers: [tag]);
+      let center = UNUserNotificationCenter.current()
+      center.removeDeliveredNotifications(withIdentifiers: [tag])
     }
   }
 
   /// Remove the delivered notifications containing the provided thread.
   private func cancelNotificationsContaining(thread: String) {
     if #available(iOS 10.0, *) {
-      let center = UNUserNotificationCenter.current();
+      let center = UNUserNotificationCenter.current()
       center.getDeliveredNotifications { (notifications) in
         for notification in notifications {
-          if (notification.request.content.threadIdentifier.contains(thread) == true) {
-            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier]);
+          if notification.request.content.threadIdentifier.contains(thread) == true {
+            center.removeDeliveredNotifications(withIdentifiers: [notification.request.identifier])
           }
         }
       }
+    }
+  }
+
+  class LockProvider {
+    let db: Connection
+
+    required init?(db: Connection) {
+      self.db = db
+    }
+
+    func acquireLock(asOperation: String) async -> String {
+      let identifier: String = UUID().uuidString
+
+      // Time in microseconds to consider `lockedAt` value as being outdated
+      // or stale, so it can be safely overwritten.
+      let lockedAtTtl: Int = 30_000_000 // 30s
+
+      let retryDelay = UInt64(0.2 * Double(NSEC_PER_SEC)) // 200ms
+
+      var acquired: Bool = false
+      while !acquired {
+        let now: Date = Date()
+        let now_timestamp: TimeInterval = now.timeIntervalSince1970
+        let now_microseconds: Int = Int(now_timestamp * 1_000_000)
+
+        // TODO: Replace with `SQLite.swift` statement methods when `RETURNING`
+        //       and `DO UPDATE ... WHERE` are supported.
+        let sql = """
+          INSERT OR ROLLBACK INTO locks (operation, holder, locked_at)
+          VALUES (?, ?, ?)
+          ON CONFLICT(operation) DO UPDATE
+          SET holder = excluded.holder,
+              locked_at = excluded.locked_at
+          WHERE IFNULL(locked_at, 0) <= excluded.locked_at - ?
+          RETURNING *;
+          """
+
+        let statement = try? db.prepare(sql)
+        if let rows = try? statement?.run(
+          asOperation,
+          identifier,
+          now_microseconds,
+          lockedAtTtl
+        ) {
+          for row in rows {
+            let returnedHolder = row[1] as? String
+            acquired = returnedHolder == identifier
+          }
+        }
+
+        if !acquired {
+          let locksTable = Table("locks")
+          let holderColumn = SQLite.Expression<String>("holder")
+
+          // Run `SELECT` to check if the lock is held by the identifier, since
+          // the previous `INSERT OR ROLLBACK` might not return any rows even if
+          // the query was successful, which seems like a bug in `SQLite.swift`.
+          if let lockOrNil = try? db.pluck(
+            locksTable.select(holderColumn).where(holderColumn == identifier))
+          {
+            if let returnedHolder = try? lockOrNil.get(holderColumn) {
+              acquired = returnedHolder == identifier
+            }
+          }
+
+          if !acquired {
+            try? await Task.sleep(nanoseconds: retryDelay)
+          }
+        }
+      }
+
+      return identifier
+    }
+
+    func releaseLock(holder: String) async {
+      let locksTable = Table("locks")
+      let holderColumn = SQLite.Expression<String>("holder")
+
+      try? db.run(locksTable.filter(holderColumn == holder).delete())
     }
   }
 }

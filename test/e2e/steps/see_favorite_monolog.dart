@@ -31,11 +31,11 @@ import '../world/custom_world.dart';
 /// - Then I see monolog as favorite
 /// - Then I see monolog as unfavorite
 final StepDefinitionGeneric seeMonologAsFavorite =
-    then1<FavoriteStatus, CustomWorld>(
-  'I see monolog as {favorite}',
-  (status, context) async {
-    await context.world.appDriver.waitUntil(
-      () async {
+    then1<FavoriteStatus, CustomWorld>('I see monolog as {favorite}', (
+      status,
+      context,
+    ) async {
+      await context.world.appDriver.waitUntil(() async {
         await context.world.appDriver.waitForAppToSettle();
 
         final ChatId monolog = Get.find<ChatService>().monolog;
@@ -43,18 +43,17 @@ final StepDefinitionGeneric seeMonologAsFavorite =
         switch (status) {
           case FavoriteStatus.favorite:
             return await context.world.appDriver.isPresent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
+              context.world.appDriver.findByKeySkipOffstage(
+                'FavoriteIndicator_$monolog',
+              ),
             );
 
           case FavoriteStatus.unfavorite:
             return await context.world.appDriver.isAbsent(
-              context.world.appDriver
-                  .findByKeySkipOffstage('FavoriteIndicator_$monolog'),
+              context.world.appDriver.findByKeySkipOffstage(
+                'FavoriteIndicator_$monolog',
+              ),
             );
         }
-      },
-      timeout: const Duration(seconds: 30),
-    );
-  },
-);
+      }, timeout: const Duration(seconds: 30));
+    });

@@ -22,10 +22,9 @@ import 'package:drift/drift.dart';
 import 'package:flutter/rendering.dart' show Rect;
 
 import '/domain/model/chat.dart';
-import '/domain/model/user.dart';
 import 'drift.dart';
 
-/// [User] to be stored in a [Table].
+/// [Rect]s associated with a [ChatId] to be stored in a [Table].
 @DataClassName('CallRectangleRow')
 class CallRectangles extends Table {
   @override
@@ -61,7 +60,9 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
 
     await safe((db) async {
       final Rect stored = _RectDb.fromDb(
-        await db.into(db.callRectangles).insertReturning(
+        await db
+            .into(db.callRectangles)
+            .insertReturning(
               rect.toDb(chatId),
               mode: InsertMode.insertOrReplace,
             ),
@@ -114,16 +115,14 @@ class CallRectDriftProvider extends DriftProviderBaseWithScope {
 
   /// Returns all the [Rect] stored in the database.
   Future<List<(ChatId, Rect)>> _all() async {
-    final result = await safe<List<(ChatId, Rect)>?>(
-      (db) async {
-        final result = await db.select(db.callRectangles).get();
-        return result
-            .map((e) =>
-                (ChatId(e.chatId), _RectJson.fromJson(jsonDecode(e.rect))))
-            .toList();
-      },
-      exclusive: false,
-    );
+    final result = await safe<List<(ChatId, Rect)>?>((db) async {
+      final result = await db.select(db.callRectangles).get();
+      return result
+          .map(
+            (e) => (ChatId(e.chatId), _RectJson.fromJson(jsonDecode(e.rect))),
+          )
+          .toList();
+    }, exclusive: false);
 
     return result ?? [];
   }

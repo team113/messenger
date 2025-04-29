@@ -105,9 +105,10 @@ class MessageInfo extends StatelessWidget {
                 child: SizedBox(
                   height: 50,
                   child: CustomAppBar(
-                    border: !c.search.isEmpty.value || c.search.isFocused.value
-                        ? Border.all(color: style.colors.primary, width: 2)
-                        : null,
+                    border:
+                        !c.search.isEmpty.value || c.search.isFocused.value
+                            ? Border.all(color: style.colors.primary, width: 2)
+                            : null,
                     margin: const EdgeInsets.only(top: 4),
                     title: Theme(
                       data: MessageFieldView.theme(context),
@@ -130,7 +131,7 @@ class MessageInfo extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(left: 20, right: 12),
                         child: SvgIcon(SvgIcons.search),
-                      )
+                      ),
                     ],
                     actions: [
                       Obx(() {
@@ -165,9 +166,9 @@ class MessageInfo extends StatelessWidget {
                     child: Obx(() {
                       final users = c.users.where((u) {
                         if (c.query.isNotEmpty) {
-                          return u.user.value.name?.val
-                                  .toLowerCase()
-                                  .contains(c.query.toLowerCase()) ==
+                          return u.user.value.name?.val.toLowerCase().contains(
+                                c.query.toLowerCase(),
+                              ) ==
                               true;
                         }
 

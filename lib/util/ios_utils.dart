@@ -34,8 +34,9 @@ class IosUtils {
 
   /// Removes the delivered notifications containing the provided [thread].
   static Future<bool> cancelNotificationsContaining(String thread) async {
-    return await _platform
-        .invokeMethod('cancelNotificationsContaining', {'thread': thread});
+    return await _platform.invokeMethod('cancelNotificationsContaining', {
+      'thread': thread,
+    });
   }
 
   /// Returns the directory that is shared among both application and its

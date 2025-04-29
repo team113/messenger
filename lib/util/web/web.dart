@@ -29,6 +29,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart'
     show NotificationResponse, NotificationResponseType;
 import 'package:flutter_web_plugins/flutter_web_plugins.dart';
+import 'package:hotkey_manager/hotkey_manager.dart';
+import 'package:http/http.dart' show Client;
 import 'package:mutex/mutex.dart';
 import 'package:platform_detect/platform_detect.dart';
 import 'package:uuid/uuid.dart';
@@ -130,8 +132,15 @@ class WebUtils {
   /// Callback, called when user taps on a notification.
   static void Function(NotificationResponse)? onSelectNotification;
 
+  /// Indicator whether this device has a PWA installed.
+  static bool hasPwa = false;
+
   /// [Mutex]es guarding the [protect] method.
   static final Map<String, Mutex> _guards = {};
+
+  /// Handlers for [HotKey]s intended to be manipulated via [bindKey] and
+  /// [unbindKey] to invoke [_handleBindKeys].
+  static final Map<HotKey, List<bool Function()>> _keyHandlers = {};
 
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
@@ -166,12 +175,18 @@ class WebUtils {
           'webkitfullscreenchange',
           fullscreenListener.toJS,
         );
-        web.document
-            .addEventListener('mozfullscreenchange', fullscreenListener.toJS);
-        web.document
-            .addEventListener('fullscreenchange', fullscreenListener.toJS);
-        web.document
-            .addEventListener('MSFullscreenChange', fullscreenListener.toJS);
+        web.document.addEventListener(
+          'mozfullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.addEventListener(
+          'fullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.addEventListener(
+          'MSFullscreenChange',
+          fullscreenListener.toJS,
+        );
       },
       onCancel: () {
         web.document.removeEventListener(
@@ -182,10 +197,14 @@ class WebUtils {
           'mozfullscreenchange',
           fullscreenListener.toJS,
         );
-        web.document
-            .removeEventListener('fullscreenchange', fullscreenListener.toJS);
-        web.document
-            .removeEventListener('MSFullscreenChange', fullscreenListener.toJS);
+        web.document.removeEventListener(
+          'fullscreenchange',
+          fullscreenListener.toJS,
+        );
+        web.document.removeEventListener(
+          'MSFullscreenChange',
+          fullscreenListener.toJS,
+        );
       },
     );
 
@@ -309,6 +328,11 @@ class WebUtils {
     return _guards['mutex']?.isLocked == true || held;
   }
 
+  /// Returns custom [Client] to use for HTTP requests.
+  static Client? get httpClient {
+    return null;
+  }
+
   /// Removes [Credentials] identified by the provided [UserId] from the
   /// browser's storage.
   static void removeCredentials(UserId userId) {
@@ -359,10 +383,8 @@ class WebUtils {
         return callback()
             .then((val) => completer.complete(val))
             .onError(
-              (e, stackTrace) => completer.completeError(
-                e ?? Exception(),
-                stackTrace,
-              ),
+              (e, stackTrace) =>
+                  completer.completeError(e ?? Exception(), stackTrace),
             )
             .toJS;
       }
@@ -463,10 +485,13 @@ class WebUtils {
     final notification = web.Notification(title, options);
 
     void fn(web.Event _) {
-      onSelectNotification?.call(NotificationResponse(
-        notificationResponseType: NotificationResponseType.selectedNotification,
-        payload: notification.lang,
-      ));
+      onSelectNotification?.call(
+        NotificationResponse(
+          notificationResponseType:
+              NotificationResponseType.selectedNotification,
+          payload: notification.lang,
+        ),
+      );
       notification.close();
     }
 
@@ -615,8 +640,9 @@ class WebUtils {
 
   /// Sets the [prefs] as the provided call's popup window preferences.
   static void setCallRect(ChatId chatId, Rect prefs) =>
-      web.window.localStorage['prefs_call_$chatId'] =
-          json.encode(prefs.toJson());
+      web.window.localStorage['prefs_call_$chatId'] = json.encode(
+        prefs.toJson(),
+      );
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) {
@@ -665,11 +691,13 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        final StreamController controller = StreamController(onCancel: () {
-          for (var e in stream.getTracks().toDart) {
-            e.stop();
-          }
-        });
+        final StreamController controller = StreamController(
+          onCancel: () {
+            for (var e in stream.getTracks().toDart) {
+              e.stop();
+            }
+          },
+        );
 
         return controller.stream.listen((_) {});
       } else {
@@ -702,11 +730,13 @@ class WebUtils {
           .toDart;
 
       if (isFirefox) {
-        final StreamController controller = StreamController(onCancel: () {
-          for (var e in stream.getTracks().toDart) {
-            e.stop();
-          }
-        });
+        final StreamController controller = StreamController(
+          onCancel: () {
+            for (var e in stream.getTracks().toDart) {
+              e.stop();
+            }
+          },
+        );
 
         return controller.stream.listen((_) {});
       } else {
@@ -807,6 +837,77 @@ class WebUtils {
     return info.userAgent ??
         '${Config.userAgentProduct}/${Config.userAgentVersion}';
   }
+
+  /// Binds the [handler] to be invoked on the [key] presses.
+  static Future<void> bindKey(HotKey key, bool Function() handler) async {
+    if (_keyHandlers.isEmpty) {
+      HardwareKeyboard.instance.addHandler(_handleBindKeys);
+    }
+
+    final List<bool Function()>? contained = _keyHandlers[key];
+    if (contained == null) {
+      _keyHandlers[key] = [handler];
+    } else {
+      contained.add(handler);
+    }
+  }
+
+  /// Unbinds the [handler] from the [key].
+  static Future<void> unbindKey(HotKey key, bool Function() handler) async {
+    final list = _keyHandlers[key];
+    list?.remove(handler);
+
+    if (list?.isEmpty == true) {
+      _keyHandlers.remove(key);
+    }
+
+    if (_keyHandlers.isEmpty) {
+      HardwareKeyboard.instance.removeHandler(_handleBindKeys);
+    }
+  }
+
+  /// Handles the [key] event to invoke [_keyHandlers] related to it.
+  static bool _handleBindKeys(KeyEvent key) {
+    if (key is KeyUpEvent) {
+      for (var e in _keyHandlers.entries) {
+        if (e.key.key == key.physicalKey) {
+          bool modifiers = true;
+
+          for (var m in e.key.modifiers ?? <HotKeyModifier>[]) {
+            modifiers = modifiers &&
+                switch (m) {
+                  HotKeyModifier.alt => HardwareKeyboard.instance.isAltPressed,
+                  HotKeyModifier.capsLock => HardwareKeyboard.instance
+                      .isPhysicalKeyPressed(PhysicalKeyboardKey.capsLock),
+                  HotKeyModifier.control =>
+                    HardwareKeyboard.instance.isControlPressed,
+                  HotKeyModifier.fn => HardwareKeyboard.instance
+                      .isPhysicalKeyPressed(PhysicalKeyboardKey.fn),
+                  HotKeyModifier.meta =>
+                    HardwareKeyboard.instance.isMetaPressed,
+                  HotKeyModifier.shift =>
+                    HardwareKeyboard.instance.isShiftPressed,
+                };
+          }
+
+          if (modifiers) {
+            for (var f in e.value) {
+              if (f()) {
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /// Refreshes the current browser's page.
+  static Future<void> refresh() async {
+    web.window.location.reload();
+  }
 }
 
 /// Extension adding JSON manipulation methods to a [Rect].
@@ -820,10 +921,6 @@ extension _RectExtension on Rect {
       };
 
   /// Constructs a [Rect] from the provided [data].
-  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
-        (data['left'] as num).toDouble(),
-        (data['top'] as num).toDouble(),
-        (data['width'] as num).toDouble(),
-        (data['height'] as num).toDouble(),
-      );
+  static Rect fromJson(Map<dynamic, dynamic> data) =>
+      Rect.fromLTWH(data['left'], data['top'], data['width'], data['height']);
 }

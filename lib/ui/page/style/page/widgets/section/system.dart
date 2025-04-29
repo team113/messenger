@@ -36,7 +36,7 @@ class SystemSection {
               UnreadCounter(1),
               UnreadCounter(10),
               UnreadCounter(90),
-              UnreadCounter(100)
+              UnreadCounter(100),
             ],
           ),
         ),

@@ -23,17 +23,13 @@ enum MessageSentStatus { sending, sent, error, read, halfRead }
 /// [CustomParameter] representing a [MessageSentStatus].
 class MessageSentStatusParameter extends CustomParameter<MessageSentStatus> {
   MessageSentStatusParameter()
-      : super(
-          'sending',
-          RegExp('(sending|sent|error|read|half read)'),
-          (c) {
-            switch (c) {
-              case 'half read':
-                return MessageSentStatus.halfRead;
+    : super('sending', RegExp('(sending|sent|error|read|half read)'), (c) {
+        switch (c) {
+          case 'half read':
+            return MessageSentStatus.halfRead;
 
-              default:
-                return MessageSentStatus.values.firstWhere((e) => e.name == c);
-            }
-          },
-        );
+          default:
+            return MessageSentStatus.values.firstWhere((e) => e.name == c);
+        }
+      });
 }

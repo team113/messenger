@@ -19,12 +19,7 @@ import '../chat.dart';
 import '/domain/model/chat.dart';
 
 /// Possible kinds of a [RecentChatsEvent].
-enum RecentChatsEventKind {
-  initialized,
-  list,
-  updated,
-  deleted,
-}
+enum RecentChatsEventKind { initialized, list, updated, deleted }
 
 /// Events happening with the recent [Chat]s list.
 abstract class RecentChatsEvent {

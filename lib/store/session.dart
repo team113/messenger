@@ -237,25 +237,26 @@ class SessionRepository extends DisposableInterface
 
     _remoteSubscription?.cancel(immediate: true);
 
-    await WebUtils.protect(
-      () async {
-        _remoteSubscription = StreamQueue(
-          await _sessionRemoteEvents(
-            _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
-          ),
-        );
+    await WebUtils.protect(() async {
+      _remoteSubscription = StreamQueue(
+        await _sessionRemoteEvents(
+          () => _versionLocal.data[_accountLocal.userId]?.sessionsListVersion,
+        ),
+      );
 
-        await _remoteSubscription!.execute(
-          _sessionRemoteEvent,
-          onError: (e) {
-            if (e is StaleVersionException) {
-              sessions.clear();
-            }
-          },
-        );
-      },
-      tag: 'sessionsEvents',
-    );
+      await _remoteSubscription!.execute(
+        _sessionRemoteEvent,
+        onError: (e) {
+          if (e is StaleVersionException) {
+            _versionLocal.upsert(
+              _accountLocal.userId!,
+              sessionsListVersion: NewType(null),
+            );
+            sessions.clear();
+          }
+        },
+      );
+    }, tag: 'sessionsEvents');
   }
 
   /// Handles [SessionEvent] from the [_sessionRemoteEvents] subscription.
@@ -281,7 +282,7 @@ class SessionRepository extends DisposableInterface
     if (_accountLocal.userId != null) {
       _versionLocal.upsert(
         _accountLocal.userId!,
-        SessionData(sessionsListVersion: versioned.listVer),
+        sessionsListVersion: NewType(versioned.listVer),
       );
     }
 
@@ -332,7 +333,7 @@ class SessionRepository extends DisposableInterface
 
   /// Subscribes to remote [SessionEvent]s of the authenticated [MyUser].
   Future<Stream<SessionEventsVersioned>> _sessionRemoteEvents(
-    SessionsListVersion? ver,
+    SessionsListVersion? Function() ver,
   ) async {
     Log.debug('_sessionRemoteEvents(ver)', '$runtimeType');
 
@@ -360,7 +361,7 @@ class SessionRepository extends DisposableInterface
         if (_accountLocal.userId != null) {
           _versionLocal.upsert(
             _accountLocal.userId!,
-            SessionData(sessionsListVersion: e.listVer),
+            sessionsListVersion: NewType(e.listVer),
           );
         }
 
@@ -413,7 +414,8 @@ class SessionRepository extends DisposableInterface
     });
 
     void apply(List<ConnectivityResult> result) {
-      _hasNetwork = result.contains(ConnectivityResult.wifi) ||
+      _hasNetwork =
+          result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||
           result.contains(ConnectivityResult.mobile) ||
           result.contains(ConnectivityResult.vpn) ||
@@ -424,8 +426,9 @@ class SessionRepository extends DisposableInterface
 
     try {
       apply(await Connectivity().checkConnectivity());
-      _connectivitySubscription =
-          Connectivity().onConnectivityChanged.listen(apply);
+      _connectivitySubscription = Connectivity().onConnectivityChanged.listen(
+        apply,
+      );
     } on MissingPluginException {
       // No-op.
     }
@@ -434,12 +437,9 @@ class SessionRepository extends DisposableInterface
 
 /// [RxSession] implementation.
 class RxSessionImpl extends RxSession {
-  RxSessionImpl(
-    this._repository,
-    Session session, {
-    IpGeoLocation? geo,
-  })  : session = Rx(session),
-        geo = Rx(geo);
+  RxSessionImpl(this._repository, Session session, {IpGeoLocation? geo})
+    : session = Rx(session),
+      geo = Rx(geo);
 
   @override
   final Rx<Session> session;

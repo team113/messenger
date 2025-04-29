@@ -209,6 +209,12 @@ class SettingsRepository extends DisposableInterface
     await _set(settings: (e) => e..workWithUsTabEnabled = enabled);
   }
 
+  @override
+  Future<void> setMuteKeys(List<String>? keys) async {
+    Log.debug('setMuteKeys($keys)', '$runtimeType');
+    await _set(settings: (e) => e..muteKeys = keys?.toList());
+  }
+
   /// Stores the provided [ApplicationSettings] and [MediaSettings] to the local
   /// storage.
   Future<void> _set({
@@ -221,10 +227,13 @@ class SettingsRepository extends DisposableInterface
 
     applicationSettings.value =
         settings?.call(applicationSettings.value ?? ApplicationSettings()) ??
-            applicationSettings.value;
+        applicationSettings.value;
+    applicationSettings.refresh();
 
-    mediaSettings.value = media?.call(mediaSettings.value ?? MediaSettings()) ??
+    mediaSettings.value =
+        media?.call(mediaSettings.value ?? MediaSettings()) ??
         mediaSettings.value;
+    mediaSettings.refresh();
 
     await _settingsLocal.upsert(
       userId,

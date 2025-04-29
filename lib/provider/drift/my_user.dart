@@ -183,12 +183,10 @@ class MyUserDriftProvider extends DriftProviderBase {
         _controllers[id] = controller;
       }
 
-      return StreamGroup.merge(
-        [
-          controller.stream,
-          stmt.watch().map((e) => e.isEmpty ? null : _MyUserDb.fromDb(e.first)),
-        ],
-      );
+      return StreamGroup.merge([
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : _MyUserDb.fromDb(e.first)),
+      ]);
     });
   }
 }
@@ -207,27 +205,31 @@ extension _MyUserDb on DtoMyUser {
         hasPassword: e.hasPassword,
         emails: MyUserEmails.fromJson(jsonDecode(e.emails)),
         phones: MyUserPhones.fromJson(jsonDecode(e.phones)),
-        chatDirectLink: e.chatDirectLink == null
-            ? null
-            : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
+        chatDirectLink:
+            e.chatDirectLink == null
+                ? null
+                : ChatDirectLink.fromJson(jsonDecode(e.chatDirectLink!)),
         unreadChatsCount: e.unreadChatsCount,
         status: e.status == null ? null : UserTextStatus.tryParse(e.status!),
-        avatar: e.avatar == null
-            ? null
-            : UserAvatar.fromJson(jsonDecode(e.avatar!)),
-        callCover: e.callCover == null
-            ? null
-            : UserCallCover.fromJson(jsonDecode(e.callCover!)),
+        avatar:
+            e.avatar == null
+                ? null
+                : UserAvatar.fromJson(jsonDecode(e.avatar!)),
+        callCover:
+            e.callCover == null
+                ? null
+                : UserCallCover.fromJson(jsonDecode(e.callCover!)),
         presenceIndex: e.presenceIndex,
         online: e.online,
-        muted: e.muted == null
-            ? null
-            : MuteDuration.fromJson(jsonDecode(e.muted!)),
-        blocklistCount: e.blocklistCount,
+        muted:
+            e.muted == null
+                ? null
+                : MuteDuration.fromJson(jsonDecode(e.muted!)),
         lastSeenAt: e.lastSeenAt,
-        welcomeMessage: e.welcomeMessage == null
-            ? null
-            : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
+        welcomeMessage:
+            e.welcomeMessage == null
+                ? null
+                : WelcomeMessage.fromJson(jsonDecode(e.welcomeMessage!)),
       ),
       MyUserVersion(e.ver),
     );
@@ -244,24 +246,26 @@ extension _MyUserDb on DtoMyUser {
       hasPassword: value.hasPassword,
       emails: jsonEncode(value.emails.toJson()),
       phones: jsonEncode(value.phones.toJson()),
-      chatDirectLink: value.chatDirectLink == null
-          ? null
-          : jsonEncode(value.chatDirectLink?.toJson()),
+      chatDirectLink:
+          value.chatDirectLink == null
+              ? null
+              : jsonEncode(value.chatDirectLink?.toJson()),
       unreadChatsCount: value.unreadChatsCount,
       status: value.status?.val,
       avatar: value.avatar == null ? null : jsonEncode(value.avatar?.toJson()),
-      callCover: value.callCover == null
-          ? null
-          : jsonEncode(value.callCover?.toJson()),
+      callCover:
+          value.callCover == null
+              ? null
+              : jsonEncode(value.callCover?.toJson()),
       presenceIndex: value.presenceIndex,
       online: value.online,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
-      blocklistCount: value.blocklistCount,
       lastSeenAt: value.lastSeenAt,
       ver: ver.val,
-      welcomeMessage: value.welcomeMessage == null
-          ? null
-          : jsonEncode(value.welcomeMessage?.toJson()),
+      welcomeMessage:
+          value.welcomeMessage == null
+              ? null
+              : jsonEncode(value.welcomeMessage?.toJson()),
     );
   }
 }

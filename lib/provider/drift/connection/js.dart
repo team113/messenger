@@ -26,80 +26,84 @@ import '/util/web/web.dart';
 
 /// Obtains a database connection for running `drift` on the web.
 QueryExecutor connect([UserId? userId]) {
-  return DatabaseConnection.delayed(Future(() async {
-    final String dbName = userId?.val ?? 'common';
+  return DatabaseConnection.delayed(
+    Future(() async {
+      final String dbName = userId?.val ?? 'common';
 
-    // TODO: Uncomment, when [WasmStorageImplementation.opfsLocks] doesn't throw
-    //       file I/O errors in Chromium browsers.
-    // final result = await WasmDatabase.open(
-    //   databaseName: dbName,
-    //   sqlite3Uri: Uri.parse('sqlite3.wasm'),
-    //   driftWorkerUri: Uri.parse('drift_worker.js'),
-    // );
-    //
-    // Log.info('Using ${result.chosenImplementation} for `drift` backend.');
-    //
-    // if (result.missingFeatures.isNotEmpty) {
-    //   Log.warning(
-    //     'Browser misses the following features in order for `drift` to be as performant as possible: ${result.missingFeatures}',
-    //   );
-    // }
-    //
-    // return result.resolvedExecutor;
+      // TODO: Uncomment, when [WasmStorageImplementation.opfsLocks] doesn't throw
+      //       file I/O errors in Chromium browsers.
+      // final result = await WasmDatabase.open(
+      //   databaseName: dbName,
+      //   sqlite3Uri: Uri.parse('sqlite3.wasm'),
+      //   driftWorkerUri: Uri.parse('drift_worker.js'),
+      // );
+      //
+      // Log.info('Using ${result.chosenImplementation} for `drift` backend.');
+      //
+      // if (result.missingFeatures.isNotEmpty) {
+      //   Log.warning(
+      //     'Browser misses the following features in order for `drift` to be as performant as possible: ${result.missingFeatures}',
+      //   );
+      // }
+      //
+      // return result.resolvedExecutor;
 
-    final WasmProbeResult probed = await WasmDatabase.probe(
-      sqlite3Uri: Uri.parse('sqlite3.wasm'),
-      driftWorkerUri: Uri.parse('drift_worker.js'),
-      databaseName: dbName,
-    );
+      final WasmProbeResult probed = await WasmDatabase.probe(
+        sqlite3Uri: Uri.parse('sqlite3.wasm'),
+        driftWorkerUri: Uri.parse('drift_worker.js'),
+        databaseName: dbName,
+      );
 
-    final List<WasmStorageImplementation> available =
-        probed.availableStorages.toList();
+      final List<WasmStorageImplementation> available =
+          probed.availableStorages.toList();
 
-    if (!WebUtils.isSafari && !WebUtils.isFirefox) {
-      available.remove(WasmStorageImplementation.opfsLocks);
-    }
+      if (!WebUtils.isSafari && !WebUtils.isFirefox) {
+        available.remove(WasmStorageImplementation.opfsLocks);
+      }
 
-    checkExisting:
-    for (final (location, name) in probed.existingDatabases) {
-      if (name == dbName) {
-        final implementationsForStorage = switch (location) {
-          WebStorageApi.indexedDb => const [
+      checkExisting:
+      for (final (location, name) in probed.existingDatabases) {
+        if (name == dbName) {
+          final implementationsForStorage = switch (location) {
+            WebStorageApi.indexedDb => const [
               WasmStorageImplementation.sharedIndexedDb,
-              WasmStorageImplementation.unsafeIndexedDb
+              WasmStorageImplementation.unsafeIndexedDb,
             ],
-          WebStorageApi.opfs => const [
+            WebStorageApi.opfs => const [
               WasmStorageImplementation.opfsShared,
               WasmStorageImplementation.opfsLocks,
             ],
-        };
+          };
 
-        // If any of the implementations for this location is still available,
-        // we want to use it instead of another location.
-        if (implementationsForStorage.any(available.contains)) {
-          available.removeWhere((i) => !implementationsForStorage.contains(i));
-          break checkExisting;
+          // If any of the implementations for this location is still available,
+          // we want to use it instead of another location.
+          if (implementationsForStorage.any(available.contains)) {
+            available.removeWhere(
+              (i) => !implementationsForStorage.contains(i),
+            );
+            break checkExisting;
+          }
         }
       }
-    }
 
-    // Enum values are ordered by preferability, so just pick the best option
-    // left.
-    available.sortBy<num>((element) => element.index);
+      // Enum values are ordered by preferability, so just pick the best option
+      // left.
+      available.sortBy<num>((element) => element.index);
 
-    final best = available.firstOrNull ?? WasmStorageImplementation.inMemory;
-    final DatabaseConnection connection = await probed.open(best, dbName);
+      final best = available.firstOrNull ?? WasmStorageImplementation.inMemory;
+      final DatabaseConnection connection = await probed.open(best, dbName);
 
-    Log.info('Using $best for `drift` backend.');
+      Log.info('Using $best for `drift` backend.');
 
-    if (probed.missingFeatures.isNotEmpty) {
-      Log.warning(
-        'Browser misses the following features in order for `drift` to be as performant as possible: ${probed.missingFeatures}',
-      );
-    }
+      if (probed.missingFeatures.isNotEmpty) {
+        Log.warning(
+          'Browser misses the following features in order for `drift` to be as performant as possible: ${probed.missingFeatures}',
+        );
+      }
 
-    return connection;
-  }));
+      return connection;
+    }),
+  );
 }
 
 /// Obtains an in-memory database connection for running `drift`.

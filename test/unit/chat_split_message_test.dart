@@ -43,6 +43,7 @@ import 'package:messenger/provider/drift/chat_member.dart';
 import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/draft.dart';
 import 'package:messenger/provider/drift/drift.dart';
+import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
 import 'package:messenger/provider/drift/settings.dart';
@@ -86,24 +87,26 @@ void main() async {
   final chatMemberProvider = Get.put(ChatMemberDriftProvider(common, scoped));
   final chatProvider = Get.put(ChatDriftProvider(common, scoped));
   final backgroundProvider = Get.put(BackgroundDriftProvider(common));
-  final callCredentialsProvider =
-      Get.put(CallCredentialsDriftProvider(common, scoped));
-  final chatCredentialsProvider =
-      Get.put(ChatCredentialsDriftProvider(common, scoped));
+  final callCredentialsProvider = Get.put(
+    CallCredentialsDriftProvider(common, scoped),
+  );
+  final chatCredentialsProvider = Get.put(
+    ChatCredentialsDriftProvider(common, scoped),
+  );
   final callRectProvider = Get.put(CallRectDriftProvider(common, scoped));
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final sessionProvider = Get.put(VersionDriftProvider(common));
+  final locksProvider = Get.put(LockDriftProvider(common));
 
   AuthService authService = Get.put(
     AuthService(
-      Get.put<AbstractAuthRepository>(AuthRepository(
-        graphQlProvider,
-        myUserProvider,
-        credentialsProvider,
-      )),
+      Get.put<AbstractAuthRepository>(
+        AuthRepository(graphQlProvider, myUserProvider, credentialsProvider),
+      ),
       credentialsProvider,
       accountProvider,
+      locksProvider,
     ),
     permanent: true,
   );
@@ -127,24 +130,21 @@ void main() async {
     'unreadCount': 0,
     'totalCount': 0,
     'ongoingCall': null,
-    'ver': '0'
+    'ver': '0',
   };
 
   var recentChats = {
     'recentChats': {
       'edges': [
-        {
-          'node': chatData,
-          'cursor': 'cursor',
-        }
+        {'node': chatData, 'cursor': 'cursor'},
       ],
       'pageInfo': {
         'endCursor': 'endCursor',
         'hasNextPage': false,
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
-      }
-    }
+      },
+    },
   };
 
   var favoriteChats = {
@@ -156,49 +156,61 @@ void main() async {
         'startCursor': 'startCursor',
         'hasPreviousPage': false,
       },
-      'ver': '0'
-    }
+      'ver': '0',
+    },
   };
 
-  when(graphQlProvider.recentChatsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
-  when(graphQlProvider.incomingCallsTopEvents(3))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.recentChatsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.incomingCallsTopEvents(3),
+  ).thenAnswer((_) => const Stream.empty());
   when(graphQlProvider.keepOnline()).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.chatEvents(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-    any,
-    any,
-  )).thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.chatEvents(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+      any,
+      any,
+    ),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getChat(
-    const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-  )).thenAnswer(
-      (_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
+  when(
+    graphQlProvider.getChat(
+      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+    ),
+  ).thenAnswer((_) => Future.value(GetChat$Query.fromJson({'chat': chatData})));
 
-  when(graphQlProvider.recentChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-    noFavorite: anyNamed('noFavorite'),
-    withOngoingCalls: anyNamed('withOngoingCalls'),
-  )).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
+  when(
+    graphQlProvider.recentChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+      noFavorite: anyNamed('noFavorite'),
+      withOngoingCalls: anyNamed('withOngoingCalls'),
+    ),
+  ).thenAnswer((_) => Future.value(RecentChats$Query.fromJson(recentChats)));
 
-  when(graphQlProvider.favoriteChats(
-    first: anyNamed('first'),
-    after: null,
-    last: null,
-    before: null,
-  )).thenAnswer(
-      (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)));
+  when(
+    graphQlProvider.favoriteChats(
+      first: anyNamed('first'),
+      after: null,
+      last: null,
+      before: null,
+    ),
+  ).thenAnswer(
+    (_) => Future.value(FavoriteChats$Query.fromJson(favoriteChats)),
+  );
 
-  when(graphQlProvider.favoriteChatsEvents(any))
-      .thenAnswer((_) => const Stream.empty());
+  when(
+    graphQlProvider.favoriteChatsEvents(any),
+  ).thenAnswer((_) => const Stream.empty());
 
-  when(graphQlProvider.getUser(any))
-      .thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
+  when(
+    graphQlProvider.getUser(any),
+  ).thenAnswer((_) => Future.value(GetUser$Query.fromJson({'user': null})));
   when(graphQlProvider.getMonolog()).thenAnswer(
     (_) => Future.value(GetMonolog$Query.fromJson({'monolog': null}).monolog),
   );
@@ -206,12 +218,14 @@ void main() async {
   test('ChatService doesn\'t split message with $maxText symbols', () async {
     final ChatMessageText message = ChatMessageText('A' * maxText);
 
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).thenAnswer((_) => Future.value());
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -221,8 +235,9 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -265,12 +280,14 @@ void main() async {
       ],
     );
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
+    verify(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).called(1);
   });
 
   test('ChatService splits ($maxText + 1) symbols into 2 messages', () async {
@@ -278,19 +295,23 @@ void main() async {
     const ChatMessageText message1 = ChatMessageText('A');
     final ChatMessageText message2 = ChatMessageText('A' * maxText);
 
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message2,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).thenAnswer((_) => Future.value());
 
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message1,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).thenAnswer((_) => Future.value());
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -300,8 +321,9 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -344,179 +366,205 @@ void main() async {
       ],
     );
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
+    verify(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message2,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).called(1);
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
+    verify(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message1,
+        attachments: anyNamed('attachments'),
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).called(1);
   });
 
-  test('ChatService splits (2 * $maxText + 1) symbols into 3 messages',
-      () async {
-    final ChatMessageText message = ChatMessageText('A' * (maxText * 2 + 1));
-    final ChatMessageText message1 = ChatMessageText('A' * maxText);
-    const ChatMessageText message2 = ChatMessageText('A');
+  test(
+    'ChatService splits (2 * $maxText + 1) symbols into 3 messages',
+    () async {
+      final ChatMessageText message = ChatMessageText('A' * (maxText * 2 + 1));
+      final ChatMessageText message1 = ChatMessageText('A' * maxText);
+      const ChatMessageText message2 = ChatMessageText('A');
 
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
-
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        const UserId('me'),
-        settingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: [],
-      repliesTo: [
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('2'),
-          User(const UserId('3'), UserNum('1234123412341234')),
-          PreciseDateTime.now(),
+      when(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message1,
+          attachments: anyNamed('attachments'),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
         ),
-      ],
-    );
+      ).thenAnswer((_) => Future.value());
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(2);
-
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: anyNamed('attachments'),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
-  });
-
-  test('ChatService doesn\'t split message with attachment and reply',
-      () async {
-    final attachment = FileAttachment(
-      id: const AttachmentId('test'),
-      filename: 'test.test',
-      original: PlainFile(relativeRef: 'test', size: 100),
-    );
-
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment.id],
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        const UserId('me'),
-        settingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment],
-      repliesTo: [
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('2'),
-          User(const UserId('3'), UserNum('1234123412341234')),
-          PreciseDateTime.now(),
+      when(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message2,
+          attachments: anyNamed('attachments'),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
         ),
-      ],
-    );
+      ).thenAnswer((_) => Future.value());
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      attachments: [attachment.id],
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
-  });
+      AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+        ChatRepository(
+          graphQlProvider,
+          chatProvider,
+          chatItemProvider,
+          chatMemberProvider,
+          callRepository,
+          draftProvider,
+          userRepository,
+          sessionProvider,
+          monologProvider,
+          me: const UserId('me'),
+        ),
+      );
+      ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      await Future.delayed(Duration.zero);
+
+      await chatService.sendChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: [],
+        repliesTo: [
+          ChatMessage(
+            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            const ChatId('2'),
+            User(const UserId('3'), UserNum('1234123412341234')),
+            PreciseDateTime.now(),
+          ),
+        ],
+      );
+
+      verify(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message1,
+          attachments: anyNamed('attachments'),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).called(2);
+
+      verify(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message2,
+          attachments: anyNamed('attachments'),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).called(1);
+    },
+  );
+
+  test(
+    'ChatService doesn\'t split message with attachment and reply',
+    () async {
+      final attachment = FileAttachment(
+        id: const AttachmentId('test'),
+        filename: 'test.test',
+        original: PlainFile(relativeRef: 'test', size: 100),
+      );
+
+      when(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          attachments: [attachment.id],
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).thenAnswer((_) => Future.value());
+
+      AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+        ChatRepository(
+          graphQlProvider,
+          chatProvider,
+          chatItemProvider,
+          chatMemberProvider,
+          callRepository,
+          draftProvider,
+          userRepository,
+          sessionProvider,
+          monologProvider,
+          me: const UserId('me'),
+        ),
+      );
+      ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      await Future.delayed(Duration.zero);
+
+      await chatService.sendChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        attachments: [attachment],
+        repliesTo: [
+          ChatMessage(
+            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            const ChatId('2'),
+            User(const UserId('3'), UserNum('1234123412341234')),
+            PreciseDateTime.now(),
+          ),
+        ],
+      );
+
+      verify(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          attachments: [attachment.id],
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).called(1);
+    },
+  );
 
   test('ChatService doesn\'t split message with attachment', () async {
     final ChatMessageText message = ChatMessageText('A' * maxText);
@@ -526,12 +574,14 @@ void main() async {
       original: PlainFile(relativeRef: 'test', size: 100),
     );
 
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: [attachment.id],
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
+    when(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: [attachment.id],
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).thenAnswer((_) => Future.value());
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(
@@ -541,8 +591,9 @@ void main() async {
         callRectProvider,
       ),
     );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
+    UserRepository userRepository = Get.put(
+      UserRepository(graphQlProvider, userProvider),
+    );
     final CallRepository callRepository = Get.put(
       CallRepository(
         graphQlProvider,
@@ -585,106 +636,121 @@ void main() async {
       ],
     );
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: [attachment.id],
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
+    verify(
+      graphQlProvider.postChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: [attachment.id],
+        repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+      ),
+    ).called(1);
   });
 
-  test('ChatService splits with ($maxText + 1) symbols and 3 attachments',
-      () async {
-    final ChatMessageText message = ChatMessageText('A' * (maxText + 1));
-    final ChatMessageText message1 = ChatMessageText('A' * maxText);
-    const ChatMessageText message2 = ChatMessageText('A');
-    final List<Attachment> attachments = List.generate(
-      3,
-      (index) => FileAttachment(
-        id: const AttachmentId('test'),
-        filename: 'test.test',
-        original: PlainFile(relativeRef: 'test', size: 100),
-      ),
-    );
-
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
-
-    when(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: attachments.map((a) => a.id).toList(),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).thenAnswer((_) => Future.value());
-
-    AbstractSettingsRepository settingsRepository = Get.put(
-      SettingsRepository(
-        const UserId('me'),
-        settingsProvider,
-        backgroundProvider,
-        callRectProvider,
-      ),
-    );
-    UserRepository userRepository =
-        Get.put(UserRepository(graphQlProvider, userProvider));
-    final CallRepository callRepository = Get.put(
-      CallRepository(
-        graphQlProvider,
-        userRepository,
-        callCredentialsProvider,
-        chatCredentialsProvider,
-        settingsRepository,
-        me: const UserId('me'),
-      ),
-    );
-    AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
-      ChatRepository(
-        graphQlProvider,
-        chatProvider,
-        chatItemProvider,
-        chatMemberProvider,
-        callRepository,
-        draftProvider,
-        userRepository,
-        sessionProvider,
-        monologProvider,
-        me: const UserId('me'),
-      ),
-    );
-    ChatService chatService = Get.put(ChatService(chatRepository, authService));
-
-    await Future.delayed(Duration.zero);
-
-    await chatService.sendChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message,
-      attachments: attachments,
-      repliesTo: [
-        ChatMessage(
-          const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-          const ChatId('2'),
-          User(const UserId('3'), UserNum('1234123412341234')),
-          PreciseDateTime.now(),
+  test(
+    'ChatService splits with ($maxText + 1) symbols and 3 attachments',
+    () async {
+      final ChatMessageText message = ChatMessageText('A' * (maxText + 1));
+      final ChatMessageText message1 = ChatMessageText('A' * maxText);
+      const ChatMessageText message2 = ChatMessageText('A');
+      final List<Attachment> attachments = List.generate(
+        3,
+        (index) => FileAttachment(
+          id: const AttachmentId('test'),
+          filename: 'test.test',
+          original: PlainFile(relativeRef: 'test', size: 100),
         ),
-      ],
-    );
+      );
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message1,
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
+      when(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message1,
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).thenAnswer((_) => Future.value());
 
-    verify(graphQlProvider.postChatMessage(
-      const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
-      text: message2,
-      attachments: attachments.map((a) => a.id).toList(),
-      repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
-    )).called(1);
-  });
+      when(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message2,
+          attachments: attachments.map((a) => a.id).toList(),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).thenAnswer((_) => Future.value());
+
+      AbstractSettingsRepository settingsRepository = Get.put(
+        SettingsRepository(
+          const UserId('me'),
+          settingsProvider,
+          backgroundProvider,
+          callRectProvider,
+        ),
+      );
+      UserRepository userRepository = Get.put(
+        UserRepository(graphQlProvider, userProvider),
+      );
+      final CallRepository callRepository = Get.put(
+        CallRepository(
+          graphQlProvider,
+          userRepository,
+          callCredentialsProvider,
+          chatCredentialsProvider,
+          settingsRepository,
+          me: const UserId('me'),
+        ),
+      );
+      AbstractChatRepository chatRepository = Get.put<AbstractChatRepository>(
+        ChatRepository(
+          graphQlProvider,
+          chatProvider,
+          chatItemProvider,
+          chatMemberProvider,
+          callRepository,
+          draftProvider,
+          userRepository,
+          sessionProvider,
+          monologProvider,
+          me: const UserId('me'),
+        ),
+      );
+      ChatService chatService = Get.put(
+        ChatService(chatRepository, authService),
+      );
+
+      await Future.delayed(Duration.zero);
+
+      await chatService.sendChatMessage(
+        const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+        text: message,
+        attachments: attachments,
+        repliesTo: [
+          ChatMessage(
+            const ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+            const ChatId('2'),
+            User(const UserId('3'), UserNum('1234123412341234')),
+            PreciseDateTime.now(),
+          ),
+        ],
+      );
+
+      verify(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message1,
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).called(1);
+
+      verify(
+        graphQlProvider.postChatMessage(
+          const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b'),
+          text: message2,
+          attachments: attachments.map((a) => a.id).toList(),
+          repliesTo: const [ChatItemId('0d72d245-8425-467a-9ebd-082d4f47850b')],
+        ),
+      ).called(1);
+    },
+  );
 
   tearDown(() async => await Future.wait([common.close(), scoped.close()]));
 }

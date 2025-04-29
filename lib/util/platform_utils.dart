@@ -36,6 +36,7 @@ import 'package:xdg_directories/xdg_directories.dart';
 
 import '/config.dart';
 import '/domain/model/native_file.dart';
+import '/pubspec.g.dart';
 import '/routes.dart';
 import '/ui/worker/cache.dart';
 import '/util/log.dart';
@@ -159,10 +160,13 @@ class PlatformUtilsImpl {
       Worker? worker;
 
       _focusController = StreamController<bool>.broadcast(
-        onListen: () => worker = ever(
-          router.lifecycle,
-          (AppLifecycleState a) => _focusController?.add(a.inForeground),
-        ),
+        onListen:
+            () =>
+                worker = ever(
+                  router.lifecycle,
+                  (AppLifecycleState a) =>
+                      _focusController?.add(a.inForeground),
+                ),
         onCancel: () {
           worker?.dispose();
           _focusController?.close();
@@ -311,8 +315,9 @@ class PlatformUtilsImpl {
       return _temporaryDirectory!;
     }
 
-    _temporaryDirectory =
-        Directory('${(await getTemporaryDirectory()).path}${Config.downloads}');
+    _temporaryDirectory = Directory(
+      '${(await getTemporaryDirectory()).path}${Config.downloads}',
+    );
     return _temporaryDirectory!;
   }
 
@@ -397,9 +402,14 @@ class PlatformUtilsImpl {
     bool temporary = false,
   }) async {
     if ((size != null || url != null) && !PlatformUtils.isWeb) {
-      size = size ??
-          int.parse(((await (await dio).head(url!)).headers['content-length']
-              as List<String>)[0]);
+      if (size == null) {
+        final Headers headers = (await (await dio).head(url!)).headers;
+        final List<String>? contentLength = headers['content-length'];
+
+        if (contentLength != null) {
+          size = int.parse((contentLength)[0]);
+        }
+      }
 
       final Directory directory =
           temporary ? await temporaryDirectory : await downloadsDirectory;
@@ -484,39 +494,33 @@ class PlatformUtilsImpl {
         }
 
         if (PlatformUtils.isWeb) {
-          await Backoff.run(
-            () async {
-              try {
-                await WebUtils.downloadFile(url, filename);
-              } catch (e) {
-                onError(e);
-              }
-            },
-            cancelToken,
-          );
+          await Backoff.run(() async {
+            try {
+              await WebUtils.downloadFile(url, filename);
+            } catch (e) {
+              onError(e);
+            }
+          }, cancelToken);
         } else {
           File? file;
 
           if (path == null) {
             // Retry fetching the size unless any other that `404` error is
             // thrown.
-            file = await Backoff.run(
-              () async {
-                try {
-                  return await fileExists(
-                    filename,
-                    size: size,
-                    url: url,
-                    temporary: temporary,
-                  );
-                } catch (e) {
-                  onError(e);
-                }
+            file = await Backoff.run(() async {
+              try {
+                return await fileExists(
+                  filename,
+                  size: size,
+                  url: url,
+                  temporary: temporary,
+                );
+              } catch (e) {
+                onError(e);
+              }
 
-                return null;
-              },
-              cancelToken,
-            );
+              return null;
+            }, cancelToken);
           }
 
           if (file == null) {
@@ -528,9 +532,10 @@ class PlatformUtilsImpl {
             if (path == null) {
               final String name = p.basenameWithoutExtension(filename);
               final String extension = p.extension(filename);
-              final Directory directory = temporary
-                  ? await temporaryDirectory
-                  : await downloadsDirectory;
+              final Directory directory =
+                  temporary
+                      ? await temporaryDirectory
+                      : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
               for (int i = 1; await file!.exists(); ++i) {
@@ -543,22 +548,19 @@ class PlatformUtilsImpl {
             if (data == null) {
               // Retry the downloading unless any other that `404` error is
               // thrown.
-              await Backoff.run(
-                () async {
-                  try {
-                    // TODO: Cache the response.
-                    await (await dio).download(
-                      url,
-                      file!.path,
-                      onReceiveProgress: onReceiveProgress,
-                      cancelToken: cancelToken,
-                    );
-                  } catch (e) {
-                    onError(e);
-                  }
-                },
-                cancelToken,
-              );
+              await Backoff.run(() async {
+                try {
+                  // TODO: Cache the response.
+                  await (await dio).download(
+                    url,
+                    file!.path,
+                    onReceiveProgress: onReceiveProgress,
+                    cancelToken: cancelToken,
+                  );
+                } catch (e) {
+                  onError(e);
+                }
+              }, cancelToken);
             } else {
               await file.writeAsBytes(data);
             }
@@ -596,8 +598,10 @@ class PlatformUtilsImpl {
         throw UnsupportedError('SVGs are not supported in gallery.');
       }
 
-      final CacheEntry cache =
-          await CacheWorker.instance.get(url: url, checksum: checksum);
+      final CacheEntry cache = await CacheWorker.instance.get(
+        url: url,
+        checksum: checksum,
+      );
 
       await ImageGallerySaver.saveImage(cache.bytes!, name: name);
     } else {
@@ -718,6 +722,60 @@ class PlatformUtilsImpl {
       }
     }
   }
+
+  /// Retrieves a [String] from the asset bundle.
+  ///
+  /// Caches the response with the current [Pubspec.ref] version.
+  Future<String> loadString(String asset) async {
+    String? contents;
+
+    // Browser may cache the GET request too persistent, even when the file is
+    // indeed changed.
+    if (PlatformUtils.isWeb) {
+      try {
+        final response = await (await (PlatformUtils.dio)).get(
+          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          options: Options(responseType: ResponseType.plain),
+        );
+
+        if (response.data is String) {
+          contents = response.data as String;
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return contents ?? await rootBundle.loadString(asset);
+  }
+
+  /// Retrieves a [ByteData] from the asset bundle.
+  ///
+  /// Caches the response with the current [Pubspec.ref] version.
+  Future<ByteData> loadBytes(String asset) async {
+    ByteData? contents;
+
+    // Browser may cache the GET request too persistent, even when the file is
+    // indeed changed.
+    if (PlatformUtils.isWeb) {
+      try {
+        final response = await (await (PlatformUtils.dio)).get(
+          '${Config.origin}/assets/$asset?${Pubspec.ref}',
+          options: Options(responseType: ResponseType.bytes),
+        );
+
+        if (response.data is List<int>) {
+          contents = ByteData.sublistView(
+            Uint8List.fromList(response.data as List<int>),
+          );
+        }
+      } catch (_) {
+        // No-op.
+      }
+    }
+
+    return contents ?? (await rootBundle.load(asset));
+  }
 }
 
 /// Kind of a [PlatformUtilsImpl.haptic] feedback.
@@ -727,15 +785,24 @@ enum HapticKind { click, light }
 extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
-  bool get isMobile => PlatformUtils.isMobile
-      ? MediaQuery.sizeOf(this).shortestSide < 600
-      : false;
+  bool get isMobile =>
+      PlatformUtils.isMobile
+          ? MediaQuery.sizeOf(this).shortestSide < 600
+          : false;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
-  bool get isNarrow => PlatformUtils.isDesktop
-      ? MediaQuery.sizeOf(this).width < 600
-      : MediaQuery.sizeOf(this).shortestSide < 600;
+  bool get isNarrow =>
+      PlatformUtils.isDesktop
+          ? MediaQuery.sizeOf(this).width < 600
+          : MediaQuery.sizeOf(this).shortestSide < 600;
+
+  /// Returns `true` if [MediaQuery]'s width is less than `379p` on desktop and
+  /// [MediaQuery]'s shortest side is less than `379p` on mobile.
+  bool get isTiny =>
+      PlatformUtils.isDesktop
+          ? MediaQuery.sizeOf(this).width < 379
+          : MediaQuery.sizeOf(this).shortestSide < 379;
 }
 
 /// Extension adding an ability to pop the current [ModalRoute].
@@ -896,11 +963,11 @@ class _WindowListener extends WindowListener {
 
   @override
   void onWindowResized() async => onResized?.call(
-        MapEntry<Size, Offset>(
-          await windowManager.getSize(),
-          await windowManager.getPosition(),
-        ),
-      );
+    MapEntry<Size, Offset>(
+      await windowManager.getSize(),
+      await windowManager.getPosition(),
+    ),
+  );
 
   @override
   void onWindowMoved() async =>

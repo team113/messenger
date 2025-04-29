@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:drift/drift.dart';
+import 'package:drift/remote.dart' show DriftRemoteException;
 
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -59,15 +60,21 @@ class MonologDriftProvider extends DriftProviderBase {
     }
 
     return await safe<ChatId?>((db) async {
-      final stmt = db.select(db.monologs)
-        ..where((u) => u.userId.equals(id.val));
-      final MonologRow? row = await stmt.getSingleOrNull();
+      try {
+        final stmt = db.select(db.monologs)
+          ..where((u) => u.userId.equals(id.val));
+        final MonologRow? row = await stmt.getSingleOrNull();
 
-      if (row == null) {
+        if (row == null) {
+          return null;
+        }
+
+        return _MonologDb.fromDb(row);
+      } on DriftRemoteException {
+        // Upsert may fail during E2E tests due to rapid database resetting and
+        // creating.
         return null;
       }
-
-      return _MonologDb.fromDb(row);
     }, tag: 'monolog.read($id)');
   }
 

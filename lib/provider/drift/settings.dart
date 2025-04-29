@@ -46,6 +46,7 @@ class Settings extends Table {
   TextColumn get audioDevice => text().nullable()();
   TextColumn get outputDevice => text().nullable()();
   TextColumn get screenDevice => text().nullable()();
+  TextColumn get muteKeys => text().nullable()();
 }
 
 /// [DriftProviderBase] for manipulating the persisted [DtoSettings].
@@ -64,7 +65,9 @@ class SettingsDriftProvider extends DriftProviderBase {
 
     final result = await safe((db) async {
       final DtoSettings stored = _SettingsDb.fromDb(
-        await db.into(db.settings).insertReturning(
+        await db
+            .into(db.settings)
+            .insertReturning(
               settings.toDb(userId),
               mode: InsertMode.insertOrReplace,
             ),
@@ -86,20 +89,17 @@ class SettingsDriftProvider extends DriftProviderBase {
       return existing;
     }
 
-    return await safe<DtoSettings?>(
-      (db) async {
-        final stmt = db.select(db.settings)
-          ..where((u) => u.userId.equals(id.val));
-        final SettingsRow? row = await stmt.getSingleOrNull();
+    return await safe<DtoSettings?>((db) async {
+      final stmt = db.select(db.settings)
+        ..where((u) => u.userId.equals(id.val));
+      final SettingsRow? row = await stmt.getSingleOrNull();
 
-        if (row == null) {
-          return null;
-        }
+      if (row == null) {
+        return null;
+      }
 
-        return _SettingsDb.fromDb(row);
-      },
-      exclusive: false,
-    );
+      return _SettingsDb.fromDb(row);
+    }, exclusive: false);
   }
 
   /// Deletes the [DtoSettings] identified by the provided [id] from the
@@ -138,14 +138,10 @@ class SettingsDriftProvider extends DriftProviderBase {
         _controllers[id] = controller;
       }
 
-      return StreamGroup.merge(
-        [
-          controller.stream,
-          stmt
-              .watch()
-              .map((e) => e.isEmpty ? null : _SettingsDb.fromDb(e.first)),
-        ],
-      );
+      return StreamGroup.merge([
+        controller.stream,
+        stmt.watch().map((e) => e.isEmpty ? null : _SettingsDb.fromDb(e.first)),
+      ]);
     });
   }
 }
@@ -164,10 +160,16 @@ extension _SettingsDb on DtoSettings {
             (jsonDecode(e.callButtons) as List).cast<String>().toList(),
         pinnedActions:
             (jsonDecode(e.pinnedActions) as List).cast<String>().toList(),
-        callButtonsPosition: CallButtonsPosition.values
-                .firstWhereOrNull((m) => m.name == e.callButtonsPosition) ??
+        callButtonsPosition:
+            CallButtonsPosition.values.firstWhereOrNull(
+              (m) => m.name == e.callButtonsPosition,
+            ) ??
             CallButtonsPosition.appBar,
         workWithUsTabEnabled: e.workWithUsTabEnabled ?? true,
+        muteKeys: (e.muteKeys ?? '[]')
+            .replaceFirst('[', '')
+            .replaceFirst(']', '')
+            .split(', '),
       ),
       media: MediaSettings(
         audioDevice: e.audioDevice,
@@ -194,6 +196,7 @@ extension _SettingsDb on DtoSettings {
       videoDevice: media.videoDevice,
       screenDevice: media.screenDevice,
       outputDevice: media.outputDevice,
+      muteKeys: application.muteKeys?.toString(),
     );
   }
 }

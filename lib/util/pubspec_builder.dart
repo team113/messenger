@@ -38,8 +38,8 @@ class PubspecBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => {
-        r'$package$': ['lib/pubspec.g.dart'],
-      };
+    r'$package$': ['lib/pubspec.g.dart'],
+  };
 
   @override
   FutureOr<void> build(BuildStep buildStep) async {
@@ -52,12 +52,19 @@ class PubspecBuilder implements Builder {
       '  static const String version = \'${pubspec['version']}\';\n',
     );
 
-    final ProcessResult git = await Process.run(
-      'git',
-      ['describe', '--tags', '--abbrev=0', '--dirty', '--match', 'v*'],
-    );
-    final ProcessResult rev =
-        await Process.run('git', ['rev-list', 'HEAD', '--count']);
+    final ProcessResult git = await Process.run('git', [
+      'describe',
+      '--tags',
+      '--abbrev=0',
+      '--dirty',
+      '--match',
+      'v*',
+    ]);
+    final ProcessResult rev = await Process.run('git', [
+      'rev-list',
+      'HEAD',
+      '--count',
+    ]);
 
     if (git.exitCode == 0 && rev.exitCode == 0) {
       String ref = git.stdout.toString();

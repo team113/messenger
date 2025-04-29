@@ -119,10 +119,7 @@ class AuthRepository extends DisposableInterface
   }
 
   @override
-  Future<Credentials> signUp({
-    UserPassword? password,
-    UserLogin? login,
-  }) async {
+  Future<Credentials> signUp({UserPassword? password, UserLogin? login}) async {
     Log.debug(
       'signUp(password: ${password?.obscured}, login: $login)',
       '$runtimeType',
@@ -181,9 +178,20 @@ class AuthRepository extends DisposableInterface
     );
 
     if (token != null) {
-      await _graphQlProvider.unregisterPushDevice(
-        PushDeviceToken(apns: token.apns, apnsVoip: token.voip, fcm: token.fcm),
-      );
+      await Future.wait([
+        if (token.fcm != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(fcm: token.fcm),
+          ),
+        if (token.apns != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apns: token.apns),
+          ),
+        if (token.voip != null)
+          _graphQlProvider.unregisterPushDevice(
+            PushDeviceToken(apnsVoip: token.voip),
+          ),
+      ]);
     }
 
     await _graphQlProvider.deleteSession(
@@ -283,12 +291,7 @@ class AuthRepository extends DisposableInterface
     );
 
     await _graphQlProvider.createConfirmationCode(
-      MyUserIdentifier(
-        login: login,
-        num: num,
-        email: email,
-        phone: phone,
-      ),
+      MyUserIdentifier(login: login, num: num, email: email, phone: phone),
       locale: locale,
     );
   }

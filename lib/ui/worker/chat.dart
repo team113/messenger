@@ -41,11 +41,7 @@ import '/util/platform_utils.dart';
 
 /// Worker responsible for showing a new [Chat] message notification.
 class ChatWorker extends DisposableService {
-  ChatWorker(
-    this._chatService,
-    this._myUserService,
-    this._notificationService,
-  );
+  ChatWorker(this._chatService, this._myUserService, this._notificationService);
 
   /// [ChatService], used to get the [Chat]s list.
   final ChatService _chatService;
@@ -66,12 +62,19 @@ class ChatWorker extends DisposableService {
   /// [Map] of [_ChatWatchData]s, used to react on the [Chat] changes.
   final Map<ChatId, _ChatWatchData> _chats = {};
 
-  /// Subscription to the [PlatformUtils.onFocusChanged] updating the
+  /// Subscription to the [PlatformUtilsImpl.onFocusChanged] updating the
   /// [_focused].
   StreamSubscription? _onFocusChanged;
 
+  /// Subscription to the [PlatformUtilsImpl.onActivityChanged] updating the
+  /// [_focused].
+  StreamSubscription? _onActivityChanged;
+
   /// Indicator whether the application's window is in focus.
   bool _focused = true;
+
+  /// Indicator whether the user's activity is considered active.
+  bool _active = true;
 
   /// Indicator whether the icon in the taskbar has a flash effect applied.
   bool _flashed = false;
@@ -119,6 +122,11 @@ class ChatWorker extends DisposableService {
       }
     });
 
+    PlatformUtils.isActive.then((value) => _active = value);
+    _onActivityChanged = PlatformUtils.onActivityChanged.listen((v) {
+      _active = v;
+    });
+
     super.onReady();
   }
 
@@ -126,6 +134,7 @@ class ChatWorker extends DisposableService {
   void onClose() {
     _subscription?.cancel();
     _onFocusChanged?.cancel();
+    _onActivityChanged?.cancel();
     _chats.forEach((_, value) => value.dispose());
     super.onClose();
   }
@@ -141,7 +150,8 @@ class ChatWorker extends DisposableService {
         final msg = c.chat.value.lastItem as ChatInfo;
         if (msg.action.kind == ChatInfoActionKind.memberAdded) {
           final action = msg.action as ChatInfoActionMemberAdded;
-          newChat = msg.action.kind == ChatInfoActionKind.memberAdded &&
+          newChat =
+              msg.action.kind == ChatInfoActionKind.memberAdded &&
               action.user.id == _chatService.me &&
               DateTime.now()
                       .difference(msg.at.val)
@@ -150,7 +160,8 @@ class ChatWorker extends DisposableService {
         }
       } else if (c.chat.value.lastItem == null) {
         // The chat was created just now.
-        newChat = DateTime.now()
+        newChat =
+            DateTime.now()
                 .difference(c.chat.value.updatedAt.val)
                 .compareTo(newMessageThreshold) <=
             -1;
@@ -184,6 +195,7 @@ class ChatWorker extends DisposableService {
 
     _chats[c.chat.value.id] ??= _ChatWatchData(
       c.chat,
+      onActive: () => _active,
       onNotification: (body, tag, image) async {
         // Displays a local notification via [NotificationService].
         Future<void> notify() async {
@@ -239,17 +251,29 @@ class _ChatWatchData {
   _ChatWatchData(
     Rx<Chat> c, {
     void Function(String, String?, String?)? onNotification,
+    bool Function()? onActive,
     UserId? Function()? me,
   }) : updatedAt = c.value.lastItem?.at ?? PreciseDateTime.now() {
     void showNotification(Chat chat) {
       if (chat.lastItem != null) {
-        if (chat.lastItem!.at.isAfter(updatedAt) &&
+        final UserId? meId = me?.call();
+
+        final bool isAfter = chat.lastItem!.at.isAfter(updatedAt);
+        final bool isRelativelyNew =
             DateTime.now()
-                    .difference(chat.lastItem!.at.val)
-                    .compareTo(ChatWorker.newMessageThreshold) <=
-                -1 &&
-            chat.lastItem!.author.id != me?.call() &&
-            chat.muted == null) {
+                .difference(chat.lastItem!.at.val)
+                .compareTo(ChatWorker.newMessageThreshold) <=
+            -1;
+        final bool notFromMe = chat.lastItem!.author.id != meId;
+        final bool notMuted = chat.muted == null;
+        bool notInChat = true;
+
+        if (onActive != null && meId != null) {
+          final bool inChat = c.value.isRoute(router.route, meId);
+          notInChat = !inChat || onActive() == false;
+        }
+
+        if (isAfter && isRelativelyNew && notFromMe && notMuted && notInChat) {
           final StringBuffer body = StringBuffer();
           final ChatItem msg = chat.lastItem!;
           String? image;
@@ -262,11 +286,12 @@ class _ChatWatchData {
               attachments: msg.attachments,
             );
 
-            image = msg.attachments
-                .whereType<ImageAttachment>()
-                .firstOrNull
-                ?.big
-                .url;
+            image =
+                msg.attachments
+                    .whereType<ImageAttachment>()
+                    .firstOrNull
+                    ?.big
+                    .url;
 
             if (text != null) {
               body.write(text);
@@ -281,11 +306,12 @@ class _ChatWatchData {
                 attachments: quote.attachments,
               );
 
-              image = quote.attachments
-                  .whereType<ImageAttachment>()
-                  .firstOrNull
-                  ?.big
-                  .url;
+              image =
+                  quote.attachments
+                      .whereType<ImageAttachment>()
+                      .firstOrNull
+                      ?.big
+                      .url;
 
               if (text != null) {
                 body.write(text);
@@ -352,13 +378,14 @@ class _ChatWatchData {
     final String name = author?.title ?? 'x';
     final String num = author?.num.toString() ?? 'err_unknown_user'.l10n;
     final String type = isGroup ? 'group' : 'dialog';
-    String attachmentsType = attachments.every((e) => e is ImageAttachment)
-        ? 'image'
-        : attachments.every((e) => e is FileAttachment && e.isVideo)
+    String attachmentsType =
+        attachments.every((e) => e is ImageAttachment)
+            ? 'image'
+            : attachments.every((e) => e is FileAttachment && e.isVideo)
             ? 'video'
             : attachments.every((e) => e is FileAttachment && !e.isVideo)
-                ? 'file'
-                : 'attachments';
+            ? 'file'
+            : 'attachments';
 
     return 'fcm_message'.l10nfmt({
       'type': type,
@@ -383,12 +410,10 @@ class _ChatWatchData {
         final action = info as ChatInfoActionMemberAdded;
 
         if (author?.id == action.user.id) {
-          return 'fcm_user_joined_group_by_link'.l10nfmt(
-            {
-              'authorName': action.user.title,
-              'authorNum': action.user.num.toString(),
-            },
-          );
+          return 'fcm_user_joined_group_by_link'.l10nfmt({
+            'authorName': action.user.title,
+            'authorNum': action.user.num.toString(),
+          });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_added_you_to_group'.l10nfmt({
             'authorName': author?.title ?? 'x',
@@ -407,12 +432,10 @@ class _ChatWatchData {
         final action = info as ChatInfoActionMemberRemoved;
 
         if (author?.id == action.user.id) {
-          return 'fcm_user_left_group'.l10nfmt(
-            {
-              'authorName': action.user.title,
-              'authorNum': action.user.num.toString(),
-            },
-          );
+          return 'fcm_user_left_group'.l10nfmt({
+            'authorName': action.user.title,
+            'authorNum': action.user.num.toString(),
+          });
         } else if (action.user.id == me?.call()) {
           return 'fcm_user_removed_you'.l10nfmt({
             'authorName': author?.title ?? 'x',

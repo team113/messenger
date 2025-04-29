@@ -18,6 +18,8 @@
 import '/domain/model/chat.dart';
 import '/store/model/chat.dart';
 import '/store/model/contact.dart';
+import '/util/new_type.dart';
+import 'blocklist.dart';
 import 'session.dart';
 
 /// [Session] relative preferences.
@@ -30,6 +32,8 @@ class SessionData {
     this.contactsSynchronized,
     this.blocklistSynchronized,
     this.sessionsListVersion,
+    this.blocklistVersion,
+    this.blocklistCount,
   });
 
   /// Persisted [FavoriteChatsListVersion] data.
@@ -57,16 +61,60 @@ class SessionData {
   /// Persisted [SessionsListVersion] data.
   SessionsListVersion? sessionsListVersion;
 
-  /// Returns a copy of this [SessionData] from the [other].
-  SessionData copyFrom(SessionData other) {
-    return copyWith(
-      favoriteChatsListVersion: other.favoriteChatsListVersion,
-      favoriteChatsSynchronized: other.favoriteChatsSynchronized,
-      chatContactsListVersion: other.chatContactsListVersion,
-      favoriteContactsSynchronized: other.favoriteContactsSynchronized,
-      contactsSynchronized: other.contactsSynchronized,
-      blocklistSynchronized: other.blocklistSynchronized,
-      sessionsListVersion: other.sessionsListVersion,
+  /// Persisted [BlocklistVersion] data.
+  BlocklistVersion? blocklistVersion;
+
+  /// Persisted total count of [BlocklistRecord]s in the blocklist of [MyUser].
+  int? blocklistCount;
+
+  /// Returns a copy of this [SessionData] replaced with the [NewType]s
+  /// provided.
+  SessionData replaceWith({
+    NewType<FavoriteChatsListVersion?>? favoriteChatsListVersion,
+    NewType<bool?>? favoriteChatsSynchronized,
+    NewType<ChatContactsListVersion?>? chatContactsListVersion,
+    NewType<bool?>? favoriteContactsSynchronized,
+    NewType<bool?>? contactsSynchronized,
+    NewType<bool?>? blocklistSynchronized,
+    NewType<SessionsListVersion?>? sessionsListVersion,
+    NewType<BlocklistVersion?>? blocklistVersion,
+    NewType<int?>? blocklistCount,
+  }) {
+    return SessionData(
+      favoriteChatsListVersion:
+          favoriteChatsListVersion == null
+              ? this.favoriteChatsListVersion
+              : favoriteChatsListVersion.val,
+      favoriteChatsSynchronized:
+          favoriteChatsSynchronized == null
+              ? this.favoriteChatsSynchronized
+              : favoriteChatsSynchronized.val,
+      chatContactsListVersion:
+          chatContactsListVersion == null
+              ? this.chatContactsListVersion
+              : chatContactsListVersion.val,
+      favoriteContactsSynchronized:
+          favoriteContactsSynchronized == null
+              ? this.favoriteContactsSynchronized
+              : favoriteContactsSynchronized.val,
+      contactsSynchronized:
+          contactsSynchronized == null
+              ? this.contactsSynchronized
+              : contactsSynchronized.val,
+      blocklistSynchronized:
+          blocklistSynchronized == null
+              ? this.blocklistSynchronized
+              : blocklistSynchronized.val,
+      sessionsListVersion:
+          sessionsListVersion == null
+              ? this.sessionsListVersion
+              : sessionsListVersion.val,
+      blocklistVersion:
+          blocklistVersion == null
+              ? this.blocklistVersion
+              : blocklistVersion.val,
+      blocklistCount:
+          blocklistCount == null ? this.blocklistCount : blocklistCount.val,
     );
   }
 
@@ -79,20 +127,29 @@ class SessionData {
     bool? contactsSynchronized,
     bool? blocklistSynchronized,
     SessionsListVersion? sessionsListVersion,
+    BlocklistVersion? blocklistVersion,
+    int? blocklistCount,
   }) {
     return SessionData(
       favoriteChatsListVersion:
-          this.favoriteChatsListVersion ?? favoriteChatsListVersion,
+          favoriteChatsListVersion ?? this.favoriteChatsListVersion,
       favoriteChatsSynchronized:
-          this.favoriteChatsSynchronized ?? favoriteChatsSynchronized,
+          favoriteChatsSynchronized ?? this.favoriteChatsSynchronized,
       chatContactsListVersion:
-          this.chatContactsListVersion ?? chatContactsListVersion,
+          chatContactsListVersion ?? this.chatContactsListVersion,
       favoriteContactsSynchronized:
-          this.favoriteContactsSynchronized ?? favoriteContactsSynchronized,
-      contactsSynchronized: this.contactsSynchronized ?? contactsSynchronized,
+          favoriteContactsSynchronized ?? this.favoriteContactsSynchronized,
+      contactsSynchronized: contactsSynchronized ?? this.contactsSynchronized,
       blocklistSynchronized:
-          this.blocklistSynchronized ?? blocklistSynchronized,
-      sessionsListVersion: this.sessionsListVersion ?? sessionsListVersion,
+          blocklistSynchronized ?? this.blocklistSynchronized,
+      sessionsListVersion: sessionsListVersion ?? this.sessionsListVersion,
+      blocklistVersion: blocklistVersion ?? this.blocklistVersion,
+      blocklistCount: blocklistCount ?? this.blocklistCount,
     );
+  }
+
+  @override
+  String toString() {
+    return 'SessionData(favoriteChatsListVersion: $favoriteChatsListVersion, favoriteChatsSynchronized: $favoriteChatsSynchronized, chatContactsListVersion: $chatContactsListVersion, favoriteContactsSynchronized: $favoriteContactsSynchronized, contactsSynchronized: $contactsSynchronized, blocklistSynchronized: $blocklistSynchronized, sessionsListVersion: $sessionsListVersion, blocklistVersion: $blocklistVersion, blocklistCount: $blocklistCount)';
   }
 }

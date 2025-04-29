@@ -38,10 +38,12 @@ class PreciseDateTime extends NewType<DateTime>
   /// print(newYearsEve); // 2021-12-31 19:30:00.000Z
   /// ```
   PreciseDateTime.fromMicrosecondsSinceEpoch(int microsecondsSinceEpoch)
-      : super(DateTime.fromMicrosecondsSinceEpoch(
+    : super(
+        DateTime.fromMicrosecondsSinceEpoch(
           microsecondsSinceEpoch,
           isUtc: true,
-        ));
+        ),
+      );
 
   /// Constructs a [PreciseDateTime] from the provided [json].
   factory PreciseDateTime.fromJson(Map<String, dynamic> json) =>

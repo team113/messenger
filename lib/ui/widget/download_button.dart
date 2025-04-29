@@ -21,6 +21,7 @@ import 'package:url_launcher/url_launcher_string.dart';
 import '/config.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/login/widget/prefix_button.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/message_popup.dart';
@@ -31,50 +32,65 @@ import 'progress_indicator.dart';
 /// file by the specified [link] when pressed.
 class DownloadButton extends StatefulWidget {
   /// Constructs a [DownloadButton] for downloading the Windows application.
-  const DownloadButton.windows({super.key, this.link = 'messenger-windows.zip'})
-      : asset = SvgIcons.windows,
-        title = 'Windows',
-        download = true;
+  const DownloadButton.windows({
+    super.key,
+    this.link = 'messenger-windows.zip',
+    this.onPressed,
+  }) : asset = SvgIcons.windows11,
+       title = 'Windows',
+       download = true;
 
   /// Constructs a [DownloadButton] for downloading the macOS application.
-  const DownloadButton.macos({super.key, this.link = 'messenger-macos.zip'})
-      : asset = SvgIcons.apple,
-        title = 'macOS',
-        download = true;
+  const DownloadButton.macos({
+    super.key,
+    this.link = 'messenger-macos.zip',
+    this.onPressed,
+  }) : asset = SvgIcons.apple,
+       title = 'macOS',
+       download = true;
 
   /// Constructs a [DownloadButton] for downloading the Linux application.
-  const DownloadButton.linux({super.key, this.link = 'messenger-linux.zip'})
-      : asset = SvgIcons.linux,
-        title = 'Linux',
-        download = true;
+  const DownloadButton.linux({
+    super.key,
+    this.link = 'messenger-linux.zip',
+    this.onPressed,
+  }) : asset = SvgIcons.linux,
+       title = 'Linux',
+       download = true;
 
   /// Constructs a [DownloadButton] for downloading the iOS application.
-  const DownloadButton.ios({super.key, this.link = 'messenger-ios.ipa'})
-      : asset = SvgIcons.appStore,
-        title = 'iOS',
-        download = true;
+  const DownloadButton.ios({
+    super.key,
+    this.link = 'messenger-ios.ipa',
+    this.onPressed,
+  }) : asset = SvgIcons.appleBlack,
+       title = 'iOS',
+       download = true;
 
   /// Constructs a [DownloadButton] for downloading the iOS application from App
   /// Store.
-  DownloadButton.appStore({super.key})
-      : asset = SvgIcons.appStore,
-        title = 'App Store',
-        link = Config.appStoreUrl,
-        download = false;
+  DownloadButton.appStore({super.key, this.onPressed})
+    : asset = SvgIcons.appStore,
+      title = 'App Store',
+      link = Config.appStoreUrl,
+      download = false;
 
   /// Constructs a [DownloadButton] for downloading the Android application.
-  const DownloadButton.android({super.key, this.link = 'messenger-android.apk'})
-      : asset = SvgIcons.android,
-        title = 'Android',
-        download = true;
+  const DownloadButton.android({
+    super.key,
+    this.link = 'messenger-android.apk',
+    this.onPressed,
+  }) : asset = SvgIcons.android,
+       title = 'Android',
+       download = true;
 
   /// Constructs a [DownloadButton] for downloading the Android application from
   /// Google Play.
-  DownloadButton.googlePlay({super.key})
-      : asset = SvgIcons.googlePlay,
-        title = 'Google Play',
-        link = Config.googlePlayUrl,
-        download = false;
+  DownloadButton.googlePlay({super.key, this.onPressed})
+    : asset = SvgIcons.googlePlay,
+      title = 'Google Play',
+      link = Config.googlePlayUrl,
+      download = false;
 
   /// Asset to display as a prefix to this [DownloadButton].
   final SvgData? asset;
@@ -88,6 +104,9 @@ class DownloadButton extends StatefulWidget {
   /// Indicator whether whatever hosted at [link] should be downloaded, or
   /// simply launched otherwise.
   final bool download;
+
+  /// Callback, called when this [DownloadButton] is pressed.
+  final void Function()? onPressed;
 
   @override
   State<DownloadButton> createState() => _DownloadButtonState();
@@ -103,58 +122,58 @@ class _DownloadButtonState extends State<DownloadButton> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return PrefixButton(
-      title: widget.title,
-      onPressed: widget.link == null || _progress != null
-          ? null
-          : widget.download
+    return FieldButton(
+      text: widget.title,
+      onPressed:
+          widget.link == null || _progress != null
+              ? null
+              : widget.download
               ? () async {
-                  String url = widget.link!;
+                String url = widget.link!;
 
-                  if (!url.startsWith('http')) {
-                    url = '${Config.origin}/artifacts/$url';
+                if (!url.startsWith('http')) {
+                  url = '${Config.origin}/artifacts/$url';
+                }
+
+                if (mounted) {
+                  setState(() => _progress = 0);
+                }
+
+                try {
+                  final file = await PlatformUtils.saveTo(
+                    url,
+                    onReceiveProgress: (a, b) {
+                      if (b != 0) {
+                        _progress = a / b;
+                        setState(() {});
+                      }
+                    },
+                  );
+
+                  if (file != null) {
+                    MessagePopup.success('label_file_downloaded'.l10n);
                   }
-
+                } finally {
                   if (mounted) {
-                    setState(() => _progress = 0);
-                  }
-
-                  try {
-                    final file = await PlatformUtils.saveTo(
-                      url,
-                      onReceiveProgress: (a, b) {
-                        if (b != 0) {
-                          _progress = a / b;
-                          setState(() {});
-                        }
-                      },
-                    );
-
-                    if (file != null) {
-                      MessagePopup.success('label_file_downloaded'.l10n);
-                    }
-                  } finally {
-                    if (mounted) {
-                      setState(() => _progress = null);
-                    }
+                    setState(() => _progress = null);
                   }
                 }
+              }
               : () => launchUrlString(widget.link!),
-      prefix: widget.asset == null
-          ? null
-          : _progress == null
+      trailing:
+          widget.asset == null
+              ? null
+              : _progress == null
               ? Padding(
-                  padding: const EdgeInsets.only(left: 20),
-                  child: SvgIcon(widget.asset!),
-                )
+                padding: const EdgeInsets.only(left: 8),
+                child: SvgIcon(widget.asset!),
+              )
               : Padding(
-                  key: const Key('Loading'),
-                  padding: const EdgeInsets.only(left: 14),
-                  child: CustomProgressIndicator.small(value: _progress),
-                ),
-      style: widget.link == null
-          ? style.fonts.normal.regular.onBackground
-          : style.fonts.normal.regular.primary,
+                key: const Key('Loading'),
+                padding: const EdgeInsets.only(left: 2),
+                child: CustomProgressIndicator.small(value: _progress),
+              ),
+      style: style.fonts.normal.regular.onBackground,
     );
   }
 }
