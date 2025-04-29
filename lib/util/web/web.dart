@@ -228,10 +228,10 @@ class WebUtils {
     }
 
     controller = StreamController(
-      onListen: () =>
-          web.window.addEventListener('storage', storageListener.toJS),
-      onCancel: () =>
-          web.window.removeEventListener('storage', storageListener.toJS),
+      onListen:
+          () => web.window.addEventListener('storage', storageListener.toJS),
+      onCancel:
+          () => web.window.removeEventListener('storage', storageListener.toJS),
     );
 
     return controller.stream;
@@ -317,7 +317,8 @@ class WebUtils {
 
     try {
       final locks = (await _getLocks().toDart) as JSArray;
-      held = locks.toDart
+      held =
+          locks.toDart
               .map((e) => e?.dartify() as Map?)
               .any((e) => e?['name'] == 'mutex') ==
           true;
@@ -661,8 +662,8 @@ class WebUtils {
       throw Exception('Cannot download file');
     }
 
-    final web.HTMLAnchorElement anchorElement = web.HTMLAnchorElement()
-      ..href = url;
+    final web.HTMLAnchorElement anchorElement =
+        web.HTMLAnchorElement()..href = url;
     anchorElement.download = name;
     anchorElement.click();
   }
@@ -679,16 +680,18 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission = await web.window.navigator.permissions
-          .query({'name': 'camera'}.jsify() as JSObject)
-          .toDart;
+      final permission =
+          await web.window.navigator.permissions
+              .query({'name': 'camera'}.jsify() as JSObject)
+              .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream = await web.window.navigator.mediaDevices
-          .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
-          .toDart;
+      final web.MediaStream stream =
+          await web.window.navigator.mediaDevices
+              .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
+              .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -718,16 +721,18 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission = await web.window.navigator.permissions
-          .query({'name': 'microphone'}.jsify() as JSObject)
-          .toDart;
+      final permission =
+          await web.window.navigator.permissions
+              .query({'name': 'microphone'}.jsify() as JSObject)
+              .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream = await web.window.navigator.mediaDevices
-          .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
-          .toDart;
+      final web.MediaStream stream =
+          await web.window.navigator.mediaDevices
+              .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
+              .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -874,7 +879,8 @@ class WebUtils {
           bool modifiers = true;
 
           for (var m in e.key.modifiers ?? <HotKeyModifier>[]) {
-            modifiers = modifiers &&
+            modifiers =
+                modifiers &&
                 switch (m) {
                   HotKeyModifier.alt => HardwareKeyboard.instance.isAltPressed,
                   HotKeyModifier.capsLock => HardwareKeyboard.instance
@@ -914,13 +920,17 @@ class WebUtils {
 extension _RectExtension on Rect {
   /// Returns a [Map] containing parameters of this [Rect].
   Map<String, dynamic> toJson() => {
-        'width': width,
-        'height': height,
-        'left': left,
-        'top': top,
-      };
+    'width': width,
+    'height': height,
+    'left': left,
+    'top': top,
+  };
 
   /// Constructs a [Rect] from the provided [data].
-  static Rect fromJson(Map<dynamic, dynamic> data) =>
-      Rect.fromLTWH(data['left'], data['top'], data['width'], data['height']);
+  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
+    (data['left'] as num).toDouble(),
+    (data['top'] as num).toDouble(),
+    (data['width'] as num).toDouble(),
+    (data['height'] as num).toDouble(),
+  );
 }
