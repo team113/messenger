@@ -187,7 +187,6 @@ dependency_overrides:
     git:
       url: https://github.com/media-kit/media-kit
       path: media_kit
-      ref: migrate-to-wasm
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
   media_kit_libs_android_video:
     git:
@@ -213,7 +212,6 @@ dependency_overrides:
     git:
       url: https://github.com/media-kit/media-kit
       path: media_kit_video
-      ref: migrate-to-wasm
   sqlparser:
     git:
       url: https://github.com/simolus3/drift
