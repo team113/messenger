@@ -11,6 +11,12 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.4.2...v0.5.0) | [Milestone](/../../milestone/38)
 
+### Changed
+
+- UI:
+    - Media panel:
+        - Context menu icons in actions over participants. ([#1226])
+
 ### Fixed
 
 - UI:
@@ -25,6 +31,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1218]: /../../pull/1218
 [#1219]: /../../pull/1219
 [#1223]: /../../pull/1223
+[#1226]: /../../pull/1226
 
 
 

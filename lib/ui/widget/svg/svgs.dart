@@ -1968,4 +1968,160 @@ class SvgIcons {
     width: 21,
     height: 19,
   );
+
+  static const SvgData callNotCutVideo = SvgData(
+    'assets/icons/call_not_cut_video.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callNotCutVideoWhite = SvgData(
+    'assets/icons/call_not_cut_video_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callCutVideo = SvgData(
+    'assets/icons/call_cut_video.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callCutVideoWhite = SvgData(
+    'assets/icons/call_cut_video_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDeCenter = SvgData(
+    'assets/icons/call_de_center.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDeCenterWhite = SvgData(
+    'assets/icons/call_de_center_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callCenter = SvgData(
+    'assets/icons/call_center.svg',
+    width: 19,
+    height: 14 * (19 / 16),
+  );
+
+  static const SvgData callCenterWhite = SvgData(
+    'assets/icons/call_center_white.svg',
+    width: 19,
+    height: 14 * (19 / 16),
+  );
+
+  static const SvgData callEnableVideo = SvgData(
+    'assets/icons/call_enable_video.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callEnableVideoWhite = SvgData(
+    'assets/icons/call_enable_video_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDisableVideo = SvgData(
+    'assets/icons/call_disable_video.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDisableVideoWhite = SvgData(
+    'assets/icons/call_disable_video_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callEnableAudio = SvgData(
+    'assets/icons/call_enable_audio.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callEnableAudioWhite = SvgData(
+    'assets/icons/call_enable_audio_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDisableAudio = SvgData(
+    'assets/icons/call_disable_audio.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callDisableAudioWhite = SvgData(
+    'assets/icons/call_disable_audio_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callRemoveFrom = SvgData(
+    'assets/icons/call_remove_from.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callRemoveFromWhite = SvgData(
+    'assets/icons/call_remove_from_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callTurnVideoOn = SvgData(
+    'assets/icons/call_turn_video_on.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callTurnVideoOnWhite = SvgData(
+    'assets/icons/call_turn_video_on_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callTurnVideoOff = SvgData(
+    'assets/icons/call_turn_video_off.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callTurnVideoOffWhite = SvgData(
+    'assets/icons/call_turn_video_off_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callMute = SvgData(
+    'assets/icons/call_mute.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callMuteWhite = SvgData(
+    'assets/icons/call_mute_white.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callUnmute = SvgData(
+    'assets/icons/call_unmute.svg',
+    width: 19,
+    height: 19,
+  );
+
+  static const SvgData callUnmuteWhite = SvgData(
+    'assets/icons/call_unmute_white.svg',
+    width: 19,
+    height: 19,
+  );
 }
