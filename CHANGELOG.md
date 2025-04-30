@@ -17,7 +17,7 @@ All user visible changes to this project will be documented in this file. This p
     - Media panel:
         - Context menu icons in actions over participants. ([#1226])
     - Auth page:
-        - Upgrade popup redesigned to be upgrade alert. ([#1228])
+        - Upgrade popup redesigned to be upgrade alert. ([#1229])
 
 ### Fixed
 
