@@ -296,6 +296,11 @@ jobs:
           cache: gradle
         if: ${{ contains('apk appbundle', matrix.platform) }}
 
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '16.2'
+        if: ${{ matrix.platform == 'ipa' }}
+
       - name: Configure FCM (Firebase Cloud Messaging)
         env:
           GOOGLE_APPLICATION_CREDENTIALS: ${{ runner.temp }}/service_account.json

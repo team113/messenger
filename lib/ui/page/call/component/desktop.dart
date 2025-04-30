@@ -1276,17 +1276,31 @@ Widget _primaryView(CallController c) {
                                     c.locals.refresh();
                                   }
                                 },
+                                trailing: SvgIcon(
+                                  fit == null || fit == BoxFit.cover
+                                      ? SvgIcons.callNotCutVideo
+                                      : SvgIcons.callCutVideo,
+                                ),
+                                inverted: SvgIcon(
+                                  fit == null || fit == BoxFit.cover
+                                      ? SvgIcons.callNotCutVideoWhite
+                                      : SvgIcons.callCutVideoWhite,
+                                ),
                               ),
                           ],
                           if (c.primary.length == 1)
                             ContextMenuButton(
                               label: 'btn_call_uncenter'.l10n,
                               onPressed: c.focusAll,
+                              trailing: SvgIcon(SvgIcons.callDeCenter),
+                              inverted: SvgIcon(SvgIcons.callDeCenterWhite),
                             )
                           else
                             ContextMenuButton(
                               label: 'btn_call_center'.l10n,
                               onPressed: () => c.center(participant),
+                              trailing: SvgIcon(SvgIcons.callCenter),
+                              inverted: SvgIcon(SvgIcons.callCenterWhite),
                             ),
                           if (participant.member.id != c.me.id) ...[
                             if (participant
@@ -1304,6 +1318,18 @@ Widget _primaryView(CallController c) {
                                         : 'btn_call_enable_video'.l10n,
                                 onPressed:
                                     () => c.toggleVideoEnabled(participant),
+                                trailing: SvgIcon(
+                                  participant.video.value?.renderer.value !=
+                                          null
+                                      ? SvgIcons.callDisableVideo
+                                      : SvgIcons.callEnableVideo,
+                                ),
+                                inverted: SvgIcon(
+                                  participant.video.value?.renderer.value !=
+                                          null
+                                      ? SvgIcons.callDisableVideoWhite
+                                      : SvgIcons.callEnableVideoWhite,
+                                ),
                               ),
                             if (participant
                                     .audio
@@ -1325,6 +1351,28 @@ Widget _primaryView(CallController c) {
                                         : 'btn_call_enable_audio'.l10n,
                                 onPressed:
                                     () => c.toggleAudioEnabled(participant),
+                                trailing: SvgIcon(
+                                  participant
+                                              .audio
+                                              .value
+                                              ?.direction
+                                              .value
+                                              .isEnabled ==
+                                          true
+                                      ? SvgIcons.callDisableAudio
+                                      : SvgIcons.callEnableAudio,
+                                ),
+                                inverted: SvgIcon(
+                                  participant
+                                              .audio
+                                              .value
+                                              ?.direction
+                                              .value
+                                              .isEnabled ==
+                                          true
+                                      ? SvgIcons.callDisableAudioWhite
+                                      : SvgIcons.callEnableAudioWhite,
+                                ),
                               ),
                             if (participant.member.isDialing.isFalse)
                               ContextMenuButton(
@@ -1333,6 +1381,8 @@ Widget _primaryView(CallController c) {
                                     () => c.removeChatCallMember(
                                       participant.member.id.userId,
                                     ),
+                                trailing: SvgIcon(SvgIcons.callRemoveFrom),
+                                inverted: SvgIcon(SvgIcons.callRemoveFromWhite),
                               ),
                           ] else ...[
                             ContextMenuButton(
@@ -1341,6 +1391,16 @@ Widget _primaryView(CallController c) {
                                       ? 'btn_call_video_off'.l10n
                                       : 'btn_call_video_on'.l10n,
                               onPressed: c.toggleVideo,
+                              trailing: SvgIcon(
+                                c.videoState.value.isEnabled
+                                    ? SvgIcons.callTurnVideoOff
+                                    : SvgIcons.callTurnVideoOn,
+                              ),
+                              inverted: SvgIcon(
+                                c.videoState.value.isEnabled
+                                    ? SvgIcons.callTurnVideoOffWhite
+                                    : SvgIcons.callTurnVideoOnWhite,
+                              ),
                             ),
                             ContextMenuButton(
                               label:
@@ -1348,6 +1408,16 @@ Widget _primaryView(CallController c) {
                                       ? 'btn_call_audio_off'.l10n
                                       : 'btn_call_audio_on'.l10n,
                               onPressed: c.toggleAudio,
+                              trailing: SvgIcon(
+                                c.audioState.value.isEnabled
+                                    ? SvgIcons.callMute
+                                    : SvgIcons.callUnmute,
+                              ),
+                              inverted: SvgIcon(
+                                c.audioState.value.isEnabled
+                                    ? SvgIcons.callMuteWhite
+                                    : SvgIcons.callUnmuteWhite,
+                              ),
                             ),
                           ],
                         ],
@@ -1801,6 +1871,8 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                 ContextMenuButton(
                                   label: 'btn_call_center'.l10n,
                                   onPressed: () => c.center(participant),
+                                  trailing: SvgIcon(SvgIcons.callCenter),
+                                  inverted: SvgIcon(SvgIcons.callCenterWhite),
                                 ),
                                 if (participant.member.id != c.me.id) ...[
                                   if (participant
@@ -1823,6 +1895,26 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       onPressed:
                                           () =>
                                               c.toggleVideoEnabled(participant),
+                                      trailing: SvgIcon(
+                                        participant
+                                                    .video
+                                                    .value
+                                                    ?.renderer
+                                                    .value !=
+                                                null
+                                            ? SvgIcons.callDisableVideo
+                                            : SvgIcons.callEnableVideo,
+                                      ),
+                                      inverted: SvgIcon(
+                                        participant
+                                                    .video
+                                                    .value
+                                                    ?.renderer
+                                                    .value !=
+                                                null
+                                            ? SvgIcons.callDisableVideoWhite
+                                            : SvgIcons.callEnableVideoWhite,
+                                      ),
                                     ),
                                   if (participant
                                           .audio
@@ -1845,6 +1937,28 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                       onPressed:
                                           () =>
                                               c.toggleAudioEnabled(participant),
+                                      trailing: SvgIcon(
+                                        participant
+                                                    .audio
+                                                    .value
+                                                    ?.direction
+                                                    .value
+                                                    .isEnabled ==
+                                                true
+                                            ? SvgIcons.callDisableAudio
+                                            : SvgIcons.callEnableAudio,
+                                      ),
+                                      inverted: SvgIcon(
+                                        participant
+                                                    .audio
+                                                    .value
+                                                    ?.direction
+                                                    .value
+                                                    .isEnabled ==
+                                                true
+                                            ? SvgIcons.callDisableAudioWhite
+                                            : SvgIcons.callEnableAudioWhite,
+                                      ),
                                     ),
                                   if (participant.member.isDialing.isFalse)
                                     ContextMenuButton(
@@ -1853,6 +1967,12 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                           () => c.removeChatCallMember(
                                             participant.member.id.userId,
                                           ),
+                                      trailing: SvgIcon(
+                                        SvgIcons.callRemoveFrom,
+                                      ),
+                                      inverted: SvgIcon(
+                                        SvgIcons.callRemoveFromWhite,
+                                      ),
                                     ),
                                 ] else ...[
                                   ContextMenuButton(
@@ -1861,6 +1981,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                             ? 'btn_call_video_off'.l10n
                                             : 'btn_call_video_on'.l10n,
                                     onPressed: c.toggleVideo,
+                                    trailing: SvgIcon(
+                                      c.videoState.value.isEnabled
+                                          ? SvgIcons.callTurnVideoOff
+                                          : SvgIcons.callTurnVideoOn,
+                                    ),
+                                    inverted: SvgIcon(
+                                      c.videoState.value.isEnabled
+                                          ? SvgIcons.callTurnVideoOffWhite
+                                          : SvgIcons.callTurnVideoOnWhite,
+                                    ),
                                   ),
                                   ContextMenuButton(
                                     label:
@@ -1868,6 +1998,16 @@ Widget _secondaryView(CallController c, BuildContext context) {
                                             ? 'btn_call_audio_off'.l10n
                                             : 'btn_call_audio_on'.l10n,
                                     onPressed: c.toggleAudio,
+                                    trailing: SvgIcon(
+                                      c.audioState.value.isEnabled
+                                          ? SvgIcons.callMute
+                                          : SvgIcons.callUnmute,
+                                    ),
+                                    inverted: SvgIcon(
+                                      c.audioState.value.isEnabled
+                                          ? SvgIcons.callMuteWhite
+                                          : SvgIcons.callUnmuteWhite,
+                                    ),
                                   ),
                                 ],
                               ],

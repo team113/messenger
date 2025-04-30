@@ -1167,9 +1167,9 @@ class ChatRepository extends DisposableInterface
   }
 
   /// Adds the provided [ChatCall] to the [AbstractCallRepository].
-  void addCall(ChatCall call) {
-    Log.debug('addCall($call)', '$runtimeType');
-    _callRepo.add(call);
+  void addCall(ChatCall call, {bool dontAddIfAccounted = false}) {
+    Log.debug('addCall($call, $dontAddIfAccounted)', '$runtimeType');
+    _callRepo.add(call, dontAddIfAccounted: dontAddIfAccounted);
   }
 
   /// Ends an [OngoingCall] happening in the [Chat] identified by the provided

@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:medea_flutter_webrtc/medea_flutter_webrtc.dart' as webrtc;
 import 'package:medea_jason/medea_jason.dart';
@@ -1605,9 +1606,16 @@ class OngoingCall {
   Future<void> _initLocalMedia() async {
     Log.debug('_initLocalMedia()', '$runtimeType');
 
-    if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
-      await Permission.microphone.request();
-      await Permission.camera.request();
+    try {
+      if (hasAudio || audioState.value.isEnabled) {
+        await Permission.microphone.request();
+      }
+
+      if (videoState.value.isEnabled) {
+        await Permission.camera.request();
+      }
+    } on MissingPluginException {
+      // No-op.
     }
 
     await _mediaSettingsGuard.protect(() async {
