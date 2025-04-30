@@ -728,7 +728,9 @@ class WebUtils {
       granted = permission.state == 'granted';
     }
 
-    if (!granted) {
+    // PWA in Safari returns `true` regarding permission, yet doesn't allow to
+    // enumerate devices despite that.
+    if (!granted || WebUtils.isSafari) {
       final web.MediaStream stream =
           await web.window.navigator.mediaDevices
               .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
