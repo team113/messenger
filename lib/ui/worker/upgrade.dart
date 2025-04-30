@@ -308,7 +308,6 @@ class UpgradeWorker extends DisposableService {
 
         _scheduled = true;
         scheduled.value = release;
-        Log.info('=== scheduled.value = release', '$runtimeType');
 
         return;
       }
