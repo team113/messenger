@@ -28,10 +28,12 @@ import 'package:messenger/provider/drift/credentials.dart';
 import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/skipped_version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
 import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
+import 'package:messenger/ui/worker/upgrade.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 
@@ -50,6 +52,8 @@ void main() async {
   final credsProvider = Get.put(CredentialsDriftProvider(common));
   final accountProvider = Get.put(AccountDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final skippedProvider = Get.put(SkippedVersionDriftProvider(common));
+  Get.put(UpgradeWorker(skippedProvider));
 
   setUp(() async {
     Get.reset();
