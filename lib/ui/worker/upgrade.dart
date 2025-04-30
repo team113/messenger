@@ -27,7 +27,6 @@ import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
-import '/domain/service/auth.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 import '/provider/drift/skipped_version.dart';
@@ -42,7 +41,7 @@ import '/util/web/web_utils.dart';
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
 class UpgradeWorker extends DisposableService {
-  UpgradeWorker(this._skippedLocal, this._authService);
+  UpgradeWorker(this._skippedLocal);
 
   /// Latest [Release] fetched during the [fetchUpdates].
   final Rx<Release?> latest = Rx(null);
@@ -58,9 +57,6 @@ class UpgradeWorker extends DisposableService {
 
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
-
-  /// [AuthService] used to check whether application has authorization.
-  final AuthService _authService;
 
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
@@ -236,7 +232,7 @@ class UpgradeWorker extends DisposableService {
               _schedulePopup(
                 release,
                 critical: critical,
-                delay: !force,
+                delay: !force && critical,
                 silent: silent,
               );
               return true;
@@ -275,12 +271,13 @@ class UpgradeWorker extends DisposableService {
       if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
         _schedulePopup(
           Release(
-            name: '${DateTime.now().microsecondsSinceEpoch}',
+            name: 'label_latest_version_available'.l10n,
             description: null,
             publishedAt: DateTime.now(),
             assets: [],
           ),
           critical: false,
+          delay: false,
           silent: true,
         );
       }
@@ -304,13 +301,14 @@ class UpgradeWorker extends DisposableService {
 
     Future<void> displayPopup() async {
       // Only restrain from displaying the popup if app has authorization.
-      if (!critical && _authService.status.value.isSuccess) {
+      if (!critical) {
         if (_scheduled) {
           return;
         }
 
         _scheduled = true;
         scheduled.value = release;
+        Log.info('=== scheduled.value = release', '$runtimeType');
 
         return;
       }
