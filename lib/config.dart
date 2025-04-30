@@ -29,138 +29,142 @@ import 'routes.dart';
 import 'util/ios_utils.dart';
 
 /// Configuration of this application.
-class Config {
+// ignore: non_constant_identifier_names
+final ConfigImpl Config = ConfigImpl();
+
+/// Configuration of this application.
+class ConfigImpl with ChangeNotifier {
   /// Backend's HTTP URL.
-  static String url = 'http://localhost';
+  String url = 'http://localhost';
 
   /// Backend's HTTP port.
-  static int port = 80;
+  int port = 80;
 
   /// GraphQL API endpoint of HTTP backend server.
-  static String graphql = '/api/graphql';
+  String graphql = '/api/graphql';
 
   /// Backend's WebSocket URL.
-  static String ws = 'ws://localhost';
+  String ws = 'ws://localhost';
 
   /// File storage HTTP URL.
-  static String files = 'http://localhost/files';
+  String files = 'http://localhost/files';
 
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
-  static String sentryDsn = '';
+  String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
-  static String origin = '';
+  String origin = '';
 
   /// [ChatDirectLink] prefix.
   ///
   /// If empty, then [origin] is used.
-  static String link = '';
+  String link = '';
 
   /// Directory to download files to.
-  static String downloads = '';
+  String downloads = '';
 
   /// Indicator whether download links should be present within application.
   ///
   /// Should be `false` for builds uploaded to application stores, as usually
   /// those prohibit such links being present.
-  static bool downloadable = true;
+  bool downloadable = true;
 
   /// URL of the application entry in App Store.
-  static String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
+  String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
 
   /// URL of the application entry in Google Play.
-  static String googlePlayUrl =
+  String googlePlayUrl =
       'https://play.google.com/store/apps/details?id=com.team113.messenger';
 
   /// VAPID (Voluntary Application Server Identification) key for Web Push.
-  static String vapidKey =
+  String vapidKey =
       'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
 
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
-  static bool disableInfiniteAnimations = false;
+  bool disableInfiniteAnimations = false;
 
   /// Indicator whether all [DropRegion]s should be disabled.
   ///
   /// Intended to be used in E2E testing.
-  static bool disableDragArea = false;
+  bool disableDragArea = false;
 
   /// Product identifier of `User-Agent` header to put in network queries.
-  static String userAgentProduct = 'Gapopa';
+  String userAgentProduct = 'Gapopa';
 
   /// Version identifier of `User-Agent` header to put in network queries.
-  static String userAgentVersion = '';
+  String userAgentVersion = '';
 
   /// Unique identifier of Windows application.
-  static String clsid = '';
+  String clsid = '';
 
   /// Version of the application, used to clear cache if mismatch is detected.
   ///
   /// If not specified, [Pubspec.version] is used.
   ///
   /// Intended to be used in E2E testing.
-  static String? version;
+  String? version;
 
   /// Level of [Log]ger to log.
-  static me.LogLevel logLevel = me.LogLevel.info;
+  me.LogLevel logLevel = me.LogLevel.info;
 
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
   /// available.
-  static String appcast = '';
+  String appcast = '';
 
   /// Optional copyright to display at the bottom of [Routes.auth] page.
-  static String copyright = '';
+  String copyright = '';
 
   /// Email address of the support service displayed on the [Routes.support]
   /// page.
-  static String support = 'admin@gapopa.com';
+  String support = 'admin@gapopa.com';
 
   /// URL of the repository (or anything else) for users to report bugs to.
-  static String repository = 'https://github.com/team113/messenger/issues';
+  String repository = 'https://github.com/team113/messenger/issues';
 
   /// Schema version of the [CommonDatabase].
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int commonVersion = 5;
+  int commonVersion = 5;
 
   /// Schema version of the [ScopedDatabase].
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int scopedVersion = 2;
+  int scopedVersion = 2;
 
   /// Custom URL scheme to associate the application with when opening the deep
   /// links.
-  static String scheme = 'gapopa';
+  String scheme = 'gapopa';
 
   /// URL address of IP geolocation API server.
-  static String geoEndpoint = 'https://ipwho.is';
+  String geoEndpoint = 'https://ipwho.is';
 
   /// URL address of IP address discovering API server.
-  static String ipEndpoint = 'https://api.ipify.org?format=json';
+  String ipEndpoint = 'https://api.ipify.org?format=json';
 
   /// Indicator whether this [Config] should try fetching its data from the
   /// remote endpoint.
-  static bool confRemote = true;
+  bool confRemote = true;
 
   /// URL part of the [ws] variable.
-  static String _wsUrl = 'ws://localhost';
+  String _wsUrl = 'ws://localhost';
 
   /// Port part of the [ws] variable.
-  static int _wsPort = 80;
+  int _wsPort = 80;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
   /// - bundled configuration file (`conf.toml`);
   /// - default values.
-  static Future<void> init() async {
+  Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     final Map<String, dynamic> document =
@@ -343,7 +347,7 @@ class Config {
   }
 
   /// Finalizes the [origin], [link] and [ws] parts of the [Config].
-  static void _finalizeUrl() {
+  void _finalizeUrl() {
     if (PlatformUtils.isWeb) {
       if ((Uri.base.scheme == 'https' && Uri.base.port != 443) ||
           Uri.base.scheme == 'http' && Uri.base.port != 80) {
@@ -368,7 +372,7 @@ class Config {
   }
 
   /// Fetches this [Config] from the remote [url] and [port] endpoint.
-  static Future<void> _fetchRemote() async {
+  Future<void> _fetchRemote() async {
     if (!confRemote) {
       return;
     }
@@ -420,6 +424,7 @@ class Config {
           origin = url;
 
           _finalizeUrl();
+          notifyListeners();
         }
       }
     } catch (e) {
