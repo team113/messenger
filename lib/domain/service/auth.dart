@@ -764,16 +764,28 @@ class AuthService extends DisposableService {
             'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
-
-          if (!_shouldRefresh(oldCreds)) {
-            // [Credentials] are fresh.
-            return _refreshRetryDelay = _initialRetryDelay;
-          }
         } else {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
+        }
+
+        if (!_shouldRefresh(oldCreds)) {
+          if (oldCreds != null) {
+            if (credentials.value?.access.secret != oldCreds.access.secret ||
+                credentials.value?.refresh.secret != oldCreds.refresh.secret) {
+              Log.debug(
+                'refreshSession($userId |-> $attempt): `credentials.value` differ from `oldCreds`, thus (since `_shouldRefresh` is `false`) authorizing those',
+                '$runtimeType',
+              );
+
+              _authorized(oldCreds);
+            }
+          }
+
+          // [Credentials] are fresh.
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (oldCreds == null) {
