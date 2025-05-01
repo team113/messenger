@@ -102,6 +102,11 @@ class UpgradeWorker extends DisposableService {
   /// Skips the [release], meaning no popups will be prompted for this one.
   Future<void> skip(Release release) async {
     Log.debug('skip($release)', '$runtimeType');
+
+    if (scheduled.value == release) {
+      scheduled.value = null;
+    }
+
     await _skippedLocal?.upsert(release.name);
   }
 
