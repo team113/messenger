@@ -92,10 +92,10 @@ class AuthService extends DisposableService {
   final Map<UserId, Timer> _refreshTimers = {};
 
   /// [_refreshTimers] interval.
-  final Duration _refreshTaskInterval = const Duration(seconds: 10);
+  final Duration _refreshTaskInterval = const Duration(seconds: 30);
 
   /// Minimal allowed [credentials] TTL.
-  final Duration _accessTokenMinTtl = const Duration(minutes: 29);
+  final Duration _accessTokenMinTtl = const Duration(minutes: 2);
 
   /// [StreamSubscription] to [WebUtils.onStorageChange] fetching new
   /// [Credentials].
