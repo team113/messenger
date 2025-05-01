@@ -86,10 +86,11 @@ void main() async {
         locksProvider,
       ),
     );
-    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
+
+    authService.init();
 
     when(
       graphQlProvider.createConfirmationCode(

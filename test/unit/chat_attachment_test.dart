@@ -49,6 +49,7 @@ import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -123,6 +124,7 @@ void main() async {
       locksProvider,
     ),
   );
+  router = RouterState(authService);
   authService.init();
 
   test('ChatService successfully uploads an attachment', () async {

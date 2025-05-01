@@ -130,8 +130,6 @@ void main() async {
       ),
     );
 
-    authService.init();
-
     for (int i = 0; i < 25; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
       await tester.pump(const Duration(seconds: 2));
@@ -141,6 +139,9 @@ void main() async {
     router.provider = MockedPlatformRouteInformationProvider();
     when(router.routes).thenReturn(RxList());
     when(router.obscuring).thenReturn(RxList());
+    when(router.lifecycle).thenReturn(Rx(AppLifecycleState.resumed));
+
+    authService.init();
 
     await tester.pumpWidget(createWidgetForTesting(child: const AuthView()));
     await tester.pumpAndSettle();
