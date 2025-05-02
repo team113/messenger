@@ -459,8 +459,10 @@ class ChatController extends GetxController {
           });
 
           if (previous != null) {
-            editMessage(previous.value);
-            return true;
+            if (previous.value.isEditable(chat!.chat.value, me!)) {
+              editMessage(previous.value);
+              return true;
+            }
           }
         }
 
