@@ -235,16 +235,15 @@
       };
     }
   </script>
-  <script defer src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
   <!-- Animate the blinking loader -->
   <script>
-    var interval;
+    let interval;
+    let i = 0;
 
-    var i = 0;
     async function animate() {
       i = 1;
 
-      if (interval != null) {
+      if (interval !== null) {
         clearInterval(interval);
         interval = null;
       }
@@ -252,26 +251,30 @@
       interval = setInterval(function () {
         ++i;
 
-        if (i == 10) {
+        if (i === 10) {
           i = 0;
           clearInterval(interval);
           interval = null;
         }
 
-        $("#logo").attr("src", `assets/assets/images/logo/head000${i}.svg`);
+        const logo = document.getElementById("logo");
+        if (logo) {
+          logo.src = `assets/assets/images/logo/head000${i}.svg`;
+        }
       }, 45);
     }
 
-    window.addEventListener("load", function (event) {
-      $('html').on('click', function () {
-        if ($("#logo").length) {
+    window.addEventListener("load", function () {
+      document.documentElement.addEventListener("click", function () {
+        const logo = document.getElementById("logo");
+        if (logo) {
           animate();
         }
       });
     }, false);
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.0/FileSaver.min.js"></script>
+  <script defer src="/script/FileSaver.min.js"></script>
   <script>
     function webSaveAs(url, name) {
       saveAs(url, name);
