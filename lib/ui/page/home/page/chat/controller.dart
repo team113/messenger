@@ -459,7 +459,10 @@ class ChatController extends GetxController {
           });
 
           if (previous != null) {
-            editMessage(previous.value);
+            if (previous.value.isEditable(chat!.chat.value, me!)) {
+              editMessage(previous.value);
+              return true;
+            }
             return true;
           }
         }
@@ -1510,9 +1513,11 @@ class ChatController extends GetxController {
   Future<void> block() async {
     try {
       if (user != null) {
+        final String text = reason.text.trim();
+
         await _userService.blockUser(
           user!.id,
-          reason.text.isEmpty ? null : BlocklistReason(reason.text),
+          text.isEmpty ? null : BlocklistReason(text),
         );
       }
       reason.clear();
