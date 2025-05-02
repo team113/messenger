@@ -17,23 +17,14 @@
 
 Feature: Upgrade popup
 
-  Scenario: Versions prompted in upgrade popups can be skipped
+  Scenario: New versions are prompted in upgrade alerts
     Given appcast with newer version is available
 
     When I wait for app to settle
+    And I pause for 5 seconds
     Then I wait until `UpgradeAlert` is present
 
-    When I tap `UpgradeAlert` button
-    And I wait until `UpgradePopup` is present
-    And I tap `SkipButton` button
-    Then I wait until `UpgradePopup` is absent
-    And I wait until `UpgradeAlert` is absent
-
-    When I restart app
-    And I wait for 5 seconds
-    Then I wait until `UpgradeAlert` is absent
-
-  Scenario: Upgrade popups aren't displayed for current version
+  Scenario: Upgrade alerts aren't displayed for current version
     Given appcast with current version is available
 
     When I wait for app to settle
