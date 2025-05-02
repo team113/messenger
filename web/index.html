@@ -264,14 +264,12 @@
       }, 45);
     }
 
-    window.addEventListener("load", function () {
-      document.documentElement.addEventListener("click", function () {
-        const logo = document.getElementById("logo");
-        if (logo) {
-          animate();
-        }
-      });
-    }, false);
+    document.documentElement.addEventListener("click", function () {
+      const logo = document.getElementById("logo");
+      if (logo) {
+        animate();
+      }
+    });
   </script>
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script defer src="/script/FileSaver.min.js"></script>
