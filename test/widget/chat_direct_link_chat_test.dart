@@ -134,10 +134,11 @@ void main() async {
       locksProvider,
     ),
   );
-  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
+
+  authService.init();
 
   final settingsProvider = Get.put(SettingsDriftProvider(common));
   final userProvider = Get.put(UserDriftProvider(common, scoped));

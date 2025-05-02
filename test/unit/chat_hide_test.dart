@@ -154,9 +154,8 @@ void main() async {
       locksProvider,
     ),
   );
-  authService.init();
-
   router = RouterState(authService);
+  authService.init();
 
   when(
     graphQlProvider.recentChatsTopEvents(3),

@@ -2058,11 +2058,16 @@ class ChatController extends GetxController {
         _history.clear();
       }
 
-      if (_history.isNotEmpty ||
-          listController.position.pixels >
-              MediaQuery.of(onContext?.call() ?? router.context!).size.height *
-                      2 +
-                  200) {
+      bool isHighEnough = false;
+
+      final BuildContext? context = onContext?.call() ?? router.context;
+      if (context != null) {
+        isHighEnough =
+            listController.position.pixels >
+            MediaQuery.of(context).size.height * 2 + 200;
+      }
+
+      if (_history.isNotEmpty || isHighEnough) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;

@@ -421,10 +421,11 @@ void main() async {
         locksProvider,
       ),
     );
-    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
+
+    authService.init();
 
     UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),

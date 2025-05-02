@@ -115,6 +115,8 @@ void main() async {
       AuthService(authRepository, getStorage, accountProvider, locksProvider),
     );
 
+    router = RouterState(authService);
+
     expect(await authService.init(), Routes.auth);
 
     await authService.signIn(
@@ -170,6 +172,8 @@ void main() async {
       ),
     );
 
+    router = RouterState(authService);
+
     expect(await authService.init(), null);
 
     expect(authService.status.value.isSuccess, true);
@@ -208,6 +212,8 @@ void main() async {
         locksProvider,
       ),
     );
+
+    router = RouterState(authService);
 
     expect(await authService.init(), Routes.auth);
     try {
