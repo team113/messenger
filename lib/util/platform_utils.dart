@@ -51,10 +51,31 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
+  PlatformUtilsImpl() {
+    Timer.periodic(Duration(milliseconds: 2000), (_) {
+      if (_lastDeltaPing != null) {
+        final difference =
+            DateTime.now().difference(_lastDeltaPing!).abs().inMilliseconds;
+
+        isDeltaSynchronized.value = difference <= 2200;
+      }
+
+      _lastDeltaPing = DateTime.now();
+    });
+  }
+
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
   Dio? client;
+
+  /// Indicator whether the device is asleep.
+  final RxBool isDeltaSynchronized = RxBool(true);
+
+  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
+  /// passed.
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// Downloads directory.
   Directory? _downloadDirectory;
@@ -89,10 +110,8 @@ class PlatformUtilsImpl {
   /// Indicator whether the application is in active state.
   bool _isActive = true;
 
-  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
-  /// passed.
-  @visibleForTesting
-  Timer? activityTimer;
+  /// Last [DateTime] of a [isDeltaSynchronized] timer.
+  DateTime? _lastDeltaPing;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);

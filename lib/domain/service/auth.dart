@@ -217,24 +217,19 @@ class AuthService extends DisposableService {
       }
     });
 
-    _lifecycleWorker = ever(router.lifecycle, (AppLifecycleState state) async {
-      Log.debug('_lifecycleWorker -> ${state.name}', '$runtimeType');
+    _lifecycleWorker = ever(PlatformUtils.isDeltaSynchronized, (
+      bool synchronized,
+    ) async {
+      Log.debug('_lifecycleWorker -> $synchronized', '$runtimeType');
 
-      switch (state) {
-        case AppLifecycleState.resumed:
-        case AppLifecycleState.inactive:
-          if (_lifecycleMutex.isLocked) {
-            _lifecycleMutex.release();
-          }
-          break;
-
-        case AppLifecycleState.detached:
-        case AppLifecycleState.hidden:
-        case AppLifecycleState.paused:
-          if (!_lifecycleMutex.isLocked) {
-            await _lifecycleMutex.acquire();
-          }
-          break;
+      if (synchronized) {
+        if (_lifecycleMutex.isLocked) {
+          _lifecycleMutex.release();
+        }
+      } else {
+        if (!_lifecycleMutex.isLocked) {
+          await _lifecycleMutex.acquire();
+        }
       }
     });
 
