@@ -654,23 +654,6 @@ class AuthService extends DisposableService {
   Future<void> refreshSession({UserId? userId}) async {
     final int attempt = _refreshAttempt++;
 
-    if (!router.lifecycle.value.inForeground) {
-      Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active...',
-        '$runtimeType',
-      );
-
-      await _lifecycleMutex.acquire();
-      Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
-        '$runtimeType',
-      );
-
-      if (_lifecycleMutex.isLocked) {
-        _lifecycleMutex.release();
-      }
-    }
-
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
