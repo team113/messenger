@@ -20,10 +20,8 @@ import 'dart:convert';
 
 import 'package:collection/collection.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart'
-    show AppLifecycleState, visibleForTesting;
+import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
-import 'package:mutex/mutex.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -101,13 +99,6 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
-  /// [Mutex] being unlocked only when [AppLifecycleState] is in foreground.
-  final Mutex _lifecycleMutex = Mutex();
-
-  /// [Worker] reacting on the [RouterState.lifecycle] changes to lock/unlock
-  /// the [_lifecycleMutex].
-  Worker? _lifecycleWorker;
-
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
 
@@ -133,7 +124,6 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
-    _lifecycleWorker?.dispose();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -214,27 +204,6 @@ class AuthService extends DisposableService {
             router.go(_unauthorized());
           }
         }
-      }
-    });
-
-    _lifecycleWorker = ever(router.lifecycle, (AppLifecycleState state) async {
-      Log.debug('_lifecycleWorker -> ${state.name}', '$runtimeType');
-
-      switch (state) {
-        case AppLifecycleState.resumed:
-        case AppLifecycleState.inactive:
-          if (_lifecycleMutex.isLocked) {
-            _lifecycleMutex.release();
-          }
-          break;
-
-        case AppLifecycleState.detached:
-        case AppLifecycleState.hidden:
-        case AppLifecycleState.paused:
-          if (!_lifecycleMutex.isLocked) {
-            await _lifecycleMutex.acquire();
-          }
-          break;
       }
     });
 
@@ -658,23 +627,6 @@ class AuthService extends DisposableService {
   /// the active one, if [userId] is not provided.
   Future<void> refreshSession({UserId? userId}) async {
     final int attempt = _refreshAttempt++;
-
-    if (!router.lifecycle.value.inForeground) {
-      Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active...',
-        '$runtimeType',
-      );
-
-      await _lifecycleMutex.acquire();
-      Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
-        '$runtimeType',
-      );
-
-      if (_lifecycleMutex.isLocked) {
-        _lifecycleMutex.release();
-      }
-    }
 
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
