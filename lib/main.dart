@@ -95,6 +95,7 @@ Future<void> main() async {
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
+    WebUtils.registerServiceWorker();
 
     Get.putOrGet<CommonDriftProvider>(
       () => CommonDriftProvider.from(

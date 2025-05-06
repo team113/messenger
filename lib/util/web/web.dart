@@ -142,6 +142,8 @@ class WebUtils {
   /// [unbindKey] to invoke [_handleBindKeys].
   static final Map<HotKey, List<bool Function()>> _keyHandlers = {};
 
+  static web.SharedWorker? _worker;
+
   /// Indicates whether device's OS is macOS or iOS.
   static bool get isMacOS =>
       _navigator.appVersion.contains('Mac') && !PlatformUtils.isIOS;
@@ -915,6 +917,25 @@ class WebUtils {
   /// Refreshes the current browser's page.
   static Future<void> refresh() async {
     web.window.location.reload();
+  }
+
+  static void registerServiceWorker() {
+    void onMessage(JSAny e) {
+      print('=== Message received: ${e.dartify()}');
+    }
+
+    _worker = web.SharedWorker('/worker.js'.toJS);
+    _worker?.port.onmessage = onMessage.toJS;
+    _worker?.port.start();
+
+    print('==== web.SharedWorker() initialized?');
+  }
+
+  static void postMessage(Map<String, String> message) {
+    _worker ??= web.SharedWorker('/worker.js'.toJS);
+    _worker?.port.postMessage(message.toJSBox);
+
+    print('==== web.SharedWorker() postMessage($message) | ${_worker?.port}');
   }
 }
 
