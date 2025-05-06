@@ -16,6 +16,8 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Context menu icons in actions over participants. ([#1226])
+    - Auth page:
+        - Upgrade popup redesigned to be upgrade alert. ([#1229])
 
 ### Fixed
 
@@ -35,6 +37,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1223]: /../../pull/1223
 [#1226]: /../../pull/1226
 [#1227]: /../../pull/1227
+[#1229]: /../../pull/1229
 [#1236]: /../../issues/1236
 [#1237]: /../../pull/1237
 
