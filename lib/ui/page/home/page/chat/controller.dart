@@ -463,7 +463,6 @@ class ChatController extends GetxController {
               editMessage(previous.value);
               return true;
             }
-            return true;
           }
         }
 
