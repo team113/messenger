@@ -1163,6 +1163,8 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           take -= 1;
         }
 
+        take = max(take, 0);
+
         final List<Widget> widgets = [];
 
         widgets.addAll(
