@@ -385,6 +385,7 @@ Widget desktopCall(CallController c, BuildContext context) {
               onDragStarted: (b) {
                 c.showDragAndDropButtonsHint = false;
                 c.draggedButton.value = b;
+                c.draggedFromDock = false;
               },
               onDragEnded: (_) => c.draggedButton.value = null,
               onLeave: (_) => c.displayMore.value = true,
@@ -427,8 +428,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                   onHover: enabled ? (d) => c.keepUi(true) : null,
                   onExit: enabled ? (d) => c.keepUi() : null,
                   onAccept: (CallButton data) {
-                    c.buttons.remove(data);
-                    c.draggedButton.value = null;
+                    if (!c.draggedFromDock) {
+                      c.buttons.remove(data);
+                      c.draggedButton.value = null;
+                    }
                   },
                   onWillAccept:
                       (CallButton? a) => a?.c == c && a?.isRemovable == true,
@@ -445,6 +448,7 @@ Widget desktopCall(CallController c, BuildContext context) {
                           data: e,
                           onDragStarted: () {
                             c.showDragAndDropButtonsHint = false;
+                            c.draggedFromDock = true;
                             c.draggedButton.value = e;
                           },
                           onDragCompleted: () => c.draggedButton.value = null,

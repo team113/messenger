@@ -22,6 +22,7 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Media panel:
         - Incoming call displayed multiple times when declined quickly enough. ([#1219])
+        - Call buttons hanging in air when dragging from launchpad fast enough. ([#1237], [#1236])
 - Web:
     - Translate popup displaying in browsers. ([#1215])
     - Call audio ringtone not being played. ([#1218])
@@ -34,6 +35,8 @@ All user visible changes to this project will be documented in this file. This p
 [#1223]: /../../pull/1223
 [#1226]: /../../pull/1226
 [#1227]: /../../pull/1227
+[#1236]: /../../issues/1236
+[#1237]: /../../pull/1237
 
 
 
