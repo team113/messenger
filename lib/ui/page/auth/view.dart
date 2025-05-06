@@ -34,6 +34,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/upgrade_available_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -49,7 +50,7 @@ class AuthView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: AuthController(Get.find()),
+      init: AuthController(Get.find(), Get.find()),
       builder: (AuthController c) {
         final Widget status = Column(
           children: [
@@ -378,6 +379,7 @@ class AuthView extends StatelessWidget {
                     ),
                   ],
                 ),
+                _upgradePopup(context, c),
               ],
             ),
           );
@@ -424,5 +426,27 @@ class AuthView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Builds an upgrade available popup displaying the latest [Release], if any.
+  Widget _upgradePopup(BuildContext context, AuthController c) {
+    return Obx(() {
+      if (c.scheduled.value == null) {
+        return SizedBox();
+      }
+
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          key: Key('UpgradeAlert'),
+          padding: const EdgeInsets.only(bottom: 6),
+          child: UpgradeAvailableButton(
+            scheduled: c.scheduled.value!,
+            download: c.activeDownload.value,
+            onClose: () => c.scheduled.value = null,
+          ),
+        ),
+      );
+    });
   }
 }
