@@ -1,3 +1,7 @@
-onmessage = function (e) {
-    postMessage(`received message from worker: ${e}`);
-};
+onconnect = function (e) {
+    var port = e.ports[0];
+    port.postMessage('Hello World!');
+    port.onmessage = function (e) {
+        postMessage(`received message from worker: ${e}`);
+    };
+}

@@ -924,7 +924,7 @@ class WebUtils {
       print('=== Message received: ${e.dartify()}');
     }
 
-    _worker = web.SharedWorker('/worker.js'.toJS);
+    _worker = web.SharedWorker('worker.js'.toJS);
     _worker?.port.onmessage = onMessage.toJS;
     _worker?.port.start();
 
@@ -932,10 +932,10 @@ class WebUtils {
   }
 
   static void postMessage(Map<String, String> message) {
-    _worker ??= web.SharedWorker('/worker.js'.toJS);
+    _worker ??= web.SharedWorker('worker.js'.toJS);
     _worker?.port.postMessage(message.toJSBox);
 
-    print('==== web.SharedWorker() postMessage($message) | ${_worker?.port}');
+    print('==== web.SharedWorker() postMessage($message) | ${_worker}');
   }
 }
 
