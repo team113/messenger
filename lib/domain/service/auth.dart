@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart'
     show AppLifecycleState, visibleForTesting;
@@ -108,6 +109,9 @@ class AuthService extends DisposableService {
   /// the [_lifecycleMutex].
   Worker? _lifecycleWorker;
 
+  StreamSubscription? _onScreenSubscription;
+  final Mutex _screenGuard = Mutex();
+
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
 
@@ -134,6 +138,7 @@ class AuthService extends DisposableService {
 
     _storageSubscription?.cancel();
     _lifecycleWorker?.dispose();
+    _onScreenSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -230,6 +235,26 @@ class AuthService extends DisposableService {
         if (!_lifecycleMutex.isLocked) {
           await _lifecycleMutex.acquire();
         }
+      }
+    });
+
+    _onScreenSubscription = PlatformUtils.onScreenStateChanged.listen((e) {
+      Log.debug('onScreenStateChanged -> $e', '$runtimeType');
+
+      switch (e) {
+        case ScreenState.awaked:
+          if (_screenGuard.isLocked) {
+            _screenGuard.release();
+          }
+          break;
+
+        case ScreenState.locked:
+        case ScreenState.sleep:
+        case ScreenState.unlocked:
+          if (!_screenGuard.isLocked) {
+            _screenGuard.acquire();
+          }
+          break;
       }
     });
 
@@ -668,6 +693,24 @@ class AuthService extends DisposableService {
 
       if (_lifecycleMutex.isLocked) {
         _lifecycleMutex.release();
+      }
+    }
+
+    if (PlatformUtils.screenState != ScreenState.awaked) {
+      Log.debug(
+        'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting...',
+        '$runtimeType',
+      );
+
+      await _screenGuard.acquire();
+
+      Log.debug(
+        'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting... done -> ${PlatformUtils.screenState.name}',
+        '$runtimeType',
+      );
+
+      if (_screenGuard.isLocked) {
+        _screenGuard.release();
       }
     }
 
