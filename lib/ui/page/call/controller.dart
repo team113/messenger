@@ -229,6 +229,9 @@ class CallController extends GetxController {
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
+  /// Indicator whether [draggedButton] is from [Launchpad].
+  bool draggedFromDock = false;
+
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
