@@ -921,7 +921,8 @@ class WebUtils {
 
   static void registerServiceWorker() {
     void onMessage(JSAny e) {
-      print('=== Message received: ${e.dartify()}');
+      final web.MessageEvent event = e as web.MessageEvent;
+      print('=== Message received: ${event.data.dartify()}');
     }
 
     _worker = web.SharedWorker('worker.js'.toJS);
@@ -933,9 +934,9 @@ class WebUtils {
 
   static void postMessage(Map<String, String> message) {
     _worker ??= web.SharedWorker('worker.js'.toJS);
-    _worker?.port.postMessage(message.toJSBox);
+    _worker?.port.postMessage(json.encode(message).toJS);
 
-    print('==== web.SharedWorker() postMessage($message) | ${_worker}');
+    print('==== web.SharedWorker() postMessage($message) | $_worker');
   }
 }
 
