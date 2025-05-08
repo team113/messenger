@@ -559,10 +559,10 @@ extension GetAttachmentsConversion on GetAttachments$Query$ChatItem {
 
       if (message.repliesTo.isNotEmpty) {
         for (var r in message.repliesTo) {
-          if (r.original?.node.$$typename == 'ChatMessage') {
+          if (r.$$typename == 'ChatMessageQuote') {
             var replied =
-                r.original?.node
-                    as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage;
+                r
+                    as GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$ChatMessageQuote;
             attachments.addAll(replied.attachments.map((e) => e.toModel()));
           }
         }
@@ -601,12 +601,12 @@ extension GetAttachmentsChatForwardAttachmentConversion
 }
 
 /// Extension adding models construction from
-/// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments].
+/// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$ChatMessageQuote$Attachments].
 extension GetAttachmentsChatMessageRepliesToAttachmentConversion
     on
-        GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments {
+        GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$ChatMessageQuote$Attachments {
   /// Constructs a new [Attachment] from this
-  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$Original$Node$ChatMessage$Attachments].
+  /// [GetAttachments$Query$ChatItem$Node$ChatMessage$RepliesTo$ChatMessageQuote$Attachments].
   Attachment toModel() => _attachment(this);
 }
 
