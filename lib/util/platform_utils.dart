@@ -59,6 +59,13 @@ class PlatformUtilsImpl {
             DateTime.now().difference(_lastDeltaPing!).abs().inMilliseconds;
 
         isDeltaSynchronized.value = difference <= 2200;
+
+        if (!isDeltaSynchronized.value) {
+          Log.debug(
+            'Delta not synchronized -> difference is $difference ms',
+            '$runtimeType',
+          );
+        }
       }
 
       _lastDeltaPing = DateTime.now();
