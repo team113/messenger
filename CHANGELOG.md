@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.5.0] · 2025-??-??
+[0.5.0]: /../../tree/v0.5.0
+
+[Diff](/../../compare/v0.4.3...v0.5.0) | [Milestone](/../../milestone/39)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Images in replied messages sometimes not being loaded. ([#1238])
+
+[#1238]: /../../pull/1238
+
+
+
+
 ## [0.4.3] · 2025-05-06
 [0.4.3]: /../../tree/v0.4.3
 
