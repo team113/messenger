@@ -107,9 +107,15 @@ Future<void> main() async {
     WebUtils.setPathUrlStrategy();
     WebUtils.registerServiceWorker();
 
-    DesktopScreenState.linuxMonitor = ScreenStateMonitor.gdbus;
-    ProcessSignal.sigint.watch().listen((_) => shutdownApp());
-    ProcessSignal.sigterm.watch().listen((_) => shutdownApp());
+    if (!PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+      try {
+        DesktopScreenState.linuxMonitor = ScreenStateMonitor.gdbus;
+        ProcessSignal.sigint.watch().listen((_) => shutdownApp());
+        ProcessSignal.sigterm.watch().listen((_) => shutdownApp());
+      } catch (_) {
+        //No-op.
+      }
+    }
 
     Get.putOrGet<CommonDriftProvider>(
       () => CommonDriftProvider.from(

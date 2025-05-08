@@ -62,6 +62,7 @@ dependencies:
       url: https://github.com/SleepySquash/image_gallery_saver
       ref: 30bfe2d373da611879bffc36365b8d26e3d2e065
   image_picker: ^1.1.1
+  internet_connection_checker_plus: ^2.7.2
   intl: ^0.17.0
   json_annotation: ^4.9.0
   just_audio: ^0.9.38

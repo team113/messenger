@@ -24,6 +24,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart'
     show AppLifecycleState, visibleForTesting;
 import 'package:get/get.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mutex/mutex.dart';
 
 import '/config.dart';
@@ -110,7 +111,9 @@ class AuthService extends DisposableService {
   Worker? _lifecycleWorker;
 
   StreamSubscription? _onScreenSubscription;
+  StreamSubscription? _internetStatusSubscription;
   final Mutex _screenGuard = Mutex();
+  final Mutex _connectedMutex = Mutex();
 
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
@@ -139,6 +142,7 @@ class AuthService extends DisposableService {
     _storageSubscription?.cancel();
     _lifecycleWorker?.dispose();
     _onScreenSubscription?.cancel();
+    _internetStatusSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -253,6 +257,29 @@ class AuthService extends DisposableService {
         case ScreenState.unlocked:
           if (!_screenGuard.isLocked) {
             _screenGuard.acquire();
+          }
+          break;
+      }
+    });
+
+    _internetStatusSubscription = InternetConnection().onStatusChange.listen((
+      InternetStatus status,
+    ) {
+      Log.debug(
+        'InternetConnection().onStatusChange -> $status',
+        '$runtimeType',
+      );
+
+      switch (status) {
+        case InternetStatus.connected:
+          if (_connectedMutex.isLocked) {
+            _connectedMutex.release();
+          }
+          break;
+
+        case InternetStatus.disconnected:
+          if (!_connectedMutex.isLocked) {
+            _connectedMutex.acquire();
           }
           break;
       }
@@ -711,6 +738,24 @@ class AuthService extends DisposableService {
 
       if (_screenGuard.isLocked) {
         _screenGuard.release();
+      }
+    }
+
+    if (InternetConnection().lastTryResults == InternetStatus.disconnected) {
+      Log.debug(
+        'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
+        '$runtimeType',
+      );
+
+      await _connectedMutex.acquire();
+
+      Log.debug(
+        'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${InternetConnection().lastTryResults?.name}',
+        '$runtimeType',
+      );
+
+      if (_connectedMutex.isLocked) {
+        _connectedMutex.release();
       }
     }
 
