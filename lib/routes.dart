@@ -714,6 +714,8 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                 NotificationService(graphQlProvider),
               );
 
+              _state._auth.onLogout = notificationService.unregisterPushDevice;
+
               final AbstractSettingsRepository settingsRepository = deps
                   .put<AbstractSettingsRepository>(
                     SettingsRepository(

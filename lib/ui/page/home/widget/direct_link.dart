@@ -81,6 +81,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
           }
         }
       },
+      onSubmitted: (_) async {
+        await _submitLink();
+      },
     );
 
     super.initState();

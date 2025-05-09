@@ -176,10 +176,12 @@ class Block extends StatelessWidget {
       return padding;
     }
 
+    final EdgeInsets safe = MediaQuery.paddingOf(context);
+
     return EdgeInsets.fromLTRB(
-      min(4, padding.left),
+      safe.left + min(4, padding.left),
       padding.top,
-      min(4, padding.right),
+      safe.right + min(4, padding.right),
       padding.bottom,
     );
   }

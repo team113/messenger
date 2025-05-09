@@ -37,7 +37,6 @@ import '/ui/page/home/page/chat/widget/media_attachment.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animations.dart';
-import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
@@ -91,27 +90,25 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
 
     return Theme(
       data: MessageFieldView.theme(context),
-      child: CustomSafeArea(
-        child: Container(
-          key: const Key('SendField'),
-          decoration: BoxDecoration(
-            boxShadow: [
-              CustomBoxShadow(
-                blurRadius: 8,
-                color: style.colors.onBackgroundOpacity13,
-              ),
-            ],
+      child: Container(
+        key: const Key('SendField'),
+        decoration: BoxDecoration(
+          boxShadow: [
+            CustomBoxShadow(
+              blurRadius: 8,
+              color: style.colors.onBackgroundOpacity13,
+            ),
+          ],
+        ),
+        child: ConditionalBackdropFilter(
+          condition: style.cardBlur > 0,
+          filter: ImageFilter.blur(
+            sigmaX: style.cardBlur,
+            sigmaY: style.cardBlur,
           ),
-          child: ConditionalBackdropFilter(
-            condition: style.cardBlur > 0,
-            filter: ImageFilter.blur(
-              sigmaX: style.cardBlur,
-              sigmaY: style.cardBlur,
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [_buildHeader(c, context), _buildField(c, context)],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [_buildHeader(c, context), _buildField(c, context)],
           ),
         ),
       ),
