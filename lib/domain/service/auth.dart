@@ -110,6 +110,11 @@ class AuthService extends DisposableService {
   /// the [_lifecycleMutex].
   Worker? _lifecycleWorker;
 
+  final InternetConnection _internet = InternetConnection.createInstance(
+    useDefaultOptions: false,
+    customCheckOptions: [InternetCheckOption(uri: Uri.parse(Config.url))],
+  );
+
   StreamSubscription? _onScreenSubscription;
   StreamSubscription? _internetStatusSubscription;
   final Mutex _screenGuard = Mutex();
@@ -262,7 +267,7 @@ class AuthService extends DisposableService {
       }
     });
 
-    _internetStatusSubscription = InternetConnection().onStatusChange.listen((
+    _internetStatusSubscription = _internet.onStatusChange.listen((
       InternetStatus status,
     ) {
       Log.debug(
@@ -746,24 +751,6 @@ class AuthService extends DisposableService {
       }
     }
 
-    if (InternetConnection().lastTryResults == InternetStatus.disconnected) {
-      Log.debug(
-        'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
-        '$runtimeType',
-      );
-
-      await _connectedMutex.acquire();
-
-      Log.debug(
-        'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${InternetConnection().lastTryResults?.name}',
-        '$runtimeType',
-      );
-
-      if (_connectedMutex.isLocked) {
-        _connectedMutex.release();
-      }
-    }
-
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
@@ -790,6 +777,36 @@ class AuthService extends DisposableService {
           'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
           '$runtimeType',
         );
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection...',
+          '$runtimeType',
+        );
+
+        final bool hasInternetAccess = await _internet.hasInternetAccess;
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection... done -> hasInternetAccess($hasInternetAccess)',
+          '$runtimeType',
+        );
+
+        if (!hasInternetAccess) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
+            '$runtimeType',
+          );
+
+          await _connectedMutex.acquire();
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${_internet.lastTryResults?.name}',
+            '$runtimeType',
+          );
+
+          if (_connectedMutex.isLocked) {
+            _connectedMutex.release();
+          }
+        }
 
         Credentials? oldCreds;
 
