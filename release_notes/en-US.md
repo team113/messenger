@@ -1,2 +1,1 @@
-- Added icons to context menu of call participants.
 - Bug fixes and performance improvements.
