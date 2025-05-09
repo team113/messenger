@@ -73,7 +73,7 @@ class UpgradeWorker extends DisposableService {
   static const Duration _popupDelay = Duration(seconds: 1);
 
   /// [Duration] being the period of [_timer].
-  static const Duration _refreshPeriod = Duration(minutes: 2);
+  static const Duration _refreshPeriod = Duration(minutes: 3);
 
   @override
   void onReady() {

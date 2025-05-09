@@ -414,6 +414,11 @@ class SessionRepository extends DisposableInterface
     });
 
     void apply(List<ConnectivityResult> result) {
+      Log.debug(
+        'Connectivity().onConnectivityChanged -> $result',
+        '$runtimeType',
+      );
+
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||

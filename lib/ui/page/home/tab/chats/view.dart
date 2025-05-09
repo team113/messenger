@@ -54,6 +54,7 @@ import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/recognizers.dart';
+import '/util/web/web_utils.dart';
 import 'controller.dart';
 import 'widget/recent_chat.dart';
 import 'widget/search_user_tile.dart';
@@ -178,7 +179,12 @@ class ChatsTabView extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('label_chats'.l10n),
+                              WidgetButton(
+                                onPressed: () {
+                                  WebUtils.postMessage({'type': 'message'});
+                                },
+                                child: Text('label_chats'.l10n),
+                              ),
                               AnimatedSizeAndFade(
                                 sizeDuration: const Duration(milliseconds: 300),
                                 fadeDuration: const Duration(milliseconds: 300),

@@ -19,9 +19,13 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
+import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart' show visibleForTesting;
+import 'package:flutter/material.dart'
+    show AppLifecycleState, visibleForTesting;
 import 'package:get/get.dart';
+import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:mutex/mutex.dart';
 
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -99,6 +103,23 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  /// [Mutex] being unlocked only when [AppLifecycleState] is in foreground.
+  final Mutex _lifecycleMutex = Mutex();
+
+  /// [Worker] reacting on the [RouterState.lifecycle] changes to lock/unlock
+  /// the [_lifecycleMutex].
+  Worker? _lifecycleWorker;
+
+  final InternetConnection _internet = InternetConnection.createInstance(
+    useDefaultOptions: false,
+    customCheckOptions: [InternetCheckOption(uri: Uri.parse(Config.url))],
+  );
+
+  StreamSubscription? _onScreenSubscription;
+  StreamSubscription? _internetStatusSubscription;
+  final Mutex _screenGuard = Mutex();
+  final Mutex _connectedMutex = Mutex();
+
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
 
@@ -124,6 +145,9 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
+    _lifecycleWorker?.dispose();
+    _onScreenSubscription?.cancel();
+    _internetStatusSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -204,6 +228,65 @@ class AuthService extends DisposableService {
             router.go(_unauthorized());
           }
         }
+      }
+    });
+
+    _lifecycleWorker = ever(PlatformUtils.isDeltaSynchronized, (
+      bool synchronized,
+    ) async {
+      Log.debug('_lifecycleWorker -> $synchronized', '$runtimeType');
+
+      if (synchronized) {
+        if (_lifecycleMutex.isLocked) {
+          _lifecycleMutex.release();
+        }
+      } else {
+        if (!_lifecycleMutex.isLocked) {
+          await _lifecycleMutex.acquire();
+        }
+      }
+    });
+
+    _onScreenSubscription = PlatformUtils.onScreenStateChanged.listen((e) {
+      Log.debug('onScreenStateChanged -> $e', '$runtimeType');
+
+      switch (e) {
+        case ScreenState.awaked:
+          if (_screenGuard.isLocked) {
+            _screenGuard.release();
+          }
+          break;
+
+        case ScreenState.locked:
+        case ScreenState.sleep:
+        case ScreenState.unlocked:
+          if (!_screenGuard.isLocked) {
+            _screenGuard.acquire();
+          }
+          break;
+      }
+    });
+
+    _internetStatusSubscription = _internet.onStatusChange.listen((
+      InternetStatus status,
+    ) {
+      Log.debug(
+        'InternetConnection().onStatusChange -> $status',
+        '$runtimeType',
+      );
+
+      switch (status) {
+        case InternetStatus.connected:
+          if (_connectedMutex.isLocked) {
+            _connectedMutex.release();
+          }
+          break;
+
+        case InternetStatus.disconnected:
+          if (!_connectedMutex.isLocked) {
+            _connectedMutex.acquire();
+          }
+          break;
       }
     });
 
@@ -628,6 +711,46 @@ class AuthService extends DisposableService {
   Future<void> refreshSession({UserId? userId}) async {
     final int attempt = _refreshAttempt++;
 
+    if (!PlatformUtils.isDeltaSynchronized.value) {
+      Log.debug(
+        'refreshSession($userId |-> $attempt) should wait for application to be active...',
+        '$runtimeType',
+      );
+
+      // Log.debug(
+      //   'refreshSession($userId |-> $attempt) waiting for application to be active...',
+      //   '$runtimeType',
+      // );
+
+      // await _lifecycleMutex.acquire();
+      // Log.debug(
+      //   'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+      //   '$runtimeType',
+      // );
+
+      // if (_lifecycleMutex.isLocked) {
+      //   _lifecycleMutex.release();
+      // }
+    }
+
+    if (PlatformUtils.screenState != ScreenState.awaked) {
+      Log.debug(
+        'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting...',
+        '$runtimeType',
+      );
+
+      await _screenGuard.acquire();
+
+      Log.debug(
+        'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting... done -> ${PlatformUtils.screenState.name}',
+        '$runtimeType',
+      );
+
+      if (_screenGuard.isLocked) {
+        _screenGuard.release();
+      }
+    }
+
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
     final bool isLocked =
         futureOrBool is bool ? futureOrBool : await futureOrBool;
@@ -654,6 +777,36 @@ class AuthService extends DisposableService {
           'refreshSession($userId |-> $attempt) acquired both `dbLock` and `WebUtils.protect()`',
           '$runtimeType',
         );
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection...',
+          '$runtimeType',
+        );
+
+        final bool hasInternetAccess = await _internet.hasInternetAccess;
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection... done -> hasInternetAccess($hasInternetAccess)',
+          '$runtimeType',
+        );
+
+        if (!hasInternetAccess) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
+            '$runtimeType',
+          );
+
+          await _connectedMutex.acquire();
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${_internet.lastTryResults?.name}',
+            '$runtimeType',
+          );
+
+          if (_connectedMutex.isLocked) {
+            _connectedMutex.release();
+          }
+        }
 
         Credentials? oldCreds;
 
