@@ -708,19 +708,24 @@ class AuthService extends DisposableService {
 
     if (!PlatformUtils.isDeltaSynchronized.value) {
       Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active...',
+        'refreshSession($userId |-> $attempt) should wait for application to be active...',
         '$runtimeType',
       );
 
-      await _lifecycleMutex.acquire();
-      Log.debug(
-        'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
-        '$runtimeType',
-      );
+      // Log.debug(
+      //   'refreshSession($userId |-> $attempt) waiting for application to be active...',
+      //   '$runtimeType',
+      // );
 
-      if (_lifecycleMutex.isLocked) {
-        _lifecycleMutex.release();
-      }
+      // await _lifecycleMutex.acquire();
+      // Log.debug(
+      //   'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+      //   '$runtimeType',
+      // );
+
+      // if (_lifecycleMutex.isLocked) {
+      //   _lifecycleMutex.release();
+      // }
     }
 
     if (PlatformUtils.screenState != ScreenState.awaked) {
