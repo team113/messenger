@@ -19,15 +19,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart' show visibleForTesting;
 import 'package:get/get.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -37,7 +34,6 @@ import '/provider/drift/locks.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
-import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
@@ -479,24 +475,7 @@ class AuthService extends DisposableService {
 
     return await WebUtils.protect(() async {
       try {
-        FcmRegistrationToken? fcmToken;
-
-        if (PlatformUtils.pushNotifications) {
-          final NotificationSettings settings =
-              await FirebaseMessaging.instance.getNotificationSettings();
-
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            final String? token = await FirebaseMessaging.instance.getToken(
-              vapidKey: Config.vapidKey,
-            );
-
-            if (token != null) {
-              fcmToken = FcmRegistrationToken(token);
-            }
-          }
-        }
-
-        await _authRepository.deleteSession(token: DeviceToken(fcm: fcmToken));
+        await _authRepository.deleteSession();
       } catch (e) {
         printError(info: e.toString());
       }
