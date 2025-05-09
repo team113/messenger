@@ -69,6 +69,9 @@ class AuthService extends DisposableService {
   /// [Credentials] should be considered as stale.
   final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
+  /// [Function] to be invoked before [logout].
+  Future<void> Function()? onLogout;
+
   /// [CredentialsDriftProvider] used to store user's [Session].
   final CredentialsDriftProvider _credentialsProvider;
 
@@ -474,6 +477,16 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
+      if (onLogout != null) {
+        try {
+          await onLogout?.call();
+        } catch (e) {
+          Log.debug('Unable to invoke `onLogout()`: $e', '$runtimeType');
+        }
+
+        onLogout = null;
+      }
+
       try {
         await _authRepository.deleteSession();
       } catch (e) {

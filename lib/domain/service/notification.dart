@@ -326,7 +326,7 @@ class NotificationService extends DisposableService {
       _language = language;
 
       if (_token != null || _apns != null || _voip != null) {
-        await _unregisterPushDevice();
+        await unregisterPushDevice();
         await _registerPushDevice();
       }
     }
@@ -556,7 +556,7 @@ class NotificationService extends DisposableService {
         _onTokenRefresh = FirebaseMessaging.instance.onTokenRefresh.listen((
           token,
         ) async {
-          await _unregisterPushDevice();
+          await unregisterPushDevice();
           _token = token;
           await _registerPushDevice();
         });
@@ -616,8 +616,8 @@ class NotificationService extends DisposableService {
   }
 
   /// Unregisters a device (Android, iOS, or Web) from receiving notifications.
-  Future<void> _unregisterPushDevice() async {
-    Log.debug('_unregisterPushDevice()', '$runtimeType');
+  Future<void> unregisterPushDevice() async {
+    Log.debug('unregisterPushDevice()', '$runtimeType');
 
     try {
       await Future.wait([
