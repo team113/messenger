@@ -112,7 +112,7 @@ class AuthService extends DisposableService {
 
   final InternetConnection _internet = InternetConnection.createInstance(
     useDefaultOptions: false,
-    customCheckOptions: [InternetCheckOption(uri: Uri.parse(Config.url))],
+    customCheckOptions: [InternetCheckOption(uri: Uri.parse('${Config.url}:${Config.port}/files/'))],
   );
 
   StreamSubscription? _onScreenSubscription;
