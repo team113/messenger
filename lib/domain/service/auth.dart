@@ -112,7 +112,11 @@ class AuthService extends DisposableService {
 
   final InternetConnection _internet = InternetConnection.createInstance(
     useDefaultOptions: false,
-    customCheckOptions: [InternetCheckOption(uri: Uri.parse('${Config.url}:${Config.port}/files/'))],
+    customCheckOptions: [
+      InternetCheckOption(
+        uri: Uri.parse('${Config.url}:${Config.port}/files/'),
+      ),
+    ],
   );
 
   StreamSubscription? _onScreenSubscription;
@@ -712,25 +716,27 @@ class AuthService extends DisposableService {
     final int attempt = _refreshAttempt++;
 
     if (!PlatformUtils.isDeltaSynchronized.value) {
-      Log.debug(
-        'refreshSession($userId |-> $attempt) should wait for application to be active...',
-        '$runtimeType',
-      );
+      if (WebUtils.containsCalls()) {
+        Log.debug(
+          'refreshSession($userId |-> $attempt) should wait for application to be active, however there are calls active, thus ignoring the check',
+          '$runtimeType',
+        );
+      } else {
+        Log.debug(
+          'refreshSession($userId |-> $attempt) waiting for application to be active...',
+          '$runtimeType',
+        );
 
-      // Log.debug(
-      //   'refreshSession($userId |-> $attempt) waiting for application to be active...',
-      //   '$runtimeType',
-      // );
+        await _lifecycleMutex.acquire();
+        Log.debug(
+          'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+          '$runtimeType',
+        );
 
-      // await _lifecycleMutex.acquire();
-      // Log.debug(
-      //   'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
-      //   '$runtimeType',
-      // );
-
-      // if (_lifecycleMutex.isLocked) {
-      //   _lifecycleMutex.release();
-      // }
+        if (_lifecycleMutex.isLocked) {
+          _lifecycleMutex.release();
+        }
+      }
     }
 
     if (PlatformUtils.screenState != ScreenState.awaked) {
