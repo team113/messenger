@@ -807,6 +807,11 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               userRepository.getChat = chatRepository.get;
               callRepository.ensureRemoteDialog =
                   chatRepository.ensureRemoteDialog;
+              _state._auth.hasCalls =
+                  () =>
+                      callRepository.calls.values
+                          .where((e) => e.value.connected)
+                          .isEmpty;
 
               final AbstractContactRepository contactRepository = deps
                   .put<AbstractContactRepository>(
