@@ -84,6 +84,7 @@ import '/provider/gql/exceptions.dart'
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
+        ResubscriptionRequiredException,
         ToggleChatMuteException,
         UnblockUserException,
         UnfavoriteChatException,
@@ -1707,7 +1708,16 @@ class ChatController extends GetxController {
     await _typingGuard.protect(() async {
       if (_typingSubscription == null) {
         Log.debug('_keepTyping()', '$runtimeType');
-        _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
+        _typingSubscription ??= _chatService
+            .keepTyping(id)
+            .listen(
+              (_) {},
+              onError: (e) {
+                if (e is! ResubscriptionRequiredException) {
+                  throw e;
+                }
+              },
+            );
       }
 
       _typingTimer?.cancel();
