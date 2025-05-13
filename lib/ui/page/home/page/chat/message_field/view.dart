@@ -987,6 +987,7 @@ class MessageFieldView extends StatelessWidget {
     }
 
     final Widget expanded = FutureOrBuilder<RxUser?>(
+      key: Key('${item.id}_2_${item.author.id}'),
       futureOr: () => c.getUser(item.author.id),
       builder: (context, user) {
         final Color color =

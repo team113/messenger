@@ -577,6 +577,7 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureOrBuilder<RxUser?>(
+                  key: Key('${item.id}_7_${item.author.id}'),
                   futureOr: () => getUser?.call(item.author.id),
                   builder: (_, snapshot) {
                     final FutureOr<RxUser?> rxUser =
@@ -624,6 +625,7 @@ class RecentChatTile extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(right: 5),
                 child: FutureOrBuilder<RxUser?>(
+                  key: Key('${item.id}_8_${item.author.id}'),
                   futureOr: () => getUser?.call(item.author.id),
                   builder:
                       (_, user) =>

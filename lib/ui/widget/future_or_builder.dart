@@ -62,6 +62,27 @@ class _FutureOrBuilderState<T> extends State<FutureOrBuilder<T>> {
   }
 
   @override
+  void didUpdateWidget(covariant FutureOrBuilder<T> oldWidget) {
+    if (oldWidget.key != widget.key) {
+      final futureOr = widget.futureOr();
+
+      if (futureOr is T?) {
+        if (mounted) {
+          setState(() => _data = futureOr as T?);
+        }
+      } else {
+        (futureOr as Future).then((e) {
+          if (mounted) {
+            setState(() => _data = e);
+          }
+        });
+      }
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return widget.builder(context, _data);
   }

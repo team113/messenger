@@ -1130,6 +1130,7 @@ class ChatView extends StatelessWidget {
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
         child: FutureOrBuilder<RxUser?>(
+          key: Key('${element.id}_0_${element.authorId}'),
           futureOr: () => c.getUser(element.authorId),
           builder:
               (_, user) => Obx(() {

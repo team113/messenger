@@ -431,6 +431,8 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
+          Log.debug('connectFn($uri, $protocols)', '$runtimeType');
+
           final GraphQLWebSocketChannel socket =
               websocket
                   .connect(

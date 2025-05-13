@@ -486,6 +486,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       Widget Function(BuildContext context, RxUser? user) builder,
     ) {
       return FutureOrBuilder<RxUser?>(
+        key: Key('${message.id}_5_$id'),
         futureOr: () => widget.getUser?.call(id),
         builder: (context, user) {
           if (user != null) {
@@ -1274,6 +1275,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
     }
 
     return FutureOrBuilder<RxUser?>(
+      key: Key('${item.hashCode}_6_${item.author}'),
       futureOr: () => widget.getUser?.call(item.author),
       builder: (_, user) {
         final Color color =
@@ -1373,6 +1375,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureOrBuilder<RxUser?>(
+              key: Key('${widget.item.value.id}_1_${m.memberId}'),
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(

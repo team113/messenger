@@ -418,6 +418,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
         content = [
           FutureOrBuilder<RxUser?>(
+            key: Key('${quote.hashCode}_3_${quote.author}'),
             futureOr: () => widget.getUser?.call(quote.author),
             builder: (context, user) {
               final Color color =
@@ -908,6 +909,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
             child: FutureOrBuilder<RxUser?>(
+              key: Key('${item?.id}_4_${m.memberId}'),
               futureOr: () => widget.getUser?.call(m.memberId),
               builder: (context, member) {
                 return Tooltip(
