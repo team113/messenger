@@ -811,7 +811,7 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
                   () =>
                       callRepository.calls.values
                           .where((e) => e.value.connected)
-                          .isEmpty;
+                          .isNotEmpty;
 
               final AbstractContactRepository contactRepository = deps
                   .put<AbstractContactRepository>(
