@@ -856,10 +856,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.refresh();
 
       String filename = attachment.file.name;
+
       if (filename.replaceAll(' ', '').isEmpty) {
         final mime = attachment.file.mime;
         if (mime != null) {
           filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
+        } else {
+          filename = '${DateTime.now().microsecondsSinceEpoch}';
         }
       }
 
