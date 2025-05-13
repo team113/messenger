@@ -1444,15 +1444,6 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    // if (widget.item.value is ChatMessage) {
-    //   final msg = widget.item.value as ChatMessage;
-    //   if (msg.text?.val == 'wer') {
-    //     print(
-    //       '== build() msg -> widget.user.id(${widget.user?.id}), widget.user?.title(${widget.user?.title}), item.author.id(${item.author.id}), item.author.title(${item.author.title})',
-    //     );
-    //   }
-    // }
-
     final row = Row(
       crossAxisAlignment:
           _fromMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,

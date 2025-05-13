@@ -1034,15 +1034,6 @@ class ChatView extends StatelessWidget {
           futureOr: () => c.getUser(e.value.author.id),
           builder:
               (_, user) => Obx(() {
-                // if (e.value is ChatMessage) {
-                //   final msg = e.value as ChatMessage;
-                //   if (msg.text?.val == 'wer') {
-                //     print(
-                //       '== build() msg -> user is not Future -> user?.id(${user?.id}, user?.title(${user?.title}), snapshot.title(${snapshot?.title})',
-                //     );
-                //   }
-                // }
-
                 return HighlightedContainer(
                   highlight:
                       c.highlighted.value == element.id ||
