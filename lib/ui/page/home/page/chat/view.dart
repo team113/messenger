@@ -50,6 +50,7 @@ import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/obscured_menu_interceptor.dart';
 import '/ui/widget/obscured_selection_area.dart';
 import '/ui/widget/progress_indicator.dart';
@@ -1023,18 +1024,25 @@ class ChatView extends StatelessWidget {
         throw Exception('Unreachable');
       }
 
-      final FutureOr<RxUser?> user = c.getUser(e.value.author.id);
-
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
-        child: FutureBuilder<RxUser?>(
-          future: user is Future<RxUser?> ? user : null,
-          initialData: user is Future<RxUser?> ? null : user,
+        child: FutureOrBuilder<RxUser?>(
+          key: element.key,
+          futureOr: () => c.getUser(e.value.author.id),
           builder:
-              (_, snapshot) => Obx(() {
+              (_, user) => Obx(() {
+                // if (e.value is ChatMessage) {
+                //   final msg = e.value as ChatMessage;
+                //   if (msg.text?.val == 'wer') {
+                //     print(
+                //       '== build() msg -> user is not Future -> user?.id(${user?.id}, user?.title(${user?.title}), snapshot.title(${snapshot?.title})',
+                //     );
+                //   }
+                // }
+
                 return HighlightedContainer(
                   highlight:
                       c.highlighted.value == element.id ||
@@ -1060,7 +1068,7 @@ class ChatView extends StatelessWidget {
                                     m.memberId != c.me &&
                                     m.memberId != e.value.author.id,
                               ),
-                      user: snapshot.data,
+                      user: user,
                       getUser: c.getUser,
                       getItem: c.getItem,
                       onHide: () => c.hideChatItem(e.value),
@@ -1125,17 +1133,15 @@ class ChatView extends StatelessWidget {
         ),
       );
     } else if (element is ChatForwardElement) {
-      final FutureOr<RxUser?> user = c.getUser(element.authorId);
-
       return Padding(
         padding: EdgeInsets.only(
           top: previousSame || previous is UnreadMessagesElement ? 0 : 9,
           bottom: isLast ? ChatController.lastItemBottomOffset : 0,
         ),
-        child: FutureBuilder<RxUser?>(
-          future: user is Future<RxUser?> ? user : null,
+        child: FutureOrBuilder<RxUser?>(
+          futureOr: () => c.getUser(element.authorId),
           builder:
-              (_, snapshot) => Obx(() {
+              (_, user) => Obx(() {
                 return HighlightedContainer(
                   highlight:
                       c.highlighted.value == element.id ||
@@ -1162,7 +1168,7 @@ class ChatView extends StatelessWidget {
                                     m.memberId != c.me &&
                                     m.memberId != element.authorId,
                               ),
-                      user: snapshot.data ?? (user is RxUser? ? user : null),
+                      user: user,
                       getUser: c.getUser,
                       onHide: () async {
                         final List<Future> futures = [];

@@ -49,6 +49,7 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
@@ -535,8 +536,6 @@ class RecentChatTile extends StatelessWidget {
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
 
-          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
-
           if (item.text != null) {
             desc.write(item.text!.val);
           }
@@ -577,20 +576,18 @@ class RecentChatTile extends StatelessWidget {
             else if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is RxUser? ? null : userOrFuture,
-                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
+                child: FutureOrBuilder<RxUser?>(
+                  futureOr: () => getUser?.call(item.author.id),
                   builder: (_, snapshot) {
                     final FutureOr<RxUser?> rxUser =
-                        snapshot.data ??
-                        userOrFuture ??
+                        snapshot ??
                         rxChat.members.values
                             .firstWhereOrNull(
                               (e) => e.user.id == item.author.id,
                             )
                             ?.user;
 
-                    if (rxUser is RxUser?) {
+                    if (rxUser is RxUser) {
                       return AvatarWidget.fromRxUser(
                         rxUser,
                         radius: AvatarRadius.smaller,
@@ -622,20 +619,17 @@ class RecentChatTile extends StatelessWidget {
             if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
         } else if (item is ChatForward) {
-          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
-
           subtitle = [
             if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is RxUser? ? null : userOrFuture,
-                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
+                child: FutureOrBuilder<RxUser?>(
+                  futureOr: () => getUser?.call(item.author.id),
                   builder:
-                      (_, snapshot) =>
-                          snapshot.data != null
+                      (_, user) =>
+                          user != null
                               ? AvatarWidget.fromRxUser(
-                                snapshot.data,
+                                user,
                                 radius: AvatarRadius.smaller,
                               )
                               : AvatarWidget.fromUser(
@@ -649,21 +643,18 @@ class RecentChatTile extends StatelessWidget {
         } else if (item is ChatInfo) {
           Widget content = Text('${item.action}');
 
-          // Builds a [FutureBuilder] returning a [User] fetched by the provided
-          // [id].
+          // Builds a [FutureOrBuilder] returning a [User] fetched by the
+          // provided [id].
           Widget userBuilder(
             UserId id,
             Widget Function(BuildContext context, RxUser? user) builder,
           ) {
-            final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
-
-            return FutureBuilder(
+            return FutureOrBuilder<RxUser?>(
               key: Key('UserBuilder_$id'),
-              future: userOrFuture is RxUser? ? null : userOrFuture,
-              initialData: userOrFuture is RxUser? ? userOrFuture : null,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  return Obx(() => builder(context, snapshot.data!));
+              futureOr: () => getUser?.call(id),
+              builder: (context, user) {
+                if (user != null) {
+                  return Obx(() => builder(context, user));
                 }
 
                 return builder(context, null);

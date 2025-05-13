@@ -53,6 +53,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/fixed_digits.dart';
@@ -478,19 +479,17 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
 
     final Widget content;
 
-    // Builds a [FutureBuilder] returning a [User] fetched by the provided [id].
+    // Builds a [FutureOrBuilder] returning a [User] fetched by the provided
+    // [id].
     Widget userBuilder(
       UserId id,
       Widget Function(BuildContext context, RxUser? user) builder,
     ) {
-      final FutureOr<RxUser?>? user = widget.getUser?.call(id);
-
-      return FutureBuilder(
-        future: user is Future<RxUser?> ? user : null,
-        builder: (context, snapshot) {
-          final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
-          if (data != null) {
-            return Obx(() => builder(context, data));
+      return FutureOrBuilder<RxUser?>(
+        futureOr: () => widget.getUser?.call(id),
+        builder: (context, user) {
+          if (user != null) {
+            return Obx(() => builder(context, user));
           }
 
           return builder(context, null);
@@ -1274,17 +1273,13 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
       );
     }
 
-    final FutureOr<RxUser?>? user = widget.getUser?.call(item.author);
-
-    return FutureBuilder<RxUser?>(
-      future: user is Future<RxUser?> ? user : null,
-      builder: (_, snapshot) {
-        final RxUser? data = snapshot.data ?? (user is RxUser? ? user : null);
-
+    return FutureOrBuilder<RxUser?>(
+      futureOr: () => widget.getUser?.call(item.author),
+      builder: (_, user) {
         final Color color =
-            data?.user.value.id == widget.me
+            user?.user.value.id == widget.me
                 ? style.colors.primary
-                : style.colors.userColors[(data?.user.value.num.val.sum() ??
+                : style.colors.userColors[(user?.user.value.num.val.sum() ??
                         3) %
                     style.colors.userColors.length];
 
@@ -1305,7 +1300,7 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                   children: [
                     Expanded(
                       child: Text(
-                        data?.title ?? 'dot'.l10n * 3,
+                        user?.title ?? 'dot'.l10n * 3,
                         style: style.fonts.medium.regular.onBackground.copyWith(
                           color: color,
                         ),
@@ -1374,19 +1369,14 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                 .firstWhereOrNull((e) => e.user.id == m.memberId)
                 ?.user;
 
-        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
-
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: FutureBuilder<RxUser?>(
-              future: member is Future<RxUser?> ? member : null,
-              builder: (context, snapshot) {
-                final RxUser? data =
-                    snapshot.data ?? (member is RxUser? ? member : null);
-
+            child: FutureOrBuilder<RxUser?>(
+              futureOr: () => widget.getUser?.call(m.memberId),
+              builder: (context, member) {
                 return Tooltip(
-                  message: data?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -1394,9 +1384,9 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child:
-                      data != null
+                      member != null
                           ? AvatarWidget.fromRxUser(
-                            data,
+                            member,
                             radius: AvatarRadius.smaller,
                           )
                           : AvatarWidget.fromUser(
@@ -1453,6 +1443,15 @@ class _ChatItemWidgetState extends State<ChatItemWidget> {
         ],
       );
     }
+
+    // if (widget.item.value is ChatMessage) {
+    //   final msg = widget.item.value as ChatMessage;
+    //   if (msg.text?.val == 'wer') {
+    //     print(
+    //       '== build() msg -> widget.user.id(${widget.user?.id}), widget.user?.title(${widget.user?.title}), item.author.id(${item.author.id}), item.author.title(${item.author.title})',
+    //     );
+    //   }
+    // }
 
     final row = Row(
       crossAxisAlignment:

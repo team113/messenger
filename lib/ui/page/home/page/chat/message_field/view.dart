@@ -45,6 +45,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -825,8 +826,6 @@ class MessageFieldView extends StatelessWidget {
   }) {
     final style = Theme.of(context).style;
 
-    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
-
     final bool fromMe = item.author.id == c.me;
 
     if (edited) {
@@ -987,16 +986,14 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    final Widget expanded = FutureBuilder<RxUser?>(
-      future: userOrFuture is RxUser? ? null : userOrFuture,
-      initialData: userOrFuture is RxUser? ? userOrFuture : null,
-      builder: (context, snapshot) {
+    final Widget expanded = FutureOrBuilder<RxUser?>(
+      futureOr: () => c.getUser(item.author.id),
+      builder: (context, user) {
         final Color color =
-            snapshot.data?.user.value.id == c.me
+            user?.user.value.id == c.me
                 ? style.colors.primary
-                : style
-                    .colors
-                    .userColors[(snapshot.data?.user.value.num.val.sum() ?? 3) %
+                : style.colors.userColors[(user?.user.value.num.val.sum() ??
+                        3) %
                     style.colors.userColors.length];
 
         return Container(
@@ -1010,10 +1007,10 @@ class MessageFieldView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              snapshot.data != null
+              user != null
                   ? Obx(() {
                     return Text(
-                      snapshot.data!.title,
+                      user.title,
                       style: style.fonts.medium.regular.onBackground.copyWith(
                         color: color,
                       ),

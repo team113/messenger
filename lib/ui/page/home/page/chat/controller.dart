@@ -1707,9 +1707,9 @@ class ChatController extends GetxController {
     await _typingGuard.protect(() async {
       if (_typingSubscription == null) {
         Log.debug('_keepTyping()', '$runtimeType');
+        _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
       }
 
-      _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
       _typingTimer?.cancel();
       _typingTimer = Timer(_typingTimeout, _stopTyping);
     });
@@ -2410,10 +2410,13 @@ class ListElementId implements Comparable<ListElementId> {
 
 /// Element to display in a [FlutterListView].
 abstract class ListElement {
-  const ListElement(this.id);
+  ListElement(this.id);
 
   /// [ListElementId] of this [ListElement].
   final ListElementId id;
+
+  /// [GlobalKey] of the element to prevent it from rebuilding.
+  final GlobalKey key = GlobalKey();
 }
 
 /// [ListElement] representing a [ChatMessage].
