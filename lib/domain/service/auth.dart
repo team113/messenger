@@ -740,78 +740,6 @@ class AuthService extends DisposableService {
           '$runtimeType',
         );
 
-        if (!PlatformUtils.isDeltaSynchronized.value) {
-          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
-            Log.debug(
-              'refreshSession($userId |-> $attempt) should wait for application to be active, however there are calls active, thus ignoring the check',
-              '$runtimeType',
-            );
-          } else {
-            Log.debug(
-              'refreshSession($userId |-> $attempt) waiting for application to be active...',
-              '$runtimeType',
-            );
-
-            await _lifecycleMutex.acquire();
-            Log.debug(
-              'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
-              '$runtimeType',
-            );
-
-            if (_lifecycleMutex.isLocked) {
-              _lifecycleMutex.release();
-            }
-          }
-        }
-
-        if (PlatformUtils.screenState != ScreenState.awaked) {
-          Log.debug(
-            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting...',
-            '$runtimeType',
-          );
-
-          await _screenGuard.acquire();
-
-          Log.debug(
-            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting... done -> ${PlatformUtils.screenState.name}',
-            '$runtimeType',
-          );
-
-          if (_screenGuard.isLocked) {
-            _screenGuard.release();
-          }
-        }
-
-        Log.debug(
-          'refreshSession($userId |-> $attempt) checking for Internet connection...',
-          '$runtimeType',
-        );
-
-        final bool hasInternetAccess = await _internet.hasInternetAccess;
-
-        Log.debug(
-          'refreshSession($userId |-> $attempt) checking for Internet connection... done -> hasInternetAccess($hasInternetAccess)',
-          '$runtimeType',
-        );
-
-        if (!hasInternetAccess) {
-          Log.debug(
-            'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
-            '$runtimeType',
-          );
-
-          await _connectedMutex.acquire();
-
-          Log.debug(
-            'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${_internet.lastTryResults?.name}',
-            '$runtimeType',
-          );
-
-          if (_connectedMutex.isLocked) {
-            _connectedMutex.release();
-          }
-        }
-
         Credentials? oldCreds;
 
         if (userId != null) {
@@ -910,6 +838,78 @@ class AuthService extends DisposableService {
           }
 
           return _refreshRetryDelay = _initialRetryDelay;
+        }
+
+        if (!PlatformUtils.isDeltaSynchronized.value) {
+          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) should wait for application to be active, however there are calls active, thus ignoring the check',
+              '$runtimeType',
+            );
+          } else {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active...',
+              '$runtimeType',
+            );
+
+            await _lifecycleMutex.acquire();
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+              '$runtimeType',
+            );
+
+            if (_lifecycleMutex.isLocked) {
+              _lifecycleMutex.release();
+            }
+          }
+        }
+
+        if (PlatformUtils.screenState != ScreenState.awaked) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting...',
+            '$runtimeType',
+          );
+
+          await _screenGuard.acquire();
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting... done -> ${PlatformUtils.screenState.name}',
+            '$runtimeType',
+          );
+
+          if (_screenGuard.isLocked) {
+            _screenGuard.release();
+          }
+        }
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection...',
+          '$runtimeType',
+        );
+
+        final bool hasInternetAccess = await _internet.hasInternetAccess;
+
+        Log.debug(
+          'refreshSession($userId |-> $attempt) checking for Internet connection... done -> hasInternetAccess($hasInternetAccess)',
+          '$runtimeType',
+        );
+
+        if (!hasInternetAccess) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
+            '$runtimeType',
+          );
+
+          await _connectedMutex.acquire();
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${_internet.lastTryResults?.name}',
+            '$runtimeType',
+          );
+
+          if (_connectedMutex.isLocked) {
+            _connectedMutex.release();
+          }
         }
 
         try {
