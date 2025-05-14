@@ -6,6 +6,28 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.6.0
+
+[Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Duplicating read users avatars under messages. ([#1243])
+        - Invalid message's author being displayed sometimes. ([#1243], [#1050])
+    - Chats tab:
+        - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
+
+[#1050]: /../../issues/1050
+[#1244]: /../../issues/1244
+[#1243]: /../../pull/1243
+[#1244]: /../../issues/1244
+
+
+
+
 ## [0.5.0] · 2025-05-09
 [0.5.0]: /../../tree/v0.5.0
 
