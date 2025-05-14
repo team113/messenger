@@ -852,7 +852,33 @@ class AuthService extends DisposableService {
               '$runtimeType',
             );
 
-            await _lifecycleMutex.acquire();
+            Completer? completer = Completer();
+
+            // Check for calls in period to proceed refreshing the session if
+            // any.
+            while (completer?.isCompleted != false) {
+              _lifecycleMutex
+                  .acquire()
+                  .then((_) => completer?.complete())
+                  .catchError((_) => completer?.complete());
+
+              await Future.delayed(Duration(seconds: 2));
+
+              if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+                Log.debug(
+                  'refreshSession($userId |-> $attempt) waiting for application to be active... seems like there are calls active, thus ignoring the check',
+                  '$runtimeType',
+                );
+
+                try {
+                  completer?.complete();
+                } catch (_) {
+                  completer = null;
+                  // No-op.
+                }
+              }
+            }
+
             Log.debug(
               'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
               '$runtimeType',
