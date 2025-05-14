@@ -1092,6 +1092,7 @@ mixin ChatGraphQlMixin {
         document: KeepTypingSubscription(variables: variables).document,
         variables: variables.toJson(),
       ),
+      resubscribe: false,
     );
   }
 

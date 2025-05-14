@@ -1713,7 +1713,10 @@ class ChatController extends GetxController {
             .listen(
               (_) {},
               onError: (e) {
-                if (e is! ResubscriptionRequiredException) {
+                if (e is ResubscriptionRequiredException) {
+                  _stopTyping();
+                  _keepTyping();
+                } else {
                   throw e;
                 }
               },
