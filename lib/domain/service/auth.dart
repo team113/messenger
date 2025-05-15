@@ -23,10 +23,8 @@ import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:flutter/material.dart'
     show AppLifecycleState, visibleForTesting;
 import 'package:get/get.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:mutex/mutex.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
@@ -108,25 +106,14 @@ class AuthService extends DisposableService {
   StreamSubscription? _storageSubscription;
 
   /// [Mutex] being unlocked only when [AppLifecycleState] is in foreground.
-  final Mutex _lifecycleMutex = Mutex();
+  final Mutex _deltaMutex = Mutex();
 
   /// [Worker] reacting on the [RouterState.lifecycle] changes to lock/unlock
-  /// the [_lifecycleMutex].
-  Worker? _lifecycleWorker;
-
-  final InternetConnection _internet = InternetConnection.createInstance(
-    useDefaultOptions: false,
-    customCheckOptions: [
-      InternetCheckOption(
-        uri: Uri.parse('${Config.url}:${Config.port}/files/'),
-      ),
-    ],
-  );
+  /// the [_deltaMutex].
+  Worker? _deltaWorker;
 
   StreamSubscription? _onScreenSubscription;
-  StreamSubscription? _internetStatusSubscription;
   final Mutex _screenGuard = Mutex();
-  final Mutex _connectedMutex = Mutex();
 
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
@@ -153,9 +140,8 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
-    _lifecycleWorker?.dispose();
+    _deltaWorker?.dispose();
     _onScreenSubscription?.cancel();
-    _internetStatusSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -239,18 +225,18 @@ class AuthService extends DisposableService {
       }
     });
 
-    _lifecycleWorker = ever(PlatformUtils.isDeltaSynchronized, (
+    _deltaWorker = ever(PlatformUtils.isDeltaSynchronized, (
       bool synchronized,
     ) async {
-      Log.debug('_lifecycleWorker -> $synchronized', '$runtimeType');
+      Log.debug('_deltaWorker -> $synchronized', '$runtimeType');
 
       if (synchronized) {
-        if (_lifecycleMutex.isLocked) {
-          _lifecycleMutex.release();
+        if (_deltaMutex.isLocked) {
+          _deltaMutex.release();
         }
       } else {
-        if (!_lifecycleMutex.isLocked) {
-          await _lifecycleMutex.acquire();
+        if (!_deltaMutex.isLocked) {
+          await _deltaMutex.acquire();
         }
       }
     });
@@ -270,29 +256,6 @@ class AuthService extends DisposableService {
         case ScreenState.unlocked:
           if (!_screenGuard.isLocked) {
             _screenGuard.acquire();
-          }
-          break;
-      }
-    });
-
-    _internetStatusSubscription = _internet.onStatusChange.listen((
-      InternetStatus status,
-    ) {
-      Log.debug(
-        'InternetConnection().onStatusChange -> $status',
-        '$runtimeType',
-      );
-
-      switch (status) {
-        case InternetStatus.connected:
-          if (_connectedMutex.isLocked) {
-            _connectedMutex.release();
-          }
-          break;
-
-        case InternetStatus.disconnected:
-          if (!_connectedMutex.isLocked) {
-            _connectedMutex.acquire();
           }
           break;
       }
@@ -857,7 +820,7 @@ class AuthService extends DisposableService {
             // Check for calls in period to proceed refreshing the session if
             // any.
             while (completer?.isCompleted != false) {
-              _lifecycleMutex
+              _deltaMutex
                   .acquire()
                   .then((_) => completer?.complete())
                   .catchError((_) => completer?.complete());
@@ -884,8 +847,8 @@ class AuthService extends DisposableService {
               '$runtimeType',
             );
 
-            if (_lifecycleMutex.isLocked) {
-              _lifecycleMutex.release();
+            if (_deltaMutex.isLocked) {
+              _deltaMutex.release();
             }
           }
         }
@@ -905,36 +868,6 @@ class AuthService extends DisposableService {
 
           if (_screenGuard.isLocked) {
             _screenGuard.release();
-          }
-        }
-
-        Log.debug(
-          'refreshSession($userId |-> $attempt) checking for Internet connection...',
-          '$runtimeType',
-        );
-
-        final bool hasInternetAccess = await _internet.hasInternetAccess;
-
-        Log.debug(
-          'refreshSession($userId |-> $attempt) checking for Internet connection... done -> hasInternetAccess($hasInternetAccess)',
-          '$runtimeType',
-        );
-
-        if (!hasInternetAccess) {
-          Log.debug(
-            'refreshSession($userId |-> $attempt) connection is dropped, waiting...',
-            '$runtimeType',
-          );
-
-          await _connectedMutex.acquire();
-
-          Log.debug(
-            'refreshSession($userId |-> $attempt) connection is dropped, waiting... done -> ${_internet.lastTryResults?.name}',
-            '$runtimeType',
-          );
-
-          if (_connectedMutex.isLocked) {
-            _connectedMutex.release();
           }
         }
 

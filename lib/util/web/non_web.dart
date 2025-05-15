@@ -326,14 +326,6 @@ class WebUtils {
     // No-op.
   }
 
-  static void registerServiceWorker() {
-    // No-op.
-  }
-
-  static void postMessage(Map<String, String> message) {
-    // No-op.
-  }
-
   /// Returns the `User-Agent` header to put in the network queries.
   static Future<String> get userAgent async {
     final DeviceInfoPlugin device = DeviceInfoPlugin();

@@ -105,7 +105,6 @@ Future<void> main() async {
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
-    WebUtils.registerServiceWorker();
 
     if (!PlatformUtils.isWeb && PlatformUtils.isDesktop) {
       try {

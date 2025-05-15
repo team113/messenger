@@ -386,6 +386,9 @@ class PlatformUtilsImpl {
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
 
+  /// Returns the current [ScreenState] of the device.
+  ///
+  /// Only meaningful on desktop platforms.
   ScreenState get screenState {
     if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
       return ScreenState.awaked;
@@ -394,6 +397,9 @@ class PlatformUtilsImpl {
     return DesktopScreenState.instance.isActive.value;
   }
 
+  /// Returns the stream of [ScreenState] changes of the device.
+  ///
+  /// Only meaningful on desktop platforms.
   Stream<ScreenState> get onScreenStateChanged {
     if (_screenStateController != null) {
       return _screenStateController!.stream;
