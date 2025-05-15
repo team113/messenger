@@ -19,7 +19,6 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
-import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
@@ -114,8 +113,6 @@ class PlatformUtilsImpl {
 
   /// [StreamController] of the application's window focus changes.
   StreamController<bool>? _focusController;
-
-  StreamController<ScreenState>? _screenStateController;
 
   /// Indicator whether the application is in active state.
   bool _isActive = true;
@@ -385,46 +382,6 @@ class PlatformUtilsImpl {
 
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
-
-  /// Returns the current [ScreenState] of the device.
-  ///
-  /// Only meaningful on desktop platforms.
-  ScreenState get screenState {
-    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
-      return ScreenState.awaked;
-    }
-
-    return DesktopScreenState.instance.isActive.value;
-  }
-
-  /// Returns the stream of [ScreenState] changes of the device.
-  ///
-  /// Only meaningful on desktop platforms.
-  Stream<ScreenState> get onScreenStateChanged {
-    if (_screenStateController != null) {
-      return _screenStateController!.stream;
-    }
-
-    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
-      return Stream.value(ScreenState.awaked);
-    }
-
-    void listener() {
-      _screenStateController?.add(DesktopScreenState.instance.isActive.value);
-    }
-
-    _screenStateController = StreamController<ScreenState>.broadcast(
-      onListen:
-          () => DesktopScreenState.instance.isActive.addListener(listener),
-      onCancel: () {
-        DesktopScreenState.instance.isActive.removeListener(listener);
-        _screenStateController?.close();
-        _screenStateController = null;
-      },
-    );
-
-    return _screenStateController!.stream;
-  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {

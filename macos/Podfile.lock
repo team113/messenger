@@ -8,8 +8,6 @@ PODS:
   - cupertino_http (0.0.1):
     - Flutter
     - FlutterMacOS
-  - desktop_screenstate (0.0.1):
-    - FlutterMacOS
   - device_info_plus (0.0.1):
     - FlutterMacOS
   - file_selector_macos (0.0.1):
@@ -103,8 +101,6 @@ PODS:
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
-  - nanopb/decode (3.30910.0)
-  - nanopb/encode (3.30910.0)
   - objective_c (0.0.1):
     - FlutterMacOS
   - open_file_mac (0.0.1):
@@ -164,7 +160,6 @@ DEPENDENCIES:
   - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - connectivity_plus (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos`)
   - cupertino_http (from `Flutter/ephemeral/.symlinks/plugins/cupertino_http/darwin`)
-  - desktop_screenstate (from `Flutter/ephemeral/.symlinks/plugins/desktop_screenstate/macos`)
   - device_info_plus (from `Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos`)
   - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
@@ -221,8 +216,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus/macos
   cupertino_http:
     :path: Flutter/ephemeral/.symlinks/plugins/cupertino_http/darwin
-  desktop_screenstate:
-    :path: Flutter/ephemeral/.symlinks/plugins/desktop_screenstate/macos
   device_info_plus:
     :path: Flutter/ephemeral/.symlinks/plugins/device_info_plus/macos
   file_selector_macos:
@@ -291,7 +284,6 @@ SPEC CHECKSUMS:
   audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
   connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
   cupertino_http: 94ac07f5ff090b8effa6c5e2c47871d48ab7c86c
-  desktop_screenstate: f3fe656a8aaf9ef3fe94f54318e88b8d6d5e800c
   device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
   file_selector_macos: 6280b52b459ae6c590af5d78fc35c7267a3c4b31
   Firebase: a64bf6a8546e6eab54f1c715cd6151f39d2329f4
@@ -336,6 +328,6 @@ SPEC CHECKSUMS:
   wakelock_plus: 21ddc249ac4b8d018838dbdabd65c5976c308497
   window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
 
-PODFILE CHECKSUM: d082a2cca14040cad803f17dd309768371c3b01e
+PODFILE CHECKSUM: 1eb246b7252feb97518a5c5b6e33b324dc30a54d
 
 COCOAPODS: 1.16.2

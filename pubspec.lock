@@ -368,14 +368,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.11"
-  desktop_screenstate:
-    dependency: "direct main"
-    description:
-      name: desktop_screenstate
-      sha256: cac0abff5cfc5c063cad2f43547ec4c7c5501067e31c42023ca8c01bc3499a92
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.6+1"
   device_info_plus:
     dependency: "direct main"
     description:
