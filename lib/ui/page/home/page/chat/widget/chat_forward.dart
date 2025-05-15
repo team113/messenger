@@ -49,6 +49,7 @@ import '/ui/page/home/widget/confirm_dialog.dart';
 import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
 import '/util/platform_utils.dart';
@@ -415,21 +416,17 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
 
         timeInBubble = text == null && media.isNotEmpty && files.isEmpty;
 
-        final FutureOr<RxUser?>? user = widget.getUser?.call(quote.author);
-
         content = [
-          FutureBuilder<RxUser?>(
-            future: user is Future<RxUser?> ? user : null,
-            builder: (context, snapshot) {
-              final RxUser? data =
-                  snapshot.data ?? (user is RxUser? ? user : null);
-
+          FutureOrBuilder<RxUser?>(
+            key: Key('${quote.hashCode}_3_${quote.author}'),
+            futureOr: () => widget.getUser?.call(quote.author),
+            builder: (context, user) {
               final Color color =
-                  data?.user.value.id == widget.me
+                  user?.user.value.id == widget.me
                       ? style.colors.primary
                       : style
                           .colors
-                          .userColors[(data?.user.value.num.val.sum() ?? 3) %
+                          .userColors[(user?.user.value.num.val.sum() ?? 3) %
                           style.colors.userColors.length];
 
               return Row(
@@ -439,7 +436,7 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                       padding: const EdgeInsets.only(left: 12, right: 9),
                       child: SelectionText.rich(
                         TextSpan(
-                          text: data?.title ?? 'dot'.l10n * 3,
+                          text: user?.title ?? 'dot'.l10n * 3,
                           recognizer:
                               TapGestureRecognizer()
                                 ..onTap =
@@ -908,19 +905,15 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                 .firstWhereOrNull((e) => e.user.id == m.memberId)
                 ?.user;
 
-        final FutureOr<RxUser?>? member = widget.getUser?.call(m.memberId);
-
         avatars.add(
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 1),
-            child: FutureBuilder<RxUser?>(
-              future: member is Future<RxUser?> ? member : null,
-              builder: (context, snapshot) {
-                final RxUser? data =
-                    snapshot.data ?? (member is RxUser? ? member : null);
-
+            child: FutureOrBuilder<RxUser?>(
+              key: Key('${item?.id}_4_${m.memberId}'),
+              futureOr: () => widget.getUser?.call(m.memberId),
+              builder: (context, member) {
                 return Tooltip(
-                  message: data?.title ?? user?.title ?? ('dot'.l10n * 3),
+                  message: member?.title ?? user?.title ?? ('dot'.l10n * 3),
                   verticalOffset: 15,
                   padding: const EdgeInsets.fromLTRB(7, 3, 7, 3),
                   decoration: BoxDecoration(
@@ -928,9 +921,9 @@ class _ChatForwardWidgetState extends State<ChatForwardWidget> {
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child:
-                      data != null
+                      member != null
                           ? AvatarWidget.fromRxUser(
-                            data,
+                            member,
                             radius: AvatarRadius.smaller,
                           )
                           : AvatarWidget.fromUser(
