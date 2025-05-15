@@ -29,128 +29,142 @@ import 'routes.dart';
 import 'util/ios_utils.dart';
 
 /// Configuration of this application.
-class Config {
+// ignore: non_constant_identifier_names
+final ConfigImpl Config = ConfigImpl();
+
+/// Configuration of this application.
+class ConfigImpl with ChangeNotifier {
   /// Backend's HTTP URL.
-  static String url = 'http://localhost';
+  String url = 'http://localhost';
 
   /// Backend's HTTP port.
-  static int port = 80;
+  int port = 80;
 
   /// GraphQL API endpoint of HTTP backend server.
-  static String graphql = '/api/graphql';
+  String graphql = '/api/graphql';
 
   /// Backend's WebSocket URL.
-  static String ws = 'ws://localhost';
+  String ws = 'ws://localhost';
 
   /// File storage HTTP URL.
-  static String files = 'http://localhost/files';
+  String files = 'http://localhost/files';
 
   /// Sentry DSN (Data Source Name) to send errors to.
   ///
   /// If empty, then omitted.
-  static String sentryDsn = '';
+  String sentryDsn = '';
 
   /// Domain considered as an origin of the application.
-  static String origin = '';
+  String origin = '';
 
   /// [ChatDirectLink] prefix.
   ///
   /// If empty, then [origin] is used.
-  static String link = '';
+  String link = '';
 
   /// Directory to download files to.
-  static String downloads = '';
+  String downloads = '';
 
   /// Indicator whether download links should be present within application.
   ///
   /// Should be `false` for builds uploaded to application stores, as usually
   /// those prohibit such links being present.
-  static bool downloadable = true;
+  bool downloadable = true;
 
   /// URL of the application entry in App Store.
-  static String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
+  String appStoreUrl = 'https://apps.apple.com/app/gapopa/id6444211477';
 
   /// URL of the application entry in Google Play.
-  static String googlePlayUrl =
+  String googlePlayUrl =
       'https://play.google.com/store/apps/details?id=com.team113.messenger';
 
   /// VAPID (Voluntary Application Server Identification) key for Web Push.
-  static String vapidKey =
+  String vapidKey =
       'BGYb_L78Y9C-X8Egon75EL8aci2K2UqRb850ibVpC51TXjmnapW9FoQqZ6Ru9rz5IcBAMwBIgjhBi-wn7jAMZC0';
 
   /// Indicator whether all looped animations should be disabled.
   ///
   /// Intended to be used in E2E testing.
-  static bool disableInfiniteAnimations = false;
+  bool disableInfiniteAnimations = false;
 
   /// Indicator whether all [DropRegion]s should be disabled.
   ///
   /// Intended to be used in E2E testing.
-  static bool disableDragArea = false;
+  bool disableDragArea = false;
 
   /// Product identifier of `User-Agent` header to put in network queries.
-  static String userAgentProduct = 'Gapopa';
+  String userAgentProduct = 'Gapopa';
 
   /// Version identifier of `User-Agent` header to put in network queries.
-  static String userAgentVersion = '';
+  String userAgentVersion = '';
 
   /// Unique identifier of Windows application.
-  static String clsid = '';
+  String clsid = '';
 
   /// Version of the application, used to clear cache if mismatch is detected.
   ///
   /// If not specified, [Pubspec.version] is used.
   ///
   /// Intended to be used in E2E testing.
-  static String? version;
+  String? version;
 
   /// Level of [Log]ger to log.
-  static me.LogLevel logLevel = me.LogLevel.info;
+  me.LogLevel logLevel = me.LogLevel.info;
 
   /// URL of a Sparkle Appcast XML file.
   ///
   /// Intended to be used in [UpgradeWorker] to notify users about new releases
   /// available.
-  static String appcast = '';
+  String appcast = '';
 
   /// Optional copyright to display at the bottom of [Routes.auth] page.
-  static String copyright = '';
+  String copyright = '';
 
   /// Email address of the support service displayed on the [Routes.support]
   /// page.
-  static String support = 'admin@gapopa.com';
+  String support = 'admin@gapopa.com';
 
   /// URL of the repository (or anything else) for users to report bugs to.
-  static String repository = 'https://github.com/team113/messenger/issues';
+  String repository = 'https://github.com/team113/messenger/issues';
 
   /// Schema version of the [CommonDatabase].
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int commonVersion = 5;
+  int commonVersion = 5;
 
   /// Schema version of the [ScopedDatabase].
   ///
   /// Should be bumped up, when breaking changes in this scheme occur, however
   /// be sure to write migrations and test them.
-  static int scopedVersion = 2;
+  int scopedVersion = 2;
 
   /// Custom URL scheme to associate the application with when opening the deep
   /// links.
-  static String scheme = 'gapopa';
+  String scheme = 'gapopa';
 
   /// URL address of IP geolocation API server.
-  static String geoEndpoint = 'https://ipwho.is';
+  String geoEndpoint = 'https://ipwho.is';
 
   /// URL address of IP address discovering API server.
-  static String ipEndpoint = 'https://api.ipify.org?format=json';
+  String ipEndpoint = 'https://api.ipify.org?format=json';
+
+  /// Indicator whether this [Config] should try fetching its data from the
+  /// remote endpoint.
+  bool confRemote = true;
+
+  /// URL part of the [ws] variable.
+  String _wsUrl = 'ws://localhost';
+
+  /// Port part of the [ws] variable.
+  int _wsPort = 80;
 
   /// Initializes this [Config] by applying values from the following sources
   /// (in the following order):
   /// - compile-time environment variables;
   /// - bundled configuration file (`conf.toml`);
   /// - default values.
-  static Future<void> init() async {
+  Future<void> init() async {
     WidgetsFlutterBinding.ensureInitialized();
 
     final Map<String, dynamic> document =
@@ -173,12 +187,12 @@ class Config {
             ? const String.fromEnvironment('SOCAPP_HTTP_URL')
             : (document['server']?['http']?['url'] ?? url);
 
-    String wsUrl =
+    _wsUrl =
         const bool.hasEnvironment('SOCAPP_WS_URL')
             ? const String.fromEnvironment('SOCAPP_WS_URL')
             : (document['server']?['ws']?['url'] ?? 'ws://localhost');
 
-    int wsPort =
+    _wsPort =
         const bool.hasEnvironment('SOCAPP_WS_PORT')
             ? const int.fromEnvironment('SOCAPP_WS_PORT')
             : (document['server']?['ws']?['port'] ?? 80);
@@ -303,13 +317,13 @@ class Config {
 
       if (document['server']?['ws']?['url'] == null &&
           !const bool.hasEnvironment('SOCAPP_WS_URL')) {
-        wsUrl =
+        _wsUrl =
             (Uri.base.scheme == 'https' ? 'wss://' : 'ws://') + Uri.base.host;
       }
 
       if (document['server']?['ws']?['port'] == null &&
           !const bool.hasEnvironment('SOCAPP_WS_PORT')) {
-        wsPort = Uri.base.scheme == 'https' ? 443 : 80;
+        _wsPort = Uri.base.scheme == 'https' ? 443 : 80;
       }
     }
 
@@ -318,7 +332,7 @@ class Config {
       files = '$url/files';
     }
 
-    bool confRemote =
+    confRemote =
         const bool.hasEnvironment('SOCAPP_CONF_REMOTE')
             ? const bool.fromEnvironment('SOCAPP_CONF_REMOTE')
             : (document['conf']?['remote'] ?? true);
@@ -326,58 +340,14 @@ class Config {
     // If [confRemote], then try to fetch and merge the remotely available
     // configuration.
     if (confRemote) {
-      try {
-        final response = await (await PlatformUtils.dio).fetch(
-          RequestOptions(path: '$url:$port/conf'),
-        );
-        if (response.statusCode == 200) {
-          dynamic remote;
-
-          try {
-            remote = TomlDocument.parse(response.data.toString()).toMap();
-          } catch (e) {
-            remote = loadYaml(response.data.toString());
-          }
-
-          confRemote = remote['conf']?['remote'] ?? confRemote;
-          if (confRemote) {
-            graphql = remote['server']?['http']?['graphql'] ?? graphql;
-            port = _asInt(remote['server']?['http']?['port']) ?? port;
-            url = remote['server']?['http']?['url'] ?? url;
-            wsUrl = remote['server']?['ws']?['url'] ?? wsUrl;
-            wsPort = _asInt(remote['server']?['ws']?['port']) ?? wsPort;
-            files = remote['files']?['url'] ?? files;
-            sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
-            downloads = remote['downloads']?['directory'] ?? downloads;
-            userAgentProduct =
-                remote['user']?['agent']?['product'] ?? userAgentProduct;
-            userAgentVersion =
-                remote['user']?['agent']?['version'] ?? userAgentVersion;
-            vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
-            link = remote['link']?['prefix'] ?? link;
-            appcast = remote['appcast']?['url'] ?? appcast;
-            copyright =
-                remote['legal']?[Uri.base.host]?['copyright'] ??
-                remote['legal']?['copyright'] ??
-                copyright;
-            support = remote['legal']?['support'] ?? support;
-            repository = remote['legal']?['repository'] ?? repository;
-            geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
-            ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;
-            if (remote['log']?['level'] != null) {
-              logLevel = me.LogLevel.values.firstWhere(
-                (e) => e.name == remote['log']?['level'],
-                orElse: () => logLevel,
-              );
-            }
-            origin = url;
-          }
-        }
-      } catch (e) {
-        Log.info('Remote configuration fetch failed.', 'Config');
-      }
+      _fetchRemote();
     }
 
+    _finalizeUrl();
+  }
+
+  /// Finalizes the [origin], [link] and [ws] parts of the [Config].
+  void _finalizeUrl() {
     if (PlatformUtils.isWeb) {
       if ((Uri.base.scheme == 'https' && Uri.base.port != 443) ||
           Uri.base.scheme == 'http' && Uri.base.port != 80) {
@@ -391,13 +361,74 @@ class Config {
       link = '$origin${Routes.chatDirectLink}';
     }
 
-    ws = '$wsUrl:$wsPort$graphql';
+    ws = '$_wsUrl:$_wsPort$graphql';
 
     // Notification Service Extension needs those to send message received
     // notification to backend.
     if (PlatformUtils.isIOS) {
       IosUtils.writeDefaults('url', url);
       IosUtils.writeDefaults('endpoint', graphql);
+    }
+  }
+
+  /// Fetches this [Config] from the remote [url] and [port] endpoint.
+  Future<void> _fetchRemote() async {
+    if (!confRemote) {
+      return;
+    }
+
+    try {
+      final response = await (await PlatformUtils.dio).fetch(
+        RequestOptions(path: '$url:$port/conf'),
+      );
+      if (response.statusCode == 200) {
+        dynamic remote;
+
+        try {
+          remote = TomlDocument.parse(response.data.toString()).toMap();
+        } catch (e) {
+          remote = loadYaml(response.data.toString());
+        }
+
+        confRemote = remote['conf']?['remote'] ?? confRemote;
+        if (confRemote) {
+          graphql = remote['server']?['http']?['graphql'] ?? graphql;
+          port = _asInt(remote['server']?['http']?['port']) ?? port;
+          url = remote['server']?['http']?['url'] ?? url;
+          _wsUrl = remote['server']?['ws']?['url'] ?? _wsUrl;
+          _wsPort = _asInt(remote['server']?['ws']?['port']) ?? _wsPort;
+          files = remote['files']?['url'] ?? files;
+          sentryDsn = remote['sentry']?['dsn'] ?? sentryDsn;
+          downloads = remote['downloads']?['directory'] ?? downloads;
+          userAgentProduct =
+              remote['user']?['agent']?['product'] ?? userAgentProduct;
+          userAgentVersion =
+              remote['user']?['agent']?['version'] ?? userAgentVersion;
+          vapidKey = remote['fcm']?['vapidKey'] ?? vapidKey;
+          link = remote['link']?['prefix'] ?? link;
+          appcast = remote['appcast']?['url'] ?? appcast;
+          copyright =
+              remote['legal']?[Uri.base.host]?['copyright'] ??
+              remote['legal']?['copyright'] ??
+              copyright;
+          support = remote['legal']?['support'] ?? support;
+          repository = remote['legal']?['repository'] ?? repository;
+          geoEndpoint = remote['geo']?['endpoint'] ?? geoEndpoint;
+          ipEndpoint = remote['ip']?['endpoint'] ?? ipEndpoint;
+          if (remote['log']?['level'] != null) {
+            logLevel = me.LogLevel.values.firstWhere(
+              (e) => e.name == remote['log']?['level'],
+              orElse: () => logLevel,
+            );
+          }
+          origin = url;
+
+          _finalizeUrl();
+          notifyListeners();
+        }
+      }
+    } catch (e) {
+      Log.info('Remote configuration fetch failed.', 'Config');
     }
   }
 }
