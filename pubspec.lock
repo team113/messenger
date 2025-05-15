@@ -411,19 +411,21 @@ packages:
   drift:
     dependency: "direct main"
     description:
-      name: drift
-      sha256: ab4d0e7aa1793829b1dd8e72d71bbf0b53bf4ff84b184045d1ab71b0832e632e
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.25.0"
+      path: drift
+      ref: develop
+      resolved-ref: "5bc2f328f1fd10c42a2a471ef3d52e162a40f8b7"
+      url: "https://github.com/simolus3/drift"
+    source: git
+    version: "2.25.1"
   drift_dev:
     dependency: "direct dev"
     description:
-      name: drift_dev
-      sha256: "6c559daf45dd9588eb88d8de7038b9826d404c2163850c6ebad008ba0ec1b9f7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.25.1"
+      path: drift_dev
+      ref: develop
+      resolved-ref: "5bc2f328f1fd10c42a2a471ef3d52e162a40f8b7"
+      url: "https://github.com/simolus3/drift"
+    source: git
+    version: "2.25.2"
   email_validator:
     dependency: "direct main"
     description:
@@ -460,10 +462,10 @@ packages:
     dependency: "direct main"
     description:
       name: ffi
-      sha256: "16ed7b077ef01ad6170a3d0c57caa4a112a38d7a2ed5602e0aca9ca6f3d98da6"
+      sha256: "289279317b4b16eb2bb7e271abccd4bf84ec9bdcbe999e278a94b804f5630418"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.4"
   file:
     dependency: transitive
     description:
@@ -508,10 +510,10 @@ packages:
     dependency: transitive
     description:
       name: file_selector_windows
-      sha256: "8f5d2f6590d51ecd9179ba39c64f722edc15226cc93dcc8698466ad36a4a85a4"
+      sha256: "320fcfb6f33caa90f0b58380489fc5ac05d99ee94b61aa96ec2bff0ba81d3c2b"
       url: "https://pub.dev"
     source: hosted
-    version: "0.9.3+3"
+    version: "0.9.3+4"
   firebase_core:
     dependency: "direct main"
     description:
@@ -817,10 +819,10 @@ packages:
     dependency: "direct main"
     description:
       name: get
-      sha256: c338f344fd5bdc40660682f021dfe18329de1173e4729b00ff70ba08f88db5f9
+      sha256: c79eeb4339f1f3deffd9ec912f8a923834bec55f7b49c9e882b8fef2c139d425
       url: "https://pub.dev"
     source: hosted
-    version: "4.7.1"
+    version: "4.7.2"
   gherkin:
     dependency: "direct dev"
     description:
@@ -1363,7 +1365,7 @@ packages:
     description:
       path: media_kit
       ref: HEAD
-      resolved-ref: "2493429cfdcbb3d0b4868cef70342cdc7c55d28a"
+      resolved-ref: aeb29faa8ea93a386ad1185b69fd6225fa331c74
       url: "https://github.com/media-kit/media-kit"
     source: git
     version: "1.2.0"
@@ -1416,7 +1418,7 @@ packages:
     description:
       path: media_kit_video
       ref: HEAD
-      resolved-ref: "2493429cfdcbb3d0b4868cef70342cdc7c55d28a"
+      resolved-ref: aeb29faa8ea93a386ad1185b69fd6225fa331c74
       url: "https://github.com/media-kit/media-kit"
     source: git
     version: "1.3.0"
@@ -1484,70 +1486,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.1.0"
-  open_file:
+  open_filex:
     dependency: "direct main"
     description:
-      name: open_file
-      sha256: d17e2bddf5b278cb2ae18393d0496aa4f162142ba97d1a9e0c30d476adf99c0e
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.5.10"
-  open_file_android:
-    dependency: transitive
-    description:
-      name: open_file_android
-      sha256: "58141fcaece2f453a9684509a7275f231ac0e3d6ceb9a5e6de310a7dff9084aa"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.6"
-  open_file_ios:
-    dependency: transitive
-    description:
-      name: open_file_ios
-      sha256: "02996f01e5f6863832068e97f8f3a5ef9b613516db6897f373b43b79849e4d07"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
-  open_file_linux:
-    dependency: transitive
-    description:
-      name: open_file_linux
-      sha256: d189f799eecbb139c97f8bc7d303f9e720954fa4e0fa1b0b7294767e5f2d7550
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.5"
-  open_file_mac:
-    dependency: transitive
-    description:
-      name: open_file_mac
-      sha256: "1440b1e37ceb0642208cfeb2c659c6cda27b25187a90635c9d1acb7d0584d324"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
-  open_file_platform_interface:
-    dependency: transitive
-    description:
-      name: open_file_platform_interface
-      sha256: "101b424ca359632699a7e1213e83d025722ab668b9fd1412338221bf9b0e5757"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.0.3"
-  open_file_web:
-    dependency: transitive
-    description:
-      name: open_file_web
-      sha256: e3dbc9584856283dcb30aef5720558b90f88036360bd078e494ab80a80130c4f
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.4"
-  open_file_windows:
-    dependency: transitive
-    description:
-      name: open_file_windows
-      sha256: d26c31ddf935a94a1a3aa43a23f4fff8a5ff4eea395fe7a8cb819cf55431c875
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.3"
+      path: "."
+      ref: HEAD
+      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
+      url: "https://github.com/raldhafiri/open_filex"
+    source: git
+    version: "4.4.0"
   package_config:
     dependency: transitive
     description:
@@ -1661,13 +1608,14 @@ packages:
     source: hosted
     version: "9.4.5"
   permission_handler_html:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: permission_handler_html
-      sha256: "38f000e83355abb3392140f6bc3030660cfaef189e1f87824facb76300b4ff24"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.3+5"
+      path: permission_handler_html
+      ref: HEAD
+      resolved-ref: "42e1c85b7d2c12528be4ae667db9b3318c77bda7"
+      url: "https://github.com/raldhafiri/flutter-permission-handler.git"
+    source: git
+    version: "0.1.2"
   permission_handler_platform_interface:
     dependency: transitive
     description:
@@ -1688,10 +1636,10 @@ packages:
     dependency: transitive
     description:
       name: petitparser
-      sha256: c15605cd28af66339f8eb6fbe0e541bfe2d1b72d5825efc6598f3e0a31b9ad27
+      sha256: "07c8f0b1913bcde1ff0d26e57ace2f3012ccbf2b204e070290dad3bb22797646"
       url: "https://pub.dev"
     source: hosted
-    version: "6.0.2"
+    version: "6.1.0"
   photo_view:
     dependency: "direct main"
     description:
@@ -1719,11 +1667,12 @@ packages:
   platform_detect:
     dependency: "direct main"
     description:
-      name: platform_detect
-      sha256: a62f99417fc4fa2d099ce0ccdbb1bd3977920f2a64292c326271f049d4bc3a4f
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.0"
+      path: "."
+      ref: HEAD
+      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      url: "https://github.com/SleepySquash/platform_detect.git"
+    source: git
+    version: "2.0.13"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -1945,10 +1894,10 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "077b03f9ee44cfb1eaadbf8af58255e670de62b3f240ca154ce96a5591dc3885"
+      sha256: "599701ca0693a74da361bc780b0752e1abc98226cf5095f6b069648116c896bb"
       url: "https://pub.dev"
     source: hosted
-    version: "8.14.1"
+    version: "8.14.2"
   sentry_dart_plugin:
     dependency: "direct dev"
     description:
@@ -1961,10 +1910,10 @@ packages:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: a348e2a365a8ad7682dd09db54f50f19f1c87180b8278f088bc393c511aea5e0
+      sha256: "5ba2cf40646a77d113b37a07bd69f61bb3ec8a73cbabe5537b05a7c89d2656f8"
       url: "https://pub.dev"
     source: hosted
-    version: "8.14.1"
+    version: "8.14.2"
   share_plus:
     dependency: "direct main"
     description:
@@ -2110,10 +2059,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqlite3
-      sha256: decd58236d7c59e01ae81b34ebd158e6a1b61e0ae5397fc428736eb91ab82808
+      sha256: "32b632dda27d664f85520093ed6f735ae5c49b5b75345afb8b19411bc59bb53d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.3"
+    version: "2.7.4"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:
@@ -2123,12 +2072,13 @@ packages:
     source: hosted
     version: "0.5.30"
   sqlparser:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
-      name: sqlparser
-      sha256: "27dd0a9f0c02e22ac0eb42a23df9ea079ce69b52bb4a3b478d64e0ef34a263ee"
-      url: "https://pub.dev"
-    source: hosted
+      path: sqlparser
+      ref: develop
+      resolved-ref: "5bc2f328f1fd10c42a2a471ef3d52e162a40f8b7"
+      url: "https://github.com/simolus3/drift"
+    source: git
     version: "0.41.0"
   stack_trace:
     dependency: transitive
@@ -2206,10 +2156,10 @@ packages:
     dependency: transitive
     description:
       name: synchronized
-      sha256: "69fe30f3a8b04a0be0c15ae6490fc859a78ef4c43ae2dd5e8a623d45bfcf9225"
+      sha256: "0669c70faae6270521ee4f05bffd2919892d42d1276e6c495be80174b6bc0ef6"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0+3"
+    version: "3.3.1"
   system_info2:
     dependency: transitive
     description:
@@ -2486,18 +2436,18 @@ packages:
     dependency: transitive
     description:
       name: web_socket
-      sha256: "3c12d96c0c9a4eec095246debcea7b86c0324f22df69893d538fcc6f1b8cce83"
+      sha256: bfe6f435f6ec49cb6c01da1e275ae4228719e59a6b067048c51e72d9d63bcc4b
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.6"
+    version: "1.0.0"
   web_socket_channel:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: "0b8e2457400d8a859b7b2030786835a28a8e80836ef64402abef392ff4f1d0e5"
+      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.2"
+    version: "2.4.5"
   webdriver:
     dependency: transitive
     description:
