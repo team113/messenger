@@ -19,6 +19,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:async/async.dart';
+import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/services.dart';
@@ -51,10 +52,38 @@ PlatformUtilsImpl PlatformUtils = PlatformUtilsImpl();
 
 /// Helper providing platform related features.
 class PlatformUtilsImpl {
+  PlatformUtilsImpl() {
+    Timer.periodic(Duration(milliseconds: 2000), (_) {
+      if (_lastDeltaPing != null) {
+        final difference =
+            DateTime.now().difference(_lastDeltaPing!).abs().inMilliseconds;
+
+        isDeltaSynchronized.value = difference <= 2200;
+
+        if (!isDeltaSynchronized.value) {
+          Log.debug(
+            'Delta not synchronized -> difference is $difference ms',
+            '$runtimeType',
+          );
+        }
+      }
+
+      _lastDeltaPing = DateTime.now();
+    });
+  }
+
   /// [Dio] client to use in queries.
   ///
   /// May be overridden to be mocked in tests.
   Dio? client;
+
+  /// Indicator whether the device is asleep.
+  final RxBool isDeltaSynchronized = RxBool(true);
+
+  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
+  /// passed.
+  @visibleForTesting
+  Timer? activityTimer;
 
   /// Downloads directory.
   Directory? _downloadDirectory;
@@ -86,13 +115,13 @@ class PlatformUtilsImpl {
   /// [StreamController] of the application's window focus changes.
   StreamController<bool>? _focusController;
 
+  StreamController<ScreenState>? _screenStateController;
+
   /// Indicator whether the application is in active state.
   bool _isActive = true;
 
-  /// [Timer] updating the [_isActive] status after the [_activityTimeout] has
-  /// passed.
-  @visibleForTesting
-  Timer? activityTimer;
+  /// Last [DateTime] of a [isDeltaSynchronized] timer.
+  DateTime? _lastDeltaPing;
 
   /// [Duration] of inactivity to consider [_isActive] as `false`.
   static const Duration _activityTimeout = Duration(seconds: 15);
@@ -356,6 +385,46 @@ class PlatformUtilsImpl {
 
   /// Indicates whether the application is in active state.
   Future<bool> get isActive async => _isActive && await isFocused;
+
+  /// Returns the current [ScreenState] of the device.
+  ///
+  /// Only meaningful on desktop platforms.
+  ScreenState get screenState {
+    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+      return ScreenState.awaked;
+    }
+
+    return DesktopScreenState.instance.isActive.value;
+  }
+
+  /// Returns the stream of [ScreenState] changes of the device.
+  ///
+  /// Only meaningful on desktop platforms.
+  Stream<ScreenState> get onScreenStateChanged {
+    if (_screenStateController != null) {
+      return _screenStateController!.stream;
+    }
+
+    if (PlatformUtils.isWeb || !PlatformUtils.isDesktop) {
+      return Stream.value(ScreenState.awaked);
+    }
+
+    void listener() {
+      _screenStateController?.add(DesktopScreenState.instance.isActive.value);
+    }
+
+    _screenStateController = StreamController<ScreenState>.broadcast(
+      onListen:
+          () => DesktopScreenState.instance.isActive.addListener(listener),
+      onCancel: () {
+        DesktopScreenState.instance.isActive.removeListener(listener);
+        _screenStateController?.close();
+        _screenStateController = null;
+      },
+    );
+
+    return _screenStateController!.stream;
+  }
 
   /// Enters fullscreen mode.
   Future<void> enterFullscreen() async {

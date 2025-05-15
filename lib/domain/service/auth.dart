@@ -19,8 +19,11 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/material.dart' show visibleForTesting;
+import 'package:desktop_screenstate/desktop_screenstate.dart';
+import 'package:flutter/material.dart'
+    show AppLifecycleState, visibleForTesting;
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
@@ -34,6 +37,7 @@ import '/provider/drift/locks.dart';
 import '/provider/gql/exceptions.dart';
 import '/routes.dart';
 import '/util/log.dart';
+import '/util/platform_utils.dart';
 import '/util/web/web_utils.dart';
 import 'disposable_service.dart';
 
@@ -72,6 +76,9 @@ class AuthService extends DisposableService {
   /// [Function] to be invoked before [logout].
   Future<void> Function()? onLogout;
 
+  /// Callback, called to indicate whether application has any [OngoingCall]s.
+  bool Function()? hasCalls;
+
   /// [CredentialsDriftProvider] used to store user's [Session].
   final CredentialsDriftProvider _credentialsProvider;
 
@@ -98,6 +105,16 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  /// [Mutex] being unlocked only when [AppLifecycleState] is in foreground.
+  final Mutex _deltaMutex = Mutex();
+
+  /// [Worker] reacting on the [RouterState.lifecycle] changes to lock/unlock
+  /// the [_deltaMutex].
+  Worker? _deltaWorker;
+
+  StreamSubscription? _onScreenSubscription;
+  final Mutex _screenGuard = Mutex();
+
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
 
@@ -123,6 +140,8 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
+    _deltaWorker?.dispose();
+    _onScreenSubscription?.cancel();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -203,6 +222,42 @@ class AuthService extends DisposableService {
             router.go(_unauthorized());
           }
         }
+      }
+    });
+
+    _deltaWorker = ever(PlatformUtils.isDeltaSynchronized, (
+      bool synchronized,
+    ) async {
+      Log.debug('_deltaWorker -> $synchronized', '$runtimeType');
+
+      if (synchronized) {
+        if (_deltaMutex.isLocked) {
+          _deltaMutex.release();
+        }
+      } else {
+        if (!_deltaMutex.isLocked) {
+          await _deltaMutex.acquire();
+        }
+      }
+    });
+
+    _onScreenSubscription = PlatformUtils.onScreenStateChanged.listen((e) {
+      Log.debug('onScreenStateChanged -> $e', '$runtimeType');
+
+      switch (e) {
+        case ScreenState.awaked:
+          if (_screenGuard.isLocked) {
+            _screenGuard.release();
+          }
+          break;
+
+        case ScreenState.locked:
+        case ScreenState.sleep:
+        case ScreenState.unlocked:
+          if (!_screenGuard.isLocked) {
+            _screenGuard.acquire();
+          }
+          break;
       }
     });
 
@@ -485,6 +540,7 @@ class AuthService extends DisposableService {
         }
 
         onLogout = null;
+        hasCalls = null;
       }
 
       try {
@@ -747,6 +803,74 @@ class AuthService extends DisposableService {
           return _refreshRetryDelay = _initialRetryDelay;
         }
 
+        if (!PlatformUtils.isDeltaSynchronized.value) {
+          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) should wait for application to be active, however there are calls active, thus ignoring the check',
+              '$runtimeType',
+            );
+          } else {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active...',
+              '$runtimeType',
+            );
+
+            Completer? completer = Completer();
+
+            // Check for calls in period to proceed refreshing the session if
+            // any.
+            while (completer?.isCompleted != false) {
+              _deltaMutex
+                  .acquire()
+                  .then((_) => completer?.complete())
+                  .catchError((_) => completer?.complete());
+
+              await Future.delayed(Duration(seconds: 2));
+
+              if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+                Log.debug(
+                  'refreshSession($userId |-> $attempt) waiting for application to be active... seems like there are calls active, thus ignoring the check',
+                  '$runtimeType',
+                );
+
+                try {
+                  completer?.complete();
+                } catch (_) {
+                  completer = null;
+                  // No-op.
+                }
+              }
+            }
+
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+              '$runtimeType',
+            );
+
+            if (_deltaMutex.isLocked) {
+              _deltaMutex.release();
+            }
+          }
+        }
+
+        if (PlatformUtils.screenState != ScreenState.awaked) {
+          Log.debug(
+            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting...',
+            '$runtimeType',
+          );
+
+          await _screenGuard.acquire();
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt) screen state is\'t awaked, waiting... done -> ${PlatformUtils.screenState.name}',
+            '$runtimeType',
+          );
+
+          if (_screenGuard.isLocked) {
+            _screenGuard.release();
+          }
+        }
+
         try {
           final Credentials data = await _authRepository.refreshSession(
             oldCreds.refresh.secret,
@@ -919,6 +1043,9 @@ class AuthService extends DisposableService {
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();
+
+    onLogout = null;
+    hasCalls = null;
 
     return Routes.auth;
   }

@@ -5,6 +5,7 @@
 #include <flutter/flutter_view_controller.h>
 
 #include <memory>
+#include <winuser.h>
 
 #include "win32_window.h"
 
@@ -25,6 +26,9 @@ class FlutterWindow : public Win32Window {
  private:
   // The project to run.
   flutter::DartProject project_;
+
+  // Required by `desktop_screenstate` to work.
+  HPOWERNOTIFY power_notification_handle_ = nullptr;
 
   // The Flutter instance hosted by this window.
   std::unique_ptr<flutter::FlutterViewController> flutter_controller_;

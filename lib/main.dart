@@ -18,6 +18,7 @@
 import 'dart:async';
 
 import 'package:app_links/app_links.dart';
+import 'package:desktop_screenstate/desktop_screenstate.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -91,10 +92,29 @@ Future<void> main() async {
     dateStamp: !PlatformUtils.isWeb,
   );
 
+  // Disposes the processes initialized by [DesktopScreenState].
+  void shutdownApp() {
+    try {
+      DesktopScreenState.dispose();
+    } finally {
+      exit(0);
+    }
+  }
+
   // Initializes and runs the [App].
   Future<void> appRunner() async {
     MediaKit.ensureInitialized();
     WebUtils.setPathUrlStrategy();
+
+    if (!PlatformUtils.isWeb && PlatformUtils.isDesktop) {
+      try {
+        DesktopScreenState.linuxMonitor = ScreenStateMonitor.gdbus;
+        ProcessSignal.sigint.watch().listen((_) => shutdownApp());
+        ProcessSignal.sigterm.watch().listen((_) => shutdownApp());
+      } catch (_) {
+        //No-op.
+      }
+    }
 
     Get.putOrGet<CommonDriftProvider>(
       () => CommonDriftProvider.from(
