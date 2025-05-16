@@ -85,11 +85,11 @@ class BlocklistRepository extends DisposableInterface
           delete: (e) async => await _blocklistLocal.delete(e),
           reset: () async => await _blocklistLocal.clear(),
           isFirst:
-              (_) =>
+              (_, _) =>
                   _sessionLocal.data[me]?.blocklistSynchronized == true &&
                   blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           isLast:
-              (_) =>
+              (_, _) =>
                   _sessionLocal.data[me]?.blocklistSynchronized == true &&
                   blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           compare: (a, b) => a.value.compareTo(b.value),

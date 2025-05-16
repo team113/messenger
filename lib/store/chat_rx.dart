@@ -1059,14 +1059,14 @@ class RxChatImpl extends RxChat {
               },
               onKey: (e) => e.value.id,
               onCursor: (e) => e?.cursor,
-              isFirst: (e) {
+              isFirst: (e, _) {
                 if (e.value.id.isLocal) {
                   return null;
                 }
 
                 return chat.value.firstItem?.id == e.value.id;
               },
-              isLast: (e) {
+              isLast: (e, _) {
                 if (e.value.id.isLocal) {
                   return null;
                 }
@@ -1178,14 +1178,14 @@ class RxChatImpl extends RxChat {
                   await _driftItems.upsertBulk(e, toView: toView),
           delete: (e) async => await _driftItems.delete(e),
           reset: () async => await _driftItems.clear(),
-          isFirst: (e) {
+          isFirst: (e, _) {
             if (e.value.id.isLocal) {
               return null;
             }
 
             return chat.value.firstItem?.id == e.value.id;
           },
-          isLast: (e) {
+          isLast: (e, _) {
             if (e.value.id.isLocal) {
               return null;
             }
@@ -1270,8 +1270,8 @@ class RxChatImpl extends RxChat {
                     await _driftMembers.upsertBulk(id, e),
             delete: (e) async => await _driftMembers.delete(id, e),
             reset: () async => await _driftMembers.clear(),
-            isFirst: (_) => members.rawLength >= chat.value.membersCount,
-            isLast: (_) => members.rawLength >= chat.value.membersCount,
+            isFirst: (_, i) => i >= chat.value.membersCount,
+            isLast: (_, i) => i >= chat.value.membersCount,
             compare: (a, b) => a.compareTo(b),
           ),
           graphQlProvider:
@@ -1515,14 +1515,14 @@ class RxChatImpl extends RxChat {
               },
               onKey: (e) => e.value.id,
               onCursor: (e) => e?.cursor,
-              isFirst: (e) {
+              isFirst: (e, _) {
                 if (e.value.id.isLocal) {
                   return null;
                 }
 
                 return chat.value.firstItem?.id == e.value.id;
               },
-              isLast: (e) {
+              isLast: (e, _) {
                 if (e.value.id.isLocal) {
                   return null;
                 }

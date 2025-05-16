@@ -1741,8 +1741,8 @@ class ChatRepository extends DisposableInterface
             },
             delete: (e) async => await _chatLocal.delete(e),
             reset: () async => await _chatLocal.clear(),
-            isLast: (_) => true,
-            isFirst: (_) => true,
+            isLast: (_, _) => true,
+            isFirst: (_, _) => true,
             fulfilledWhenNone: true,
             compare: (a, b) => a.value.compareTo(b.value),
           ),
@@ -1766,8 +1766,8 @@ class ChatRepository extends DisposableInterface
             },
             delete: (e) async => await _chatLocal.delete(e),
             reset: () async => await _chatLocal.clear(),
-            isLast: (_) => false,
-            isFirst: (_) => true,
+            isLast: (_, _) => false,
+            isFirst: (_, _) => true,
             fulfilledWhenNone: true,
             compare: (a, b) => a.value.compareTo(b.value),
           ),
@@ -1859,9 +1859,11 @@ class ChatRepository extends DisposableInterface
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
           isLast:
-              (_) => _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
+              (_, _) =>
+                  _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           isFirst:
-              (_) => _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
+              (_, _) =>
+                  _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
@@ -1927,8 +1929,8 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast: (_) => false,
-          isFirst: (_) => false,
+          isLast: (_, _) => false,
+          isFirst: (_, _) => false,
           fulfilledWhenNone: true,
           compare: (a, b) => a.value.compareTo(b.value),
         ),

@@ -1543,6 +1543,22 @@ class OngoingCall {
         members[id]?.quality.value = p;
       });
     });
+
+    _room?.onClose((r) {
+      Log.error(
+        'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+        '$runtimeType',
+      );
+
+      // TODO: Can we somehow reconnect to a new room in such scenarios?
+      dispose();
+
+      if (r.isErr()) {
+        throw Exception(
+          'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+        );
+      }
+    });
   }
 
   /// Raises/lowers a hand of the authorized [MyUser].

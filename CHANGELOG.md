@@ -17,13 +17,17 @@ All user visible changes to this project will be documented in this file. This p
     - Chat page:
         - Duplicating read users avatars under messages. ([#1243])
         - Invalid message's author being displayed sometimes. ([#1243], [#1050])
+        - Gallery image flashing when being opened. ([#1246])
     - Chats tab:
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
+    - Chat info page:
+        - Infinite loader displayed under members list. ([#1246])
 
 [#1050]: /../../issues/1050
 [#1244]: /../../issues/1244
 [#1243]: /../../pull/1243
 [#1244]: /../../issues/1244
+[#1246]: /../../pull/1246
 
 
 

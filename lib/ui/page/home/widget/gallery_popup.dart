@@ -325,6 +325,9 @@ class _GalleryPopupState extends State<GalleryPopup>
   /// [PhotoViewController] for zooming [PhotoViewGallery] in and out.
   final PhotoViewController _photoController = PhotoViewController();
 
+  /// [GlobalKey]s to use for [GalleryItem]s.
+  final Map<String, GlobalKey> _keys = {};
+
   // TODO: This is a hack for a feature that should be implemented in
   //       `photo_view` directly:
   //       https://github.com/bluefireteam/photo_view/issues/425
@@ -695,6 +698,7 @@ class _GalleryPopupState extends State<GalleryPopup>
               if (PlatformUtils.isWeb) {
                 image = WebImage(
                   e.link,
+                  key: _resolveKeyFor(e),
                   width: e.width?.toDouble(),
                   height: e.height?.toDouble(),
                   thumbhash: e.thumbhash,
@@ -1331,6 +1335,11 @@ class _GalleryPopupState extends State<GalleryPopup>
         setState(() => toggle(false));
       }
     });
+  }
+
+  /// Returns a [GlobalKey] to use for the provided [GalleryItem].
+  GlobalKey _resolveKeyFor(GalleryItem e) {
+    return _keys['${e.id ?? e.hashCode}'] ??= GlobalKey();
   }
 }
 
