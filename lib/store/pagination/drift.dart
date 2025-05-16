@@ -94,12 +94,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   /// Callback, called to indicate whether the provided [T] is the first.
   ///
   /// `null` returned means that the [T] shouldn't participant in such test.
-  final bool? Function(T)? isFirst;
+  final bool? Function(T, int)? isFirst;
 
   /// Callback, called to indicate whether the provided [T] is the last.
   ///
   /// `null` returned means that the [T] shouldn't participant in such test.
-  final bool? Function(T)? isLast;
+  final bool? Function(T, int)? isLast;
 
   /// Callback, called to compare the provided [T] items.
   final int Function(T, T)? compare;
@@ -147,10 +147,12 @@ class DriftPageProvider<T, C, K> extends PageProvider<T, C, K> {
   Timer? _timeoutTimer;
 
   /// Returns the last item from the [_list], for which [isFirst] is `true`.
-  T? get _first => _list.lastWhereOrNull((e) => isFirst?.call(e) == true);
+  T? get _first =>
+      _list.lastWhereOrNull((e) => isFirst?.call(e, _list.length) == true);
 
   /// Returns the first item from the [_list], for which [isLast] is `true`.
-  T? get _last => _list.firstWhereOrNull((e) => isLast?.call(e) == true);
+  T? get _last =>
+      _list.firstWhereOrNull((e) => isLast?.call(e, _list.length) == true);
 
   /// Indicates whether the [_list] contain an item identified as the first.
   bool get _hasFirst => _first != null;
