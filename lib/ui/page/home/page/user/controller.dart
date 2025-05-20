@@ -52,7 +52,6 @@ import '/provider/gql/exceptions.dart'
         HideChatException,
         JoinChatCallException,
         ToggleChatMuteException,
-        UnfavoriteChatContactException,
         UnfavoriteChatException,
         UpdateChatContactNameException;
 import '/routes.dart';
@@ -347,31 +346,33 @@ class UserController extends GetxController {
     }
   }
 
-  /// Marks the [user] as favorited.
-  Future<void> favoriteContact() async {
-    try {
-      if (contactId != null) {
-        await _contactService.favoriteChatContact(contactId!);
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    if (dialog != null) {
+      try {
+        await _chatService.favoriteChat(dialog);
+      } on FavoriteChatContactException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
       }
-    } on FavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 
-  /// Removes the [user] from the favorites.
-  Future<void> unfavoriteContact() async {
-    try {
-      if (contactId != null) {
-        await _contactService.unfavoriteChatContact(contactId!);
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    if (dialog != null) {
+      try {
+        await _chatService.unfavoriteChat(dialog);
+      } on UnfavoriteChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
       }
-    } on UnfavoriteChatContactException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 

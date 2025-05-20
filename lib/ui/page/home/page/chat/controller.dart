@@ -47,8 +47,6 @@ import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
 import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
-import '/domain/model/contact.dart';
-import '/domain/model/mute_duration.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
@@ -66,26 +64,19 @@ import '/domain/repository/user.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/call.dart';
 import '/domain/service/chat.dart';
-import '/domain/service/contact.dart';
 import '/domain/service/user.dart';
 import '/l10n/l10n.dart';
 import '/provider/gql/exceptions.dart'
     show
-        BlockUserException,
-        ClearChatException,
         ConnectionException,
         DeleteChatForwardException,
         DeleteChatMessageException,
         EditChatMessageException,
-        FavoriteChatException,
-        HideChatException,
         HideChatItemException,
         JoinChatCallException,
         PostChatMessageException,
         ReadChatException,
-        RemoveChatMemberException,
         ResubscriptionRequiredException,
-        ToggleChatMuteException,
         UnblockUserException,
         UnfavoriteChatException,
         UploadAttachmentException;
@@ -114,8 +105,7 @@ class ChatController extends GetxController {
     this._callService,
     this._authService,
     this._userService,
-    this._settingsRepository,
-    this._contactService, {
+    this._settingsRepository, {
     this.itemId,
     this.onContext,
   });
@@ -325,9 +315,6 @@ class ChatController extends GetxController {
   /// [AbstractSettingsRepository], used to get the [background] value.
   final AbstractSettingsRepository _settingsRepository;
 
-  /// [ContactService] maintaining [ChatContact]s of this [me].
-  final ContactService _contactService;
-
   /// Worker performing a [readChat] on [_lastSeenItem] changes.
   Worker? _readWorker;
 
@@ -432,10 +419,6 @@ class ChatController extends GetxController {
       listController.hasClients &&
       listController.position.pixels >
           listController.position.maxScrollExtent - 500;
-
-  /// Returns the [ChatContactId] of the [ChatContact] the [user] is linked to,
-  /// if any.
-  ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
   @override
   void onInit() {
@@ -1386,146 +1369,6 @@ class ChatController extends GetxController {
       _stopTyping();
     } else {
       _keepTyping();
-    }
-  }
-
-  /// Removes [me] from the [chat].
-  Future<void> leaveGroup() async {
-    try {
-      await _chatService.removeChatMember(id, me!);
-      if (router.route.startsWith('${Routes.chats}/$id')) {
-        router.home();
-      }
-    } on RemoveChatMemberException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Hides the [chat].
-  Future<void> hideChat() async {
-    try {
-      await _chatService.hideChat(id);
-    } on HideChatException catch (e) {
-      MessagePopup.error(e);
-    } on UnfavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Mutes the [chat].
-  Future<void> muteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, MuteDuration.forever());
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Unmutes the [chat].
-  Future<void> unmuteChat() async {
-    try {
-      await _chatService.toggleChatMute(chat?.id ?? id, null);
-    } on ToggleChatMuteException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Marks the [chat] as favorited.
-  Future<void> favoriteChat() async {
-    try {
-      await _chatService.favoriteChat(chat?.id ?? id);
-    } on FavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Removes the [chat] from the favorites.
-  Future<void> unfavoriteChat() async {
-    try {
-      await _chatService.unfavoriteChat(chat?.id ?? id);
-    } on UnfavoriteChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Adds the [user] to the contacts list of the authenticated [MyUser].
-  ///
-  /// Only meaningful, if this [chat] is a dialog.
-  Future<void> addToContacts() async {
-    if (_contactId == null) {
-      try {
-        await _contactService.createChatContact(user!.user.value);
-      } catch (e) {
-        MessagePopup.error(e);
-        rethrow;
-      }
-    }
-  }
-
-  /// Removes the [user] from the contacts list of the authenticated [MyUser].
-  ///
-  /// Only meaningful, if this [chat] is a dialog.
-  Future<void> removeFromContacts() async {
-    try {
-      final ChatContactId? contactId = _contactId;
-      if (contactId != null) {
-        await _contactService.deleteContact(contactId);
-      }
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Clears all the [ChatItem]s of the [chat].
-  Future<void> clearChat() async {
-    try {
-      await _chatService.clearChat(id);
-    } on ClearChatException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
-    }
-  }
-
-  /// Blocks the [user] for the authenticated [MyUser].
-  ///
-  /// Only meaningful, if this [chat] is a dialog.
-  Future<void> block() async {
-    try {
-      if (user != null) {
-        final String text = reason.text.trim();
-
-        await _userService.blockUser(
-          user!.id,
-          text.isEmpty ? null : BlocklistReason(text),
-        );
-      }
-      reason.clear();
-    } on BlockUserException catch (e) {
-      MessagePopup.error(e);
-    } catch (e) {
-      MessagePopup.error(e);
-      rethrow;
     }
   }
 
