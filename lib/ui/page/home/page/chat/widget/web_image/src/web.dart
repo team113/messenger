@@ -30,7 +30,7 @@ import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Web [html.ImageElement] showing images natively.
+/// Web [web.HTMLImageElement] showing images natively.
 ///
 /// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
 ///
