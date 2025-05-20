@@ -357,7 +357,7 @@ void main() async {
       ).thenAnswer(
         (_) => Future.value(GetUser$Query.fromJson({'user': newUserData})),
       );
-      
+
       final authService = Get.put(
         AuthService(
           Get.put<AbstractAuthRepository>(
@@ -463,7 +463,6 @@ void main() async {
       await tester.runAsync(() => Future.delayed(const Duration(seconds: 1)));
 
       await tester.pumpAndSettle(const Duration(seconds: 2));
-
 
       // TODO: Uncomment, when contacts are implemented.
       // await tester.tap(find.byKey(const Key('MoreButton')));
