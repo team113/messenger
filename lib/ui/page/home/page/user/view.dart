@@ -285,7 +285,10 @@ class UserView extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 8),
-        LineDivider('label_identifiers'.l10n),
+        LineDivider(
+          'label_identifiers'.l10n,
+          key: const Key('IdentifiersDivider'),
+        ),
         const SizedBox(height: 8),
         ReactiveTextField(
           state: TextFieldState(
@@ -296,6 +299,7 @@ class UserView extends StatelessWidget {
           floatingLabelBehavior: FloatingLabelBehavior.always,
           formatters: [LengthLimitingTextInputFormatter(100)],
           trailing: WidgetButton(
+            key: const Key('CopyNumButton'),
             onPressed: () {},
             onPressedWithDetails: (u) {
               PlatformUtils.copy(text: '${c.user?.user.value.num}');
