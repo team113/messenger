@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/util/fixed_digits.dart';
 
 /// Rounded rectangular button representing an [OngoingCall] happening.
 class RectangularCallButton extends StatelessWidget {
@@ -70,10 +69,7 @@ class RectangularCallButton extends StatelessWidget {
                   color: style.colors.onPrimary,
                 ),
                 const SizedBox(width: 6),
-                Text(
-                  text,
-                  style: style.fonts.normal.regular.onPrimary,
-                ).fixedDigits(),
+                Text(text, style: style.fonts.normal.regular.onPrimary),
               ],
             ),
           ),

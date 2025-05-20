@@ -20,7 +20,6 @@ import 'package:media_kit_video/media_kit_video.dart';
 
 import '/l10n/l10n.dart';
 import '/themes.dart';
-import '/util/fixed_digits.dart';
 
 /// Current position and duration of the provided [controller].
 class CurrentPosition extends StatelessWidget {
@@ -43,7 +42,7 @@ class CurrentPosition extends StatelessWidget {
         return Text(
           'label_a_slash_b'.l10nfmt({'a': position, 'b': duration}),
           style: style.fonts.small.regular.onPrimary,
-        ).fixedDigits();
+        );
       },
     );
   }
