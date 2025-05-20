@@ -51,7 +51,6 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
@@ -655,11 +654,7 @@ class RecentChatTile extends StatelessWidget {
               key: Key('UserBuilder_$id'),
               futureOr: () => getUser?.call(id),
               builder: (context, user) {
-                if (user != null) {
-                  return Obx(() => builder(context, user));
-                }
-
-                return builder(context, null);
+                return builder(context, user);
               },
             );
           }
@@ -989,7 +984,7 @@ class RecentChatTile extends StatelessWidget {
                               !displayed && inverted
                                   ? style.fonts.smaller.regular.primary
                                   : style.fonts.smaller.regular.onPrimary,
-                        ).fixedDigits();
+                        );
                       },
                     ),
                     const SizedBox(width: 6),

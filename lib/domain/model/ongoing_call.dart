@@ -334,6 +334,13 @@ class OngoingCall {
   /// [ChatCallRoomJoinLink] used to join the [_room], if any.
   ChatCallRoomJoinLink? _joinLink;
 
+  /// Indicator whether this [OngoingCall] has joined any rooms.
+  bool _joined = false;
+
+  /// Callback, called when this [OngoingCall] should indicate that it is
+  /// removed.
+  void Function()? _onRemove;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -524,6 +531,8 @@ class OngoingCall {
     Log.debug('connect($calls)', '$runtimeType');
 
     _participated = true;
+
+    _onRemove = () => calls.remove(chatId.value);
 
     if (connected || callChatItemId == null || deviceId == null) {
       return;
@@ -886,6 +895,8 @@ class OngoingCall {
   Future<void> dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    _onRemove?.call();
+    _onRemove = null;
     _heartbeat?.cancel();
     _participated = _participated || connected || isActive;
     _stateWorker?.dispose();
@@ -1544,19 +1555,27 @@ class OngoingCall {
       });
     });
 
-    _room?.onClose((r) {
-      Log.error(
+    _room?.onClose((r) async {
+      _joined = false;
+
+      Log.warning(
         'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
         '$runtimeType',
       );
 
-      // TODO: Can we somehow reconnect to a new room in such scenarios?
-      dispose();
+      // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in case
+      // there's a new room being opened instead of the closed one.
+      await Future.delayed(Duration(seconds: 5));
 
-      if (r.isErr()) {
-        throw Exception(
-          'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
-        );
+      if (!_joined) {
+        // TODO: Can we somehow reconnect to a new room in such scenarios?
+        dispose();
+
+        if (r.isErr()) {
+          throw Exception(
+            'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+          );
+        }
       }
     });
   }
@@ -1886,11 +1905,13 @@ class OngoingCall {
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
-  /// used [ChatCall.joinLink].
+  /// used [_joinLink].
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
     Log.info('Joining the room...', '$runtimeType');
+    _joined = true;
+
     if (_joinLink != null && _joinLink != link) {
       _joinLink = link;
 
@@ -1926,6 +1947,8 @@ class OngoingCall {
         'Joining the room failed due to: ${e.message()}',
         '$runtimeType',
       );
+
+      _joined = false;
 
       rethrow;
     }

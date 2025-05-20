@@ -20,7 +20,6 @@ import 'package:flutter/services.dart';
 
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -95,7 +94,7 @@ class ColorSchemaWidget extends StatelessWidget {
                         Clipboard.setData(ClipboardData(text: e.$1.toHex()));
                         MessagePopup.success('Color is copied');
                       },
-                      child: Text(e.$1.toHex(), style: textStyle).fixedDigits(),
+                      child: Text(e.$1.toHex(), style: textStyle),
                     ),
                   ),
                 ),
@@ -110,11 +109,10 @@ class ColorSchemaWidget extends StatelessWidget {
                         );
                         MessagePopup.success('HEX is copied');
                       },
-                      child:
-                          Text(
-                            '${(e.$1.a * 100).round()}% ${e.$1.toHex(withAlpha: false)}',
-                            style: textStyle,
-                          ).fixedDigits(),
+                      child: Text(
+                        '${(e.$1.a * 100).round()}% ${e.$1.toHex(withAlpha: false)}',
+                        style: textStyle,
+                      ),
                     ),
                   ),
                 ),

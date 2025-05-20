@@ -56,7 +56,6 @@ import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/fixed_digits.dart';
 import '/util/fixed_timer.dart';
 import '/util/platform_utils.dart';
 import 'animated_offset.dart';
@@ -2037,16 +2036,11 @@ class ChatCallWidgetState extends State<ChatCallWidget> {
                 const SizedBox(width: 8),
                 Padding(
                   padding: const EdgeInsets.only(top: 2.5),
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Text(
-                        time,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: style.fonts.normal.regular.secondary,
-                      ).fixedDigits(),
-                    ],
+                  child: Text(
+                    time,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: style.fonts.normal.regular.secondary,
                   ),
                 ),
               ],

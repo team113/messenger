@@ -890,30 +890,34 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                     ],
                   ),
-                  child: Obx(() {
-                    return TitleBar(
-                      title: 'label_call_title'.l10nfmt(c.titleArguments),
-                      chat: c.chat.value,
-                      fullscreen: c.fullscreen.value,
-                      height: CallController.titleHeight,
-                      toggleFullscreen:
-                          c.draggedRenderer.value == null
-                              ? c.toggleFullscreen
-                              : null,
-                      onPrimary:
-                          c.draggedRenderer.value == null
-                              ? c.layoutAsPrimary
-                              : null,
-                      onFloating:
-                          c.draggedRenderer.value == null
-                              ? () => c.layoutAsSecondary(floating: true)
-                              : null,
-                      onSecondary:
-                          c.draggedRenderer.value == null
-                              ? () => c.layoutAsSecondary(floating: false)
-                              : null,
-                    );
-                  }),
+                  child: TitleBar(
+                    titleBuilder: (_) {
+                      return Obx(() {
+                        return Text(
+                          'label_call_title'.l10nfmt(c.titleArguments),
+                        );
+                      });
+                    },
+                    chat: c.chat.value,
+                    fullscreen: c.fullscreen.value,
+                    height: CallController.titleHeight,
+                    toggleFullscreen:
+                        c.draggedRenderer.value == null
+                            ? c.toggleFullscreen
+                            : null,
+                    onPrimary:
+                        c.draggedRenderer.value == null
+                            ? c.layoutAsPrimary
+                            : null,
+                    onFloating:
+                        c.draggedRenderer.value == null
+                            ? () => c.layoutAsSecondary(floating: true)
+                            : null,
+                    onSecondary:
+                        c.draggedRenderer.value == null
+                            ? () => c.layoutAsSecondary(floating: false)
+                            : null,
+                  ),
                 ),
               ),
             Expanded(child: Stack(children: [...content, ...ui])),
