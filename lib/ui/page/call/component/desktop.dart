@@ -1124,12 +1124,10 @@ Widget desktopCall(CallController c, BuildContext context) {
                   elevation: 10,
                   child: Stack(
                     children: [
-                      // scaffold,
                       ClipRRect(
                         borderRadius: BorderRadius.circular(10),
                         child: scaffold,
                       ),
-                      // Stack(children: footer),
                       ClipRect(child: Stack(children: footer)),
                     ],
                   ),
