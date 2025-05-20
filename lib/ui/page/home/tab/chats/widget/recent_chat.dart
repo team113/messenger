@@ -654,11 +654,7 @@ class RecentChatTile extends StatelessWidget {
               key: Key('UserBuilder_$id'),
               futureOr: () => getUser?.call(id),
               builder: (context, user) {
-                if (user != null) {
-                  return Obx(() => builder(context, user));
-                }
-
-                return builder(context, null);
+                return builder(context, user);
               },
             );
           }
