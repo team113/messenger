@@ -106,11 +106,14 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         );
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
+
         pages.add(
           CustomPage(
             key: ValueKey('UserPage$id'),
             name: '${Routes.user}/$id',
-            child: UserView(UserId(id)),
+            child: UserView(
+              UserId(id),
+            ),
           ),
         );
       } else if (route.startsWith('${Routes.work}/')) {

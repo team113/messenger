@@ -17,11 +17,14 @@
 
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
+import '/domain/model/chat_item.dart';
+import '../chat/controller.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/util/platform_utils.dart';
+import '/ui/widget/line_divider.dart';
 import '/ui/widget/widget_button.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
@@ -50,6 +53,12 @@ class UserView extends StatelessWidget {
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
+
+  /// ID of this [Chat].
+  // final ChatId chatId;
+
+  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
+  // final ChatItemId? itemId;
 
   @override
   Widget build(BuildContext context) {
@@ -175,32 +184,7 @@ class UserView extends StatelessWidget {
           );
         }),
         const SizedBox(height: 4),
-        Obx(() {
-          return SelectionContainer.disabled(
-            child: Wrap(
-              crossAxisAlignment: WrapCrossAlignment.center,
-              spacing: 6,
-              children: [
-                WidgetButton(
-                  key: const Key('NumCopyable'),
-                  onPressed: () {},
-                  onPressedWithDetails: (u) {
-                    PlatformUtils.copy(text: '${c.user?.user.value.num}');
-                    MessagePopup.success(
-                      'label_copied'.l10n,
-                      at: u.globalPosition,
-                    );
-                  },
-                  child: Text(
-                    '${c.user?.user.value.num}',
-                    style: style.fonts.normal.regular.primary,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        const SizedBox(height: 8),
+
         Obx(() {
           final String? subtitle = c.user?.user.value.getSubtitle();
 
@@ -307,6 +291,28 @@ class UserView extends StatelessWidget {
           ),
         ],
         const SizedBox(height: 8),
+        LineDivider('label_identifier'.l10n),
+        const SizedBox(height: 8),
+        ReactiveTextField(
+          state: TextFieldState(
+            text: c.contact.value?.contact.value.name.val ?? c.name.text,
+            editable: false,
+          ),
+          label: 'label_num'.l10n,
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          formatters: [LengthLimitingTextInputFormatter(100)],
+          trailing: WidgetButton(
+            onPressed: () {},
+            onPressedWithDetails: (u) {
+              PlatformUtils.copy(
+                text:
+                    c.contact.value?.contact.value.name.val ?? c.name.text,
+              );
+              MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
+            },
+            child: Center(child: SvgIcon(SvgIcons.copy)),
+          ),
+        ),
       ],
     );
   }
@@ -349,11 +355,91 @@ class UserView extends StatelessWidget {
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
 
+    final  chatId = c.user?.dialog.value?.id;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
 
+        GetBuilder<ChatController>(
+          key: const Key('ChatView'),
+          init: ChatController(
+            chatId!,
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            Get.find(),
+            onContext: () => context,
+          ),
+          tag: chatId.val,
+          global: !Get.isRegistered<ChatController>(tag: chatId.val),
+          builder: (c) {
+            final bool muted = c.chat?.chat.value.muted != null;
+
+            final bool favorite = c.chat?.chat.value.favoritePosition != null;
+
+            return Column(
+              children: [
+                ActionButton(
+                  key: Key(
+                    favorite ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+                  ),
+                  text:
+                      favorite
+                          ? 'btn_delete_from_favorites'.l10n
+                          : 'btn_add_to_favorites'.l10n,
+                  trailing: SvgIcon(
+                    favorite
+                        ? SvgIcons.favoriteSmall
+                        : SvgIcons.unfavoriteSmall,
+                  ),
+                  onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                ),
+                ActionButton(
+                  key: Key(
+                    muted
+                        ? 'UnmuteChatButton'
+                        : 'MuteChatButton',
+                  ),
+                  text: muted
+                      ? PlatformUtils.isMobile
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'
+                      .l10n
+                      : PlatformUtils.isMobile
+                      ? 'btn_mute'.l10n
+                      : 'btn_mute_chat'.l10n,
+                  trailing:  SvgIcon( muted
+                      ? SvgIcons.unmuteSmall
+                      : SvgIcons.muteSmall,),
+
+                  onPressed:
+                  muted
+                      ? c.unmuteChat
+                      : c.muteChat,
+                ),
+                ActionButton(
+                  key: const Key(
+                    'ClearHistoryButton',
+                  ),
+                  text: 'btn_clear_chat'.l10n,
+                  trailing: const SvgIcon(SvgIcons.cleanHistory),
+                  onPressed:  () => _clearChat(c, context),
+                ),
+                ActionButton(
+                  key: const Key('HideChatButton'),
+                  text: 'btn_delete_chat'.l10n,
+                  trailing: const SvgIcon(SvgIcons.delete),
+                  onPressed:
+                      () => _hideChat(c, context),
+                ),
+              ],
+            );
+          },
+        ),
         // TODO: Uncomment, when contacts are implemented.
         // ActionButton(
         //   text: contact
@@ -454,6 +540,48 @@ class UserView extends StatelessWidget {
 
     if (result == true) {
       await c.report();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
     }
   }
 }

@@ -48,8 +48,6 @@ import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/page/home/widget/unblock_button.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
-import '/ui/widget/context_menu/menu.dart';
-import '/ui/widget/context_menu/region.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/obscured_menu_interceptor.dart';
 import '/ui/widget/obscured_selection_area.dart';
@@ -372,311 +370,58 @@ class ChatView extends StatelessWidget {
                             children = [];
                           }
 
-                          return Row(
-                            children: [
-                              ...children,
-                              Obx(() {
-                                final bool muted =
-                                    c.chat?.chat.value.muted != null;
-
-                                final bool dialog =
-                                    c.chat?.chat.value.isDialog == true;
-
-                                final bool isLocal =
-                                    c.chat?.chat.value.id.isLocal == true;
-
-                                final bool monolog =
-                                    c.chat?.chat.value.isMonolog == true;
-
-                                final bool favorite =
-                                    c.chat?.chat.value.favoritePosition != null;
-
-                                // TODO: Uncomment, when contacts are
-                                //       implemented.
-                                // final bool contact =
-                                //     c.user?.user.value.contacts.isNotEmpty ??
-                                //         false;
-
-                                final Widget child;
-
-                                if (c.selecting.value) {
-                                  child = AnimatedButton(
-                                    key: const Key('CancelSelecting'),
-                                    onPressed: c.selecting.toggle,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          21,
-                                          0,
-                                        ),
-                                        child: SvgIcon(SvgIcons.closePrimary),
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  child = ContextMenuRegion(
-                                    key: c.moreKey,
-                                    selector: c.moreKey,
-                                    alignment: Alignment.topRight,
-                                    enablePrimaryTap: true,
-                                    margin: const EdgeInsets.only(
-                                      bottom: 4,
-                                      right: 10,
-                                    ),
-                                    actions: [
-                                      if (c.callPosition ==
-                                          CallButtonsPosition.contextMenu) ...[
-                                        ContextMenuButton(
-                                          label: 'btn_audio_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(false),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeAudioCallDisabled
-                                                : SvgIcons.makeAudioCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeAudioCallWhite,
-                                          ),
-                                        ),
-                                        ContextMenuButton(
-                                          label: 'btn_video_call'.l10n,
-                                          onPressed: blocked || inCall
-                                              ? null
-                                              : () => c.call(true),
-                                          trailing: SvgIcon(
-                                            blocked || inCall
-                                                ? SvgIcons.makeVideoCallDisabled
-                                                : SvgIcons.makeVideoCall,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.makeVideoCallWhite,
-                                          ),
-                                        ),
-                                      ],
-                                      ContextMenuButton(
-                                        key: const Key('SearchItemsButton'),
-                                        label: 'label_search'.l10n,
-                                        onPressed: c.toggleSearch,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.search,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.searchWhite,
-                                        ),
-                                      ),
-                                      // TODO: Uncomment, when contacts are implemented.
-                                      // if (dialog)
-                                      //   ContextMenuButton(
-                                      //     key: Key(
-                                      //       contact
-                                      //           ? 'DeleteFromContactsButton'
-                                      //           : 'AddToContactsButton',
-                                      //     ),
-                                      //     label: contact
-                                      //         ? 'btn_delete_from_contacts'.l10n
-                                      //         : 'btn_add_to_contacts'.l10n,
-                                      //     trailing: SvgIcon(
-                                      //       contact
-                                      //           ? SvgIcons.deleteContact
-                                      //           : SvgIcons.addContact,
-                                      //     ),
-                                      //     inverted: SvgIcon(
-                                      //       contact
-                                      //           ? SvgIcons.deleteContactWhite
-                                      //           : SvgIcons.addContactWhite,
-                                      //     ),
-                                      //     onPressed: contact
-                                      //         ? () => _removeFromContacts(
-                                      //               c,
-                                      //               context,
-                                      //             )
-                                      //         : c.addToContacts,
-                                      //   ),
-                                      ContextMenuButton(
-                                        key: Key(
-                                          favorite
-                                              ? 'UnfavoriteChatButton'
-                                              : 'FavoriteChatButton',
-                                        ),
-                                        label: favorite
-                                            ? 'btn_delete_from_favorites'.l10n
-                                            : 'btn_add_to_favorites'.l10n,
-                                        trailing: SvgIcon(
-                                          favorite
-                                              ? SvgIcons.favoriteSmall
-                                              : SvgIcons.unfavoriteSmall,
-                                        ),
-                                        inverted: SvgIcon(
-                                          favorite
-                                              ? SvgIcons.favoriteSmallWhite
-                                              : SvgIcons.unfavoriteSmallWhite,
-                                        ),
-                                        onPressed: favorite
-                                            ? c.unfavoriteChat
-                                            : c.favoriteChat,
-                                      ),
-                                      if (!isLocal) ...[
-                                        if (!monolog)
-                                          ContextMenuButton(
-                                            key: Key(
-                                              muted
-                                                  ? 'UnmuteChatButton'
-                                                  : 'MuteChatButton',
-                                            ),
-                                            label: muted
-                                                ? PlatformUtils.isMobile
-                                                      ? 'btn_unmute'.l10n
-                                                      : 'btn_unmute_chat'.l10n
-                                                : PlatformUtils.isMobile
-                                                ? 'btn_mute'.l10n
-                                                : 'btn_mute_chat'.l10n,
-                                            trailing: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmall
-                                                  : SvgIcons.muteSmall,
-                                            ),
-                                            inverted: SvgIcon(
-                                              muted
-                                                  ? SvgIcons.unmuteSmallWhite
-                                                  : SvgIcons.muteSmallWhite,
-                                            ),
-                                            onPressed: muted
-                                                ? c.unmuteChat
-                                                : c.muteChat,
-                                          ),
-                                        ContextMenuButton(
-                                          key: const Key('ClearHistoryButton'),
-                                          label: 'btn_clear_history'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.cleanHistory,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.cleanHistoryWhite,
-                                          ),
-                                          onPressed: () =>
-                                              _clearChat(c, context),
-                                        ),
-                                      ],
-                                      if (!monolog && !dialog)
-                                        ContextMenuButton(
-                                          key: const Key('LeaveGroupButton'),
-                                          label: 'btn_leave_group'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.leaveGroup,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.leaveGroupWhite,
-                                          ),
-                                          onPressed: () =>
-                                              _leaveGroup(c, context),
-                                        ),
-                                      if (!isLocal || monolog)
-                                        ContextMenuButton(
-                                          key: const Key('HideChatButton'),
-                                          label: 'btn_delete_chat'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.delete19,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.delete19White,
-                                          ),
-                                          onPressed: () =>
-                                              _hideChat(c, context),
-                                        ),
-                                      if (dialog)
-                                        ContextMenuButton(
-                                          key: Key(
-                                            blocked ? 'Unblock' : 'Block',
-                                          ),
-                                          label: blocked
-                                              ? 'btn_unblock'.l10n
-                                              : 'btn_block'.l10n,
-                                          trailing: const SvgIcon(
-                                            SvgIcons.block,
-                                          ),
-                                          inverted: const SvgIcon(
-                                            SvgIcons.blockWhite,
-                                          ),
-                                          onPressed: blocked
-                                              ? c.unblock
-                                              : () => _blockUser(c, context),
-                                        ),
-                                      ContextMenuButton(
-                                        label: 'btn_select_messages'.l10n,
-                                        onPressed: c.selecting.toggle,
-                                        trailing: const SvgIcon(
-                                          SvgIcons.select,
-                                        ),
-                                        inverted: const SvgIcon(
-                                          SvgIcons.selectWhite,
-                                        ),
-                                      ),
-                                    ],
-                                    child: Container(
-                                      key: const Key('MoreButton'),
-                                      padding: const EdgeInsets.only(
-                                        left: 20,
-                                        right: 21,
-                                      ),
-                                      height: double.infinity,
-                                      child: const SvgIcon(SvgIcons.more),
-                                    ),
-                                  );
-                                }
-
-                                return AnimatedButton(
-                                  child: SafeAnimatedSwitcher(
-                                    duration: 250.milliseconds,
-                                    child: child,
-                                  ),
-                                );
-                              }),
-                            ],
-                          );
-                        }),
-                      ],
-                    ),
-                    body: Stack(
-                      children: [
-                        // Required for the [Stack] to take [Scaffold]'s
-                        // size.
-                        IgnorePointer(
-                          child: ObscuredMenuInterceptor(child: Container()),
+                              return Row(
+                                children: [
+                                  ...children,
+                                ],
+                              );
+                            }),
+                          ],
                         ),
-                        Obx(() {
-                          final Widget child = FlutterListView(
-                            key: const Key('MessagesList'),
-                            controller: c.listController,
-                            physics: c.isDraggingItem.value
-                                ? const NeverScrollableScrollPhysics()
-                                : const BouncingScrollPhysics(),
-                            reverse: true,
-                            delegate: FlutterListViewDelegate(
-                              (context, i) => _listElement(context, c, i),
-                              // ignore: invalid_use_of_protected_member
-                              childCount: c.elements.value.length,
-                              stickyAtTailer: true,
-                              keepPosition: true,
-                              keepPositionOffset: c.active.isTrue
-                                  ? c.keepPositionOffset.value
-                                  : 1,
-                              onItemKey: (i) =>
-                                  c.elements.values.elementAt(i).id.toString(),
-                              onItemSticky: (i) =>
-                                  c.elements.values.elementAt(i)
-                                      is DateTimeElement,
-                              initIndex: c.initIndex,
-                              initOffset: c.initOffset,
-                              initOffsetBasedOnBottom: true,
-                              disableCacheItems: kDebugMode ? true : false,
+                        body: Stack(
+                          children: [
+                            // Required for the [Stack] to take [Scaffold]'s
+                            // size.
+                            IgnorePointer(
+                              child: ObscuredMenuInterceptor(
+                                child: Container(),
+                              ),
                             ),
-                          );
+                            Obx(() {
+                              final Widget child = FlutterListView(
+                                key: const Key('MessagesList'),
+                                controller: c.listController,
+                                physics:
+                                    c.isDraggingItem.value
+                                        ? const NeverScrollableScrollPhysics()
+                                        : const BouncingScrollPhysics(),
+                                reverse: true,
+                                delegate: FlutterListViewDelegate(
+                                  (context, i) => _listElement(context, c, i),
+                                  // ignore: invalid_use_of_protected_member
+                                  childCount: c.elements.value.length,
+                                  stickyAtTailer: true,
+                                  keepPosition: true,
+                                  keepPositionOffset:
+                                      c.active.isTrue
+                                          ? c.keepPositionOffset.value
+                                          : 1,
+                                  onItemKey:
+                                      (i) =>
+                                          c.elements.values
+                                              .elementAt(i)
+                                              .id
+                                              .toString(),
+                                  onItemSticky:
+                                      (i) =>
+                                          c.elements.values.elementAt(i)
+                                              is DateTimeElement,
+                                  initIndex: c.initIndex,
+                                  initOffset: c.initOffset,
+                                  initOffsetBasedOnBottom: true,
+                                  disableCacheItems: kDebugMode ? true : false,
+                                ),
+                              );
 
                           if (PlatformUtils.isMobile) {
                             if (!PlatformUtils.isWeb) {
@@ -1231,84 +976,7 @@ class ChatView extends StatelessWidget {
     return const SizedBox();
   }
 
-  /// Opens a confirmation popup leaving this [Chat].
-  Future<void> _leaveGroup(ChatController c, BuildContext context) async {
-    final bool? result = await MessagePopup.alert(
-      'label_leave_group'.l10n,
-      description: [TextSpan(text: 'alert_you_will_leave_group'.l10n)],
-    );
 
-    if (result == true) {
-      await c.leaveGroup();
-    }
-  }
-
-  /// Opens a confirmation popup hiding this [Chat].
-  Future<void> _hideChat(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_delete_chat'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.hideChat();
-    }
-  }
-
-  /// Opens a confirmation popup clearing this [Chat].
-  Future<void> _clearChat(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_clear_history'.l10n,
-      description: [
-        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
-        TextSpan(
-          text: c.chat?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.clearChat();
-    }
-  }
-
-  /// Opens a confirmation popup blocking the [User].
-  Future<void> _blockUser(ChatController c, BuildContext context) async {
-    final style = Theme.of(context).style;
-
-    final bool? result = await MessagePopup.alert(
-      'label_block'.l10n,
-      description: [
-        TextSpan(text: 'alert_user_will_be_blocked1'.l10n),
-        TextSpan(
-          text: c.user?.title,
-          style: style.fonts.normal.regular.onBackground,
-        ),
-        TextSpan(text: 'alert_user_will_be_blocked2'.l10n),
-      ],
-      additional: [
-        const SizedBox(height: 25),
-        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
-      ],
-    );
-
-    if (result == true) {
-      await c.block();
-    }
-  }
 
   // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.
