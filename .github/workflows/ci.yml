@@ -80,6 +80,8 @@ jobs:
           channel: stable
           cache: true
 
+      - run: make flutter.pub
+
       - run: make flutter.fmt check=yes
 
   helm-lint:
