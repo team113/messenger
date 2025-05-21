@@ -111,7 +111,7 @@ packages:
     description:
       path: "."
       ref: HEAD
-      resolved-ref: "447e43c241c5c114dc56ed0bf7cf59070884185c"
+      resolved-ref: ee2adb7e92e5bbc0538f6fa98b2c79429cb4f651
       url: "https://github.com/SleepySquash/artemis"
     source: git
     version: "7.13.1"
@@ -343,10 +343,10 @@ packages:
     dependency: transitive
     description:
       name: dart_style
-      sha256: "7306ab8a2359a48d22310ad823521d723acfed60ee1f7e37388e8986853b6820"
+      sha256: "5b236382b47ee411741447c1f1e111459c941ea1b3f2b540dde54c210a3662af"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.8"
+    version: "3.1.0"
   dartdoc:
     dependency: "direct dev"
     description:
@@ -859,10 +859,10 @@ packages:
     dependency: transitive
     description:
       name: gql_code_builder
-      sha256: ce60e637b7b5250bebd6a136e5fd784bc94b860ecdcb745163ce27201023816e
+      sha256: c411980757b1ba82d57431a1e2d8709b322f669bbaa1c4d86520470a32b5dd0a
       url: "https://pub.dev"
     source: hosted
-    version: "0.13.1"
+    version: "0.14.0"
   gql_code_builder_serializers:
     dependency: transitive
     description:
@@ -1212,10 +1212,10 @@ packages:
     dependency: "direct dev"
     description:
       name: json_serializable
-      sha256: c2fcb3920cf2b6ae6845954186420fca40bc0a8abcc84903b7801f17d7050d7c
+      sha256: c50ef5fc083d5b5e12eef489503ba3bf5ccc899e487d691584699b4bdefeea8c
       url: "https://pub.dev"
     source: hosted
-    version: "6.9.0"
+    version: "6.9.5"
   just_audio:
     dependency: "direct main"
     description:
@@ -2077,13 +2077,13 @@ packages:
     source: hosted
     version: "0.1.2"
   source_gen:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: source_gen
-      sha256: "14658ba5f669685cd3d63701d01b31ea748310f7ab854e471962670abcf57832"
+      sha256: "35c8150ece9e8c8d263337a265153c3329667640850b9304861faea59fc98f6b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.5.0"
+    version: "2.0.0"
   source_helper:
     dependency: transitive
     description:
