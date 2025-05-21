@@ -571,12 +571,11 @@ packages:
   fluent:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "3e29b9c77f8ebc56d582ed2337050fa1c65c1c90"
-      url: "https://github.com/sagudev/fluent-dart.git"
-    source: git
-    version: "1.1.0+0"
+      name: fluent
+      sha256: db24ad7dc99cd999df3b01d4a1de61aa802523a4216afbf0e4e40f81b65a0879
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.3"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -1162,10 +1161,10 @@ packages:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "910f85bce16fb5c6f614e117efa303e85a1731bb0081edf3604a2ae6e9a3cc91"
+      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.17.0"
+    version: "0.19.0"
   io:
     dependency: transitive
     description:
