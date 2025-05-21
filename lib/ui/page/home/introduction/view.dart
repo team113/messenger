@@ -309,7 +309,7 @@ class IntroductionView extends StatelessWidget {
   Widget _link(IntroductionController c, BuildContext context) {
     Future<void> copy() async {
       if (PlatformUtils.isMobile) {
-        Share.share(c.link.text);
+        await SharePlus.instance.share(ShareParams(text: c.link.text));
       } else {
         PlatformUtils.copy(text: c.link.text);
         MessagePopup.success('label_copied'.l10n);

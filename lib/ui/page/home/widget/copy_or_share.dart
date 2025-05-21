@@ -42,7 +42,7 @@ class CopyOrShareButton extends StatelessWidget {
         onPressed?.call();
 
         if (PlatformUtils.isMobile) {
-          await Share.share(share);
+          await SharePlus.instance.share(ShareParams(text: share));
         } else {
           PlatformUtils.copy(text: share);
           MessagePopup.success('label_copied'.l10n);

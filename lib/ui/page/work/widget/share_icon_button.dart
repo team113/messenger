@@ -43,7 +43,7 @@ class ShareIconButton extends StatelessWidget {
           ),
       onPressed: () async {
         if (PlatformUtils.isMobile) {
-          await Share.share(share);
+          await SharePlus.instance.share(ShareParams(text: share));
         } else {
           PlatformUtils.copy(text: share);
           MessagePopup.success('label_copied'.l10n);

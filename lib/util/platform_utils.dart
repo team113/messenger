@@ -643,7 +643,8 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads a file from the provided [url] and opens [Share] dialog with it.
+  /// Downloads a file from the provided [url] and opens [SharePlus] dialog with
+  /// it.
   Future<void> share(String url, String name, {String? checksum}) async {
     // Provided file might already be cached.
     Uint8List? data;
@@ -655,10 +656,13 @@ class PlatformUtilsImpl {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
       await (await dio).download(url, path);
-      await Share.shareXFiles([XFile(path)]);
+      await SharePlus.instance.share(ShareParams(files: [XFile(path)]));
+
       File(path).delete();
     } else {
-      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile.fromData(data, name: name)]),
+      );
     }
   }
 
@@ -687,7 +691,6 @@ class PlatformUtilsImpl {
   /// Returns the [FilePickerResult] of the file picking of the provided [type].
   Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
-    bool allowCompression = true,
     int compressionQuality = 30,
     bool allowMultiple = false,
     bool withData = false,
@@ -706,7 +709,6 @@ class PlatformUtilsImpl {
 
       return await FilePicker.platform.pickFiles(
         type: accounted,
-        allowCompression: allowCompression,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
         withData: withData,
