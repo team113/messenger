@@ -351,10 +351,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dartdoc
-      sha256: ee43bc38d7029301cde80e2ff02340cbe5a2d4e658634590d2d357a1f7a48032
+      sha256: eb152ab07c585adb11cc24b7b93280a02f6ac5ff724cca4e6cabb24e8be88c82
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.0"
+    version: "8.3.3"
   dbus:
     dependency: transitive
     description:
