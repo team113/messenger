@@ -102,7 +102,7 @@ class L10n {
 
   /// Returns the translated value of the provided [key] from the [_bundle].
   static String _format(String key, {Map<String, dynamic> args = const {}}) =>
-      _bundle.format(key, args: args);
+      _bundle.format(key, args: args) ?? key;
 }
 
 /// Language entity along with its [Locale].

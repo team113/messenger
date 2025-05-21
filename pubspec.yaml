@@ -147,7 +147,7 @@ dev_dependencies:
 
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
-  analyzer: ^6.7.0
+  analyzer: ^7.4.5
   # TODO: Remove when `graphql` updates.
   graphql:
     git:
