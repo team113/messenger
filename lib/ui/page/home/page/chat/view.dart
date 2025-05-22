@@ -369,54 +369,45 @@ class ChatView extends StatelessWidget {
                             children = [];
                           }
 
-                              return Row(children: [...children]);
-                            }),
-                          ],
+                          return Row(children: [...children]);
+                        }),
+                      ],
+                    ),
+                    body: Stack(
+                      children: [
+                        // Required for the [Stack] to take [Scaffold]'s
+                        // size.
+                        IgnorePointer(
+                          child: ObscuredMenuInterceptor(child: Container()),
                         ),
-                        body: Stack(
-                          children: [
-                            // Required for the [Stack] to take [Scaffold]'s
-                            // size.
-                            IgnorePointer(
-                              child: ObscuredMenuInterceptor(
-                                child: Container(),
-                              ),
+                        Obx(() {
+                          final Widget child = FlutterListView(
+                            key: const Key('MessagesList'),
+                            controller: c.listController,
+                            physics: c.isDraggingItem.value
+                                ? const NeverScrollableScrollPhysics()
+                                : const BouncingScrollPhysics(),
+                            reverse: true,
+                            delegate: FlutterListViewDelegate(
+                              (context, i) => _listElement(context, c, i),
+                              // ignore: invalid_use_of_protected_member
+                              childCount: c.elements.value.length,
+                              stickyAtTailer: true,
+                              keepPosition: true,
+                              keepPositionOffset: c.active.isTrue
+                                  ? c.keepPositionOffset.value
+                                  : 1,
+                              onItemKey: (i) =>
+                                  c.elements.values.elementAt(i).id.toString(),
+                              onItemSticky: (i) =>
+                                  c.elements.values.elementAt(i)
+                                      is DateTimeElement,
+                              initIndex: c.initIndex,
+                              initOffset: c.initOffset,
+                              initOffsetBasedOnBottom: true,
+                              disableCacheItems: kDebugMode ? true : false,
                             ),
-                            Obx(() {
-                              final Widget child = FlutterListView(
-                                key: const Key('MessagesList'),
-                                controller: c.listController,
-                                physics:
-                                    c.isDraggingItem.value
-                                        ? const NeverScrollableScrollPhysics()
-                                        : const BouncingScrollPhysics(),
-                                reverse: true,
-                                delegate: FlutterListViewDelegate(
-                                  (context, i) => _listElement(context, c, i),
-                                  // ignore: invalid_use_of_protected_member
-                                  childCount: c.elements.value.length,
-                                  stickyAtTailer: true,
-                                  keepPosition: true,
-                                  keepPositionOffset:
-                                      c.active.isTrue
-                                          ? c.keepPositionOffset.value
-                                          : 1,
-                                  onItemKey:
-                                      (i) =>
-                                          c.elements.values
-                                              .elementAt(i)
-                                              .id
-                                              .toString(),
-                                  onItemSticky:
-                                      (i) =>
-                                          c.elements.values.elementAt(i)
-                                              is DateTimeElement,
-                                  initIndex: c.initIndex,
-                                  initOffset: c.initOffset,
-                                  initOffsetBasedOnBottom: true,
-                                  disableCacheItems: kDebugMode ? true : false,
-                                ),
-                              );
+                          );
 
                           if (PlatformUtils.isMobile) {
                             if (!PlatformUtils.isWeb) {

@@ -355,57 +355,55 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 8),
         chatId != null
             ? GetBuilder<ChatController>(
-              key: const Key('ChatView'),
-              init: ChatController(
-                chatId,
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                Get.find(),
-                onContext: () => context,
-              ),
-              tag: chatId.val,
-              global: !Get.isRegistered<ChatController>(tag: chatId.val),
-              builder: (c) {
-                final bool favorite =
-                    c.chat?.chat.value.favoritePosition != null;
+                key: const Key('ChatView'),
+                init: ChatController(
+                  chatId,
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  Get.find(),
+                  onContext: () => context,
+                ),
+                tag: chatId.val,
+                global: !Get.isRegistered<ChatController>(tag: chatId.val),
+                builder: (c) {
+                  final bool favorite =
+                      c.chat?.chat.value.favoritePosition != null;
 
-                return Column(
-                  children: [
-                    ActionButton(
-                      key: Key(
-                        favorite
-                            ? 'UnfavoriteChatButton'
-                            : 'FavoriteChatButton',
-                      ),
-                      text:
+                  return Column(
+                    children: [
+                      ActionButton(
+                        key: Key(
                           favorite
-                              ? 'btn_delete_from_favorites'.l10n
-                              : 'btn_add_to_favorites'.l10n,
-                      trailing: SvgIcon(
-                        favorite
-                            ? SvgIcons.favoriteSmall
-                            : SvgIcons.unfavoriteSmall,
+                              ? 'UnfavoriteChatButton'
+                              : 'FavoriteChatButton',
+                        ),
+                        text: favorite
+                            ? 'btn_delete_from_favorites'.l10n
+                            : 'btn_add_to_favorites'.l10n,
+                        trailing: SvgIcon(
+                          favorite
+                              ? SvgIcons.favoriteSmall
+                              : SvgIcons.unfavoriteSmall,
+                        ),
+                        onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
                       ),
-                      onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                    ),
-                  ],
-                );
-              },
-            )
+                    ],
+                  );
+                },
+              )
             : SizedBox(),
         ActionButton(
           key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
-          text:
-              muted
-                  ? PlatformUtils.isMobile
-                      ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'.l10n
-                  : PlatformUtils.isMobile
-                  ? 'btn_mute'.l10n
-                  : 'btn_mute_chat'.l10n,
+          text: muted
+              ? PlatformUtils.isMobile
+                    ? 'btn_unmute'.l10n
+                    : 'btn_unmute_chat'.l10n
+              : PlatformUtils.isMobile
+              ? 'btn_mute'.l10n
+              : 'btn_mute_chat'.l10n,
           trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
 
           onPressed: muted ? c.unmuteChat : c.muteChat,
