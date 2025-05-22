@@ -149,16 +149,16 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^7.4.5
-  drift:
-    git:
-      url: https://github.com/simolus3/drift
-      path: drift
-      ref: develop
-  drift_dev:
-    git:
-      url: https://github.com/simolus3/drift
-      path: drift_dev
-      ref: develop
+  # drift:
+  #   git:
+  #     url: https://github.com/simolus3/drift
+  #     path: drift
+  #     ref: develop
+  # drift_dev:
+  #   git:
+  #     url: https://github.com/simolus3/drift
+  #     path: drift_dev
+  #     ref: develop
   # TODO: Remove when `graphql` updates.
   graphql:
     git:

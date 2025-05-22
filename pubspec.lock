@@ -1659,11 +1659,12 @@ packages:
   platform_detect:
     dependency: "direct main"
     description:
-      name: platform_detect
-      sha256: "7394dc1d884e652785a37c3ff25c54e503c6d9fa2f35b55d5efc0a133dec122c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.1.5"
+      path: "."
+      ref: HEAD
+      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      url: "https://github.com/SleepySquash/platform_detect.git"
+    source: git
+    version: "2.0.13"
   plugin_platform_interface:
     dependency: transitive
     description:
@@ -2066,16 +2067,16 @@ packages:
     dependency: "direct main"
     description:
       name: sqlite3_flutter_libs
-      sha256: "1a96b59227828d9eb1463191d684b37a27d66ee5ed7597fcf42eee6452c88a14"
+      sha256: "7986c26234c0a5cf4fd83ff4ee39d4195b1f47cdb50a949ec7987ede4dcbdc2a"
       url: "https://pub.dev"
     source: hosted
-    version: "0.5.32"
+    version: "0.5.33"
   sqlparser:
     dependency: "direct overridden"
     description:
       path: sqlparser
       ref: develop
-      resolved-ref: "5bc2f328f1fd10c42a2a471ef3d52e162a40f8b7"
+      resolved-ref: c8f37069831a9405b604d5c49b7531ccd86f2a46
       url: "https://github.com/simolus3/drift"
     source: git
     version: "0.41.0"
@@ -2443,10 +2444,10 @@ packages:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8
+      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.3"
+    version: "2.4.5"
   webdriver:
     dependency: transitive
     description:
