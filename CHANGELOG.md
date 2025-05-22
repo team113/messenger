@@ -18,14 +18,14 @@ All user visible changes to this project will be documented in this file. This p
         - Duplicating read users avatars under messages. ([#1243])
         - Invalid message's author being displayed sometimes. ([#1243], [#1050])
         - Gallery image flashing when being opened. ([#1246])
-        -  Pop-up window button has been removed
+        - Pop-up window button has been removed. ([#1250])
     - Chats tab:
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
     - Chat info page:
         - Infinite loader displayed under members list. ([#1246])
     - User page:
-      - Duplicate Gapopa id changed
-      - add chat control buttons
+      - Duplicate Gapopa id changed. ([#1250])
+      - add chat control buttons. ([#1250])
       
       
 
@@ -34,6 +34,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1243]: /../../pull/1243
 [#1244]: /../../issues/1244
 [#1246]: /../../pull/1246
+[#1250]: /../../issues/1250
 
 
 
