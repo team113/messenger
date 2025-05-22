@@ -256,21 +256,20 @@ class _RetryImageState extends State<RetryImage> {
       child = image;
     } else {
       child = WidgetButton(
-        onPressed:
-            widget.cancelable
-                ? () {
-                  if (_canceled) {
-                    _canceled = false;
-                    _cancelToken = CancelToken();
-                    _loadImage();
-                  } else {
-                    _canceled = true;
-                    _cancelToken.cancel();
-                  }
-
-                  setState(() {});
+        onPressed: widget.cancelable
+            ? () {
+                if (_canceled) {
+                  _canceled = false;
+                  _cancelToken = CancelToken();
+                  _loadImage();
+                } else {
+                  _canceled = true;
+                  _cancelToken.cancel();
                 }
-                : null,
+
+                setState(() {});
+              }
+            : null,
         child: Container(
           key: const Key('Loading'),
           constraints: const BoxConstraints(minWidth: 200),
@@ -287,22 +286,21 @@ class _RetryImageState extends State<RetryImage> {
                 ),
               if (widget.cancelable)
                 Center(
-                  child:
-                      _canceled
-                          ? Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: style.colors.onBackgroundOpacity20,
-                                  blurRadius: 8,
-                                  blurStyle: BlurStyle.outer.workaround,
-                                ),
-                              ],
-                            ),
-                            child: const SvgIcon(SvgIcons.download),
-                          )
-                          : const SvgIcon(SvgIcons.closePrimary),
+                  child: _canceled
+                      ? Container(
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: style.colors.onBackgroundOpacity20,
+                                blurRadius: 8,
+                                blurStyle: BlurStyle.outer.workaround,
+                              ),
+                            ],
+                          ),
+                          child: const SvgIcon(SvgIcons.download),
+                        )
+                      : const SvgIcon(SvgIcons.closePrimary),
                 ),
             ],
           ),

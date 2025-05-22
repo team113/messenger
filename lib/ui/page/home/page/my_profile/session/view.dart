@@ -98,8 +98,8 @@ class DeleteSessionView extends StatelessWidget {
                       SizedBox(height: 21),
                       PrimaryButton(
                         key: const Key('ProceedButton'),
-                        onPressed:
-                            () => c.stage.value = DeleteSessionStage.confirm,
+                        onPressed: () =>
+                            c.stage.value = DeleteSessionStage.confirm,
                         title: 'btn_proceed'.l10n,
                       ),
                     ],
@@ -150,10 +150,9 @@ class DeleteSessionView extends StatelessWidget {
                             child: Obx(() {
                               return PrimaryButton(
                                 key: const Key('ProceedButton'),
-                                onPressed:
-                                    c.password.isEmpty.isTrue
-                                        ? null
-                                        : c.password.submit,
+                                onPressed: c.password.isEmpty.isTrue
+                                    ? null
+                                    : c.password.submit,
                                 danger: true,
                                 title: 'btn_terminate'.l10n,
                               );

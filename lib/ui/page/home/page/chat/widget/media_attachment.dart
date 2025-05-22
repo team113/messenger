@@ -86,7 +86,7 @@ class _MediaAttachmentState extends State<MediaAttachment> {
 
     final bool isImage =
         (attachment is ImageAttachment ||
-            (attachment is LocalAttachment && attachment.file.isImage));
+        (attachment is LocalAttachment && attachment.file.isImage));
 
     Widget? preview;
     Widget? child;

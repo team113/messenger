@@ -411,10 +411,9 @@ class ChatController extends GetxController {
   /// Returns [RxUser] being recipient of this [chat].
   ///
   /// Only meaningful, if the [chat] is a dialog.
-  RxUser? get user =>
-      chat?.chat.value.isDialog == true
-          ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
-          : null;
+  RxUser? get user => chat?.chat.value.isDialog == true
+      ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
+      : null;
 
   /// Returns the [WelcomeMessage] of this [chat], if any.
   WelcomeMessage? get welcomeMessage => user?.user.value.welcomeMessage;
@@ -501,10 +500,9 @@ class ChatController extends GetxController {
             _chatService
                 .sendChatMessage(
                   chat?.chat.value.id ?? id,
-                  text:
-                      send.field.text.trim().isEmpty
-                          ? null
-                          : ChatMessageText(send.field.text.trim()),
+                  text: send.field.text.trim().isEmpty
+                      ? null
+                      : ChatMessageText(send.field.text.trim()),
                   repliesTo: send.replied.map((e) => e.value).toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
@@ -757,11 +755,10 @@ class ChatController extends GetxController {
             if (hasChanges) {
               MessagePopup.alert(
                 'label_discard_changes_question'.l10n,
-                button:
-                    (context) => MessagePopup.deleteButton(
-                      context,
-                      label: 'btn_discard'.l10n,
-                    ),
+                button: (context) => MessagePopup.deleteButton(
+                  context,
+                  label: 'btn_discard'.l10n,
+                ),
               ).then((e) {
                 if (e == true) {
                   closeEditing();
@@ -876,8 +873,9 @@ class ChatController extends GetxController {
       if (id.isLocal) {
         final UserId userId = id.userId;
         final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-        final RxUser? user =
-            userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+        final RxUser? user = userOrFuture is RxUser?
+            ? userOrFuture
+            : await userOrFuture;
 
         id = user?.user.value.dialog ?? id;
         if (user != null && user.id == me) {
@@ -916,10 +914,9 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-        listController.sliverController.onPaintItemPositionsCallback = (
-          height,
-          positions,
-        ) {
+        listController
+            .sliverController
+            .onPaintItemPositionsCallback = (height, positions) {
           if (positions.isNotEmpty) {
             _topVisibleItem = positions.last;
 
@@ -1098,10 +1095,9 @@ class ChatController extends GetxController {
     Rx<ChatItem>? item;
 
     item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
-    item ??=
-        _fragments
-            .firstWhereOrNull((e) => e.items.keys.contains(id))
-            ?.items[id];
+    item ??= _fragments
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
 
     if (item == null) {
       final Future<Rx<ChatItem>?>? future = chat?.single(id).then((
@@ -1189,16 +1185,15 @@ class ChatController extends GetxController {
     } else {
       if (original != null) {
         final ListElementId elementId = ListElementId(original.at, original.id);
-        final ListElementId? lastId =
-            elements.values
-                .lastWhereOrNull(
-                  (e) =>
-                      e is ChatMessageElement ||
-                      e is ChatInfoElement ||
-                      e is ChatCallElement ||
-                      e is ChatForwardElement,
-                )
-                ?.id;
+        final ListElementId? lastId = elements.values
+            .lastWhereOrNull(
+              (e) =>
+                  e is ChatMessageElement ||
+                  e is ChatInfoElement ||
+                  e is ChatCallElement ||
+                  e is ChatForwardElement,
+            )
+            ?.id;
 
         // If the [original] is placed before the first item, then animate to top,
         // or otherwise to bottom.
@@ -1576,10 +1571,9 @@ class ChatController extends GetxController {
                 attachment.filename,
                 attachment.original.size,
                 checksum: attachment.original.checksum,
-                to:
-                    attachments.length > 1 && to != null
-                        ? '$to/${attachment.filename}'
-                        : to,
+                to: attachments.length > 1 && to != null
+                    ? '$to/${attachment.filename}'
+                    : to,
               )
               .future;
         } else {
@@ -1664,19 +1658,15 @@ class ChatController extends GetxController {
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
-      String? to =
-          attachments.length > 1
-              ? await FilePicker.platform.getDirectoryPath(
-                lockParentWindow: true,
-              )
-              : await FilePicker.platform.saveFile(
-                fileName: attachments.first.filename,
-                type:
-                    attachments.first is ImageAttachment
-                        ? FileType.image
-                        : FileType.video,
-                lockParentWindow: true,
-              );
+      String? to = attachments.length > 1
+          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.platform.saveFile(
+              fileName: attachments.first.filename,
+              type: attachments.first is ImageAttachment
+                  ? FileType.image
+                  : FileType.video,
+              lockParentWindow: true,
+            );
 
       if (to != null) {
         await downloadMedia(attachments, to: to);

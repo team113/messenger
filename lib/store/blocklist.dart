@@ -84,14 +84,12 @@ class BlocklistRepository extends DisposableInterface
           },
           delete: (e) async => await _blocklistLocal.delete(e),
           reset: () async => await _blocklistLocal.clear(),
-          isFirst:
-              (_, _) =>
-                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
-                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
-          isLast:
-              (_, _) =>
-                  _sessionLocal.data[me]?.blocklistSynchronized == true &&
-                  blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isFirst: (_, _) =>
+              _sessionLocal.data[me]?.blocklistSynchronized == true &&
+              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
+          isLast: (_, _) =>
+              _sessionLocal.data[me]?.blocklistSynchronized == true &&
+              blocklist.rawLength >= (_blocklistCount ?? double.infinity),
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
@@ -243,8 +241,9 @@ class BlocklistRepository extends DisposableInterface
     return _graphQlProvider.blocklistEvents(ver).asyncExpand((event) async* {
       Log.trace('_blocklistRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      var events =
-          BlocklistEvents$Subscription.fromJson(event.data!).blocklistEvents;
+      var events = BlocklistEvents$Subscription.fromJson(
+        event.data!,
+      ).blocklistEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         Log.debug(

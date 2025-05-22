@@ -70,8 +70,9 @@ class RxChatContactImpl extends RxChatContact {
     Log.debug('_updateUser($c)', '$runtimeType ${contact.value.id}');
 
     if (user.value?.id != c.users.firstOrNull?.id) {
-      final FutureOr<RxUser?> userOrFuture =
-          c.users.isNotEmpty ? _userRepository.get(c.users.first.id) : null;
+      final FutureOr<RxUser?> userOrFuture = c.users.isNotEmpty
+          ? _userRepository.get(c.users.first.id)
+          : null;
 
       user.value = userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
     }

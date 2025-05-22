@@ -324,10 +324,9 @@ class MyProfileController extends GetxController {
   Rx<Directory?> get downloadsDirectory => _cacheWorker.downloadsDirectory;
 
   /// Returns the count of [Chat]s being muted.
-  int get mutedChatsCount =>
-      _chatService.paginated.values
-          .where((e) => e.chat.value.muted != null)
-          .length;
+  int get mutedChatsCount => _chatService.paginated.values
+      .where((e) => e.chat.value.muted != null)
+      .length;
 
   @override
   void onInit() {
@@ -365,12 +364,8 @@ class MyProfileController extends GetxController {
 
     positionsListener.itemPositions.addListener(() {
       if (!ignorePositions) {
-        final ProfileTab tab =
-            ProfileTab.values[positionsListener
-                .itemPositions
-                .value
-                .first
-                .index];
+        final ProfileTab tab = ProfileTab
+            .values[positionsListener.itemPositions.value.first.index];
         if (router.profileSection.value != tab) {
           ignoreWorker = true;
           router.profileSection.value = tab;
@@ -500,8 +495,9 @@ class MyProfileController extends GetxController {
 
         if (text.isNotEmpty || welcome.attachments.isNotEmpty) {
           final String previousText = text.toString();
-          final List<Attachment> previousAttachments =
-              welcome.attachments.map((e) => e.value).toList();
+          final List<Attachment> previousAttachments = welcome.attachments
+              .map((e) => e.value)
+              .toList();
 
           updateWelcomeMessage(
             text: text.isEmpty ? null : ChatMessageText(text),

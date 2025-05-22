@@ -445,18 +445,15 @@ class GraphQlClient {
         connectFn: (Uri uri, Iterable<String>? protocols) async {
           Log.debug('connectFn($uri, $protocols)', '$runtimeType');
 
-          final GraphQLWebSocketChannel socket =
-              websocket
-                  .connect(
-                    uri,
-                    protocols: protocols,
-                    customClient:
-                        PlatformUtils.isWeb
-                            ? null
-                            : (HttpClient()
-                              ..userAgent = await PlatformUtils.userAgent),
-                  )
-                  .forGraphQL();
+          final GraphQLWebSocketChannel socket = websocket
+              .connect(
+                uri,
+                protocols: protocols,
+                customClient: PlatformUtils.isWeb
+                    ? null
+                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
+              )
+              .forGraphQL();
 
           socket.stream = socket.stream.handleError((_, __) => false);
 
@@ -515,8 +512,9 @@ class GraphQlClient {
 
     final AccessTokenSecret? bearer = raw?.token ?? token;
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
-    final Link httpAuthLink =
-        bearer != null ? authLink.concat(httpLink) : httpLink;
+    final Link httpAuthLink = bearer != null
+        ? authLink.concat(httpLink)
+        : httpLink;
     Link link = httpAuthLink;
 
     // Update the WebSocket connection if not [raw].

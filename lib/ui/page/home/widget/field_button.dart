@@ -96,36 +96,33 @@ class _FieldButtonState extends State<FieldButton> {
       children: [
         OutlinedRoundedButton(
           maxWidth: double.infinity,
-          color:
-              widget.danger
-                  ? style.colors.danger
-                  : widget.warning
-                  ? style.colors.primary
-                  : style.colors.onPrimary,
+          color: widget.danger
+              ? style.colors.danger
+              : widget.warning
+              ? style.colors.primary
+              : style.colors.onPrimary,
           disabled: style.colors.secondaryHighlight,
           onPressed: widget.onPressed,
           style:
               widget.style ??
               style.fonts.normal.regular.onBackground.copyWith(
                 // Exception, as [widget.style] may vary.
-                color:
-                    widget.onPressed == null
-                        ? style.colors.onBackground
-                        : widget.warning || widget.danger
-                        ? style.colors.onPrimary
-                        : style.colors.onBackground,
+                color: widget.onPressed == null
+                    ? style.colors.onBackground
+                    : widget.warning || widget.danger
+                    ? style.colors.onPrimary
+                    : style.colors.onBackground,
               ),
           height: 46,
           leading: widget.trailing,
           headline: widget.headline,
           maxHeight: double.infinity,
-          border:
-              widget.onPressed == null
-                  ? BorderSide(width: 0.5, color: style.colors.secondaryLight)
-                  : widget.warning
-                  ? null
-                  : widget.border ??
-                      BorderSide(width: 0.5, color: style.colors.secondary),
+          border: widget.onPressed == null
+              ? BorderSide(width: 0.5, color: style.colors.secondaryLight)
+              : widget.warning
+              ? null
+              : widget.border ??
+                    BorderSide(width: 0.5, color: style.colors.secondary),
           child:
               widget.child ??
               Text(widget.text ?? '', maxLines: widget.maxLines),

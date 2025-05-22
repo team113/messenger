@@ -76,13 +76,12 @@ class LockDriftProvider extends DriftProviderBase {
               lock,
               onConflict: DoUpdate(
                 (_) => lock,
-                where:
-                    (e) =>
-                        e.operation.equals(operation) &
-                        // TODO: Check whether this accounts `NULL` values.
-                        e.lockedAt.isSmallerOrEqualValue(
-                          (lock.lockedAt!).subtract(ttl).microsecondsSinceEpoch,
-                        ),
+                where: (e) =>
+                    e.operation.equals(operation) &
+                    // TODO: Check whether this accounts `NULL` values.
+                    e.lockedAt.isSmallerOrEqualValue(
+                      (lock.lockedAt!).subtract(ttl).microsecondsSinceEpoch,
+                    ),
               ),
               mode: InsertMode.insertOrRollback,
             );

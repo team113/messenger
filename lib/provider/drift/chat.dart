@@ -48,18 +48,16 @@ class Chats extends Table {
   BoolColumn get isHidden => boolean().withDefault(const Constant(false))();
   TextColumn get muted => text().nullable()();
   TextColumn get directLink => text().nullable()();
-  IntColumn get createdAt =>
-      integer()
-          .map(const PreciseDateTimeConverter())
-          .clientDefault(
-            () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
-          )();
-  IntColumn get updatedAt =>
-      integer()
-          .map(const PreciseDateTimeConverter())
-          .clientDefault(
-            () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
-          )();
+  IntColumn get createdAt => integer()
+      .map(const PreciseDateTimeConverter())
+      .clientDefault(
+        () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
+      )();
+  IntColumn get updatedAt => integer()
+      .map(const PreciseDateTimeConverter())
+      .clientDefault(
+        () => const PreciseDateTimeConverter().toSql(PreciseDateTime.now()),
+      )();
   TextColumn get lastReads => text().withDefault(const Constant('[]'))();
   IntColumn get lastDelivery =>
       integer().map(const PreciseDateTimeConverter()).nullable()();
@@ -323,54 +321,46 @@ extension _ChatDb on DtoChat {
     return DtoChat(
       Chat(
         ChatId(e.id),
-        avatar:
-            e.avatar == null
-                ? null
-                : ChatAvatar.fromJson(jsonDecode(e.avatar!)),
+        avatar: e.avatar == null
+            ? null
+            : ChatAvatar.fromJson(jsonDecode(e.avatar!)),
         name: e.name == null ? null : ChatName(e.name!),
-        members:
-            (jsonDecode(e.members) as List)
-                .map((e) => ChatMember.fromJson(e))
-                .cast<ChatMember>()
-                .toList(),
+        members: (jsonDecode(e.members) as List)
+            .map((e) => ChatMember.fromJson(e))
+            .cast<ChatMember>()
+            .toList(),
         kindIndex: e.kindIndex,
         isHidden: e.isHidden,
-        muted:
-            e.muted == null
-                ? null
-                : MuteDuration.fromJson(jsonDecode(e.muted!)),
-        directLink:
-            e.directLink == null
-                ? null
-                : ChatDirectLink.fromJson(jsonDecode(e.directLink!)),
+        muted: e.muted == null
+            ? null
+            : MuteDuration.fromJson(jsonDecode(e.muted!)),
+        directLink: e.directLink == null
+            ? null
+            : ChatDirectLink.fromJson(jsonDecode(e.directLink!)),
         createdAt: e.createdAt,
         updatedAt: e.updatedAt,
-        lastReads:
-            (jsonDecode(e.lastReads) as List)
-                .map((e) => LastChatRead.fromJson(e))
-                .cast<LastChatRead>()
-                .toList(),
+        lastReads: (jsonDecode(e.lastReads) as List)
+            .map((e) => LastChatRead.fromJson(e))
+            .cast<LastChatRead>()
+            .toList(),
         lastDelivery: e.lastDelivery,
-        firstItem:
-            e.firstItem == null
-                ? null
-                : ChatItem.fromJson(jsonDecode(e.firstItem!)),
-        lastItem:
-            e.lastItem == null
-                ? null
-                : ChatItem.fromJson(jsonDecode(e.lastItem!)),
-        lastReadItem:
-            e.lastReadItem == null ? null : ChatItemId(e.lastReadItem!),
+        firstItem: e.firstItem == null
+            ? null
+            : ChatItem.fromJson(jsonDecode(e.firstItem!)),
+        lastItem: e.lastItem == null
+            ? null
+            : ChatItem.fromJson(jsonDecode(e.lastItem!)),
+        lastReadItem: e.lastReadItem == null
+            ? null
+            : ChatItemId(e.lastReadItem!),
         unreadCount: e.unreadCount,
         totalCount: e.totalCount,
-        ongoingCall:
-            e.ongoingCall == null
-                ? null
-                : ChatCall.fromJson(jsonDecode(e.ongoingCall!)),
-        favoritePosition:
-            e.favoritePosition == null
-                ? null
-                : ChatFavoritePosition(e.favoritePosition!),
+        ongoingCall: e.ongoingCall == null
+            ? null
+            : ChatCall.fromJson(jsonDecode(e.ongoingCall!)),
+        favoritePosition: e.favoritePosition == null
+            ? null
+            : ChatFavoritePosition(e.favoritePosition!),
         membersCount: e.membersCount,
       ),
       ChatVersion(e.ver),
@@ -395,27 +385,25 @@ extension _ChatDb on DtoChat {
       kindIndex: value.kindIndex,
       isHidden: value.isHidden,
       muted: value.muted == null ? null : jsonEncode(value.muted?.toJson()),
-      directLink:
-          value.directLink == null
-              ? null
-              : jsonEncode(value.directLink?.toJson()),
+      directLink: value.directLink == null
+          ? null
+          : jsonEncode(value.directLink?.toJson()),
       createdAt: value.createdAt,
       updatedAt: value.updatedAt,
       lastReads: jsonEncode(value.lastReads.map((e) => e.toJson()).toList()),
       lastDelivery: value.lastDelivery,
-      firstItem:
-          value.firstItem == null
-              ? null
-              : jsonEncode(value.firstItem?.toJson()),
-      lastItem:
-          value.lastItem == null ? null : jsonEncode(value.lastItem?.toJson()),
+      firstItem: value.firstItem == null
+          ? null
+          : jsonEncode(value.firstItem?.toJson()),
+      lastItem: value.lastItem == null
+          ? null
+          : jsonEncode(value.lastItem?.toJson()),
       lastReadItem: value.lastReadItem?.val,
       unreadCount: value.unreadCount,
       totalCount: value.totalCount,
-      ongoingCall:
-          value.ongoingCall == null
-              ? null
-              : jsonEncode(value.ongoingCall?.toJson()),
+      ongoingCall: value.ongoingCall == null
+          ? null
+          : jsonEncode(value.ongoingCall?.toJson()),
       favoritePosition: value.favoritePosition?.val,
       membersCount: value.membersCount,
       ver: ver.val,

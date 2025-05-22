@@ -170,9 +170,9 @@ class ChangePasswordView extends StatelessWidget {
                 ModalPopupHeader(
                   text:
                       c.hasPassword &&
-                              c.stage.value != ChangePasswordFlowStage.set
-                          ? 'label_change_password'.l10n
-                          : 'label_set_password'.l10n,
+                          c.stage.value != ChangePasswordFlowStage.set
+                      ? 'label_change_password'.l10n
+                      : 'label_set_password'.l10n,
                 ),
                 const SizedBox(height: 13),
                 Flexible(

@@ -35,17 +35,16 @@ class MessagePopup {
 
     await showDialog(
       context: router.context!,
-      builder:
-          (context) => AlertDialog(
-            title: Text(title.l10n),
-            content: Text(message),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(router.context!).pop(),
-                child: Text('btn_ok'.l10n),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(title.l10n),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(router.context!).pop(),
+            child: Text('btn_ok'.l10n),
           ),
+        ],
+      ),
     );
   }
 

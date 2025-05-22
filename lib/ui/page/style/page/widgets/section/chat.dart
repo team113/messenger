@@ -67,18 +67,17 @@ class ChatSection {
         User(UserId(fromMe ? 'me' : '0'), UserNum('1234123412341234')),
         PreciseDateTime.now(),
         text: text == null ? null : ChatMessageText(text),
-        attachments:
-            attachments.map((e) {
-              if (e == 'file') {
-                return FileAttachment(
-                  id: AttachmentId.local(),
-                  original: PlainFile(relativeRef: '', size: 12300000),
-                  filename: 'Document.pdf',
-                );
-              } else {
-                return LocalAttachment(image, status: SendingStatus.sent);
-              }
-            }).toList(),
+        attachments: attachments.map((e) {
+          if (e == 'file') {
+            return FileAttachment(
+              id: AttachmentId.local(),
+              original: PlainFile(relativeRef: '', size: 12300000),
+              filename: 'Document.pdf',
+            );
+          } else {
+            return LocalAttachment(image, status: SendingStatus.sent);
+          }
+        }).toList(),
         status: status,
         repliesTo: repliesTo,
       );
@@ -109,10 +108,9 @@ class ChatSection {
         PreciseDateTime.now(),
         withVideo: withVideo,
         members: [],
-        conversationStartedAt:
-            started
-                ? PreciseDateTime.now().subtract(const Duration(hours: 1))
-                : null,
+        conversationStartedAt: started
+            ? PreciseDateTime.now().subtract(const Duration(hours: 1))
+            : null,
         finishReasonIndex: finishReasonIndex,
         finishedAt: finishReasonIndex == null ? null : PreciseDateTime.now(),
       );
@@ -131,10 +129,9 @@ class ChatSection {
           Chat(
             ChatId.local(const UserId('me')),
             kindIndex: kind.index,
-            lastDelivery:
-                delivered
-                    ? null
-                    : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            lastDelivery: delivered
+                ? null
+                : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
             lastReads: [
               if (read)
                 LastChatRead(
@@ -183,10 +180,9 @@ class ChatSection {
           Chat(
             ChatId.local(const UserId('me')),
             kindIndex: kind.index,
-            lastDelivery:
-                delivered
-                    ? null
-                    : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
+            lastDelivery: delivered
+                ? null
+                : PreciseDateTime.fromMicrosecondsSinceEpoch(0),
             lastReads: [
               if (read)
                 LastChatRead(

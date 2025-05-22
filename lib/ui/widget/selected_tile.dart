@@ -97,16 +97,14 @@ class SelectedTile extends StatelessWidget {
       subtitle: subtitle,
       darken: darken,
       onTap: onTap,
-      avatarBuilder:
-          (c) => WidgetButton(
-            onPressed:
-                onAvatarTap == null
-                    ? onTap
-                    : () => onAvatarTap!(
-                      user?.id ?? contact?.user.value?.id ?? myUser!.id,
-                    ),
-            child: c,
-          ),
+      avatarBuilder: (c) => WidgetButton(
+        onPressed: onAvatarTap == null
+            ? onTap
+            : () => onAvatarTap!(
+                user?.id ?? contact?.user.value?.id ?? myUser!.id,
+              ),
+        child: c,
+      ),
       trailing: [
         if (myUser == null) SelectedDot(selected: selected, darken: darken),
       ],

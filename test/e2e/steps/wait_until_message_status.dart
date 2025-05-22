@@ -39,99 +39,97 @@ import '../world/custom_world.dart';
 /// - Then I wait until status of "123" message is sent
 /// - Then I wait until status of "123" message is partially read
 /// - Then I wait until status of "123" message is read
-final StepDefinitionGeneric waitUntilMessageStatus = then2<
-  String,
-  MessageSentStatus,
-  CustomWorld
->('I wait until status of {string} message is {sending}', (
-  text,
-  status,
-  context,
-) async {
-  await context.world.appDriver.waitUntil(() async {
-    await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+waitUntilMessageStatus = then2<String, MessageSentStatus, CustomWorld>(
+  'I wait until status of {string} message is {sending}',
+  (text, status, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    final RxChat? chat = Get.find<ChatService>().chats.values.firstWhereOrNull(
-      (e) => e.chat.value.isRoute(router.route, context.world.me),
-    );
+      final RxChat? chat = Get.find<ChatService>().chats.values
+          .firstWhereOrNull(
+            (e) => e.chat.value.isRoute(router.route, context.world.me),
+          );
 
-    final ChatItem? message = chat?.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .firstWhereOrNull((e) => e.text?.val == text);
-
-    ChatItemId? id;
-
-    if (message == null) {
-      final forward = chat?.messages
+      final ChatItem? message = chat?.messages
           .map((e) => e.value)
-          .whereType<ChatForward>()
-          .firstWhereOrNull((e) {
-            if (e.quote is ChatMessageQuote) {
-              return (e.quote as ChatMessageQuote).text?.val == text;
+          .whereType<ChatMessage>()
+          .firstWhereOrNull((e) => e.text?.val == text);
+
+      ChatItemId? id;
+
+      if (message == null) {
+        final forward = chat?.messages
+            .map((e) => e.value)
+            .whereType<ChatForward>()
+            .firstWhereOrNull((e) {
+              if (e.quote is ChatMessageQuote) {
+                return (e.quote as ChatMessageQuote).text?.val == text;
+              }
+
+              return false;
+            });
+
+        if (forward != null) {
+          final ChatController controller = Get.find<ChatController>(
+            tag: chat?.id.val,
+          );
+
+          final ListElement?
+          element = controller.elements.values.firstWhereOrNull((e) {
+            bool result = false;
+
+            if (e is ChatForwardElement) {
+              if (e.note.value?.value is ChatMessage) {
+                result = (e.note.value?.value as ChatMessage).text?.val == text;
+              }
+
+              if (!result) {
+                result = e.forwards.any((e) {
+                  if (e.value is ChatForward) {
+                    if ((e.value as ChatForward).quote is ChatMessageQuote) {
+                      return ((e.value as ChatForward).quote
+                                  as ChatMessageQuote)
+                              .text
+                              ?.val ==
+                          text;
+                    }
+                  }
+                  return false;
+                });
+              }
             }
 
-            return false;
+            return result;
           });
 
-      if (forward != null) {
-        final ChatController controller = Get.find<ChatController>(
-          tag: chat?.id.val,
-        );
-
-        final ListElement?
-        element = controller.elements.values.firstWhereOrNull((e) {
-          bool result = false;
-
-          if (e is ChatForwardElement) {
-            if (e.note.value?.value is ChatMessage) {
-              result = (e.note.value?.value as ChatMessage).text?.val == text;
-            }
-
-            if (!result) {
-              result = e.forwards.any((e) {
-                if (e.value is ChatForward) {
-                  if ((e.value as ChatForward).quote is ChatMessageQuote) {
-                    return ((e.value as ChatForward).quote as ChatMessageQuote)
-                            .text
-                            ?.val ==
-                        text;
-                  }
-                }
-                return false;
-              });
-            }
+          if (element != null) {
+            final e = (element as ChatForwardElement);
+            id = e.note.value?.value.id ?? e.forwards.first.value.id;
           }
-
-          return result;
-        });
-
-        if (element != null) {
-          final e = (element as ChatForwardElement);
-          id = e.note.value?.value.id ?? e.forwards.first.value.id;
         }
       }
-    }
 
-    final Finder finder = context.world.appDriver.findByKeySkipOffstage(
-      'MessageStatus_${message?.id ?? id}',
-    );
-
-    if (await context.world.appDriver.isPresent(finder)) {
-      return context.world.appDriver.isPresent(
-        context.world.appDriver.findByDescendant(
-          finder,
-          context.world.appDriver.findByKeySkipOffstage(switch (status) {
-            MessageSentStatus.sending => 'Sending',
-            MessageSentStatus.error => 'Error',
-            MessageSentStatus.sent => 'Sent',
-            MessageSentStatus.read => 'Read',
-            MessageSentStatus.halfRead => 'HalfRead',
-          }),
-        ),
+      final Finder finder = context.world.appDriver.findByKeySkipOffstage(
+        'MessageStatus_${message?.id ?? id}',
       );
-    }
 
-    return false;
-  }, timeout: context.configuration.timeout ?? const Duration(seconds: 30));
-});
+      if (await context.world.appDriver.isPresent(finder)) {
+        return context.world.appDriver.isPresent(
+          context.world.appDriver.findByDescendant(
+            finder,
+            context.world.appDriver.findByKeySkipOffstage(switch (status) {
+              MessageSentStatus.sending => 'Sending',
+              MessageSentStatus.error => 'Error',
+              MessageSentStatus.sent => 'Sent',
+              MessageSentStatus.read => 'Read',
+              MessageSentStatus.halfRead => 'HalfRead',
+            }),
+          ),
+        );
+      }
+
+      return false;
+    }, timeout: context.configuration.timeout ?? const Duration(seconds: 30));
+  },
+);

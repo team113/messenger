@@ -84,14 +84,11 @@ class L10n {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
 
-      _bundle =
-          FluentBundle(lang.toString())
-            ..addMessages(
-              await PlatformUtils.loadString('assets/l10n/$lang.ftl'),
-            )
-            ..addMessages(
-              _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-            );
+      _bundle = FluentBundle(lang.toString())
+        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'))
+        ..addMessages(
+          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+        );
       if (refresh) {
         await Get.forceAppUpdate();
       }

@@ -70,9 +70,9 @@ class CallCoverWidget extends StatelessWidget {
               final Color gradient;
 
               if (color != null) {
-                gradient =
-                    style.colors.userColors[color %
-                        style.colors.userColors.length];
+                gradient = style
+                    .colors
+                    .userColors[color % style.colors.userColors.length];
               } else if (title != null) {
                 gradient =
                     style.colors.userColors[(title.hashCode) %
@@ -97,10 +97,11 @@ class CallCoverWidget extends StatelessWidget {
                     title ?? '??',
                     textAlign: TextAlign.center,
                     style: style.fonts.normal.bold.onPrimary.copyWith(
-                      fontSize: (style.fonts.normal.bold.onPrimary.fontSize! *
-                              constraints.biggest.shortestSide /
-                              100)
-                          .clamp(15, 108),
+                      fontSize:
+                          (style.fonts.normal.bold.onPrimary.fontSize! *
+                                  constraints.biggest.shortestSide /
+                                  100)
+                              .clamp(15, 108),
                     ),
 
                     // Disable the accessibility size settings for this [Text].

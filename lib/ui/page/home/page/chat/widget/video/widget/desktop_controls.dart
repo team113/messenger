@@ -188,12 +188,12 @@ class _DesktopControlsState extends State<DesktopControls>
                 return buffering.data!
                     ? const Center(child: CustomProgressIndicator())
                     : CenteredPlayPause(
-                      widget.controller,
-                      show:
-                          (!_dragging && !_hideStuff || _showInterface) &&
-                          !widget.controller.player.state.playing,
-                      onPressed: _playPause,
-                    );
+                        widget.controller,
+                        show:
+                            (!_dragging && !_hideStuff || _showInterface) &&
+                            !widget.controller.player.state.playing,
+                        onPressed: _playPause,
+                      );
               },
             ),
             Column(
@@ -303,28 +303,27 @@ class _DesktopControlsState extends State<DesktopControls>
                         }
 
                         _volumeEntry = OverlayEntry(
-                          builder:
-                              (_) => VolumeOverlay(
-                                widget.controller,
-                                offset: offset,
-                                onExit: (d) {
-                                  if (mounted && !_dragging) {
-                                    _volumeEntry?.remove();
-                                    _volumeEntry = null;
-                                    setState(() {});
-                                  }
-                                },
-                                onDragStart: () {
-                                  setState(() => _dragging = true);
-                                },
-                                onDragEnd: () {
-                                  if (!_showBottomBar) {
-                                    _volumeEntry?.remove();
-                                    _volumeEntry = null;
-                                  }
-                                  setState(() => _dragging = false);
-                                },
-                              ),
+                          builder: (_) => VolumeOverlay(
+                            widget.controller,
+                            offset: offset,
+                            onExit: (d) {
+                              if (mounted && !_dragging) {
+                                _volumeEntry?.remove();
+                                _volumeEntry = null;
+                                setState(() {});
+                              }
+                            },
+                            onDragStart: () {
+                              setState(() => _dragging = true);
+                            },
+                            onDragEnd: () {
+                              if (!_showBottomBar) {
+                                _volumeEntry?.remove();
+                                _volumeEntry = null;
+                              }
+                              setState(() => _dragging = false);
+                            },
+                          ),
                         );
                         Overlay.of(
                           context,

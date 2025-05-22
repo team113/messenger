@@ -74,12 +74,11 @@ class ConfirmDeleteView extends StatelessWidget {
                     enabled
                         ? 'btn_resend_code'.l10n
                         : 'label_wait_seconds'.l10nfmt({
-                          'for': c.resendEmailTimeout.value,
-                        }),
-                    style:
-                        enabled
-                            ? style.fonts.normal.regular.primary
-                            : style.fonts.normal.regular.onBackground,
+                            'for': c.resendEmailTimeout.value,
+                          }),
+                    style: enabled
+                        ? style.fonts.normal.regular.primary
+                        : style.fonts.normal.regular.onBackground,
                   ),
                 );
               }),

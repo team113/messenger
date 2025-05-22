@@ -52,8 +52,8 @@ final StepDefinitionGeneric seeChatAvatarAs = then1<String, CustomWorld>(
       return context.world.appDriver.isPresent(finder);
     }, timeout: const Duration(seconds: 30));
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Waits until the [ChatAvatar] being displayed has no image in it.
@@ -80,6 +80,6 @@ final StepDefinitionGeneric seeChatAvatarAsNone = then<CustomWorld>(
       return false;
     });
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

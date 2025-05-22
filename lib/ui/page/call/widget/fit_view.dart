@@ -101,15 +101,17 @@ class FitView extends StatelessWidget {
           }
         } else if (length == 7) {
           if (constraints.maxWidth > constraints.maxHeight) {
-            coef =
-                constraints.maxWidth / constraints.maxHeight >= 3 ? 0.7 : 0.4;
+            coef = constraints.maxWidth / constraints.maxHeight >= 3
+                ? 0.7
+                : 0.4;
           } else {
             coef = 0.4;
           }
         } else if (length == 6) {
           if (constraints.maxWidth > constraints.maxHeight) {
-            coef =
-                (constraints.maxWidth / constraints.maxHeight > 3) ? 0.57 : 0.7;
+            coef = (constraints.maxWidth / constraints.maxHeight > 3)
+                ? 0.57
+                : 0.7;
           } else {
             coef = 0.7;
           }
@@ -128,8 +130,9 @@ class FitView extends StatelessWidget {
       }
       // Tweak of a standard arrangement.
       else if (length == 4) {
-        mColumns =
-            constraints.maxWidth / constraints.maxHeight < 0.56 ? 1 : mColumns;
+        mColumns = constraints.maxWidth / constraints.maxHeight < 0.56
+            ? 1
+            : mColumns;
       }
 
       if (diagonal < min && min - diagonal > 1) {

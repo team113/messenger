@@ -44,15 +44,14 @@ final StepDefinitionGeneric contact = given1<TestUser, CustomWorld>(
       ],
     );
 
-    context.world.contacts[user.name] =
-        contact.events
-            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-            .contactId;
+    context.world.contacts[user.name] = contact.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Creates two [ChatContact]s of the provided [User]s.
@@ -74,10 +73,9 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
       ],
     );
 
-    context.world.contacts[user1.name] =
-        contact1.events
-            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-            .contactId;
+    context.world.contacts[user1.name] = contact1.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
 
     final contact2 = await provider.createChatContact(
       name: UserName(user2.name),
@@ -87,13 +85,12 @@ final twoContacts = given2<TestUser, TestUser, CustomWorld>(
       ],
     );
 
-    context.world.contacts[user2.name] =
-        contact2.events
-            .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
-            .contactId;
+    context.world.contacts[user2.name] = contact2.events
+        .firstWhere((e) => e.$$typename == 'EventChatContactCreated')
+        .contactId;
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

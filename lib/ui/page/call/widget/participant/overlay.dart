@@ -171,10 +171,9 @@ class ParticipantOverlayWidget extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
-                color:
-                    preferBackdrop && ConditionalBackdropFilter.enabled
-                        ? style.colors.primaryAuxiliaryOpacity25
-                        : style.colors.primaryAuxiliaryOpacity90,
+                color: preferBackdrop && ConditionalBackdropFilter.enabled
+                    ? style.colors.primaryAuxiliaryOpacity25
+                    : style.colors.primaryAuxiliaryOpacity90,
               ),
               padding: EdgeInsets.only(
                 left: 6,
@@ -190,13 +189,12 @@ class ParticipantOverlayWidget extends StatelessWidget {
                   if (additionally.isNotEmpty && hovered)
                     const SizedBox(width: 3),
                   Flexible(
-                    child:
-                        additionally.isEmpty
-                            ? name
-                            : AnimatedSize(
-                              duration: 150.milliseconds,
-                              child: hovered ? name : const SizedBox(),
-                            ),
+                    child: additionally.isEmpty
+                        ? name
+                        : AnimatedSize(
+                            duration: 150.milliseconds,
+                            child: hovered ? name : const SizedBox(),
+                          ),
                   ),
                 ],
               ),

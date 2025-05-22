@@ -41,8 +41,9 @@ final StepDefinitionGeneric rightClickWidget = when1<WidgetKey, CustomWorld>(
       await context.world.appDriver.waitForAppToSettle();
 
       try {
-        final finder =
-            context.world.appDriver.findByKeySkipOffstage(key.name).first;
+        final finder = context.world.appDriver
+            .findByKeySkipOffstage(key.name)
+            .first;
 
         await context.world.appDriver.waitForAppToSettle();
         await context.world.appDriver.nativeDriver.tap(

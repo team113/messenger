@@ -54,6 +54,6 @@ removeGroupMember = then3<TestUser, TestUser, String, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

@@ -330,10 +330,9 @@ class _SelectorState<T> extends State<Selector<T>> {
               top: top,
               bottom: bottom,
               child: Listener(
-                onPointerUp:
-                    widget.onPointerUp == null
-                        ? null
-                        : (d) => widget.onPointerUp?.call(context),
+                onPointerUp: widget.onPointerUp == null
+                    ? null
+                    : (d) => widget.onPointerUp?.call(context),
                 child: Container(
                   decoration: BoxDecoration(
                     color: style.contextMenuBackgroundColor,

@@ -42,6 +42,6 @@ final StepDefinitionGeneric contactIsIndeedDeleted =
           return response.edges.none((e) => e.node.name.val == name);
         }, timeout: const Duration(seconds: 30));
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

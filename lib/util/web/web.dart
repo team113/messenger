@@ -228,10 +228,10 @@ class WebUtils {
     }
 
     controller = StreamController(
-      onListen:
-          () => web.window.addEventListener('storage', storageListener.toJS),
-      onCancel:
-          () => web.window.removeEventListener('storage', storageListener.toJS),
+      onListen: () =>
+          web.window.addEventListener('storage', storageListener.toJS),
+      onCancel: () =>
+          web.window.removeEventListener('storage', storageListener.toJS),
     );
 
     return controller.stream;
@@ -670,8 +670,8 @@ class WebUtils {
       throw Exception('Cannot download file');
     }
 
-    final web.HTMLAnchorElement anchorElement =
-        web.HTMLAnchorElement()..href = url;
+    final web.HTMLAnchorElement anchorElement = web.HTMLAnchorElement()
+      ..href = url;
     anchorElement.download = name;
     anchorElement.click();
   }
@@ -688,18 +688,16 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission =
-          await web.window.navigator.permissions
-              .query({'name': 'camera'}.jsify() as JSObject)
-              .toDart;
+      final permission = await web.window.navigator.permissions
+          .query({'name': 'camera'}.jsify() as JSObject)
+          .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream =
-          await web.window.navigator.mediaDevices
-              .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
-              .toDart;
+      final web.MediaStream stream = await web.window.navigator.mediaDevices
+          .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
+          .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -729,20 +727,18 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission =
-          await web.window.navigator.permissions
-              .query({'name': 'microphone'}.jsify() as JSObject)
-              .toDart;
+      final permission = await web.window.navigator.permissions
+          .query({'name': 'microphone'}.jsify() as JSObject)
+          .toDart;
       granted = permission.state == 'granted';
     }
 
     // PWA in Safari returns `true` regarding permission, yet doesn't allow to
     // enumerate devices despite that.
     if (!granted || WebUtils.isSafari) {
-      final web.MediaStream stream =
-          await web.window.navigator.mediaDevices
-              .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
-              .toDart;
+      final web.MediaStream stream = await web.window.navigator.mediaDevices
+          .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
+          .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -893,12 +889,16 @@ class WebUtils {
                 modifiers &&
                 switch (m) {
                   HotKeyModifier.alt => HardwareKeyboard.instance.isAltPressed,
-                  HotKeyModifier.capsLock => HardwareKeyboard.instance
-                      .isPhysicalKeyPressed(PhysicalKeyboardKey.capsLock),
+                  HotKeyModifier.capsLock =>
+                    HardwareKeyboard.instance.isPhysicalKeyPressed(
+                      PhysicalKeyboardKey.capsLock,
+                    ),
                   HotKeyModifier.control =>
                     HardwareKeyboard.instance.isControlPressed,
-                  HotKeyModifier.fn => HardwareKeyboard.instance
-                      .isPhysicalKeyPressed(PhysicalKeyboardKey.fn),
+                  HotKeyModifier.fn =>
+                    HardwareKeyboard.instance.isPhysicalKeyPressed(
+                      PhysicalKeyboardKey.fn,
+                    ),
                   HotKeyModifier.meta =>
                     HardwareKeyboard.instance.isMetaPressed,
                   HotKeyModifier.shift =>

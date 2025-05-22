@@ -36,11 +36,10 @@ class ContactView extends StatelessWidget {
     return GetBuilder<ContactController>(
       init: ContactController(id),
       tag: id.val,
-      builder:
-          (_) => Scaffold(
-            appBar: AppBar(title: Text('Contact $id'), elevation: 0),
-            body: Center(child: Text('Contact with tag: $id'.l10n)),
-          ),
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: Text('Contact $id'), elevation: 0),
+        body: Center(child: Text('Contact with tag: $id'.l10n)),
+      ),
     );
   }
 }

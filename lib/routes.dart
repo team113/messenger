@@ -508,8 +508,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         ),
       ];
     } else if (_state.route == Routes.nowhere) {
-      final style =
-          router.context == null ? null : Theme.of(router.context!).style;
+      final style = router.context == null
+          ? null
+          : Theme.of(router.context!).style;
 
       return [
         MaterialPage(
@@ -764,10 +765,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
               notificationService.init(
                 language: L10n.chosen.value?.locale.toString(),
-                firebaseOptions:
-                    PlatformUtils.pushNotifications
-                        ? DefaultFirebaseOptions.currentPlatform
-                        : null,
+                firebaseOptions: PlatformUtils.pushNotifications
+                    ? DefaultFirebaseOptions.currentPlatform
+                    : null,
                 onResponse: (payload) {
                   if (payload.startsWith(Routes.chats)) {
                     router.push(payload);
@@ -807,11 +807,9 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               userRepository.getChat = chatRepository.get;
               callRepository.ensureRemoteDialog =
                   chatRepository.ensureRemoteDialog;
-              _state._auth.hasCalls =
-                  () =>
-                      callRepository.calls.values
-                          .where((e) => e.value.connected)
-                          .isNotEmpty;
+              _state._auth.hasCalls = () => callRepository.calls.values
+                  .where((e) => e.value.connected)
+                  .isNotEmpty;
 
               final AbstractContactRepository contactRepository = deps
                   .put<AbstractContactRepository>(

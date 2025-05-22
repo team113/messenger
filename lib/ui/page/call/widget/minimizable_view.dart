@@ -100,10 +100,9 @@ class _MinimizableViewState extends State<MinimizableView>
       borderRadius: BorderRadius.circular(10.0),
       boxShadow: <BoxShadow>[
         CustomBoxShadow(
-          color:
-              Theme.of(
-                router.context!,
-              ).extension<Style>()!.colors.onBackgroundOpacity40,
+          color: Theme.of(
+            router.context!,
+          ).extension<Style>()!.colors.onBackgroundOpacity40,
           blurRadius: 10.0,
           offset: const Offset(0, 0),
         ),
@@ -161,57 +160,54 @@ class _MinimizableViewState extends State<MinimizableView>
               ).animate(_controller),
               child: GestureDetector(
                 behavior: HitTestBehavior.deferToChild,
-                onTap:
-                    _controller.value == 1
-                        ? () {
-                          _controller.reverse(from: _controller.value);
-                          FocusManager.instance.primaryFocus?.unfocus();
-                        }
-                        : null,
-                onPanStart:
-                    _controller.value == 0 && widget.minimizationEnabled
-                        ? (d) {
-                          _controller.stop();
-                          _drag = d.localPosition;
-                          _value = _controller.value;
-                          setState(() {});
-                        }
-                        : null,
+                onTap: _controller.value == 1
+                    ? () {
+                        _controller.reverse(from: _controller.value);
+                        FocusManager.instance.primaryFocus?.unfocus();
+                      }
+                    : null,
+                onPanStart: _controller.value == 0 && widget.minimizationEnabled
+                    ? (d) {
+                        _controller.stop();
+                        _drag = d.localPosition;
+                        _value = _controller.value;
+                        setState(() {});
+                      }
+                    : null,
                 onPanUpdate:
                     widget.minimizationEnabled || _controller.value == 1
-                        ? (d) {
-                          _panningDistance = _panningDistance + d.delta.dy;
+                    ? (d) {
+                        _panningDistance = _panningDistance + d.delta.dy;
 
-                          if (_panningDistance < widget.minimizationDelta &&
-                              _controller.value == 0) {
-                            return;
-                          }
+                        if (_panningDistance < widget.minimizationDelta &&
+                            _controller.value == 0) {
+                          return;
+                        }
 
-                          if (_drag != null && _value != null) {
-                            _controller.value =
-                                _value! +
-                                (d.localPosition.dy -
-                                        _drag!.dy -
-                                        widget.minimizationDelta) *
-                                    (1 / constraints.maxHeight);
-                          } else {
-                            setState(() {
-                              _right = _right - d.delta.dx;
-                              _bottom = _bottom - d.delta.dy;
-                              _applyConstraints(biggest);
-                            });
-                          }
+                        if (_drag != null && _value != null) {
+                          _controller.value =
+                              _value! +
+                              (d.localPosition.dy -
+                                      _drag!.dy -
+                                      widget.minimizationDelta) *
+                                  (1 / constraints.maxHeight);
+                        } else {
+                          setState(() {
+                            _right = _right - d.delta.dx;
+                            _bottom = _bottom - d.delta.dy;
+                            _applyConstraints(biggest);
+                          });
                         }
-                        : null,
-                onPanEnd:
-                    widget.minimizationEnabled
-                        ? (d) {
-                          if (_drag != null && _value != null) {
-                            _onVerticalDragEnd(d);
-                          }
-                          _panningDistance = 0;
+                      }
+                    : null,
+                onPanEnd: widget.minimizationEnabled
+                    ? (d) {
+                        if (_drag != null && _value != null) {
+                          _onVerticalDragEnd(d);
                         }
-                        : null,
+                        _panningDistance = 0;
+                      }
+                    : null,
                 child: DecoratedBoxTransition(
                   key: _key,
                   decoration: _decorationTween.animate(_controller),

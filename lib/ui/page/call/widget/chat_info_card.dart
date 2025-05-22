@@ -89,9 +89,9 @@ class ChatInfoCard extends StatelessWidget {
                             duration == null
                                 ? const SizedBox()
                                 : Text(
-                                  duration!.hhMmSs(),
-                                  style: style.fonts.normal.regular.onPrimary,
-                                ),
+                                    duration!.hhMmSs(),
+                                    style: style.fonts.normal.regular.onPrimary,
+                                  ),
                           ],
                         ),
                         Padding(

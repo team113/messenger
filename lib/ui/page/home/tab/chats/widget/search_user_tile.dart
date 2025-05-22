@@ -75,10 +75,9 @@ class SearchUserTile extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               '${'label_num'.l10n}${'colon_space'.l10n}${(contact?.user.value?.user.value.num ?? user?.user.value.num)}',
-              style:
-                  selected
-                      ? style.fonts.small.regular.onPrimary
-                      : style.fonts.small.regular.secondary,
+              style: selected
+                  ? style.fonts.small.regular.onPrimary
+                  : style.fonts.small.regular.secondary,
             ),
           ],
           trailing: [
@@ -88,10 +87,9 @@ class SearchUserTile extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 5),
                 child: Icon(
                   Icons.block,
-                  color:
-                      selected
-                          ? style.colors.onPrimary
-                          : style.colors.secondaryHighlightDarkest,
+                  color: selected
+                      ? style.colors.onPrimary
+                      : style.colors.secondaryHighlightDarkest,
                   size: 20,
                 ),
               ),

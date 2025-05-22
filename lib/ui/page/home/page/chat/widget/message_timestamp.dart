@@ -83,14 +83,15 @@ class MessageTimestamp extends StatelessWidget {
         SelectionContainer.disabled(
           child: Text(
             date ? at.val.toLocal().yMdHm : at.val.toLocal().hm,
-            style: (inverted
-                    ? style.fonts.smaller.regular.onPrimary
-                    : style.fonts.smaller.regular.secondary)
-                .copyWith(
-                  fontSize:
-                      fontSize ??
-                      style.fonts.smaller.regular.onBackground.fontSize,
-                ),
+            style:
+                (inverted
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.smaller.regular.secondary)
+                    .copyWith(
+                      fontSize:
+                          fontSize ??
+                          style.fonts.smaller.regular.onBackground.fontSize,
+                    ),
           ),
         ),
         if (status != null &&
@@ -104,30 +105,30 @@ class MessageTimestamp extends StatelessWidget {
                   ? 'Sending'
                   : isRead
                   ? isHalfRead
-                      ? 'HalfRead'
-                      : 'Read'
+                        ? 'HalfRead'
+                        : 'Read'
                   : 'Sent',
             ),
             width: 17,
             child: SvgIcon(
               isRead
                   ? isHalfRead
-                      ? inverted
-                          ? SvgIcons.halfReadWhite
-                          : SvgIcons.halfRead
-                      : inverted
-                      ? SvgIcons.readWhite
-                      : SvgIcons.read
+                        ? inverted
+                              ? SvgIcons.halfReadWhite
+                              : SvgIcons.halfRead
+                        : inverted
+                        ? SvgIcons.readWhite
+                        : SvgIcons.read
                   : isDelivered
                   ? inverted
-                      ? SvgIcons.deliveredWhite
-                      : SvgIcons.delivered
+                        ? SvgIcons.deliveredWhite
+                        : SvgIcons.delivered
                   : isError
                   ? SvgIcons.error
                   : isSending
                   ? inverted
-                      ? SvgIcons.sendingWhite
-                      : SvgIcons.sending
+                        ? SvgIcons.sendingWhite
+                        : SvgIcons.sending
                   : inverted
                   ? SvgIcons.sentWhite
                   : SvgIcons.sent,

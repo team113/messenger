@@ -97,18 +97,16 @@ class SupportView extends StatelessWidget {
                     Obx(() {
                       return PrefixButton(
                         title: 'btn_check_for_updates'.l10n,
-                        onPressed:
-                            c.checkingForUpdates.value
-                                ? null
-                                : c.checkForUpdates,
-                        prefix:
-                            c.checkingForUpdates.value
-                                ? const Padding(
-                                  key: Key('Loading'),
-                                  padding: EdgeInsets.only(left: 14),
-                                  child: CustomProgressIndicator(),
-                                )
-                                : null,
+                        onPressed: c.checkingForUpdates.value
+                            ? null
+                            : c.checkForUpdates,
+                        prefix: c.checkingForUpdates.value
+                            ? const Padding(
+                                key: Key('Loading'),
+                                padding: EdgeInsets.only(left: 14),
+                                child: CustomProgressIndicator(),
+                              )
+                            : null,
                       );
                     }),
                     const SizedBox(height: 8),

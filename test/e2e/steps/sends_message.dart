@@ -45,8 +45,8 @@ final StepDefinitionGeneric sendsMessageToMe =
         );
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
 
 /// Sends a text message from the specified [User] to the [Chat]-group with the
@@ -69,8 +69,8 @@ final StepDefinitionGeneric sendsMessageToGroup =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
 
 /// Sends a message from the specified [User] to the authenticated [MyUser] in
@@ -112,8 +112,8 @@ final StepDefinitionGeneric sendsMessageWithException =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
 
 /// Sends the provided count of messages from the specified [TestUser] to the
@@ -135,6 +135,6 @@ final StepDefinitionGeneric sendsCountMessages =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

@@ -123,10 +123,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
-          final bool grab =
-              c.attachments.isNotEmpty
-                  ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-                  : false;
+          final bool grab = c.attachments.isNotEmpty
+              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+              : false;
 
           return ConditionalBackdropFilter(
             condition: style.cardBlur > 0,
@@ -143,10 +142,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                 curve: Curves.ease,
                 child: Container(
                   width: double.infinity,
-                  padding:
-                      c.attachments.isNotEmpty || c.edited.value != null
-                          ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                          : EdgeInsets.zero,
+                  padding: c.attachments.isNotEmpty || c.edited.value != null
+                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                      : EdgeInsets.zero,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -164,30 +162,26 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: MouseRegion(
-                            cursor:
-                                grab
-                                    ? CustomMouseCursors.grab
-                                    : MouseCursor.defer,
+                            cursor: grab
+                                ? CustomMouseCursors.grab
+                                : MouseCursor.defer,
                             opaque: false,
                             child: ScrollConfiguration(
                               behavior: CustomScrollBehavior(),
                               child: SingleChildScrollView(
                                 clipBehavior: Clip.none,
-                                physics:
-                                    grab
-                                        ? null
-                                        : const NeverScrollableScrollPhysics(),
+                                physics: grab
+                                    ? null
+                                    : const NeverScrollableScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  children:
-                                      c.attachments
-                                          .map(
-                                            (e) =>
-                                                _buildAttachment(context, e, c),
-                                          )
-                                          .toList(),
+                                  children: c.attachments
+                                      .map(
+                                        (e) => _buildAttachment(context, e, c),
+                                      )
+                                      .toList(),
                                 ),
                               ),
                             ),
@@ -301,86 +295,81 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
           fit: BoxFit.cover,
         );
 
-        final List<Attachment> attachments =
-            c.attachments
-                .where((e) {
-                  final Attachment a = e.value;
-                  return a is ImageAttachment ||
-                      (a is FileAttachment && a.isVideo) ||
-                      (a is LocalAttachment &&
-                          (a.file.isImage || a.file.isVideo));
-                })
-                .map((e) => e.value)
-                .toList();
+        final List<Attachment> attachments = c.attachments
+            .where((e) {
+              final Attachment a = e.value;
+              return a is ImageAttachment ||
+                  (a is FileAttachment && a.isVideo) ||
+                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+            })
+            .map((e) => e.value)
+            .toList();
 
         return WidgetButton(
           key: key,
-          onPressed:
-              e is LocalAttachment
-                  ? null
-                  : () {
-                    final int index = c.attachments.indexWhere(
-                      (m) => m.value == e,
-                    );
-                    if (index != -1) {
-                      GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initial: index,
-                          initialKey: key,
-                          onTrashPressed: (int i) {
-                            c.attachments.removeWhere(
-                              (o) => o.value == attachments[i],
+          onPressed: e is LocalAttachment
+              ? null
+              : () {
+                  final int index = c.attachments.indexWhere(
+                    (m) => m.value == e,
+                  );
+                  if (index != -1) {
+                    GalleryPopup.show(
+                      context: context,
+                      gallery: GalleryPopup(
+                        initial: index,
+                        initialKey: key,
+                        onTrashPressed: (int i) {
+                          c.attachments.removeWhere(
+                            (o) => o.value == attachments[i],
+                          );
+                        },
+                        children: attachments.map((o) {
+                          if (o is ImageAttachment) {
+                            return GalleryItem.image(
+                              o.original.url,
+                              o.filename,
+                              size: o.original.size,
+                              width: (o.original as ImageFile).width,
+                              height: (o.original as ImageFile).height,
+                              checksum: o.original.checksum,
+                              thumbhash: o.big.thumbhash,
                             );
-                          },
-                          children:
-                              attachments.map((o) {
-                                if (o is ImageAttachment) {
-                                  return GalleryItem.image(
-                                    o.original.url,
-                                    o.filename,
-                                    size: o.original.size,
-                                    width: (o.original as ImageFile).width,
-                                    height: (o.original as ImageFile).height,
-                                    checksum: o.original.checksum,
-                                    thumbhash: o.big.thumbhash,
-                                  );
-                                }
-                                return GalleryItem.video(
-                                  o.original.url,
-                                  o.filename,
-                                  size: o.original.size,
-                                  checksum: o.original.checksum,
-                                );
-                              }).toList(),
+                          }
+                          return GalleryItem.video(
+                            o.original.url,
+                            o.filename,
+                            size: o.original.size,
+                            checksum: o.original.checksum,
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+          child: isVideo
+              ? IgnorePointer(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      child,
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: style.colors.onBackgroundOpacity50,
                         ),
-                      );
-                    }
-                  },
-          child:
-              isVideo
-                  ? IgnorePointer(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        child,
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity50,
-                          ),
-                          child: Icon(
-                            Icons.play_arrow,
-                            color: style.colors.onPrimary,
-                            size: 48,
-                          ),
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: style.colors.onPrimary,
+                          size: 48,
                         ),
-                      ],
-                    ),
-                  )
-                  : child,
+                      ),
+                    ],
+                  ),
+                )
+              : child,
         );
       }
 
@@ -455,10 +444,9 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                 child: SizedBox.square(
                   dimension: 30,
                   child: ElasticAnimatedSwitcher(
-                    child:
-                        e is LocalAttachment
-                            ? e.status.value == SendingStatus.error
-                                ? Container(
+                    child: e is LocalAttachment
+                        ? e.status.value == SendingStatus.error
+                              ? Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,
@@ -470,8 +458,8 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                                     ),
                                   ),
                                 )
-                                : const SizedBox()
-                            : const SizedBox(),
+                              : const SizedBox()
+                        : const SizedBox(),
                   ),
                 ),
               ),
@@ -485,15 +473,13 @@ class _WelcomeFieldViewState extends State<WelcomeFieldView> {
                         duration: 200.milliseconds,
                         opacity:
                             c.hoveredAttachment.value == e ||
-                                    PlatformUtils.isMobile
-                                ? 1
-                                : 0,
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed:
-                              () => c.attachments.removeWhere(
-                                (a) => a.value == e,
-                              ),
+                          onPressed: () =>
+                              c.attachments.removeWhere((a) => a.value == e),
                         ),
                       );
                     }),

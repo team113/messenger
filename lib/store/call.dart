@@ -550,8 +550,9 @@ class CallRepository extends DisposableInterface
     ) async* {
       Log.trace('heartbeat($id): ${event.data}', '$runtimeType');
 
-      final events =
-          CallEvents$Subscription.fromJson(event.data!).chatCallEvents;
+      final events = CallEvents$Subscription.fromJson(
+        event.data!,
+      ).chatCallEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const ChatCallEventsInitialized();
@@ -582,10 +583,9 @@ class CallRepository extends DisposableInterface
     ) async* {
       Log.trace('_incomingEvents($count): ${event.data}', '$runtimeType');
 
-      final events =
-          IncomingCallsTopEvents$Subscription.fromJson(
-            event.data!,
-          ).incomingChatCallsTopEvents;
+      final events = IncomingCallsTopEvents$Subscription.fromJson(
+        event.data!,
+      ).incomingChatCallsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const IncomingChatCallsTopInitialized();

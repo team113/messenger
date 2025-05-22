@@ -230,12 +230,11 @@ class NotificationService extends DisposableService {
     } else if (PlatformUtils.isWindows) {
       File? file;
       if (icon != null) {
-        file =
-            (await CacheWorker.instance.get(
-              url: icon.url,
-              checksum: icon.checksum,
-              responseType: CacheResponseType.file,
-            )).file;
+        file = (await CacheWorker.instance.get(
+          url: icon.url,
+          checksum: icon.checksum,
+          responseType: CacheResponseType.file,
+        )).file;
       }
 
       await WinToast.instance().showCustomToast(
@@ -288,12 +287,9 @@ class NotificationService extends DisposableService {
             'default',
             'Default',
             sound: const RawResourceAndroidNotificationSound('notification'),
-            styleInformation:
-                imagePath == null
-                    ? null
-                    : BigPictureStyleInformation(
-                      FilePathAndroidBitmap(imagePath),
-                    ),
+            styleInformation: imagePath == null
+                ? null
+                : BigPictureStyleInformation(FilePathAndroidBitmap(imagePath)),
             tag: tag,
           ),
           linux: LinuxNotificationDetails(
@@ -348,12 +344,11 @@ class NotificationService extends DisposableService {
       await WinToast.instance().initialize(
         aumId: 'team113.messenger',
         displayName: 'Gapopa',
-        iconPath:
-            kDebugMode
-                ? File(r'assets\icons\app_icon.ico').absolute.path
-                : File(
-                  r'data\flutter_assets\assets\icons\app_icon.ico',
-                ).absolute.path,
+        iconPath: kDebugMode
+            ? File(r'assets\icons\app_icon.ico').absolute.path
+            : File(
+                r'data\flutter_assets\assets\icons\app_icon.ico',
+              ).absolute.path,
         clsid: Config.clsid,
       );
 
@@ -384,8 +379,8 @@ class NotificationService extends DisposableService {
           );
 
           if (!PlatformUtils.isWindows) {
-            final NotificationAppLaunchDetails? details =
-                await _plugin!.getNotificationAppLaunchDetails();
+            final NotificationAppLaunchDetails? details = await _plugin!
+                .getNotificationAppLaunchDetails();
 
             if (details?.notificationResponse != null) {
               onResponse?.call(details!.notificationResponse!);
@@ -427,8 +422,8 @@ class NotificationService extends DisposableService {
       FirebaseMessaging.onBackgroundMessage(onBackground);
     }
 
-    final RemoteMessage? initial =
-        await FirebaseMessaging.instance.getInitialMessage();
+    final RemoteMessage? initial = await FirebaseMessaging.instance
+        .getInitialMessage();
 
     if (initial != null) {
       onResponse?.call(initial);
@@ -469,19 +464,18 @@ class NotificationService extends DisposableService {
         await show(
           message.notification!.title!,
           body: message.notification?.body,
-          payload:
-              message.data['chatId'] != null
-                  ? '${Routes.chats}/${message.data['chatId']}'
-                  : null,
+          payload: message.data['chatId'] != null
+              ? '${Routes.chats}/${message.data['chatId']}'
+              : null,
           image:
               message.notification?.android?.imageUrl ??
               message.notification?.apple?.imageUrl ??
               message.notification?.web?.image,
           tag:
               message.data['chatId'] != null &&
-                      message.data['chatItemId'] != null
-                  ? '${message.data['chatId']}_${message.data['chatItemId']}'
-                  : null,
+                  message.data['chatItemId'] != null
+              ? '${message.data['chatId']}_${message.data['chatItemId']}'
+              : null,
         );
       }
     });
@@ -500,8 +494,8 @@ class NotificationService extends DisposableService {
       }
     }
 
-    NotificationSettings settings =
-        await FirebaseMessaging.instance.requestPermission();
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission();
 
     // On Android first attempt is always [AuthorizationStatus.denied] due to
     // notifications request popping while invoking a
@@ -517,10 +511,9 @@ class NotificationService extends DisposableService {
         final String? chatId = message['data']?['chatId'];
         final String? chatItemId = message['data']?['chatItemId'];
 
-        final String? tag =
-            (chatId != null && chatItemId != null)
-                ? '${chatId}_$chatItemId'
-                : null;
+        final String? tag = (chatId != null && chatItemId != null)
+            ? '${chatId}_$chatItemId'
+            : null;
 
         // Keep track of the shown notifications' [tag]s to prevent duplication.
         //

@@ -595,49 +595,47 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
             widget.decoratorBuilder!.call(item.item),
           KeyedSubtree(
             key: item.cellKey,
-            child:
-                item.entry != null
-                    ? SizedBox(width: widget.wrapSize, height: widget.wrapSize)
-                    : _ReorderableDraggable<T>(
-                      item: item.item,
-                      itemBuilder:
-                          (o) => KeyedSubtree(
-                            key: item.itemKey,
-                            child: widget.itemBuilder(o),
-                          ),
-                      itemConstraints: widget.itemConstraints,
-                      useLongPress: widget.useLongPress,
-                      cellKey: item.cellKey,
-                      sharedKey: item.sharedKey,
-                      enabled:
-                          _items.map((e) => e.entry).nonNulls.isEmpty &&
-                          (widget.allowDraggingLast || _items.length != 1),
-                      onDragEnd: (d) {
-                        widget.onDragEnd?.call(item.item);
-                        if (_doughDragged != null) {
-                          _animateReturn(item, d);
-                          _doughDragged = null;
-                        }
-                      },
-                      onDragStarted: () {
-                        item.dragStartedRect = item.cellKey.globalPaintBounds;
-                        widget.onDragStarted?.call(item.item);
-                      },
-                      onDragCompleted:
-                          () => widget.onDragCompleted?.call(item.item),
-                      onDraggableCanceled: (d) {
-                        widget.onDraggableCanceled?.call(item.item);
-                        if (_doughDragged != null) {
-                          _animateReturn(item, d);
-                          _doughDragged = null;
-                        }
-                      },
-                      onDoughBreak: () {
-                        _doughDragged = item;
-                        widget.onDoughBreak?.call(item.item);
-                        AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
-                      },
+            child: item.entry != null
+                ? SizedBox(width: widget.wrapSize, height: widget.wrapSize)
+                : _ReorderableDraggable<T>(
+                    item: item.item,
+                    itemBuilder: (o) => KeyedSubtree(
+                      key: item.itemKey,
+                      child: widget.itemBuilder(o),
                     ),
+                    itemConstraints: widget.itemConstraints,
+                    useLongPress: widget.useLongPress,
+                    cellKey: item.cellKey,
+                    sharedKey: item.sharedKey,
+                    enabled:
+                        _items.map((e) => e.entry).nonNulls.isEmpty &&
+                        (widget.allowDraggingLast || _items.length != 1),
+                    onDragEnd: (d) {
+                      widget.onDragEnd?.call(item.item);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
+                    },
+                    onDragStarted: () {
+                      item.dragStartedRect = item.cellKey.globalPaintBounds;
+                      widget.onDragStarted?.call(item.item);
+                    },
+                    onDragCompleted: () =>
+                        widget.onDragCompleted?.call(item.item),
+                    onDraggableCanceled: (d) {
+                      widget.onDraggableCanceled?.call(item.item);
+                      if (_doughDragged != null) {
+                        _animateReturn(item, d);
+                        _doughDragged = null;
+                      }
+                    },
+                    onDoughBreak: () {
+                      _doughDragged = item;
+                      widget.onDoughBreak?.call(item.item);
+                      AudioUtils.once(AudioSource.asset('audio/pop.mp3'));
+                    },
+                  ),
           ),
           Row(
             children: [
@@ -646,10 +644,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   builder: (context, candidates, rejected) {
                     return IgnorePointer(
                       child: Container(
-                        color:
-                            candidates.isEmpty
-                                ? style.colors.transparent
-                                : widget.hoverColor ?? style.colors.transparent,
+                        color: candidates.isEmpty
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -692,10 +689,9 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
                   builder: (context, candidates, rejected) {
                     return IgnorePointer(
                       child: Container(
-                        color:
-                            candidates.isEmpty
-                                ? style.colors.transparent
-                                : widget.hoverColor ?? style.colors.transparent,
+                        color: candidates.isEmpty
+                            ? style.colors.transparent
+                            : widget.hoverColor ?? style.colors.transparent,
                       ),
                     );
                   },
@@ -730,8 +726,8 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
 
                     return false;
                   },
-                  onAcceptWithDetails:
-                      (o) => _onAccept(o.data, index, index + 1),
+                  onAcceptWithDetails: (o) =>
+                      _onAccept(o.data, index, index + 1),
                 ),
               ),
             ],
@@ -809,25 +805,22 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               right: widget.right,
               bottom: widget.bottom,
               child: DragTarget<T>(
-                onAcceptWithDetails:
-                    (o) => _onAccept(o.data, _items.length, _items.length),
+                onAcceptWithDetails: (o) =>
+                    _onAccept(o.data, _items.length, _items.length),
                 onLeave: widget.onLeave,
-                onWillAcceptWithDetails:
-                    (o) =>
-                        !_items.contains(o.data) &&
-                        (widget.onWillAccept?.call(o.data) ?? true),
+                onWillAcceptWithDetails: (o) =>
+                    !_items.contains(o.data) &&
+                    (widget.onWillAccept?.call(o.data) ?? true),
                 builder: (context, candidates, rejected) {
                   return IgnorePointer(
                     ignoring: candidates.isNotEmpty && rejected.isEmpty,
                     child: SizedBox(
-                      width:
-                          widget.axis == Axis.horizontal
-                              ? widget.wrapSize
-                              : MediaQuery.of(context).size.width,
-                      height:
-                          widget.axis == Axis.horizontal
-                              ? MediaQuery.of(context).size.height
-                              : widget.wrapSize,
+                      width: widget.axis == Axis.horizontal
+                          ? widget.wrapSize
+                          : MediaQuery.of(context).size.width,
+                      height: widget.axis == Axis.horizontal
+                          ? MediaQuery.of(context).size.height
+                          : widget.wrapSize,
                     ),
                   );
                 },
@@ -844,26 +837,24 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,
-                child:
-                    widget.useWrap
-                        ? Wrap(
-                          direction: widget.axis ?? Axis.horizontal,
-                          alignment: WrapAlignment.start,
-                          runAlignment: WrapAlignment.start,
-                          spacing: 0,
-                          runSpacing: 0,
-                          children:
-                              _items
-                                  .mapIndexed(
-                                    (i, e) => SizedBox(
-                                      width: widget.wrapSize,
-                                      height: widget.wrapSize,
-                                      child: cell(i, false),
-                                    ),
-                                  )
-                                  .toList(),
-                        )
-                        : Column(children: createRows((i) => cell(i, false))),
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .mapIndexed(
+                              (i, e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: cell(i, false),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(children: createRows((i) => cell(i, false))),
               ),
             ),
           ),
@@ -879,30 +870,28 @@ class _ReorderableFitState<T extends Object> extends State<_ReorderableFit<T>> {
               child: SizedBox(
                 width: widget.width,
                 height: widget.height,
-                child:
-                    widget.useWrap
-                        ? Wrap(
-                          direction: widget.axis ?? Axis.horizontal,
-                          alignment: WrapAlignment.start,
-                          runAlignment: WrapAlignment.start,
-                          spacing: 0,
-                          runSpacing: 0,
-                          children:
-                              _items
-                                  .map(
-                                    (e) => SizedBox(
-                                      width: widget.wrapSize,
-                                      height: widget.wrapSize,
-                                      child: widget.overlayBuilder!(e.item),
-                                    ),
-                                  )
-                                  .toList(),
-                        )
-                        : Column(
-                          children: createRows(
-                            (i) => widget.overlayBuilder!(_items[i].item),
-                          ),
+                child: widget.useWrap
+                    ? Wrap(
+                        direction: widget.axis ?? Axis.horizontal,
+                        alignment: WrapAlignment.start,
+                        runAlignment: WrapAlignment.start,
+                        spacing: 0,
+                        runSpacing: 0,
+                        children: _items
+                            .map(
+                              (e) => SizedBox(
+                                width: widget.wrapSize,
+                                height: widget.wrapSize,
+                                child: widget.overlayBuilder!(e.item),
+                              ),
+                            )
+                            .toList(),
+                      )
+                    : Column(
+                        children: createRows(
+                          (i) => widget.overlayBuilder!(_items[i].item),
                         ),
+                      ),
               ),
             ),
 
@@ -1111,16 +1100,17 @@ class _ReorderableDraggableState<T extends Object>
               PlatformUtils.haptic(kind: HapticKind.light);
               _isDragged = true;
             },
-            dragAnchorStrategy: (
-              Draggable<Object> draggable,
-              BuildContext context,
-              Offset position,
-            ) {
-              _position.value = position;
-              final RenderBox renderObject =
-                  context.findRenderObject()! as RenderBox;
-              return renderObject.globalToLocal(position);
-            },
+            dragAnchorStrategy:
+                (
+                  Draggable<Object> draggable,
+                  BuildContext context,
+                  Offset position,
+                ) {
+                  _position.value = position;
+                  final RenderBox renderObject =
+                      context.findRenderObject()! as RenderBox;
+                  return renderObject.globalToLocal(position);
+                },
             onDragCompleted: () {
               widget.onDragCompleted?.call();
               SchedulerBinding.instance.addPostFrameCallback((_) {

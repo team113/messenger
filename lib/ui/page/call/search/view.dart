@@ -185,12 +185,11 @@ class SearchView extends StatelessWidget {
                               user: element,
                               selected: c.selectedUsers.contains(element),
                               onAvatarTap: null,
-                              onTap:
-                                  selectable
-                                      ? () => c.select(user: element)
-                                      : enabled
-                                      ? () => onPressed?.call(element)
-                                      : null,
+                              onTap: selectable
+                                  ? () => c.select(user: element)
+                                  : enabled
+                                  ? () => onPressed?.call(element)
+                                  : null,
                             );
                           });
                         } else if (element is RxChatContact) {
@@ -220,12 +219,11 @@ class SearchView extends StatelessWidget {
                               contact: element,
                               selected: c.selectedContacts.contains(element),
                               onAvatarTap: null,
-                              onTap:
-                                  selectable
-                                      ? () => c.select(contact: element)
-                                      : enabled
-                                      ? () => onPressed?.call(element)
-                                      : null,
+                              onTap: selectable
+                                  ? () => c.select(contact: element)
+                                  : enabled
+                                  ? () => onPressed?.call(element)
+                                  : null,
                             );
                           });
                         } else if (element is RxChat) {
@@ -306,16 +304,16 @@ class SearchView extends StatelessWidget {
                       key: const Key('SearchSubmitButton'),
                       maxWidth: double.infinity,
                       color: style.colors.primary,
-                      onPressed:
-                          enabled ? () => onSubmit?.call(c.selected()) : null,
+                      onPressed: enabled
+                          ? () => onSubmit?.call(c.selected())
+                          : null,
                       child: Text(
                         submit ?? 'btn_submit'.l10n,
                         overflow: TextOverflow.ellipsis,
                         maxLines: 1,
-                        style:
-                            enabled
-                                ? style.fonts.medium.regular.onPrimary
-                                : style.fonts.medium.regular.onBackground,
+                        style: enabled
+                            ? style.fonts.medium.regular.onPrimary
+                            : style.fonts.medium.regular.onBackground,
                       ),
                     );
                   }),

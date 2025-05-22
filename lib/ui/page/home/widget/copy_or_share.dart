@@ -48,10 +48,9 @@ class CopyOrShareButton extends StatelessWidget {
           MessagePopup.success('label_copied'.l10n);
         }
       },
-      child:
-          PlatformUtils.isMobile
-              ? const SvgIcon(SvgIcons.share)
-              : const SvgIcon(SvgIcons.copy),
+      child: PlatformUtils.isMobile
+          ? const SvgIcon(SvgIcons.share)
+          : const SvgIcon(SvgIcons.copy),
     );
   }
 }

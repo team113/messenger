@@ -100,11 +100,9 @@ class ParticipantView extends StatelessWidget {
                     SearchCategory.user,
                   ],
                   title: 'label_add_participants'.l10n,
-                  onBack:
-                      initial == ParticipantsFlowStage.participants
-                          ? () =>
-                              c.stage.value = ParticipantsFlowStage.participants
-                          : null,
+                  onBack: initial == ParticipantsFlowStage.participants
+                      ? () => c.stage.value = ParticipantsFlowStage.participants
+                      : null,
                   submit: 'btn_add'.l10n,
                   onSubmit: c.addMembers,
                   enabled: c.status.value.isEmpty,
@@ -123,11 +121,10 @@ class ParticipantView extends StatelessWidget {
                   members.add(u.user);
                 }
 
-                final Set<UserId> ids =
-                    call.value.members.keys
-                        .where((e) => e.deviceId != null)
-                        .map((k) => k.userId)
-                        .toSet();
+                final Set<UserId> ids = call.value.members.keys
+                    .where((e) => e.deviceId != null)
+                    .map((k) => k.userId)
+                    .toSet();
 
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 2),
@@ -182,15 +179,13 @@ class ParticipantView extends StatelessWidget {
 
                                   // TODO: Wait for backend to support removing
                                   //       active call notification.
-                                  onCall:
-                                      inCall
-                                          ? isRedialed
-                                              ? null
-                                              : () => c.removeChatCallMember(
+                                  onCall: inCall
+                                      ? isRedialed
+                                            ? null
+                                            : () => c.removeChatCallMember(
                                                 user.id,
                                               )
-                                          : () =>
-                                              c.redialChatCallMember(user.id),
+                                      : () => c.redialChatCallMember(user.id),
                                   onKick: () => c.removeChatMember(user.id),
                                 );
                               }

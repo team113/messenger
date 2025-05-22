@@ -51,10 +51,9 @@ class StyleView extends StatelessWidget {
           appBar: CustomAppBar(
             leading: [
               StyledBackButton(
-                onPressed:
-                    ModalRoute.of(context)?.canPop == true
-                        ? Navigator.of(context).pop
-                        : () => router.home(),
+                onPressed: ModalRoute.of(context)?.canPop == true
+                    ? Navigator.of(context).pop
+                    : () => router.home(),
               ),
             ],
             title: Center(
@@ -74,10 +73,9 @@ class StyleView extends StatelessWidget {
                       duration: const Duration(milliseconds: 200),
                       child: SizedBox(
                         width: 23,
-                        key:
-                            c.inverted.value
-                                ? const Key('Dark')
-                                : const Key('Light'),
+                        key: c.inverted.value
+                            ? const Key('Dark')
+                            : const Key('Light'),
                         child: SvgIcon(
                           c.inverted.value
                               ? SvgIcons.darkMode
@@ -133,21 +131,18 @@ class StyleView extends StatelessWidget {
             controller: c.pages,
             onPageChanged: (i) => c.tab.value = StyleTab.values[i],
             physics: const NeverScrollableScrollPhysics(),
-            children:
-                StyleTab.values.map((e) {
-                  return KeepAlivePage(
-                    child: switch (e) {
-                      StyleTab.colors => Obx(() {
-                        return ColorsView(inverted: c.inverted.value);
-                      }),
-                      StyleTab.typography => const TypographyView(),
-                      StyleTab.widgets => const SelectionArea(
-                        child: WidgetsView(),
-                      ),
-                      StyleTab.icons => const SelectionArea(child: IconsView()),
-                    },
-                  );
-                }).toList(),
+            children: StyleTab.values.map((e) {
+              return KeepAlivePage(
+                child: switch (e) {
+                  StyleTab.colors => Obx(() {
+                    return ColorsView(inverted: c.inverted.value);
+                  }),
+                  StyleTab.typography => const TypographyView(),
+                  StyleTab.widgets => const SelectionArea(child: WidgetsView()),
+                  StyleTab.icons => const SelectionArea(child: IconsView()),
+                },
+              );
+            }).toList(),
           ),
         ),
       ],

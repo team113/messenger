@@ -268,13 +268,12 @@ class RxChatImpl extends RxChat {
         break;
 
       case ChatKind.dialog:
-        callCover =
-            members.values
-                .firstWhereOrNull((e) => e.user.id != me)
-                ?.user
-                .user
-                .value
-                .callCover;
+        callCover = members.values
+            .firstWhereOrNull((e) => e.user.id != me)
+            ?.user
+            .user
+            .value
+            .callCover;
         break;
 
       case ChatKind.group:
@@ -291,8 +290,9 @@ class RxChatImpl extends RxChat {
     Log.debug('get firstUnread', '$runtimeType($id)');
 
     if (chat.value.unreadCount != 0) {
-      PreciseDateTime? myRead =
-          chat.value.lastReads.firstWhereOrNull((e) => e.memberId == me)?.at;
+      PreciseDateTime? myRead = chat.value.lastReads
+          .firstWhereOrNull((e) => e.memberId == me)
+          ?.at;
 
       if (myRead != null) {
         return messages.firstWhereOrNull(
@@ -335,8 +335,9 @@ class RxChatImpl extends RxChat {
 
     switch (chat.value.kind) {
       case ChatKind.dialog:
-        final RxUser? rxUser =
-            members.values.firstWhereOrNull((u) => u.user.id != me)?.user;
+        final RxUser? rxUser = members.values
+            .firstWhereOrNull((u) => u.user.id != me)
+            ?.user;
 
         if (rxUser != null) {
           users.add(rxUser);
@@ -420,13 +421,14 @@ class RxChatImpl extends RxChat {
       }
     });
 
-    _callSubscription = StreamGroup.mergeBroadcast([
-      _chatRepository.calls.changes,
-      WebUtils.onStorageChange,
-    ]).listen((_) {
-      inCall.value =
-          _chatRepository.calls[id] != null || WebUtils.containsCall(id);
-    });
+    _callSubscription =
+        StreamGroup.mergeBroadcast([
+          _chatRepository.calls.changes,
+          WebUtils.onStorageChange,
+        ]).listen((_) {
+          inCall.value =
+              _chatRepository.calls[id] != null || WebUtils.containsCall(id);
+        });
 
     await _draftGuard.protect(() async {
       draft.value = await _draftLocal.read(id);
@@ -650,12 +652,11 @@ class RxChatImpl extends RxChat {
     );
 
     if (lastReadIndex != -1 && firstUnreadIndex != -1) {
-      int read =
-          messages
-              .skip(firstUnreadIndex)
-              .take(lastReadIndex - firstUnreadIndex + 1)
-              .where((e) => !e.value.id.isLocal && e.value.author.id != me)
-              .length;
+      int read = messages
+          .skip(firstUnreadIndex)
+          .take(lastReadIndex - firstUnreadIndex + 1)
+          .where((e) => !e.value.id.isLocal && e.value.author.id != me)
+          .length;
       unreadCount.value = chat.value.unreadCount - read;
     }
 
@@ -741,35 +742,33 @@ class RxChatImpl extends RxChat {
 
     try {
       if (attachments != null) {
-        final List<Future> uploads =
-            attachments
-                .mapIndexed((i, e) {
-                  if (e is LocalAttachment) {
-                    return e.upload.value?.future.then(
-                      (a) {
-                        attachments[i] = a;
+        final List<Future> uploads = attachments
+            .mapIndexed((i, e) {
+              if (e is LocalAttachment) {
+                return e.upload.value?.future.then(
+                  (a) {
+                    attachments[i] = a;
 
-                        // Frequent writes of byte data freezes the Web page.
-                        if (!PlatformUtils.isWeb) {
-                          put(message);
-                        }
-                      },
-                      onError: (_) {
-                        // No-op, as failed upload attempts are handled below.
-                      },
-                    );
-                  }
-                })
-                .nonNulls
-                .toList();
+                    // Frequent writes of byte data freezes the Web page.
+                    if (!PlatformUtils.isWeb) {
+                      put(message);
+                    }
+                  },
+                  onError: (_) {
+                    // No-op, as failed upload attempts are handled below.
+                  },
+                );
+              }
+            })
+            .nonNulls
+            .toList();
 
         if (existingId == null) {
-          final List<Future> reads =
-              attachments
-                  .whereType<LocalAttachment>()
-                  .map((e) => e.read.value?.future)
-                  .nonNulls
-                  .toList();
+          final List<Future> reads = attachments
+              .whereType<LocalAttachment>()
+              .map((e) => e.read.value?.future)
+              .nonNulls
+              .toList();
           if (reads.isNotEmpty) {
             await Future.wait(reads);
             put(message);
@@ -842,8 +841,9 @@ class RxChatImpl extends RxChat {
 
       if (lastItem != null) {
         dto.value.lastItem = lastItem.value;
-        dto.lastItemCursor =
-            (await _driftItems.read(lastItem.value.id))?.cursor;
+        dto.lastItemCursor = (await _driftItems.read(
+          lastItem.value.id,
+        ))?.cursor;
       } else {
         dto.value.lastItem = null;
         dto.lastItemCursor = null;
@@ -859,11 +859,10 @@ class RxChatImpl extends RxChat {
     Log.debug('get($itemId)', '$runtimeType($id)');
 
     DtoChatItem? item = _pagination?.items[itemId];
-    item ??=
-        fragments
-            .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
-            ?.pagination
-            ?.items[itemId];
+    item ??= fragments
+        .firstWhereOrNull((e) => e.pagination?.items[itemId] != null)
+        ?.pagination
+        ?.items[itemId];
     item ??= await _driftItems.read(itemId);
 
     if (item == null) {
@@ -919,8 +918,8 @@ class RxChatImpl extends RxChat {
 
       for (var e in saved.whereType<DtoChatMessage>()) {
         // Copy the [DtoChatMessage] to the new [Pagination].
-        final DtoChatMessage copy =
-            e.copyWith()..value.chatId = newChat.value.id;
+        final DtoChatMessage copy = e.copyWith()
+          ..value.chatId = newChat.value.id;
 
         if (copy.value.status.value == SendingStatus.error) {
           copy.value.status.value = SendingStatus.sending;
@@ -1038,25 +1037,26 @@ class RxChatImpl extends RxChat {
               },
             ),
             driftProvider: DriftPageProvider(
-              fetch: ({
-                required after,
-                required before,
-                ChatItemId? around,
-              }) async {
-                PreciseDateTime? at;
+              fetch:
+                  ({
+                    required after,
+                    required before,
+                    ChatItemId? around,
+                  }) async {
+                    PreciseDateTime? at;
 
-                if (around != null) {
-                  final DtoChatItem? item = await get(around);
-                  at = item?.value.at;
-                }
+                    if (around != null) {
+                      final DtoChatItem? item = await get(around);
+                      at = item?.value.at;
+                    }
 
-                return await _driftItems.attachments(
-                  id,
-                  before: before,
-                  after: after,
-                  around: at,
-                );
-              },
+                    return await _driftItems.attachments(
+                      id,
+                      before: before,
+                      after: after,
+                      around: at,
+                    );
+                  },
               onKey: (e) => e.value.id,
               onCursor: (e) => e?.cursor,
               isFirst: (e, _) {
@@ -1173,9 +1173,8 @@ class RxChatImpl extends RxChat {
           },
           onKey: (e) => e.value.id,
           onCursor: (e) => e?.cursor,
-          add:
-              (e, {bool toView = true}) async =>
-                  await _driftItems.upsertBulk(e, toView: toView),
+          add: (e, {bool toView = true}) async =>
+              await _driftItems.upsertBulk(e, toView: toView),
           delete: (e) async => await _driftItems.delete(e),
           reset: () async => await _driftItems.clear(),
           isFirst: (e, _) {
@@ -1265,9 +1264,8 @@ class RxChatImpl extends RxChat {
             },
             onCursor: (DtoChatMember? item) => item?.cursor,
             onKey: (DtoChatMember item) => item.id,
-            add:
-                (e, {bool toView = true}) async =>
-                    await _driftMembers.upsertBulk(id, e),
+            add: (e, {bool toView = true}) async =>
+                await _driftMembers.upsertBulk(id, e),
             delete: (e) async => await _driftMembers.delete(id, e),
             reset: () async => await _driftMembers.clear(),
             isFirst: (_, i) => i >= chat.value.membersCount,
@@ -1493,26 +1491,27 @@ class RxChatImpl extends RxChat {
               },
             ),
             driftProvider: DriftPageProvider(
-              fetch: ({
-                required after,
-                required before,
-                ChatItemId? around,
-              }) async {
-                PreciseDateTime? at;
+              fetch:
+                  ({
+                    required after,
+                    required before,
+                    ChatItemId? around,
+                  }) async {
+                    PreciseDateTime? at;
 
-                if (around != null) {
-                  final DtoChatItem? item = await get(around);
-                  at = item?.value.at;
-                }
+                    if (around != null) {
+                      final DtoChatItem? item = await get(around);
+                      at = item?.value.at;
+                    }
 
-                return await _driftItems.view(
-                  id,
-                  before: before,
-                  after: after,
-                  around: at,
-                  withText: text,
-                );
-              },
+                    return await _driftItems.view(
+                      id,
+                      before: before,
+                      after: after,
+                      around: at,
+                      withText: text,
+                    );
+                  },
               onKey: (e) => e.value.id,
               onCursor: (e) => e?.cursor,
               isFirst: (e, _) {
@@ -2019,8 +2018,9 @@ class RxChatImpl extends RxChat {
               final item = await get(event.itemId);
               if (item != null) {
                 final message = item.value as ChatMessage;
-                message.text =
-                    event.text != null ? event.text!.newText : message.text;
+                message.text = event.text != null
+                    ? event.text!.newText
+                    : message.text;
                 message.attachments = event.attachments ?? message.attachments;
                 message.repliesTo =
                     event.quotes?.map((e) => e.value).toList() ??
@@ -2033,8 +2033,9 @@ class RxChatImpl extends RxChat {
 
               if (dto.value.lastItem?.id == event.itemId) {
                 final message = dto.value.lastItem as ChatMessage;
-                message.text =
-                    event.text != null ? event.text!.newText : message.text;
+                message.text = event.text != null
+                    ? event.text!.newText
+                    : message.text;
                 message.attachments = event.attachments ?? message.attachments;
                 message.repliesTo =
                     event.quotes?.map((e) => e.value).toList() ??
@@ -2136,16 +2137,14 @@ class RxChatImpl extends RxChat {
 
               if (dto.value.ongoingCall?.conversationStartedAt == null &&
                   chat.value.isDialog) {
-                final Set<UserId>? ids =
-                    dto.value.ongoingCall?.members
-                        .map((e) => e.user.id)
-                        .toSet();
+                final Set<UserId>? ids = dto.value.ongoingCall?.members
+                    .map((e) => e.user.id)
+                    .toSet();
 
                 if (ids != null && ids.length >= 2) {
                   write(
-                    (chat) =>
-                        chat.value.ongoingCall?.conversationStartedAt =
-                            event.call.conversationStartedAt ?? event.at,
+                    (chat) => chat.value.ongoingCall?.conversationStartedAt =
+                        event.call.conversationStartedAt ?? event.at,
                   );
 
                   if (dto.value.ongoingCall != null) {
@@ -2176,7 +2175,8 @@ class RxChatImpl extends RxChat {
                   write(
                     (chat) =>
                         (chat.value.lastItem as ChatCall)
-                            .conversationStartedAt ??= PreciseDateTime.now(),
+                                .conversationStartedAt ??=
+                            PreciseDateTime.now(),
                   );
                 }
 
@@ -2187,9 +2187,8 @@ class RxChatImpl extends RxChat {
               }
 
               write(
-                (chat) =>
-                    chat.value.updatedAt =
-                        event.lastItem?.value.at ?? dto.value.updatedAt,
+                (chat) => chat.value.updatedAt =
+                    event.lastItem?.value.at ?? dto.value.updatedAt,
               );
               if (event.lastItem != null) {
                 itemsToPut.add(event.lastItem!);
@@ -2210,11 +2209,10 @@ class RxChatImpl extends RxChat {
                   .firstWhereOrNull((e) => e.memberId == event.byUser.id);
               if (lastRead == null) {
                 write(
-                  (chat) =>
-                      chat.value.lastReads = [
-                        ...dto.value.lastReads,
-                        LastChatRead(event.byUser.id, event.at),
-                      ],
+                  (chat) => chat.value.lastReads = [
+                    ...dto.value.lastReads,
+                    LastChatRead(event.byUser.id, event.at),
+                  ],
                 );
               } else {
                 lastRead.at = event.at;

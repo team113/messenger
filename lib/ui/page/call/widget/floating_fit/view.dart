@@ -128,17 +128,17 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                     children: [
                       _primary.entry == null
                           ? KeyedSubtree(
-                            key: _primary.itemKey,
-                            child: Stack(
-                              children: [
-                                widget.itemBuilder(_primary.item),
-                                AnimatedDelayedSwitcher(
-                                  duration: 100.milliseconds,
-                                  child: widget.overlayBuilder(_primary.item),
-                                ),
-                              ],
-                            ),
-                          )
+                              key: _primary.itemKey,
+                              child: Stack(
+                                children: [
+                                  widget.itemBuilder(_primary.item),
+                                  AnimatedDelayedSwitcher(
+                                    duration: 100.milliseconds,
+                                    child: widget.overlayBuilder(_primary.item),
+                                  ),
+                                ],
+                              ),
+                            )
                           : Container(),
                       if (widget.fit)
                         KeyedSubtree(
@@ -165,10 +165,10 @@ class _FloatingFitState<T> extends State<FloatingFit<T>> {
                           height: c.height.value,
                           item: _paneled,
                           itemBuilder: () => widget.itemBuilder(_paneled.item),
-                          overlayBuilder:
-                              () => widget.overlayBuilder(_paneled.item),
-                          onPointerDown:
-                              (_) => widget.onManipulated?.call(true),
+                          overlayBuilder: () =>
+                              widget.overlayBuilder(_paneled.item),
+                          onPointerDown: (_) =>
+                              widget.onManipulated?.call(true),
                           onPointerUp: (_) => widget.onManipulated?.call(false),
                           onTap: _swap,
                           onScaleStart: (d) {
@@ -434,21 +434,20 @@ class _FloatingPanel<T> extends StatelessWidget {
         child: ClipRRect(
           key: panelKey,
           borderRadius: BorderRadius.circular(10),
-          child:
-              item.entry == null
-                  ? KeyedSubtree(
-                    key: item.itemKey,
-                    child: Stack(
-                      children: [
-                        itemBuilder(),
-                        AnimatedDelayedSwitcher(
-                          duration: 100.milliseconds,
-                          child: overlayBuilder(),
-                        ),
-                      ],
-                    ),
-                  )
-                  : null,
+          child: item.entry == null
+              ? KeyedSubtree(
+                  key: item.itemKey,
+                  child: Stack(
+                    children: [
+                      itemBuilder(),
+                      AnimatedDelayedSwitcher(
+                        duration: 100.milliseconds,
+                        child: overlayBuilder(),
+                      ),
+                    ],
+                  ),
+                )
+              : null,
         ),
       ),
     );

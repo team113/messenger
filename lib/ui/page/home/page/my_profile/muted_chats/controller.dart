@@ -58,11 +58,10 @@ class MutedChatsController extends GetxController {
       _scrollPosition,
       (_) => _next(),
       time: const Duration(milliseconds: 100),
-      condition:
-          () =>
-              scrollController.hasClients &&
-              (scrollController.position.pixels >
-                  scrollController.position.maxScrollExtent - 500),
+      condition: () =>
+          scrollController.hasClients &&
+          (scrollController.position.pixels >
+              scrollController.position.maxScrollExtent - 500),
     );
 
     super.onInit();
@@ -107,8 +106,11 @@ class MutedChatsController extends GetxController {
     bool localDialog(RxChat c) =>
         c.id.isLocal && !c.id.isLocalWith(_chatService.me);
 
-    final List<RxChat> filtered =
-        allChats.whereNot(hidden).where(muted).whereNot(localDialog).sorted();
+    final List<RxChat> filtered = allChats
+        .whereNot(hidden)
+        .where(muted)
+        .whereNot(localDialog)
+        .sorted();
 
     chats.value = {for (final RxChat c in filtered) c.chat.value.id: c};
   }

@@ -266,12 +266,11 @@ class _HtmlImageState extends State<_HtmlImage> {
     _viewType = '${_elementId}__webImageViewType__${widget.src}__';
 
     ui.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      _element =
-          web.HTMLImageElement()
-            ..src = widget.src
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.objectFit = 'scale-down';
+      _element = web.HTMLImageElement()
+        ..src = widget.src
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'scale-down';
 
       if (_element?.complete == true) {
         widget.onLoaded?.call();

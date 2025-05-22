@@ -39,10 +39,9 @@ class CallButtonWidget extends StatelessWidget {
     this.border,
     this.constrained = false,
     bool big = false,
-  }) : size =
-           constrained
-               ? null
-               : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
+  }) : size = constrained
+           ? null
+           : (big ? 60 : CallController.buttonSize) + (expanded ? 40 : 0);
 
   /// [SvgData] to display.
   final SvgData? asset;

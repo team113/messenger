@@ -80,12 +80,11 @@ class MemberTile extends StatelessWidget {
             duration: const Duration(milliseconds: 300),
             child: Material(
               key: Key(inCall == true ? 'InCall' : 'NotInCall'),
-              color:
-                  inCall == true
-                      ? onCall == null
-                          ? style.colors.primaryHighlightLightest
-                          : style.colors.danger
-                      : style.colors.primary,
+              color: inCall == true
+                  ? onCall == null
+                        ? style.colors.primaryHighlightLightest
+                        : style.colors.danger
+                  : style.colors.primary,
               type: MaterialType.circle,
               child: InkWell(
                 onTap: onCall,
@@ -94,10 +93,9 @@ class MemberTile extends StatelessWidget {
                   width: 22,
                   height: 22,
                   child: Center(
-                    child:
-                        inCall == true
-                            ? const SvgIcon(SvgIcons.callEndSmall)
-                            : const SvgIcon(SvgIcons.callStartSmall),
+                    child: inCall == true
+                        ? const SvgIcon(SvgIcons.callEndSmall)
+                        : const SvgIcon(SvgIcons.callStartSmall),
                   ),
                 ),
               ),
@@ -109,39 +107,36 @@ class MemberTile extends StatelessWidget {
             alignment: Alignment.centerRight,
             child: AnimatedButton(
               enabled: !_me,
-              decorator:
-                  (child) =>
-                      Padding(padding: const EdgeInsets.all(12), child: child),
-              onPressed:
-                  _me
-                      ? null
-                      : () async {
-                        final bool? result = await MessagePopup.alert(
-                          'label_remove_member'.l10n,
-                          description: [
-                            TextSpan(text: 'alert_user_will_be_removed1'.l10n),
-                            TextSpan(
-                              text: user?.title,
-                              style: style.fonts.normal.regular.onBackground,
-                            ),
-                            TextSpan(text: 'alert_user_will_be_removed2'.l10n),
-                          ],
-                        );
+              decorator: (child) =>
+                  Padding(padding: const EdgeInsets.all(12), child: child),
+              onPressed: _me
+                  ? null
+                  : () async {
+                      final bool? result = await MessagePopup.alert(
+                        'label_remove_member'.l10n,
+                        description: [
+                          TextSpan(text: 'alert_user_will_be_removed1'.l10n),
+                          TextSpan(
+                            text: user?.title,
+                            style: style.fonts.normal.regular.onBackground,
+                          ),
+                          TextSpan(text: 'alert_user_will_be_removed2'.l10n),
+                        ],
+                      );
 
-                        if (result == true) {
-                          await onKick?.call();
-                        }
-                      },
-              child:
-                  _me
-                      ? Text(
-                        'label_you'.l10n,
-                        style: style.fonts.normal.regular.secondary,
-                      )
-                      : const SvgIcon(
-                        SvgIcons.delete,
-                        key: Key('DeleteMemberButton'),
-                      ),
+                      if (result == true) {
+                        await onKick?.call();
+                      }
+                    },
+              child: _me
+                  ? Text(
+                      'label_you'.l10n,
+                      style: style.fonts.normal.regular.secondary,
+                    )
+                  : const SvgIcon(
+                      SvgIcons.delete,
+                      key: Key('DeleteMemberButton'),
+                    ),
             ),
           ),
         ),

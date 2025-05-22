@@ -44,10 +44,9 @@ final StepDefinitionGeneric chatIsFavorite =
         if (status == FavoriteStatus.favorite) {
           final RxObsMap<ChatId, RxChat> chats = Get.find<ChatService>().chats;
 
-          final List<RxChat> favorites =
-              chats.values
-                  .where((e) => e.chat.value.favoritePosition != null)
-                  .toList();
+          final List<RxChat> favorites = chats.values
+              .where((e) => e.chat.value.favoritePosition != null)
+              .toList();
 
           favorites.sort(
             (a, b) => a.chat.value.favoritePosition!.compareTo(
@@ -55,10 +54,9 @@ final StepDefinitionGeneric chatIsFavorite =
             ),
           );
 
-          final double? lowest =
-              favorites.isEmpty
-                  ? null
-                  : favorites.first.chat.value.favoritePosition!.val;
+          final double? lowest = favorites.isEmpty
+              ? null
+              : favorites.first.chat.value.favoritePosition!.val;
 
           final position = ChatFavoritePosition(
             lowest == null ? 9007199254740991 : lowest / 2,
@@ -71,6 +69,6 @@ final StepDefinitionGeneric chatIsFavorite =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

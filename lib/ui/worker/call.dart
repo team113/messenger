@@ -175,8 +175,11 @@ class CallWorker extends DisposableService {
     AudioUtils.ensureInitialized();
     _initWebUtils();
 
-    List<String>? lastKeys =
-        _settingsRepository.applicationSettings.value?.muteKeys?.toList();
+    List<String>? lastKeys = _settingsRepository
+        .applicationSettings
+        .value
+        ?.muteKeys
+        ?.toList();
 
     _settingsWorker = ever(_settingsRepository.applicationSettings, (
       ApplicationSettings? settings,
@@ -508,8 +511,9 @@ class CallWorker extends DisposableService {
               _eventsSubscriptions[chatId] = provider.chatEvents(chatId, null, () => null).listen((
                 e,
               ) async {
-                var events =
-                    ChatEvents$Subscription.fromJson(e.data!).chatEvents;
+                var events = ChatEvents$Subscription.fromJson(
+                  e.data!,
+                ).chatEvents;
                 if (events.$$typename == 'ChatEventsVersioned') {
                   var mixin =
                       events
@@ -734,11 +738,10 @@ class CallWorker extends DisposableService {
   bool _toggleMuteOnKey() {
     bool muted = _muted.value;
 
-    final List<bool> states =
-        _callService.calls.values
-            .where((e) => !e.value.background)
-            .map((e) => e.value.audioState.value.isEnabled)
-            .toList();
+    final List<bool> states = _callService.calls.values
+        .where((e) => !e.value.background)
+        .map((e) => e.value.audioState.value.isEnabled)
+        .toList();
 
     if (states.isNotEmpty) {
       muted = states.where((e) => e).length <= states.where((e) => !e).length;
@@ -792,11 +795,10 @@ extension Base62ToUuid on String {
     }
 
     // Returns the hexadecimal string of the provided part from [bytes].
-    String toHex(int start, int end) =>
-        bytes
-            .sublist(start, end)
-            .map((b) => b.toRadixString(16).padLeft(2, '0'))
-            .join();
+    String toHex(int start, int end) => bytes
+        .sublist(start, end)
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
 
     return '${toHex(0, 4)}-${toHex(4, 6)}-${toHex(6, 8)}-${toHex(8, 10)}-${toHex(10, 16)}';
   }

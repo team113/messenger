@@ -136,8 +136,9 @@ class MenuButton extends StatelessWidget {
           child: InkWell(
             borderRadius: style.cardRadius,
             onTap: onPressed,
-            hoverColor:
-                inverted ? style.colors.primary : style.cardHoveredColor,
+            hoverColor: inverted
+                ? style.colors.primary
+                : style.cardHoveredColor,
             child: Padding(
               padding: const EdgeInsets.all(12),
               child: Row(
@@ -147,10 +148,9 @@ class MenuButton extends StatelessWidget {
                   if (icon != null)
                     Icon(
                       icon,
-                      color:
-                          inverted
-                              ? style.colors.onPrimary
-                              : style.colors.primary,
+                      color: inverted
+                          ? style.colors.onPrimary
+                          : style.colors.primary,
                     ),
                   const SizedBox(width: 18),
                   Expanded(
@@ -162,10 +162,9 @@ class MenuButton extends StatelessWidget {
                           DefaultTextStyle(
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
-                            style:
-                                inverted
-                                    ? style.fonts.big.regular.onPrimary
-                                    : style.fonts.big.regular.onBackground,
+                            style: inverted
+                                ? style.fonts.big.regular.onPrimary
+                                : style.fonts.big.regular.onBackground,
                             child: Text(title!),
                           ),
                         if (title != null && subtitle != null)
@@ -174,10 +173,9 @@ class MenuButton extends StatelessWidget {
                           DefaultTextStyle.merge(
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style:
-                                inverted
-                                    ? style.fonts.small.regular.onPrimary
-                                    : style.fonts.small.regular.onBackground,
+                            style: inverted
+                                ? style.fonts.small.regular.onPrimary
+                                : style.fonts.small.regular.onBackground,
                             child: Text(subtitle!),
                           ),
                       ],

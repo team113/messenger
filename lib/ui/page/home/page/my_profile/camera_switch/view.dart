@@ -88,17 +88,16 @@ class CameraSwitchView extends StatelessWidget {
                                 color: style.colors.secondary,
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child:
-                                  local == null
-                                      ? const Center(
-                                        child: SvgIcon(SvgIcons.noVideo),
-                                      )
-                                      : webrtc.VideoView(
-                                        local.inner,
-                                        objectFit:
-                                            webrtc.VideoViewObjectFit.cover,
-                                        mirror: true,
-                                      ),
+                              child: local == null
+                                  ? const Center(
+                                      child: SvgIcon(SvgIcons.noVideo),
+                                    )
+                                  : webrtc.VideoView(
+                                      local.inner,
+                                      objectFit:
+                                          webrtc.VideoViewObjectFit.cover,
+                                      mirror: true,
+                                    ),
                             ),
                           ),
                         );
@@ -134,13 +133,12 @@ class CameraSwitchView extends StatelessWidget {
 
                             return RectangleButton(
                               selected: selected,
-                              onPressed:
-                                  selected
-                                      ? null
-                                      : () {
-                                        c.camera.value = e.deviceId();
-                                        (onChanged ?? c.setVideoDevice).call(e);
-                                      },
+                              onPressed: selected
+                                  ? null
+                                  : () {
+                                      c.camera.value = e.deviceId();
+                                      (onChanged ?? c.setVideoDevice).call(e);
+                                    },
                               label: e.label(),
                             );
                           });

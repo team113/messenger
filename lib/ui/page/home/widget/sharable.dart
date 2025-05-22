@@ -87,8 +87,9 @@ class SharableTextField extends StatelessWidget {
             ],
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
-              onTap:
-                  (share ?? state.text).isEmpty ? null : () => _share(context),
+              onTap: (share ?? state.text).isEmpty
+                  ? null
+                  : () => _share(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   prefix: leading,

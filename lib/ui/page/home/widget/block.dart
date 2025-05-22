@@ -105,10 +105,9 @@ class Block extends StatelessWidget {
       child: Center(
         child: Container(
           padding: margin,
-          constraints:
-              (expanded ?? context.isNarrow)
-                  ? null
-                  : BoxConstraints(maxWidth: maxWidth),
+          constraints: (expanded ?? context.isNarrow)
+              ? null
+              : BoxConstraints(maxWidth: maxWidth),
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,

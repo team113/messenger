@@ -67,20 +67,24 @@ final StepDefinitionGeneric tapAccountInAccounts = then1<TestUser, CustomWorld>(
 ///
 /// Examples:
 /// - Then I remove Alice account from accounts list
-final StepDefinitionGeneric removeAccountInAccounts = then1<
-  TestUser,
-  CustomWorld
->('I remove {user} account from accounts list', (name, context) async {
-  await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
+final StepDefinitionGeneric removeAccountInAccounts =
+    then1<TestUser, CustomWorld>('I remove {user} account from accounts list', (
+      name,
+      context,
+    ) async {
+      await context.world.appDriver.waitForAppToSettle(timeout: 1.seconds);
 
-  final authService = Get.find<AuthService>();
-  final account = authService.profiles.firstWhereOrNull(
-    (e) => e.name?.val == name.name,
-  );
-  await context.world.appDriver.tap(
-    context.world.appDriver.findByDescendant(
-      context.world.appDriver.findBy('Account_${account?.id}', FindType.key),
-      context.world.appDriver.findBy('RemoveAccount', FindType.key),
-    ),
-  );
-});
+      final authService = Get.find<AuthService>();
+      final account = authService.profiles.firstWhereOrNull(
+        (e) => e.name?.val == name.name,
+      );
+      await context.world.appDriver.tap(
+        context.world.appDriver.findByDescendant(
+          context.world.appDriver.findBy(
+            'Account_${account?.id}',
+            FindType.key,
+          ),
+          context.world.appDriver.findBy('RemoveAccount', FindType.key),
+        ),
+      );
+    });

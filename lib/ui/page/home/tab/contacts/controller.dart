@@ -257,10 +257,9 @@ class ContactsTabController extends GetxController {
 
   /// Reorders a [ChatContact] from the [from] position to the [to] position.
   Future<void> reorderContact(int from, int to) async {
-    final List<ContactEntry> favorites =
-        contacts
-            .where((e) => e.contact.value.favoritePosition != null)
-            .toList();
+    final List<ContactEntry> favorites = contacts
+        .where((e) => e.contact.value.favoritePosition != null)
+        .toList();
 
     double position;
 
@@ -300,26 +299,27 @@ class ContactsTabController extends GetxController {
         categories: const [SearchCategory.contact, SearchCategory.user],
       )..onInit();
 
-      _searchSubscription = StreamGroup.merge([
-        search.value!.contacts.stream,
-        search.value!.users.stream,
-      ]).listen((_) {
-        elements.clear();
+      _searchSubscription =
+          StreamGroup.merge([
+            search.value!.contacts.stream,
+            search.value!.users.stream,
+          ]).listen((_) {
+            elements.clear();
 
-        if (search.value?.contacts.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.contact));
-          for (RxChatContact c in search.value!.contacts.values) {
-            elements.add(ContactElement(c));
-          }
-        }
+            if (search.value?.contacts.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.contact));
+              for (RxChatContact c in search.value!.contacts.values) {
+                elements.add(ContactElement(c));
+              }
+            }
 
-        if (search.value?.users.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.user));
-          for (RxUser c in search.value!.users.values) {
-            elements.add(UserElement(c));
-          }
-        }
-      });
+            if (search.value?.users.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.user));
+              for (RxUser c in search.value!.users.values) {
+                elements.add(UserElement(c));
+              }
+            }
+          });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);
       search.value!.search.focus.requestFocus();

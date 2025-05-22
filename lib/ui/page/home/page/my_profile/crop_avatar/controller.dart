@@ -72,8 +72,9 @@ class CropController extends GetxController {
 
   /// Rotates image 90 degrees based on [left].
   void _rotate(bool left) {
-    rotation.value =
-        left ? rotation.value.rotateLeft : rotation.value.rotateRight;
+    rotation.value = left
+        ? rotation.value.rotateLeft
+        : rotation.value.rotateRight;
   }
 
   /// Resolves image and initializes [dimensions].

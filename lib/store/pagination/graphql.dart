@@ -51,19 +51,17 @@ class GraphQlPageProvider<T, C, K> implements PageProvider<T, C, K> {
 
     final Page<T, C> page = await fetch(
       after: cursor,
-      last:
-          cursor == null
-              ? reversed
-                  ? count
-                  : null
-              : half,
+      last: cursor == null
+          ? reversed
+                ? count
+                : null
+          : half,
       before: cursor,
-      first:
-          cursor == null
-              ? reversed
-                  ? null
-                  : count
-              : half,
+      first: cursor == null
+          ? reversed
+                ? null
+                : count
+          : half,
     );
 
     return reversed ? page.reversed() : page;

@@ -26,10 +26,9 @@ extension DropItemExtension on DataReader {
   /// Constructs the [PlatformFile] from this [DataReader].
   Future<PlatformFile?> asPlatformFile() {
     final Completer<PlatformFile?> completer = Completer<PlatformFile?>();
-    final SimpleFileFormat? format =
-        getFormats(
-          Formats.standardFormats,
-        ).whereType<SimpleFileFormat>().lastOrNull;
+    final SimpleFileFormat? format = getFormats(
+      Formats.standardFormats,
+    ).whereType<SimpleFileFormat>().lastOrNull;
 
     getFile(format, (DataReaderFile file) async {
       try {

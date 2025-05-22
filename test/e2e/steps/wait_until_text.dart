@@ -35,11 +35,11 @@ final StepDefinitionGeneric untilTextExists =
 
           return existence == Existence.absent
               ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByTextSkipOffstage(text),
-              )
+                  context.world.appDriver.findByTextSkipOffstage(text),
+                )
               : context.world.appDriver.isPresent(
-                context.world.appDriver.findByTextSkipOffstage(text),
-              );
+                  context.world.appDriver.findByTextSkipOffstage(text),
+                );
         }, timeout: const Duration(seconds: 30));
       },
     );

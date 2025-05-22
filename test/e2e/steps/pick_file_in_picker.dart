@@ -26,35 +26,35 @@ import '../mock/platform_utils.dart';
 import '../world/custom_world.dart';
 
 /// Picks the provided file from the [PlatformUtilsMock.filesCompleter].
-final StepDefinitionGeneric pickFileInPicker = then1<
-  String,
-  CustomWorld
->('I pick {string} file in file picker', (String filename, context) async {
-  await context.world.appDriver.waitUntil(() async {
-    final utils = (PlatformUtils as PlatformUtilsMock);
-    final completer = utils.filesCompleter;
+final StepDefinitionGeneric pickFileInPicker = then1<String, CustomWorld>(
+  'I pick {string} file in file picker',
+  (String filename, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      final utils = (PlatformUtils as PlatformUtilsMock);
+      final completer = utils.filesCompleter;
 
-    if (completer == null) {
-      return false;
-    }
+      if (completer == null) {
+        return false;
+      }
 
-    final Uint8List bytes = switch (filename) {
-      'test.svg' => Uint8List.fromList(
-        Utf8Encoder().convert(
-          '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>',
+      final Uint8List bytes = switch (filename) {
+        'test.svg' => Uint8List.fromList(
+          Utf8Encoder().convert(
+            '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" stroke="green" stroke-width="4" fill="yellow" /></svg>',
+          ),
         ),
-      ),
-      (_) => base64Decode(
-        '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
-      ),
-    };
+        (_) => base64Decode(
+          '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/wAALCAABAAEBAREA/8QAFAABAAAAAAAAAAAAAAAAAAAACf/EABQQAQAAAAAAAAAAAAAAAAAAAAD/2gAIAQEAAD8AVN//2Q==',
+        ),
+      };
 
-    completer.complete(
-      FilePickerResult([
-        PlatformFile(name: filename, size: bytes.length, bytes: bytes),
-      ]),
-    );
+      completer.complete(
+        FilePickerResult([
+          PlatformFile(name: filename, size: bytes.length, bytes: bytes),
+        ]),
+      );
 
-    return true;
-  }, pollInterval: const Duration(seconds: 1));
-});
+      return true;
+    }, pollInterval: const Duration(seconds: 1));
+  },
+);

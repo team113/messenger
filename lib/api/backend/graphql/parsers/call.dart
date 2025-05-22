@@ -33,38 +33,32 @@ String fromDartChatCallCredentialsToGraphQLChatCallCredentials(
 List<ChatCallCredentials>
 fromGraphQLListChatCallCredentialsToDartListChatCallCredentials(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) => fromGraphQLChatCallCredentialsToDartChatCallCredentials(
-            e as String,
-          ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromGraphQLChatCallCredentialsToDartChatCallCredentials(e as String),
+    )
+    .toList();
 List<String> fromDartListChatCallCredentialsToGraphQLListChatCallCredentials(
   List<ChatCallCredentials> v,
-) =>
-    v
-        .map((e) => fromDartChatCallCredentialsToGraphQLChatCallCredentials(e))
-        .toList();
+) => v
+    .map((e) => fromDartChatCallCredentialsToGraphQLChatCallCredentials(e))
+    .toList();
 List<ChatCallCredentials>?
 fromGraphQLListNullableChatCallCredentialsToDartListNullableChatCallCredentials(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) => fromGraphQLChatCallCredentialsToDartChatCallCredentials(
-            e as String,
-          ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLChatCallCredentialsToDartChatCallCredentials(e as String),
+    )
+    .toList();
 List<String>?
 fromDartListNullableChatCallCredentialsToGraphQLListNullableChatCallCredentials(
   List<ChatCallCredentials>? v,
-) =>
-    v
-        ?.map((e) => fromDartChatCallCredentialsToGraphQLChatCallCredentials(e))
-        .toList();
+) => v
+    ?.map((e) => fromDartChatCallCredentialsToGraphQLChatCallCredentials(e))
+    .toList();
 
 ChatCallCredentials?
 fromGraphQLChatCallCredentialsNullableToDartChatCallCredentialsNullable(
@@ -76,51 +70,47 @@ String? fromDartChatCallCredentialsNullableToGraphQLChatCallCredentialsNullable(
 List<ChatCallCredentials?>
 fromGraphQLListChatCallCredentialsNullableToDartListChatCallCredentialsNullable(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLChatCallCredentialsNullableToDartChatCallCredentialsNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromGraphQLChatCallCredentialsNullableToDartChatCallCredentialsNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>
 fromDartListChatCallCredentialsNullableToGraphQLListChatCallCredentialsNullable(
   List<ChatCallCredentials?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromDartChatCallCredentialsNullableToGraphQLChatCallCredentialsNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromDartChatCallCredentialsNullableToGraphQLChatCallCredentialsNullable(
+            e,
+          ),
+    )
+    .toList();
 List<ChatCallCredentials?>?
 fromGraphQLListNullableChatCallCredentialsNullableToDartListNullableChatCallCredentialsNullable(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLChatCallCredentialsNullableToDartChatCallCredentialsNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLChatCallCredentialsNullableToDartChatCallCredentialsNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>?
 fromDartListNullableChatCallCredentialsNullableToGraphQLListNullableChatCallCredentialsNullable(
   List<ChatCallCredentials?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromDartChatCallCredentialsNullableToGraphQLChatCallCredentialsNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromDartChatCallCredentialsNullableToGraphQLChatCallCredentialsNullable(
+            e,
+          ),
+    )
+    .toList();
 
 // ChatCallRoomJoinLink
 
@@ -133,42 +123,34 @@ String fromDartChatCallRoomJoinLinkToGraphQLChatCallRoomJoinLink(
 List<ChatCallRoomJoinLink>
 fromGraphQLListChatCallRoomJoinLinkToDartListChatCallRoomJoinLink(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) => fromGraphQLChatCallRoomJoinLinkToDartChatCallRoomJoinLink(
-            e as String,
-          ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) => fromGraphQLChatCallRoomJoinLinkToDartChatCallRoomJoinLink(
+        e as String,
+      ),
+    )
+    .toList();
 List<String> fromDartListChatCallRoomJoinLinkToGraphQLListChatCallRoomJoinLink(
   List<ChatCallRoomJoinLink> v,
-) =>
-    v
-        .map(
-          (e) => fromDartChatCallRoomJoinLinkToGraphQLChatCallRoomJoinLink(e),
-        )
-        .toList();
+) => v
+    .map((e) => fromDartChatCallRoomJoinLinkToGraphQLChatCallRoomJoinLink(e))
+    .toList();
 List<ChatCallRoomJoinLink>?
 fromGraphQLListNullableChatCallRoomJoinLinkToDartListNullableChatCallRoomJoinLink(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) => fromGraphQLChatCallRoomJoinLinkToDartChatCallRoomJoinLink(
-            e as String,
-          ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) => fromGraphQLChatCallRoomJoinLinkToDartChatCallRoomJoinLink(
+        e as String,
+      ),
+    )
+    .toList();
 List<String>?
 fromDartListNullableChatCallRoomJoinLinkToGraphQLListNullableChatCallRoomJoinLink(
   List<ChatCallRoomJoinLink>? v,
-) =>
-    v
-        ?.map(
-          (e) => fromDartChatCallRoomJoinLinkToGraphQLChatCallRoomJoinLink(e),
-        )
-        .toList();
+) => v
+    ?.map((e) => fromDartChatCallRoomJoinLinkToGraphQLChatCallRoomJoinLink(e))
+    .toList();
 
 ChatCallRoomJoinLink?
 fromGraphQLChatCallRoomJoinLinkNullableToDartChatCallRoomJoinLinkNullable(
@@ -181,51 +163,47 @@ fromDartChatCallRoomJoinLinkNullableToGraphQLChatCallRoomJoinLinkNullable(
 List<ChatCallRoomJoinLink?>
 fromGraphQLListChatCallRoomJoinLinkNullableToDartListChatCallRoomJoinLinkNullable(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLChatCallRoomJoinLinkNullableToDartChatCallRoomJoinLinkNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromGraphQLChatCallRoomJoinLinkNullableToDartChatCallRoomJoinLinkNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>
 fromDartListChatCallRoomJoinLinkNullableToGraphQLListChatCallRoomJoinLinkNullable(
   List<ChatCallRoomJoinLink?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromDartChatCallRoomJoinLinkNullableToGraphQLChatCallRoomJoinLinkNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromDartChatCallRoomJoinLinkNullableToGraphQLChatCallRoomJoinLinkNullable(
+            e,
+          ),
+    )
+    .toList();
 List<ChatCallRoomJoinLink?>?
 fromGraphQLListNullableChatCallRoomJoinLinkNullableToDartListNullableChatCallRoomJoinLinkNullable(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLChatCallRoomJoinLinkNullableToDartChatCallRoomJoinLinkNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLChatCallRoomJoinLinkNullableToDartChatCallRoomJoinLinkNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>?
 fromDartListNullableChatCallRoomJoinLinkNullableToGraphQLListNullableChatCallRoomJoinLinkNullable(
   List<ChatCallRoomJoinLink?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromDartChatCallRoomJoinLinkNullableToGraphQLChatCallRoomJoinLinkNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromDartChatCallRoomJoinLinkNullableToGraphQLChatCallRoomJoinLinkNullable(
+            e,
+          ),
+    )
+    .toList();
 
 // IncomingChatCallsCursor
 
@@ -238,51 +216,39 @@ String fromDartIncomingChatCallsCursorToGraphQLIncomingChatCallsCursor(
 List<IncomingChatCallsCursor>
 fromGraphQLListIncomingChatCallsCursorToDartListIncomingChatCallsCursor(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLIncomingChatCallsCursorToDartIncomingChatCallsCursor(
-                e as String,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) => fromGraphQLIncomingChatCallsCursorToDartIncomingChatCallsCursor(
+        e as String,
+      ),
+    )
+    .toList();
 List<String>
 fromDartListIncomingChatCallsCursorToGraphQLListIncomingChatCallsCursor(
   List<IncomingChatCallsCursor> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromDartIncomingChatCallsCursorToGraphQLIncomingChatCallsCursor(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) => fromDartIncomingChatCallsCursorToGraphQLIncomingChatCallsCursor(e),
+    )
+    .toList();
 List<IncomingChatCallsCursor>?
 fromGraphQLListNullableIncomingChatCallsCursorToDartListNullableIncomingChatCallsCursor(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLIncomingChatCallsCursorToDartIncomingChatCallsCursor(
-                e as String,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) => fromGraphQLIncomingChatCallsCursorToDartIncomingChatCallsCursor(
+        e as String,
+      ),
+    )
+    .toList();
 List<String>?
 fromDartListNullableIncomingChatCallsCursorToGraphQLListNullableIncomingChatCallsCursor(
   List<IncomingChatCallsCursor>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromDartIncomingChatCallsCursorToGraphQLIncomingChatCallsCursor(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) => fromDartIncomingChatCallsCursorToGraphQLIncomingChatCallsCursor(e),
+    )
+    .toList();
 
 IncomingChatCallsCursor?
 fromGraphQLIncomingChatCallsCursorNullableToDartIncomingChatCallsCursorNullable(
@@ -295,51 +261,47 @@ fromDartIncomingChatCallsCursorNullableToGraphQLIncomingChatCallsCursorNullable(
 List<IncomingChatCallsCursor?>
 fromGraphQLListIncomingChatCallsCursorNullableToDartListIncomingChatCallsCursorNullable(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLIncomingChatCallsCursorNullableToDartIncomingChatCallsCursorNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromGraphQLIncomingChatCallsCursorNullableToDartIncomingChatCallsCursorNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>
 fromDartListIncomingChatCallsCursorNullableToGraphQLListIncomingChatCallsCursorNullable(
   List<IncomingChatCallsCursor?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromDartIncomingChatCallsCursorNullableToGraphQLIncomingChatCallsCursorNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromDartIncomingChatCallsCursorNullableToGraphQLIncomingChatCallsCursorNullable(
+            e,
+          ),
+    )
+    .toList();
 List<IncomingChatCallsCursor?>?
 fromGraphQLListNullableIncomingChatCallsCursorNullableToDartListNullableIncomingChatCallsCursorNullable(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLIncomingChatCallsCursorNullableToDartIncomingChatCallsCursorNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromGraphQLIncomingChatCallsCursorNullableToDartIncomingChatCallsCursorNullable(
+            e as String?,
+          ),
+    )
+    .toList();
 List<String?>?
 fromDartListNullableIncomingChatCallsCursorNullableToGraphQLListNullableIncomingChatCallsCursorNullable(
   List<IncomingChatCallsCursor?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromDartIncomingChatCallsCursorNullableToGraphQLIncomingChatCallsCursorNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromDartIncomingChatCallsCursorNullableToGraphQLIncomingChatCallsCursorNullable(
+            e,
+          ),
+    )
+    .toList();
 
 // ChatCallDeviceId
 
@@ -348,12 +310,9 @@ ChatCallDeviceId fromGraphQLChatCallDeviceIdToDartChatCallDeviceId(String v) =>
 String fromDartChatCallDeviceIdToGraphQLChatCallDeviceId(ChatCallDeviceId v) =>
     v.val;
 List<ChatCallDeviceId>
-fromGraphQLListChatCallDeviceIdToDartListChatCallDeviceId(List<Object?> v) =>
-    v
-        .map(
-          (e) => fromGraphQLChatCallDeviceIdToDartChatCallDeviceId(e as String),
-        )
-        .toList();
+fromGraphQLListChatCallDeviceIdToDartListChatCallDeviceId(List<Object?> v) => v
+    .map((e) => fromGraphQLChatCallDeviceIdToDartChatCallDeviceId(e as String))
+    .toList();
 List<String> fromDartListChatCallDeviceIdToGraphQLListChatCallDeviceId(
   List<ChatCallDeviceId> v,
 ) =>
@@ -361,19 +320,15 @@ List<String> fromDartListChatCallDeviceIdToGraphQLListChatCallDeviceId(
 List<ChatCallDeviceId>?
 fromGraphQLListNullableChatCallDeviceIdToDartListNullableChatCallDeviceId(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) => fromGraphQLChatCallDeviceIdToDartChatCallDeviceId(e as String),
-        )
-        .toList();
+) => v
+    ?.map((e) => fromGraphQLChatCallDeviceIdToDartChatCallDeviceId(e as String))
+    .toList();
 List<String>?
 fromDartListNullableChatCallDeviceIdToGraphQLListNullableChatCallDeviceId(
   List<ChatCallDeviceId>? v,
-) =>
-    v
-        ?.map((e) => fromDartChatCallDeviceIdToGraphQLChatCallDeviceId(e))
-        .toList();
+) => v
+    ?.map((e) => fromDartChatCallDeviceIdToGraphQLChatCallDeviceId(e))
+    .toList();
 
 ChatCallDeviceId?
 fromGraphQLChatCallDeviceIdNullableToDartChatCallDeviceIdNullable(String? v) =>
@@ -384,48 +339,38 @@ String? fromDartChatCallDeviceIdNullableToGraphQLChatCallDeviceIdNullable(
 List<ChatCallDeviceId?>
 fromGraphQLListChatCallDeviceIdNullableToDartListChatCallDeviceIdNullable(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLChatCallDeviceIdNullableToDartChatCallDeviceIdNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) => fromGraphQLChatCallDeviceIdNullableToDartChatCallDeviceIdNullable(
+        e as String?,
+      ),
+    )
+    .toList();
 List<String?>
 fromDartListChatCallDeviceIdNullableToGraphQLListChatCallDeviceIdNullable(
   List<ChatCallDeviceId?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromDartChatCallDeviceIdNullableToGraphQLChatCallDeviceIdNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    .map(
+      (e) =>
+          fromDartChatCallDeviceIdNullableToGraphQLChatCallDeviceIdNullable(e),
+    )
+    .toList();
 List<ChatCallDeviceId?>?
 fromGraphQLListNullableChatCallDeviceIdNullableToDartListNullableChatCallDeviceIdNullable(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLChatCallDeviceIdNullableToDartChatCallDeviceIdNullable(
-                e as String?,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) => fromGraphQLChatCallDeviceIdNullableToDartChatCallDeviceIdNullable(
+        e as String?,
+      ),
+    )
+    .toList();
 List<String?>?
 fromDartListNullableChatCallDeviceIdNullableToGraphQLListNullableChatCallDeviceIdNullable(
   List<ChatCallDeviceId?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromDartChatCallDeviceIdNullableToGraphQLChatCallDeviceIdNullable(
-                e,
-              ),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) =>
+          fromDartChatCallDeviceIdNullableToGraphQLChatCallDeviceIdNullable(e),
+    )
+    .toList();

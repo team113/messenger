@@ -53,8 +53,9 @@ class ActionButton extends StatelessWidget {
       child: FieldButton(
         onPressed: onPressed,
         text: text,
-        border:
-            danger ? BorderSide(color: style.colors.danger, width: 0.5) : null,
+        border: danger
+            ? BorderSide(color: style.colors.danger, width: 0.5)
+            : null,
         style: danger ? style.fonts.normal.regular.danger : null,
         trailing: trailing,
       ),

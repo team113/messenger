@@ -96,10 +96,9 @@ class AvatarWidget extends StatelessWidget {
     key: key,
     avatar: avatar,
     title: contact?.name.val,
-    color:
-        (contact?.users.isEmpty ?? false)
-            ? contact?.name.val.sum()
-            : contact?.users.first.num.val.sum(),
+    color: (contact?.users.isEmpty ?? false)
+        ? contact?.name.val.sum()
+        : contact?.users.first.num.val.sum(),
     radius: radius,
     opacity: opacity,
   );
@@ -134,10 +133,9 @@ class AvatarWidget extends StatelessWidget {
             badge && contact.user.value?.user.value.presence == Presence.away,
         avatar: contact.user.value?.user.value.avatar,
         title: contact.contact.value.name.val,
-        color:
-            contact.user.value == null
-                ? contact.contact.value.name.val.sum()
-                : contact.user.value?.user.value.num.val.sum(),
+        color: contact.user.value == null
+            ? contact.contact.value.name.val.sum()
+            : contact.user.value?.user.value.num.val.sum(),
         radius: radius,
         opacity: opacity,
       );
@@ -285,10 +283,9 @@ class AvatarWidget extends StatelessWidget {
         );
       }
 
-      final RxUser? user =
-          chat.members.values
-              .firstWhereOrNull((e) => e.user.id != chat.me)
-              ?.user;
+      final RxUser? user = chat.members.values
+          .firstWhereOrNull((e) => e.user.id != chat.me)
+          ?.user;
       return AvatarWidget(
         key: key,
         isOnline: chat.chat.value.isDialog && user?.user.value.online == true,
@@ -384,14 +381,14 @@ class AvatarWidget extends StatelessWidget {
           if (color == 0) {
             gradient = style.colors.background;
           } else {
-            gradient =
-                style.colors.userColors[color! %
-                    style.colors.userColors.length];
+            gradient = style
+                .colors
+                .userColors[color! % style.colors.userColors.length];
           }
         } else if (title != null) {
-          gradient =
-              style.colors.userColors[(title!.hashCode) %
-                  style.colors.userColors.length];
+          gradient = style
+              .colors
+              .userColors[(title!.hashCode) % style.colors.userColors.length];
         } else {
           gradient = style.colors.secondaryBackgroundLightest;
         }
@@ -401,12 +398,11 @@ class AvatarWidget extends StatelessWidget {
         double maxWidth = min(_maxDiameter, constraints.biggest.shortestSide);
         double maxHeight = min(_maxDiameter, constraints.biggest.shortestSide);
 
-        final ImageFile? image =
-            maxWidth > 100
-                ? avatar?.big
-                : maxWidth > 46
-                ? avatar?.medium
-                : avatar?.small;
+        final ImageFile? image = maxWidth > 100
+            ? avatar?.big
+            : maxWidth > 46
+            ? avatar?.medium
+            : avatar?.small;
 
         final Widget defaultAvatar = Container(
           decoration: BoxDecoration(
@@ -584,14 +580,13 @@ class WithBadge extends StatelessWidget {
 
     final style = Theme.of(context).style;
 
-    final double badgeSize =
-        size >= 40
-            ? size / 4
-            : size > 60
-            ? size / 3.75
-            : size > 30
-            ? size / 3
-            : size / 2;
+    final double badgeSize = size >= 40
+        ? size / 4
+        : size > 60
+        ? size / 3.75
+        : size > 30
+        ? size / 3
+        : size / 2;
 
     return Stack(
       children: [
@@ -600,24 +595,22 @@ class WithBadge extends StatelessWidget {
           bottom: 0,
           right: 0,
           child: Transform.translate(
-            offset:
-                size > 40
-                    ? const Offset(-1.4, -1.4)
-                    : size > 30
-                    ? const Offset(1, 1)
-                    : const Offset(2.5, 2.5),
+            offset: size > 40
+                ? const Offset(-1.4, -1.4)
+                : size > 30
+                ? const Offset(1, 1)
+                : const Offset(2.5, 2.5),
             child: Container(
               width: badgeSize,
               height: badgeSize,
               decoration: BoxDecoration(
                 border: Border.all(color: style.colors.onPrimary),
                 shape: BoxShape.circle,
-                color:
-                    away
-                        ? style.colors.warning
-                        : online
-                        ? style.colors.acceptAuxiliary
-                        : style.colors.transparent,
+                color: away
+                    ? style.colors.warning
+                    : online
+                    ? style.colors.acceptAuxiliary
+                    : style.colors.transparent,
               ),
             ),
           ),

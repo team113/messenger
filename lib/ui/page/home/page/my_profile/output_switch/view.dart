@@ -100,15 +100,12 @@ class OutputSwitchView extends StatelessWidget {
 
                             return RectangleButton(
                               selected: selected,
-                              onPressed:
-                                  selected
-                                      ? null
-                                      : () {
-                                        c.selected.value = e;
-                                        (onChanged ?? c.setOutputDevice).call(
-                                          e,
-                                        );
-                                      },
+                              onPressed: selected
+                                  ? null
+                                  : () {
+                                      c.selected.value = e;
+                                      (onChanged ?? c.setOutputDevice).call(e);
+                                    },
                               label: e.label(),
                             );
                           });

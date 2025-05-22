@@ -196,8 +196,9 @@ class AuthRepository extends DisposableInterface
 
     await _graphQlProvider.deleteSession(
       id: id,
-      confirmation:
-          password == null ? null : MyUserCredentials(password: password),
+      confirmation: password == null
+          ? null
+          : MyUserCredentials(password: password),
       token: accessToken,
     );
   }

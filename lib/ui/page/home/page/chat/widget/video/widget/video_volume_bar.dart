@@ -175,13 +175,13 @@ class ProgressBarPainter extends CustomPainter {
     );
 
     if (drawShadow) {
-      final shadowPath =
-          Path()..addOval(
-            Rect.fromCircle(
-              center: Offset(playedPart, baseOffset + barHeight / 2),
-              radius: handleHeight,
-            ),
-          );
+      final shadowPath = Path()
+        ..addOval(
+          Rect.fromCircle(
+            center: Offset(playedPart, baseOffset + barHeight / 2),
+            radius: handleHeight,
+          ),
+        );
 
       canvas.drawShadow(shadowPath, style.colors.onBackground, 0.2, false);
     }
