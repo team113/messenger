@@ -192,7 +192,7 @@ Future<void> main() async {
     await L10n.init();
 
     Get.put(CacheWorker(Get.findOrNull(), Get.findOrNull()));
-    Get.put(UpgradeWorker(Get.findOrNull(), authService));
+    Get.put(UpgradeWorker(Get.findOrNull()));
 
     WebUtils.deleteLoader();
 
@@ -240,35 +240,36 @@ Future<void> main() async {
 
       return event;
     };
-    options.logger = (
-      SentryLevel level,
-      String message, {
-      String? logger,
-      Object? exception,
-      StackTrace? stackTrace,
-    }) {
-      if (exception != null) {
-        if (stackTrace == null) {
-          stackTrace = StackTrace.current;
-        } else {
-          stackTrace = FlutterError.demangleStackTrace(stackTrace);
-        }
+    options.logger =
+        (
+          SentryLevel level,
+          String message, {
+          String? logger,
+          Object? exception,
+          StackTrace? stackTrace,
+        }) {
+          if (exception != null) {
+            if (stackTrace == null) {
+              stackTrace = StackTrace.current;
+            } else {
+              stackTrace = FlutterError.demangleStackTrace(stackTrace);
+            }
 
-        final Iterable<String> lines = stackTrace
-            .toString()
-            .trimRight()
-            .split('\n')
-            .take(100);
+            final Iterable<String> lines = stackTrace
+                .toString()
+                .trimRight()
+                .split('\n')
+                .take(100);
 
-        Log.error(
-          [
-            exception.toString(),
-            if (lines.where((e) => e.isNotEmpty).isNotEmpty)
-              FlutterError.defaultStackFilter(lines).join('\n'),
-          ].join('\n'),
-        );
-      }
-    };
+            Log.error(
+              [
+                exception.toString(),
+                if (lines.where((e) => e.isNotEmpty).isNotEmpty)
+                  FlutterError.defaultStackFilter(lines).join('\n'),
+              ].join('\n'),
+            );
+          }
+        };
   }, appRunner: appRunner);
 
   // Transaction indicating Flutter engine has rasterized the first frame.
@@ -373,8 +374,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
       await accountProvider.init();
 
       final UserId? userId = accountProvider.userId;
-      final Credentials? credentials =
-          userId != null ? await credentialsProvider.read(userId) : null;
+      final Credentials? credentials = userId != null
+          ? await credentialsProvider.read(userId)
+          : null;
 
       if (credentials != null) {
         provider = GraphQlProvider();
@@ -487,8 +489,9 @@ Future<void> handlePushNotification(RemoteMessage message) async {
         await accountProvider.init();
 
         final UserId? userId = accountProvider.userId;
-        final Credentials? credentials =
-            userId != null ? await credentialsProvider.read(userId) : null;
+        final Credentials? credentials = userId != null
+            ? await credentialsProvider.read(userId)
+            : null;
 
         if (credentials != null) {
           final provider = GraphQlProvider();

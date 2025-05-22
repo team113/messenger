@@ -31,6 +31,6 @@ final StepDefinitionGeneric updateName = then2<TestUser, String, CustomWorld>(
     await provider.updateUserName(UserName(newName));
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

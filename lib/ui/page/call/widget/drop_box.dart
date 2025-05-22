@@ -49,17 +49,15 @@ class DropBox extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(16),
-                color:
-                    withBlur
-                        ? style.colors.onBackgroundOpacity27
-                        : style.colors.onBackgroundOpacity50,
+                color: withBlur
+                    ? style.colors.onBackgroundOpacity27
+                    : style.colors.onBackgroundOpacity50,
               ),
               child: Padding(
                 padding: EdgeInsets.all(dense ? 10 : 16),
-                child:
-                    dense
-                        ? const SvgIcon(SvgIcons.addBig)
-                        : const SvgIcon(SvgIcons.addBigger),
+                child: dense
+                    ? const SvgIcon(SvgIcons.addBig)
+                    : const SvgIcon(SvgIcons.addBigger),
               ),
             ),
           ),

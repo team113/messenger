@@ -78,11 +78,10 @@ class WorkTabView extends StatelessWidget {
             actions: [
               AnimatedButton(
                 onPressed: router.support,
-                decorator:
-                    (child) => Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4, 21, 4),
-                      child: child,
-                    ),
+                decorator: (child) => Padding(
+                  padding: const EdgeInsets.fromLTRB(0, 4, 21, 4),
+                  child: child,
+                ),
                 child: const SvgIcon(SvgIcons.info),
               ),
             ],

@@ -41,10 +41,8 @@ final StepDefinitionGeneric untilMessageExists =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final RxChat? chat =
-              Get.find<ChatService>().chats[ChatId(
-                router.route.split('/').last,
-              )];
+          final RxChat? chat = Get.find<ChatService>()
+              .chats[ChatId(router.route.split('/').last)];
           final ChatMessage? message = chat!.messages
               .map((e) => e.value)
               .whereType<ChatMessage>()

@@ -40,6 +40,6 @@ final StepDefinitionGeneric hasDialogWithMe = given1<TestUser, CustomWorld>(
     context.world.sessions[user.name]?.dialog = chat.id;
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

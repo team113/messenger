@@ -42,22 +42,22 @@ final StepDefinitionGeneric contactIsFavorite =
         provider.token = authService.credentials.value!.access.secret;
 
         if (status == FavoriteStatus.favorite) {
-          final List<RxChatContact> favorites =
-              Get.find<ContactService>().paginated.values
-                  .where((e) => e.contact.value.favoritePosition != null)
-                  .toList();
+          final List<RxChatContact> favorites = Get.find<ContactService>()
+              .paginated
+              .values
+              .where((e) => e.contact.value.favoritePosition != null)
+              .toList();
 
-          final sortFavorites =
-              favorites..sort(
-                (a, b) => a.contact.value.favoritePosition!.compareTo(
-                  b.contact.value.favoritePosition!,
-                ),
-              );
+          final sortFavorites = favorites
+            ..sort(
+              (a, b) => a.contact.value.favoritePosition!.compareTo(
+                b.contact.value.favoritePosition!,
+              ),
+            );
 
-          final double? lowest =
-              sortFavorites.isEmpty
-                  ? null
-                  : sortFavorites.first.contact.value.favoritePosition!.val;
+          final double? lowest = sortFavorites.isEmpty
+              ? null
+              : sortFavorites.first.contact.value.favoritePosition!.val;
 
           final position = ChatContactFavoritePosition(
             lowest == null ? 9007199254740991 : lowest / 2,
@@ -70,6 +70,6 @@ final StepDefinitionGeneric contactIsFavorite =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

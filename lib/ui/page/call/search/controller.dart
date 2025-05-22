@@ -194,11 +194,10 @@ class SearchController extends GetxController {
       _scrollPosition,
       (_) => _next(),
       time: const Duration(milliseconds: 100),
-      condition:
-          () =>
-              scrollController.hasClients &&
-              (scrollController.position.pixels >
-                  scrollController.position.maxScrollExtent - 500),
+      condition: () =>
+          scrollController.hasClients &&
+          (scrollController.position.pixels >
+              scrollController.position.maxScrollExtent - 500),
     );
 
     search = TextFieldState(onFocus: (d) => query.value = d.text);
@@ -374,10 +373,9 @@ class SearchController extends GetxController {
       final UserPhone? phone = UserPhone.tryParse(query);
 
       if (name != null || email != null || phone != null) {
-        searchStatus.value =
-            searchStatus.value.isSuccess
-                ? RxStatus.loadingMore()
-                : RxStatus.loading();
+        searchStatus.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
 
         final Paginated<ChatContactId, RxChatContact> result = _contactService
             .search(name: name, email: email, phone: phone);
@@ -432,10 +430,9 @@ class SearchController extends GetxController {
       final ChatDirectLinkSlug? link = ChatDirectLinkSlug.tryParse(query);
 
       if (num != null || name != null || login != null || link != null) {
-        searchStatus.value =
-            searchStatus.value.isSuccess
-                ? RxStatus.loadingMore()
-                : RxStatus.loading();
+        searchStatus.value = searchStatus.value.isSuccess
+            ? RxStatus.loadingMore()
+            : RxStatus.loading();
         final Paginated<UserId, RxUser> result = _userService.search(
           num: num,
           name: name,
@@ -484,8 +481,9 @@ class SearchController extends GetxController {
       final ChatId monologId = _chatService.monolog;
 
       final FutureOr<RxChat?> monologOrFuture = _chatService.get(monologId);
-      final RxChat? monolog =
-          monologOrFuture is RxChat? ? monologOrFuture : await monologOrFuture;
+      final RxChat? monolog = monologOrFuture is RxChat?
+          ? monologOrFuture
+          : await monologOrFuture;
 
       if (monolog != null) {
         if (trimmed.isEmpty) {
@@ -530,21 +528,17 @@ class SearchController extends GetxController {
       bool hidden(RxChat c) => c.chat.value.isHidden;
       bool matchesQuery(RxChat c) => _matchesQuery(
         title: c.title,
-        user:
-            c.chat.value.isDialog
-                ? c.members.values
-                    .firstWhereOrNull((u) => u.user.id != me)
-                    ?.user
-                : null,
+        user: c.chat.value.isDialog
+            ? c.members.values.firstWhereOrNull((u) => u.user.id != me)?.user
+            : null,
       );
       bool localDialog(RxChat c) => c.id.isLocal && !c.id.isLocalWith(me);
 
-      final List<RxChat> filtered =
-          allChats
-              .whereNot(hidden)
-              .where(matchesQuery)
-              .whereNot(localDialog)
-              .sorted();
+      final List<RxChat> filtered = allChats
+          .whereNot(hidden)
+          .where(matchesQuery)
+          .whereNot(localDialog)
+          .sorted();
 
       chats.value = {for (final RxChat c in filtered) c.chat.value.id: c};
 
@@ -602,16 +596,16 @@ class SearchController extends GetxController {
       );
       bool matchesQuery(RxChatContact c) => _matchesQuery(user: c.user.value);
 
-      final List<RxChatContact> filtered =
-          allContacts
-              .where(matchesQuery)
-              .whereNot(isMember)
-              .whereNot(inRecent)
-              .whereNot(inChats)
-              .sorted();
+      final List<RxChatContact> filtered = allContacts
+          .where(matchesQuery)
+          .whereNot(isMember)
+          .whereNot(inRecent)
+          .whereNot(inChats)
+          .sorted();
 
-      final Iterable<RxChatContact> selected =
-          selectedContacts.where(matchesQuery).sorted();
+      final Iterable<RxChatContact> selected = selectedContacts
+          .where(matchesQuery)
+          .sorted();
 
       contacts.value = {
         for (final RxChatContact c in {...selected, ...filtered})
@@ -663,8 +657,10 @@ class SearchController extends GetxController {
 
       if (globalDialogs.isNotEmpty &&
           categories.contains(SearchCategory.chat)) {
-        final List<RxChat> sorted =
-            [...chats.values, ...globalDialogs].sorted();
+        final List<RxChat> sorted = [
+          ...chats.values,
+          ...globalDialogs,
+        ].sorted();
 
         final RxChat? monolog = chats[_chatService.monolog];
 
@@ -691,13 +687,12 @@ class SearchController extends GetxController {
       final allUsers = {...selectedGlobals, ...stored, ...searched}
         ..removeWhere((u) => u.id == me);
 
-      final List<RxUser> filtered =
-          allUsers
-              .whereNot(isMember)
-              .whereNot(inRecent)
-              .whereNot(inContacts)
-              .whereNot(inChats)
-              .toList();
+      final List<RxUser> filtered = allUsers
+          .whereNot(isMember)
+          .whereNot(inRecent)
+          .whereNot(inContacts)
+          .whereNot(inChats)
+          .toList();
 
       users.value = {for (final RxUser u in filtered) u.id: u};
     } else {

@@ -421,10 +421,11 @@ void main() async {
         locksProvider,
       ),
     );
-    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
+
+    authService.init();
 
     UserRepository userRepository = Get.put(
       UserRepository(graphQlProvider, userProvider),
@@ -523,10 +524,8 @@ void main() async {
 
     await tester.runAsync(() => Future.delayed(1.seconds));
 
-    final RxChat chat =
-        chatRepository.chats[const ChatId(
-          '0d72d245-8425-467a-9ebd-082d4f47850b',
-        )]!;
+    final RxChat chat = chatRepository
+        .chats[const ChatId('0d72d245-8425-467a-9ebd-082d4f47850b')]!;
     await tester.runAsync(
       () => chat.updateAttachments(chat.messages.first.value),
     );

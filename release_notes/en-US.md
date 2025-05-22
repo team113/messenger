@@ -1,2 +1,1 @@
-- Updated Progressive Web Application (PWA) icon.
 - Bug fixes and performance improvements.

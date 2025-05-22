@@ -334,6 +334,13 @@ class OngoingCall {
   /// [ChatCallRoomJoinLink] used to join the [_room], if any.
   ChatCallRoomJoinLink? _joinLink;
 
+  /// Indicator whether this [OngoingCall] has joined any rooms.
+  bool _joined = false;
+
+  /// Callback, called when this [OngoingCall] should indicate that it is
+  /// removed.
+  void Function()? _onRemove;
+
   /// [ChatItemId] of this [OngoingCall].
   ChatItemId? get callChatItemId => call.value?.id;
 
@@ -359,7 +366,7 @@ class OngoingCall {
   /// Indicates whether this [OngoingCall] is active.
   bool get isActive =>
       (state.value == OngoingCallState.active ||
-          state.value == OngoingCallState.joining);
+      state.value == OngoingCallState.joining);
 
   /// Indicator whether this [OngoingCall] has any remote connection active.
   bool get hasRemote =>
@@ -419,23 +426,20 @@ class OngoingCall {
             }
           }
 
-          final bool audioChanged =
-              !previous
-                  .audio()
-                  .map((e) => e.deviceId())
-                  .sameAs(devices.audio().map((e) => e.deviceId()));
+          final bool audioChanged = !previous
+              .audio()
+              .map((e) => e.deviceId())
+              .sameAs(devices.audio().map((e) => e.deviceId()));
 
-          final bool outputChanged =
-              !previous
-                  .output()
-                  .map((e) => e.deviceId())
-                  .sameAs(devices.output().map((e) => e.deviceId()));
+          final bool outputChanged = !previous
+              .output()
+              .map((e) => e.deviceId())
+              .sameAs(devices.output().map((e) => e.deviceId()));
 
-          final bool videoChanged =
-              !previous
-                  .video()
-                  .map((e) => e.deviceId())
-                  .sameAs(devices.video().map((e) => e.deviceId()));
+          final bool videoChanged = !previous
+              .video()
+              .map((e) => e.deviceId())
+              .sameAs(devices.video().map((e) => e.deviceId()));
 
           if (audioChanged) {
             _pickAudioDevice();
@@ -525,6 +529,8 @@ class OngoingCall {
 
     _participated = true;
 
+    _onRemove = () => calls.remove(chatId.value);
+
     if (connected || callChatItemId == null || deviceId == null) {
       return;
     }
@@ -561,10 +567,9 @@ class OngoingCall {
                   call.refresh();
 
                   if (state.value == OngoingCallState.local) {
-                    state.value =
-                        node.call.conversationStartedAt == null
-                            ? OngoingCallState.pending
-                            : OngoingCallState.joining;
+                    state.value = node.call.conversationStartedAt == null
+                        ? OngoingCallState.pending
+                        : OngoingCallState.joining;
                   }
 
                   final ChatMembersDialed? dialed = node.call.dialed;
@@ -769,15 +774,18 @@ class OngoingCall {
                           _handToggles.firstOrNull == false) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m in members
-                            .entries
-                            .where((e) => e.key.userId == node.user.id)) {
+                        for (MapEntry<CallMemberId, CallMember> m
+                            in members.entries.where(
+                              (e) => e.key.userId == node.user.id,
+                            )) {
                           m.value.isHandRaised.value = false;
                         }
                       }
 
-                      for (ChatCallMember m in (call.value?.members ?? [])
-                          .where((e) => e.user.id == node.user.id)) {
+                      for (ChatCallMember m
+                          in (call.value?.members ?? []).where(
+                            (e) => e.user.id == node.user.id,
+                          )) {
                         m.handRaised = false;
                       }
                       break;
@@ -790,15 +798,18 @@ class OngoingCall {
                           _handToggles.firstOrNull == true) {
                         _handToggles.removeAt(0);
                       } else {
-                        for (MapEntry<CallMemberId, CallMember> m in members
-                            .entries
-                            .where((e) => e.key.userId == node.user.id)) {
+                        for (MapEntry<CallMemberId, CallMember> m
+                            in members.entries.where(
+                              (e) => e.key.userId == node.user.id,
+                            )) {
                           m.value.isHandRaised.value = true;
                         }
                       }
 
-                      for (ChatCallMember m in (call.value?.members ?? [])
-                          .where((e) => e.user.id == node.user.id)) {
+                      for (ChatCallMember m
+                          in (call.value?.members ?? []).where(
+                            (e) => e.user.id == node.user.id,
+                          )) {
                         m.handRaised = true;
                       }
                       break;
@@ -886,6 +897,8 @@ class OngoingCall {
   Future<void> dispose() {
     Log.debug('dispose()', '$runtimeType');
 
+    _onRemove?.call();
+    _onRemove = null;
     _heartbeat?.cancel();
     _participated = _participated || connected || isActive;
     _stateWorker?.dispose();
@@ -1543,6 +1556,30 @@ class OngoingCall {
         members[id]?.quality.value = p;
       });
     });
+
+    _room?.onClose((r) async {
+      _joined = false;
+
+      Log.warning(
+        'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+        '$runtimeType',
+      );
+
+      // Awaiting 5 seconds for another `EventChatCallRoomReady` to come in case
+      // there's a new room being opened instead of the closed one.
+      await Future.delayed(Duration(seconds: 5));
+
+      if (!_joined) {
+        // TODO: Can we somehow reconnect to a new room in such scenarios?
+        dispose();
+
+        if (r.isErr()) {
+          throw Exception(
+            'RoomHandle.onClose(byServer? ${r.isClosedByServer()}) -> ${r.reason()}',
+          );
+        }
+      }
+    });
   }
 
   /// Raises/lowers a hand of the authorized [MyUser].
@@ -1645,8 +1682,9 @@ class OngoingCall {
             );
 
             if (outputDevice.value == null) {
-              final bool speaker =
-                  PlatformUtils.isWeb ? true : videoState.value.isEnabled;
+              final bool speaker = PlatformUtils.isWeb
+                  ? true
+                  : videoState.value.isEnabled;
 
               if (speaker) {
                 outputDevice.value = output.firstWhereOrNull(
@@ -1694,32 +1732,30 @@ class OngoingCall {
       Future<void> initLocalTracks() async {
         try {
           tracks = await MediaUtils.getTracks(
-            audio:
-                hasAudio || audioState.value.isEnabled
-                    ? AudioPreferences(
-                      device:
-                          audioDevice.value?.deviceId() ??
-                          devices.audio().firstOrNull?.deviceId(),
-                    )
-                    : null,
-            video:
-                videoState.value.isEnabled
-                    ? VideoPreferences(
-                      device:
-                          videoDevice.value?.deviceId() ??
-                          devices.video().firstOrNull?.deviceId(),
-                      facingMode:
-                          videoDevice.value == null ? FacingMode.user : null,
-                    )
-                    : null,
-            screen:
-                screenShareState.value.isEnabled
-                    ? ScreenPreferences(
-                      device:
-                          screenDevice.value?.deviceId() ??
-                          displays.firstOrNull?.deviceId(),
-                    )
-                    : null,
+            audio: hasAudio || audioState.value.isEnabled
+                ? AudioPreferences(
+                    device:
+                        audioDevice.value?.deviceId() ??
+                        devices.audio().firstOrNull?.deviceId(),
+                  )
+                : null,
+            video: videoState.value.isEnabled
+                ? VideoPreferences(
+                    device:
+                        videoDevice.value?.deviceId() ??
+                        devices.video().firstOrNull?.deviceId(),
+                    facingMode: videoDevice.value == null
+                        ? FacingMode.user
+                        : null,
+                  )
+                : null,
+            screen: screenShareState.value.isEnabled
+                ? ScreenPreferences(
+                    device:
+                        screenDevice.value?.deviceId() ??
+                        displays.firstOrNull?.deviceId(),
+                  )
+                : null,
           );
         } on LocalMediaInitException catch (e) {
           switch (e.kind()) {
@@ -1786,18 +1822,16 @@ class OngoingCall {
         _addLocalTrack(track);
       }
 
-      audioState.value =
-          audioState.value == LocalTrackState.enabling
-              ? LocalTrackState.enabled
-              : audioState.value;
-      videoState.value =
-          videoState.value == LocalTrackState.enabling
-              ? LocalTrackState.enabled
-              : videoState.value;
+      audioState.value = audioState.value == LocalTrackState.enabling
+          ? LocalTrackState.enabled
+          : audioState.value;
+      videoState.value = videoState.value == LocalTrackState.enabling
+          ? LocalTrackState.enabled
+          : videoState.value;
       screenShareState.value =
           screenShareState.value == LocalTrackState.enabling
-              ? LocalTrackState.enabled
-              : screenShareState.value;
+          ? LocalTrackState.enabled
+          : screenShareState.value;
 
       try {
         // Second, set all constraints to `true` (disabled tracks will not be
@@ -1870,11 +1904,13 @@ class OngoingCall {
   /// Joins the [_room] with the provided [ChatCallRoomJoinLink].
   ///
   /// Re-initializes the [_room], if this [link] is different from the currently
-  /// used [ChatCall.joinLink].
+  /// used [_joinLink].
   Future<void> _joinRoom(ChatCallRoomJoinLink link) async {
     Log.debug('_joinRoom($link)', '$runtimeType');
 
     Log.info('Joining the room...', '$runtimeType');
+    _joined = true;
+
     if (_joinLink != null && _joinLink != link) {
       _joinLink = link;
 
@@ -1883,10 +1919,9 @@ class OngoingCall {
         '$runtimeType',
       );
 
-      final List<CallMember> connected =
-          members.values
-              .where((e) => e.isConnected.value == true && e.id != _me)
-              .toList();
+      final List<CallMember> connected = members.values
+          .where((e) => e.isConnected.value == true && e.id != _me)
+          .toList();
 
       await _closeRoom(false);
       await _initRoom();
@@ -1910,6 +1945,8 @@ class OngoingCall {
         'Joining the room failed due to: ${e.message()}',
         '$runtimeType',
       );
+
+      _joined = false;
 
       rethrow;
     }
@@ -2017,21 +2054,18 @@ class OngoingCall {
     Log.debug('_updateTracks($audio, $video, $screen)', '$runtimeType');
 
     final List<LocalMediaTrack> tracks = await MediaUtils.getTracks(
-      audio:
-          audioState.value.isEnabled && audio
-              ? AudioPreferences(device: audioDevice.value?.deviceId())
-              : null,
-      video:
-          videoState.value.isEnabled && video
-              ? VideoPreferences(
-                device: videoDevice.value?.deviceId(),
-                facingMode: videoDevice.value == null ? FacingMode.user : null,
-              )
-              : null,
-      screen:
-          screenShareState.value.isEnabled && screen
-              ? ScreenPreferences(device: screenDevice.value?.deviceId())
-              : null,
+      audio: audioState.value.isEnabled && audio
+          ? AudioPreferences(device: audioDevice.value?.deviceId())
+          : null,
+      video: videoState.value.isEnabled && video
+          ? VideoPreferences(
+              device: videoDevice.value?.deviceId(),
+              facingMode: videoDevice.value == null ? FacingMode.user : null,
+            )
+          : null,
+      screen: screenShareState.value.isEnabled && screen
+          ? ScreenPreferences(device: screenDevice.value?.deviceId())
+          : null,
     );
 
     for (LocalMediaTrack track in tracks) {
@@ -2290,10 +2324,12 @@ class RtcVideoRenderer extends RtcRenderer {
         '$runtimeType',
       );
 
-      width.value =
-          _delegate.videoWidth == 0 ? width.value : _delegate.videoWidth;
-      height.value =
-          _delegate.videoHeight == 0 ? height.value : _delegate.videoHeight;
+      width.value = _delegate.videoWidth == 0
+          ? width.value
+          : _delegate.videoWidth;
+      height.value = _delegate.videoHeight == 0
+          ? height.value
+          : _delegate.videoHeight;
 
       canPlay.value = canPlay.value || _delegate.videoHeight != 0;
     };

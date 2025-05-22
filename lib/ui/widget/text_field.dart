@@ -187,21 +187,18 @@ class ReactiveTextField extends StatelessWidget {
       bool isDense = dense ?? PlatformUtils.isMobile;
       if (Theme.of(context).inputDecorationTheme.border?.isOutline != true) {
         if (isFilled) {
-          contentPadding =
-              isDense
-                  ? const EdgeInsets.fromLTRB(20, 8, 20, 8) * 0.9
-                  : const EdgeInsets.fromLTRB(12, 12, 12, 12) * 0.9;
+          contentPadding = isDense
+              ? const EdgeInsets.fromLTRB(20, 8, 20, 8) * 0.9
+              : const EdgeInsets.fromLTRB(12, 12, 12, 12) * 0.9;
         } else {
-          contentPadding =
-              isDense
-                  ? const EdgeInsets.fromLTRB(8, 8, 8, 8) * 0.9
-                  : const EdgeInsets.fromLTRB(0, 12, 0, 12) * 0.9;
+          contentPadding = isDense
+              ? const EdgeInsets.fromLTRB(8, 8, 8, 8) * 0.9
+              : const EdgeInsets.fromLTRB(0, 12, 0, 12) * 0.9;
         }
       } else {
-        contentPadding =
-            isDense
-                ? const EdgeInsets.fromLTRB(12, 20, 12, 12) * 0.9
-                : const EdgeInsets.fromLTRB(12, 24, 12, 16) * 0.9;
+        contentPadding = isDense
+            ? const EdgeInsets.fromLTRB(12, 20, 12, 12) * 0.9
+            : const EdgeInsets.fromLTRB(12, 24, 12, 16) * 0.9;
       }
 
       contentPadding = contentPadding + const EdgeInsets.only(left: 10) * 0.5;
@@ -232,79 +229,72 @@ class ReactiveTextField extends StatelessWidget {
         );
 
         return ElasticAnimatedSwitcher(
-          child:
-              hasSuffix
-                  ? SizedBox(
-                    height: 48,
-                    child: AnimatedButton(
-                      onPressed:
-                          state.approvable &&
-                                  (state.changed.value ||
-                                      state.resubmitOnError.isTrue)
-                              ? state.isEmpty.value && !clearable
-                                  ? null
-                                  : state.submit
-                              : onCanceled ?? onSuffixPressed,
-                      decorator: (child) {
-                        return Padding(
-                          padding: const EdgeInsets.only(left: 8, right: 16),
-                          child: child,
-                        );
-                      },
-                      child: ElasticAnimatedSwitcher(
-                        child:
-                            status.isLoading
-                                ? const SvgIcon(
-                                  key: Key('Loading'),
-                                  SvgIcons.timer,
-                                )
-                                : status.isSuccess
-                                ? SizedBox(
-                                  key: const ValueKey('Success'),
-                                  width: 24,
-                                  child: Icon(
-                                    Icons.check,
-                                    size: 18,
-                                    color: style.colors.acceptAuxiliary,
-                                  ),
-                                )
-                                : hasError
-                                ? onCanceled != null
-                                    ? cancelButton
-                                    : SizedBox(
-                                      key: const ValueKey('Error'),
-                                      width: 24,
-                                      child: Icon(
-                                        Icons.error,
-                                        size: 18,
-                                        color: style.colors.danger,
-                                      ),
-                                    )
-                                : (state.approvable &&
-                                    (state.changed.value ||
-                                        state.resubmitOnError.isTrue))
-                                ? state.isEmpty.value && !clearable
-                                    ? null
-                                    : AllowOverflow(
-                                      key: const ValueKey('Approve'),
-                                      child: Text(
-                                        'btn_save'.l10n,
-                                        style:
-                                            style.fonts.small.regular.primary,
-                                      ),
-                                    )
-                                : onCanceled != null
+          child: hasSuffix
+              ? SizedBox(
+                  height: 48,
+                  child: AnimatedButton(
+                    onPressed:
+                        state.approvable &&
+                            (state.changed.value ||
+                                state.resubmitOnError.isTrue)
+                        ? state.isEmpty.value && !clearable
+                              ? null
+                              : state.submit
+                        : onCanceled ?? onSuffixPressed,
+                    decorator: (child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(left: 8, right: 16),
+                        child: child,
+                      );
+                    },
+                    child: ElasticAnimatedSwitcher(
+                      child: status.isLoading
+                          ? const SvgIcon(key: Key('Loading'), SvgIcons.timer)
+                          : status.isSuccess
+                          ? SizedBox(
+                              key: const ValueKey('Success'),
+                              width: 24,
+                              child: Icon(
+                                Icons.check,
+                                size: 18,
+                                color: style.colors.acceptAuxiliary,
+                              ),
+                            )
+                          : hasError
+                          ? onCanceled != null
                                 ? cancelButton
                                 : SizedBox(
-                                  key: const ValueKey('Icon'),
-                                  width: 24,
-                                  child:
-                                      suffix != null ? Icon(suffix) : trailing,
-                                ),
-                      ),
+                                    key: const ValueKey('Error'),
+                                    width: 24,
+                                    child: Icon(
+                                      Icons.error,
+                                      size: 18,
+                                      color: style.colors.danger,
+                                    ),
+                                  )
+                          : (state.approvable &&
+                                (state.changed.value ||
+                                    state.resubmitOnError.isTrue))
+                          ? state.isEmpty.value && !clearable
+                                ? null
+                                : AllowOverflow(
+                                    key: const ValueKey('Approve'),
+                                    child: Text(
+                                      'btn_save'.l10n,
+                                      style: style.fonts.small.regular.primary,
+                                    ),
+                                  )
+                          : onCanceled != null
+                          ? cancelButton
+                          : SizedBox(
+                              key: const ValueKey('Icon'),
+                              width: 24,
+                              child: suffix != null ? Icon(suffix) : trailing,
+                            ),
                     ),
-                  )
-                  : null,
+                  ),
+                )
+              : null,
         );
       });
     }
@@ -314,16 +304,11 @@ class ReactiveTextField extends StatelessWidget {
 
       final decoration = Theme.of(context).inputDecorationTheme;
 
-      final floatingLabel =
-          state.error.value?.isNotEmpty == true
-              ? decoration.floatingLabelStyle?.copyWith(
-                color: style.colors.danger,
-              )
-              : state.isFocused.value
-              ? decoration.floatingLabelStyle?.copyWith(
-                color: style.colors.primary,
-              )
-              : decoration.floatingLabelStyle;
+      final floatingLabel = state.error.value?.isNotEmpty == true
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.danger)
+          : state.isFocused.value
+          ? decoration.floatingLabelStyle?.copyWith(color: style.colors.primary)
+          : decoration.floatingLabelStyle;
 
       return Theme(
         data: Theme.of(context).copyWith(
@@ -336,12 +321,11 @@ class ReactiveTextField extends StatelessWidget {
           children: [
             TextField(
               enableInteractiveSelection: selectable,
-              selectionControls:
-                  PlatformUtils.isAndroid
-                      ? MaterialTextSelectionControls()
-                      : PlatformUtils.isIOS
-                      ? CupertinoTextSelectionControls()
-                      : null,
+              selectionControls: PlatformUtils.isAndroid
+                  ? MaterialTextSelectionControls()
+                  : PlatformUtils.isIOS
+                  ? CupertinoTextSelectionControls()
+                  : null,
               controller: state.controller,
               style: this.style,
               focusNode: state.focus,
@@ -359,14 +343,13 @@ class ReactiveTextField extends StatelessWidget {
                 alignLabelWithHint: true,
                 labelStyle:
                     floatingLabelBehavior == FloatingLabelBehavior.always
-                        ? floatingLabel
-                        : null,
+                    ? floatingLabel
+                    : null,
                 floatingLabelBehavior: floatingLabelBehavior,
                 isDense: dense ?? PlatformUtils.isMobile,
-                focusedBorder:
-                    state.editable.value
-                        ? null
-                        : Theme.of(context).inputDecorationTheme.border,
+                focusedBorder: state.editable.value
+                    ? null
+                    : Theme.of(context).inputDecorationTheme.border,
                 prefixText: prefixText,
                 prefixStyle: prefixStyle,
                 prefix: prefix,
@@ -379,19 +362,19 @@ class ReactiveTextField extends StatelessWidget {
                 contentPadding: contentPadding,
                 suffixIcon: dense == true ? null : buildSuffix(),
                 suffixIconConstraints: const BoxConstraints(minWidth: 16),
-                icon:
-                    icon == null
-                        ? null
-                        : Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: Icon(icon),
-                        ),
+                icon: icon == null
+                    ? null
+                    : Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10),
+                        child: Icon(icon),
+                      ),
                 labelText: label,
                 hintText: hint,
                 hintMaxLines: maxLines,
                 hintStyle: this.style?.copyWith(
-                  color:
-                      Theme.of(context).inputDecorationTheme.hintStyle?.color,
+                  color: Theme.of(
+                    context,
+                  ).inputDecorationTheme.hintStyle?.color,
                 ),
 
                 // Hide the error's text as the [AnimatedSize] below this
@@ -451,10 +434,9 @@ class ReactiveTextField extends StatelessWidget {
                                 label: 'btn_paste'.l10n,
                                 trailing: const SvgIcon(SvgIcons.copy19),
                                 inverted: const SvgIcon(SvgIcons.copy19White),
-                                onPressed:
-                                    () => field.pasteText(
-                                      SelectionChangedCause.toolbar,
-                                    ),
+                                onPressed: () => field.pasteText(
+                                  SelectionChangedCause.toolbar,
+                                ),
                               ),
                           ],
                         ),
@@ -472,10 +454,9 @@ class ReactiveTextField extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: SafeAnimatedSwitcher(
                   duration: 200.milliseconds,
-                  child:
-                      state.error.value == null
-                          ? subtitle != null
-                              ? Padding(
+                  child: state.error.value == null
+                      ? subtitle != null
+                            ? Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                   20,
                                   8,
@@ -487,17 +468,14 @@ class ReactiveTextField extends StatelessWidget {
                                   child: subtitle!,
                                 ),
                               )
-                              : const SizedBox(
-                                width: double.infinity,
-                                height: 1,
-                              )
-                          : Padding(
-                            padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
-                            child: Text(
-                              state.error.value ?? '',
-                              style: style.fonts.small.regular.danger,
-                            ),
+                            : const SizedBox(width: double.infinity, height: 1)
+                      : Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+                          child: Text(
+                            state.error.value ?? '',
+                            style: style.fonts.small.regular.danger,
                           ),
+                        ),
                 ),
               ),
             ),

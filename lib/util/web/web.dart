@@ -228,10 +228,10 @@ class WebUtils {
     }
 
     controller = StreamController(
-      onListen:
-          () => web.window.addEventListener('storage', storageListener.toJS),
-      onCancel:
-          () => web.window.removeEventListener('storage', storageListener.toJS),
+      onListen: () =>
+          web.window.addEventListener('storage', storageListener.toJS),
+      onCancel: () =>
+          web.window.removeEventListener('storage', storageListener.toJS),
     );
 
     return controller.stream;
@@ -342,19 +342,20 @@ class WebUtils {
 
   /// Puts the provided [Credentials] to the browser's storage.
   static void putCredentials(Credentials creds) {
-    web.window.localStorage['credentials_${creds.userId}'] = json.encode(
-      creds.toJson(),
+    web.window.localStorage.setItem(
+      'credentials_${creds.userId}',
+      json.encode(creds.toJson()),
     );
   }
 
   /// Returns the stored in browser's storage [Credentials] identified by the
   /// provided [UserId], if any.
   static Credentials? getCredentials(UserId userId) {
-    if (web.window.localStorage['credentials_$userId'] == null) {
+    if (web.window.localStorage.getItem('credentials_$userId') == null) {
       return null;
     } else {
       return Credentials.fromJson(
-        json.decode(web.window.localStorage['credentials_$userId']!),
+        json.decode(web.window.localStorage.getItem('credentials_$userId')!),
       );
     }
   }
@@ -568,9 +569,9 @@ class WebUtils {
   /// Returns a call identified by the provided [chatId] from the browser's
   /// storage.
   static WebStoredCall? getCall(ChatId chatId) {
-    final data = web.window.localStorage['call_$chatId'];
+    final data = web.window.localStorage.getItem('call_$chatId');
     if (data != null) {
-      final at = web.window.localStorage['at_call_$chatId'];
+      final at = web.window.localStorage.getItem('at_call_$chatId');
       final updatedAt = at == null ? DateTime.now() : DateTime.parse(at);
       if (DateTime.now().difference(updatedAt).inSeconds <= 1) {
         return WebStoredCall.fromJson(json.decode(data));
@@ -582,15 +583,24 @@ class WebUtils {
 
   /// Stores the provided [call] in the browser's storage.
   static void setCall(WebStoredCall call) {
-    web.window.localStorage['call_${call.chatId}'] = json.encode(call.toJson());
-    web.window.localStorage['at_call_${call.chatId}'] =
-        DateTime.now().add(const Duration(seconds: 5)).toString();
+    web.window.localStorage.setItem(
+      'call_${call.chatId}',
+      json.encode(call.toJson()),
+    );
+
+    web.window.localStorage.setItem(
+      'at_call_${call.chatId}',
+      DateTime.now().add(const Duration(seconds: 5)).toString(),
+    );
   }
 
   /// Ensures a call in the provided [chatId] is considered active the browser's
   /// storage.
   static void pingCall(ChatId chatId) {
-    web.window.localStorage['at_call_$chatId'] = DateTime.now().toString();
+    web.window.localStorage.setItem(
+      'at_call_$chatId',
+      DateTime.now().toString(),
+    );
   }
 
   /// Removes a call identified by the provided [chatId] from the browser's
@@ -640,14 +650,12 @@ class WebUtils {
   }
 
   /// Sets the [prefs] as the provided call's popup window preferences.
-  static void setCallRect(ChatId chatId, Rect prefs) =>
-      web.window.localStorage['prefs_call_$chatId'] = json.encode(
-        prefs.toJson(),
-      );
+  static void setCallRect(ChatId chatId, Rect prefs) => web.window.localStorage
+      .setItem('prefs_call_$chatId', json.encode(prefs.toJson()));
 
   /// Returns the [Rect] stored by the provided [chatId], if any.
   static Rect? getCallRect(ChatId chatId) {
-    var data = web.window.localStorage['prefs_call_$chatId'];
+    var data = web.window.localStorage.getItem('prefs_call_$chatId');
     if (data != null) {
       return _RectExtension.fromJson(json.decode(data));
     }
@@ -662,8 +670,8 @@ class WebUtils {
       throw Exception('Cannot download file');
     }
 
-    final web.HTMLAnchorElement anchorElement =
-        web.HTMLAnchorElement()..href = url;
+    final web.HTMLAnchorElement anchorElement = web.HTMLAnchorElement()
+      ..href = url;
     anchorElement.download = name;
     anchorElement.click();
   }
@@ -680,18 +688,16 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has camera permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission =
-          await web.window.navigator.permissions
-              .query({'name': 'camera'}.jsify() as JSObject)
-              .toDart;
+      final permission = await web.window.navigator.permissions
+          .query({'name': 'camera'}.jsify() as JSObject)
+          .toDart;
       granted = permission.state == 'granted';
     }
 
     if (!granted) {
-      final web.MediaStream stream =
-          await web.window.navigator.mediaDevices
-              .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
-              .toDart;
+      final web.MediaStream stream = await web.window.navigator.mediaDevices
+          .getUserMedia(web.MediaStreamConstraints(video: true.toJS))
+          .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -721,18 +727,18 @@ class WebUtils {
     // Firefox doesn't allow to check whether app has microphone permission:
     // https://searchfox.org/mozilla-central/source/dom/webidl/Permissions.webidl#10
     if (!isFirefox) {
-      final permission =
-          await web.window.navigator.permissions
-              .query({'name': 'microphone'}.jsify() as JSObject)
-              .toDart;
+      final permission = await web.window.navigator.permissions
+          .query({'name': 'microphone'}.jsify() as JSObject)
+          .toDart;
       granted = permission.state == 'granted';
     }
 
-    if (!granted) {
-      final web.MediaStream stream =
-          await web.window.navigator.mediaDevices
-              .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
-              .toDart;
+    // PWA in Safari returns `true` regarding permission, yet doesn't allow to
+    // enumerate devices despite that.
+    if (!granted || WebUtils.isSafari) {
+      final web.MediaStream stream = await web.window.navigator.mediaDevices
+          .getUserMedia(web.MediaStreamConstraints(audio: true.toJS))
+          .toDart;
 
       if (isFirefox) {
         final StreamController controller = StreamController(
@@ -883,12 +889,16 @@ class WebUtils {
                 modifiers &&
                 switch (m) {
                   HotKeyModifier.alt => HardwareKeyboard.instance.isAltPressed,
-                  HotKeyModifier.capsLock => HardwareKeyboard.instance
-                      .isPhysicalKeyPressed(PhysicalKeyboardKey.capsLock),
+                  HotKeyModifier.capsLock =>
+                    HardwareKeyboard.instance.isPhysicalKeyPressed(
+                      PhysicalKeyboardKey.capsLock,
+                    ),
                   HotKeyModifier.control =>
                     HardwareKeyboard.instance.isControlPressed,
-                  HotKeyModifier.fn => HardwareKeyboard.instance
-                      .isPhysicalKeyPressed(PhysicalKeyboardKey.fn),
+                  HotKeyModifier.fn =>
+                    HardwareKeyboard.instance.isPhysicalKeyPressed(
+                      PhysicalKeyboardKey.fn,
+                    ),
                   HotKeyModifier.meta =>
                     HardwareKeyboard.instance.isMetaPressed,
                   HotKeyModifier.shift =>

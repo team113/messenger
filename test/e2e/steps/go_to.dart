@@ -28,8 +28,8 @@ final StepDefinitionGeneric goToUserPage = then1<TestUser, CustomWorld>(
     router.user(context.world.sessions[user.name]!.userId);
     await context.world.appDriver.waitForAppToSettle();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Routes the [RouterState] to the previous page.
@@ -39,6 +39,6 @@ final StepDefinitionGeneric returnToPreviousPage = then<CustomWorld>(
     router.pop();
     await context.world.appDriver.waitForAppToSettle();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

@@ -35,10 +35,9 @@ extension UserConversion on UserMixin {
     avatar: avatar?.toModel(),
     callCover: callCover?.toModel(),
     online: online?.$$typename == 'UserOnline',
-    lastSeenAt:
-        online?.$$typename == 'UserOffline'
-            ? (online as UserMixin$Online$UserOffline).lastSeenAt
-            : null,
+    lastSeenAt: online?.$$typename == 'UserOffline'
+        ? (online as UserMixin$Online$UserOffline).lastSeenAt
+        : null,
     dialog: dialog?.id,
     presenceIndex: presence?.index,
     status: status,
@@ -69,17 +68,16 @@ extension UserAvatarConversion on UserAvatarMixin {
     big: big.toModel(),
     medium: medium.toModel(),
     small: small.toModel(),
-    crop:
-        crop != null
-            ? CropArea(
-              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
-              bottomRight: CropPoint(
-                x: crop!.bottomRight.x,
-                y: crop!.bottomRight.y,
-              ),
-              angle: crop?.angle,
-            )
-            : null,
+    crop: crop != null
+        ? CropArea(
+            topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+            bottomRight: CropPoint(
+              x: crop!.bottomRight.x,
+              y: crop!.bottomRight.y,
+            ),
+            angle: crop?.angle,
+          )
+        : null,
   );
 }
 
@@ -91,16 +89,15 @@ extension UserCallCoverConversion on UserCallCoverMixin {
     original: original.toModel(),
     vertical: vertical.toModel(),
     square: square.toModel(),
-    crop:
-        crop != null
-            ? CropArea(
-              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
-              bottomRight: CropPoint(
-                x: crop!.bottomRight.x,
-                y: crop!.bottomRight.y,
-              ),
-              angle: crop?.angle,
-            )
-            : null,
+    crop: crop != null
+        ? CropArea(
+            topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+            bottomRight: CropPoint(
+              x: crop!.bottomRight.x,
+              y: crop!.bottomRight.y,
+            ),
+            angle: crop?.angle,
+          )
+        : null,
   );
 }

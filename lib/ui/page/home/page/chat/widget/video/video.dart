@@ -167,14 +167,14 @@ class _VideoViewState extends State<VideoView> {
                     PlatformUtils.isMobile
                         ? MobileControls(_controller, barHeight: _barHeight)
                         : DesktopControls(
-                          _controller,
-                          barHeight: _barHeight,
-                          onClose: widget.onClose,
-                          toggleFullscreen: widget.toggleFullscreen,
-                          isFullscreen: widget.isFullscreen,
-                          showInterfaceFor: widget.showInterfaceFor,
-                          size: size,
-                        ),
+                            _controller,
+                            barHeight: _barHeight,
+                            onClose: widget.onClose,
+                            toggleFullscreen: widget.toggleFullscreen,
+                            isFullscreen: widget.isFullscreen,
+                            showInterfaceFor: widget.showInterfaceFor,
+                            size: size,
+                          ),
                   ],
                 );
               },
@@ -194,10 +194,9 @@ class _VideoViewState extends State<VideoView> {
                     color: style.colors.transparent,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child:
-                      _loading != null
-                          ? const SizedBox()
-                          : const Center(child: CustomProgressIndicator()),
+                  child: _loading != null
+                      ? const SizedBox()
+                      : const Center(child: CustomProgressIndicator()),
                 ),
               ),
             );

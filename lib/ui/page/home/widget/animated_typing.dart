@@ -66,8 +66,9 @@ class _AnimatedTypingState extends State<AnimatedTyping>
     return AnimatedBuilder(
       animation: _controller,
       builder: (BuildContext context, _) {
-        final Color begin =
-            widget.inverted ? style.colors.onPrimary : style.colors.primary;
+        final Color begin = widget.inverted
+            ? style.colors.onPrimary
+            : style.colors.primary;
         final Color end = style.colors.primaryHighlightLightest;
 
         const double size = 3;

@@ -286,12 +286,11 @@ class _ChatWatchData {
               attachments: msg.attachments,
             );
 
-            image =
-                msg.attachments
-                    .whereType<ImageAttachment>()
-                    .firstOrNull
-                    ?.big
-                    .url;
+            image = msg.attachments
+                .whereType<ImageAttachment>()
+                .firstOrNull
+                ?.big
+                .url;
 
             if (text != null) {
               body.write(text);
@@ -306,12 +305,11 @@ class _ChatWatchData {
                 attachments: quote.attachments,
               );
 
-              image =
-                  quote.attachments
-                      .whereType<ImageAttachment>()
-                      .firstOrNull
-                      ?.big
-                      .url;
+              image = quote.attachments
+                  .whereType<ImageAttachment>()
+                  .firstOrNull
+                  ?.big
+                  .url;
 
               if (text != null) {
                 body.write(text);
@@ -378,14 +376,13 @@ class _ChatWatchData {
     final String name = author?.title ?? 'x';
     final String num = author?.num.toString() ?? 'err_unknown_user'.l10n;
     final String type = isGroup ? 'group' : 'dialog';
-    String attachmentsType =
-        attachments.every((e) => e is ImageAttachment)
-            ? 'image'
-            : attachments.every((e) => e is FileAttachment && e.isVideo)
-            ? 'video'
-            : attachments.every((e) => e is FileAttachment && !e.isVideo)
-            ? 'file'
-            : 'attachments';
+    String attachmentsType = attachments.every((e) => e is ImageAttachment)
+        ? 'image'
+        : attachments.every((e) => e is FileAttachment && e.isVideo)
+        ? 'video'
+        : attachments.every((e) => e is FileAttachment && !e.isVideo)
+        ? 'file'
+        : 'attachments';
 
     return 'fcm_message'.l10nfmt({
       'type': type,

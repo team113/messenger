@@ -64,8 +64,8 @@ class PrimaryButton extends StatelessWidget {
             this.style ??
             (onPressed == null
                 ? style.fonts.normal.regular.onBackground.copyWith(
-                  color: style.colors.secondaryOpacity87,
-                )
+                    color: style.colors.secondaryOpacity87,
+                  )
                 : style.fonts.normal.regular.onPrimary),
       ),
     );

@@ -95,5 +95,5 @@ dependencies {
 
     // TODO: Remove when MaikuB/flutter_local_notifications#2389 is fixed:
     //       https://github.com/MaikuB/flutter_local_notifications/issues/2389
-    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.2.2'
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.4'
 }

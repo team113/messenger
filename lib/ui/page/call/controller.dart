@@ -229,6 +229,9 @@ class CallController extends GetxController {
   /// Currently dragged [CallButton].
   final Rx<CallButton?> draggedButton = Rx(null);
 
+  /// Indicator whether [draggedButton] is from [Launchpad].
+  bool draggedFromDock = false;
+
   /// [AnimationController] of a [MinimizableView] used to change the
   /// [minimized] value.
   AnimationController? minimizedAnimation;
@@ -553,11 +556,10 @@ class CallController extends GetxController {
         break;
 
       case OngoingCallState.active:
-        final Set<UserId> actualMembers =
-            members.keys
-                .where((e) => e.deviceId != null)
-                .map((k) => k.userId)
-                .toSet();
+        final Set<UserId> actualMembers = members.keys
+            .where((e) => e.deviceId != null)
+            .map((k) => k.userId)
+            .toSet();
         args['members'] = '${actualMembers.length}';
         args['allMembers'] = '${chat.value?.chat.value.membersCount ?? 1}';
 
@@ -709,43 +711,42 @@ class CallController extends GetxController {
 
     // Constructs a list of [CallButton]s from the provided [list] of [String]s.
     List<CallButton> toButtons(List<String>? list) {
-      Set<CallButton>? persisted =
-          list
-              ?.map((e) {
-                switch (e) {
-                  case 'ScreenButton':
-                    return ScreenButton(this);
+      Set<CallButton>? persisted = list
+          ?.map((e) {
+            switch (e) {
+              case 'ScreenButton':
+                return ScreenButton(this);
 
-                  case 'VideoButton':
-                    return VideoButton(this);
+              case 'VideoButton':
+                return VideoButton(this);
 
-                  case 'EndCallButton':
-                    return EndCallButton(this);
+              case 'EndCallButton':
+                return EndCallButton(this);
 
-                  case 'AudioButton':
-                    return AudioButton(this);
+              case 'AudioButton':
+                return AudioButton(this);
 
-                  case 'MoreButton':
-                    return MoreButton(this);
+              case 'MoreButton':
+                return MoreButton(this);
 
-                  case 'SettingsButton':
-                    return SettingsButton(this);
+              case 'SettingsButton':
+                return SettingsButton(this);
 
-                  case 'ParticipantsButton':
-                    return ParticipantsButton(this);
+              case 'ParticipantsButton':
+                return ParticipantsButton(this);
 
-                  case 'HandButton':
-                    return HandButton(this);
+              case 'HandButton':
+                return HandButton(this);
 
-                  case 'RemoteVideoButton':
-                    return RemoteVideoButton(this);
+              case 'RemoteVideoButton':
+                return RemoteVideoButton(this);
 
-                  case 'RemoteAudioButton':
-                    return RemoteAudioButton(this);
-                }
-              })
-              .nonNulls
-              .toSet();
+              case 'RemoteAudioButton':
+                return RemoteAudioButton(this);
+            }
+          })
+          .nonNulls
+          .toSet();
 
       // Add default [CallButton]s, if none are persisted.
       if (persisted?.isNotEmpty != true) {
@@ -977,16 +978,14 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    final List<DeviceDetails> cameras =
-        _currentCall.value.devices.video().toList();
+    final List<DeviceDetails> cameras = _currentCall.value.devices
+        .video()
+        .toList();
     if (cameras.length > 1) {
       final DeviceDetails? videoDevice = _currentCall.value.videoDevice.value;
-      int selected =
-          videoDevice == null
-              ? 0
-              : cameras.indexWhere(
-                (e) => e.deviceId() == videoDevice.deviceId(),
-              );
+      int selected = videoDevice == null
+          ? 0
+          : cameras.indexWhere((e) => e.deviceId() == videoDevice.deviceId());
       selected += 1;
       cameraSwitched.toggle();
       await _currentCall.value.setVideoDevice(
@@ -1001,11 +1000,10 @@ class CallController extends GetxController {
       keepUi();
     }
 
-    final List<DeviceDetails> outputs =
-        _currentCall.value.devices
-            .output()
-            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
-            .toList();
+    final List<DeviceDetails> outputs = _currentCall.value.devices
+        .output()
+        .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+        .toList();
 
     if (outputs.length > 1) {
       int index = outputs.indexWhere(
@@ -1284,10 +1282,9 @@ class CallController extends GetxController {
       context,
       call: _currentCall,
       duration: duration,
-      initial:
-          isGroup
-              ? ParticipantsFlowStage.participants
-              : ParticipantsFlowStage.search,
+      initial: isGroup
+          ? ParticipantsFlowStage.participants
+          : ParticipantsFlowStage.search,
     );
   }
 
@@ -1459,25 +1456,21 @@ class CallController extends GetxController {
       secondaryLeft.value = left;
     } else if (align == Alignment.topRight) {
       secondaryTop.value = top;
-      secondaryRight.value =
-          secondaryWidth.value + left <= size.width
-              ? secondaryRight.value = size.width - left - secondaryWidth.value
-              : 0;
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? secondaryRight.value = size.width - left - secondaryWidth.value
+          : 0;
     } else if (align == Alignment.bottomLeft) {
       secondaryLeft.value = left;
-      secondaryBottom.value =
-          top + secondaryHeight.value <= size.height
-              ? size.height - top - secondaryHeight.value
-              : 0;
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
     } else if (align == Alignment.bottomRight) {
-      secondaryRight.value =
-          secondaryWidth.value + left <= size.width
-              ? size.width - left - secondaryWidth.value
-              : 0;
-      secondaryBottom.value =
-          top + secondaryHeight.value <= size.height
-              ? size.height - top - secondaryHeight.value
-              : 0;
+      secondaryRight.value = secondaryWidth.value + left <= size.width
+          ? size.width - left - secondaryWidth.value
+          : 0;
+      secondaryBottom.value = top + secondaryHeight.value <= size.height
+          ? size.height - top - secondaryHeight.value
+          : 0;
     }
 
     relocateSecondary();
@@ -1665,10 +1658,12 @@ class CallController extends GetxController {
     double? dy,
   }) {
     if (x != null && dx != null) {
-      final RxnDouble xPrimaryOffset =
-          x == ScaleModeX.left ? secondaryLeft : secondaryRight;
-      final RxnDouble xSecondaryOffset =
-          x == ScaleModeX.left ? secondaryRight : secondaryLeft;
+      final RxnDouble xPrimaryOffset = x == ScaleModeX.left
+          ? secondaryLeft
+          : secondaryRight;
+      final RxnDouble xSecondaryOffset = x == ScaleModeX.left
+          ? secondaryRight
+          : secondaryLeft;
 
       _updateSecondaryAxisOffset(
         primary: xPrimaryOffset,
@@ -1685,10 +1680,12 @@ class CallController extends GetxController {
     }
 
     if (y != null && dy != null) {
-      final RxnDouble yPrimaryOffset =
-          y == ScaleModeY.top ? secondaryTop : secondaryBottom;
-      final RxnDouble ySecondaryOffset =
-          y == ScaleModeY.top ? secondaryBottom : secondaryTop;
+      final RxnDouble yPrimaryOffset = y == ScaleModeY.top
+          ? secondaryTop
+          : secondaryBottom;
+      final RxnDouble ySecondaryOffset = y == ScaleModeY.top
+          ? secondaryBottom
+          : secondaryTop;
 
       _updateSecondaryAxisOffset(
         primary: yPrimaryOffset,
@@ -1853,10 +1850,9 @@ class CallController extends GetxController {
     required RxnDouble secondary,
     required Axis axis,
   }) {
-    final double parentEmptySpace =
-        axis == Axis.horizontal
-            ? size.width - secondaryWidth.value
-            : size.height - secondaryHeight.value;
+    final double parentEmptySpace = axis == Axis.horizontal
+        ? size.width - secondaryWidth.value
+        : size.height - secondaryHeight.value;
 
     primary.value ??= parentEmptySpace - (secondary.value ?? 0);
 
@@ -1952,8 +1948,9 @@ class CallController extends GetxController {
     focused.refresh();
 
     primary.value = focused.isNotEmpty ? focused : [...locals, ...remotes];
-    secondary.value =
-        focused.isNotEmpty ? [...locals, ...paneled, ...remotes] : paneled;
+    secondary.value = focused.isNotEmpty
+        ? [...locals, ...paneled, ...remotes]
+        : paneled;
 
     applySecondaryConstraints();
   }
@@ -2107,11 +2104,10 @@ class CallController extends GetxController {
   Future<void> _ensureNotEarpiece() async {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
       if (videoState.value.isEnabled && speaker == AudioSpeakerKind.earpiece) {
-        final List<DeviceDetails> outputs =
-            _currentCall.value.devices
-                .output()
-                .where((e) => e.id() != 'default' && e.deviceId() != 'default')
-                .toList();
+        final List<DeviceDetails> outputs = _currentCall.value.devices
+            .output()
+            .where((e) => e.id() != 'default' && e.deviceId() != 'default')
+            .toList();
 
         final DeviceDetails? speakerphone = outputs.firstWhereOrNull(
           (e) => e.speaker == AudioSpeakerKind.speaker,
@@ -2308,14 +2304,12 @@ class CallController extends GetxController {
       height.value = prefs?.height ?? width.value;
     }
 
-    left.value =
-        size.width - width.value - 50 > 0
-            ? prefs?.left ?? size.width - width.value - 50
-            : prefs?.left ?? size.width / 2 - width.value / 2;
-    top.value =
-        height.value + 50 < size.height
-            ? prefs?.top ?? 50
-            : prefs?.top ?? size.height / 2 - height.value / 2;
+    left.value = size.width - width.value - 50 > 0
+        ? prefs?.left ?? size.width - width.value - 50
+        : prefs?.left ?? size.width / 2 - width.value / 2;
+    top.value = height.value + 50 < size.height
+        ? prefs?.top ?? 50
+        : prefs?.top ?? size.height / 2 - height.value / 2;
   }
 }
 

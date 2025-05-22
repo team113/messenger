@@ -66,9 +66,8 @@ class _AnimatedOffsetState
   Widget build(BuildContext context) {
     return AnimatedBuilder(
       animation: _animation,
-      builder:
-          (_, child) =>
-              Transform.translate(offset: _animation.value, child: child!),
+      builder: (_, child) =>
+          Transform.translate(offset: _animation.value, child: child!),
       child: widget.child,
     );
   }

@@ -30,7 +30,7 @@ import '/ui/worker/cache.dart';
 import '/util/backoff.dart';
 import '/util/platform_utils.dart';
 
-/// Web [html.ImageElement] showing images natively.
+/// Web [web.HTMLImageElement] showing images natively.
 ///
 /// Uses exponential backoff algorithm to re-fetch the [src] in case of errors.
 ///
@@ -266,12 +266,11 @@ class _HtmlImageState extends State<_HtmlImage> {
     _viewType = '${_elementId}__webImageViewType__${widget.src}__';
 
     ui.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      _element =
-          web.HTMLImageElement()
-            ..src = widget.src
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..style.objectFit = 'scale-down';
+      _element = web.HTMLImageElement()
+        ..src = widget.src
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..style.objectFit = 'scale-down';
 
       if (_element?.complete == true) {
         widget.onLoaded?.call();

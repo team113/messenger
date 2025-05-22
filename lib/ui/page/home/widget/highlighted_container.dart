@@ -44,10 +44,9 @@ class HighlightedContainer extends StatelessWidget {
     return AnimatedContainer(
       duration: const Duration(milliseconds: 700),
       curve: Curves.ease,
-      color:
-          highlight
-              ? style.colors.primaryOpacity20
-              : style.colors.primaryOpacity20.withValues(alpha: 0),
+      color: highlight
+          ? style.colors.primaryOpacity20
+          : style.colors.primaryOpacity20.withValues(alpha: 0),
       padding: padding,
       child: child,
     );

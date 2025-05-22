@@ -202,8 +202,8 @@ class ConfirmLogoutView extends StatelessWidget {
                 if (!c.hasPassword.value) ...[
                   PrimaryButton(
                     key: const Key('SetPasswordButton'),
-                    onPressed:
-                        () => c.stage.value = ConfirmLogoutViewStage.password,
+                    onPressed: () =>
+                        c.stage.value = ConfirmLogoutViewStage.password,
                     title: 'btn_set_password'.l10n,
                     leading: SvgIcon(SvgIcons.passwordWhite),
                   ),

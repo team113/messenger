@@ -89,8 +89,8 @@ class CacheWorker extends DisposableService {
 
     info.value = await _cacheLocal?.read() ?? info.value;
 
-    final Directory? cache =
-        cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+    final Directory? cache = cacheDirectory.value ??=
+        await PlatformUtils.cacheDirectory;
 
     // Recalculate the [info], if [FileStat.modified] mismatch is detected.
     if (cache != null && info.value.modified != (await cache.stat()).modified) {
@@ -160,8 +160,8 @@ class CacheWorker extends DisposableService {
 
     return Future(() async {
       if (checksum != null) {
-        final Directory? cache =
-            cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+        final Directory? cache = cacheDirectory.value ??=
+            await PlatformUtils.cacheDirectory;
 
         if (cache != null) {
           final File file = File('${cache.path}/$checksum');
@@ -233,8 +233,9 @@ class CacheWorker extends DisposableService {
   ImageProvider getThumbhashProvider(ThumbHash thumbhash) {
     final ImageProvider thumbhashProvider =
         _thumbhashProviders[thumbhash] ??
-        (_thumbhashProviders[thumbhash] =
-            t.ThumbHash.fromBase64(thumbhash.val).toImage());
+        (_thumbhashProviders[thumbhash] = t.ThumbHash.fromBase64(
+          thumbhash.val,
+        ).toImage());
 
     if (_thumbhashProviders.length > 100) {
       _thumbhashProviders.remove(_thumbhashProviders.keys.first);
@@ -258,8 +259,8 @@ class CacheWorker extends DisposableService {
     }
 
     return _mutex.protect(() async {
-      final Directory? cache =
-          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+      final Directory? cache = cacheDirectory.value ??=
+          await PlatformUtils.cacheDirectory;
 
       if (cache != null) {
         final File file = File('${cache.path}/$checksum');
@@ -383,12 +384,13 @@ class CacheWorker extends DisposableService {
   /// Clears the cache in the cache directory.
   Future<void> clear() {
     return _mutex.protect(() async {
-      final Directory? cache =
-          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+      final Directory? cache = cacheDirectory.value ??=
+          await PlatformUtils.cacheDirectory;
 
       if (cache != null) {
-        final List<File> files =
-            hashes.map((e) => File('${cache.path}/$e')).toList();
+        final List<File> files = hashes
+            .map((e) => File('${cache.path}/$e'))
+            .toList();
 
         final List<Future> futures = [];
         for (var file in files) {
@@ -432,15 +434,16 @@ class CacheWorker extends DisposableService {
     }
 
     return _mutex.protect(() async {
-      final Directory? cache =
-          cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+      final Directory? cache = cacheDirectory.value ??=
+          await PlatformUtils.cacheDirectory;
 
       int overflow = info.value.size - info.value.maxSize!;
       if (overflow > 0 && cache != null) {
         overflow += (info.value.maxSize! * 0.05).floor();
 
-        final List<File> files =
-            hashes.map((e) => File('${cache.path}/$e')).toList();
+        final List<File> files = hashes
+            .map((e) => File('${cache.path}/$e'))
+            .toList();
         final List<String> removed = [];
 
         final Map<File, FileStat> stats = {};
@@ -487,8 +490,8 @@ class CacheWorker extends DisposableService {
 
   /// Updates the [CacheInfo.size] and [CacheInfo.checksums] values.
   void _updateInfo() async {
-    final Directory? cache =
-        cacheDirectory.value ??= await PlatformUtils.cacheDirectory;
+    final Directory? cache = cacheDirectory.value ??=
+        await PlatformUtils.cacheDirectory;
 
     if (cache != null) {
       final HashSet<String> checksums = HashSet();

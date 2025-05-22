@@ -65,7 +65,10 @@ void main() async {
   final locksProvider = Get.put(LockDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
   }
 
   testWidgets('LoginView successfully recovers account access', (
@@ -86,10 +89,11 @@ void main() async {
         locksProvider,
       ),
     );
-    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
+
+    authService.init();
 
     when(
       graphQlProvider.createConfirmationCode(

@@ -95,16 +95,14 @@ class AddPhoneView extends StatelessWidget {
                     Expanded(
                       child: PrimaryButton(
                         key: const Key('Resend'),
-                        onPressed:
-                            c.resendPhoneTimeout.value == 0
-                                ? c.resendPhone
-                                : null,
-                        title:
-                            c.resendPhoneTimeout.value == 0
-                                ? 'label_resend'.l10n
-                                : 'label_resend_timeout'.l10nfmt({
-                                  'timeout': c.resendPhoneTimeout.value,
-                                }),
+                        onPressed: c.resendPhoneTimeout.value == 0
+                            ? c.resendPhone
+                            : null,
+                        title: c.resendPhoneTimeout.value == 0
+                            ? 'label_resend'.l10n
+                            : 'label_resend_timeout'.l10nfmt({
+                                'timeout': c.resendPhoneTimeout.value,
+                              }),
                       ),
                     ),
                     const SizedBox(width: 10),

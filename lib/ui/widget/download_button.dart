@@ -124,55 +124,53 @@ class _DownloadButtonState extends State<DownloadButton> {
 
     return FieldButton(
       text: widget.title,
-      onPressed:
-          widget.link == null || _progress != null
-              ? null
-              : widget.download
-              ? () async {
-                String url = widget.link!;
+      onPressed: widget.link == null || _progress != null
+          ? null
+          : widget.download
+          ? () async {
+              String url = widget.link!;
 
-                if (!url.startsWith('http')) {
-                  url = '${Config.origin}/artifacts/$url';
+              if (!url.startsWith('http')) {
+                url = '${Config.origin}/artifacts/$url';
+              }
+
+              if (mounted) {
+                setState(() => _progress = 0);
+              }
+
+              try {
+                final file = await PlatformUtils.saveTo(
+                  url,
+                  onReceiveProgress: (a, b) {
+                    if (b != 0) {
+                      _progress = a / b;
+                      setState(() {});
+                    }
+                  },
+                );
+
+                if (file != null) {
+                  MessagePopup.success('label_file_downloaded'.l10n);
                 }
-
+              } finally {
                 if (mounted) {
-                  setState(() => _progress = 0);
-                }
-
-                try {
-                  final file = await PlatformUtils.saveTo(
-                    url,
-                    onReceiveProgress: (a, b) {
-                      if (b != 0) {
-                        _progress = a / b;
-                        setState(() {});
-                      }
-                    },
-                  );
-
-                  if (file != null) {
-                    MessagePopup.success('label_file_downloaded'.l10n);
-                  }
-                } finally {
-                  if (mounted) {
-                    setState(() => _progress = null);
-                  }
+                  setState(() => _progress = null);
                 }
               }
-              : () => launchUrlString(widget.link!),
-      trailing:
-          widget.asset == null
-              ? null
-              : _progress == null
-              ? Padding(
-                padding: const EdgeInsets.only(left: 8),
-                child: SvgIcon(widget.asset!),
-              )
-              : Padding(
-                key: const Key('Loading'),
-                padding: const EdgeInsets.only(left: 2),
-                child: CustomProgressIndicator.small(value: _progress),
-              ),
+            }
+          : () => launchUrlString(widget.link!),
+      trailing: widget.asset == null
+          ? null
+          : _progress == null
+          ? Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: SvgIcon(widget.asset!),
+            )
+          : Padding(
+              key: const Key('Loading'),
+              padding: const EdgeInsets.only(left: 2),
+              child: CustomProgressIndicator.small(value: _progress),
+            ),
       style: style.fonts.normal.regular.onBackground,
     );
   }

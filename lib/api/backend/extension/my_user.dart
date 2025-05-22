@@ -38,14 +38,13 @@ extension MyUserConversion on MyUserMixin {
     bio: bio,
     hasPassword: hasPassword,
     unreadChatsCount: unreadChatsCount,
-    chatDirectLink:
-        chatDirectLink != null
-            ? ChatDirectLink(
-              slug: chatDirectLink!.slug,
-              usageCount: chatDirectLink!.usageCount,
-              createdAt: chatDirectLink!.createdAt,
-            )
-            : null,
+    chatDirectLink: chatDirectLink != null
+        ? ChatDirectLink(
+            slug: chatDirectLink!.slug,
+            usageCount: chatDirectLink!.usageCount,
+            createdAt: chatDirectLink!.createdAt,
+          )
+        : null,
     avatar: avatar?.toModel(),
     status: status,
     presenceIndex: presence.index,
@@ -54,18 +53,16 @@ extension MyUserConversion on MyUserMixin {
       unconfirmed: emails.unconfirmed,
     ),
     phones: MyUserPhones(confirmed: []),
-    muted:
-        muted != null
-            ? muted!.$$typename == 'MuteForeverDuration'
-                ? MuteDuration.forever()
-                : MuteDuration.until(
+    muted: muted != null
+        ? muted!.$$typename == 'MuteForeverDuration'
+              ? MuteDuration.forever()
+              : MuteDuration.until(
                   (muted! as MyUserMixin$Muted$MuteUntilDuration).until,
                 )
-            : null,
-    lastSeenAt:
-        online.$$typename == 'UserOffline'
-            ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
-            : null,
+        : null,
+    lastSeenAt: online.$$typename == 'UserOffline'
+        ? (online as MyUserMixin$Online$UserOffline).lastSeenAt
+        : null,
     welcomeMessage: welcomeMessage?.toModel(),
   );
 

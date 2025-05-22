@@ -289,14 +289,12 @@ class RxUserImpl extends RxUser {
             case UserEventKind.welcomeMessageUpdated:
               event as EventUserWelcomeMessageUpdated;
               userEntity.value.welcomeMessage = WelcomeMessage(
-                text:
-                    event.text == null
-                        ? userEntity.value.welcomeMessage?.text
-                        : event.text?.changed,
-                attachments:
-                    event.attachments == null
-                        ? userEntity.value.welcomeMessage?.attachments ?? []
-                        : event.attachments?.attachments ?? [],
+                text: event.text == null
+                    ? userEntity.value.welcomeMessage?.text
+                    : event.text?.changed,
+                attachments: event.attachments == null
+                    ? userEntity.value.welcomeMessage?.attachments ?? []
+                    : event.attachments?.attachments ?? [],
                 at: event.at,
               );
               break;
@@ -349,8 +347,9 @@ class RxUserImpl extends RxUser {
     }
 
     final DateTime now = DateTime.now();
-    final Duration difference =
-        now.difference(user.value.lastSeenAt!.val).abs();
+    final Duration difference = now
+        .difference(user.value.lastSeenAt!.val)
+        .abs();
 
     final Duration delay;
     final Duration period;

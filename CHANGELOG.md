@@ -6,25 +6,82 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
-## [0.5.0] · 2025-??-??
+## [0.6.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.6.0
+
+[Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Duplicating read users avatars under messages. ([#1243])
+        - Invalid message's author being displayed sometimes. ([#1243], [#1050])
+        - Gallery image flashing when being opened. ([#1246])
+    - Chats tab:
+        - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
+    - Chat info page:
+        - Infinite loader displayed under members list. ([#1246])
+
+[#1050]: /../../issues/1050
+[#1244]: /../../issues/1244
+[#1243]: /../../pull/1243
+[#1244]: /../../issues/1244
+[#1246]: /../../pull/1246
+
+
+
+
+## [0.5.0] · 2025-05-09
 [0.5.0]: /../../tree/v0.5.0
 
-[Diff](/../../compare/v0.4.2...v0.5.0) | [Milestone](/../../milestone/38)
+[Diff](/../../compare/v0.4.3...v0.5.0) | [Milestone](/../../milestone/39)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Images in replied messages sometimes not being loaded. ([#1238])
+
+[#1238]: /../../pull/1238
+
+
+
+
+## [0.4.3] · 2025-05-06
+[0.4.3]: /../../tree/v0.4.3
+
+[Diff](/../../compare/v0.4.2...v0.4.3) | [Milestone](/../../milestone/38)
+
+### Changed
+
+- UI:
+    - Media panel:
+        - Context menu icons in actions over participants. ([#1226])
+    - Auth page:
+        - Upgrade popup redesigned to be upgrade alert. ([#1229])
 
 ### Fixed
 
 - UI:
     - Media panel:
         - Incoming call displayed multiple times when declined quickly enough. ([#1219])
+        - Call buttons hanging in air when dragging from launchpad fast enough. ([#1237], [#1236])
 - Web:
     - Translate popup displaying in browsers. ([#1215])
     - Call audio ringtone not being played. ([#1218])
     - Preferred microphone and camera not being used in Safari. ([#1223])
+    - Microphone devices not being listed in PWA in Safari. ([#1227])
 
 [#1215]: /../../pull/1215
 [#1218]: /../../pull/1218
 [#1219]: /../../pull/1219
 [#1223]: /../../pull/1223
+[#1226]: /../../pull/1226
+[#1227]: /../../pull/1227
+[#1229]: /../../pull/1229
+[#1236]: /../../issues/1236
+[#1237]: /../../pull/1237
 
 
 

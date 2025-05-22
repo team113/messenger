@@ -65,10 +65,9 @@ class IntroductionView extends StatelessWidget {
 
     return ModalPopup.show(
       context: context,
-      background:
-          initial == IntroductionViewStage.link
-              ? style.colors.background
-              : null,
+      background: initial == IntroductionViewStage.link
+          ? style.colors.background
+          : null,
       child: IntroductionView(initial: initial),
     );
   }
@@ -126,12 +125,11 @@ class IntroductionView extends StatelessWidget {
                       TextSpan(
                         text: 'label_introduction_description2'.l10n,
                         style: style.fonts.medium.regular.primary,
-                        recognizer:
-                            TapGestureRecognizer()
-                              ..onTap = () {
-                                Navigator.of(context).pop();
-                                router.me();
-                              },
+                        recognizer: TapGestureRecognizer()
+                          ..onTap = () {
+                            Navigator.of(context).pop();
+                            router.me();
+                          },
                       ),
                       TextSpan(
                         text: 'label_introduction_description3'.l10n,
@@ -176,11 +174,8 @@ class IntroductionView extends StatelessWidget {
                     offset: const Offset(4, 0),
                     child: const SvgIcon(SvgIcons.enter),
                   ),
-                  onPressed:
-                      () => LoginView.show(
-                        context,
-                        initial: LoginViewStage.signIn,
-                      ),
+                  onPressed: () =>
+                      LoginView.show(context, initial: LoginViewStage.signIn),
                   child: Text('btn_sign_in'.l10n),
                 ),
               );
@@ -309,7 +304,7 @@ class IntroductionView extends StatelessWidget {
   Widget _link(IntroductionController c, BuildContext context) {
     Future<void> copy() async {
       if (PlatformUtils.isMobile) {
-        Share.share(c.link.text);
+        await SharePlus.instance.share(ShareParams(text: c.link.text));
       } else {
         PlatformUtils.copy(text: c.link.text);
         MessagePopup.success('label_copied'.l10n);
@@ -322,10 +317,9 @@ class IntroductionView extends StatelessWidget {
       state: c.link,
       onSuffixPressed: copy,
       selectable: c.myUser.value?.chatDirectLink != null,
-      trailing:
-          PlatformUtils.isMobile
-              ? const SvgIcon(SvgIcons.share)
-              : const SvgIcon(SvgIcons.copy),
+      trailing: PlatformUtils.isMobile
+          ? const SvgIcon(SvgIcons.share)
+          : const SvgIcon(SvgIcons.copy),
       label: 'label_your_direct_link'.l10n,
     );
   }
@@ -384,9 +378,8 @@ class IntroductionView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms2'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () => TermsOfUseView.show(context),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => TermsOfUseView.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms3'.l10n,
@@ -395,9 +388,8 @@ class IntroductionView extends StatelessWidget {
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms4'.l10n,
             style: style.fonts.small.regular.primary,
-            recognizer:
-                TapGestureRecognizer()
-                  ..onTap = () => PrivacyPolicy.show(context),
+            recognizer: TapGestureRecognizer()
+              ..onTap = () => PrivacyPolicy.show(context),
           ),
           TextSpan(
             text: 'alert_by_proceeding_you_accept_terms5'.l10n,

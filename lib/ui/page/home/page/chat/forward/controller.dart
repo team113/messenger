@@ -115,13 +115,12 @@ class ChatForwardController extends GetxController {
         send.field.editable.value = false;
 
         try {
-          final List<Future> uploads =
-              send.attachments
-                  .map((e) => e.value)
-                  .whereType<LocalAttachment>()
-                  .map((e) => e.upload.value?.future)
-                  .nonNulls
-                  .toList();
+          final List<Future> uploads = send.attachments
+              .map((e) => e.value)
+              .whereType<LocalAttachment>()
+              .map((e) => e.upload.value?.future)
+              .nonNulls
+              .toList();
           if (uploads.isNotEmpty) {
             await Future.wait(uploads);
           }
@@ -134,13 +133,13 @@ class ChatForwardController extends GetxController {
             );
           }
 
-          final List<AttachmentId>? attachments =
-              send.attachments.isEmpty
-                  ? null
-                  : send.attachments.map((a) => a.value.id).toList();
+          final List<AttachmentId>? attachments = send.attachments.isEmpty
+              ? null
+              : send.attachments.map((a) => a.value.id).toList();
 
-          final ChatMessageText? text =
-              send.field.text.isEmpty ? null : ChatMessageText(send.field.text);
+          final ChatMessageText? text = send.field.text.isEmpty
+              ? null
+              : ChatMessageText(send.field.text);
 
           final List<ChatItemQuoteInput> quotes = send.quotes.reversed.toList();
 

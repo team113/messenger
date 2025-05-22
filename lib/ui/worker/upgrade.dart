@@ -27,7 +27,6 @@ import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
 import '/config.dart';
-import '/domain/service/auth.dart';
 import '/domain/service/disposable_service.dart';
 import '/l10n/l10n.dart';
 import '/provider/drift/skipped_version.dart';
@@ -42,7 +41,7 @@ import '/util/web/web_utils.dart';
 /// Worker fetching [Config.appcast] file and prompting [UpgradePopupView] on
 /// new [Release]s available.
 class UpgradeWorker extends DisposableService {
-  UpgradeWorker(this._skippedLocal, this._authService);
+  UpgradeWorker(this._skippedLocal);
 
   /// Latest [Release] fetched during the [fetchUpdates].
   final Rx<Release?> latest = Rx(null);
@@ -59,9 +58,6 @@ class UpgradeWorker extends DisposableService {
   /// [SkippedVersionDriftProvider] for maintaining the skipped [Release]s.
   final SkippedVersionDriftProvider? _skippedLocal;
 
-  /// [AuthService] used to check whether application has authorization.
-  final AuthService _authService;
-
   /// [Timer] to periodically fetch updates over time.
   Timer? _timer;
 
@@ -77,7 +73,7 @@ class UpgradeWorker extends DisposableService {
   static const Duration _popupDelay = Duration(seconds: 1);
 
   /// [Duration] being the period of [_timer].
-  static const Duration _refreshPeriod = Duration(minutes: 2);
+  static const Duration _refreshPeriod = Duration(minutes: 3);
 
   @override
   void onReady() {
@@ -106,6 +102,11 @@ class UpgradeWorker extends DisposableService {
   /// Skips the [release], meaning no popups will be prompted for this one.
   Future<void> skip(Release release) async {
     Log.debug('skip($release)', '$runtimeType');
+
+    if (scheduled.value == release) {
+      scheduled.value = null;
+    }
+
     await _skippedLocal?.upsert(release.name);
   }
 
@@ -214,10 +215,9 @@ class UpgradeWorker extends DisposableService {
             }
 
             // Shouldn't prompt user with versions lower than current.
-            final bool lower =
-                ours != null && their != null
-                    ? ours < their
-                    : Pubspec.ref.compareTo(release.name) == -1;
+            final bool lower = ours != null && their != null
+                ? ours < their
+                : Pubspec.ref.compareTo(release.name) == -1;
             Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
@@ -236,7 +236,7 @@ class UpgradeWorker extends DisposableService {
               _schedulePopup(
                 release,
                 critical: critical,
-                delay: !force,
+                delay: !force && critical,
                 silent: silent,
               );
               return true;
@@ -275,12 +275,13 @@ class UpgradeWorker extends DisposableService {
       if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
         _schedulePopup(
           Release(
-            name: '${DateTime.now().microsecondsSinceEpoch}',
+            name: 'label_latest_version_available'.l10n,
             description: null,
             publishedAt: DateTime.now(),
             assets: [],
           ),
           critical: false,
+          delay: false,
           silent: true,
         );
       }
@@ -304,7 +305,7 @@ class UpgradeWorker extends DisposableService {
 
     Future<void> displayPopup() async {
       // Only restrain from displaying the popup if app has authorization.
-      if (!critical && _authService.status.value.isSuccess) {
+      if (!critical) {
         if (_scheduled) {
           return;
         }
@@ -373,11 +374,10 @@ class Release {
         xml.findElements('description').firstOrNull?.innerText;
 
     final String date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseArtifact> assets =
-        xml
-            .findElements('enclosure')
-            .map((e) => ReleaseArtifact.fromXml(e))
-            .toList();
+    final List<ReleaseArtifact> assets = xml
+        .findElements('enclosure')
+        .map((e) => ReleaseArtifact.fromXml(e))
+        .toList();
 
     return Release(
       name: title,
@@ -732,12 +732,11 @@ extension VersionExtension on Version {
       parsed.major,
       parsed.minor,
       parsed.patch,
-      pre:
-          parsed.preRelease.isEmpty
-              ? null
-              : parsed.preRelease
-                  .map((e) => e is String ? e.replaceAll('-', '.') : e)
-                  .join('.'),
+      pre: parsed.preRelease.isEmpty
+          ? null
+          : parsed.preRelease
+                .map((e) => e is String ? e.replaceAll('-', '.') : e)
+                .join('.'),
       build: parsed.build.isEmpty ? null : parsed.build.join('.'),
     );
   }

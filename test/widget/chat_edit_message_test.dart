@@ -368,10 +368,11 @@ void main() async {
         locksProvider,
       ),
     );
-    authService.init();
 
     router = RouterState(authService);
     router.provider = MockPlatformRouteInformationProvider();
+
+    authService.init();
 
     AbstractSettingsRepository settingsRepository = Get.put(
       SettingsRepository(

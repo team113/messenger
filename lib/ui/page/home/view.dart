@@ -16,18 +16,14 @@
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 import 'dart:async';
-import 'dart:io';
 import 'dart:ui';
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:get/get.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/call/widget/conditional_backdrop.dart';
@@ -37,13 +33,10 @@ import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
-import '/ui/widget/upgrade_popup/view.dart';
-import '/ui/widget/widget_button.dart';
+import '/ui/widget/upgrade_available_button.dart';
 import '/ui/worker/upgrade.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import '/util/scoped_dependencies.dart';
-import '/util/web/web_utils.dart';
 import 'controller.dart';
 import 'overlay/controller.dart';
 import 'router.dart';
@@ -121,10 +114,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _backButtonDispatcher =
-        Router.of(
-          context,
-        ).backButtonDispatcher!.createChildBackButtonDispatcher();
+    _backButtonDispatcher = Router.of(
+      context,
+    ).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -134,10 +126,9 @@ class _HomeViewState extends State<HomeView> {
     if (_deps == null) {
       return Scaffold(
         // For web, background color is displayed in `index.html` file.
-        backgroundColor:
-            PlatformUtils.isWeb
-                ? style.colors.transparent
-                : style.colors.onPrimary,
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
         body: const Stack(
           children: [
             SvgImage.asset(
@@ -240,18 +231,10 @@ class _HomeViewState extends State<HomeView> {
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
-                    onDragStart:
-                        (_) =>
-                            c.sideBarWidth.value = c.applySideBarWidth(
-                              context,
-                              c.sideBarWidth.value,
-                            ),
-                    onDragUpdate:
-                        (dx, _) =>
-                            c.sideBarWidth.value = c.applySideBarWidth(
-                              context,
-                              c.sideBarWidth.value + dx,
-                            ),
+                    onDragStart: (_) => c.sideBarWidth.value = c
+                        .applySideBarWidth(context, c.sideBarWidth.value),
+                    onDragUpdate: (dx, _) => c.sideBarWidth.value = c
+                        .applySideBarWidth(context, c.sideBarWidth.value + dx),
                     onDragEnd: (_) => c.setSideBarWidth(),
                     width: 7,
                     height: context.height,
@@ -333,35 +316,34 @@ class _HomeViewState extends State<HomeView> {
           translate: false,
           child: CustomNavigationBar(
             key: c.panelKey,
-            items:
-                tabs.map((e) {
-                  switch (e) {
-                    case HomeTab.link:
-                      return const CustomNavigationBarItem.link();
+            items: tabs.map((e) {
+              switch (e) {
+                case HomeTab.link:
+                  return const CustomNavigationBarItem.link();
 
-                    case HomeTab.chats:
-                      return Obx(() {
-                        return CustomNavigationBarItem.chats(
-                          unread: c.unreadChats.value.toString(),
-                          danger: c.myUser.value?.muted == null,
-                          selector: c.chatsKey,
-                          onMute: c.toggleMute,
-                        );
-                      });
+                case HomeTab.chats:
+                  return Obx(() {
+                    return CustomNavigationBarItem.chats(
+                      unread: c.unreadChats.value.toString(),
+                      danger: c.myUser.value?.muted == null,
+                      selector: c.chatsKey,
+                      onMute: c.toggleMute,
+                    );
+                  });
 
-                    case HomeTab.menu:
-                      return Obx(() {
-                        return CustomNavigationBarItem.menu(
-                          acceptAuxiliary: style.colors.acceptAuxiliary,
-                          warning: style.colors.warning,
-                          onPresence: c.setPresence,
-                          onAvatar: c.updateAvatar,
-                          selector: c.panelKey,
-                          myUser: c.myUser.value,
-                        );
-                      });
-                  }
-                }).toList(),
+                case HomeTab.menu:
+                  return Obx(() {
+                    return CustomNavigationBarItem.menu(
+                      acceptAuxiliary: style.colors.acceptAuxiliary,
+                      warning: style.colors.warning,
+                      onPresence: c.setPresence,
+                      onAvatar: c.updateAvatar,
+                      selector: c.panelKey,
+                      myUser: c.myUser.value,
+                    );
+                  });
+              }
+            }).toList(),
             currentIndex: tabs.indexOf(router.tab),
             onTap: (i) {
               if (i == 0) {
@@ -448,115 +430,18 @@ class _HomeViewState extends State<HomeView> {
 
   /// Builds an upgrade available popup displaying the latest [Release], if any.
   Widget _upgradePopup(BuildContext context, HomeController c) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
       if (c.scheduled.value == null) {
         return SizedBox();
       }
 
-      final ReleaseDownload? download = c.activeDownload.value;
-      final File? file = download?.file.value;
-
-      final Widget leading;
-      final String text;
-
-      if (PlatformUtils.isWeb) {
-        text = 'label_update_available'.l10n;
-        leading = SvgIcon(
-          SvgIcons.downloadRefresh,
-          key: Key('downloadRefresh'),
-        );
-      } else if (download == null) {
-        text = 'label_update_available'.l10n;
-        leading = SvgIcon(SvgIcons.downloadArrow, key: Key('downloadArrow'));
-      } else if (file != null) {
-        text = 'btn_open'.l10n;
-        leading = SvgIcon(SvgIcons.downloadFolder, key: Key('downloadFolder'));
-      } else {
-        text = 'label_downloading'.l10n;
-        leading = Padding(
-          padding: const EdgeInsets.all(3),
-          child: CustomProgressIndicator.bold(value: download.progress.value),
-        );
-      }
-
-      final Widget title = Center(
-        key: Key(text),
-        child: Text(text, style: style.fonts.normal.regular.onPrimary),
-      );
-
       return Padding(
         key: Key('UpgradeAlert'),
         padding: const EdgeInsets.only(bottom: 6),
-        child: WidgetButton(
-          onPressed:
-              file != null
-                  ? () async {
-                    try {
-                      final launched = await launchUrl(file.uri);
-
-                      if (!launched && context.mounted) {
-                        await UpgradePopupView.show(
-                          context,
-                          release: c.scheduled.value!,
-                        );
-                      }
-                    } catch (e) {
-                      MessagePopup.error(e);
-                    }
-                  }
-                  : download == null
-                  ? () async {
-                    if (PlatformUtils.isWeb) {
-                      return await WebUtils.refresh();
-                    }
-
-                    await UpgradePopupView.show(
-                      context,
-                      release: c.scheduled.value!,
-                    );
-                  }
-                  : null,
-          child: Container(
-            height: 48,
-            margin: EdgeInsets.fromLTRB(10, 0, 10, 0),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: style.colors.primary,
-              boxShadow: [
-                CustomBoxShadow(
-                  blurRadius: 8,
-                  color: style.colors.onBackgroundOpacity13,
-                  blurStyle: BlurStyle.outer.workaround,
-                ),
-              ],
-            ),
-            padding: EdgeInsets.fromLTRB(16, 0, 16, 0),
-            child: Row(
-              children: [
-                AnimatedSizeAndFade(
-                  fadeDuration: Duration(milliseconds: 250),
-                  sizeDuration: Duration(milliseconds: 250),
-                  child: leading,
-                ),
-                Expanded(
-                  child: AnimatedSizeAndFade(
-                    fadeDuration: Duration(milliseconds: 250),
-                    sizeDuration: Duration(milliseconds: 250),
-                    child: title,
-                  ),
-                ),
-                WidgetButton(
-                  onPressed: download?.cancel ?? () => c.scheduled.value = null,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(8, 4, 0, 4),
-                    child: SvgIcon(SvgIcons.closeSmall),
-                  ),
-                ),
-              ],
-            ),
-          ),
+        child: UpgradeAvailableButton(
+          scheduled: c.scheduled.value!,
+          download: c.activeDownload.value,
+          onClose: () => c.scheduled.value = null,
         ),
       );
     });

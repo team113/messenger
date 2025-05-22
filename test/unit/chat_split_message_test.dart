@@ -50,6 +50,7 @@ import 'package:messenger/provider/drift/settings.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/drift/version.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/routes.dart';
 import 'package:messenger/store/auth.dart';
 import 'package:messenger/store/call.dart';
 import 'package:messenger/store/chat.dart';
@@ -110,6 +111,7 @@ void main() async {
     ),
     permanent: true,
   );
+  router = RouterState(authService);
   authService.init();
 
   var chatData = {

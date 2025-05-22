@@ -49,8 +49,8 @@ import '/ui/page/home/widget/rectangle_button.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/svg/svg.dart';
-import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'periodic_builder.dart';
@@ -193,10 +193,9 @@ class RecentChatTile extends StatelessWidget {
         endActionPane: ActionPane(
           extentRatio: 0.33,
           motion: const StretchMotion(),
-          dismissible:
-              onDismissed == null
-                  ? null
-                  : DismissiblePane(onDismissed: onDismissed!),
+          dismissible: onDismissed == null
+              ? null
+              : DismissiblePane(onDismissed: onDismissed!),
           children: [
             FadingSlidableAction(
               onPressed: _hideChat,
@@ -207,144 +206,131 @@ class RecentChatTile extends StatelessWidget {
         ),
         child: CustomDropTarget(
           onPerformDrop: onPerformDrop,
-          builder:
-              (dragging) => ChatTile(
-                chat: rxChat,
-                dimmed: blocked || dragging,
-                status: [
-                  const SizedBox(height: 28),
-                  if (trailing == null) ...[
-                    _ongoingCall(context, inverted: inverted),
-                    if (blocked) ...[
-                      const SizedBox(width: 8),
-                      SvgIcon(
-                        inverted ? SvgIcons.blockedWhite : SvgIcons.blocked,
-                      ),
-                    ],
-                    if (rxChat.unreadCount.value > 0) ...[
-                      const SizedBox(width: 10),
-                      UnreadCounter(
-                        key: const Key('UnreadMessages'),
-                        rxChat.unreadCount.value,
-                        inverted: inverted,
-                        dimmed: chat.muted != null,
-                      ),
-                    ] else ...[
-                      if (chat.muted != null) ...[
-                        const SizedBox(width: 10),
-                        SvgIcon(
-                          inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
-                          key: Key('MuteIndicator_${chat.id}'),
-                        ),
-                      ],
-                      const SizedBox(key: Key('NoUnreadMessages')),
-                    ],
-                  ] else
-                    ...trailing!,
+          builder: (dragging) => ChatTile(
+            chat: rxChat,
+            dimmed: blocked || dragging,
+            status: [
+              const SizedBox(height: 28),
+              if (trailing == null) ...[
+                _ongoingCall(context, inverted: inverted),
+                if (blocked) ...[
+                  const SizedBox(width: 8),
+                  SvgIcon(inverted ? SvgIcons.blockedWhite : SvgIcons.blocked),
                 ],
-                subtitle: [
-                  const SizedBox(height: 5),
-                  ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 38),
-                    child: Row(
-                      children: [
-                        const SizedBox(height: 3),
-                        Expanded(
-                          child: _subtitle(
-                            context,
-                            selected ?? false,
-                            inverted,
-                          ),
-                        ),
-                        const SizedBox(width: 3),
-                        _status(context, inverted),
-                        if (!chat.id.isLocal)
-                          Text(
-                            chat.updatedAt.val.toLocal().short,
-                            style:
-                                inverted
-                                    ? style.fonts.normal.regular.onPrimary
-                                    : style.fonts.normal.regular.secondary,
-                          ),
-                      ],
-                    ),
+                if (rxChat.unreadCount.value > 0) ...[
+                  const SizedBox(width: 10),
+                  UnreadCounter(
+                    key: const Key('UnreadMessages'),
+                    rxChat.unreadCount.value,
+                    inverted: inverted,
+                    dimmed: chat.muted != null,
                   ),
+                ] else ...[
+                  if (chat.muted != null) ...[
+                    const SizedBox(width: 10),
+                    SvgIcon(
+                      inverted ? SvgIcons.mutedWhite : SvgIcons.muted,
+                      key: Key('MuteIndicator_${chat.id}'),
+                    ),
+                  ],
+                  const SizedBox(key: Key('NoUnreadMessages')),
                 ],
-                actions: [
-                  if (chat.isDialog &&
-                      inContacts != null &&
-                      onContact != null) ...[
-                    if (inContacts!.call() == true)
-                      ContextMenuButton(
-                        label: 'btn_delete_from_contacts'.l10n,
-                        onPressed: () => onContact?.call(false),
-                        trailing: const SvgIcon(SvgIcons.deleteContact),
-                        inverted: const SvgIcon(SvgIcons.deleteContactWhite),
-                      )
-                    else
-                      ContextMenuButton(
-                        label: 'btn_add_to_contacts'.l10n,
-                        onPressed: () => onContact?.call(true),
-                        trailing: const SvgIcon(SvgIcons.addContact),
-                        inverted: const SvgIcon(SvgIcons.addContactWhite),
+              ] else
+                ...trailing!,
+            ],
+            subtitle: [
+              const SizedBox(height: 5),
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxHeight: 38),
+                child: Row(
+                  children: [
+                    const SizedBox(height: 3),
+                    Expanded(
+                      child: _subtitle(context, selected ?? false, inverted),
+                    ),
+                    const SizedBox(width: 3),
+                    _status(context, inverted),
+                    if (!chat.id.isLocal)
+                      Text(
+                        chat.updatedAt.val.toLocal().short,
+                        style: inverted
+                            ? style.fonts.normal.regular.onPrimary
+                            : style.fonts.normal.regular.secondary,
                       ),
                   ],
-                  if (chat.favoritePosition != null && onUnfavorite != null)
-                    ContextMenuButton(
-                      key: const Key('UnfavoriteChatButton'),
-                      label: 'btn_delete_from_favorites'.l10n,
-                      onPressed: onUnfavorite,
-                      trailing: const SvgIcon(SvgIcons.favoriteSmall),
-                      inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
-                    ),
-                  if (chat.favoritePosition == null && onFavorite != null)
-                    ContextMenuButton(
-                      key: const Key('FavoriteChatButton'),
-                      label: 'btn_add_to_favorites'.l10n,
-                      onPressed: onFavorite,
-                      trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
-                      inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
-                    ),
-                  if (chat.muted == null && onMute != null)
-                    ContextMenuButton(
-                      key: const Key('MuteChatButton'),
-                      label:
-                          PlatformUtils.isMobile
-                              ? 'btn_mute'.l10n
-                              : 'btn_mute_chat'.l10n,
-                      onPressed: onMute,
-                      trailing: const SvgIcon(SvgIcons.unmuteSmall),
-                      inverted: const SvgIcon(SvgIcons.unmuteSmallWhite),
-                    ),
-                  if (chat.muted != null && onUnmute != null)
-                    ContextMenuButton(
-                      key: const Key('UnmuteChatButton'),
-                      label:
-                          PlatformUtils.isMobile
-                              ? 'btn_unmute'.l10n
-                              : 'btn_unmute_chat'.l10n,
-                      onPressed: onUnmute,
-                      trailing: const SvgIcon(SvgIcons.muteSmall),
-                      inverted: const SvgIcon(SvgIcons.muteSmallWhite),
-                    ),
-                  if (onHide != null)
-                    ContextMenuButton(
-                      key: const Key('HideChatButton'),
-                      label:
-                          PlatformUtils.isMobile
-                              ? 'btn_delete'.l10n
-                              : 'btn_delete_chat'.l10n,
-                      onPressed: () => _hideChat(context),
-                      trailing: const SvgIcon(SvgIcons.delete19),
-                      inverted: const SvgIcon(SvgIcons.delete19White),
-                    ),
-                ],
-                selected: inverted,
-                avatarBuilder: avatarBuilder,
-                enableContextMenu: enableContextMenu,
-                onTap: onTap ?? () => router.dialog(chat, me),
-                onForbidden: rxChat.updateAvatar,
+                ),
               ),
+            ],
+            actions: [
+              if (chat.isDialog && inContacts != null && onContact != null) ...[
+                if (inContacts!.call() == true)
+                  ContextMenuButton(
+                    label: 'btn_delete_from_contacts'.l10n,
+                    onPressed: () => onContact?.call(false),
+                    trailing: const SvgIcon(SvgIcons.deleteContact),
+                    inverted: const SvgIcon(SvgIcons.deleteContactWhite),
+                  )
+                else
+                  ContextMenuButton(
+                    label: 'btn_add_to_contacts'.l10n,
+                    onPressed: () => onContact?.call(true),
+                    trailing: const SvgIcon(SvgIcons.addContact),
+                    inverted: const SvgIcon(SvgIcons.addContactWhite),
+                  ),
+              ],
+              if (chat.favoritePosition != null && onUnfavorite != null)
+                ContextMenuButton(
+                  key: const Key('UnfavoriteChatButton'),
+                  label: 'btn_delete_from_favorites'.l10n,
+                  onPressed: onUnfavorite,
+                  trailing: const SvgIcon(SvgIcons.favoriteSmall),
+                  inverted: const SvgIcon(SvgIcons.favoriteSmallWhite),
+                ),
+              if (chat.favoritePosition == null && onFavorite != null)
+                ContextMenuButton(
+                  key: const Key('FavoriteChatButton'),
+                  label: 'btn_add_to_favorites'.l10n,
+                  onPressed: onFavorite,
+                  trailing: const SvgIcon(SvgIcons.unfavoriteSmall),
+                  inverted: const SvgIcon(SvgIcons.unfavoriteSmallWhite),
+                ),
+              if (chat.muted == null && onMute != null)
+                ContextMenuButton(
+                  key: const Key('MuteChatButton'),
+                  label: PlatformUtils.isMobile
+                      ? 'btn_mute'.l10n
+                      : 'btn_mute_chat'.l10n,
+                  onPressed: onMute,
+                  trailing: const SvgIcon(SvgIcons.unmuteSmall),
+                  inverted: const SvgIcon(SvgIcons.unmuteSmallWhite),
+                ),
+              if (chat.muted != null && onUnmute != null)
+                ContextMenuButton(
+                  key: const Key('UnmuteChatButton'),
+                  label: PlatformUtils.isMobile
+                      ? 'btn_unmute'.l10n
+                      : 'btn_unmute_chat'.l10n,
+                  onPressed: onUnmute,
+                  trailing: const SvgIcon(SvgIcons.muteSmall),
+                  inverted: const SvgIcon(SvgIcons.muteSmallWhite),
+                ),
+              if (onHide != null)
+                ContextMenuButton(
+                  key: const Key('HideChatButton'),
+                  label: PlatformUtils.isMobile
+                      ? 'btn_delete'.l10n
+                      : 'btn_delete_chat'.l10n,
+                  onPressed: () => _hideChat(context),
+                  trailing: const SvgIcon(SvgIcons.delete19),
+                  inverted: const SvgIcon(SvgIcons.delete19White),
+                ),
+            ],
+            selected: inverted,
+            avatarBuilder: avatarBuilder,
+            enableContextMenu: enableContextMenu,
+            onTap: onTap ?? () => router.dialog(chat, me),
+            onForbidden: rxChat.updateAvatar,
+          ),
         ),
       );
     });
@@ -358,10 +344,9 @@ class RecentChatTile extends StatelessWidget {
     if (blocked) {
       return Text(
         'label_blocked'.l10n,
-        style:
-            inverted
-                ? style.fonts.normal.regular.onPrimary
-                : style.fonts.normal.regular.secondary,
+        style: inverted
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       );
@@ -386,10 +371,9 @@ class RecentChatTile extends StatelessWidget {
               children: [
                 Text(
                   'label_typing'.l10n,
-                  style:
-                      inverted
-                          ? style.fonts.small.regular.onPrimary
-                          : style.fonts.small.regular.primary,
+                  style: inverted
+                      ? style.fonts.small.regular.onPrimary
+                      : style.fonts.small.regular.primary,
                 ),
                 const SizedBox(width: 2),
                 Padding(
@@ -410,10 +394,9 @@ class RecentChatTile extends StatelessWidget {
                       typings.join('comma_space'.l10n),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style:
-                          inverted
-                              ? style.fonts.small.regular.onPrimary
-                              : style.fonts.small.regular.primary,
+                      style: inverted
+                          ? style.fonts.small.regular.onPrimary
+                          : style.fonts.small.regular.primary,
                     ),
                   ),
                   const SizedBox(width: 2),
@@ -471,10 +454,9 @@ class RecentChatTile extends StatelessWidget {
               child: LayoutBuilder(
                 builder: (_, constraints) {
                   return Row(
-                    children:
-                        images
-                            .take((constraints.maxWidth / (30 + 4)).floor())
-                            .toList(),
+                    children: images
+                        .take((constraints.maxWidth / (30 + 4)).floor())
+                        .toList(),
                   );
                 },
               ),
@@ -500,10 +482,10 @@ class RecentChatTile extends StatelessWidget {
             child: SvgIcon(
               item.withVideo
                   ? inverted
-                      ? SvgIcons.callVideoWhite
-                      : isMissed
-                      ? SvgIcons.callVideoMissed
-                      : SvgIcons.callVideoDisabled
+                        ? SvgIcons.callVideoWhite
+                        : isMissed
+                        ? SvgIcons.callVideoMissed
+                        : SvgIcons.callVideoDisabled
                   : inverted
                   ? SvgIcons.callAudioWhite
                   : isMissed
@@ -534,8 +516,6 @@ class RecentChatTile extends StatelessWidget {
           }
         } else if (item is ChatMessage) {
           final desc = StringBuffer();
-
-          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
 
           if (item.text != null) {
             desc.write(item.text!.val);
@@ -577,20 +557,19 @@ class RecentChatTile extends StatelessWidget {
             else if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is RxUser? ? null : userOrFuture,
-                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
+                child: FutureOrBuilder<RxUser?>(
+                  key: Key('${item.id}_7_${item.author.id}'),
+                  futureOr: () => getUser?.call(item.author.id),
                   builder: (_, snapshot) {
                     final FutureOr<RxUser?> rxUser =
-                        snapshot.data ??
-                        userOrFuture ??
+                        snapshot ??
                         rxChat.members.values
                             .firstWhereOrNull(
                               (e) => e.user.id == item.author.id,
                             )
                             ?.user;
 
-                    if (rxUser is RxUser?) {
+                    if (rxUser is RxUser) {
                       return AvatarWidget.fromRxUser(
                         rxUser,
                         radius: AvatarRadius.smaller,
@@ -609,10 +588,9 @@ class RecentChatTile extends StatelessWidget {
                 child: LayoutBuilder(
                   builder: (_, constraints) {
                     return Row(
-                      children:
-                          images
-                              .take((constraints.maxWidth / (30 + 4)).floor())
-                              .toList(),
+                      children: images
+                          .take((constraints.maxWidth / (30 + 4)).floor())
+                          .toList(),
                     );
                   },
                 ),
@@ -622,26 +600,22 @@ class RecentChatTile extends StatelessWidget {
             if (desc.isNotEmpty) Flexible(child: Text(desc.toString())),
           ];
         } else if (item is ChatForward) {
-          final FutureOr<RxUser?> userOrFuture = getUser?.call(item.author.id);
-
           subtitle = [
             if (chat.isGroup)
               Padding(
                 padding: const EdgeInsets.only(right: 5),
-                child: FutureBuilder<RxUser?>(
-                  future: userOrFuture is RxUser? ? null : userOrFuture,
-                  initialData: userOrFuture is RxUser? ? userOrFuture : null,
-                  builder:
-                      (_, snapshot) =>
-                          snapshot.data != null
-                              ? AvatarWidget.fromRxUser(
-                                snapshot.data,
-                                radius: AvatarRadius.smaller,
-                              )
-                              : AvatarWidget.fromUser(
-                                chat.getUser(item.author.id),
-                                radius: AvatarRadius.smaller,
-                              ),
+                child: FutureOrBuilder<RxUser?>(
+                  key: Key('${item.id}_8_${item.author.id}'),
+                  futureOr: () => getUser?.call(item.author.id),
+                  builder: (_, user) => user != null
+                      ? AvatarWidget.fromRxUser(
+                          user,
+                          radius: AvatarRadius.smaller,
+                        )
+                      : AvatarWidget.fromUser(
+                          chat.getUser(item.author.id),
+                          radius: AvatarRadius.smaller,
+                        ),
                 ),
               ),
             Flexible(child: Text('[${'label_forwarded_message'.l10n}]')),
@@ -649,24 +623,17 @@ class RecentChatTile extends StatelessWidget {
         } else if (item is ChatInfo) {
           Widget content = Text('${item.action}');
 
-          // Builds a [FutureBuilder] returning a [User] fetched by the provided
-          // [id].
+          // Builds a [FutureOrBuilder] returning a [User] fetched by the
+          // provided [id].
           Widget userBuilder(
             UserId id,
             Widget Function(BuildContext context, RxUser? user) builder,
           ) {
-            final FutureOr<RxUser?> userOrFuture = getUser?.call(id);
-
-            return FutureBuilder(
+            return FutureOrBuilder<RxUser?>(
               key: Key('UserBuilder_$id'),
-              future: userOrFuture is RxUser? ? null : userOrFuture,
-              initialData: userOrFuture is RxUser? ? userOrFuture : null,
-              builder: (context, snapshot) {
-                if (snapshot.data != null) {
-                  return Obx(() => builder(context, snapshot.data!));
-                }
-
-                return builder(context, null);
+              futureOr: () => getUser?.call(id),
+              builder: (context, user) {
+                return builder(context, user);
               },
             );
           }
@@ -777,10 +744,9 @@ class RecentChatTile extends StatelessWidget {
       }
 
       return DefaultTextStyle(
-        style:
-            inverted
-                ? style.fonts.normal.regular.onPrimary
-                : style.fonts.normal.regular.secondary,
+        style: inverted
+            ? style.fonts.normal.regular.onPrimary
+            : style.fonts.normal.regular.secondary,
         overflow: TextOverflow.ellipsis,
         maxLines: 1,
         child: Row(children: subtitle),
@@ -809,8 +775,9 @@ class RecentChatTile extends StatelessWidget {
               child: Icon(
                 Icons.video_file,
                 size: 18,
-                color:
-                    inverted ? style.colors.secondary : style.colors.onPrimary,
+                color: inverted
+                    ? style.colors.secondary
+                    : style.colors.onPrimary,
               ),
             );
           } else {
@@ -897,8 +864,9 @@ class RecentChatTile extends StatelessWidget {
 
       if (item != null && item.author.id == me && !chat.isMonolog) {
         final bool isSent = item.status.value == SendingStatus.sent;
-        final bool isRead =
-            chat.members.length <= 1 ? isSent : chat.isRead(item, me) && isSent;
+        final bool isRead = chat.members.length <= 1
+            ? isSent
+            : chat.isRead(item, me) && isSent;
         final bool isHalfRead = isSent && chat.isHalfRead(item, me);
         final bool isDelivered = isSent && !chat.lastDelivery.isBefore(item.at);
         final bool isError = item.status.value == SendingStatus.error;
@@ -909,22 +877,22 @@ class RecentChatTile extends StatelessWidget {
           child: SvgIcon(
             isRead
                 ? isHalfRead
-                    ? inverted
-                        ? SvgIcons.halfReadWhite
-                        : SvgIcons.halfRead
-                    : inverted
-                    ? SvgIcons.readWhite
-                    : SvgIcons.read
+                      ? inverted
+                            ? SvgIcons.halfReadWhite
+                            : SvgIcons.halfRead
+                      : inverted
+                      ? SvgIcons.readWhite
+                      : SvgIcons.read
                 : isDelivered
                 ? inverted
-                    ? SvgIcons.deliveredWhite
-                    : SvgIcons.delivered
+                      ? SvgIcons.deliveredWhite
+                      : SvgIcons.delivered
                 : isError
                 ? SvgIcons.error
                 : isSending
                 ? inverted
-                    ? SvgIcons.sendingWhite
-                    : SvgIcons.sending
+                      ? SvgIcons.sendingWhite
+                      : SvgIcons.sending
                 : inverted
                 ? SvgIcons.sentWhite
                 : SvgIcons.sent,
@@ -951,22 +919,20 @@ class RecentChatTile extends StatelessWidget {
       // associated action.
       Widget button(bool displayed) {
         return DecoratedBox(
-          key:
-              displayed
-                  ? const Key('JoinCallButton')
-                  : const Key('DropCallButton'),
+          key: displayed
+              ? const Key('JoinCallButton')
+              : const Key('DropCallButton'),
           position: DecorationPosition.foreground,
           decoration: BoxDecoration(borderRadius: BorderRadius.circular(6)),
           child: Material(
             elevation: 0,
             type: MaterialType.button,
             borderRadius: BorderRadius.circular(6),
-            color:
-                displayed
-                    ? style.colors.danger
-                    : inverted
-                    ? style.colors.onPrimary
-                    : style.colors.primary,
+            color: displayed
+                ? style.colors.danger
+                : inverted
+                ? style.colors.onPrimary
+                : style.colors.primary,
             child: InkWell(
               borderRadius: BorderRadius.circular(6),
               onTap: displayed ? onDrop : onJoin,
@@ -976,10 +942,9 @@ class RecentChatTile extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     PeriodicBuilder(
-                      period:
-                          Config.disableInfiniteAnimations
-                              ? const Duration(minutes: 1)
-                              : const Duration(seconds: 1),
+                      period: Config.disableInfiniteAnimations
+                          ? const Duration(minutes: 1)
+                          : const Duration(seconds: 1),
                       builder: (_) {
                         if (chat.ongoingCall == null) {
                           return const SizedBox();
@@ -992,19 +957,17 @@ class RecentChatTile extends StatelessWidget {
 
                         return Text(
                           text,
-                          style:
-                              !displayed && inverted
-                                  ? style.fonts.smaller.regular.primary
-                                  : style.fonts.smaller.regular.onPrimary,
-                        ).fixedDigits();
+                          style: !displayed && inverted
+                              ? style.fonts.smaller.regular.primary
+                              : style.fonts.smaller.regular.onPrimary,
+                        );
                       },
                     ),
                     const SizedBox(width: 6),
                     Transform.translate(
-                      offset:
-                          PlatformUtils.isWeb
-                              ? const Offset(0, -0.5)
-                              : Offset.zero,
+                      offset: PlatformUtils.isWeb
+                          ? const Offset(0, -0.5)
+                          : Offset.zero,
                       child: SvgIcon(
                         displayed
                             ? SvgIcons.activeCallEnd

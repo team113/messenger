@@ -37,10 +37,8 @@ final StepDefinitionGeneric untilContactExists =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final RxChatContact? contact =
-              Get.find<ContactService>().paginated[context
-                  .world
-                  .contacts[name]];
+          final RxChatContact? contact = Get.find<ContactService>()
+              .paginated[context.world.contacts[name]];
 
           final Finder finder = context.world.appDriver.findByKeySkipOffstage(
             'Contact_${contact?.id}',

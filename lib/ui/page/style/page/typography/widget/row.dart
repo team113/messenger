@@ -21,7 +21,6 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/fixed_digits.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
@@ -53,15 +52,13 @@ class FontRow extends StatelessWidget {
 
     final HSLColor hsl = HSLColor.fromColor(font.color!);
 
-    final Color detailsColor =
-        hsl.lightness > 0.7 || hsl.alpha < 0.4
-            ? const Color(0xFFC4C4C4)
-            : const Color(0xFF888888);
+    final Color detailsColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
+        ? const Color(0xFFC4C4C4)
+        : const Color(0xFF888888);
 
-    final Color background =
-        hsl.lightness > 0.7 || hsl.alpha < 0.4
-            ? const Color(0xFF888888)
-            : const Color(0xFFFFFFFF);
+    final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
+        ? const Color(0xFF888888)
+        : const Color(0xFFFFFFFF);
 
     return Container(
       color: background,
@@ -102,7 +99,7 @@ class FontRow extends StatelessWidget {
                   style: style.fonts.smaller.regular.onBackground.copyWith(
                     color: detailsColor,
                   ),
-                ).fixedDigits(),
+                ),
                 WidgetButton(
                   onPressed: () async {
                     PlatformUtils.copy(
@@ -110,12 +107,12 @@ class FontRow extends StatelessWidget {
                     );
                     MessagePopup.success('Hash is copied');
                   },
-                  child:
-                      Text(
-                        font.color!.toHex(withAlpha: false),
-                        style: style.fonts.smaller.regular.onBackground
-                            .copyWith(color: detailsColor),
-                      ).fixedDigits(),
+                  child: Text(
+                    font.color!.toHex(withAlpha: false),
+                    style: style.fonts.smaller.regular.onBackground.copyWith(
+                      color: detailsColor,
+                    ),
+                  ),
                 ),
               ],
             ),

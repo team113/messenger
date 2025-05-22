@@ -54,18 +54,16 @@ class SignButton extends StatelessWidget {
       child: PrefixButton(
         title: title,
         subtitle: subtitle,
-        style:
-            onPressed == null
-                ? style.fonts.medium.regular.secondary
-                : style.fonts.medium.regular.onBackground,
+        style: onPressed == null
+            ? style.fonts.medium.regular.secondary
+            : style.fonts.medium.regular.onBackground,
         onPressed: onPressed,
-        prefix:
-            icon == null
-                ? null
-                : Padding(
-                  padding: const EdgeInsets.only(left: 16).add(padding),
-                  child: icon,
-                ),
+        prefix: icon == null
+            ? null
+            : Padding(
+                padding: const EdgeInsets.only(left: 16).add(padding),
+                child: icon,
+              ),
       ),
     );
   }

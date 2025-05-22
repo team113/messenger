@@ -216,18 +216,16 @@ class ChatsTabController extends GetxController {
     // Adds the recipient of the provided [chat] to the [_recipients] and starts
     // listening to its updates.
     Future<void> listenUpdates(ChatEntry chat) async {
-      final UserId? userId =
-          chat.chat.value.members
-              .firstWhereOrNull((u) => u.user.id != me)
-              ?.user
-              .id;
+      final UserId? userId = chat.chat.value.members
+          .firstWhereOrNull((u) => u.user.id != me)
+          ?.user
+          .id;
 
       if (userId != null) {
-        RxUser? rxUser =
-            chat.members.values
-                .toList()
-                .firstWhereOrNull((u) => u.user.id != me)
-                ?.user;
+        RxUser? rxUser = chat.members.values
+            .toList()
+            .firstWhereOrNull((u) => u.user.id != me)
+            ?.user;
         rxUser ??= await getUser(userId);
         if (rxUser != null) {
           _userSubscriptions.remove(userId)?.cancel();
@@ -260,11 +258,10 @@ class ChatsTabController extends GetxController {
           });
 
           if (event.value!.chat.value.isDialog) {
-            final UserId? userId =
-                event.value!.chat.value.members
-                    .firstWhereOrNull((u) => u.user.id != me)
-                    ?.user
-                    .id;
+            final UserId? userId = event.value!.chat.value.members
+                .firstWhereOrNull((u) => u.user.id != me)
+                ?.user
+                .id;
 
             _userSubscriptions.remove(userId)?.cancel();
           }
@@ -523,12 +520,11 @@ class ChatsTabController extends GetxController {
       return;
     }
 
-    final User? user =
-        chat.members.values
-            .firstWhereOrNull((e) => e.user.id != me)
-            ?.user
-            .user
-            .value;
+    final User? user = chat.members.values
+        .firstWhereOrNull((e) => e.user.id != me)
+        ?.user
+        .user
+        .value;
     if (user == null) {
       return;
     }
@@ -551,15 +547,14 @@ class ChatsTabController extends GetxController {
     }
 
     try {
-      final ChatContactId? contactId =
-          chat.members.values
-              .firstWhereOrNull((e) => e.user.id != me)
-              ?.user
-              .user
-              .value
-              .contacts
-              .firstOrNull
-              ?.id;
+      final ChatContactId? contactId = chat.members.values
+          .firstWhereOrNull((e) => e.user.id != me)
+          ?.user
+          .user
+          .value
+          .contacts
+          .firstOrNull
+          ?.id;
 
       if (contactId != null) {
         await _contactService.deleteContact(contactId);
@@ -688,16 +683,15 @@ class ChatsTabController extends GetxController {
 
   /// Reorders a [Chat] from the [from] position to the [to] position.
   Future<void> reorderChat(int from, int to) async {
-    final List<ChatEntry> favorites =
-        chats
-            .where(
-              (e) =>
-                  e.chat.value.ongoingCall == null &&
-                  e.chat.value.favoritePosition != null &&
-                  !e.chat.value.isHidden &&
-                  !e.hidden.value,
-            )
-            .toList();
+    final List<ChatEntry> favorites = chats
+        .where(
+          (e) =>
+              e.chat.value.ongoingCall == null &&
+              e.chat.value.favoritePosition != null &&
+              !e.chat.value.isHidden &&
+              !e.hidden.value,
+        )
+        .toList();
 
     double position;
 
@@ -785,50 +779,51 @@ class ChatsTabController extends GetxController {
         ],
       )..onInit();
 
-      _searchSubscription = StreamGroup.merge([
-        search.value!.recent.stream,
-        search.value!.chats.stream,
-        search.value!.contacts.stream,
-        search.value!.users.stream,
-      ]).listen((_) {
-        elements.clear();
+      _searchSubscription =
+          StreamGroup.merge([
+            search.value!.recent.stream,
+            search.value!.chats.stream,
+            search.value!.contacts.stream,
+            search.value!.users.stream,
+          ]).listen((_) {
+            elements.clear();
 
-        if (groupCreating.value) {
-          if (search.value?.query.isEmpty == true) {
-            elements.add(const MyUserElement());
-          }
+            if (groupCreating.value) {
+              if (search.value?.query.isEmpty == true) {
+                elements.add(const MyUserElement());
+              }
 
-          search.value?.users.removeWhere((k, v) => me == k);
+              search.value?.users.removeWhere((k, v) => me == k);
 
-          if (search.value?.recent.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.chat));
-            for (RxUser c in search.value!.recent.values) {
-              elements.add(RecentElement(c));
+              if (search.value?.recent.isNotEmpty == true) {
+                elements.add(const DividerElement(SearchCategory.chat));
+                for (RxUser c in search.value!.recent.values) {
+                  elements.add(RecentElement(c));
+                }
+              }
+            } else {
+              if (search.value?.chats.isNotEmpty == true) {
+                elements.add(const DividerElement(SearchCategory.chat));
+                for (RxChat c in search.value!.chats.values) {
+                  elements.add(ChatElement(c));
+                }
+              }
             }
-          }
-        } else {
-          if (search.value?.chats.isNotEmpty == true) {
-            elements.add(const DividerElement(SearchCategory.chat));
-            for (RxChat c in search.value!.chats.values) {
-              elements.add(ChatElement(c));
+
+            if (search.value?.contacts.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.contact));
+              for (RxChatContact c in search.value!.contacts.values) {
+                elements.add(ContactElement(c));
+              }
             }
-          }
-        }
 
-        if (search.value?.contacts.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.contact));
-          for (RxChatContact c in search.value!.contacts.values) {
-            elements.add(ContactElement(c));
-          }
-        }
-
-        if (search.value?.users.isNotEmpty == true) {
-          elements.add(const DividerElement(SearchCategory.user));
-          for (RxUser c in search.value!.users.values) {
-            elements.add(UserElement(c));
-          }
-        }
-      });
+            if (search.value?.users.isNotEmpty == true) {
+              elements.add(const DividerElement(SearchCategory.user));
+              for (RxUser c in search.value!.users.values) {
+                elements.add(UserElement(c));
+              }
+            }
+          });
 
       search.value!.search.focus.addListener(_disableSearchFocusListener);
     } else {

@@ -58,22 +58,20 @@ class LineDivider extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: 0.5,
-            color:
-                bold
-                    ? style.colors.onBackground
-                    : style.colors.onBackgroundOpacity27,
+            color: bold
+                ? style.colors.onBackground
+                : style.colors.onBackgroundOpacity27,
           ),
         ),
         if (label?.isNotEmpty == true) ...[
           const SizedBox(width: 8),
           Text(
             label!,
-            style:
-                bold
-                    ? style.fonts.small.regular.onBackground
-                    : primary
-                    ? style.fonts.small.regular.primary
-                    : style.fonts.small.regular.secondary,
+            style: bold
+                ? style.fonts.small.regular.onBackground
+                : primary
+                ? style.fonts.small.regular.primary
+                : style.fonts.small.regular.secondary,
             textAlign: TextAlign.center,
           ),
           const SizedBox(width: 8),
@@ -82,10 +80,9 @@ class LineDivider extends StatelessWidget {
           const SizedBox(width: 8),
           Text.rich(
             span!,
-            style:
-                primary
-                    ? style.fonts.small.regular.primary
-                    : style.fonts.small.regular.secondary,
+            style: primary
+                ? style.fonts.small.regular.primary
+                : style.fonts.small.regular.secondary,
             textAlign: TextAlign.center,
           ),
           const SizedBox(width: 8),
@@ -94,10 +91,9 @@ class LineDivider extends StatelessWidget {
           child: Container(
             width: double.infinity,
             height: 0.5,
-            color:
-                bold
-                    ? style.colors.onBackground
-                    : style.colors.onBackgroundOpacity27,
+            color: bold
+                ? style.colors.onBackground
+                : style.colors.onBackgroundOpacity27,
           ),
         ),
       ],

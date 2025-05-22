@@ -536,8 +536,9 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl? chat = chats[chatId];
     final FutureOr<RxUser?> userOrFuture = _userRepo.get(userId);
-    final RxUser? user =
-        userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+    final RxUser? user = userOrFuture is RxUser?
+        ? userOrFuture
+        : await userOrFuture;
 
     if (user != null) {
       final member = DtoChatMember(
@@ -674,23 +675,22 @@ class ChatRepository extends DisposableInterface
       });
     }
 
-    final List<Future>? uploads =
-        attachments?.changed
-            .mapIndexed((i, e) {
-              if (e is LocalAttachment) {
-                return e.upload.value?.future.then(
-                  (a) {
-                    attachments.changed[i] = a;
-                    (item?.value as ChatMessage).attachments[i] = a;
-                  },
-                  onError: (_) {
-                    // No-op, as failed upload attempts are handled below.
-                  },
-                );
-              }
-            })
-            .nonNulls
-            .toList();
+    final List<Future>? uploads = attachments?.changed
+        .mapIndexed((i, e) {
+          if (e is LocalAttachment) {
+            return e.upload.value?.future.then(
+              (a) {
+                attachments.changed[i] = a;
+                (item?.value as ChatMessage).attachments[i] = a;
+              },
+              onError: (_) {
+                // No-op, as failed upload attempts are handled below.
+              },
+            );
+          }
+        })
+        .nonNulls
+        .toList();
 
     await Future.wait(uploads ?? []);
 
@@ -705,16 +705,14 @@ class ChatRepository extends DisposableInterface
       await _graphQlProvider.editChatMessage(
         message.id,
         text: text == null ? null : ChatMessageTextInput(kw$new: text.changed),
-        attachments:
-            attachments == null
-                ? null
-                : ChatMessageAttachmentsInput(
-                  kw$new: attachments.changed.map((e) => e.id).toList(),
-                ),
-        repliesTo:
-            repliesTo == null
-                ? null
-                : ChatMessageRepliesInput(kw$new: repliesTo.changed),
+        attachments: attachments == null
+            ? null
+            : ChatMessageAttachmentsInput(
+                kw$new: attachments.changed.map((e) => e.id).toList(),
+              ),
+        repliesTo: repliesTo == null
+            ? null
+            : ChatMessageRepliesInput(kw$new: repliesTo.changed),
       );
     } catch (_) {
       if (item?.value is ChatMessage) {
@@ -856,10 +854,13 @@ class ChatRepository extends DisposableInterface
       attachment.status.refresh();
 
       String filename = attachment.file.name;
+
       if (filename.replaceAll(' ', '').isEmpty) {
         final mime = attachment.file.mime;
         if (mime != null) {
           filename = '${DateTime.now().microsecondsSinceEpoch}.${mime.subtype}';
+        } else {
+          filename = '${DateTime.now().microsecondsSinceEpoch}';
         }
       }
 
@@ -918,11 +919,10 @@ class ChatRepository extends DisposableInterface
 
     final RxChatImpl? chat = chats[chatId];
     chat?.chat.update(
-      (c) =>
-          c?.directLink = ChatDirectLink(
-            slug: slug,
-            createdAt: PreciseDateTime.now(),
-          ),
+      (c) => c?.directLink = ChatDirectLink(
+        slug: slug,
+        createdAt: PreciseDateTime.now(),
+      ),
     );
   }
 
@@ -1054,10 +1054,9 @@ class ChatRepository extends DisposableInterface
     final RxChatImpl? chat = chats[id];
     final MuteDuration? muted = chat?.chat.value.muted;
 
-    final Muting? muting =
-        mute == null
-            ? null
-            : Muting(duration: mute.forever == true ? null : mute.until);
+    final Muting? muting = mute == null
+        ? null
+        : Muting(duration: mute.forever == true ? null : mute.until);
 
     chat?.chat.update((c) => c?.muted = muting?.toModel());
 
@@ -1091,13 +1090,12 @@ class ChatRepository extends DisposableInterface
       after: after,
       last: last,
       before: before,
-      filter:
-          onlyAttachments || withText != null
-              ? ChatItemsFilter(
-                onlyAttachments: onlyAttachments,
-                withText: withText,
-              )
-              : null,
+      filter: onlyAttachments || withText != null
+          ? ChatItemsFilter(
+              onlyAttachments: onlyAttachments,
+              withText: withText,
+            )
+          : null,
     );
 
     return Page(
@@ -1236,10 +1234,9 @@ class ChatRepository extends DisposableInterface
     final ChatFavoritePosition newPosition;
 
     if (position == null) {
-      final List<RxChatImpl> favorites =
-          chats.values
-              .where((e) => e.chat.value.favoritePosition != null)
-              .toList();
+      final List<RxChatImpl> favorites = chats.values
+          .where((e) => e.chat.value.favoritePosition != null)
+          .toList();
 
       favorites.sort(
         (a, b) => b.chat.value.favoritePosition!.compareTo(
@@ -1247,10 +1244,9 @@ class ChatRepository extends DisposableInterface
         ),
       );
 
-      final double? highestFavorite =
-          favorites.isEmpty
-              ? null
-              : favorites.first.chat.value.favoritePosition!.val;
+      final double? highestFavorite = favorites.isEmpty
+          ? null
+          : favorites.first.chat.value.favoritePosition!.val;
 
       newPosition = ChatFavoritePosition(
         highestFavorite == null ? 1 : highestFavorite * 2,
@@ -1346,8 +1342,9 @@ class ChatRepository extends DisposableInterface
         items = chat.messages.toList().getRange(0, index + 1);
         chat.messages.removeRange(0, index + 1);
 
-        final ChatItem? last =
-            chat.messages.isNotEmpty ? chat.messages.last.value : null;
+        final ChatItem? last = chat.messages.isNotEmpty
+            ? chat.messages.last.value
+            : null;
         chat.chat.update((c) => c?.lastItem = last);
       }
     }
@@ -1738,8 +1735,8 @@ class ChatRepository extends DisposableInterface
             },
             delete: (e) async => await _chatLocal.delete(e),
             reset: () async => await _chatLocal.clear(),
-            isLast: (_) => true,
-            isFirst: (_) => true,
+            isLast: (_, _) => true,
+            isFirst: (_, _) => true,
             fulfilledWhenNone: true,
             compare: (a, b) => a.value.compareTo(b.value),
           ),
@@ -1763,8 +1760,8 @@ class ChatRepository extends DisposableInterface
             },
             delete: (e) async => await _chatLocal.delete(e),
             reset: () async => await _chatLocal.clear(),
-            isLast: (_) => false,
-            isFirst: (_) => true,
+            isLast: (_, _) => false,
+            isFirst: (_, _) => true,
             fulfilledWhenNone: true,
             compare: (a, b) => a.value.compareTo(b.value),
           ),
@@ -1816,14 +1813,13 @@ class ChatRepository extends DisposableInterface
       onKey: (e) => e.value.id,
       perPage: 15,
       provider: GraphQlPageProvider(
-        fetch:
-            ({after, before, first, last}) => _recentChats(
-              after: after,
-              first: first,
-              before: before,
-              last: last,
-              withOngoingCalls: true,
-            ),
+        fetch: ({after, before, first, last}) => _recentChats(
+          after: after,
+          first: first,
+          before: before,
+          last: last,
+          withOngoingCalls: true,
+        ),
       ),
       compare: (a, b) => a.value.compareTo(b.value),
     );
@@ -1838,8 +1834,8 @@ class ChatRepository extends DisposableInterface
             final int limit = (after ?? 0) + (before ?? 0) + 1;
             return _chatLocal.watchFavorite(limit: limit > 1 ? limit : null);
           },
-          watchUpdates:
-              (a, b) => a.value.favoritePosition != b.value.favoritePosition,
+          watchUpdates: (a, b) =>
+              a.value.favoritePosition != b.value.favoritePosition,
           onAdded: (e) async {
             await favorites?.put(e, store: false);
           },
@@ -1855,10 +1851,10 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast:
-              (_) => _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
-          isFirst:
-              (_) => _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
+          isLast: (_, _) =>
+              _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
+          isFirst: (_, _) =>
+              _sessionLocal.data[me]?.favoriteChatsSynchronized ?? false,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
         graphQlProvider: GraphQlPageProvider(
@@ -1892,13 +1888,12 @@ class ChatRepository extends DisposableInterface
       provider: DriftGraphQlPageProvider(
         alwaysFetch: true,
         graphQlProvider: GraphQlPageProvider(
-          fetch:
-              ({after, before, first, last}) => _recentChats(
-                after: after,
-                first: first,
-                before: before,
-                last: last,
-              ),
+          fetch: ({after, before, first, last}) => _recentChats(
+            after: after,
+            first: first,
+            before: before,
+            last: last,
+          ),
         ),
         driftProvider: DriftPageProvider(
           watch: ({int? after, int? before, ChatId? around}) async {
@@ -1924,8 +1919,8 @@ class ChatRepository extends DisposableInterface
           },
           delete: (e) async => await _chatLocal.delete(e),
           reset: () async => await _chatLocal.clear(),
-          isLast: (_) => false,
-          isFirst: (_) => false,
+          isLast: (_, _) => false,
+          isFirst: (_, _) => false,
           fulfilledWhenNone: true,
           compare: (a, b) => a.value.compareTo(b.value),
         ),
@@ -1942,9 +1937,8 @@ class ChatRepository extends DisposableInterface
       ),
       CombinedPaginationEntry(
         recent,
-        addIf:
-            (e) =>
-                e.value.ongoingCall == null && e.value.favoritePosition == null,
+        addIf: (e) =>
+            e.value.ongoingCall == null && e.value.favoritePosition == null,
       ),
     ]);
 
@@ -2016,10 +2010,9 @@ class ChatRepository extends DisposableInterface
     return _graphQlProvider.recentChatsTopEvents(3).asyncExpand((event) async* {
       Log.trace('_recentChatsRemoteEvents(): ${event.data}', '$runtimeType');
 
-      var events =
-          RecentChatsTopEvents$Subscription.fromJson(
-            event.data!,
-          ).recentChatsTopEvents;
+      var events = RecentChatsTopEvents$Subscription.fromJson(
+        event.data!,
+      ).recentChatsTopEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         yield const RecentChatsTopInitialized();
@@ -2060,15 +2053,14 @@ class ChatRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    final query =
-        (await _graphQlProvider.recentChats(
-          first: first,
-          after: after,
-          last: last,
-          before: before,
-          withOngoingCalls: withOngoingCalls,
-          noFavorite: !withOngoingCalls,
-        )).recentChats;
+    final query = (await _graphQlProvider.recentChats(
+      first: first,
+      after: after,
+      last: last,
+      before: before,
+      withOngoingCalls: withOngoingCalls,
+      noFavorite: !withOngoingCalls,
+    )).recentChats;
 
     return Page(
       RxList(
@@ -2335,10 +2327,9 @@ class ChatRepository extends DisposableInterface
     ) async* {
       Log.trace('_favoriteChatsEvents: ${event.data}', '$runtimeType');
 
-      var events =
-          FavoriteChatsEvents$Subscription.fromJson(
-            event.data!,
-          ).favoriteChatsEvents;
+      var events = FavoriteChatsEvents$Subscription.fromJson(
+        event.data!,
+      ).favoriteChatsEvents;
       if (events.$$typename == 'SubscriptionInitialized') {
         events
             as FavoriteChatsEvents$Subscription$FavoriteChatsEvents$SubscriptionInitialized;
@@ -2396,10 +2387,9 @@ class ChatRepository extends DisposableInterface
       DtoChat(
         Chat(
           chatId,
-          members:
-              users.nonNulls
-                  .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
-                  .toList(),
+          members: users.nonNulls
+              .map((e) => ChatMember(e.user.value, PreciseDateTime.now()))
+              .toList(),
           kindIndex: ChatKind.values.indexOf(
             responderId == me ? ChatKind.monolog : ChatKind.dialog,
           ),

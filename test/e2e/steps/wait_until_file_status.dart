@@ -37,53 +37,50 @@ import '../world/custom_world.dart';
 /// - Then I wait until "test.txt" file is not downloaded
 /// - Then I wait until "test.pdf" file is downloading
 /// - Then I wait until "test.doc" file is downloaded
-final StepDefinitionGeneric waitUntilFileStatus = then2<
-  String,
-  DownloadStatus,
-  CustomWorld
->('I wait until {string} file is {downloadStatus}', (
-  name,
-  status,
-  context,
-) async {
-  await context.world.appDriver.waitUntil(() async {
-    await context.world.appDriver.waitForAppToSettle();
+final StepDefinitionGeneric
+waitUntilFileStatus = then2<String, DownloadStatus, CustomWorld>(
+  'I wait until {string} file is {downloadStatus}',
+  (name, status, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
 
-    RxChat? chat =
-        Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
-    Attachment? attachment = chat!.messages
-        .map((e) => e.value)
-        .whereType<ChatMessage>()
-        .expand((e) => e.attachments)
-        .firstWhereOrNull((a) => a.filename == name);
+      RxChat? chat =
+          Get.find<ChatService>().chats[ChatId(router.route.split('/').last)];
+      Attachment? attachment = chat!.messages
+          .map((e) => e.value)
+          .whereType<ChatMessage>()
+          .expand((e) => e.attachments)
+          .firstWhereOrNull((a) => a.filename == name);
 
-    Finder finder = context.world.appDriver.findByKeySkipOffstage(
-      'File_${attachment?.id}',
-    );
+      Finder finder = context.world.appDriver.findByKeySkipOffstage(
+        'File_${attachment?.id}',
+      );
 
-    if (attachment != null && await context.world.appDriver.isPresent(finder)) {
-      return status == DownloadStatus.notStarted
-          ? context.world.appDriver.isPresent(
-            context.world.appDriver.findByDescendant(
-              finder,
-              context.world.appDriver.findByKeySkipOffstage('Download'),
-            ),
-          )
-          : status == DownloadStatus.inProgress
-          ? context.world.appDriver.isPresent(
-            context.world.appDriver.findByDescendant(
-              finder,
-              context.world.appDriver.findByKeySkipOffstage('Downloading'),
-            ),
-          )
-          : context.world.appDriver.isPresent(
-            context.world.appDriver.findByDescendant(
-              finder,
-              context.world.appDriver.findByKeySkipOffstage('Downloaded'),
-            ),
-          );
-    }
+      if (attachment != null &&
+          await context.world.appDriver.isPresent(finder)) {
+        return status == DownloadStatus.notStarted
+            ? context.world.appDriver.isPresent(
+                context.world.appDriver.findByDescendant(
+                  finder,
+                  context.world.appDriver.findByKeySkipOffstage('Download'),
+                ),
+              )
+            : status == DownloadStatus.inProgress
+            ? context.world.appDriver.isPresent(
+                context.world.appDriver.findByDescendant(
+                  finder,
+                  context.world.appDriver.findByKeySkipOffstage('Downloading'),
+                ),
+              )
+            : context.world.appDriver.isPresent(
+                context.world.appDriver.findByDescendant(
+                  finder,
+                  context.world.appDriver.findByKeySkipOffstage('Downloaded'),
+                ),
+              );
+      }
 
-    return false;
-  }, timeout: context.configuration.timeout ?? const Duration(seconds: 30));
-});
+      return false;
+    }, timeout: context.configuration.timeout ?? const Duration(seconds: 30));
+  },
+);

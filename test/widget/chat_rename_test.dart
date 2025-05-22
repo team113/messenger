@@ -131,10 +131,11 @@ void main() async {
     accountProvider,
     locksProvider,
   );
-  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
+
+  authService.init();
 
   final userProvider = Get.put(UserDriftProvider(common, scoped));
   final chatItemProvider = Get.put(ChatItemDriftProvider(common, scoped));
@@ -154,7 +155,10 @@ void main() async {
   final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
   }
 
   testWidgets('ChatView successfully changes chat name', (
@@ -322,6 +326,10 @@ void main() async {
         locksProvider,
       ),
     );
+
+    router = RouterState(authService);
+    router.provider = MockPlatformRouteInformationProvider();
+
     authService.init();
 
     UserRepository userRepository = Get.put(

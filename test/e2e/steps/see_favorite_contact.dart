@@ -39,10 +39,9 @@ final StepDefinitionGeneric seeContactAsFavorite =
 
           final contactRepository = Get.find<AbstractContactRepository>();
 
-          final ChatContactId? contactId =
-              contactRepository.contacts.values
-                  .firstWhereOrNull((e) => e.contact.value.name.val == name)
-                  ?.id;
+          final ChatContactId? contactId = contactRepository.contacts.values
+              .firstWhereOrNull((e) => e.contact.value.name.val == name)
+              ?.id;
 
           switch (status) {
             case FavoriteStatus.favorite:

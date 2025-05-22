@@ -253,13 +253,12 @@ class _RtcVideoViewState extends State<RtcVideoView> {
 
     // Returns [ClipRRect] of [aspected] if [borderRadius] is not `null` or
     // [aspected] otherwise.
-    Widget clipped(BoxFit? fit) =>
-        widget.borderRadius == null
-            ? aspected(fit)
-            : ClipRRect(
-              borderRadius: widget.borderRadius ?? BorderRadius.zero,
-              child: aspected(fit),
-            );
+    Widget clipped(BoxFit? fit) => widget.borderRadius == null
+        ? aspected(fit)
+        : ClipRRect(
+            borderRadius: widget.borderRadius ?? BorderRadius.zero,
+            child: aspected(fit),
+          );
 
     // Returns outlined [Container] with [clipped] if [outline] is not null or
     // [clipped] otherwise.

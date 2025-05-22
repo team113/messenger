@@ -44,8 +44,8 @@ final StepDefinitionGeneric setCredential =
 
         await _setCredentialTo(customUser, credential);
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
 
 /// Sets the specified [TestCredential] of [CustomWorld.me] to the uniquely
@@ -58,11 +58,10 @@ final StepDefinitionGeneric setMyCredential =
     then1<TestCredential, CustomWorld>(
       'I have my {credential} set up',
       (TestCredential credential, context) async {
-        final CustomUser? me =
-            context.world.sessions.values
-                .where((user) => user.userId == context.world.me)
-                .firstOrNull
-                ?.firstOrNull;
+        final CustomUser? me = context.world.sessions.values
+            .where((user) => user.userId == context.world.me)
+            .firstOrNull
+            ?.firstOrNull;
 
         if (me == null) {
           throw ArgumentError(
@@ -72,8 +71,8 @@ final StepDefinitionGeneric setMyCredential =
 
         await _setCredentialTo(me, credential);
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
 
 /// Generates and sets the specified [TestCredential] of the provided

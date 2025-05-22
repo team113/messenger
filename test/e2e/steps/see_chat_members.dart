@@ -40,6 +40,6 @@ final StepDefinitionGeneric seeChatMembers = then1<int, CustomWorld>(
       return chat?.members.length == count;
     });
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

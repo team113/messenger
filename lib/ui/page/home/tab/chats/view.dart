@@ -83,10 +83,9 @@ class ChatsTabView extends StatelessWidget {
             Obx(() {
               return AnimatedContainer(
                 duration: 200.milliseconds,
-                color:
-                    c.search.value != null || c.searching.value
-                        ? style.colors.secondaryHighlight
-                        : style.colors.secondaryHighlight.withValues(alpha: 0),
+                color: c.search.value != null || c.searching.value
+                    ? style.colors.secondaryHighlight
+                    : style.colors.secondaryHighlight.withValues(alpha: 0),
               );
             }),
             Obx(() {
@@ -96,10 +95,10 @@ class ChatsTabView extends StatelessWidget {
                 appBar: CustomAppBar(
                   border:
                       (c.searching.value ||
-                              c.search.value?.search.isFocused.value == true ||
-                              c.search.value?.query.value.isNotEmpty == true)
-                          ? Border.all(color: style.colors.primary, width: 2)
-                          : null,
+                          c.search.value?.search.isFocused.value == true ||
+                          c.search.value?.query.value.isNotEmpty == true)
+                      ? Border.all(color: style.colors.primary, width: 2)
+                      : null,
                   title: Obx(() {
                     final Widget child;
 
@@ -119,10 +118,8 @@ class ChatsTabView extends StatelessWidget {
                               dense: true,
                               padding: const EdgeInsets.symmetric(vertical: 8),
                               style: style.fonts.medium.regular.onBackground,
-                              onChanged:
-                                  () =>
-                                      c.search.value!.query.value =
-                                          c.search.value!.search.text,
+                              onChanged: () => c.search.value!.query.value =
+                                  c.search.value!.search.text,
                             ),
                           ),
                         ),
@@ -199,14 +196,12 @@ class ChatsTabView extends StatelessWidget {
                     Obx(() {
                       if (c.searching.value) {
                         return AnimatedButton(
-                          key:
-                              c.searching.value
-                                  ? const Key('CloseSearchButton')
-                                  : const Key('SearchButton'),
-                          onPressed:
-                              c.searching.value
-                                  ? () => c.closeSearch(c.groupCreating.isFalse)
-                                  : () => c.startSearch(),
+                          key: c.searching.value
+                              ? const Key('CloseSearchButton')
+                              : const Key('SearchButton'),
+                          onPressed: c.searching.value
+                              ? () => c.closeSearch(c.groupCreating.isFalse)
+                              : () => c.startSearch(),
                           decorator: (child) {
                             return Container(
                               padding: const EdgeInsets.only(
@@ -282,12 +277,11 @@ class ChatsTabView extends StatelessWidget {
                       );
 
                       final Widget closeSearch = AnimatedButton(
-                        key:
-                            c.searching.value
-                                ? const Key('CloseSearchButton')
-                                : c.selecting.value
-                                ? const Key('CloseSelectingButton')
-                                : null,
+                        key: c.searching.value
+                            ? const Key('CloseSearchButton')
+                            : c.selecting.value
+                            ? const Key('CloseSelectingButton')
+                            : null,
                         onPressed: () {
                           if (c.searching.value) {
                             c.closeSearch();
@@ -415,10 +409,9 @@ class ChatsTabView extends StatelessWidget {
                                         element.user,
                                       ) ??
                                       false,
-                                  onTap:
-                                      () => c.search.value?.select(
-                                        recent: element.user,
-                                      ),
+                                  onTap: () => c.search.value?.select(
+                                    recent: element.user,
+                                  ),
                                 );
                               });
                             } else if (element is ContactElement) {
@@ -430,10 +423,9 @@ class ChatsTabView extends StatelessWidget {
                                         element.contact,
                                       ) ??
                                       false,
-                                  onTap:
-                                      () => c.search.value?.select(
-                                        contact: element.contact,
-                                      ),
+                                  onTap: () => c.search.value?.select(
+                                    contact: element.contact,
+                                  ),
                                 );
                               });
                             } else if (element is UserElement) {
@@ -445,10 +437,9 @@ class ChatsTabView extends StatelessWidget {
                                         element.user,
                                       ) ??
                                       false,
-                                  onTap:
-                                      () => c.search.value?.select(
-                                        user: element.user,
-                                      ),
+                                  onTap: () => c.search.value?.select(
+                                    user: element.user,
+                                  ),
                                 );
                               });
                             } else if (element is MyUserElement) {
@@ -500,12 +491,11 @@ class ChatsTabView extends StatelessWidget {
                                   child: Center(
                                     child: Text(
                                       text,
-                                      style:
-                                          style
-                                              .fonts
-                                              .normal
-                                              .regular
-                                              .onBackground,
+                                      style: style
+                                          .fonts
+                                          .normal
+                                          .regular
+                                          .onBackground,
                                     ),
                                   ),
                                 ),
@@ -575,12 +565,11 @@ class ChatsTabView extends StatelessWidget {
                                       getUser: c.getUser,
                                       onJoin: () => c.joinCall(chat.id),
                                       onDrop: () => c.dropCall(chat.id),
-                                      hasCall:
-                                          c.status.value.isLoadingMore
-                                              ? false
-                                              : null,
-                                      onPerformDrop:
-                                          (e) => c.sendFiles(chat.id, e),
+                                      hasCall: c.status.value.isLoadingMore
+                                          ? false
+                                          : null,
+                                      onPerformDrop: (e) =>
+                                          c.sendFiles(chat.id, e),
                                     );
                                   }),
                                 );
@@ -590,9 +579,8 @@ class ChatsTabView extends StatelessWidget {
                                     'SearchContact_${element.contact.id}',
                                   ),
                                   contact: element.contact,
-                                  onTap:
-                                      () =>
-                                          c.openChat(contact: element.contact),
+                                  onTap: () =>
+                                      c.openChat(contact: element.contact),
                                 );
                               } else if (element is UserElement) {
                                 child = SearchUserTile(
@@ -616,12 +604,11 @@ class ChatsTabView extends StatelessWidget {
                                   child: Center(
                                     child: Text(
                                       element.category.name.capitalizeFirst!,
-                                      style:
-                                          style
-                                              .fonts
-                                              .normal
-                                              .regular
-                                              .onBackground,
+                                      style: style
+                                          .fonts
+                                          .normal
+                                          .regular
+                                          .onBackground,
                                     ),
                                   ),
                                 );
@@ -652,8 +639,9 @@ class ChatsTabView extends StatelessWidget {
                                     child: Padding(
                                       padding: EdgeInsets.only(
                                         top: i == 0 ? 3 : 0,
-                                        bottom:
-                                            i == c.elements.length - 1 ? 4 : 0,
+                                        bottom: i == c.elements.length - 1
+                                            ? 4
+                                            : 0,
                                       ),
                                       child: child,
                                     ),
@@ -745,52 +733,46 @@ class ChatsTabView extends StatelessWidget {
 
                               return RecentChatTile(
                                 e,
-                                key:
-                                    e.chat.value.isMonolog
-                                        ? const Key('ChatMonolog')
-                                        : Key('RecentChat_${e.id}'),
+                                key: e.chat.value.isMonolog
+                                    ? const Key('ChatMonolog')
+                                    : Key('RecentChat_${e.id}'),
                                 me: c.me,
                                 blocked: e.blocked,
                                 selected: c.selecting.value ? selected : null,
                                 getUser: c.getUser,
-                                avatarBuilder:
-                                    c.selecting.value
-                                        ? (child) => WidgetButton(
-                                          onPressed:
-                                              () => router.dialog(
-                                                e.chat.value,
-                                                c.me,
-                                              ),
-                                          child: child,
-                                        )
-                                        : avatarBuilder,
+                                avatarBuilder: c.selecting.value
+                                    ? (child) => WidgetButton(
+                                        onPressed: () =>
+                                            router.dialog(e.chat.value, c.me),
+                                        child: child,
+                                      )
+                                    : avatarBuilder,
                                 onJoin: () => c.joinCall(e.id),
                                 onDrop: () => c.dropCall(e.id),
-                                onLeave:
-                                    e.chat.value.isMonolog
-                                        ? null
-                                        : () => c.leaveChat(e.id),
+                                onLeave: e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.leaveChat(e.id),
                                 onHide: (clear) => c.hideChat(e.id, clear),
                                 onMute:
                                     e.chat.value.isMonolog ||
-                                            e.chat.value.id.isLocal
-                                        ? null
-                                        : () => c.muteChat(e.id),
+                                        e.chat.value.id.isLocal
+                                    ? null
+                                    : () => c.muteChat(e.id),
                                 onUnmute:
                                     e.chat.value.isMonolog ||
-                                            e.chat.value.id.isLocal
-                                        ? null
-                                        : () => c.unmuteChat(e.id),
+                                        e.chat.value.id.isLocal
+                                    ? null
+                                    : () => c.unmuteChat(e.id),
                                 onFavorite:
                                     e.chat.value.id.isLocal &&
-                                            !e.chat.value.isMonolog
-                                        ? null
-                                        : () => c.favoriteChat(e.id),
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.favoriteChat(e.id),
                                 onUnfavorite:
                                     e.chat.value.id.isLocal &&
-                                            !e.chat.value.isMonolog
-                                        ? null
-                                        : () => c.unfavoriteChat(e.id),
+                                        !e.chat.value.isMonolog
+                                    ? null
+                                    : () => c.unfavoriteChat(e.id),
                                 onSelect: c.toggleSelecting,
 
                                 // TODO: Uncomment, when contacts are implemented.
@@ -800,23 +782,22 @@ class ChatsTabView extends StatelessWidget {
                                 // inContacts: e.chat.value.isDialog
                                 //     ? () => c.inContacts(e)
                                 //     : null,
-                                onTap:
-                                    c.selecting.value
-                                        ? () => c.selectChat(e)
-                                        : null,
+                                onTap: c.selecting.value
+                                    ? () => c.selectChat(e)
+                                    : null,
                                 onDismissed: () => c.dismiss(e),
                                 enableContextMenu: !c.selecting.value,
-                                trailing:
-                                    c.selecting.value
-                                        ? [
-                                          SelectedDot(
-                                            selected: selected,
-                                            size: 20,
-                                          ),
-                                        ]
-                                        : null,
-                                hasCall:
-                                    c.status.value.isLoadingMore ? false : null,
+                                trailing: c.selecting.value
+                                    ? [
+                                        SelectedDot(
+                                          selected: selected,
+                                          size: 20,
+                                        ),
+                                      ]
+                                    : null,
+                                hasCall: c.status.value.isLoadingMore
+                                    ? false
+                                    : null,
                                 onPerformDrop: (f) => c.sendFiles(e.id, f),
                               );
                             }
@@ -855,24 +836,24 @@ class ChatsTabView extends StatelessWidget {
                                     right: 10,
                                   ),
                                   sliver: SliverReorderableList(
-                                    onReorderStart:
-                                        (_) => c.reordering.value = true,
+                                    onReorderStart: (_) =>
+                                        c.reordering.value = true,
                                     proxyDecorator: (child, _, animation) {
                                       return AnimatedBuilder(
                                         animation: animation,
                                         builder: (_, Widget? child) {
                                           final double t = Curves.easeInOut
                                               .transform(animation.value);
-                                          final double elevation =
-                                              lerpDouble(0, 6, t)!;
-                                          final Color color =
-                                              Color.lerp(
-                                                style.colors.transparent,
-                                                style
-                                                    .colors
-                                                    .onBackgroundOpacity20,
-                                                t,
-                                              )!;
+                                          final double elevation = lerpDouble(
+                                            0,
+                                            6,
+                                            t,
+                                          )!;
+                                          final Color color = Color.lerp(
+                                            style.colors.transparent,
+                                            style.colors.onBackgroundOpacity20,
+                                            t,
+                                          )!;
 
                                           return Container(
                                             decoration: BoxDecoration(
@@ -973,10 +954,9 @@ class ChatsTabView extends StatelessWidget {
                                 ),
                                 SliverPadding(
                                   padding: EdgeInsets.only(
-                                    bottom:
-                                        c.selecting.isTrue
-                                            ? 0
-                                            : CustomNavigationBar.height,
+                                    bottom: c.selecting.isTrue
+                                        ? 0
+                                        : CustomNavigationBar.height,
                                     left: 10,
                                     right: 10,
                                   ),
@@ -1006,8 +986,8 @@ class ChatsTabView extends StatelessWidget {
                                             key: const Key('ChatsLoading'),
                                             value:
                                                 Config.disableInfiniteAnimations
-                                                    ? 0
-                                                    : null,
+                                                ? 0
+                                                : null,
                                           ),
                                         ),
                                     ]),
@@ -1065,10 +1045,9 @@ class ChatsTabView extends StatelessWidget {
                             ),
                             PrimaryButton(
                               key: const Key('DeleteChats'),
-                              onPressed:
-                                  c.selectedChats.isEmpty
-                                      ? null
-                                      : () => _hideChats(context, c),
+                              onPressed: c.selectedChats.isEmpty
+                                  ? null
+                                  : () => _hideChats(context, c),
                               danger: true,
                               title: 'btn_delete'.l10n,
                             ),

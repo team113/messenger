@@ -28,7 +28,7 @@ class TitleBar extends StatelessWidget {
   const TitleBar({
     super.key,
     required this.chat,
-    required this.title,
+    required this.titleBuilder,
     this.height,
     this.toggleFullscreen,
     this.fullscreen = false,
@@ -47,7 +47,7 @@ class TitleBar extends StatelessWidget {
   final RxChat? chat;
 
   /// Title of this [TitleBar].
-  final String title;
+  final Widget Function(BuildContext) titleBuilder;
 
   /// Callback, called when fullscreen button is pressed.
   final void Function()? toggleFullscreen;
@@ -84,10 +84,10 @@ class TitleBar extends StatelessWidget {
                   AvatarWidget.fromRxChat(chat, radius: AvatarRadius.smallest),
                   const SizedBox(width: 8),
                   Flexible(
-                    child: Text(
-                      title,
+                    child: DefaultTextStyle(
                       style: style.fonts.small.regular.onPrimary,
                       overflow: TextOverflow.ellipsis,
+                      child: titleBuilder(context),
                     ),
                   ),
                 ],

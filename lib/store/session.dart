@@ -340,8 +340,9 @@ class SessionRepository extends DisposableInterface
     return (_graphQlProvider.sessionsEvents(ver)).asyncExpand((event) async* {
       Log.trace('_sessionRemoteEvents(ver): ${event.data}', '$runtimeType');
 
-      final events =
-          SessionsEvents$Subscription.fromJson(event.data!).sessionsEvents;
+      final events = SessionsEvents$Subscription.fromJson(
+        event.data!,
+      ).sessionsEvents;
 
       if (events.$$typename == 'SubscriptionInitialized') {
         Log.debug(
@@ -414,6 +415,11 @@ class SessionRepository extends DisposableInterface
     });
 
     void apply(List<ConnectivityResult> result) {
+      Log.debug(
+        'Connectivity().onConnectivityChanged -> $result',
+        '$runtimeType',
+      );
+
       _hasNetwork =
           result.contains(ConnectivityResult.wifi) ||
           result.contains(ConnectivityResult.ethernet) ||

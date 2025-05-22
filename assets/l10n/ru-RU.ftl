@@ -931,6 +931,7 @@ label_language = Язык
 label_language_and_background = Язык, бэкграунд, ...
 label_language_entry = {$code}, {$name}
 label_last_seen = Был(а) в сети
+label_latest_version_available = Доступна более новая версия приложения
 label_latest_version_is_installed = Установлена последняя версия
 label_leave_group = Покинуть группу
 label_legal_information = Юридическая информация

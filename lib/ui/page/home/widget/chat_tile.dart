@@ -117,29 +117,30 @@ class ChatTile extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(0, 1.5, 0, 1.5),
         child: InkWellWithHover(
-          selectedColor:
-              dimmed ? style.colors.primary.darken(0.03) : style.colors.primary,
-          unselectedColor:
-              dimmed
-                  ? style.colors.onPrimaryOpacity50
-                  : style.cardColor.darken(darken),
+          selectedColor: dimmed
+              ? style.colors.primary.darken(0.03)
+              : style.colors.primary,
+          unselectedColor: dimmed
+              ? style.colors.onPrimaryOpacity50
+              : style.cardColor.darken(darken),
           selected: selected,
-          hoveredBorder:
-              selected ? style.cardSelectedBorder : style.cardHoveredBorder,
+          hoveredBorder: selected
+              ? style.cardSelectedBorder
+              : style.cardHoveredBorder,
           border: selected ? style.cardSelectedBorder : style.cardBorder,
           borderRadius: style.cardRadius,
           onTap: onTap,
           unselectedHoverColor: style.cardHoveredColor,
-          selectedHoverColor:
-              dimmed ? style.colors.primary.darken(0.03) : style.colors.primary,
+          selectedHoverColor: dimmed
+              ? style.colors.primary.darken(0.03)
+              : style.colors.primary,
           folded: chat?.chat.value.favoritePosition != null,
           child: SizedBox(
             height: height,
             child: Padding(
-              key:
-                  chat?.chat.value.favoritePosition != null
-                      ? Key('FavoriteIndicator_${chat?.chat.value.id}')
-                      : null,
+              key: chat?.chat.value.favoritePosition != null
+                  ? Key('FavoriteIndicator_${chat?.chat.value.id}')
+                  : null,
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
               child: Row(
                 children: [
@@ -169,18 +170,17 @@ class ChatTile extends StatelessWidget {
                                           chat?.title ?? ('dot'.l10n * 3),
                                           overflow: TextOverflow.ellipsis,
                                           maxLines: 1,
-                                          style:
-                                              selected
-                                                  ? style
-                                                      .fonts
-                                                      .big
-                                                      .regular
-                                                      .onPrimary
-                                                  : style
-                                                      .fonts
-                                                      .big
-                                                      .regular
-                                                      .onBackground,
+                                          style: selected
+                                              ? style
+                                                    .fonts
+                                                    .big
+                                                    .regular
+                                                    .onPrimary
+                                              : style
+                                                    .fonts
+                                                    .big
+                                                    .regular
+                                                    .onBackground,
                                         );
                                       }),
                                     ),

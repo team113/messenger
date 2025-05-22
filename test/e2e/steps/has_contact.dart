@@ -48,8 +48,8 @@ final StepDefinitionGeneric hasContacts = given2<TestUser, int, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Adds the specified amount of favorite [ChatContact]s for the provided
@@ -88,6 +88,6 @@ hasFavoriteContacts = given2<TestUser, int, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

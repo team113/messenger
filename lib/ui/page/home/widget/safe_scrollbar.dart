@@ -63,11 +63,9 @@ class SafeScrollbar extends StatelessWidget {
         data: MediaQuery.of(router.context ?? context).copyWith(
           padding: EdgeInsets.only(
             top: top ? CustomAppBar.height - 5 : 0,
-            bottom:
-                bottom
-                    ? CustomNavigationBar.height +
-                        (CustomSafeArea.isPwa ? 25 : 0)
-                    : 0,
+            bottom: bottom
+                ? CustomNavigationBar.height + (CustomSafeArea.isPwa ? 25 : 0)
+                : 0,
           ),
         ),
         child: Padding(
@@ -98,10 +96,9 @@ class SafeScrollbar extends StatelessWidget {
           bottom: bottom ? padding.bottom + 5 + 5 : 0,
         ),
         clipBehavior: Clip.hardEdge,
-        child:
-            controller == null
-                ? child
-                : Scrollbar(controller: controller, child: child),
+        child: controller == null
+            ? child
+            : Scrollbar(controller: controller, child: child),
       ),
     );
   }

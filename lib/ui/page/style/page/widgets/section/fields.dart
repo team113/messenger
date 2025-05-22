@@ -122,7 +122,9 @@ class FieldsSection {
           label: 'Label',
         ),
       ),
-      Headline(child: SharableTextField(text: 'Text to share', label: 'Label')),
+      Headline(
+        child: SharableTextField(text: 'Text to share', label: 'Label'),
+      ),
       Headline(
         child: MessageFieldView(
           controller: MessageFieldController(null, null, null),
@@ -157,12 +159,11 @@ class FieldsSection {
             ),
             leading: [
               AnimatedButton(
-                decorator:
-                    (child) => Container(
-                      padding: const EdgeInsets.only(left: 20, right: 6),
-                      height: double.infinity,
-                      child: child,
-                    ),
+                decorator: (child) => Container(
+                  padding: const EdgeInsets.only(left: 20, right: 6),
+                  height: double.infinity,
+                  child: child,
+                ),
                 onPressed: () {},
                 child: const SvgIcon(SvgIcons.back),
               ),

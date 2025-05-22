@@ -127,16 +127,15 @@ class FitWrap extends StatelessWidget {
           runAlignment: alignment,
           spacing: spacing,
           runSpacing: spacing,
-          children:
-              children
-                  .map(
-                    (e) => SizedBox(
-                      width: axis == Axis.horizontal ? size : size - spacing,
-                      height: axis == Axis.horizontal ? size - spacing : size,
-                      child: e,
-                    ),
-                  )
-                  .toList(),
+          children: children
+              .map(
+                (e) => SizedBox(
+                  width: axis == Axis.horizontal ? size : size - spacing,
+                  height: axis == Axis.horizontal ? size - spacing : size,
+                  child: e,
+                ),
+              )
+              .toList(),
         );
       },
     );

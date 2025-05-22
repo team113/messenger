@@ -70,12 +70,11 @@ mixin AuthGraphQlMixin {
         document: SignUpMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException:
-          (data) => SignUpException(
-            (SignUp$Mutation.fromJson(data).createUser
-                    as SignUp$Mutation$CreateUser$CreateUserError)
-                .code,
-          ),
+      onException: (data) => SignUpException(
+        (SignUp$Mutation.fromJson(data).createUser
+                as SignUp$Mutation$CreateUser$CreateUserError)
+            .code,
+      ),
       raw: const RawClientOptions(),
     );
     return SignUp$Mutation.fromJson(result.data!).createUser;
@@ -131,12 +130,11 @@ mixin AuthGraphQlMixin {
           document: DeleteSessionMutation(variables: variables).document,
           variables: variables.toJson(),
         ),
-        onException:
-            (data) => DeleteSessionException(
-              (DeleteSession$Mutation.fromJson(data).deleteSession
-                      as DeleteSession$Mutation$DeleteSession$DeleteSessionError)
-                  .code,
-            ),
+        onException: (data) => DeleteSessionException(
+          (DeleteSession$Mutation.fromJson(data).deleteSession
+                  as DeleteSession$Mutation$DeleteSession$DeleteSessionError)
+              .code,
+        ),
         raw: RawClientOptions(token),
       );
       GraphQlProviderExceptions.fire(result);
@@ -192,12 +190,11 @@ mixin AuthGraphQlMixin {
         document: SignInMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException:
-          (data) => CreateSessionException(
-            (SignIn$Mutation.fromJson(data).createSession
-                    as SignIn$Mutation$CreateSession$CreateSessionError)
-                .code,
-          ),
+      onException: (data) => CreateSessionException(
+        (SignIn$Mutation.fromJson(data).createSession
+                as SignIn$Mutation$CreateSession$CreateSessionError)
+            .code,
+      ),
       raw: const RawClientOptions(),
     );
     return SignIn$Mutation.fromJson(result.data!).createSession
@@ -261,12 +258,11 @@ mixin AuthGraphQlMixin {
         document: RefreshSessionMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException:
-          (data) => RefreshSessionException(
-            (RefreshSession$Mutation.fromJson(data).refreshSession
-                    as RefreshSession$Mutation$RefreshSession$RefreshSessionError)
-                .code,
-          ),
+      onException: (data) => RefreshSessionException(
+        (RefreshSession$Mutation.fromJson(data).refreshSession
+                as RefreshSession$Mutation$RefreshSession$RefreshSessionError)
+            .code,
+      ),
       raw: const RawClientOptions(),
     );
     return RefreshSession$Mutation.fromJson(result.data!);
@@ -377,16 +373,16 @@ mixin AuthGraphQlMixin {
     await client.mutate(
       MutationOptions(
         operationName: 'ValidateConfirmationCode',
-        document:
-            ValidateConfirmationCodeMutation(variables: variables).document,
+        document: ValidateConfirmationCodeMutation(
+          variables: variables,
+        ).document,
         variables: variables.toJson(),
       ),
-      onException:
-          (data) => ValidateConfirmationCodeException(
-            (ValidateConfirmationCode$Mutation.fromJson(
-              data,
-            ).validateConfirmationCode)!,
-          ),
+      onException: (data) => ValidateConfirmationCodeException(
+        (ValidateConfirmationCode$Mutation.fromJson(
+          data,
+        ).validateConfirmationCode)!,
+      ),
     );
   }
 }

@@ -105,10 +105,9 @@ class Block extends StatelessWidget {
       child: Center(
         child: Container(
           padding: margin,
-          constraints:
-              (expanded ?? context.isNarrow)
-                  ? null
-                  : BoxConstraints(maxWidth: maxWidth),
+          constraints: (expanded ?? context.isNarrow)
+              ? null
+              : BoxConstraints(maxWidth: maxWidth),
           child: InputDecorator(
             decoration: InputDecoration(
               filled: true,
@@ -176,10 +175,12 @@ class Block extends StatelessWidget {
       return padding;
     }
 
+    final EdgeInsets safe = MediaQuery.paddingOf(context);
+
     return EdgeInsets.fromLTRB(
-      min(4, padding.left),
+      safe.left + min(4, padding.left),
       padding.top,
-      min(4, padding.right),
+      safe.right + min(4, padding.right),
       padding.bottom,
     );
   }

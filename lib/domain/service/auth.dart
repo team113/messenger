@@ -19,15 +19,14 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:collection/collection.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/material.dart' show visibleForTesting;
+import 'package:flutter/material.dart'
+    show AppLifecycleState, visibleForTesting;
 import 'package:get/get.dart';
+import 'package:mutex/mutex.dart';
 
-import '/config.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
-import '/domain/model/push_token.dart';
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
 import '/domain/repository/auth.dart';
@@ -73,6 +72,12 @@ class AuthService extends DisposableService {
   /// [Credentials] should be considered as stale.
   final RxMap<UserId, Rx<Credentials>> accounts = RxMap();
 
+  /// [Function] to be invoked before [logout].
+  Future<void> Function()? onLogout;
+
+  /// Callback, called to indicate whether application has any [OngoingCall]s.
+  bool Function()? hasCalls;
+
   /// [CredentialsDriftProvider] used to store user's [Session].
   final CredentialsDriftProvider _credentialsProvider;
 
@@ -99,6 +104,13 @@ class AuthService extends DisposableService {
   /// [Credentials].
   StreamSubscription? _storageSubscription;
 
+  /// [Mutex] being unlocked only when [AppLifecycleState] is in foreground.
+  final Mutex _deltaMutex = Mutex();
+
+  /// [Worker] reacting on the [RouterState.lifecycle] changes to lock/unlock
+  /// the [_deltaMutex].
+  Worker? _deltaWorker;
+
   /// [refreshSession] attempt number counter used purely for [Log]s.
   static int _refreshAttempt = 0;
 
@@ -124,6 +136,7 @@ class AuthService extends DisposableService {
     Log.debug('onClose()', '$runtimeType');
 
     _storageSubscription?.cancel();
+    _deltaWorker?.dispose();
     _refreshTimers.forEach((_, t) => t.cancel());
     _refreshTimers.clear();
 
@@ -207,6 +220,22 @@ class AuthService extends DisposableService {
       }
     });
 
+    _deltaWorker = ever(PlatformUtils.isDeltaSynchronized, (
+      bool synchronized,
+    ) async {
+      Log.debug('_deltaWorker -> $synchronized', '$runtimeType');
+
+      if (synchronized) {
+        if (_deltaMutex.isLocked) {
+          _deltaMutex.release();
+        }
+      } else {
+        if (!_deltaMutex.isLocked) {
+          await _deltaMutex.acquire();
+        }
+      }
+    });
+
     return await WebUtils.protect(() async {
       final List<Credentials> allCredentials = await _credentialsProvider.all();
       for (final Credentials e in allCredentials) {
@@ -215,10 +244,9 @@ class AuthService extends DisposableService {
       }
 
       final UserId? userId = _accountProvider.userId;
-      final Credentials? creds =
-          userId != null
-              ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
-              : null;
+      final Credentials? creds = userId != null
+          ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
+          : null;
 
       if (creds == null) {
         return _unauthorized();
@@ -405,8 +433,9 @@ class AuthService extends DisposableService {
     // If [ignoreLock] is `true`, then [WebUtils.protect] is ignored.
     final Function protect = unsafe ? (fn) => fn() : WebUtils.protect;
 
-    status.value =
-        _hasAuthorization ? RxStatus.loadingMore() : RxStatus.loading();
+    status.value = _hasAuthorization
+        ? RxStatus.loadingMore()
+        : RxStatus.loading();
     await protect(() async {
       try {
         final Credentials creds = await _authRepository.signIn(
@@ -478,25 +507,19 @@ class AuthService extends DisposableService {
     }
 
     return await WebUtils.protect(() async {
-      try {
-        FcmRegistrationToken? fcmToken;
-
-        if (PlatformUtils.pushNotifications) {
-          final NotificationSettings settings =
-              await FirebaseMessaging.instance.getNotificationSettings();
-
-          if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-            final String? token = await FirebaseMessaging.instance.getToken(
-              vapidKey: Config.vapidKey,
-            );
-
-            if (token != null) {
-              fcmToken = FcmRegistrationToken(token);
-            }
-          }
+      if (onLogout != null) {
+        try {
+          await onLogout?.call();
+        } catch (e) {
+          Log.debug('Unable to invoke `onLogout()`: $e', '$runtimeType');
         }
 
-        await _authRepository.deleteSession(token: DeviceToken(fcm: fcmToken));
+        onLogout = null;
+        hasCalls = null;
+      }
+
+      try {
+        await _authRepository.deleteSession();
       } catch (e) {
         printError(info: e.toString());
       }
@@ -629,8 +652,9 @@ class AuthService extends DisposableService {
     final int attempt = _refreshAttempt++;
 
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
+    final bool isLocked = futureOrBool is bool
+        ? futureOrBool
+        : await futureOrBool;
 
     userId ??= this.userId;
     final bool areCurrent = userId == this.userId;
@@ -716,16 +740,28 @@ class AuthService extends DisposableService {
             'refreshSession($userId |-> $attempt): acquired the lock, while it was locked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
-
-          if (!_shouldRefresh(oldCreds)) {
-            // [Credentials] are fresh.
-            return _refreshRetryDelay = _initialRetryDelay;
-          }
         } else {
           Log.debug(
-            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked',
+            'refreshSession($userId |-> $attempt): acquired the lock, while it was unlocked -> should refresh: ${_shouldRefresh(oldCreds)}',
             '$runtimeType',
           );
+        }
+
+        if (!_shouldRefresh(oldCreds)) {
+          if (oldCreds != null) {
+            if (credentials.value?.access.secret != oldCreds.access.secret ||
+                credentials.value?.refresh.secret != oldCreds.refresh.secret) {
+              Log.debug(
+                'refreshSession($userId |-> $attempt): `credentials.value` differ from `oldCreds`, thus (since `_shouldRefresh` is `false`) authorizing those',
+                '$runtimeType',
+              );
+
+              _authorized(oldCreds);
+            }
+          }
+
+          // [Credentials] are fresh.
+          return _refreshRetryDelay = _initialRetryDelay;
         }
 
         if (oldCreds == null) {
@@ -741,6 +777,56 @@ class AuthService extends DisposableService {
           }
 
           return _refreshRetryDelay = _initialRetryDelay;
+        }
+
+        if (!PlatformUtils.isDeltaSynchronized.value) {
+          if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) should wait for application to be active, however there are calls active, thus ignoring the check',
+              '$runtimeType',
+            );
+          } else {
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active...',
+              '$runtimeType',
+            );
+
+            Completer? completer = Completer();
+
+            // Check for calls in period to proceed refreshing the session if
+            // any.
+            while (completer?.isCompleted != false) {
+              _deltaMutex
+                  .acquire()
+                  .then((_) => completer?.complete())
+                  .catchError((_) => completer?.complete());
+
+              await Future.delayed(Duration(seconds: 2));
+
+              if (WebUtils.containsCalls() || hasCalls?.call() == true) {
+                Log.debug(
+                  'refreshSession($userId |-> $attempt) waiting for application to be active... seems like there are calls active, thus ignoring the check',
+                  '$runtimeType',
+                );
+
+                try {
+                  completer?.complete();
+                } catch (_) {
+                  completer = null;
+                  // No-op.
+                }
+              }
+            }
+
+            Log.debug(
+              'refreshSession($userId |-> $attempt) waiting for application to be active... done! ✨',
+              '$runtimeType',
+            );
+
+            if (_deltaMutex.isLocked) {
+              _deltaMutex.release();
+            }
+          }
         }
 
         try {
@@ -915,6 +1001,9 @@ class AuthService extends DisposableService {
     _authRepository.token = null;
     credentials.value = null;
     status.value = RxStatus.empty();
+
+    onLogout = null;
+    hasCalls = null;
 
     return Routes.auth;
   }

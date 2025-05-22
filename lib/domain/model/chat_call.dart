@@ -73,10 +73,9 @@ class ChatCall extends ChatItem {
   ChatMembersDialed? dialed;
 
   /// Returns the [ChatCallFinishReason] this [ChatCall] finished with, if any.
-  ChatCallFinishReason? get finishReason =>
-      finishReasonIndex == null
-          ? null
-          : ChatCallFinishReason.values[finishReasonIndex!];
+  ChatCallFinishReason? get finishReason => finishReasonIndex == null
+      ? null
+      : ChatCallFinishReason.values[finishReasonIndex!];
 
   /// Sets the [ChatCallFinishReason] of this [ChatCall] to the [reason].
   set finishReason(ChatCallFinishReason? reason) {

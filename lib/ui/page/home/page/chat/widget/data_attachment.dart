@@ -130,8 +130,9 @@ class _DataAttachmentState extends State<DataAttachment> {
               width: 29,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color:
-                    _hovered ? style.colors.backgroundAuxiliaryLighter : null,
+                color: _hovered
+                    ? style.colors.backgroundAuxiliaryLighter
+                    : null,
                 border: Border.all(width: 2, color: style.colors.primary),
               ),
               child: const KeyedSubtree(

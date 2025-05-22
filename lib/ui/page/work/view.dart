@@ -54,10 +54,9 @@ class _WorkViewState extends State<WorkView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _backButtonDispatcher =
-        Router.of(
-          context,
-        ).backButtonDispatcher!.createChildBackButtonDispatcher();
+    _backButtonDispatcher = Router.of(
+      context,
+    ).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -97,12 +96,11 @@ class _WorkViewState extends State<WorkView> {
                     appBar: CustomAppBar(
                       leading: [
                         AnimatedButton(
-                          decorator:
-                              (child) => Container(
-                                margin: const EdgeInsets.only(left: 18),
-                                height: double.infinity,
-                                child: Center(child: child),
-                              ),
+                          decorator: (child) => Container(
+                            margin: const EdgeInsets.only(left: 18),
+                            height: double.infinity,
+                            child: Center(child: child),
+                          ),
                           onPressed: router.auth,
                           child: const Center(child: SvgIcon(SvgIcons.home)),
                         ),
@@ -110,12 +108,11 @@ class _WorkViewState extends State<WorkView> {
                       title: Text('label_work_with_us'.l10n),
                       actions: [
                         AnimatedButton(
-                          decorator:
-                              (child) => Container(
-                                padding: const EdgeInsets.only(right: 18),
-                                height: double.infinity,
-                                child: Center(child: child),
-                              ),
+                          decorator: (child) => Container(
+                            padding: const EdgeInsets.only(right: 18),
+                            height: double.infinity,
+                            child: Center(child: child),
+                          ),
                           onPressed: () {
                             // No-op.
                           },

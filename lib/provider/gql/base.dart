@@ -241,8 +241,18 @@ class GraphQlClient {
   Stream<QueryResult> subscribe(
     SubscriptionOptions options, {
     FutureOr<Version?> Function()? ver,
+    bool resubscribe = true,
   }) {
-    return SubscriptionHandle(_subscribe, options, ver: ver).stream;
+    return SubscriptionHandle(
+      _subscribe,
+      (e) {
+        _subscriptions.remove(e);
+        e?.dispose();
+      },
+      options,
+      ver: ver,
+      resubscribe: resubscribe,
+    ).stream;
   }
 
   /// Makes an HTTP POST request with an exposed [onSendProgress].
@@ -324,12 +334,13 @@ class GraphQlClient {
   /// and returns a [Stream] which either emits received data or an error.
   ///
   /// Re-subscription is required on [ResubscriptionRequiredException] errors.
-  Future<Stream<QueryResult>> _subscribe(SubscriptionOptions options) async {
+  Future<SubscriptionConnection> _subscribe(SubscriptionOptions options) async {
     final stream = await _subscriptionLimiter.execute<Stream<QueryResult>>(
       () async => (await client).subscribe(options),
     );
 
-    final connection = SubscriptionConnection(
+    SubscriptionConnection? connection;
+    connection = SubscriptionConnection(
       stream.expand((event) {
         Object? e = GraphQlProviderExceptions.parse(event);
 
@@ -347,7 +358,8 @@ class GraphQlClient {
     );
 
     _subscriptions.add(connection);
-    return connection.stream;
+
+    return connection;
   }
 
   /// Middleware that wraps the provided [fn] execution and attempts to handle
@@ -431,18 +443,17 @@ class GraphQlClient {
         delayBetweenReconnectionAttempts: null,
         inactivityTimeout: const Duration(seconds: 15),
         connectFn: (Uri uri, Iterable<String>? protocols) async {
-          final GraphQLWebSocketChannel socket =
-              websocket
-                  .connect(
-                    uri,
-                    protocols: protocols,
-                    customClient:
-                        PlatformUtils.isWeb
-                            ? null
-                            : (HttpClient()
-                              ..userAgent = await PlatformUtils.userAgent),
-                  )
-                  .forGraphQL();
+          Log.debug('connectFn($uri, $protocols)', '$runtimeType');
+
+          final GraphQLWebSocketChannel socket = websocket
+              .connect(
+                uri,
+                protocols: protocols,
+                customClient: PlatformUtils.isWeb
+                    ? null
+                    : (HttpClient()..userAgent = await PlatformUtils.userAgent),
+              )
+              .forGraphQL();
 
           socket.stream = socket.stream.handleError((_, __) => false);
 
@@ -501,8 +512,9 @@ class GraphQlClient {
 
     final AccessTokenSecret? bearer = raw?.token ?? token;
     final AuthLink authLink = AuthLink(getToken: () => 'Bearer $bearer');
-    final Link httpAuthLink =
-        bearer != null ? authLink.concat(httpLink) : httpLink;
+    final Link httpAuthLink = bearer != null
+        ? authLink.concat(httpLink)
+        : httpLink;
     Link link = httpAuthLink;
 
     // Update the WebSocket connection if not [raw].
@@ -617,13 +629,31 @@ class SubscriptionConnection {
   /// Source [Stream] of a [QueryResult]s.
   final Stream<QueryResult> _stream;
 
+  /// Indicates whether this [SubscriptionConnection] has already invoked
+  /// [dispose].
+  bool _disposed = false;
+
   /// Indicates whether there is a subscriber on the [stream] or not.
   bool get hasListener => _addonController.hasListener;
+
+  /// Indicates whether this [SubscriptionConnection] has already invoked
+  /// [dispose].
+  bool get disposed => _disposed;
 
   /// Returns a merged stream of the subscription this [SubscriptionConnection]
   /// represents and an addon stream.
   Stream<QueryResult> get stream =>
       StreamGroup.merge([_addonController.stream, _stream]);
+
+  /// Disposes the [StreamController]s associated with this connection.
+  void dispose() {
+    if (_disposed) {
+      return;
+    }
+
+    _addonController.close();
+    _disposed = true;
+  }
 
   /// Sends or enqueues an error event to the [stream].
   void addError(Object error, [StackTrace? stackTrace]) =>
@@ -633,17 +663,36 @@ class SubscriptionConnection {
 /// Steady [StreamController] listening to the provided GraphQL subscription
 /// events and resubscribing on the errors.
 class SubscriptionHandle {
-  SubscriptionHandle(this._listen, this._options, {this.ver});
+  SubscriptionHandle(
+    this._listen,
+    this._cancel,
+    this._options, {
+    this.ver,
+    this.resubscribe = true,
+  });
 
   /// Callback, called when a [Version] to pass the [SubscriptionOptions] is
   /// required.
   final FutureOr<Version?> Function()? ver;
 
+  /// Indicator whether resubscription should happen automatically on
+  /// [ResubscriptionRequiredException] or not.
+  final bool resubscribe;
+
   /// Callback, called to get the [Stream] of [QueryResult]s itself.
-  final FutureOr<Stream<QueryResult>> Function(SubscriptionOptions) _listen;
+  final FutureOr<SubscriptionConnection> Function(SubscriptionOptions) _listen;
+
+  /// Callback, called to cancel the provided [SubscriptionConnection].
+  final void Function(SubscriptionConnection?) _cancel;
 
   /// [SubscriptionOptions] to pass to the [_listen].
   SubscriptionOptions _options;
+
+  /// Last [SubscriptionConnection] retrieved from [_listen].
+  SubscriptionConnection? _connection;
+
+  /// [Mutex] guarding [_listen] invokes.
+  final Mutex _mutex = Mutex();
 
   /// [StreamController] of the [stream] exposed containing the events.
   late final StreamController<QueryResult> _controller =
@@ -672,43 +721,53 @@ class SubscriptionHandle {
   Future<void> _subscribe() async {
     Log.debug('subscribe()', '$runtimeType');
 
-    _subscription?.cancel();
+    await _mutex.protect(() async {
+      _subscription?.cancel();
 
-    try {
-      _subscription = (await _listen(_options)).listen(
-        (e) {
-          if (_backoff != null) {
-            Log.info('Successfully resubscribed 👍', _options.operationName);
+      try {
+        _cancel(_connection);
+        _connection = null;
 
-            _backoffDuration = Duration.zero;
-            _backoff?.cancel();
-            _backoff = null;
-          }
+        _connection = await _listen(_options);
+        _subscription = _connection?.stream.listen(
+          (e) {
+            if (_backoff != null) {
+              Log.info('Successfully resubscribed 👍', _options.operationName);
 
-          _controller.add(e);
-        },
-        onDone: _resubscribe,
-        onError: (e) {
-          _controller.addError(e);
-          if (e is ResubscriptionRequiredException) {
-            _resubscribe();
-          } else if (e is StaleVersionException) {
-            _resubscribe(noVersion: true);
-          } else {
-            _resubscribe();
-          }
-        },
-        cancelOnError: true,
-      );
-    } catch (e) {
-      _controller.addError(e);
-      _resubscribe();
-    }
+              _backoffDuration = Duration.zero;
+              _backoff?.cancel();
+              _backoff = null;
+            }
+
+            _controller.add(e);
+          },
+          onDone: resubscribe ? _resubscribe : null,
+          onError: (e) {
+            _controller.addError(e);
+
+            if (e is ResubscriptionRequiredException && resubscribe) {
+              _resubscribe();
+            } else if (e is StaleVersionException && resubscribe) {
+              _resubscribe(noVersion: true);
+            } else {
+              _resubscribe();
+            }
+          },
+          cancelOnError: true,
+        );
+      } catch (e) {
+        _controller.addError(e);
+        _resubscribe();
+      }
+    });
   }
 
   /// Resubscribes to the events.
   void _resubscribe({bool noVersion = false}) async {
     Log.info('Reconnecting in $_backoffDuration...', _options.operationName);
+
+    _cancel(_connection);
+    _connection = null;
 
     _options = SubscriptionOptions(
       document: _options.document,

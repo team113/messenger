@@ -50,10 +50,9 @@ class AvatarsSection {
 
     return [
       Headlines(
-        children:
-            AvatarRadius.values.reversed
-                .mapIndexed((i, e) => avatars(i.toString().padLeft(2, '0'), e))
-                .toList(),
+        children: AvatarRadius.values.reversed
+            .mapIndexed((i, e) => avatars(i.toString().padLeft(2, '0'), e))
+            .toList(),
       ),
     ];
   }

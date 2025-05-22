@@ -409,10 +409,11 @@ void main() async {
       locksProvider,
     ),
   );
-  authService.init();
 
   router = RouterState(authService);
   router.provider = MockPlatformRouteInformationProvider();
+
+  authService.init();
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(

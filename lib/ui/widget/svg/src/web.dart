@@ -304,8 +304,8 @@ class _BrowserSvgState extends State<_BrowserSvg> {
   /// Builds a placeholder displayed while loading a SVG picture.
   Widget _buildPlaceholder(BuildContext context) =>
       widget.placeholderBuilder == null
-          ? const SizedBox()
-          : Builder(builder: widget.placeholderBuilder!);
+      ? const SizedBox()
+      : Builder(builder: widget.placeholderBuilder!);
 
   @override
   Widget build(BuildContext context) {

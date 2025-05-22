@@ -27,7 +27,8 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 
-/// Sharable field opening a [Share] modal with the provided [share] content.
+/// Sharable field opening a [SharePlus] modal with the provided [share]
+/// content.
 class SharableTextField extends StatelessWidget {
   SharableTextField({
     super.key,
@@ -86,8 +87,9 @@ class SharableTextField extends StatelessWidget {
             ],
             child: InkWell(
               borderRadius: BorderRadius.circular(25),
-              onTap:
-                  (share ?? state.text).isEmpty ? null : () => _share(context),
+              onTap: (share ?? state.text).isEmpty
+                  ? null
+                  : () => _share(context),
               child: IgnorePointer(
                 child: ReactiveTextField(
                   prefix: leading,
@@ -115,7 +117,7 @@ class SharableTextField extends StatelessWidget {
     MessagePopup.success('label_copied'.l10n);
   }
 
-  /// Opens a [Share] modal sharing the [share].
+  /// Opens a [SharePlus] modal sharing the [share].
   Future<void> _share(BuildContext context) async {
     Rect? rect;
 
@@ -128,6 +130,8 @@ class SharableTextField extends StatelessWidget {
       // No-op.
     }
 
-    await Share.share(share ?? state.text, sharePositionOrigin: rect);
+    await SharePlus.instance.share(
+      ShareParams(text: share ?? state.text, sharePositionOrigin: rect),
+    );
   }
 }

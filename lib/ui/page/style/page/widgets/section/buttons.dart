@@ -336,15 +336,14 @@ class ButtonsSection {
           style.sidebarColor,
           style.colors.onBackgroundOpacity7,
         ),
-        children:
-            WorkTab.values
-                .map(
-                  (e) => (
-                    headline: 'VacancyWorkButton(${e.name})',
-                    widget: VacancyWorkButton(e, onPressed: (_) {}),
-                  ),
-                )
-                .toList(),
+        children: WorkTab.values
+            .map(
+              (e) => (
+                headline: 'VacancyWorkButton(${e.name})',
+                widget: VacancyWorkButton(e, onPressed: (_) {}),
+              ),
+            )
+            .toList(),
       ),
     ];
   }

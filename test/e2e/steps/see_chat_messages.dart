@@ -83,6 +83,6 @@ final StepDefinitionGeneric seeChatMessage = when1<String, CustomWorld>(
       );
     });
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

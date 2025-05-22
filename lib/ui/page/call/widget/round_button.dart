@@ -169,17 +169,16 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
           type: MaterialType.circle,
           child: InkWell(
             borderRadius: BorderRadius.circular(300),
-            onHover:
-                widget.hint != null
-                    ? (b) {
-                      if (b) {
-                        _populateOverlay();
-                      } else {
-                        _hintEntry?.remove();
-                        _hintEntry = null;
-                      }
+            onHover: widget.hint != null
+                ? (b) {
+                    if (b) {
+                      _populateOverlay();
+                    } else {
+                      _hintEntry?.remove();
+                      _hintEntry = null;
                     }
-                    : null,
+                  }
+                : null,
             onTap: widget.onPressed,
             child: child,
           ),
@@ -206,30 +205,29 @@ class _RoundFloatingButtonState extends State<RoundFloatingButton> {
     return widget.text == null
         ? button
         : Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            button,
-            const SizedBox(height: 5),
-            IgnorePointer(
-              child: AnimatedOpacity(
-                opacity: widget.showText ? 1 : 0,
-                duration: const Duration(milliseconds: 200),
-                child: Text(
-                  widget.text!,
-                  textAlign: TextAlign.center,
-                  style:
-                      widget.minified
-                          ? style.fonts.smaller.regular.onPrimary
-                          : style.fonts.small.regular.onPrimary.copyWith(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              button,
+              const SizedBox(height: 5),
+              IgnorePointer(
+                child: AnimatedOpacity(
+                  opacity: widget.showText ? 1 : 0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Text(
+                    widget.text!,
+                    textAlign: TextAlign.center,
+                    style: widget.minified
+                        ? style.fonts.smaller.regular.onPrimary
+                        : style.fonts.small.regular.onPrimary.copyWith(
                             shadows: widget.withBlur ? shadows : null,
                           ),
-                  maxLines: 2,
+                    maxLines: 2,
+                  ),
                 ),
               ),
-            ),
-          ],
-        );
+            ],
+          );
   }
 
   /// Populates the [_hintEntry].

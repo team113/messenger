@@ -89,12 +89,12 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
         final Rect? rect = widget.c.fieldKey.globalPaintBounds;
 
         final double left = rect?.left ?? 0;
-        final double right =
-            rect == null ? 0 : (constraints.maxWidth - rect.right);
-        final double bottom =
-            rect == null
-                ? 0
-                : (constraints.maxHeight - rect.bottom + rect.height);
+        final double right = rect == null
+            ? 0
+            : (constraints.maxWidth - rect.right);
+        final double bottom = rect == null
+            ? 0
+            : (constraints.maxHeight - rect.bottom + rect.height);
 
         final List<Widget> widgets = [];
         for (int i = 0; i < widget.c.panel.length; ++i) {
@@ -108,16 +108,15 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
                 e,
                 pinned: contains,
                 onPressed: dismiss,
-                onPin:
-                    contains || widget.c.canPin.value
-                        ? () {
-                          if (widget.c.buttons.contains(e)) {
-                            widget.c.buttons.remove(e);
-                          } else {
-                            widget.c.buttons.add(e);
-                          }
+                onPin: contains || widget.c.canPin.value
+                    ? () {
+                        if (widget.c.buttons.contains(e)) {
+                          widget.c.buttons.remove(e);
+                        } else {
+                          widget.c.buttons.add(e);
                         }
-                        : null,
+                      }
+                    : null,
               );
             }),
           );
@@ -199,10 +198,9 @@ class _MessageFieldMoreState extends State<MessageFieldMore>
                         ),
                       ],
                     ),
-                    child:
-                        context.isNarrow
-                            ? actions
-                            : IntrinsicWidth(child: actions),
+                    child: context.isNarrow
+                        ? actions
+                        : IntrinsicWidth(child: actions),
                   ),
                 ),
               ),

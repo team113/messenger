@@ -84,6 +84,7 @@ import '/provider/gql/exceptions.dart'
         PostChatMessageException,
         ReadChatException,
         RemoveChatMemberException,
+        ResubscriptionRequiredException,
         ToggleChatMuteException,
         UnblockUserException,
         UnfavoriteChatException,
@@ -410,10 +411,9 @@ class ChatController extends GetxController {
   /// Returns [RxUser] being recipient of this [chat].
   ///
   /// Only meaningful, if the [chat] is a dialog.
-  RxUser? get user =>
-      chat?.chat.value.isDialog == true
-          ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
-          : null;
+  RxUser? get user => chat?.chat.value.isDialog == true
+      ? chat?.members.values.firstWhereOrNull((e) => e.user.id != me)?.user
+      : null;
 
   /// Returns the [WelcomeMessage] of this [chat], if any.
   WelcomeMessage? get welcomeMessage => user?.user.value.welcomeMessage;
@@ -459,8 +459,10 @@ class ChatController extends GetxController {
           });
 
           if (previous != null) {
-            editMessage(previous.value);
-            return true;
+            if (previous.value.isEditable(chat!.chat.value, me!)) {
+              editMessage(previous.value);
+              return true;
+            }
           }
         }
 
@@ -498,10 +500,9 @@ class ChatController extends GetxController {
             _chatService
                 .sendChatMessage(
                   chat?.chat.value.id ?? id,
-                  text:
-                      send.field.text.trim().isEmpty
-                          ? null
-                          : ChatMessageText(send.field.text.trim()),
+                  text: send.field.text.trim().isEmpty
+                      ? null
+                      : ChatMessageText(send.field.text.trim()),
                   repliesTo: send.replied.map((e) => e.value).toList(),
                   attachments: send.attachments.map((e) => e.value).toList(),
                 )
@@ -754,11 +755,10 @@ class ChatController extends GetxController {
             if (hasChanges) {
               MessagePopup.alert(
                 'label_discard_changes_question'.l10n,
-                button:
-                    (context) => MessagePopup.deleteButton(
-                      context,
-                      label: 'btn_discard'.l10n,
-                    ),
+                button: (context) => MessagePopup.deleteButton(
+                  context,
+                  label: 'btn_discard'.l10n,
+                ),
               ).then((e) {
                 if (e == true) {
                   closeEditing();
@@ -873,8 +873,9 @@ class ChatController extends GetxController {
       if (id.isLocal) {
         final UserId userId = id.userId;
         final FutureOr<RxUser?> userOrFuture = _userService.get(userId);
-        final RxUser? user =
-            userOrFuture is RxUser? ? userOrFuture : await userOrFuture;
+        final RxUser? user = userOrFuture is RxUser?
+            ? userOrFuture
+            : await userOrFuture;
 
         id = user?.user.value.dialog ?? id;
         if (user != null && user.id == me) {
@@ -913,10 +914,9 @@ class ChatController extends GetxController {
           send.attachments.add(MapEntry(GlobalKey(), e));
         }
 
-        listController.sliverController.onPaintItemPositionsCallback = (
-          height,
-          positions,
-        ) {
+        listController
+            .sliverController
+            .onPaintItemPositionsCallback = (height, positions) {
           if (positions.isNotEmpty) {
             _topVisibleItem = positions.last;
 
@@ -1095,10 +1095,9 @@ class ChatController extends GetxController {
     Rx<ChatItem>? item;
 
     item = chat?.messages.firstWhereOrNull((e) => e.value.id == id);
-    item ??=
-        _fragments
-            .firstWhereOrNull((e) => e.items.keys.contains(id))
-            ?.items[id];
+    item ??= _fragments
+        .firstWhereOrNull((e) => e.items.keys.contains(id))
+        ?.items[id];
 
     if (item == null) {
       final Future<Rx<ChatItem>?>? future = chat?.single(id).then((
@@ -1186,16 +1185,15 @@ class ChatController extends GetxController {
     } else {
       if (original != null) {
         final ListElementId elementId = ListElementId(original.at, original.id);
-        final ListElementId? lastId =
-            elements.values
-                .lastWhereOrNull(
-                  (e) =>
-                      e is ChatMessageElement ||
-                      e is ChatInfoElement ||
-                      e is ChatCallElement ||
-                      e is ChatForwardElement,
-                )
-                ?.id;
+        final ListElementId? lastId = elements.values
+            .lastWhereOrNull(
+              (e) =>
+                  e is ChatMessageElement ||
+                  e is ChatInfoElement ||
+                  e is ChatCallElement ||
+                  e is ChatForwardElement,
+            )
+            ?.id;
 
         // If the [original] is placed before the first item, then animate to top,
         // or otherwise to bottom.
@@ -1510,9 +1508,11 @@ class ChatController extends GetxController {
   Future<void> block() async {
     try {
       if (user != null) {
+        final String text = reason.text.trim();
+
         await _userService.blockUser(
           user!.id,
-          reason.text.isEmpty ? null : BlocklistReason(reason.text),
+          text.isEmpty ? null : BlocklistReason(text),
         );
       }
       reason.clear();
@@ -1571,10 +1571,9 @@ class ChatController extends GetxController {
                 attachment.filename,
                 attachment.original.size,
                 checksum: attachment.original.checksum,
-                to:
-                    attachments.length > 1 && to != null
-                        ? '$to/${attachment.filename}'
-                        : to,
+                to: attachments.length > 1 && to != null
+                    ? '$to/${attachment.filename}'
+                    : to,
               )
               .future;
         } else {
@@ -1659,19 +1658,15 @@ class ChatController extends GetxController {
   /// dialog.
   Future<void> downloadMediaAs(List<Attachment> attachments) async {
     try {
-      String? to =
-          attachments.length > 1
-              ? await FilePicker.platform.getDirectoryPath(
-                lockParentWindow: true,
-              )
-              : await FilePicker.platform.saveFile(
-                fileName: attachments.first.filename,
-                type:
-                    attachments.first is ImageAttachment
-                        ? FileType.image
-                        : FileType.video,
-                lockParentWindow: true,
-              );
+      String? to = attachments.length > 1
+          ? await FilePicker.platform.getDirectoryPath(lockParentWindow: true)
+          : await FilePicker.platform.saveFile(
+              fileName: attachments.first.filename,
+              type: attachments.first is ImageAttachment
+                  ? FileType.image
+                  : FileType.video,
+              lockParentWindow: true,
+            );
 
       if (to != null) {
         await downloadMedia(attachments, to: to);
@@ -1703,9 +1698,21 @@ class ChatController extends GetxController {
     await _typingGuard.protect(() async {
       if (_typingSubscription == null) {
         Log.debug('_keepTyping()', '$runtimeType');
+        _typingSubscription ??= _chatService
+            .keepTyping(id)
+            .listen(
+              (_) {},
+              onError: (e) {
+                if (e is ResubscriptionRequiredException) {
+                  _stopTyping();
+                  _keepTyping();
+                } else {
+                  throw e;
+                }
+              },
+            );
       }
 
-      _typingSubscription ??= _chatService.keepTyping(id).listen((_) {});
       _typingTimer?.cancel();
       _typingTimer = Timer(_typingTimeout, _stopTyping);
     });
@@ -2058,11 +2065,16 @@ class ChatController extends GetxController {
         _history.clear();
       }
 
-      if (_history.isNotEmpty ||
-          listController.position.pixels >
-              MediaQuery.of(onContext?.call() ?? router.context!).size.height *
-                      2 +
-                  200) {
+      bool isHighEnough = false;
+
+      final BuildContext? context = onContext?.call() ?? router.context;
+      if (context != null) {
+        isHighEnough =
+            listController.position.pixels >
+            MediaQuery.of(context).size.height * 2 + 200;
+      }
+
+      if (_history.isNotEmpty || isHighEnough) {
         canGoDown.value = true;
       } else {
         canGoDown.value = false;
@@ -2401,10 +2413,13 @@ class ListElementId implements Comparable<ListElementId> {
 
 /// Element to display in a [FlutterListView].
 abstract class ListElement {
-  const ListElement(this.id);
+  ListElement(this.id);
 
   /// [ListElementId] of this [ListElement].
   final ListElementId id;
+
+  /// [GlobalKey] of the element to prevent it from rebuilding.
+  final GlobalKey key = GlobalKey();
 }
 
 /// [ListElement] representing a [ChatMessage].

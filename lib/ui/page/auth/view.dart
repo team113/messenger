@@ -34,6 +34,7 @@ import '/ui/widget/outlined_rounded_button.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
+import '/ui/widget/upgrade_available_button.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
@@ -49,7 +50,7 @@ class AuthView extends StatelessWidget {
     final style = Theme.of(context).style;
 
     return GetBuilder(
-      init: AuthController(Get.find()),
+      init: AuthController(Get.find(), Get.find()),
       builder: (AuthController c) {
         final Widget status = Column(
           children: [
@@ -156,12 +157,11 @@ class AuthView extends StatelessWidget {
 
                     // TODO: Remove, when [MyUser]s will receive their updates
                     //       in real-time.
-                    avatarBuilder:
-                        (_) => AvatarWidget.fromMyUser(
-                          e,
-                          radius: AvatarRadius.large,
-                          badge: false,
-                        ),
+                    avatarBuilder: (_) => AvatarWidget.fromMyUser(
+                      e,
+                      radius: AvatarRadius.large,
+                      badge: false,
+                    ),
 
                     onTap: () async {
                       if (expired) {
@@ -177,11 +177,10 @@ class AuthView extends StatelessWidget {
                     trailing: [
                       AnimatedButton(
                         key: const Key('RemoveAccount'),
-                        decorator:
-                            (child) => Padding(
-                              padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
-                              child: child,
-                            ),
+                        decorator: (child) => Padding(
+                          padding: const EdgeInsets.fromLTRB(8, 8, 6, 8),
+                          child: child,
+                        ),
                         onPressed: () async {
                           final result = await MessagePopup.alert(
                             'btn_logout'.l10n,
@@ -190,9 +189,8 @@ class AuthView extends StatelessWidget {
                                 style: style.fonts.medium.regular.secondary,
                                 children: [
                                   TextSpan(
-                                    text:
-                                        'alert_are_you_sure_want_to_log_out1'
-                                            .l10n,
+                                    text: 'alert_are_you_sure_want_to_log_out1'
+                                        .l10n,
                                   ),
                                   TextSpan(
                                     style:
@@ -200,9 +198,8 @@ class AuthView extends StatelessWidget {
                                     text: '${e.name ?? e.num}',
                                   ),
                                   TextSpan(
-                                    text:
-                                        'alert_are_you_sure_want_to_log_out2'
-                                            .l10n,
+                                    text: 'alert_are_you_sure_want_to_log_out2'
+                                        .l10n,
                                   ),
                                   if (!e.hasPassword) ...[
                                     const TextSpan(text: '\n\n'),
@@ -318,11 +315,8 @@ class AuthView extends StatelessWidget {
                     offset: const Offset(4, 0),
                     child: const SvgIcon(SvgIcons.enter),
                   ),
-                  onPressed:
-                      () => LoginView.show(
-                        context,
-                        initial: LoginViewStage.signIn,
-                      ),
+                  onPressed: () =>
+                      LoginView.show(context, initial: LoginViewStage.signIn),
                   child: Text('btn_sign_in'.l10n),
                 ),
                 const SizedBox(height: 15),
@@ -378,6 +372,7 @@ class AuthView extends StatelessWidget {
                     ),
                   ],
                 ),
+                _upgradePopup(context, c),
               ],
             ),
           );
@@ -424,5 +419,27 @@ class AuthView extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Builds an upgrade available popup displaying the latest [Release], if any.
+  Widget _upgradePopup(BuildContext context, AuthController c) {
+    return Obx(() {
+      if (c.scheduled.value == null) {
+        return SizedBox();
+      }
+
+      return Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          key: Key('UpgradeAlert'),
+          padding: const EdgeInsets.only(bottom: 6),
+          child: UpgradeAvailableButton(
+            scheduled: c.scheduled.value!,
+            download: c.activeDownload.value,
+            onClose: () => c.scheduled.value = null,
+          ),
+        ),
+      );
+    });
   }
 }

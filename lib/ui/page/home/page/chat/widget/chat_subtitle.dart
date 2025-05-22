@@ -92,10 +92,14 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
     return Obx(() {
       final Chat chat = widget.chat.chat.value;
 
-      final Set<UserId>? actualMembers =
-          widget.chat.chat.value.ongoingCall?.members
-              .map((k) => k.user.id)
-              .toSet();
+      final Set<UserId>? actualMembers = widget
+          .chat
+          .chat
+          .value
+          .ongoingCall
+          ?.members
+          .map((k) => k.user.id)
+          .toSet();
 
       if (widget.withActivities) {
         if (chat.ongoingCall != null) {
@@ -183,10 +187,9 @@ class _ChatSubtitleState extends State<ChatSubtitle> {
 
         return const SizedBox();
       } else if (chat.isDialog) {
-        final RxUser? member =
-            widget.chat.members.values
-                .firstWhereOrNull((u) => u.user.user.value.id != widget.me)
-                ?.user;
+        final RxUser? member = widget.chat.members.values
+            .firstWhereOrNull((u) => u.user.user.value.id != widget.me)
+            ?.user;
 
         if (member != null) {
           return Obx(() {

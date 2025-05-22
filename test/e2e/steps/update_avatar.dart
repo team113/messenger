@@ -43,6 +43,6 @@ final StepDefinitionGeneric updateAvatar = then<CustomWorld>(
 
     await service.updateAvatar(file);
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

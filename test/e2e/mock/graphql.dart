@@ -105,12 +105,11 @@ class MockGraphQlProvider extends GraphQlProvider {
         document: AddUserEmailMutation(variables: variables).document,
         variables: variables.toJson(),
       ),
-      onException:
-          (data) => AddUserEmailException(
-            (AddUserEmail$Mutation.fromJson(data).addUserEmail
-                    as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
-                .code,
-          ),
+      onException: (data) => AddUserEmailException(
+        (AddUserEmail$Mutation.fromJson(data).addUserEmail
+                as AddUserEmail$Mutation$AddUserEmail$AddUserEmailError)
+            .code,
+      ),
     );
     return AddUserEmail$Mutation.fromJson(result.data!).addUserEmail
         as AddUserEmail$Mutation$AddUserEmail$MyUserEventsVersioned;

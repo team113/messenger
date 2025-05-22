@@ -51,16 +51,17 @@ class WelcomeFieldController extends GetxController {
         onSubmit?.call();
       },
       focus: FocusNode(
-        onKeyEvent:
-            (_, KeyEvent e) => MessageFieldController.handleNewLines(e, field),
+        onKeyEvent: (_, KeyEvent e) =>
+            MessageFieldController.handleNewLines(e, field),
       ),
     );
 
     _editedWorker ??= ever(edited, (item) {
       if (item != null) {
         field.text = item.text?.val ?? '';
-        attachments.value =
-            item.attachments.map((e) => MapEntry(GlobalKey(), e)).toList();
+        attachments.value = item.attachments
+            .map((e) => MapEntry(GlobalKey(), e))
+            .toList();
       } else {
         field.text = '';
         attachments.clear();
@@ -167,14 +168,13 @@ class WelcomeFieldController extends GetxController {
   void toggleMore() {
     if (moreOpened.isFalse) {
       _moreEntry = OverlayEntry(
-        builder:
-            (_) => MessageFieldMore(
-              this,
-              onDismissed: () {
-                _moreEntry?.remove();
-                _moreEntry = null;
-              },
-            ),
+        builder: (_) => MessageFieldMore(
+          this,
+          onDismissed: () {
+            _moreEntry?.remove();
+            _moreEntry = null;
+          },
+        ),
       );
       router.overlay!.insert(_moreEntry!);
     }

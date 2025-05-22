@@ -74,6 +74,6 @@ final StepDefinitionGeneric postsNAttachmentsToGroup =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

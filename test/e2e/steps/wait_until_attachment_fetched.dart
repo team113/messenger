@@ -40,10 +40,8 @@ final StepDefinitionGeneric untilAttachmentFetched =
       (filename, status, context) async {
         await context.world.appDriver.waitUntil(
           () async {
-            final RxChat? chat =
-                Get.find<ChatService>().chats[ChatId(
-                  router.route.split('/').last,
-                )];
+            final RxChat? chat = Get.find<ChatService>()
+                .chats[ChatId(router.route.split('/').last)];
 
             final Attachment? attachment = chat?.messages
                 .map((e) => e.value)
@@ -71,6 +69,6 @@ final StepDefinitionGeneric untilAttachmentFetched =
           timeout: const Duration(seconds: 60),
         );
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(seconds: 60),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(seconds: 60),
     );

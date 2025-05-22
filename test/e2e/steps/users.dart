@@ -61,8 +61,8 @@ final StepDefinitionGeneric iAm = given1<TestUser, CustomWorld>(
           Get.isRegistered<MyUserService>();
     }, timeout: const Duration(seconds: 30));
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Signs in as the provided [TestUser] created earlier in the [iAm] step.
@@ -87,8 +87,8 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 
     router.home();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Logouts the currently authenticated [MyUser].
@@ -98,15 +98,14 @@ final StepDefinitionGeneric signInAs = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric logout = then<CustomWorld>(
   'I logout',
   (context) async {
-    final CustomUser me =
-        context.world.sessions.values
-            .firstWhere((e) => e.userId == context.world.me)
-            .first;
+    final CustomUser me = context.world.sessions.values
+        .firstWhere((e) => e.userId == context.world.me)
+        .first;
     router.go(await Get.find<AuthService>().logout());
     me.credentials = null;
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Creates a new [User] identified by the provided name.
@@ -116,8 +115,8 @@ final StepDefinitionGeneric logout = then<CustomWorld>(
 final StepDefinitionGeneric user = given1<TestUser, CustomWorld>(
   r'user {user}$',
   (TestUser name, context) => createUser(user: name, world: context.world),
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Creates a new [User] identified by the provided name and password.
@@ -131,8 +130,8 @@ final StepDefinitionGeneric userWithPassword = given1<TestUser, CustomWorld>(
     password: UserPassword('123'),
     world: context.world,
   ),
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Creates two new [User]s identified by the provided names.
@@ -145,8 +144,8 @@ final twoUsers = given2<TestUser, TestUser, CustomWorld>(
     await createUser(user: user1, world: context.world);
     await createUser(user: user2, world: context.world);
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Creates the provided count of new [User]s with the provided name.
@@ -161,8 +160,8 @@ final countUsers = given2<int, TestUser, CustomWorld>(
       await createUser(user: user, world: context.world);
     }
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Signs in as the provided [TestUser] to create additional [Session] for them.
@@ -186,8 +185,8 @@ final StepDefinitionGeneric hasSession = then1<TestUser, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Signs out as the provided [TestUser] from any additional [Session] for them.
@@ -209,6 +208,6 @@ final StepDefinitionGeneric signsOutSession = then1<TestUser, CustomWorld>(
 
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

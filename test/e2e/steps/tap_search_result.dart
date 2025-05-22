@@ -44,10 +44,9 @@ final StepDefinitionGeneric tapUserInSearchResults =
           switch (category) {
             case SearchCategory.contact:
               final ContactService contactService = Get.find<ContactService>();
-              final ChatContactId id =
-                  contactService.paginated.values
-                      .firstWhere((e) => e.contact.value.name.val == user.name)
-                      .id;
+              final ChatContactId id = contactService.paginated.values
+                  .firstWhere((e) => e.contact.value.name.val == user.name)
+                  .id;
 
               final finder = context.world.appDriver.findByKeySkipOffstage(
                 'SearchContact_$id',

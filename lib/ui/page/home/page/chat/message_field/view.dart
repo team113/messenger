@@ -45,6 +45,7 @@ import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
+import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/safe_area/safe_area.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
@@ -193,10 +194,9 @@ class MessageFieldView extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return Obx(() {
-          final bool grab =
-              c.attachments.isNotEmpty
-                  ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
-                  : false;
+          final bool grab = c.attachments.isNotEmpty
+              ? (125 + 2) * c.attachments.length > constraints.maxWidth - 16
+              : false;
 
           Widget? previews;
 
@@ -222,12 +222,11 @@ class MessageFieldView extends StatelessWidget {
                       animation.value,
                     );
                     final double elevation = lerpDouble(0, 6, t)!;
-                    final Color color =
-                        Color.lerp(
-                          style.colors.transparent,
-                          style.colors.onBackgroundOpacity20,
-                          t,
-                        )!;
+                    final Color color = Color.lerp(
+                      style.colors.transparent,
+                      style.colors.onBackgroundOpacity20,
+                      t,
+                    )!;
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
@@ -249,38 +248,37 @@ class MessageFieldView extends StatelessWidget {
               },
               reverse: true,
               padding: const EdgeInsets.symmetric(horizontal: 1),
-              children:
-                  c.quotes.map((e) {
-                    return ReorderableDragStartListener(
-                      key: Key('Handle_${e.item.id}'),
-                      enabled: !PlatformUtils.isMobile,
-                      index: c.quotes.indexOf(e),
-                      child: Dismissible(
-                        key: Key('${e.item.id}'),
-                        direction: DismissDirection.horizontal,
-                        onDismissed: (_) {
+              children: c.quotes.map((e) {
+                return ReorderableDragStartListener(
+                  key: Key('Handle_${e.item.id}'),
+                  enabled: !PlatformUtils.isMobile,
+                  index: c.quotes.indexOf(e),
+                  child: Dismissible(
+                    key: Key('${e.item.id}'),
+                    direction: DismissDirection.horizontal,
+                    onDismissed: (_) {
+                      c.quotes.remove(e);
+                      if (c.quotes.isEmpty) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 2),
+                      child: _buildPreview(
+                        context,
+                        e.item,
+                        c,
+                        onClose: () {
                           c.quotes.remove(e);
                           if (c.quotes.isEmpty) {
                             Navigator.of(context).pop();
                           }
                         },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 2),
-                          child: _buildPreview(
-                            context,
-                            e.item,
-                            c,
-                            onClose: () {
-                              c.quotes.remove(e);
-                              if (c.quotes.isEmpty) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                          ),
-                        ),
                       ),
-                    );
-                  }).toList(),
+                    ),
+                  ),
+                );
+              }).toList(),
             );
           } else if (c.replied.isNotEmpty) {
             previews = ReorderableListView(
@@ -304,12 +302,11 @@ class MessageFieldView extends StatelessWidget {
                       animation.value,
                     );
                     final double elevation = lerpDouble(0, 6, t)!;
-                    final Color color =
-                        Color.lerp(
-                          style.colors.transparent,
-                          style.colors.onBackgroundOpacity20,
-                          t,
-                        )!;
+                    final Color color = Color.lerp(
+                      style.colors.transparent,
+                      style.colors.onBackgroundOpacity20,
+                      t,
+                    )!;
 
                     return InitCallback(
                       callback: PlatformUtils.haptic,
@@ -330,32 +327,31 @@ class MessageFieldView extends StatelessWidget {
                 );
               },
               padding: const EdgeInsets.symmetric(horizontal: 1),
-              children:
-                  c.replied.map((e) {
-                    return Obx(key: Key('Handle_${e.value.id}'), () {
-                      return ReorderableDragStartListener(
-                        enabled: !PlatformUtils.isMobile,
-                        index: c.replied.indexOf(e),
-                        child: Dismissible(
-                          key: Key('${e.value.id}'),
-                          direction: DismissDirection.horizontal,
-                          onDismissed: (_) => c.replied.remove(e),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 2),
-                            child: WidgetButton(
-                              onPressed: () => onItemPressed?.call(e.value),
-                              child: _buildPreview(
-                                context,
-                                e.value,
-                                c,
-                                onClose: () => c.replied.remove(e),
-                              ),
-                            ),
+              children: c.replied.map((e) {
+                return Obx(key: Key('Handle_${e.value.id}'), () {
+                  return ReorderableDragStartListener(
+                    enabled: !PlatformUtils.isMobile,
+                    index: c.replied.indexOf(e),
+                    child: Dismissible(
+                      key: Key('${e.value.id}'),
+                      direction: DismissDirection.horizontal,
+                      onDismissed: (_) => c.replied.remove(e),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: WidgetButton(
+                          onPressed: () => onItemPressed?.call(e.value),
+                          child: _buildPreview(
+                            context,
+                            e.value,
+                            c,
+                            onClose: () => c.replied.remove(e),
                           ),
                         ),
-                      );
-                    });
-                  }).toList(),
+                      ),
+                    ),
+                  );
+                });
+              }).toList(),
             );
           }
 
@@ -372,10 +368,10 @@ class MessageFieldView extends StatelessWidget {
                   width: double.infinity,
                   padding:
                       c.replied.isNotEmpty ||
-                              c.attachments.isNotEmpty ||
-                              c.edited.value != null
-                          ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
-                          : EdgeInsets.zero,
+                          c.attachments.isNotEmpty ||
+                          c.edited.value != null
+                      ? const EdgeInsets.fromLTRB(4, 6, 4, 6)
+                      : EdgeInsets.zero,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -383,8 +379,8 @@ class MessageFieldView extends StatelessWidget {
                         Padding(
                           padding: const EdgeInsets.symmetric(vertical: 2),
                           child: WidgetButton(
-                            onPressed:
-                                () => onItemPressed?.call(c.edited.value!),
+                            onPressed: () =>
+                                onItemPressed?.call(c.edited.value!),
                             child: _buildPreview(
                               context,
                               c.edited.value!,
@@ -414,30 +410,26 @@ class MessageFieldView extends StatelessWidget {
                         Align(
                           alignment: Alignment.centerLeft,
                           child: MouseRegion(
-                            cursor:
-                                grab
-                                    ? CustomMouseCursors.grab
-                                    : MouseCursor.defer,
+                            cursor: grab
+                                ? CustomMouseCursors.grab
+                                : MouseCursor.defer,
                             opaque: false,
                             child: ScrollConfiguration(
                               behavior: CustomScrollBehavior(),
                               child: SingleChildScrollView(
                                 clipBehavior: Clip.none,
-                                physics:
-                                    grab
-                                        ? null
-                                        : const NeverScrollableScrollPhysics(),
+                                physics: grab
+                                    ? null
+                                    : const NeverScrollableScrollPhysics(),
                                 scrollDirection: Axis.horizontal,
                                 child: Row(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.start,
-                                  children:
-                                      c.attachments
-                                          .map(
-                                            (e) =>
-                                                _buildAttachment(context, e, c),
-                                          )
-                                          .toList(),
+                                  children: c.attachments
+                                      .map(
+                                        (e) => _buildAttachment(context, e, c),
+                                      )
+                                      .toList(),
                                 ),
                               ),
                             ),
@@ -548,13 +540,12 @@ class MessageFieldView extends StatelessWidget {
                     }),
                   ];
                 } else {
-                  children =
-                      c.buttons
-                          .take(take)
-                          .toList()
-                          .reversed
-                          .map((e) => ChatButtonWidget(e))
-                          .toList();
+                  children = c.buttons
+                      .take(take)
+                      .toList()
+                      .reversed
+                      .map((e) => ChatButtonWidget(e))
+                      .toList();
                 }
 
                 return Wrap(children: children);
@@ -597,86 +588,81 @@ class MessageFieldView extends StatelessWidget {
           fit: BoxFit.cover,
         );
 
-        final List<Attachment> attachments =
-            c.attachments
-                .where((e) {
-                  final Attachment a = e.value;
-                  return a is ImageAttachment ||
-                      (a is FileAttachment && a.isVideo) ||
-                      (a is LocalAttachment &&
-                          (a.file.isImage || a.file.isVideo));
-                })
-                .map((e) => e.value)
-                .toList();
+        final List<Attachment> attachments = c.attachments
+            .where((e) {
+              final Attachment a = e.value;
+              return a is ImageAttachment ||
+                  (a is FileAttachment && a.isVideo) ||
+                  (a is LocalAttachment && (a.file.isImage || a.file.isVideo));
+            })
+            .map((e) => e.value)
+            .toList();
 
         return WidgetButton(
           key: key,
-          onPressed:
-              e is LocalAttachment
-                  ? null
-                  : () {
-                    final int index = c.attachments.indexWhere(
-                      (m) => m.value == e,
-                    );
-                    if (index != -1) {
-                      GalleryPopup.show(
-                        context: context,
-                        gallery: GalleryPopup(
-                          initial: index,
-                          initialKey: key,
-                          onTrashPressed: (int i) {
-                            c.attachments.removeWhere(
-                              (o) => o.value == attachments[i],
+          onPressed: e is LocalAttachment
+              ? null
+              : () {
+                  final int index = c.attachments.indexWhere(
+                    (m) => m.value == e,
+                  );
+                  if (index != -1) {
+                    GalleryPopup.show(
+                      context: context,
+                      gallery: GalleryPopup(
+                        initial: index,
+                        initialKey: key,
+                        onTrashPressed: (int i) {
+                          c.attachments.removeWhere(
+                            (o) => o.value == attachments[i],
+                          );
+                        },
+                        children: attachments.map((o) {
+                          if (o is ImageAttachment) {
+                            return GalleryItem.image(
+                              o.original.url,
+                              o.filename,
+                              size: o.original.size,
+                              width: (o.original as ImageFile).width,
+                              height: (o.original as ImageFile).height,
+                              checksum: o.original.checksum,
+                              thumbhash: o.big.thumbhash,
                             );
-                          },
-                          children:
-                              attachments.map((o) {
-                                if (o is ImageAttachment) {
-                                  return GalleryItem.image(
-                                    o.original.url,
-                                    o.filename,
-                                    size: o.original.size,
-                                    width: (o.original as ImageFile).width,
-                                    height: (o.original as ImageFile).height,
-                                    checksum: o.original.checksum,
-                                    thumbhash: o.big.thumbhash,
-                                  );
-                                }
-                                return GalleryItem.video(
-                                  o.original.url,
-                                  o.filename,
-                                  size: o.original.size,
-                                  checksum: o.original.checksum,
-                                );
-                              }).toList(),
+                          }
+                          return GalleryItem.video(
+                            o.original.url,
+                            o.filename,
+                            size: o.original.size,
+                            checksum: o.original.checksum,
+                          );
+                        }).toList(),
+                      ),
+                    );
+                  }
+                },
+          child: isVideo
+              ? IgnorePointer(
+                  child: Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      child,
+                      Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: style.colors.onBackgroundOpacity50,
                         ),
-                      );
-                    }
-                  },
-          child:
-              isVideo
-                  ? IgnorePointer(
-                    child: Stack(
-                      alignment: Alignment.center,
-                      children: [
-                        child,
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: style.colors.onBackgroundOpacity50,
-                          ),
-                          child: Icon(
-                            Icons.play_arrow,
-                            color: style.colors.onPrimary,
-                            size: 48,
-                          ),
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: style.colors.onPrimary,
+                          size: 48,
                         ),
-                      ],
-                    ),
-                  )
-                  : child,
+                      ),
+                    ],
+                  ),
+                )
+              : child,
         );
       }
 
@@ -751,10 +737,9 @@ class MessageFieldView extends StatelessWidget {
                 child: SizedBox.square(
                   dimension: 30,
                   child: ElasticAnimatedSwitcher(
-                    child:
-                        e is LocalAttachment
-                            ? e.status.value == SendingStatus.error
-                                ? Container(
+                    child: e is LocalAttachment
+                        ? e.status.value == SendingStatus.error
+                              ? Container(
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
                                     color: style.colors.onPrimary,
@@ -766,8 +751,8 @@ class MessageFieldView extends StatelessWidget {
                                     ),
                                   ),
                                 )
-                                : const SizedBox()
-                            : const SizedBox(),
+                              : const SizedBox()
+                        : const SizedBox(),
                   ),
                 ),
               ),
@@ -781,15 +766,13 @@ class MessageFieldView extends StatelessWidget {
                         duration: 200.milliseconds,
                         opacity:
                             c.hoveredAttachment.value == e ||
-                                    PlatformUtils.isMobile
-                                ? 1
-                                : 0,
+                                PlatformUtils.isMobile
+                            ? 1
+                            : 0,
                         child: CloseButton(
                           key: const Key('RemovePickedFile'),
-                          onPressed:
-                              () => c.attachments.removeWhere(
-                                (a) => a.value == e,
-                              ),
+                          onPressed: () =>
+                              c.attachments.removeWhere((a) => a.value == e),
                         ),
                       );
                     }),
@@ -824,8 +807,6 @@ class MessageFieldView extends StatelessWidget {
     bool edited = false,
   }) {
     final style = Theme.of(context).style;
-
-    final FutureOr<RxUser?> userOrFuture = c.getUser(item.author.id);
 
     final bool fromMe = item.author.id == c.me;
 
@@ -868,35 +849,32 @@ class MessageFieldView extends StatelessWidget {
             return Container(
               margin: const EdgeInsets.only(right: 2),
               decoration: BoxDecoration(
-                color:
-                    fromMe
-                        ? style.colors.onPrimaryOpacity25
-                        : style.colors.onBackgroundOpacity2,
+                color: fromMe
+                    ? style.colors.onPrimaryOpacity25
+                    : style.colors.onBackgroundOpacity2,
                 borderRadius: BorderRadius.circular(4),
               ),
               width: 30,
               height: 30,
-              child:
-                  image == null
-                      ? Icon(
-                        Icons.file_copy,
-                        color:
-                            fromMe
-                                ? style.colors.onPrimary
-                                : style.colors.secondaryHighlightDarkest,
-                        size: 16,
-                      )
-                      : RetryImage(
-                        image.small.url,
-                        checksum: image.small.checksum,
-                        thumbhash: image.small.thumbhash,
-                        fit: BoxFit.cover,
-                        height: 30,
-                        width: 30,
-                        borderRadius: BorderRadius.circular(4),
-                        onForbidden:
-                            () async => await onAttachmentError?.call(item),
-                      ),
+              child: image == null
+                  ? Icon(
+                      Icons.file_copy,
+                      color: fromMe
+                          ? style.colors.onPrimary
+                          : style.colors.secondaryHighlightDarkest,
+                      size: 16,
+                    )
+                  : RetryImage(
+                      image.small.url,
+                      checksum: image.small.checksum,
+                      thumbhash: image.small.thumbhash,
+                      fit: BoxFit.cover,
+                      height: 30,
+                      width: 30,
+                      borderRadius: BorderRadius.circular(4),
+                      onForbidden: () async =>
+                          await onAttachmentError?.call(item),
+                    ),
             );
           }).toList(),
         );
@@ -924,16 +902,14 @@ class MessageFieldView extends StatelessWidget {
             item.finishReason == ChatCallFinishReason.unanswered;
 
         if (item.finishedAt != null && item.conversationStartedAt != null) {
-          time =
-              item.conversationStartedAt!.val
-                  .difference(item.finishedAt!.val)
-                  .localizedString();
+          time = item.conversationStartedAt!.val
+              .difference(item.finishedAt!.val)
+              .localizedString();
         }
       } else {
-        title =
-            item.author.id == c.me
-                ? 'label_outgoing_call'.l10n
-                : 'label_incoming_call'.l10n;
+        title = item.author.id == c.me
+            ? 'label_outgoing_call'.l10n
+            : 'label_incoming_call'.l10n;
       }
 
       content = Row(
@@ -944,8 +920,8 @@ class MessageFieldView extends StatelessWidget {
             child: SvgIcon(
               item.withVideo
                   ? isMissed && !fromMe
-                      ? SvgIcons.callVideoMissed
-                      : SvgIcons.callVideo
+                        ? SvgIcons.callVideoMissed
+                        : SvgIcons.callVideo
                   : isMissed && !fromMe
                   ? SvgIcons.callAudioMissed
                   : SvgIcons.callAudio,
@@ -987,17 +963,14 @@ class MessageFieldView extends StatelessWidget {
       );
     }
 
-    final Widget expanded = FutureBuilder<RxUser?>(
-      future: userOrFuture is RxUser? ? null : userOrFuture,
-      initialData: userOrFuture is RxUser? ? userOrFuture : null,
-      builder: (context, snapshot) {
-        final Color color =
-            snapshot.data?.user.value.id == c.me
-                ? style.colors.primary
-                : style
-                    .colors
-                    .userColors[(snapshot.data?.user.value.num.val.sum() ?? 3) %
-                    style.colors.userColors.length];
+    final Widget expanded = FutureOrBuilder<RxUser?>(
+      key: Key('${item.id}_2_${item.author.id}'),
+      futureOr: () => c.getUser(item.author.id),
+      builder: (context, user) {
+        final Color color = user?.user.value.id == c.me
+            ? style.colors.primary
+            : style.colors.userColors[(user?.user.value.num.val.sum() ?? 3) %
+                  style.colors.userColors.length];
 
         return Container(
           key: Key('Reply_${c.replied.indexOf(item)}'),
@@ -1010,19 +983,19 @@ class MessageFieldView extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              snapshot.data != null
+              user != null
                   ? Obx(() {
-                    return Text(
-                      snapshot.data!.title,
-                      style: style.fonts.medium.regular.onBackground.copyWith(
-                        color: color,
-                      ),
-                    );
-                  })
+                      return Text(
+                        user.title,
+                        style: style.fonts.medium.regular.onBackground.copyWith(
+                          color: color,
+                        ),
+                      );
+                    })
                   : Text(
-                    'dot'.l10n * 3,
-                    style: style.fonts.medium.regular.primary,
-                  ),
+                      'dot'.l10n * 3,
+                      style: style.fonts.medium.regular.primary,
+                    ),
               if (content != null) ...[
                 const SizedBox(height: 2),
                 DefaultTextStyle.merge(maxLines: 1, child: content),
@@ -1054,10 +1027,9 @@ class MessageFieldView extends StatelessWidget {
             Obx(() {
               return AnimatedOpacity(
                 duration: 200.milliseconds,
-                opacity:
-                    c.hoveredReply.value == item || PlatformUtils.isMobile
-                        ? 1
-                        : 0,
+                opacity: c.hoveredReply.value == item || PlatformUtils.isMobile
+                    ? 1
+                    : 0,
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(0, 3, 3, 0),
                   child: CloseButton(

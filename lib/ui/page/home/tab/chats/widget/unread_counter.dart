@@ -49,20 +49,18 @@ class UnreadCounter extends StatelessWidget {
       height: 23,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color:
-            dimmed
-                ? inverted
-                    ? style.colors.onPrimary
-                    : style.colors.secondaryHighlightDarkest
-                : style.colors.danger,
+        color: dimmed
+            ? inverted
+                  ? style.colors.onPrimary
+                  : style.colors.secondaryHighlightDarkest
+            : style.colors.danger,
       ),
       alignment: Alignment.center,
       child: Text(
         count > 99 ? '99${'plus'.l10n}' : '$count',
-        style:
-            dimmed && inverted
-                ? style.fonts.smaller.bold.secondary
-                : style.fonts.smaller.bold.onPrimary,
+        style: dimmed && inverted
+            ? style.fonts.smaller.bold.secondary
+            : style.fonts.smaller.bold.onPrimary,
         maxLines: 1,
         overflow: TextOverflow.clip,
         textAlign: TextAlign.center,

@@ -42,6 +42,7 @@ import 'package:messenger/provider/drift/drift.dart';
 import 'package:messenger/provider/drift/locks.dart';
 import 'package:messenger/provider/drift/monolog.dart';
 import 'package:messenger/provider/drift/my_user.dart';
+import 'package:messenger/provider/drift/skipped_version.dart';
 import 'package:messenger/provider/drift/user.dart';
 import 'package:messenger/provider/gql/exceptions.dart';
 import 'package:messenger/provider/gql/graphql.dart';
@@ -52,6 +53,7 @@ import 'package:messenger/store/model/my_user.dart';
 import 'package:messenger/store/model/session.dart';
 import 'package:messenger/themes.dart';
 import 'package:messenger/ui/page/auth/view.dart';
+import 'package:messenger/ui/worker/upgrade.dart';
 import 'package:messenger/util/audio_utils.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
@@ -90,6 +92,7 @@ void main() async {
   final draftProvider = Get.put(DraftDriftProvider(common, scoped));
   final monologProvider = Get.put(MonologDriftProvider(common));
   final locksProvider = Get.put(LockDriftProvider(common));
+  final skippedProvider = Get.put(SkippedVersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
     return MaterialApp(
@@ -118,6 +121,7 @@ void main() async {
     Get.put(callCredentialsProvider);
     Get.put(chatCredentialsProvider);
     Get.put(callRectProvider);
+    Get.put(UpgradeWorker(skippedProvider));
 
     final AuthService authService = Get.put(
       AuthService(
@@ -130,8 +134,6 @@ void main() async {
       ),
     );
 
-    authService.init();
-
     for (int i = 0; i < 25; i++) {
       await tester.runAsync(() => Future.delayed(1.milliseconds));
       await tester.pump(const Duration(seconds: 2));
@@ -141,6 +143,9 @@ void main() async {
     router.provider = MockedPlatformRouteInformationProvider();
     when(router.routes).thenReturn(RxList());
     when(router.obscuring).thenReturn(RxList());
+    when(router.lifecycle).thenReturn(Rx(AppLifecycleState.resumed));
+
+    authService.init();
 
     await tester.pumpWidget(createWidgetForTesting(child: const AuthView()));
     await tester.pumpAndSettle();

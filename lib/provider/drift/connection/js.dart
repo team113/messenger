@@ -54,8 +54,8 @@ QueryExecutor connect([UserId? userId]) {
         databaseName: dbName,
       );
 
-      final List<WasmStorageImplementation> available =
-          probed.availableStorages.toList();
+      final List<WasmStorageImplementation> available = probed.availableStorages
+          .toList();
 
       if (!WebUtils.isSafari && !WebUtils.isFirefox) {
         available.remove(WasmStorageImplementation.opfsLocks);

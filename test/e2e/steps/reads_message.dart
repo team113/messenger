@@ -50,8 +50,8 @@ final StepDefinitionGeneric readsMessage = then2<TestUser, String, CustomWorld>(
     await provider.readChat(chat.id, message.id);
     provider.disconnect();
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );
 
 /// Reads all messages by the provided [TestUser] in the [Chat]-group with the
@@ -67,13 +67,14 @@ final StepDefinitionGeneric readsAllMessages =
         provider.token = context.world.sessions[user.name]?.token;
 
         final ChatId chatId = context.world.groups[name]!;
-        final ChatItemId lastItemId =
-            (await provider.getChat(chatId)).chat!.lastItem!.toDto().value.id;
+        final ChatItemId lastItemId = (await provider.getChat(
+          chatId,
+        )).chat!.lastItem!.toDto().value.id;
 
         await provider.readChat(chatId, lastItemId);
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );
