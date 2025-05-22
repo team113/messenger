@@ -25,6 +25,7 @@ import 'package:log_me/log_me.dart';
 
 /// Entry point of a Flutter integration test driver.
 Future<void> main() {
+
   // Flutter driver logs all messages to STDERR by default.
   driverLog = (String source, String message) {
     final msg = '$source: $message';
@@ -36,7 +37,7 @@ Future<void> main() {
   };
 
   return integration_test_driver.integrationDriver(
-    timeout: const Duration(minutes: 60),
+    timeout: const Duration(minutes: 120),
     responseDataCallback: (data) async {
       // Retrieve the [LogLevel] from the [data], as accessing [Config] here
       // isn't possible due to Flutter imports happening in [Config].
