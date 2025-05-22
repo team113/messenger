@@ -280,11 +280,10 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
           const SizedBox(height: 16),
           FieldButton(
             key: const Key('ChangeLanguage'),
-            onPressed:
-                () => LanguageSelectionView.show(
-                  context,
-                  Get.find<AbstractSettingsRepository>(),
-                ),
+            onPressed: () => LanguageSelectionView.show(
+              context,
+              Get.find<AbstractSettingsRepository>(),
+            ),
             child: Row(
               children: [
                 const SizedBox(width: 16),
@@ -536,8 +535,8 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             color: style.colors.danger,
           ),
           trailing: WidgetButton(
-            onPressed:
-                () => _deleteEmail(c, context, unconfirmed, confirmed: false),
+            onPressed: () =>
+                _deleteEmail(c, context, unconfirmed, confirmed: false),
             child: Center(child: SvgIcon(SvgIcons.delete)),
           ),
         ),
@@ -558,28 +557,26 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
             label: 'label_login'.l10n,
             hint: 'unique_login',
             prefixText: '@',
-            prefixStyle:
-                c.login.isEmpty.value
-                    ? style.fonts.medium.regular.secondary.copyWith(
-                      color: style.colors.secondaryHighlightDarkest,
-                    )
-                    : style.fonts.medium.regular.onBackground,
+            prefixStyle: c.login.isEmpty.value
+                ? style.fonts.medium.regular.secondary.copyWith(
+                    color: style.colors.secondaryHighlightDarkest,
+                  )
+                : style.fonts.medium.regular.onBackground,
             floatingLabelBehavior: FloatingLabelBehavior.always,
             formatters: [LengthLimitingTextInputFormatter(100)],
-            trailing:
-                c.myUser.value?.login == null
-                    ? null
-                    : WidgetButton(
-                      onPressed: () {},
-                      onPressedWithDetails: (u) {
-                        PlatformUtils.copy(text: '${c.myUser.value?.login}');
-                        MessagePopup.success(
-                          'label_copied'.l10n,
-                          at: u.globalPosition,
-                        );
-                      },
-                      child: Center(child: SvgIcon(SvgIcons.copy)),
-                    ),
+            trailing: c.myUser.value?.login == null
+                ? null
+                : WidgetButton(
+                    onPressed: () {},
+                    onPressedWithDetails: (u) {
+                      PlatformUtils.copy(text: '${c.myUser.value?.login}');
+                      MessagePopup.success(
+                        'label_copied'.l10n,
+                        at: u.globalPosition,
+                      );
+                    },
+                    child: Center(child: SvgIcon(SvgIcons.copy)),
+                  ),
           );
         }),
         const SizedBox(height: 21),
@@ -609,20 +606,17 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
               key: Key(
                 unconfirmed == null ? 'AddEmailButton' : 'VerifyEmailButton',
               ),
-              text:
-                  unconfirmed == null
-                      ? 'label_add_email'.l10n
-                      : 'btn_confirm_email'.l10n,
-              onPressed:
-                  unconfirmed == null && emails.length >= 2
-                      ? null
-                      : () => AddEmailView.show(context, email: unconfirmed),
+              text: unconfirmed == null
+                  ? 'label_add_email'.l10n
+                  : 'btn_confirm_email'.l10n,
+              onPressed: unconfirmed == null && emails.length >= 2
+                  ? null
+                  : () => AddEmailView.show(context, email: unconfirmed),
 
               maxLines: 2,
-              trailing:
-                  unconfirmed == null && emails.length >= 2
-                      ? const SvgIcon(SvgIcons.emailGrey)
-                      : const SvgIcon(SvgIcons.emailWhite),
+              trailing: unconfirmed == null && emails.length >= 2
+                  ? const SvgIcon(SvgIcons.emailGrey)
+                  : const SvgIcon(SvgIcons.emailWhite),
               warning: true,
             ),
           ],
@@ -641,20 +635,17 @@ Widget _password(BuildContext context, MyProfileController c) {
     children: [
       Obx(() {
         return FieldButton(
-          key:
-              c.myUser.value?.hasPassword == true
-                  ? const Key('ChangePassword')
-                  : const Key('SetPassword'),
-          text:
-              c.myUser.value?.hasPassword == true
-                  ? 'btn_change_password'.l10n
-                  : 'btn_set_password'.l10n,
+          key: c.myUser.value?.hasPassword == true
+              ? const Key('ChangePassword')
+              : const Key('SetPassword'),
+          text: c.myUser.value?.hasPassword == true
+              ? 'btn_change_password'.l10n
+              : 'btn_set_password'.l10n,
           onPressed: () => ChangePasswordView.show(context),
           warning: true,
-          trailing:
-              c.myUser.value?.hasPassword == true
-                  ? const SvgIcon(SvgIcons.passwordSmall)
-                  : const SvgIcon(SvgIcons.passwordSmallWhite),
+          trailing: c.myUser.value?.hasPassword == true
+              ? const SvgIcon(SvgIcons.passwordSmall)
+              : const SvgIcon(SvgIcons.passwordSmallWhite),
         );
       }),
       const SizedBox(height: 10),
@@ -669,10 +660,9 @@ Widget _call(BuildContext context, MyProfileController c) {
     children: [
       Obx(() {
         return FieldButton(
-          text:
-              (c.settings.value?.enablePopups ?? true)
-                  ? 'label_open_calls_in_window'.l10n
-                  : 'label_open_calls_in_app'.l10n,
+          text: (c.settings.value?.enablePopups ?? true)
+              ? 'label_open_calls_in_window'.l10n
+              : 'label_open_calls_in_app'.l10n,
           maxLines: null,
           onPressed: () => CallWindowSwitchView.show(context),
         );
@@ -781,17 +771,16 @@ Widget _media(BuildContext context, MyProfileController c) {
         final HotKey key =
             c.settings.value?.muteHotKey ?? MuteHotKeyExtension.defaultHotKey;
 
-        final Iterable<String> modifiers =
-            (key.modifiers ?? [])
-                .map(
-                  (e) => e.physicalKeys.map((e) {
-                    return KeyboardKeyToStringExtension.labels[e] ??
-                        e.debugName ??
-                        'question_mark'.l10n;
-                  }),
-                )
-                .expand((e) => e)
-                .toSet();
+        final Iterable<String> modifiers = (key.modifiers ?? [])
+            .map(
+              (e) => e.physicalKeys.map((e) {
+                return KeyboardKeyToStringExtension.labels[e] ??
+                    e.debugName ??
+                    'question_mark'.l10n;
+              }),
+            )
+            .expand((e) => e)
+            .toSet();
 
         final String keys =
             KeyboardKeyToStringExtension.labels[key.physicalKey] ??
@@ -801,16 +790,14 @@ Widget _media(BuildContext context, MyProfileController c) {
         return FieldButton(
           headline: Text(
             'label_mute_slash_unmute'.l10n,
-            style:
-                c.hotKeyRecording.value
-                    ? style.fonts.big.regular.primary
-                    : style.fonts.big.regular.secondary,
+            style: c.hotKeyRecording.value
+                ? style.fonts.big.regular.primary
+                : style.fonts.big.regular.secondary,
           ),
           onPressed: c.toggleHotKey,
-          border:
-              c.hotKeyRecording.value
-                  ? BorderSide(color: style.colors.primary, width: 1)
-                  : null,
+          border: c.hotKeyRecording.value
+              ? BorderSide(color: style.colors.primary, width: 1)
+              : null,
           child: Row(
             children: [
               if (c.hotKeyRecording.value)
@@ -874,18 +861,16 @@ Widget _welcome(BuildContext context, MyProfileController c) {
     List<Attachment> attachments = const [],
     PreciseDateTime? at,
   }) {
-    final List<Attachment> media =
-        attachments.where((e) {
-          return ((e is ImageAttachment) ||
-              (e is FileAttachment && e.isVideo) ||
-              (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
-        }).toList();
+    final List<Attachment> media = attachments.where((e) {
+      return ((e is ImageAttachment) ||
+          (e is FileAttachment && e.isVideo) ||
+          (e is LocalAttachment && (e.file.isImage || e.file.isVideo)));
+    }).toList();
 
-    final List<Attachment> files =
-        attachments.where((e) {
-          return ((e is FileAttachment && !e.isVideo) ||
-              (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
-        }).toList();
+    final List<Attachment> files = attachments.where((e) {
+      return ((e is FileAttachment && !e.isVideo) ||
+          (e is LocalAttachment && !e.file.isImage && !e.file.isVideo));
+    }).toList();
 
     final bool timeInBubble = attachments.isNotEmpty;
 
@@ -919,54 +904,48 @@ Widget _welcome(BuildContext context, MyProfileController c) {
                       borderRadius: BorderRadius.only(
                         topLeft: const Radius.circular(15),
                         topRight: const Radius.circular(15),
-                        bottomLeft:
-                            text.isNotEmpty || files.isNotEmpty
-                                ? Radius.zero
-                                : files.isEmpty
-                                ? const Radius.circular(15)
-                                : Radius.zero,
-                        bottomRight:
-                            text.isNotEmpty || files.isNotEmpty
-                                ? Radius.zero
-                                : files.isEmpty
-                                ? const Radius.circular(15)
-                                : Radius.zero,
+                        bottomLeft: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                            ? const Radius.circular(15)
+                            : Radius.zero,
+                        bottomRight: text.isNotEmpty || files.isNotEmpty
+                            ? Radius.zero
+                            : files.isEmpty
+                            ? const Radius.circular(15)
+                            : Radius.zero,
                       ),
-                      child:
-                          media.length == 1
-                              ? ChatItemWidget.mediaAttachment(
-                                context,
-                                media.first,
-                                media,
-                                filled: false,
-                              )
-                              : SizedBox(
-                                width: media.length * 120,
-                                height: max(media.length * 60, 300),
-                                child: FitView(
-                                  dividerColor: Colors.transparent,
-                                  children:
-                                      media
-                                          .mapIndexed(
-                                            (i, e) =>
-                                                ChatItemWidget.mediaAttachment(
-                                                  context,
-                                                  e,
-                                                  media,
-                                                ),
-                                          )
-                                          .toList(),
-                                ),
+                      child: media.length == 1
+                          ? ChatItemWidget.mediaAttachment(
+                              context,
+                              media.first,
+                              media,
+                              filled: false,
+                            )
+                          : SizedBox(
+                              width: media.length * 120,
+                              height: max(media.length * 60, 300),
+                              child: FitView(
+                                dividerColor: Colors.transparent,
+                                children: media
+                                    .mapIndexed(
+                                      (i, e) => ChatItemWidget.mediaAttachment(
+                                        context,
+                                        e,
+                                        media,
+                                      ),
+                                    )
+                                    .toList(),
                               ),
+                            ),
                     ),
                   if (files.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.fromLTRB(0, 6, 0, 4),
                       child: Column(
-                        children:
-                            files
-                                .map((e) => ChatItemWidget.fileAttachment(e))
-                                .toList(),
+                        children: files
+                            .map((e) => ChatItemWidget.fileAttachment(e))
+                            .toList(),
                       ),
                     ),
                   if (text.isNotEmpty)
@@ -998,22 +977,21 @@ Widget _welcome(BuildContext context, MyProfileController c) {
             Positioned(
               right: timeInBubble ? 4 : 8,
               bottom: 4,
-              child:
-                  timeInBubble
-                      ? Container(
-                        padding: const EdgeInsets.only(
-                          left: 5,
-                          right: 5,
-                          top: 2,
-                          bottom: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: style.readMessageColor,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: timeline,
-                      )
-                      : timeline,
+              child: timeInBubble
+                  ? Container(
+                      padding: const EdgeInsets.only(
+                        left: 5,
+                        right: 5,
+                        top: 2,
+                        bottom: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: style.readMessageColor,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: timeline,
+                    )
+                  : timeline,
             ),
         ],
       ),
@@ -1043,11 +1021,10 @@ Widget _welcome(BuildContext context, MyProfileController c) {
         Text('space_or_space'.l10n, style: style.systemMessageStyle),
         WidgetButton(
           key: const Key('DeleteWelcomeMessage'),
-          onPressed:
-              () => c.updateWelcomeMessage(
-                text: const ChatMessageText(''),
-                attachments: [],
-              ),
+          onPressed: () => c.updateWelcomeMessage(
+            text: const ChatMessageText(''),
+            attachments: [],
+          ),
           child: Text(
             'btn_delete'.l10n.toLowerCase(),
             style: style.systemMessagePrimary,
@@ -1080,18 +1057,14 @@ Widget _welcome(BuildContext context, MyProfileController c) {
               child: Obx(() {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child:
-                      c.background.value == null
-                          ? const SvgImage.asset(
-                            'assets/images/background_light.svg',
-                            width: double.infinity,
-                            height: double.infinity,
-                            fit: BoxFit.cover,
-                          )
-                          : Image.memory(
-                            c.background.value!,
-                            fit: BoxFit.cover,
-                          ),
+                  child: c.background.value == null
+                      ? const SvgImage.asset(
+                          'assets/images/background_light.svg',
+                          width: double.infinity,
+                          height: double.infinity,
+                          fit: BoxFit.cover,
+                        )
+                      : Image.memory(c.background.value!, fit: BoxFit.cover),
                 );
               }),
             ),
@@ -1286,21 +1259,19 @@ Widget _downloads(BuildContext context, MyProfileController c) {
         c.latestRelease.value?.name == Pubspec.ref;
 
     return PrimaryButton(
-      title:
-          latest
-              ? 'label_latest_version_is_installed'.l10n
-              : 'btn_download_version'.l10nfmt({
-                'version': '${c.latestRelease.value?.name}',
-              }),
-      onPressed:
-          latest
-              ? null
-              : () async {
-                await UpgradePopupView.show(
-                  context,
-                  release: c.latestRelease.value!,
-                );
-              },
+      title: latest
+          ? 'label_latest_version_is_installed'.l10n
+          : 'btn_download_version'.l10nfmt({
+              'version': '${c.latestRelease.value?.name}',
+            }),
+      onPressed: latest
+          ? null
+          : () async {
+              await UpgradePopupView.show(
+                context,
+                release: c.latestRelease.value!,
+              );
+            },
     );
   });
 
@@ -1446,13 +1417,12 @@ Widget _storage(BuildContext context, MyProfileController c) {
             handler: FlutterSliderHandler(child: const SizedBox()),
             values: [v.toDouble()],
             tooltip: FlutterSliderTooltip(disabled: true),
-            fixedValues:
-                values.mapIndexed((i, e) {
-                  return FlutterSliderFixedValue(
-                    percent: ((i / (values.length - 1)) * 100).round(),
-                    value: e * GB,
-                  );
-                }).toList(),
+            fixedValues: values.mapIndexed((i, e) {
+              return FlutterSliderFixedValue(
+                percent: ((i / (values.length - 1)) * 100).round(),
+                value: e * GB,
+              );
+            }).toList(),
             trackBar: FlutterSliderTrackBar(
               inactiveTrackBar: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),

@@ -84,14 +84,11 @@ class L10n {
       Intl.defaultLocale = lang.locale.toString();
       chosen.value = lang;
 
-      _bundle =
-          FluentBundle(lang.toString())
-            ..addMessages(
-              await PlatformUtils.loadString('assets/l10n/$lang.ftl'),
-            )
-            ..addMessages(
-              _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
-            );
+      _bundle = FluentBundle(lang.toString())
+        ..addMessages(await PlatformUtils.loadString('assets/l10n/$lang.ftl'))
+        ..addMessages(
+          _phrases.entries.map((e) => '${e.key} = ${e.value}').join('\n'),
+        );
       if (refresh) {
         await Get.forceAppUpdate();
       }
@@ -102,7 +99,7 @@ class L10n {
 
   /// Returns the translated value of the provided [key] from the [_bundle].
   static String _format(String key, {Map<String, dynamic> args = const {}}) =>
-      _bundle.format(key, args: args);
+      _bundle.format(key, args: args) ?? key;
 }
 
 /// Language entity along with its [Locale].

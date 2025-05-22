@@ -201,17 +201,15 @@ class ContactRepository extends DisposableInterface
     final ChatContactFavoritePosition newPosition;
 
     if (position == null) {
-      final List<RxChatContactImpl> favorites =
-          contacts.values
-              .where((e) => e.contact.value.favoritePosition != null)
-              .toList();
+      final List<RxChatContactImpl> favorites = contacts.values
+          .where((e) => e.contact.value.favoritePosition != null)
+          .toList();
 
       final List<RxChatContactImpl> sorted = favorites..sort();
 
-      final double? highestFavorite =
-          sorted.isEmpty
-              ? null
-              : sorted.first.contact.value.favoritePosition!.val;
+      final double? highestFavorite = sorted.isEmpty
+          ? null
+          : sorted.first.contact.value.favoritePosition!.val;
 
       newPosition = ChatContactFavoritePosition(
         highestFavorite == null ? 1 : highestFavorite * 2,
@@ -277,19 +275,18 @@ class ContactRepository extends DisposableInterface
       );
     }
 
-    final List<RxChatContact> contacts =
-        this.contacts.values
-            .where(
-              (u) =>
-                  (phone != null && u.contact.value.phones.contains(phone)) ||
-                  (email != null && u.contact.value.emails.contains(email)) ||
-                  (name != null &&
-                      u.contact.value.name.val.toLowerCase().contains(
-                            name.val.toLowerCase(),
-                          ) ==
-                          true),
-            )
-            .toList();
+    final List<RxChatContact> contacts = this.contacts.values
+        .where(
+          (u) =>
+              (phone != null && u.contact.value.phones.contains(phone)) ||
+              (email != null && u.contact.value.emails.contains(email)) ||
+              (name != null &&
+                  u.contact.value.name.val.toLowerCase().contains(
+                        name.val.toLowerCase(),
+                      ) ==
+                      true),
+        )
+        .toList();
 
     Map<ChatContactId, RxChatContact> toMap(RxChatContact? c) {
       if (c != null) {

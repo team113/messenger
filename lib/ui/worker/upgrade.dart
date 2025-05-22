@@ -215,10 +215,9 @@ class UpgradeWorker extends DisposableService {
             }
 
             // Shouldn't prompt user with versions lower than current.
-            final bool lower =
-                ours != null && their != null
-                    ? ours < their
-                    : Pubspec.ref.compareTo(release.name) == -1;
+            final bool lower = ours != null && their != null
+                ? ours < their
+                : Pubspec.ref.compareTo(release.name) == -1;
             Log.info(
               'Whether `${Pubspec.ref}` is lower than `${release.name}`: $lower',
               '$runtimeType',
@@ -375,11 +374,10 @@ class Release {
         xml.findElements('description').firstOrNull?.innerText;
 
     final String date = xml.findElements('pubDate').first.innerText;
-    final List<ReleaseArtifact> assets =
-        xml
-            .findElements('enclosure')
-            .map((e) => ReleaseArtifact.fromXml(e))
-            .toList();
+    final List<ReleaseArtifact> assets = xml
+        .findElements('enclosure')
+        .map((e) => ReleaseArtifact.fromXml(e))
+        .toList();
 
     return Release(
       name: title,
@@ -734,12 +732,11 @@ extension VersionExtension on Version {
       parsed.major,
       parsed.minor,
       parsed.patch,
-      pre:
-          parsed.preRelease.isEmpty
-              ? null
-              : parsed.preRelease
-                  .map((e) => e is String ? e.replaceAll('-', '.') : e)
-                  .join('.'),
+      pre: parsed.preRelease.isEmpty
+          ? null
+          : parsed.preRelease
+                .map((e) => e is String ? e.replaceAll('-', '.') : e)
+                .join('.'),
       build: parsed.build.isEmpty ? null : parsed.build.join('.'),
     );
   }

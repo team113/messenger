@@ -125,8 +125,8 @@ class BlocklistView extends StatelessWidget {
                                   blocked?.reason == null
                                       ? blocked?.at.val.yMd ?? ''
                                       : 'label_reason_described'.l10nfmt({
-                                        'reason': blocked?.reason?.val,
-                                      }),
+                                          'reason': blocked?.reason?.val,
+                                        }),
                                   style: style.fonts.normal.regular.secondary,
                                 ),
                               ],
@@ -146,10 +146,9 @@ class BlocklistView extends StatelessWidget {
                                     child,
                                     CustomProgressIndicator(
                                       key: const Key('BlocklistLoading'),
-                                      value:
-                                          Config.disableInfiniteAnimations
-                                              ? 0
-                                              : null,
+                                      value: Config.disableInfiniteAnimations
+                                          ? 0
+                                          : null,
                                     ),
                                   ],
                                 );

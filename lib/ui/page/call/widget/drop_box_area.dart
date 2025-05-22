@@ -57,8 +57,9 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
     final Style style = Theme.of(router.context!).style;
 
     return Align(
-      alignment:
-          axis == Axis.horizontal ? Alignment.centerRight : Alignment.topCenter,
+      alignment: axis == Axis.horizontal
+          ? Alignment.centerRight
+          : Alignment.topCenter,
       child: SizedBox(
         width: axis == Axis.horizontal ? size / 1.6 : double.infinity,
         height: axis == Axis.horizontal ? double.infinity : size / 1.6,
@@ -76,20 +77,12 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     border: Border(
-                      left:
-                          axis == Axis.horizontal
-                              ? BorderSide(
-                                color: style.colors.secondary,
-                                width: 1,
-                              )
-                              : BorderSide.none,
-                      bottom:
-                          axis == Axis.vertical
-                              ? BorderSide(
-                                color: style.colors.secondary,
-                                width: 1,
-                              )
-                              : BorderSide.none,
+                      left: axis == Axis.horizontal
+                          ? BorderSide(color: style.colors.secondary, width: 1)
+                          : BorderSide.none,
+                      bottom: axis == Axis.vertical
+                          ? BorderSide(color: style.colors.secondary, width: 1)
+                          : BorderSide.none,
                     ),
                     boxShadow: [
                       CustomBoxShadow(
@@ -102,20 +95,17 @@ class DropBoxArea<T extends Object> extends StatelessWidget {
                   child: ConditionalBackdropFilter(
                     child: AnimatedContainer(
                       duration: 300.milliseconds,
-                      color:
-                          candidate.isNotEmpty
-                              ? style.colors.onPrimaryOpacity7
-                              : style.colors.transparent,
+                      color: candidate.isNotEmpty
+                          ? style.colors.onPrimaryOpacity7
+                          : style.colors.transparent,
                       child: Center(
                         child: SizedBox(
-                          width:
-                              axis == Axis.horizontal
-                                  ? min(size, 150 + 44)
-                                  : null,
-                          height:
-                              axis == Axis.horizontal
-                                  ? null
-                                  : min(size, 150 + 44),
+                          width: axis == Axis.horizontal
+                              ? min(size, 150 + 44)
+                              : null,
+                          height: axis == Axis.horizontal
+                              ? null
+                              : min(size, 150 + 44),
                           child: const DropBox(withBlur: false, dense: true),
                         ),
                       ),

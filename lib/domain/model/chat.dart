@@ -445,10 +445,9 @@ class ChatId extends NewType<String> implements Comparable<ChatId> {
   bool get isLocal => val.startsWith('d_') || val.startsWith('local_');
 
   /// Returns [UserId] part of this [ChatId] if [isLocal].
-  UserId get userId =>
-      isLocal
-          ? UserId(val.replaceFirst('d_', ''))
-          : throw Exception('ChatId is not local');
+  UserId get userId => isLocal
+      ? UserId(val.replaceFirst('d_', ''))
+      : throw Exception('ChatId is not local');
 
   /// Indicates whether this [ChatId] has [isLocal] indicator and its [userId]
   /// equals the provided [id].

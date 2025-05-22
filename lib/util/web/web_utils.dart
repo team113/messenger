@@ -57,12 +57,12 @@ class WebStoredCall {
       chatId: ChatId(data['chatId']),
       call: data['call'] == null ? null : ChatCall.fromJson(data['call']),
       creds: data['creds'] == null ? null : ChatCallCredentials(data['creds']),
-      deviceId:
-          data['deviceId'] == null ? null : ChatCallDeviceId(data['deviceId']),
-      state:
-          data['state'] == null
-              ? OngoingCallState.local
-              : OngoingCallState.values[data['state']],
+      deviceId: data['deviceId'] == null
+          ? null
+          : ChatCallDeviceId(data['deviceId']),
+      state: data['state'] == null
+          ? OngoingCallState.local
+          : OngoingCallState.values[data['state']],
     );
   }
 

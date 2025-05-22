@@ -87,8 +87,9 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
     final style = Theme.of(context).style;
 
     return ClipPath(
-      clipper:
-          widget.folded ? _Clipper(widget.borderRadius?.topLeft.y ?? 10) : null,
+      clipper: widget.folded
+          ? _Clipper(widget.borderRadius?.topLeft.y ?? 10)
+          : null,
       child: DecoratedBox(
         position: DecorationPosition.foreground,
         decoration: BoxDecoration(
@@ -98,14 +99,13 @@ class _InkWellWithHoverState extends State<InkWellWithHover> {
         child: Material(
           type: MaterialType.card,
           borderRadius: widget.borderRadius,
-          color:
-              hovered
-                  ? widget.selected
-                      ? widget.selectedHoverColor
-                      : widget.unselectedHoverColor
-                  : widget.selected
-                  ? widget.selectedColor
-                  : widget.unselectedColor,
+          color: hovered
+              ? widget.selected
+                    ? widget.selectedHoverColor
+                    : widget.unselectedHoverColor
+              : widget.selected
+              ? widget.selectedColor
+              : widget.unselectedColor,
           child: InkWell(
             borderRadius: widget.borderRadius,
             onTap: widget.onTap,
@@ -150,13 +150,12 @@ class _Clipper extends CustomClipper<Path> {
 
   @override
   Path getClip(Size size) {
-    final path =
-        Path()
-          ..lineTo(size.width, 0)
-          ..lineTo(size.width, size.height)
-          ..lineTo(0, size.height)
-          ..lineTo(0, radius)
-          ..lineTo(radius, 0);
+    final path = Path()
+      ..lineTo(size.width, 0)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..lineTo(0, radius)
+      ..lineTo(radius, 0);
     return path;
   }
 

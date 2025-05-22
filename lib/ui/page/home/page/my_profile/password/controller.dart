@@ -180,15 +180,15 @@ class ChangePasswordController extends GetxController {
         final bool hadPassword = myUser.value?.hasPassword ?? false;
 
         await _myUserService.updateUserPassword(
-          oldPassword:
-              myUser.value!.hasPassword ? UserPassword(oldPassword.text) : null,
+          oldPassword: myUser.value!.hasPassword
+              ? UserPassword(oldPassword.text)
+              : null,
           newPassword: UserPassword(newPassword.text),
         );
 
-        stage.value =
-            hadPassword
-                ? ChangePasswordFlowStage.changed
-                : ChangePasswordFlowStage.set;
+        stage.value = hadPassword
+            ? ChangePasswordFlowStage.changed
+            : ChangePasswordFlowStage.set;
       } on UpdateUserPasswordException catch (e) {
         oldPassword.error.value = e.toMessage();
       } catch (e) {

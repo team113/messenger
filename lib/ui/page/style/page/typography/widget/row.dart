@@ -52,15 +52,13 @@ class FontRow extends StatelessWidget {
 
     final HSLColor hsl = HSLColor.fromColor(font.color!);
 
-    final Color detailsColor =
-        hsl.lightness > 0.7 || hsl.alpha < 0.4
-            ? const Color(0xFFC4C4C4)
-            : const Color(0xFF888888);
+    final Color detailsColor = hsl.lightness > 0.7 || hsl.alpha < 0.4
+        ? const Color(0xFFC4C4C4)
+        : const Color(0xFF888888);
 
-    final Color background =
-        hsl.lightness > 0.7 || hsl.alpha < 0.4
-            ? const Color(0xFF888888)
-            : const Color(0xFFFFFFFF);
+    final Color background = hsl.lightness > 0.7 || hsl.alpha < 0.4
+        ? const Color(0xFF888888)
+        : const Color(0xFFFFFFFF);
 
     return Container(
       color: background,

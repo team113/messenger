@@ -84,8 +84,8 @@ class MutedChatsView extends StatelessWidget {
                                   muted?.forever == true
                                       ? 'label_muted_until_i_turn_on'.l10n
                                       : 'label_muted_until_period'.l10nfmt({
-                                        'period': muted?.until?.val.yMdHm,
-                                      }),
+                                          'period': muted?.until?.val.yMdHm,
+                                        }),
                                   style: style.fonts.small.regular.secondary,
                                 ),
                               ],

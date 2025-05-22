@@ -41,28 +41,25 @@ extension ChatConversion on ChatMixin {
     id,
     avatar: avatar?.toModel(),
     name: name,
-    members:
-        members.nodes
-            .map((e) => ChatMember(e.user.toModel(), e.joinedAt))
-            .toList(),
+    members: members.nodes
+        .map((e) => ChatMember(e.user.toModel(), e.joinedAt))
+        .toList(),
     kindIndex: kind.index,
     isHidden: isHidden,
-    muted:
-        muted != null
-            ? muted!.$$typename == 'MuteForeverDuration'
-                ? MuteDuration.forever()
-                : MuteDuration.until(
+    muted: muted != null
+        ? muted!.$$typename == 'MuteForeverDuration'
+              ? MuteDuration.forever()
+              : MuteDuration.until(
                   (muted! as ChatMixin$Muted$MuteUntilDuration).until,
                 )
-            : null,
-    directLink:
-        directLink != null
-            ? ChatDirectLink(
-              slug: directLink!.slug,
-              usageCount: directLink!.usageCount,
-              createdAt: createdAt,
-            )
-            : null,
+        : null,
+    directLink: directLink != null
+        ? ChatDirectLink(
+            slug: directLink!.slug,
+            usageCount: directLink!.usageCount,
+            createdAt: createdAt,
+          )
+        : null,
     createdAt: createdAt,
     updatedAt: updatedAt,
     lastReads: lastReads.map((e) => LastChatRead(e.memberId, e.at)).toList(),
@@ -355,10 +352,9 @@ extension EventChatLastItemUpdatedConversion
 extension ChatMessageQuoteConversion on ChatMessageQuoteMixin {
   /// Constructs a new [ChatMessageQuote] from this [ChatMessageQuoteMixin].
   ChatMessageQuote toModel() => ChatMessageQuote(
-    original:
-        original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
+    original: original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).value,
     author: author.id,
     at: at,
     text: text,
@@ -378,10 +374,9 @@ extension ChatMessageQuoteConversion on ChatMessageQuoteMixin {
 extension ChatCallQuoteConversion on ChatCallQuoteMixin {
   /// Constructs a new [ChatCallQuote] from this [ChatCallQuoteMixin].
   ChatCallQuote toModel() => ChatCallQuote(
-    original:
-        original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
+    original: original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).value,
     author: author.id,
     at: at,
   );
@@ -399,10 +394,9 @@ extension ChatCallQuoteConversion on ChatCallQuoteMixin {
 extension ChatInfoQuoteConversion on ChatInfoQuoteMixin {
   /// Constructs a new [ChatInfoQuote] from this [ChatInfoQuoteMixin].
   ChatInfoQuote toModel() => ChatInfoQuote(
-    original:
-        original == null
-            ? null
-            : _chatItem(original!.node, original!.cursor).value,
+    original: original == null
+        ? null
+        : _chatItem(original!.node, original!.cursor).value,
     author: author.id,
     at: at,
     action: action.toModel(),
@@ -462,16 +456,15 @@ extension ChatAvatarConversion on ChatAvatarMixin {
     original: original.toModel(),
     full: full.toModel(),
     big: big.toModel(),
-    crop:
-        crop == null
-            ? null
-            : CropArea(
-              topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
-              bottomRight: CropPoint(
-                x: crop!.bottomRight.x,
-                y: crop!.bottomRight.y,
-              ),
+    crop: crop == null
+        ? null
+        : CropArea(
+            topLeft: CropPoint(x: crop!.topLeft.x, y: crop!.topLeft.y),
+            bottomRight: CropPoint(
+              x: crop!.bottomRight.x,
+              y: crop!.bottomRight.y,
             ),
+          ),
   );
 }
 

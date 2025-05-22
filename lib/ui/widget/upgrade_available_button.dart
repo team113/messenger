@@ -82,28 +82,27 @@ class UpgradeAvailableButton extends StatelessWidget {
     );
 
     return WidgetButton(
-      onPressed:
-          file != null
-              ? () async {
-                try {
-                  final launched = await launchUrl(file.uri);
+      onPressed: file != null
+          ? () async {
+              try {
+                final launched = await launchUrl(file.uri);
 
-                  if (!launched && context.mounted) {
-                    await UpgradePopupView.show(context, release: scheduled);
-                  }
-                } catch (e) {
-                  MessagePopup.error(e);
+                if (!launched && context.mounted) {
+                  await UpgradePopupView.show(context, release: scheduled);
                 }
+              } catch (e) {
+                MessagePopup.error(e);
               }
-              : download == null
-              ? () async {
-                if (PlatformUtils.isWeb) {
-                  return await WebUtils.refresh();
-                }
+            }
+          : download == null
+          ? () async {
+              if (PlatformUtils.isWeb) {
+                return await WebUtils.refresh();
+              }
 
-                await UpgradePopupView.show(context, release: scheduled);
-              }
-              : null,
+              await UpgradePopupView.show(context, release: scheduled);
+            }
+          : null,
       child: Container(
         height: 48,
         margin: EdgeInsets.fromLTRB(10, 0, 10, 0),

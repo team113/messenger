@@ -114,10 +114,9 @@ class _HomeViewState extends State<HomeView> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    _backButtonDispatcher =
-        Router.of(
-          context,
-        ).backButtonDispatcher!.createChildBackButtonDispatcher();
+    _backButtonDispatcher = Router.of(
+      context,
+    ).backButtonDispatcher!.createChildBackButtonDispatcher();
   }
 
   @override
@@ -127,10 +126,9 @@ class _HomeViewState extends State<HomeView> {
     if (_deps == null) {
       return Scaffold(
         // For web, background color is displayed in `index.html` file.
-        backgroundColor:
-            PlatformUtils.isWeb
-                ? style.colors.transparent
-                : style.colors.onPrimary,
+        backgroundColor: PlatformUtils.isWeb
+            ? style.colors.transparent
+            : style.colors.onPrimary,
         body: const Stack(
           children: [
             SvgImage.asset(
@@ -233,18 +231,10 @@ class _HomeViewState extends State<HomeView> {
                 MouseRegion(
                   cursor: SystemMouseCursors.resizeLeftRight,
                   child: Scaler(
-                    onDragStart:
-                        (_) =>
-                            c.sideBarWidth.value = c.applySideBarWidth(
-                              context,
-                              c.sideBarWidth.value,
-                            ),
-                    onDragUpdate:
-                        (dx, _) =>
-                            c.sideBarWidth.value = c.applySideBarWidth(
-                              context,
-                              c.sideBarWidth.value + dx,
-                            ),
+                    onDragStart: (_) => c.sideBarWidth.value = c
+                        .applySideBarWidth(context, c.sideBarWidth.value),
+                    onDragUpdate: (dx, _) => c.sideBarWidth.value = c
+                        .applySideBarWidth(context, c.sideBarWidth.value + dx),
                     onDragEnd: (_) => c.setSideBarWidth(),
                     width: 7,
                     height: context.height,
@@ -326,35 +316,34 @@ class _HomeViewState extends State<HomeView> {
           translate: false,
           child: CustomNavigationBar(
             key: c.panelKey,
-            items:
-                tabs.map((e) {
-                  switch (e) {
-                    case HomeTab.link:
-                      return const CustomNavigationBarItem.link();
+            items: tabs.map((e) {
+              switch (e) {
+                case HomeTab.link:
+                  return const CustomNavigationBarItem.link();
 
-                    case HomeTab.chats:
-                      return Obx(() {
-                        return CustomNavigationBarItem.chats(
-                          unread: c.unreadChats.value.toString(),
-                          danger: c.myUser.value?.muted == null,
-                          selector: c.chatsKey,
-                          onMute: c.toggleMute,
-                        );
-                      });
+                case HomeTab.chats:
+                  return Obx(() {
+                    return CustomNavigationBarItem.chats(
+                      unread: c.unreadChats.value.toString(),
+                      danger: c.myUser.value?.muted == null,
+                      selector: c.chatsKey,
+                      onMute: c.toggleMute,
+                    );
+                  });
 
-                    case HomeTab.menu:
-                      return Obx(() {
-                        return CustomNavigationBarItem.menu(
-                          acceptAuxiliary: style.colors.acceptAuxiliary,
-                          warning: style.colors.warning,
-                          onPresence: c.setPresence,
-                          onAvatar: c.updateAvatar,
-                          selector: c.panelKey,
-                          myUser: c.myUser.value,
-                        );
-                      });
-                  }
-                }).toList(),
+                case HomeTab.menu:
+                  return Obx(() {
+                    return CustomNavigationBarItem.menu(
+                      acceptAuxiliary: style.colors.acceptAuxiliary,
+                      warning: style.colors.warning,
+                      onPresence: c.setPresence,
+                      onAvatar: c.updateAvatar,
+                      selector: c.panelKey,
+                      myUser: c.myUser.value,
+                    );
+                  });
+              }
+            }).toList(),
             currentIndex: tabs.indexOf(router.tab),
             onTap: (i) {
               if (i == 0) {

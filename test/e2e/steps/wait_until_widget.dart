@@ -34,11 +34,11 @@ final StepDefinitionGeneric waitUntilKeyExists =
         await context.world.appDriver.waitUntil(() async {
           return existence == Existence.absent
               ? context.world.appDriver.isAbsent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              )
+                  context.world.appDriver.findByKeySkipOffstage(key.name),
+                )
               : context.world.appDriver.isPresent(
-                context.world.appDriver.findByKeySkipOffstage(key.name),
-              );
+                  context.world.appDriver.findByKeySkipOffstage(key.name),
+                );
         }, timeout: const Duration(seconds: 30));
       },
     );

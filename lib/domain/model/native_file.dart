@@ -191,10 +191,9 @@ class NativeFile {
   }
 
   /// Returns a [Map] representing this [NativeFile].
-  Map<String, dynamic> toJson() =>
-      _$NativeFileToJson(this)
-        ..['dimensions'] = dimensions.value?.toJson()
-        ..['bytes'] = bytes.value?.toJson();
+  Map<String, dynamic> toJson() => _$NativeFileToJson(this)
+    ..['dimensions'] = dimensions.value?.toJson()
+    ..['bytes'] = bytes.value?.toJson();
 
   /// Ensures [mime] is correctly assigned.
   ///

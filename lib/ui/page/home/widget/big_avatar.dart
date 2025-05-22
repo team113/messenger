@@ -121,8 +121,11 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    final Iterable<void Function()> callbacks =
-        [widget.onUpload, widget.onEdit, widget.onDelete].nonNulls;
+    final Iterable<void Function()> callbacks = [
+      widget.onUpload,
+      widget.onEdit,
+      widget.onDelete,
+    ].nonNulls;
 
     return Column(
       children: [
@@ -133,28 +136,27 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
             Positioned.fill(
               child: SafeAnimatedSwitcher(
                 duration: 200.milliseconds,
-                child:
-                    widget.loading
-                        ? Container(
-                          width: AvatarRadius.largest.toDouble() * 2,
-                          height: AvatarRadius.largest.toDouble() * 2,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.rectangle,
-                            borderRadius: BorderRadius.circular(
-                              0.035 * (AvatarRadius.largest.toDouble() * 2),
-                            ),
-                            color: style.colors.onBackgroundOpacity13,
+                child: widget.loading
+                    ? Container(
+                        width: AvatarRadius.largest.toDouble() * 2,
+                        height: AvatarRadius.largest.toDouble() * 2,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.rectangle,
+                          borderRadius: BorderRadius.circular(
+                            0.035 * (AvatarRadius.largest.toDouble() * 2),
                           ),
-                          child: const Center(
-                            // TODO: Remove, when flutter/flutter##120874 is
-                            //       fixed:
-                            //       https://github.com/flutter/flutter/issues/120874
-                            child: RepaintBoundary(
-                              child: CustomProgressIndicator(),
-                            ),
+                          color: style.colors.onBackgroundOpacity13,
+                        ),
+                        child: const Center(
+                          // TODO: Remove, when flutter/flutter##120874 is
+                          //       fixed:
+                          //       https://github.com/flutter/flutter/issues/120874
+                          child: RepaintBoundary(
+                            child: CustomProgressIndicator(),
                           ),
-                        )
-                        : const SizedBox.shrink(),
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
             ),
           ],
@@ -164,8 +166,9 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Row(
-              mainAxisSize:
-                  callbacks.length == 1 ? MainAxisSize.min : MainAxisSize.max,
+              mainAxisSize: callbacks.length == 1
+                  ? MainAxisSize.min
+                  : MainAxisSize.max,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 if (widget.onUpload != null)
@@ -266,27 +269,26 @@ class _BigAvatarWidgetState extends State<BigAvatarWidget> {
       }
 
       return WidgetButton(
-        onPressed:
-            avatar == null
-                ? widget.onUpload
-                : () async {
-                  await GalleryPopup.show(
-                    context: context,
-                    gallery: GalleryPopup(
-                      initialKey: _avatarKey,
-                      children: [
-                        GalleryItem.image(
-                          avatar!.original.url,
-                          avatar.original.name,
-                          width: avatar.original.width,
-                          height: avatar.original.height,
-                          checksum: avatar.original.checksum,
-                          thumbhash: avatar.big.thumbhash,
-                        ),
-                      ],
-                    ),
-                  );
-                },
+        onPressed: avatar == null
+            ? widget.onUpload
+            : () async {
+                await GalleryPopup.show(
+                  context: context,
+                  gallery: GalleryPopup(
+                    initialKey: _avatarKey,
+                    children: [
+                      GalleryItem.image(
+                        avatar!.original.url,
+                        avatar.original.name,
+                        width: avatar.original.width,
+                        height: avatar.original.height,
+                        checksum: avatar.original.checksum,
+                        thumbhash: avatar.big.thumbhash,
+                      ),
+                    ],
+                  ),
+                );
+              },
         child: child,
       );
     });

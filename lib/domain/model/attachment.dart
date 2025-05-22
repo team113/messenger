@@ -157,15 +157,14 @@ class FileAttachment extends Attachment {
   }
 
   /// Downloads this [FileAttachment].
-  Future<File?>? download() =>
-      CacheWorker.instance
-          .download(
-            original.url,
-            filename,
-            original.size,
-            checksum: original.checksum,
-          )
-          .future;
+  Future<File?>? download() => CacheWorker.instance
+      .download(
+        original.url,
+        filename,
+        original.size,
+        checksum: original.checksum,
+      )
+      .future;
 
   /// Opens this [FileAttachment], if downloaded, or otherwise returns `false`.
   Future<bool> open() =>

@@ -162,31 +162,25 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
         onEnter: (_) => setState(() => isMouseOver = true),
         onExit: (_) => setState(() => isMouseOver = false),
         child: Container(
-          padding:
-              isMobile
-                  ? EdgeInsets.fromLTRB(
-                    widget.trailing == null ? 18 : 5,
-                    15,
-                    18,
-                    15,
-                  )
-                  : EdgeInsets.fromLTRB(
-                    widget.trailing == null ? 8 : 0,
-                    6,
-                    12,
-                    6,
-                  ),
+          padding: isMobile
+              ? EdgeInsets.fromLTRB(
+                  widget.trailing == null ? 18 : 5,
+                  15,
+                  18,
+                  15,
+                )
+              : EdgeInsets.fromLTRB(widget.trailing == null ? 8 : 0, 6, 12, 6),
           margin: isMobile ? null : const EdgeInsets.fromLTRB(4, 0, 4, 0),
           width: double.infinity,
           decoration: BoxDecoration(
-            borderRadius:
-                isMobile ? style.contextMenuRadius : BorderRadius.circular(7),
-            color:
-                isMouseOver && widget.onPressed != null
-                    ? isMobile
-                        ? style.contextMenuHoveredColor
-                        : style.colors.primary
-                    : style.colors.transparent,
+            borderRadius: isMobile
+                ? style.contextMenuRadius
+                : BorderRadius.circular(7),
+            color: isMouseOver && widget.onPressed != null
+                ? isMobile
+                      ? style.contextMenuHoveredColor
+                      : style.colors.primary
+                : style.colors.transparent,
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -207,27 +201,30 @@ class _ContextMenuButtonState extends State<ContextMenuButton> {
                       scale: 0.8,
                       child: Align(
                         alignment: Alignment.center,
-                        child:
-                            isMouseOver && widget.onPressed != null
-                                ? (widget.inverted ?? widget.trailing)
-                                : widget.trailing,
+                        child: isMouseOver && widget.onPressed != null
+                            ? (widget.inverted ?? widget.trailing)
+                            : widget.trailing,
                       ),
                     ),
                   ),
               ],
               Text(
                 widget.label,
-                style: (widget.onPressed == null
-                        ? style.fonts.normal.regular.secondaryHighlightDarkest
-                        : (isMouseOver && !isMobile
-                            ? style.fonts.normal.regular.onPrimary
-                            : style.fonts.normal.regular.onBackground))
-                    .copyWith(
-                      fontSize:
-                          isMobile
+                style:
+                    (widget.onPressed == null
+                            ? style
+                                  .fonts
+                                  .normal
+                                  .regular
+                                  .secondaryHighlightDarkest
+                            : (isMouseOver && !isMobile
+                                  ? style.fonts.normal.regular.onPrimary
+                                  : style.fonts.normal.regular.onBackground))
+                        .copyWith(
+                          fontSize: isMobile
                               ? style.fonts.medium.regular.onBackground.fontSize
                               : style.fonts.small.regular.onBackground.fontSize,
-                    ),
+                        ),
               ),
             ],
           ),

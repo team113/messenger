@@ -98,11 +98,10 @@ class ContextMenuInterceptor extends StatelessWidget {
 
     // ignore: undefined_prefixed_name
     ui.platformViewRegistry.registerViewFactory(viewType, (int viewId) {
-      final web.HTMLDivElement htmlElement =
-          web.HTMLDivElement()
-            ..style.width = '100%'
-            ..style.height = '100%'
-            ..setAttribute('oncontextmenu', 'return false;');
+      final web.HTMLDivElement htmlElement = web.HTMLDivElement()
+        ..style.width = '100%'
+        ..style.height = '100%'
+        ..setAttribute('oncontextmenu', 'return false;');
       if (debug) {
         htmlElement.style.backgroundColor = 'rgba(255, 0, 0, .5)';
       }

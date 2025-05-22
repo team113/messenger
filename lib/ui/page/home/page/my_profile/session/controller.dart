@@ -87,15 +87,14 @@ class DeleteSessionController extends GetxController {
         s.status.value = RxStatus.loading();
 
         try {
-          final List<Future> futures =
-              sessions
-                  .map(
-                    (e) => _authService.deleteSession(
-                      id: e.id,
-                      password: UserPassword(s.text),
-                    ),
-                  )
-                  .toList();
+          final List<Future> futures = sessions
+              .map(
+                (e) => _authService.deleteSession(
+                  id: e.id,
+                  password: UserPassword(s.text),
+                ),
+              )
+              .toList();
 
           await Future.wait(futures);
 
@@ -213,8 +212,10 @@ extension UserAgentExtension on UserAgent {
             // If the [BrowserRule] requests the version to contain only
             // specified depth, then trim it.
             if (e.versionDepth != null) {
-              version =
-                  version = version.split('.').take(e.versionDepth!).join('.');
+              version = version = version
+                  .split('.')
+                  .take(e.versionDepth!)
+                  .join('.');
             }
 
             return '${e.name} $version';

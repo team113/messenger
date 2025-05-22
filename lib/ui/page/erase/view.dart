@@ -204,13 +204,12 @@ class EraseView extends StatelessWidget {
           style: style.fonts.small.regular.secondary,
         ),
       ],
-      button:
-          (context) => MessagePopup.deleteButton(
-            context,
-            key: Key('Proceed'),
-            icon: SvgIcons.none,
-            label: 'btn_confirm'.l10n,
-          ),
+      button: (context) => MessagePopup.deleteButton(
+        context,
+        key: Key('Proceed'),
+        icon: SvgIcons.none,
+        label: 'btn_confirm'.l10n,
+      ),
     );
 
     if (result == true) {

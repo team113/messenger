@@ -103,13 +103,9 @@ class _FloatingContextMenuState extends State<FloatingContextMenu> {
       onLongPress: () => _populateEntry(context),
       child: KeyedSubtree(
         key: _globalKey,
-        child:
-            _entry == null || !widget.moveDownwards
-                ? widget.child
-                : SizedBox(
-                  width: _rect?.width ?? 1,
-                  height: _rect?.height ?? 1,
-                ),
+        child: _entry == null || !widget.moveDownwards
+            ? widget.child
+            : SizedBox(width: _rect?.width ?? 1, height: _rect?.height ?? 1),
       ),
     );
   }
@@ -319,18 +315,17 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                               bottom: false,
                               child: Padding(
                                 padding: EdgeInsets.only(
-                                  left:
-                                      widget.unconstrained ? 10 : _bounds.left,
+                                  left: widget.unconstrained
+                                      ? 10
+                                      : _bounds.left,
                                 ),
                                 child: SizedBox(
-                                  width:
-                                      widget.unconstrained
-                                          ? null
-                                          : _bounds.width,
-                                  height:
-                                      widget.unconstrained
-                                          ? null
-                                          : _bounds.height,
+                                  width: widget.unconstrained
+                                      ? null
+                                      : _bounds.width,
+                                  height: widget.unconstrained
+                                      ? null
+                                      : _bounds.height,
                                   child: widget.child,
                                 ),
                               ),
@@ -343,25 +338,21 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
                   else ...[
                     if (!widget.showAbove)
                       Positioned(
-                        left:
-                            widget.unconstrained
-                                ? (10 * _fading.value +
-                                    _bounds.left * (1 - _fading.value))
-                                : _bounds.left,
-                        width:
-                            widget.unconstrained
-                                ? (_bounds.width +
-                                        (constraints.maxWidth - _bounds.width) *
-                                            _fading.value) -
-                                    (20 * _fading.value)
-                                : _bounds.width,
-                        height:
-                            widget.unconstrained
-                                ? (_bounds.height +
-                                    (constraints.maxHeight / 2 -
-                                            _bounds.height) *
-                                        _fading.value)
-                                : _bounds.height,
+                        left: widget.unconstrained
+                            ? (10 * _fading.value +
+                                  _bounds.left * (1 - _fading.value))
+                            : _bounds.left,
+                        width: widget.unconstrained
+                            ? (_bounds.width +
+                                      (constraints.maxWidth - _bounds.width) *
+                                          _fading.value) -
+                                  (20 * _fading.value)
+                            : _bounds.width,
+                        height: widget.unconstrained
+                            ? (_bounds.height +
+                                  (constraints.maxHeight / 2 - _bounds.height) *
+                                      _fading.value)
+                            : _bounds.height,
                         bottom:
                             (1 - _fading.value) *
                                 (constraints.maxHeight -
@@ -397,17 +388,15 @@ class _AnimatedMenuState extends State<_AnimatedMenu>
       if (widget.alignment == Alignment.bottomLeft) {
         padding = EdgeInsets.only(
           left: _bounds.left - 5,
-          right:
-              menuWidth < minWidth
-                  ? width - _bounds.left - minWidth
-                  : width - _bounds.right - 5,
+          right: menuWidth < minWidth
+              ? width - _bounds.left - minWidth
+              : width - _bounds.right - 5,
         );
       } else {
         padding = EdgeInsets.only(
-          left:
-              menuWidth < minWidth
-                  ? _bounds.right - minWidth
-                  : _bounds.left - 5,
+          left: menuWidth < minWidth
+              ? _bounds.right - minWidth
+              : _bounds.left - 5,
           right: width - _bounds.right - 5,
         );
       }

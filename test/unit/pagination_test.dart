@@ -131,11 +131,10 @@ void main() async {
         };
       }
 
-      final items =
-          List.generate(
-            100,
-            (i) => message('$i'),
-          ).skip(after ?? 0).take(first ?? 100).toList();
+      final items = List.generate(
+        100,
+        (i) => message('$i'),
+      ).skip(after ?? 0).take(first ?? 100).toList();
 
       return Future.value(
         GetMessages$Query.fromJson({

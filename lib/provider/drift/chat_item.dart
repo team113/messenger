@@ -172,14 +172,12 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
   Future<DtoChatItem?> readAt(PreciseDateTime at) async {
     return await safe<DtoChatItem?>(
       (db) async {
-        final stmt =
-            db.select(db.chatItems)
-              ..where(
-                (u) =>
-                    u.at.isSmallerOrEqual(Variable(at.microsecondsSinceEpoch)),
-              )
-              ..orderBy([(u) => OrderingTerm.desc(u.at)])
-              ..limit(1);
+        final stmt = db.select(db.chatItems)
+          ..where(
+            (u) => u.at.isSmallerOrEqual(Variable(at.microsecondsSinceEpoch)),
+          )
+          ..orderBy([(u) => OrderingTerm.desc(u.at)])
+          ..limit(1);
         final ChatItemRow? row = await stmt.getSingleOrNull();
 
         if (row == null) {
@@ -370,10 +368,9 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         stmt.orderBy([OrderingTerm.desc(db.chatItems.at)]);
 
         return stmt.watch().map(
-          (rows) =>
-              rows
-                  .map((e) => _ChatItemDb.fromDb(e.readTable(db.chatItems)))
-                  .toList(),
+          (rows) => rows
+              .map((e) => _ChatItemDb.fromDb(e.readTable(db.chatItems)))
+              .toList(),
         );
       } else if (before != null && after != null) {
         final stmt = db.chatItemsAround(
@@ -384,23 +381,22 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         );
 
         return stmt.watch().map(
-          (items) =>
-              items
-                  .map(
-                    (r) => _ChatItemDb.fromDb(
-                      ChatItemRow(
-                        id: r.id,
-                        chatId: r.chatId,
-                        authorId: r.authorId,
-                        at: r.at,
-                        status: r.status,
-                        data: r.data,
-                        cursor: r.cursor,
-                        ver: r.ver,
-                      ),
-                    ),
-                  )
-                  .toList(),
+          (items) => items
+              .map(
+                (r) => _ChatItemDb.fromDb(
+                  ChatItemRow(
+                    id: r.id,
+                    chatId: r.chatId,
+                    authorId: r.authorId,
+                    at: r.at,
+                    status: r.status,
+                    data: r.data,
+                    cursor: r.cursor,
+                    ver: r.ver,
+                  ),
+                ),
+              )
+              .toList(),
         );
       } else if (before == null && after != null) {
         final stmt = db.chatItemsAroundTopless(
@@ -410,23 +406,22 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         );
 
         return stmt.watch().map(
-          (items) =>
-              items
-                  .map(
-                    (r) => _ChatItemDb.fromDb(
-                      ChatItemRow(
-                        id: r.id,
-                        chatId: r.chatId,
-                        authorId: r.authorId,
-                        at: r.at,
-                        status: r.status,
-                        data: r.data,
-                        cursor: r.cursor,
-                        ver: r.ver,
-                      ),
-                    ),
-                  )
-                  .toList(),
+          (items) => items
+              .map(
+                (r) => _ChatItemDb.fromDb(
+                  ChatItemRow(
+                    id: r.id,
+                    chatId: r.chatId,
+                    authorId: r.authorId,
+                    at: r.at,
+                    status: r.status,
+                    data: r.data,
+                    cursor: r.cursor,
+                    ver: r.ver,
+                  ),
+                ),
+              )
+              .toList(),
         );
       } else if (before != null && after == null) {
         final stmt = db.chatItemsAroundBottomless(
@@ -436,23 +431,22 @@ class ChatItemDriftProvider extends DriftProviderBaseWithScope {
         );
 
         return stmt.watch().map(
-          (items) =>
-              items
-                  .map(
-                    (r) => _ChatItemDb.fromDb(
-                      ChatItemRow(
-                        id: r.id,
-                        chatId: r.chatId,
-                        authorId: r.authorId,
-                        at: r.at,
-                        status: r.status,
-                        data: r.data,
-                        cursor: r.cursor,
-                        ver: r.ver,
-                      ),
-                    ),
-                  )
-                  .toList(),
+          (items) => items
+              .map(
+                (r) => _ChatItemDb.fromDb(
+                  ChatItemRow(
+                    id: r.id,
+                    chatId: r.chatId,
+                    authorId: r.authorId,
+                    at: r.at,
+                    status: r.status,
+                    data: r.data,
+                    cursor: r.cursor,
+                    ver: r.ver,
+                  ),
+                ),
+              )
+              .toList(),
         );
       }
 

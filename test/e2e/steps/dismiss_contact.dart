@@ -50,6 +50,6 @@ final StepDefinitionGeneric dismissContact = given1<String, CustomWorld>(
       return true;
     });
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

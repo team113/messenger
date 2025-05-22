@@ -42,8 +42,9 @@ tapWidgetNTimes = when2<WidgetKey, int, FlutterWorld>(
         await context.world.appDriver.waitForAppToSettle();
 
         try {
-          final finder =
-              context.world.appDriver.findByKeySkipOffstage(key.name).first;
+          final finder = context.world.appDriver
+              .findByKeySkipOffstage(key.name)
+              .first;
 
           await context.world.appDriver.waitForAppToSettle();
           await context.world.appDriver.tap(
@@ -61,6 +62,6 @@ tapWidgetNTimes = when2<WidgetKey, int, FlutterWorld>(
       }, timeout: const Duration(seconds: 30));
     }
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

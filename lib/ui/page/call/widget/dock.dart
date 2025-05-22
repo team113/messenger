@@ -117,11 +117,11 @@ class _DockState<T extends Object> extends State<Dock<T>> {
   /// Returns the width single [_DraggedItem] occupies.
   double get _size =>
       _items.isEmpty ||
-              _items.first.key.currentState == null ||
-              _items.first.key.currentState?.mounted == false ||
-              _items.first.key.currentContext?.size == null
-          ? widget.itemWidth
-          : _items.first.key.currentContext!.size!.width;
+          _items.first.key.currentState == null ||
+          _items.first.key.currentState?.mounted == false ||
+          _items.first.key.currentContext?.size == null
+      ? widget.itemWidth
+      : _items.first.key.currentContext!.size!.width;
 
   /// Returns a position in [_items] to add expanding [AnimatedContainer] to.
   int get _expanded => __expanded;
@@ -194,158 +194,143 @@ class _DockState<T extends Object> extends State<Dock<T>> {
       return Row(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
-        children:
-            _items.mapMany((e) {
-              int i = _items.indexOf(e);
-              return [
-                // Add the leading [Flexible]s, if this is the first item.
-                if (i == 0) ...[
-                  const Flexible(flex: 1, child: SizedBox(width: 10)),
-                  AnimatedContainer(
-                    key: _expandedKeys[0],
-                    duration: _animateDuration,
-                    width:
-                        _expanded == 0
-                            ? _items
-                                    .firstOrNull
-                                    ?.key
-                                    .globalPaintBounds
-                                    ?.width ??
-                                _size
-                            : 0,
-                  ),
-                  if (_compressed == 0)
-                    AnimatedDelayedWidth(
-                      beginWidth: _size,
-                      endWidth: 0,
-                      duration: jumpDuration,
-                    ),
-                  Flexible(
-                    flex: _expanded == 0 ? 1 : 0,
-                    child: SizedBox(width: _expanded == 0 ? 10 : 0),
-                  ),
-                ],
+        children: _items.mapMany((e) {
+          int i = _items.indexOf(e);
+          return [
+            // Add the leading [Flexible]s, if this is the first item.
+            if (i == 0) ...[
+              const Flexible(flex: 1, child: SizedBox(width: 10)),
+              AnimatedContainer(
+                key: _expandedKeys[0],
+                duration: _animateDuration,
+                width: _expanded == 0
+                    ? _items.firstOrNull?.key.globalPaintBounds?.width ?? _size
+                    : 0,
+              ),
+              if (_compressed == 0)
+                AnimatedDelayedWidth(
+                  beginWidth: _size,
+                  endWidth: 0,
+                  duration: jumpDuration,
+                ),
+              Flexible(
+                flex: _expanded == 0 ? 1 : 0,
+                child: SizedBox(width: _expanded == 0 ? 10 : 0),
+              ),
+            ],
 
-                // [Draggable] item itself.
-                Flexible(
-                  flex: 5,
-                  child: Container(
-                    constraints: BoxConstraints(
-                      maxWidth: _size,
-                      maxHeight: _size,
-                    ),
-                    child: AspectRatio(
-                      aspectRatio: 1,
-                      child: LayoutBuilder(
-                        builder: (c, constraints) {
-                          return DelayedDraggable(
-                            maxSimultaneousDrags: _entry == null ? 1 : 0,
-                            distance: widget.delayed ? 6 : 0,
-                            dragAnchorStrategy: pointerDragAnchorStrategy,
-                            feedback: Transform.translate(
-                              offset:
-                                  -Offset(
-                                    constraints.maxWidth / 2,
-                                    constraints.maxHeight / 2,
-                                  ),
-                              child: ConstrainedBox(
-                                constraints: constraints,
-                                child: widget.itemBuilder(e.item),
-                              ),
-                            ),
-                            data: e.item,
-                            onDragCompleted: () {
-                              _rect = null;
-                              widget.onReorder?.call(
-                                _items.map((e) => e.item).toList(),
-                              );
-                            },
-                            onDragStarted: () {
-                              _resetAnimations();
-                              widget.onDragStarted?.call(_items[i].item);
-
-                              _rect = _items[i].key.globalPaintBounds;
-                              _expanded = i;
-                              _dragged = MapEntry(i, e);
-
-                              _items.removeAt(i);
-
-                              setState(() {});
-                            },
-                            onDraggableCanceled: (_, o) {
-                              int index = _dragged!.key;
-
-                              _expanded = index;
-                              final _DraggedItem<T> dragged = _dragged!.value;
-
-                              // Animate the item returning to its position.
-                              _animate(
-                                item: _dragged!.value,
-                                context: context,
-                                beginRect: Rect.fromLTWH(
-                                  o.dx - _rect!.width / 2,
-                                  o.dy - _rect!.height / 2,
-                                  _rect!.width,
-                                  _rect!.height,
-                                ),
-                                endRect: _rect!,
-                                onEnd: () {
-                                  if (mounted) {
-                                    setState(() {
-                                      _resetAnimations();
-                                      _expanded = -1;
-                                      _items.insert(index, dragged);
-                                      _populateExpandedKeys();
-                                      widget.onDragEnded?.call(
-                                        _items[index].item,
-                                      );
-                                    });
-                                  }
-                                },
-                              );
-
-                              _rect = null;
-                              _dragged = null;
-
-                              setState(() {});
-                            },
-                            child: Opacity(
-                              opacity: e.hidden ? 0 : 1,
-                              child: KeyedSubtree(
-                                key: e.key,
-                                child: widget.itemBuilder(e.item),
-                              ),
-                            ),
+            // [Draggable] item itself.
+            Flexible(
+              flex: 5,
+              child: Container(
+                constraints: BoxConstraints(maxWidth: _size, maxHeight: _size),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: LayoutBuilder(
+                    builder: (c, constraints) {
+                      return DelayedDraggable(
+                        maxSimultaneousDrags: _entry == null ? 1 : 0,
+                        distance: widget.delayed ? 6 : 0,
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        feedback: Transform.translate(
+                          offset: -Offset(
+                            constraints.maxWidth / 2,
+                            constraints.maxHeight / 2,
+                          ),
+                          child: ConstrainedBox(
+                            constraints: constraints,
+                            child: widget.itemBuilder(e.item),
+                          ),
+                        ),
+                        data: e.item,
+                        onDragCompleted: () {
+                          _rect = null;
+                          widget.onReorder?.call(
+                            _items.map((e) => e.item).toList(),
                           );
                         },
-                      ),
-                    ),
-                  ),
-                ),
+                        onDragStarted: () {
+                          _resetAnimations();
+                          widget.onDragStarted?.call(_items[i].item);
 
-                // Add the trailing [Flexible]s.
-                Flexible(
-                  flex: _expanded - 1 == i ? 1 : 0,
-                  child: SizedBox(width: _expanded - 1 == i ? 10 : 0),
-                ),
-                AnimatedContainer(
-                  key: _expandedKeys[i + 1],
-                  duration: _animateDuration,
-                  width:
-                      _expanded - 1 == i
-                          ? _items.firstOrNull?.key.globalPaintBounds?.width ??
-                              _size
-                          : 0,
-                ),
-                if (_compressed - 1 == i)
-                  AnimatedDelayedWidth(
-                    beginWidth: _size,
-                    endWidth: 0,
-                    duration: jumpDuration,
+                          _rect = _items[i].key.globalPaintBounds;
+                          _expanded = i;
+                          _dragged = MapEntry(i, e);
+
+                          _items.removeAt(i);
+
+                          setState(() {});
+                        },
+                        onDraggableCanceled: (_, o) {
+                          int index = _dragged!.key;
+
+                          _expanded = index;
+                          final _DraggedItem<T> dragged = _dragged!.value;
+
+                          // Animate the item returning to its position.
+                          _animate(
+                            item: _dragged!.value,
+                            context: context,
+                            beginRect: Rect.fromLTWH(
+                              o.dx - _rect!.width / 2,
+                              o.dy - _rect!.height / 2,
+                              _rect!.width,
+                              _rect!.height,
+                            ),
+                            endRect: _rect!,
+                            onEnd: () {
+                              if (mounted) {
+                                setState(() {
+                                  _resetAnimations();
+                                  _expanded = -1;
+                                  _items.insert(index, dragged);
+                                  _populateExpandedKeys();
+                                  widget.onDragEnded?.call(_items[index].item);
+                                });
+                              }
+                            },
+                          );
+
+                          _rect = null;
+                          _dragged = null;
+
+                          setState(() {});
+                        },
+                        child: Opacity(
+                          opacity: e.hidden ? 0 : 1,
+                          child: KeyedSubtree(
+                            key: e.key,
+                            child: widget.itemBuilder(e.item),
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                const Flexible(flex: 1, child: SizedBox(width: 10)),
-              ];
-            }).toList(),
+                ),
+              ),
+            ),
+
+            // Add the trailing [Flexible]s.
+            Flexible(
+              flex: _expanded - 1 == i ? 1 : 0,
+              child: SizedBox(width: _expanded - 1 == i ? 10 : 0),
+            ),
+            AnimatedContainer(
+              key: _expandedKeys[i + 1],
+              duration: _animateDuration,
+              width: _expanded - 1 == i
+                  ? _items.firstOrNull?.key.globalPaintBounds?.width ?? _size
+                  : 0,
+            ),
+            if (_compressed - 1 == i)
+              AnimatedDelayedWidth(
+                beginWidth: _size,
+                endWidth: 0,
+                duration: jumpDuration,
+              ),
+            const Flexible(flex: 1, child: SizedBox(width: 10)),
+          ];
+        }).toList(),
       );
     }
 
@@ -359,8 +344,8 @@ class _DockState<T extends Object> extends State<Dock<T>> {
           _expanded = -1;
         }
       },
-      onWillAcceptWithDetails:
-          (e) => (widget.onWillAccept?.call(e.data) ?? true) && _entry == null,
+      onWillAcceptWithDetails: (e) =>
+          (widget.onWillAccept?.call(e.data) ?? true) && _entry == null,
       builder: builder,
     );
   }
@@ -550,17 +535,16 @@ class _DockState<T extends Object> extends State<Dock<T>> {
     required VoidCallback onEnd,
   }) {
     _entry = OverlayEntry(
-      builder:
-          (_) => AnimatedTransition(
-            beginRect: beginRect,
-            endRect: endRect,
-            duration: jumpDuration,
-            onEnd: () {
-              onEnd();
-              _removeOverlay();
-            },
-            child: widget.itemBuilder(item.item),
-          ),
+      builder: (_) => AnimatedTransition(
+        beginRect: beginRect,
+        endRect: endRect,
+        duration: jumpDuration,
+        onEnd: () {
+          onEnd();
+          _removeOverlay();
+        },
+        child: widget.itemBuilder(item.item),
+      ),
     );
 
     Overlay.of(context).insert(_entry!);

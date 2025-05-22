@@ -93,12 +93,11 @@ class Launchpad extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 150),
                     decoration: BoxDecoration(
-                      color:
-                          onWillAccept != null
-                              ? candidate.any(onWillAccept!)
-                                  ? style.colors.primaryAuxiliaryOpacity95
-                                  : style.colors.primaryAuxiliaryOpacity90
-                              : null,
+                      color: onWillAccept != null
+                          ? candidate.any(onWillAccept!)
+                                ? style.colors.primaryAuxiliaryOpacity95
+                                : style.colors.primaryAuxiliaryOpacity90
+                          : null,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding: const EdgeInsets.symmetric(horizontal: 20),

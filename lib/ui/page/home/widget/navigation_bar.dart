@@ -125,25 +125,24 @@ class _CustomNavigationBarState extends State<CustomNavigationBar> {
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children:
-                        widget.items.mapIndexed((i, b) {
-                          final bool selected = widget.currentIndex == i;
+                    children: widget.items.mapIndexed((i, b) {
+                      final bool selected = widget.currentIndex == i;
 
-                          return AnimatedScale(
-                            key: _keys[i],
-                            duration: const Duration(milliseconds: 150),
-                            curve: Curves.bounceInOut,
-                            scale: selected ? 1.1 : 1,
-                            child: AnimatedOpacity(
-                              duration: const Duration(milliseconds: 150),
-                              opacity: selected ? 1 : 0.7,
-                              child: AnimatedButton(
-                                onPressed: () => widget.onTap?.call(i),
-                                child: b,
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                      return AnimatedScale(
+                        key: _keys[i],
+                        duration: const Duration(milliseconds: 150),
+                        curve: Curves.bounceInOut,
+                        scale: selected ? 1.1 : 1,
+                        child: AnimatedOpacity(
+                          duration: const Duration(milliseconds: 150),
+                          opacity: selected ? 1 : 0.7,
+                          child: AnimatedButton(
+                            onPressed: () => widget.onTap?.call(i),
+                            child: b,
+                          ),
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ),
               ),
@@ -225,10 +224,9 @@ class CustomNavigationBarItem extends StatelessWidget {
            child: SafeAnimatedSwitcher(
              key: selector,
              duration: const Duration(milliseconds: 200),
-             child:
-                 danger
-                     ? const SvgIcon(SvgIcons.chats, key: Key('Unmuted'))
-                     : const SvgIcon(SvgIcons.chatsMuted, key: Key('Muted')),
+             child: danger
+                 ? const SvgIcon(SvgIcons.chats, key: Key('Unmuted'))
+                 : const SvgIcon(SvgIcons.chatsMuted, key: Key('Muted')),
            ),
          ),
        );
@@ -319,23 +317,20 @@ class CustomNavigationBarItem extends StatelessWidget {
           largeSize: 15,
           padding: const EdgeInsets.symmetric(vertical: 0, horizontal: 4.4),
           offset: const Offset(2, -2),
-          label:
-              badge == null
-                  ? null
-                  : Transform.translate(
-                    offset:
-                        PlatformUtils.isWeb
-                            ? Offset(0, PlatformUtils.isIOS ? 0 : 0.25)
-                            : PlatformUtils.isDesktop
-                            ? const Offset(-0.1, -0.2)
-                            : Offset.zero,
-                    child: Text(badge!, textAlign: TextAlign.center),
-                  ),
+          label: badge == null
+              ? null
+              : Transform.translate(
+                  offset: PlatformUtils.isWeb
+                      ? Offset(0, PlatformUtils.isIOS ? 0 : 0.25)
+                      : PlatformUtils.isDesktop
+                      ? const Offset(-0.1, -0.2)
+                      : Offset.zero,
+                  child: Text(badge!, textAlign: TextAlign.center),
+                ),
           textStyle: style.fonts.smallest.regular.onPrimary,
-          backgroundColor:
-              danger
-                  ? style.colors.danger
-                  : style.colors.secondaryHighlightDarkest,
+          backgroundColor: danger
+              ? style.colors.danger
+              : style.colors.secondaryHighlightDarkest,
           isLabelVisible: badge != null,
           child: child,
         ),

@@ -75,26 +75,21 @@ class FreelanceWorkView extends StatelessWidget {
                       TextSpan(
                         children: [
                           TextSpan(
-                            text:
-                                'label_code_requirements_contribution_guide1'
-                                    .l10n,
+                            text: 'label_code_requirements_contribution_guide1'
+                                .l10n,
                           ),
                           TextSpan(
-                            text:
-                                'label_code_requirements_contribution_guide2'
-                                    .l10n,
+                            text: 'label_code_requirements_contribution_guide2'
+                                .l10n,
                             style: style.fonts.normal.regular.primary,
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap =
-                                      () => launchUrlString(
-                                        'https://github.com/team113/messenger/blob/main/CONTRIBUTING.md',
-                                      ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrlString(
+                                'https://github.com/team113/messenger/blob/main/CONTRIBUTING.md',
+                              ),
                           ),
                           TextSpan(
-                            text:
-                                'label_code_requirements_contribution_guide3'
-                                    .l10n,
+                            text: 'label_code_requirements_contribution_guide3'
+                                .l10n,
                           ),
                         ],
                       ),
@@ -108,12 +103,10 @@ class FreelanceWorkView extends StatelessWidget {
                           TextSpan(
                             text: 'label_code_requirements_documentation2'.l10n,
                             style: style.fonts.normal.regular.primary,
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap =
-                                      () => launchUrlString(
-                                        'https://dart.dev/effective-dart/documentation',
-                                      ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrlString(
+                                'https://dart.dev/effective-dart/documentation',
+                              ),
                           ),
                           TextSpan(
                             text: 'label_code_requirements_documentation3'.l10n,
@@ -157,12 +150,10 @@ class FreelanceWorkView extends StatelessWidget {
                                 'label_for_learning_use_our_flutter_incubator2'
                                     .l10n,
                             style: style.fonts.normal.regular.primary,
-                            recognizer:
-                                TapGestureRecognizer()
-                                  ..onTap =
-                                      () => launchUrlString(
-                                        'https://github.com/team113/flutter-incubator',
-                                      ),
+                            recognizer: TapGestureRecognizer()
+                              ..onTap = () => launchUrlString(
+                                'https://github.com/team113/flutter-incubator',
+                              ),
                           ),
                         ],
                       ),
@@ -193,44 +184,42 @@ class FreelanceWorkView extends StatelessWidget {
 
                   return Block(
                     title: 'label_tasks'.l10n,
-                    children:
-                        c.issues.mapIndexed((i, e) {
-                          return Obx(() {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 4),
-                              child: IssueWidget(
-                                e,
-                                expanded: c.expanded.value == i,
-                                onPressed: () {
-                                  if (c.expanded.value == i) {
-                                    c.expanded.value = null;
-                                  } else {
-                                    c.expanded.value = i;
-                                  }
-                                },
-                              ),
-                            );
-                          });
-                        }).toList(),
+                    children: c.issues.mapIndexed((i, e) {
+                      return Obx(() {
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: IssueWidget(
+                            e,
+                            expanded: c.expanded.value == i,
+                            onPressed: () {
+                              if (c.expanded.value == i) {
+                                c.expanded.value = null;
+                              } else {
+                                c.expanded.value = i;
+                              }
+                            },
+                          ),
+                        );
+                      });
+                    }).toList(),
                   );
                 }),
                 Obx(() {
                   return ProceedBlock(
                     'btn_send_application'.l10n,
-                    onPressed:
-                        c.linkStatus.value.isLoading
-                            ? null
-                            : () async {
-                              if (c.status.value.isSuccess) {
-                                await c.useLink();
-                              } else {
-                                await LoginView.show(
-                                  context,
-                                  initial: LoginViewStage.signUpOrSignIn,
-                                  onSuccess: c.useLink,
-                                );
-                              }
-                            },
+                    onPressed: c.linkStatus.value.isLoading
+                        ? null
+                        : () async {
+                            if (c.status.value.isSuccess) {
+                              await c.useLink();
+                            } else {
+                              await LoginView.show(
+                                context,
+                                initial: LoginViewStage.signUpOrSignIn,
+                                onSuccess: c.useLink,
+                              );
+                            }
+                          },
                   );
                 }),
                 const SizedBox(height: 4),

@@ -149,8 +149,9 @@ abstract class ModalPopup {
             child: Material(type: MaterialType.transparency, child: body),
           );
         },
-        barrierLabel:
-            MaterialLocalizations.of(context).modalBarrierDismissLabel,
+        barrierLabel: MaterialLocalizations.of(
+          context,
+        ).modalBarrierDismissLabel,
         transitionDuration: const Duration(milliseconds: 300),
         transitionBuilder: (_, Animation<double> animation, __, Widget child) {
           return FadeTransition(

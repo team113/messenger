@@ -147,10 +147,9 @@ class UpgradePopupView extends StatelessWidget {
 
             case UpgradePopupScreen.notice:
               header = ModalPopupHeader(
-                text:
-                    critical
-                        ? 'label_critical_update_is_available'.l10n
-                        : 'label_update_is_available'.l10n,
+                text: critical
+                    ? 'label_critical_update_is_available'.l10n
+                    : 'label_update_is_available'.l10n,
               );
               children = [
                 Flexible(
@@ -208,43 +207,40 @@ class UpgradePopupView extends StatelessWidget {
                         Expanded(
                           child: PrimaryButton(
                             key: const Key('DownloadButton'),
-                            onPressed:
-                                Config.downloadable
-                                    ? () {
-                                      final String system =
-                                          PlatformUtils.isMacOS
-                                              ? 'macos'
-                                              : PlatformUtils.isWindows
-                                              ? 'windows'
-                                              : PlatformUtils.isAndroid
-                                              ? 'android'
-                                              : PlatformUtils.isIOS
-                                              ? 'ios'
-                                              : 'linux';
+                            onPressed: Config.downloadable
+                                ? () {
+                                    final String system = PlatformUtils.isMacOS
+                                        ? 'macos'
+                                        : PlatformUtils.isWindows
+                                        ? 'windows'
+                                        : PlatformUtils.isAndroid
+                                        ? 'android'
+                                        : PlatformUtils.isIOS
+                                        ? 'ios'
+                                        : 'linux';
 
-                                      final ReleaseArtifact? artifact = release
-                                          .assets
-                                          .firstWhereOrNull(
-                                            (e) => e.os == system,
-                                          );
+                                    final ReleaseArtifact? artifact = release
+                                        .assets
+                                        .firstWhereOrNull(
+                                          (e) => e.os == system,
+                                        );
 
-                                      if (artifact != null) {
-                                        c.download(artifact);
-                                        Navigator.of(context).pop();
-                                        return;
-                                      }
-
-                                      c.screen.value =
-                                          UpgradePopupScreen.download;
+                                    if (artifact != null) {
+                                      c.download(artifact);
+                                      Navigator.of(context).pop();
+                                      return;
                                     }
-                                    : PlatformUtils.isIOS &&
-                                        Config.appStoreUrl.isNotEmpty
-                                    ? () => launchUrlString(Config.appStoreUrl)
-                                    : PlatformUtils.isAndroid &&
-                                        Config.googlePlayUrl.isNotEmpty
-                                    ? () =>
-                                        launchUrlString(Config.googlePlayUrl)
-                                    : null,
+
+                                    c.screen.value =
+                                        UpgradePopupScreen.download;
+                                  }
+                                : PlatformUtils.isIOS &&
+                                      Config.appStoreUrl.isNotEmpty
+                                ? () => launchUrlString(Config.appStoreUrl)
+                                : PlatformUtils.isAndroid &&
+                                      Config.googlePlayUrl.isNotEmpty
+                                ? () => launchUrlString(Config.googlePlayUrl)
+                                : null,
                             title: 'btn_download'.l10n,
                           ),
                         ),

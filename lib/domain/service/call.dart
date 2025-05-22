@@ -123,8 +123,9 @@ class CallService extends DisposableService {
 
     try {
       final FutureOr<RxChat?> chatOrFuture = _chatService.get(chatId);
-      final RxChat? chat =
-          chatOrFuture is RxChat? ? chatOrFuture : await chatOrFuture;
+      final RxChat? chat = chatOrFuture is RxChat?
+          ? chatOrFuture
+          : await chatOrFuture;
 
       final ChatCall? chatCall = chat?.chat.value.ongoingCall;
 

@@ -117,11 +117,8 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
 
   @override
   void initState() {
-    _selected =
-        widget.variants[max(
-          min(widget.initial, widget.variants.length - 1),
-          0,
-        )];
+    _selected = widget
+        .variants[max(min(widget.initial, widget.variants.length - 1), 0)];
     super.initState();
   }
 
@@ -174,10 +171,9 @@ class _ConfirmDialogState extends State<ConfirmDialog> {
                     child: RectangleButton(
                       key: variant.key,
                       selected: _selected == variant,
-                      onPressed:
-                          _selected == variant
-                              ? null
-                              : () => setState(() => _selected = variant),
+                      onPressed: _selected == variant
+                          ? null
+                          : () => setState(() => _selected = variant),
                       label: variant.label,
                       radio: true,
                     ),

@@ -244,10 +244,9 @@ class AuthService extends DisposableService {
       }
 
       final UserId? userId = _accountProvider.userId;
-      final Credentials? creds =
-          userId != null
-              ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
-              : null;
+      final Credentials? creds = userId != null
+          ? allCredentials.firstWhereOrNull((e) => e.userId == userId)
+          : null;
 
       if (creds == null) {
         return _unauthorized();
@@ -434,8 +433,9 @@ class AuthService extends DisposableService {
     // If [ignoreLock] is `true`, then [WebUtils.protect] is ignored.
     final Function protect = unsafe ? (fn) => fn() : WebUtils.protect;
 
-    status.value =
-        _hasAuthorization ? RxStatus.loadingMore() : RxStatus.loading();
+    status.value = _hasAuthorization
+        ? RxStatus.loadingMore()
+        : RxStatus.loading();
     await protect(() async {
       try {
         final Credentials creds = await _authRepository.signIn(
@@ -652,8 +652,9 @@ class AuthService extends DisposableService {
     final int attempt = _refreshAttempt++;
 
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
-    final bool isLocked =
-        futureOrBool is bool ? futureOrBool : await futureOrBool;
+    final bool isLocked = futureOrBool is bool
+        ? futureOrBool
+        : await futureOrBool;
 
     userId ??= this.userId;
     final bool areCurrent = userId == this.userId;

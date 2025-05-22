@@ -261,7 +261,9 @@ class _DirectLinkFieldState extends State<DirectLinkField> {
                     if (PlatformUtils.isMobile)
                       ContextMenuButton(
                         onPressed: () async {
-                          await Share.share('${Config.link}$_generated');
+                          await SharePlus.instance.share(
+                            ShareParams(text: '${Config.link}$_generated'),
+                          );
                         },
                         label: 'btn_share'.l10n,
                         trailing: SvgIcon(SvgIcons.share),

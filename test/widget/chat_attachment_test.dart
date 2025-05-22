@@ -514,10 +514,9 @@ void main() async {
     );
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    AttachmentId id1 =
-        Get.find<ChatController>(
-          tag: '0d72d245-8425-467a-9ebd-082d4f47850b',
-        ).send.attachments.first.value.id;
+    AttachmentId id1 = Get.find<ChatController>(
+      tag: '0d72d245-8425-467a-9ebd-082d4f47850b',
+    ).send.attachments.first.value.id;
 
     expect(find.byKey(const Key('Send')), findsOneWidget);
 
@@ -541,11 +540,10 @@ void main() async {
 
     await tester.pumpAndSettle(const Duration(seconds: 2));
 
-    AttachmentId id2 =
-        (chatController.chat!.messages.last.value as ChatMessage)
-            .attachments
-            .first
-            .id;
+    AttachmentId id2 = (chatController.chat!.messages.last.value as ChatMessage)
+        .attachments
+        .first
+        .id;
 
     expect(find.byKey(Key('File_$id2'), skipOffstage: false), findsOneWidget);
 

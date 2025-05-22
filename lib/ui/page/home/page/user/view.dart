@@ -66,10 +66,9 @@ class UserView extends StatelessWidget {
                 leading: [StyledBackButton()],
               ),
               body: Center(
-                child:
-                    c.status.value.isEmpty
-                        ? Text('err_unknown_user'.l10n)
-                        : const CustomProgressIndicator(),
+                child: c.status.value.isEmpty
+                    ? Text('err_unknown_user'.l10n)
+                    : const CustomProgressIndicator(),
               ),
             );
           }
@@ -99,13 +98,12 @@ class UserView extends StatelessWidget {
                 child: ScrollablePositionedList.builder(
                   key: const Key('UserScrollable'),
                   itemCount: blocks.length,
-                  itemBuilder:
-                      (_, i) => Obx(() {
-                        return HighlightedContainer(
-                          highlight: c.highlighted.value == i,
-                          child: blocks[i],
-                        );
-                      }),
+                  itemBuilder: (_, i) => Obx(() {
+                    return HighlightedContainer(
+                      highlight: c.highlighted.value == i,
+                      child: blocks[i],
+                    );
+                  }),
                   scrollController: c.scrollController,
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
@@ -240,10 +238,9 @@ class UserView extends StatelessWidget {
                       offset: Offset(0, 0.5),
                       child: Container(
                         decoration: BoxDecoration(
-                          color:
-                              isAway
-                                  ? style.colors.warning
-                                  : style.colors.acceptAuxiliary,
+                          color: isAway
+                              ? style.colors.warning
+                              : style.colors.acceptAuxiliary,
                           shape: BoxShape.circle,
                         ),
                         width: 10,
@@ -447,10 +444,9 @@ class UserView extends StatelessWidget {
         return Obx(() {
           return PrimaryButton(
             title: 'btn_proceed'.l10n,
-            onPressed:
-                c.reporting.isEmpty.value
-                    ? null
-                    : () => Navigator.of(context).pop(true),
+            onPressed: c.reporting.isEmpty.value
+                ? null
+                : () => Navigator.of(context).pop(true),
           );
         });
       },

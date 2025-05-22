@@ -122,11 +122,11 @@ class _MobileControlsState extends State<MobileControls>
               return buffering.data!
                   ? const Center(child: CustomProgressIndicator())
                   : CenteredPlayPause(
-                    widget.controller,
-                    size: 56,
-                    show: !_dragging && !_hideStuff,
-                    onPressed: _playPause,
-                  );
+                      widget.controller,
+                      size: 56,
+                      show: !_dragging && !_hideStuff,
+                      onPressed: _playPause,
+                    );
             },
           ),
 
@@ -139,8 +139,8 @@ class _MobileControlsState extends State<MobileControls>
                 forward: false,
                 opacity:
                     _showSeekBackward && _seekBackwardDuration.inSeconds > 0
-                        ? 1
-                        : 0,
+                    ? 1
+                    : 0,
               ),
             ),
           ),
@@ -152,10 +152,9 @@ class _MobileControlsState extends State<MobileControls>
               child: RewindIndicator(
                 seconds: _seekForwardDuration.inSeconds,
                 forward: true,
-                opacity:
-                    _showSeekForward && _seekForwardDuration.inSeconds > 0
-                        ? 1
-                        : 0,
+                opacity: _showSeekForward && _seekForwardDuration.inSeconds > 0
+                    ? 1
+                    : 0,
               ),
             ),
           ),
@@ -331,9 +330,10 @@ class _MobileControlsState extends State<MobileControls>
 
     _hideSeekBackward(timeout: Duration.zero);
     _seekForwardDuration += Duration(
-      microseconds: (widget.controller.player.state.duration.inMicroseconds -
-              widget.controller.player.state.position.inMicroseconds)
-          .clamp(0, MobileControls.seekDuration.inMicroseconds),
+      microseconds:
+          (widget.controller.player.state.duration.inMicroseconds -
+                  widget.controller.player.state.position.inMicroseconds)
+              .clamp(0, MobileControls.seekDuration.inMicroseconds),
     );
     _showSeekForward = true;
 

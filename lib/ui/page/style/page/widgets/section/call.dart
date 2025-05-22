@@ -63,11 +63,10 @@ class CallSection {
                   onDragEnded: (_) {},
                   onLeave: (_) {},
                   onWillAccept: (d) => true,
-                  itemBuilder:
-                      (i) => CallButtonWidget(
-                        asset: SvgIcons.callMore,
-                        onPressed: () {},
-                      ),
+                  itemBuilder: (i) => CallButtonWidget(
+                    asset: SvgIcons.callMore,
+                    onPressed: () {},
+                  ),
                 ),
               ),
             ],
@@ -77,23 +76,22 @@ class CallSection {
       Headline(
         child: Launchpad(
           onWillAccept: (_) => true,
-          children:
-              List.generate(
-                8,
-                (i) => SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: Center(
-                    child: CallButtonWidget(
-                      asset: SvgIcons.callMore,
-                      hint: 'Hint',
-                      expanded: true,
-                      big: true,
-                      onPressed: () {},
-                    ),
-                  ),
+          children: List.generate(
+            8,
+            (i) => SizedBox(
+              width: 100,
+              height: 100,
+              child: Center(
+                child: CallButtonWidget(
+                  asset: SvgIcons.callMore,
+                  hint: 'Hint',
+                  expanded: true,
+                  big: true,
+                  onPressed: () {},
                 ),
-              ).toList(),
+              ),
+            ),
+          ).toList(),
         ),
       ),
       const Headline(child: RaisedHand(true)),
@@ -177,11 +175,10 @@ class CallSection {
               height: 400,
               child: ReorderableFit(
                 children: List.generate(5, (i) => i),
-                itemBuilder:
-                    (i) => Container(
-                      color: Colors.primaries[i],
-                      child: Center(child: Text('$i')),
-                    ),
+                itemBuilder: (i) => Container(
+                  color: Colors.primaries[i],
+                  child: Center(child: Text('$i')),
+                ),
                 onOffset: () {
                   if (key.globalPaintBounds != null) {
                     return Offset(

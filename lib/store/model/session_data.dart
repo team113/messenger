@@ -81,40 +81,33 @@ class SessionData {
     NewType<int?>? blocklistCount,
   }) {
     return SessionData(
-      favoriteChatsListVersion:
-          favoriteChatsListVersion == null
-              ? this.favoriteChatsListVersion
-              : favoriteChatsListVersion.val,
-      favoriteChatsSynchronized:
-          favoriteChatsSynchronized == null
-              ? this.favoriteChatsSynchronized
-              : favoriteChatsSynchronized.val,
-      chatContactsListVersion:
-          chatContactsListVersion == null
-              ? this.chatContactsListVersion
-              : chatContactsListVersion.val,
-      favoriteContactsSynchronized:
-          favoriteContactsSynchronized == null
-              ? this.favoriteContactsSynchronized
-              : favoriteContactsSynchronized.val,
-      contactsSynchronized:
-          contactsSynchronized == null
-              ? this.contactsSynchronized
-              : contactsSynchronized.val,
-      blocklistSynchronized:
-          blocklistSynchronized == null
-              ? this.blocklistSynchronized
-              : blocklistSynchronized.val,
-      sessionsListVersion:
-          sessionsListVersion == null
-              ? this.sessionsListVersion
-              : sessionsListVersion.val,
-      blocklistVersion:
-          blocklistVersion == null
-              ? this.blocklistVersion
-              : blocklistVersion.val,
-      blocklistCount:
-          blocklistCount == null ? this.blocklistCount : blocklistCount.val,
+      favoriteChatsListVersion: favoriteChatsListVersion == null
+          ? this.favoriteChatsListVersion
+          : favoriteChatsListVersion.val,
+      favoriteChatsSynchronized: favoriteChatsSynchronized == null
+          ? this.favoriteChatsSynchronized
+          : favoriteChatsSynchronized.val,
+      chatContactsListVersion: chatContactsListVersion == null
+          ? this.chatContactsListVersion
+          : chatContactsListVersion.val,
+      favoriteContactsSynchronized: favoriteContactsSynchronized == null
+          ? this.favoriteContactsSynchronized
+          : favoriteContactsSynchronized.val,
+      contactsSynchronized: contactsSynchronized == null
+          ? this.contactsSynchronized
+          : contactsSynchronized.val,
+      blocklistSynchronized: blocklistSynchronized == null
+          ? this.blocklistSynchronized
+          : blocklistSynchronized.val,
+      sessionsListVersion: sessionsListVersion == null
+          ? this.sessionsListVersion
+          : sessionsListVersion.val,
+      blocklistVersion: blocklistVersion == null
+          ? this.blocklistVersion
+          : blocklistVersion.val,
+      blocklistCount: blocklistCount == null
+          ? this.blocklistCount
+          : blocklistCount.val,
     );
   }
 

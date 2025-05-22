@@ -54,8 +54,9 @@ class IssueWidget extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: style.cardRadius.copyWith(
               bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,
-              bottomRight:
-                  expanded ? Radius.zero : style.cardRadius.bottomRight,
+              bottomRight: expanded
+                  ? Radius.zero
+                  : style.cardRadius.bottomRight,
             ),
             color: style.colors.transparent,
           ),
@@ -63,8 +64,9 @@ class IssueWidget extends StatelessWidget {
             border: style.cardBorder,
             borderRadius: style.cardRadius.copyWith(
               bottomLeft: expanded ? Radius.zero : style.cardRadius.bottomLeft,
-              bottomRight:
-                  expanded ? Radius.zero : style.cardRadius.bottomRight,
+              bottomRight: expanded
+                  ? Radius.zero
+                  : style.cardRadius.bottomRight,
             ),
             onTap: onPressed,
             selectedHoverColor: style.colors.primaryOpacity20.darken(0.03),
@@ -100,10 +102,9 @@ class IssueWidget extends StatelessWidget {
           child: DefaultTextStyle.merge(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style:
-                expanded
-                    ? style.fonts.small.regular.onPrimary
-                    : style.fonts.small.regular.onBackground,
+            style: expanded
+                ? style.fonts.small.regular.onPrimary
+                : style.fonts.small.regular.onBackground,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: style.cardRadius.copyWith(

@@ -39,8 +39,8 @@ import '../world/custom_world.dart';
 StepDefinitionGeneric fillField = when2<WidgetKey, String, FlutterWorld>(
   'I fill {key} field with {string}',
   _fillField,
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the credential of the given [User] into the widget with the provided
@@ -66,8 +66,8 @@ StepDefinitionGeneric fillFieldWithUserCredential =
         final String text = _getCredential(customUser, credential);
         await _fillField(key, text, context);
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(seconds: 30),
     );
 
 /// Enters the credential of [me] into the widget with the provided [WidgetKey].
@@ -79,11 +79,10 @@ StepDefinitionGeneric fillFieldWithMyCredential =
     when2<WidgetKey, TestCredential, CustomWorld>(
       'I fill {key} field with my {credential}',
       (key, credential, context) async {
-        final CustomUser? me =
-            context.world.sessions.values
-                .where((user) => user.userId == context.world.me)
-                .firstOrNull
-                ?.firstOrNull;
+        final CustomUser? me = context.world.sessions.values
+            .where((user) => user.userId == context.world.me)
+            .firstOrNull
+            ?.firstOrNull;
 
         if (me == null) {
           throw ArgumentError(
@@ -94,8 +93,8 @@ StepDefinitionGeneric fillFieldWithMyCredential =
         final String text = _getCredential(me, credential);
         await _fillField(key, text, context);
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(seconds: 30),
     );
 
 /// Enters the given text into the widget with the provided [WidgetKey].
@@ -105,8 +104,8 @@ StepDefinitionGeneric fillFieldWithMyCredential =
 StepDefinitionGeneric fillFieldN = when3<WidgetKey, int, String, FlutterWorld>(
   'I fill {key} field with {int} {string} symbol(s)?',
   (key, quantity, text, context) => _fillField(key, text * quantity, context),
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Pastes the [CustomWorld.clipboard] into the widget with the provided
@@ -123,8 +122,8 @@ StepDefinitionGeneric pasteToField = when1<WidgetKey, CustomWorld>(
 
     await _fillField(key, context.world.clipboard!.text!, context);
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the random [UserLogin] to the widget with the provided [WidgetKey].
@@ -148,8 +147,8 @@ StepDefinitionGeneric fillFieldWithRandomLogin = when1<WidgetKey, CustomWorld>(
 
     await _fillField(key, '${context.world.randomLogin}', context);
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 18),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 18),
 );
 
 /// Copies the value of the widget with the provided [WidgetKey] to the
@@ -188,8 +187,8 @@ StepDefinitionGeneric copyFromField = when1<WidgetKey, CustomWorld>(
 
     context.world.clipboard = ClipboardData(text: text);
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(seconds: 30),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(seconds: 30),
 );
 
 /// Enters the given [text] into the widget with the provided [WidgetKey].

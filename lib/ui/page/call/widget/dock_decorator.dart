@@ -99,10 +99,9 @@ class DockDecorator extends StatelessWidget {
               filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
               child: Container(
                 decoration: BoxDecoration(
-                  color:
-                      ConditionalBackdropFilter.enabled
-                          ? style.colors.primaryAuxiliaryOpacity25
-                          : style.colors.primaryAuxiliaryOpacity90,
+                  color: ConditionalBackdropFilter.enabled
+                      ? style.colors.primaryAuxiliaryOpacity25
+                      : style.colors.primaryAuxiliaryOpacity90,
                   borderRadius: BorderRadius.circular(30),
                 ),
                 padding: const EdgeInsets.symmetric(

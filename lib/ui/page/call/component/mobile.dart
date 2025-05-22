@@ -105,10 +105,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                 },
                 overlayBuilder: (e) {
                   return Obx(() {
-                    final bool? muted =
-                        e.member.owner == MediaOwnerKind.local
-                            ? !c.audioState.value.isEnabled
-                            : null;
+                    final bool? muted = e.member.owner == MediaOwnerKind.local
+                        ? !c.audioState.value.isEnabled
+                        : null;
 
                     // TODO: Implement opened context menu detection for
                     //       `hovered` indicator.
@@ -123,8 +122,9 @@ Widget mobileCall(CallController c, BuildContext context) {
               );
             }
 
-            final Participant? center =
-                c.secondary.isNotEmpty ? c.primary.firstOrNull : null;
+            final Participant? center = c.secondary.isNotEmpty
+                ? c.primary.firstOrNull
+                : null;
 
             return SwappableFit<Participant>(
               items: [...c.primary, ...c.secondary],
@@ -132,10 +132,9 @@ Widget mobileCall(CallController c, BuildContext context) {
               fit: c.minimized.value,
               itemBuilder: (e) {
                 return Obx(() {
-                  final bool? muted =
-                      e.member.owner == MediaOwnerKind.local
-                          ? !c.audioState.value.isEnabled
-                          : null;
+                  final bool? muted = e.member.owner == MediaOwnerKind.local
+                      ? !c.audioState.value.isEnabled
+                      : null;
 
                   return ContextMenuRegion(
                     actions: [
@@ -156,10 +155,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                       if (e.member.id != c.me.id) ...[
                         if (e.video.value?.direction.value.isEmitting ?? false)
                           ContextMenuButton(
-                            label:
-                                e.video.value?.renderer.value != null
-                                    ? 'btn_call_disable_video'.l10n
-                                    : 'btn_call_enable_video'.l10n,
+                            label: e.video.value?.renderer.value != null
+                                ? 'btn_call_disable_video'.l10n
+                                : 'btn_call_enable_video'.l10n,
                             onPressed: () => c.toggleVideoEnabled(e),
                             trailing: SvgIcon(
                               e.video.value?.renderer.value != null
@@ -171,9 +169,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ContextMenuButton(
                             label:
                                 (e.audio.value?.direction.value.isEnabled ==
-                                        true)
-                                    ? 'btn_call_disable_audio'.l10n
-                                    : 'btn_call_enable_audio'.l10n,
+                                    true)
+                                ? 'btn_call_disable_audio'.l10n
+                                : 'btn_call_enable_audio'.l10n,
                             onPressed: () => c.toggleAudioEnabled(e),
                             trailing: SvgIcon(
                               e.audio.value?.renderer.value != null
@@ -185,16 +183,14 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ContextMenuButton(
                             label: 'btn_call_remove_participant'.l10n,
                             trailing: const SvgIcon(SvgIcons.removeFromCall),
-                            onPressed:
-                                () =>
-                                    c.removeChatCallMember(e.member.id.userId),
+                            onPressed: () =>
+                                c.removeChatCallMember(e.member.id.userId),
                           ),
                       ] else ...[
                         ContextMenuButton(
-                          label:
-                              c.videoState.value.isEnabled
-                                  ? 'btn_call_video_off'.l10n
-                                  : 'btn_call_video_on'.l10n,
+                          label: c.videoState.value.isEnabled
+                              ? 'btn_call_video_off'.l10n
+                              : 'btn_call_video_on'.l10n,
                           onPressed: c.toggleVideo,
                           trailing: SvgIcon(
                             c.videoState.value.isEnabled
@@ -203,10 +199,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                           ),
                         ),
                         ContextMenuButton(
-                          label:
-                              c.audioState.value.isEnabled
-                                  ? 'btn_call_audio_off'.l10n
-                                  : 'btn_call_audio_on'.l10n,
+                          label: c.audioState.value.isEnabled
+                              ? 'btn_call_audio_off'.l10n
+                              : 'btn_call_audio_on'.l10n,
                           onPressed: c.toggleAudio,
                           trailing: SvgIcon(
                             c.audioState.value.isEnabled
@@ -253,12 +248,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                       c.chat.value?.chat.value.isDialog == true;
 
                   if (isDialog) {
-                    final RxUser? user =
-                        c.chat.value?.members.values
-                            .firstWhereOrNull(
-                              (e) => e.user.id != c.me.id.userId,
-                            )
-                            ?.user;
+                    final RxUser? user = c.chat.value?.members.values
+                        .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
+                        ?.user;
 
                     return CallCoverWidget(c.chat.value?.callCover, user: user);
                   } else {
@@ -296,13 +288,12 @@ Widget mobileCall(CallController c, BuildContext context) {
 
               return Column(
                 mainAxisSize: MainAxisSize.min,
-                children:
-                    c.notifications.reversed.take(3).map((e) {
-                      return CallNotificationWidget(
-                        e,
-                        onClose: () => c.notifications.remove(e),
-                      );
-                    }).toList(),
+                children: c.notifications.reversed.take(3).map((e) {
+                  return CallNotificationWidget(
+                    e,
+                    onClose: () => c.notifications.remove(e),
+                  );
+                }).toList(),
               );
             }),
           ),
@@ -330,14 +321,14 @@ Widget mobileCall(CallController c, BuildContext context) {
               duration: const Duration(milliseconds: 300),
               child:
                   (c.state.value != OngoingCallState.active &&
-                          c.state.value != OngoingCallState.joining &&
-                          ([...c.primary, ...c.secondary].firstWhereOrNull(
-                                (e) => e.video.value?.renderer.value != null,
-                              ) !=
-                              null) &&
-                          !c.minimized.value)
-                      ? Container(color: style.colors.onBackgroundOpacity27)
-                      : null,
+                      c.state.value != OngoingCallState.joining &&
+                      ([...c.primary, ...c.secondary].firstWhereOrNull(
+                            (e) => e.video.value?.renderer.value != null,
+                          ) !=
+                          null) &&
+                      !c.minimized.value)
+                  ? Container(color: style.colors.onBackgroundOpacity27)
+                  : null,
             ),
           );
         }),
@@ -347,37 +338,39 @@ Widget mobileCall(CallController c, BuildContext context) {
           return c.minimized.isTrue
               ? Container()
               : Listener(
-                behavior: HitTestBehavior.translucent,
-                onPointerDown: (d) {
-                  c.downAt = DateTime.now();
-                  c.downPosition = d.localPosition;
-                  c.downButtons = d.buttons;
-                },
-                onPointerUp: (d) {
-                  if (c.secondaryManipulated.isTrue) return;
-                  if (c.downButtons & kPrimaryButton != 0) {
-                    if (c.state.value == OngoingCallState.active) {
-                      final distance =
-                          (d.localPosition.distanceSquared -
-                                  c.downPosition.distanceSquared)
-                              .abs() <=
-                          80000;
+                  behavior: HitTestBehavior.translucent,
+                  onPointerDown: (d) {
+                    c.downAt = DateTime.now();
+                    c.downPosition = d.localPosition;
+                    c.downButtons = d.buttons;
+                  },
+                  onPointerUp: (d) {
+                    if (c.secondaryManipulated.isTrue) return;
+                    if (c.downButtons & kPrimaryButton != 0) {
+                      if (c.state.value == OngoingCallState.active) {
+                        final distance =
+                            (d.localPosition.distanceSquared -
+                                    c.downPosition.distanceSquared)
+                                .abs() <=
+                            80000;
 
-                      final time =
-                          DateTime.now().difference(c.downAt!).inMilliseconds <
-                          340;
+                        final time =
+                            DateTime.now()
+                                .difference(c.downAt!)
+                                .inMilliseconds <
+                            340;
 
-                      if (distance && time) {
-                        if (c.showUi.isFalse) {
-                          c.keepUi();
-                        } else {
-                          c.keepUi(c.isPanelOpen.value);
+                        if (distance && time) {
+                          if (c.showUi.isFalse) {
+                            c.keepUi();
+                          } else {
+                            c.keepUi(c.isPanelOpen.value);
+                          }
                         }
                       }
                     }
-                  }
-                },
-              );
+                  },
+                );
         }),
 
         // Sliding from the top title bar.
@@ -461,12 +454,11 @@ Widget mobileCall(CallController c, BuildContext context) {
                         if (c.isGroup) ...[
                           Text(
                             'label_a_of_b'.l10nfmt({
-                              'a':
-                                  c.members.keys
-                                      .where((e) => e.deviceId != null)
-                                      .map((k) => k.userId)
-                                      .toSet()
-                                      .length,
+                              'a': c.members.keys
+                                  .where((e) => e.deviceId != null)
+                                  .map((k) => k.userId)
+                                  .toSet()
+                                  .length,
                               'b': c.chat.value?.chat.value.membersCount ?? 1,
                             }),
                             style: style.fonts.small.regular.onPrimary,
@@ -552,20 +544,18 @@ Widget mobileCall(CallController c, BuildContext context) {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOutQuad,
               reverseCurve: Curves.easeOutQuad,
-              listener:
-                  () => Future.delayed(
-                    Duration.zero,
-                    () => c.dockRect.value = c.dockKey.globalPaintBounds,
-                  ),
+              listener: () => Future.delayed(
+                Duration.zero,
+                () => c.dockRect.value = c.dockKey.globalPaintBounds,
+              ),
               child: MediaQuery(
                 data: MediaQuery.of(context).copyWith(size: c.size),
                 child: SlidingUpPanel(
                   controller: c.panelController,
                   boxShadow: null,
-                  color:
-                      ConditionalBackdropFilter.enabled
-                          ? style.colors.primaryDarkOpacity70
-                          : style.colors.primaryAuxiliaryOpacity90,
+                  color: ConditionalBackdropFilter.enabled
+                      ? style.colors.primaryDarkOpacity70
+                      : style.colors.primaryAuxiliaryOpacity90,
                   backdropEnabled: true,
                   backdropOpacity: 0,
                   minHeight: minHeight,
@@ -655,13 +645,9 @@ Widget mobileCall(CallController c, BuildContext context) {
                 children: [
                   Padding(
                     padding: EdgeInsets.only(
-                      bottom:
-                          isOutgoing
-                              ? max(
-                                0,
-                                MediaQuery.of(context).padding.bottom - 30,
-                              )
-                              : max(30, MediaQuery.of(context).padding.bottom),
+                      bottom: isOutgoing
+                          ? max(0, MediaQuery.of(context).padding.bottom - 30)
+                          : max(30, MediaQuery.of(context).padding.bottom),
                     ),
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 250),

@@ -42,33 +42,27 @@ String? fromDartThumbHashNullableToGraphQLThumbHashNullable(ThumbHash? v) =>
     v?.val;
 List<ThumbHash?> fromGraphQLListThumbHashNullableToDartListThumbHashNullable(
   List<Object?> v,
-) =>
-    v
-        .map(
-          (e) =>
-              fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
-        )
-        .toList();
+) => v
+    .map(
+      (e) => fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
+    )
+    .toList();
 List<String?> fromDartListThumbHashNullableToGraphQLListThumbHashNullable(
   List<ThumbHash?> v,
-) =>
-    v
-        .map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
-        .toList();
+) => v
+    .map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
+    .toList();
 List<ThumbHash?>?
 fromGraphQLListNullableThumbHashNullableToDartListNullableThumbHashNullable(
   List<Object?>? v,
-) =>
-    v
-        ?.map(
-          (e) =>
-              fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
-        )
-        .toList();
+) => v
+    ?.map(
+      (e) => fromGraphQLThumbHashNullableToDartThumbHashNullable(e as String?),
+    )
+    .toList();
 List<String?>?
 fromDartListNullableThumbHashNullableToGraphQLListNullableThumbHashNullable(
   List<ThumbHash?>? v,
-) =>
-    v
-        ?.map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
-        .toList();
+) => v
+    ?.map((e) => fromDartThumbHashNullableToGraphQLThumbHashNullable(e))
+    .toList();

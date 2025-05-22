@@ -95,20 +95,18 @@ class _UserNameFieldState extends State<UserNameField> {
       hint: 'label_name_hint'.l10n,
       filled: true,
       floatingLabelBehavior: FloatingLabelBehavior.always,
-      onSuffixPressed:
-          _state.text.isEmpty
-              ? null
-              : () {
-                PlatformUtils.copy(text: _state.text);
-                MessagePopup.success('label_copied'.l10n);
-              },
-      trailing:
-          _state.text.isEmpty
-              ? null
-              : Transform.translate(
-                offset: const Offset(0, -1),
-                child: const SvgIcon(SvgIcons.copy),
-              ),
+      onSuffixPressed: _state.text.isEmpty
+          ? null
+          : () {
+              PlatformUtils.copy(text: _state.text);
+              MessagePopup.success('label_copied'.l10n);
+            },
+      trailing: _state.text.isEmpty
+          ? null
+          : Transform.translate(
+              offset: const Offset(0, -1),
+              child: const SvgIcon(SvgIcons.copy),
+            ),
     );
   }
 }

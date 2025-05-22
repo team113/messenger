@@ -48,10 +48,9 @@ seeUserInSearchResults = then2<SearchCategory, TestUser, CustomWorld>(
       switch (category) {
         case SearchCategory.contact:
           final ContactService contactService = Get.find<ContactService>();
-          final ChatContactId id =
-              contactService.paginated.values
-                  .firstWhere((e) => e.contact.value.name.val == user.name)
-                  .id;
+          final ChatContactId id = contactService.paginated.values
+              .firstWhere((e) => e.contact.value.name.val == user.name)
+              .id;
           return context.world.appDriver.isPresent(
             context.world.appDriver.findBy('SearchContact_$id', FindType.key),
           );

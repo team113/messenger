@@ -12,7 +12,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FLUTTER_VER: "3.29"
+  FLUTTER_VER: "3.32"
 
 jobs:
 
@@ -79,6 +79,8 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VER }}
           channel: stable
           cache: true
+
+      - run: make flutter.pub
 
       - run: make flutter.fmt check=yes
 

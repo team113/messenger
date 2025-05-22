@@ -85,8 +85,9 @@ class AddEmailView extends StatelessWidget {
                 Obx(() {
                   return PrimaryButton(
                     key: const Key('Proceed'),
-                    onPressed:
-                        c.emailField.isEmpty.value ? null : c.emailField.submit,
+                    onPressed: c.emailField.isEmpty.value
+                        ? null
+                        : c.emailField.submit,
                     title: 'btn_proceed'.l10n,
                   );
                 }),
@@ -121,24 +122,23 @@ class AddEmailView extends StatelessWidget {
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('Resend'),
-                          onPressed:
-                              c.resendEmailTimeout.value == 0
-                                  ? c.resendEmail
-                                  : null,
-                          title:
-                              c.resendEmailTimeout.value == 0
-                                  ? 'label_resend'.l10n
-                                  : 'label_resend_timeout'.l10nfmt({
-                                    'timeout': c.resendEmailTimeout.value,
-                                  }),
+                          onPressed: c.resendEmailTimeout.value == 0
+                              ? c.resendEmail
+                              : null,
+                          title: c.resendEmailTimeout.value == 0
+                              ? 'label_resend'.l10n
+                              : 'label_resend_timeout'.l10nfmt({
+                                  'timeout': c.resendEmailTimeout.value,
+                                }),
                         ),
                       ),
                       const SizedBox(width: 10),
                       Expanded(
                         child: PrimaryButton(
                           key: const Key('Proceed'),
-                          onPressed:
-                              c.code.isEmpty.value ? null : c.code.submit,
+                          onPressed: c.code.isEmpty.value
+                              ? null
+                              : c.code.submit,
                           title: 'btn_proceed'.l10n,
                         ),
                       ),

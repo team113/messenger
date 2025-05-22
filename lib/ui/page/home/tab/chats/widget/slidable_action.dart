@@ -61,12 +61,11 @@ class FadingSlidableAction extends StatelessWidget {
                   side: BorderSide.none,
                 ),
                 child: Opacity(
-                  opacity:
-                      constraints.maxWidth > 50
-                          ? 1
-                          : constraints.maxWidth > 25
-                          ? (constraints.maxWidth - 25) / 25
-                          : 0,
+                  opacity: constraints.maxWidth > 50
+                      ? 1
+                      : constraints.maxWidth > 25
+                      ? (constraints.maxWidth - 25) / 25
+                      : 0,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [

@@ -57,9 +57,9 @@ class ColorSchemaWidget extends StatelessWidget {
             final HSLColor hsl = HSLColor.fromColor(e.$1);
             final Color text =
                 (!inverted || hsl.alpha > 0.7) &&
-                        (hsl.lightness > 0.7 || hsl.alpha < 0.4)
-                    ? style.colors.onBackground
-                    : style.colors.onPrimary;
+                    (hsl.lightness > 0.7 || hsl.alpha < 0.4)
+                ? style.colors.onBackground
+                : style.colors.onPrimary;
             final TextStyle textStyle = style.fonts.small.regular.onBackground
                 .copyWith(color: text);
             final double paddings = context.isNarrow ? 4 : 128;

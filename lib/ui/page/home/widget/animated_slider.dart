@@ -117,30 +117,26 @@ class _AnimatedSliderState extends State<AnimatedSlider>
     builder: (context, child) {
       if (widget.translate) {
         return Transform.translate(
-          offset: Tween(
-            begin: widget.beginOffset,
-            end: widget.endOffset,
-          ).evaluate(
-            CurvedAnimation(
-              parent: animation,
-              curve: widget.curve,
-              reverseCurve: widget.reverseCurve,
-            ),
-          ),
+          offset: Tween(begin: widget.beginOffset, end: widget.endOffset)
+              .evaluate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: widget.curve,
+                  reverseCurve: widget.reverseCurve,
+                ),
+              ),
           child: child,
         );
       } else {
         return SlideTransition(
-          position: Tween(
-            begin: widget.beginOffset,
-            end: widget.endOffset,
-          ).animate(
-            CurvedAnimation(
-              parent: animation,
-              curve: widget.curve,
-              reverseCurve: widget.reverseCurve,
-            ),
-          ),
+          position: Tween(begin: widget.beginOffset, end: widget.endOffset)
+              .animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: widget.curve,
+                  reverseCurve: widget.reverseCurve,
+                ),
+              ),
           child: child,
         );
       }

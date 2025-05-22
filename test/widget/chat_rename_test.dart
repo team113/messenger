@@ -155,7 +155,10 @@ void main() async {
   final versionProvider = Get.put(VersionDriftProvider(common));
 
   Widget createWidgetForTesting({required Widget child}) {
-    return MaterialApp(theme: Themes.light(), home: Scaffold(body: child));
+    return MaterialApp(
+      theme: Themes.light(),
+      home: Scaffold(body: child),
+    );
   }
 
   testWidgets('ChatView successfully changes chat name', (

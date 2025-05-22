@@ -123,12 +123,11 @@ class CustomProgressIndicator extends StatelessWidget {
         padding: blur ? padding : EdgeInsets.zero,
         child: _CustomCircularProgressIndicator(
           value: value,
-          color:
-              primary
-                  ? style.colors.primary
-                  : onPrimary
-                  ? style.colors.onPrimary
-                  : style.colors.secondaryHighlightDarkest,
+          color: primary
+              ? style.colors.primary
+              : onPrimary
+              ? style.colors.onPrimary
+              : style.colors.secondaryHighlightDarkest,
           backgroundColor:
               backgroundColor ??
               (onPrimary
@@ -159,20 +158,18 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
     required this.offsetValue,
     required this.rotationValue,
     required this.strokeWidth,
-  }) : arcStart =
-           value != null
-               ? _startAngle
-               : _startAngle +
-                   tailValue * 3 / 2 * math.pi +
-                   rotationValue * math.pi * 2.0 +
-                   offsetValue * 0.5 * math.pi,
-       arcSweep =
-           value != null
-               ? clampDouble(value, 0.0, 1.0) * _sweep
-               : math.max(
-                 headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi,
-                 _epsilon,
-               );
+  }) : arcStart = value != null
+           ? _startAngle
+           : _startAngle +
+                 tailValue * 3 / 2 * math.pi +
+                 rotationValue * math.pi * 2.0 +
+                 offsetValue * 0.5 * math.pi,
+       arcSweep = value != null
+           ? clampDouble(value, 0.0, 1.0) * _sweep
+           : math.max(
+               headValue * 3 / 2 * math.pi - tailValue * 3 / 2 * math.pi,
+               _epsilon,
+             );
 
   /// Background circle's color.
   final Color? backgroundColor;
@@ -218,17 +215,15 @@ class _CircularProgressIndicatorPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final Paint paint =
-        Paint()
-          ..color = valueColor
-          ..strokeWidth = strokeWidth
-          ..style = PaintingStyle.stroke;
+    final Paint paint = Paint()
+      ..color = valueColor
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke;
     if (backgroundColor != null) {
-      final Paint backgroundPaint =
-          Paint()
-            ..color = backgroundColor!
-            ..strokeWidth = strokeWidth
-            ..style = PaintingStyle.stroke;
+      final Paint backgroundPaint = Paint()
+        ..color = backgroundColor!
+        ..strokeWidth = strokeWidth
+        ..style = PaintingStyle.stroke;
 
       canvas.drawArc(Offset.zero & size, 0, _sweep, false, backgroundPaint);
     }

@@ -38,8 +38,9 @@ final StepDefinitionGeneric tapWidget = when1<WidgetKey, FlutterWorld>(
       await context.world.appDriver.waitForAppToSettle();
 
       try {
-        final finder =
-            context.world.appDriver.findByKeySkipOffstage(key.name).first;
+        final finder = context.world.appDriver
+            .findByKeySkipOffstage(key.name)
+            .first;
 
         await context.world.appDriver.waitForAppToSettle();
 

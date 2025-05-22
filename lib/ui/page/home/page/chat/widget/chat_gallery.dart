@@ -81,10 +81,9 @@ class _ChatGalleryState extends State<ChatGallery> {
   /// Index of the [_initial] attachment in the [_gallery] list.
   int get _index => max(
     _gallery.indexWhere(
-      (e) =>
-          widget.initial?.$1 == null
-              ? e.id?.endsWith('${widget.initial?.$2.id}') == true
-              : e.id == '${widget.initial?.$1?.id}_${widget.initial?.$2.id}',
+      (e) => widget.initial?.$1 == null
+          ? e.id?.endsWith('${widget.initial?.$2.id}') == true
+          : e.id == '${widget.initial?.$1?.id}_${widget.initial?.$2.id}',
     ),
     0,
   );
@@ -195,8 +194,10 @@ class _ChatGalleryState extends State<ChatGallery> {
     _items.add(
       _GalleryItem(
         item: item,
-        gallery:
-            attachments.map((e) => _parse(e, item: item)).nonNulls.toList(),
+        gallery: attachments
+            .map((e) => _parse(e, item: item))
+            .nonNulls
+            .toList(),
       ),
     );
 

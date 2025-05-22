@@ -38,10 +38,8 @@ final StepDefinitionGeneric untilAttachmentExists =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final RxChat? chat =
-              Get.find<ChatService>().chats[ChatId(
-                router.route.split('/').last,
-              )];
+          final RxChat? chat = Get.find<ChatService>()
+              .chats[ChatId(router.route.split('/').last)];
 
           bool exist = chat!.messages
               .map((m) => m.value)

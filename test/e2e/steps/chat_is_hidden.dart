@@ -39,6 +39,6 @@ final StepDefinitionGeneric chatIsIndeedHidden = given1<String, CustomWorld>(
       return response.chat?.isHidden == true;
     }, timeout: const Duration(seconds: 30));
   },
-  configuration:
-      StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
 );

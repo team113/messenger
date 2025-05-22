@@ -42,13 +42,11 @@ final StepDefinitionGeneric repliesToMessage =
 
         // TODO: Should use `searchItems` query or something, when backend
         //       introduces such a query.
-        final DtoChatMessage message = (await provider.chatItems(
-              chatId,
-              first: 120,
-            )).chat!.items.edges
-            .map((e) => e.toDto())
-            .whereType<DtoChatMessage>()
-            .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
+        final DtoChatMessage message =
+            (await provider.chatItems(chatId, first: 120)).chat!.items.edges
+                .map((e) => e.toDto())
+                .whereType<DtoChatMessage>()
+                .firstWhere((e) => (e.value as ChatMessage).text?.val == text);
 
         await provider.postChatMessage(
           chatId,
@@ -58,6 +56,6 @@ final StepDefinitionGeneric repliesToMessage =
 
         provider.disconnect();
       },
-      configuration:
-          StepDefinitionConfiguration()..timeout = const Duration(minutes: 5),
+      configuration: StepDefinitionConfiguration()
+        ..timeout = const Duration(minutes: 5),
     );

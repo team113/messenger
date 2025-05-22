@@ -156,10 +156,12 @@ extension _SettingsDb on DtoSettings {
         locale: e.locale,
         showIntroduction: e.showIntroduction,
         sideBarWidth: e.sideBarWidth,
-        callButtons:
-            (jsonDecode(e.callButtons) as List).cast<String>().toList(),
-        pinnedActions:
-            (jsonDecode(e.pinnedActions) as List).cast<String>().toList(),
+        callButtons: (jsonDecode(e.callButtons) as List)
+            .cast<String>()
+            .toList(),
+        pinnedActions: (jsonDecode(e.pinnedActions) as List)
+            .cast<String>()
+            .toList(),
         callButtonsPosition:
             CallButtonsPosition.values.firstWhereOrNull(
               (m) => m.name == e.callButtonsPosition,

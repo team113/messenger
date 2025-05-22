@@ -421,10 +421,9 @@ class CustomBoxShadow extends BoxShadow {
 
   @override
   Paint toPaint() {
-    final Paint result =
-        Paint()
-          ..color = color
-          ..maskFilter = MaskFilter.blur(_blurStyle, blurSigma);
+    final Paint result = Paint()
+      ..color = color
+      ..maskFilter = MaskFilter.blur(_blurStyle, blurSigma);
     assert(() {
       if (debugDisableShadows) {
         result.maskFilter = null;
@@ -608,44 +607,72 @@ class Style extends ThemeExtension<Style> {
       cardBlur: cardBlur * (1.0 - t) + other.cardBlur * t,
       cardBorder: Border.lerp(cardBorder, other.cardBorder, t)!,
       cardColor: Color.lerp(cardColor, other.cardColor, t)!,
-      cardHoveredColor:
-          Color.lerp(cardHoveredColor, other.cardHoveredColor, t)!,
-      cardHoveredBorder:
-          Border.lerp(cardHoveredBorder, other.cardHoveredBorder, t)!,
+      cardHoveredColor: Color.lerp(
+        cardHoveredColor,
+        other.cardHoveredColor,
+        t,
+      )!,
+      cardHoveredBorder: Border.lerp(
+        cardHoveredBorder,
+        other.cardHoveredBorder,
+        t,
+      )!,
       cardRadius: BorderRadius.lerp(cardRadius, other.cardRadius, t)!,
-      cardSelectedBorder:
-          Border.lerp(cardSelectedBorder, other.cardSelectedBorder, t)!,
-      contextMenuBackgroundColor:
-          Color.lerp(
-            contextMenuBackgroundColor,
-            other.contextMenuBackgroundColor,
-            t,
-          )!,
-      contextMenuHoveredColor:
-          Color.lerp(
-            contextMenuHoveredColor,
-            other.contextMenuHoveredColor,
-            t,
-          )!,
-      contextMenuRadius:
-          BorderRadius.lerp(contextMenuRadius, other.contextMenuRadius, t)!,
+      cardSelectedBorder: Border.lerp(
+        cardSelectedBorder,
+        other.cardSelectedBorder,
+        t,
+      )!,
+      contextMenuBackgroundColor: Color.lerp(
+        contextMenuBackgroundColor,
+        other.contextMenuBackgroundColor,
+        t,
+      )!,
+      contextMenuHoveredColor: Color.lerp(
+        contextMenuHoveredColor,
+        other.contextMenuHoveredColor,
+        t,
+      )!,
+      contextMenuRadius: BorderRadius.lerp(
+        contextMenuRadius,
+        other.contextMenuRadius,
+        t,
+      )!,
       linkStyle: TextStyle.lerp(linkStyle, other.linkStyle, t)!,
       messageColor: Color.lerp(messageColor, other.messageColor, t)!,
       primaryBorder: Border.lerp(primaryBorder, other.primaryBorder, t)!,
-      readMessageColor:
-          Color.lerp(readMessageColor, other.readMessageColor, t)!,
+      readMessageColor: Color.lerp(
+        readMessageColor,
+        other.readMessageColor,
+        t,
+      )!,
       secondaryBorder: Border.lerp(secondaryBorder, other.secondaryBorder, t)!,
       sidebarColor: Color.lerp(sidebarColor, other.sidebarColor, t)!,
-      systemMessageBorder:
-          Border.lerp(systemMessageBorder, other.systemMessageBorder, t)!,
-      systemMessageColor:
-          Color.lerp(systemMessageColor, other.systemMessageColor, t)!,
-      systemMessageStyle:
-          TextStyle.lerp(systemMessageStyle, other.systemMessageStyle, t)!,
-      systemMessagePrimary:
-          TextStyle.lerp(systemMessagePrimary, other.systemMessagePrimary, t)!,
-      unreadMessageColor:
-          Color.lerp(unreadMessageColor, other.unreadMessageColor, t)!,
+      systemMessageBorder: Border.lerp(
+        systemMessageBorder,
+        other.systemMessageBorder,
+        t,
+      )!,
+      systemMessageColor: Color.lerp(
+        systemMessageColor,
+        other.systemMessageColor,
+        t,
+      )!,
+      systemMessageStyle: TextStyle.lerp(
+        systemMessageStyle,
+        other.systemMessageStyle,
+        t,
+      )!,
+      systemMessagePrimary: TextStyle.lerp(
+        systemMessagePrimary,
+        other.systemMessagePrimary,
+        t,
+      )!,
+      unreadMessageColor: Color.lerp(
+        unreadMessageColor,
+        other.unreadMessageColor,
+        t,
+      )!,
     );
   }
 }
@@ -1063,204 +1090,238 @@ class Palette {
 
     return Palette(
       primary: Color.lerp(color.primary, other.primary, t)!,
-      primaryAuxiliary:
-          Color.lerp(color.primaryAuxiliary, other.primaryAuxiliary, t)!,
-      primaryAuxiliaryOpacity25:
-          Color.lerp(
-            color.primaryAuxiliaryOpacity25,
-            other.primaryAuxiliaryOpacity25,
-            t,
-          )!,
-      primaryHighlight:
-          Color.lerp(color.primaryHighlight, other.primaryHighlight, t)!,
-      primaryHighlightShiny:
-          Color.lerp(
-            color.primaryHighlightShiny,
-            other.primaryHighlightShiny,
-            t,
-          )!,
-      primaryHighlightShiniest:
-          Color.lerp(
-            color.primaryHighlightShiniest,
-            other.primaryHighlightShiniest,
-            t,
-          )!,
-      primaryHighlightLightest:
-          Color.lerp(
-            color.primaryHighlightLightest,
-            other.primaryHighlightLightest,
-            t,
-          )!,
+      primaryAuxiliary: Color.lerp(
+        color.primaryAuxiliary,
+        other.primaryAuxiliary,
+        t,
+      )!,
+      primaryAuxiliaryOpacity25: Color.lerp(
+        color.primaryAuxiliaryOpacity25,
+        other.primaryAuxiliaryOpacity25,
+        t,
+      )!,
+      primaryHighlight: Color.lerp(
+        color.primaryHighlight,
+        other.primaryHighlight,
+        t,
+      )!,
+      primaryHighlightShiny: Color.lerp(
+        color.primaryHighlightShiny,
+        other.primaryHighlightShiny,
+        t,
+      )!,
+      primaryHighlightShiniest: Color.lerp(
+        color.primaryHighlightShiniest,
+        other.primaryHighlightShiniest,
+        t,
+      )!,
+      primaryHighlightLightest: Color.lerp(
+        color.primaryHighlightLightest,
+        other.primaryHighlightLightest,
+        t,
+      )!,
       primaryLight: Color.lerp(color.primaryLight, other.primaryLight, t)!,
-      primaryLightest:
-          Color.lerp(color.primaryLightest, other.primaryLightest, t)!,
+      primaryLightest: Color.lerp(
+        color.primaryLightest,
+        other.primaryLightest,
+        t,
+      )!,
       primaryDark: Color.lerp(color.primaryDark, other.primaryDark, t)!,
-      primaryDarkOpacity70:
-          Color.lerp(
-            color.primaryDarkOpacity70,
-            other.primaryDarkOpacity70,
-            t,
-          )!,
-      primaryDarkOpacity90:
-          Color.lerp(
-            color.primaryDarkOpacity90,
-            other.primaryDarkOpacity90,
-            t,
-          )!,
+      primaryDarkOpacity70: Color.lerp(
+        color.primaryDarkOpacity70,
+        other.primaryDarkOpacity70,
+        t,
+      )!,
+      primaryDarkOpacity90: Color.lerp(
+        color.primaryDarkOpacity90,
+        other.primaryDarkOpacity90,
+        t,
+      )!,
       onPrimary: Color.lerp(color.onPrimary, other.onPrimary, t)!,
-      onPrimaryOpacity7:
-          Color.lerp(color.onPrimaryOpacity7, other.onPrimaryOpacity7, t)!,
-      onPrimaryOpacity10:
-          Color.lerp(color.onPrimaryOpacity10, other.onPrimaryOpacity10, t)!,
-      onPrimaryOpacity25:
-          Color.lerp(color.onPrimaryOpacity25, other.onPrimaryOpacity25, t)!,
-      onPrimaryOpacity50:
-          Color.lerp(color.onPrimaryOpacity50, other.onPrimaryOpacity50, t)!,
-      onPrimaryOpacity95:
-          Color.lerp(color.onPrimaryOpacity95, other.onPrimaryOpacity95, t)!,
-      onPrimaryLight:
-          Color.lerp(color.onPrimaryLight, other.onPrimaryLight, t)!,
+      onPrimaryOpacity7: Color.lerp(
+        color.onPrimaryOpacity7,
+        other.onPrimaryOpacity7,
+        t,
+      )!,
+      onPrimaryOpacity10: Color.lerp(
+        color.onPrimaryOpacity10,
+        other.onPrimaryOpacity10,
+        t,
+      )!,
+      onPrimaryOpacity25: Color.lerp(
+        color.onPrimaryOpacity25,
+        other.onPrimaryOpacity25,
+        t,
+      )!,
+      onPrimaryOpacity50: Color.lerp(
+        color.onPrimaryOpacity50,
+        other.onPrimaryOpacity50,
+        t,
+      )!,
+      onPrimaryOpacity95: Color.lerp(
+        color.onPrimaryOpacity95,
+        other.onPrimaryOpacity95,
+        t,
+      )!,
+      onPrimaryLight: Color.lerp(
+        color.onPrimaryLight,
+        other.onPrimaryLight,
+        t,
+      )!,
       secondary: Color.lerp(color.secondary, other.secondary, t)!,
-      secondaryLight:
-          Color.lerp(color.secondaryLight, other.secondaryLight, t)!,
-      secondaryOpacity87:
-          Color.lerp(color.secondaryOpacity87, other.secondaryOpacity87, t)!,
-      secondaryHighlight:
-          Color.lerp(color.secondaryHighlight, other.secondaryHighlight, t)!,
-      secondaryHighlightDark:
-          Color.lerp(
-            color.secondaryHighlightDark,
-            other.secondaryHighlightDark,
-            t,
-          )!,
-      secondaryHighlightDarkest:
-          Color.lerp(
-            color.secondaryHighlightDarkest,
-            other.secondaryHighlightDarkest,
-            t,
-          )!,
-      secondaryBackground:
-          Color.lerp(color.secondaryBackground, other.secondaryBackground, t)!,
-      secondaryBackgroundLight:
-          Color.lerp(
-            color.secondaryBackgroundLight,
-            other.secondaryBackgroundLight,
-            t,
-          )!,
-      secondaryBackgroundLightest:
-          Color.lerp(
-            color.secondaryBackgroundLightest,
-            other.secondaryBackgroundLightest,
-            t,
-          )!,
+      secondaryLight: Color.lerp(
+        color.secondaryLight,
+        other.secondaryLight,
+        t,
+      )!,
+      secondaryOpacity87: Color.lerp(
+        color.secondaryOpacity87,
+        other.secondaryOpacity87,
+        t,
+      )!,
+      secondaryHighlight: Color.lerp(
+        color.secondaryHighlight,
+        other.secondaryHighlight,
+        t,
+      )!,
+      secondaryHighlightDark: Color.lerp(
+        color.secondaryHighlightDark,
+        other.secondaryHighlightDark,
+        t,
+      )!,
+      secondaryHighlightDarkest: Color.lerp(
+        color.secondaryHighlightDarkest,
+        other.secondaryHighlightDarkest,
+        t,
+      )!,
+      secondaryBackground: Color.lerp(
+        color.secondaryBackground,
+        other.secondaryBackground,
+        t,
+      )!,
+      secondaryBackgroundLight: Color.lerp(
+        color.secondaryBackgroundLight,
+        other.secondaryBackgroundLight,
+        t,
+      )!,
+      secondaryBackgroundLightest: Color.lerp(
+        color.secondaryBackgroundLightest,
+        other.secondaryBackgroundLightest,
+        t,
+      )!,
       onSecondary: Color.lerp(color.onSecondary, other.onSecondary, t)!,
-      onSecondaryOpacity20:
-          Color.lerp(
-            color.onSecondaryOpacity20,
-            other.onSecondaryOpacity20,
-            t,
-          )!,
-      onSecondaryOpacity50:
-          Color.lerp(
-            color.onSecondaryOpacity50,
-            other.onSecondaryOpacity50,
-            t,
-          )!,
-      onSecondaryOpacity60:
-          Color.lerp(
-            color.onSecondaryOpacity60,
-            other.onSecondaryOpacity60,
-            t,
-          )!,
-      onSecondaryOpacity88:
-          Color.lerp(
-            color.onSecondaryOpacity88,
-            other.onSecondaryOpacity88,
-            t,
-          )!,
+      onSecondaryOpacity20: Color.lerp(
+        color.onSecondaryOpacity20,
+        other.onSecondaryOpacity20,
+        t,
+      )!,
+      onSecondaryOpacity50: Color.lerp(
+        color.onSecondaryOpacity50,
+        other.onSecondaryOpacity50,
+        t,
+      )!,
+      onSecondaryOpacity60: Color.lerp(
+        color.onSecondaryOpacity60,
+        other.onSecondaryOpacity60,
+        t,
+      )!,
+      onSecondaryOpacity88: Color.lerp(
+        color.onSecondaryOpacity88,
+        other.onSecondaryOpacity88,
+        t,
+      )!,
       background: Color.lerp(color.background, other.background, t)!,
-      backgroundAuxiliary:
-          Color.lerp(color.backgroundAuxiliary, other.backgroundAuxiliary, t)!,
-      backgroundAuxiliaryLight:
-          Color.lerp(
-            color.backgroundAuxiliaryLight,
-            other.backgroundAuxiliaryLight,
-            t,
-          )!,
-      backgroundAuxiliaryLighter:
-          Color.lerp(
-            color.backgroundAuxiliaryLighter,
-            other.backgroundAuxiliaryLighter,
-            t,
-          )!,
-      backgroundAuxiliaryLightest:
-          Color.lerp(
-            color.backgroundAuxiliaryLightest,
-            other.backgroundAuxiliaryLightest,
-            t,
-          )!,
+      backgroundAuxiliary: Color.lerp(
+        color.backgroundAuxiliary,
+        other.backgroundAuxiliary,
+        t,
+      )!,
+      backgroundAuxiliaryLight: Color.lerp(
+        color.backgroundAuxiliaryLight,
+        other.backgroundAuxiliaryLight,
+        t,
+      )!,
+      backgroundAuxiliaryLighter: Color.lerp(
+        color.backgroundAuxiliaryLighter,
+        other.backgroundAuxiliaryLighter,
+        t,
+      )!,
+      backgroundAuxiliaryLightest: Color.lerp(
+        color.backgroundAuxiliaryLightest,
+        other.backgroundAuxiliaryLightest,
+        t,
+      )!,
       onBackground: Color.lerp(color.onBackground, other.onBackground, t)!,
-      onBackgroundOpacity2:
-          Color.lerp(
-            color.onBackgroundOpacity2,
-            other.onBackgroundOpacity2,
-            t,
-          )!,
-      onBackgroundOpacity7:
-          Color.lerp(
-            color.onBackgroundOpacity7,
-            other.onBackgroundOpacity7,
-            t,
-          )!,
-      onBackgroundOpacity13:
-          Color.lerp(
-            color.onBackgroundOpacity13,
-            other.onBackgroundOpacity13,
-            t,
-          )!,
-      onBackgroundOpacity20:
-          Color.lerp(
-            color.onBackgroundOpacity20,
-            other.onBackgroundOpacity20,
-            t,
-          )!,
-      onBackgroundOpacity27:
-          Color.lerp(
-            color.onBackgroundOpacity27,
-            other.onBackgroundOpacity27,
-            t,
-          )!,
-      onBackgroundOpacity40:
-          Color.lerp(
-            color.onBackgroundOpacity40,
-            other.onBackgroundOpacity40,
-            t,
-          )!,
-      onBackgroundOpacity50:
-          Color.lerp(
-            color.onBackgroundOpacity50,
-            other.onBackgroundOpacity50,
-            t,
-          )!,
+      onBackgroundOpacity2: Color.lerp(
+        color.onBackgroundOpacity2,
+        other.onBackgroundOpacity2,
+        t,
+      )!,
+      onBackgroundOpacity7: Color.lerp(
+        color.onBackgroundOpacity7,
+        other.onBackgroundOpacity7,
+        t,
+      )!,
+      onBackgroundOpacity13: Color.lerp(
+        color.onBackgroundOpacity13,
+        other.onBackgroundOpacity13,
+        t,
+      )!,
+      onBackgroundOpacity20: Color.lerp(
+        color.onBackgroundOpacity20,
+        other.onBackgroundOpacity20,
+        t,
+      )!,
+      onBackgroundOpacity27: Color.lerp(
+        color.onBackgroundOpacity27,
+        other.onBackgroundOpacity27,
+        t,
+      )!,
+      onBackgroundOpacity40: Color.lerp(
+        color.onBackgroundOpacity40,
+        other.onBackgroundOpacity40,
+        t,
+      )!,
+      onBackgroundOpacity50: Color.lerp(
+        color.onBackgroundOpacity50,
+        other.onBackgroundOpacity50,
+        t,
+      )!,
       transparent: Color.lerp(color.transparent, other.transparent, t)!,
-      almostTransparent:
-          Color.lerp(color.almostTransparent, other.almostTransparent, t)!,
+      almostTransparent: Color.lerp(
+        color.almostTransparent,
+        other.almostTransparent,
+        t,
+      )!,
       accept: Color.lerp(color.accept, other.accept, t)!,
-      acceptAuxiliary:
-          Color.lerp(color.acceptAuxiliary, other.acceptAuxiliary, t)!,
+      acceptAuxiliary: Color.lerp(
+        color.acceptAuxiliary,
+        other.acceptAuxiliary,
+        t,
+      )!,
       acceptLight: Color.lerp(color.acceptLight, other.acceptLight, t)!,
       acceptLighter: Color.lerp(color.acceptLighter, other.acceptLighter, t)!,
-      acceptLightest:
-          Color.lerp(color.acceptLightest, other.acceptLightest, t)!,
+      acceptLightest: Color.lerp(
+        color.acceptLightest,
+        other.acceptLightest,
+        t,
+      )!,
       decline: Color.lerp(color.decline, other.decline, t)!,
-      declineOpacity50:
-          Color.lerp(color.declineOpacity50, other.declineOpacity50, t)!,
-      declineOpacity88:
-          Color.lerp(color.declineOpacity88, other.declineOpacity88, t)!,
+      declineOpacity50: Color.lerp(
+        color.declineOpacity50,
+        other.declineOpacity50,
+        t,
+      )!,
+      declineOpacity88: Color.lerp(
+        color.declineOpacity88,
+        other.declineOpacity88,
+        t,
+      )!,
       danger: Color.lerp(color.danger, other.danger, t)!,
       warning: Color.lerp(color.warning, other.warning, t)!,
-      userColors:
-          other.userColors.isNotEmpty ? other.userColors : color.userColors,
+      userColors: other.userColors.isNotEmpty
+          ? other.userColors
+          : color.userColors,
     );
   }
 }

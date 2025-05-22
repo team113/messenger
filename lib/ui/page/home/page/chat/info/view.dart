@@ -115,13 +115,12 @@ class ChatInfoView extends StatelessWidget {
                   itemScrollController: c.itemScrollController,
                   itemPositionsListener: c.positionsListener,
                   itemCount: blocks.length,
-                  itemBuilder:
-                      (_, i) => Obx(() {
-                        return HighlightedContainer(
-                          highlight: c.highlighted.value == i,
-                          child: blocks[i],
-                        );
-                      }),
+                  itemBuilder: (_, i) => Obx(() {
+                    return HighlightedContainer(
+                      highlight: c.highlighted.value == i,
+                      child: blocks[i],
+                    );
+                  }),
                 ),
               ),
             ),
@@ -207,28 +206,23 @@ class ChatInfoView extends StatelessWidget {
             top: 16,
             right: 0,
             child: WidgetButton(
-              onPressed:
-                  c.profileEditing.value
-                      ? c.closeEditing
-                      : c.profileEditing.toggle,
+              onPressed: c.profileEditing.value
+                  ? c.closeEditing
+                  : c.profileEditing.toggle,
               child: SizedBox(
                 width: 16,
                 height: 16,
                 child: Center(
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 200),
-                    child:
-                        c.profileEditing.value
-                            ? SvgIcon(
-                              key: Key('CloseEditingButton'),
-                              SvgIcons.closePrimary,
-                              width: 12,
-                              height: 12,
-                            )
-                            : SvgIcon(
-                              key: Key('EditProfileButton'),
-                              SvgIcons.edit,
-                            ),
+                    child: c.profileEditing.value
+                        ? SvgIcon(
+                            key: Key('CloseEditingButton'),
+                            SvgIcons.closePrimary,
+                            width: 12,
+                            height: 12,
+                          )
+                        : SvgIcon(key: Key('EditProfileButton'), SvgIcons.edit),
                   ),
                 ),
               ),
@@ -249,24 +243,21 @@ class ChatInfoView extends StatelessWidget {
               key: Key('ChatAvatar_${c.chat!.id}'),
               loading: c.avatarUpload.value.isLoading,
               error: c.avatarUpload.value.errorMessage,
-              onUpload:
-                  c.profileEditing.value
-                      ? c.canEdit
-                          ? c.pickAvatar
-                          : null
-                      : null,
-              onEdit:
-                  c.profileEditing.value
-                      ? c.canEdit && c.chat?.avatar.value != null
-                          ? c.editAvatar
-                          : null
-                      : null,
-              onDelete:
-                  c.profileEditing.value
-                      ? c.canEdit && c.chat?.avatar.value != null
-                          ? c.deleteAvatar
-                          : null
-                      : null,
+              onUpload: c.profileEditing.value
+                  ? c.canEdit
+                        ? c.pickAvatar
+                        : null
+                  : null,
+              onEdit: c.profileEditing.value
+                  ? c.canEdit && c.chat?.avatar.value != null
+                        ? c.editAvatar
+                        : null
+                  : null,
+              onDelete: c.profileEditing.value
+                  ? c.canEdit && c.chat?.avatar.value != null
+                        ? c.deleteAvatar
+                        : null
+                  : null,
               builder: (child) {
                 if (c.avatarCrop.value == null &&
                     c.avatarImage.value == null &&
@@ -279,26 +270,24 @@ class ChatInfoView extends StatelessWidget {
                   shape: BoxShape.rectangle,
                   title: c.chat?.title,
                   color: c.chat?.chat.value.colorDiscriminant(c.me).sum(),
-                  avatar:
-                      c.avatarDeleted.value || c.avatarImage.value == null
-                          ? null
-                          : LocalAvatar(
-                            file: c.avatarImage.value!,
-                            crop:
-                                c.avatarCrop.value == null
-                                    ? null
-                                    : CropArea(
-                                      topLeft: CropPoint(
-                                        x: c.avatarCrop.value!.topLeft.x,
-                                        y: c.avatarCrop.value!.topLeft.y,
-                                      ),
-                                      bottomRight: CropPoint(
-                                        x: c.avatarCrop.value!.bottomRight.x,
-                                        y: c.avatarCrop.value!.bottomRight.y,
-                                      ),
-                                      angle: c.avatarCrop.value!.angle,
-                                    ),
-                          ),
+                  avatar: c.avatarDeleted.value || c.avatarImage.value == null
+                      ? null
+                      : LocalAvatar(
+                          file: c.avatarImage.value!,
+                          crop: c.avatarCrop.value == null
+                              ? null
+                              : CropArea(
+                                  topLeft: CropPoint(
+                                    x: c.avatarCrop.value!.topLeft.x,
+                                    y: c.avatarCrop.value!.topLeft.y,
+                                  ),
+                                  bottomRight: CropPoint(
+                                    x: c.avatarCrop.value!.bottomRight.x,
+                                    y: c.avatarCrop.value!.bottomRight.y,
+                                  ),
+                                  angle: c.avatarCrop.value!.angle,
+                                ),
+                        ),
                 );
               },
             ),
@@ -420,14 +409,13 @@ class ChatInfoView extends StatelessWidget {
                         child = MemberTile(
                           myUser: myUser,
                           inCall: hasCall ? inCall : null,
-                          onCall:
-                              inCall
-                                  ? () {
-                                    if (myUser != null) {
-                                      c.removeChatCallMember(myUser.id);
-                                    }
+                          onCall: inCall
+                              ? () {
+                                  if (myUser != null) {
+                                    c.removeChatCallMember(myUser.id);
                                   }
-                                  : c.joinCall,
+                                }
+                              : c.joinCall,
                         );
                       } else {
                         final RxUser member = members[i];
@@ -441,15 +429,13 @@ class ChatInfoView extends StatelessWidget {
                         child = MemberTile(
                           user: member,
                           inCall: hasCall ? inCall : null,
-                          onTap:
-                              () => router.chat(
-                                ChatId.local(member.user.value.id),
-                                push: true,
-                              ),
-                          onCall:
-                              inCall
-                                  ? () => c.removeChatCallMember(member.id)
-                                  : () => c.redialChatCallMember(member.id),
+                          onTap: () => router.chat(
+                            ChatId.local(member.user.value.id),
+                            push: true,
+                          ),
+                          onCall: inCall
+                              ? () => c.removeChatCallMember(member.id)
+                              : () => c.redialChatCallMember(member.id),
                           onKick: () => c.removeChatMember(member.id),
                         );
                       }
@@ -465,8 +451,9 @@ class ChatInfoView extends StatelessWidget {
                             child,
                             CustomProgressIndicator(
                               key: const Key('MembersLoading'),
-                              value:
-                                  Config.disableInfiniteAnimations ? 0 : null,
+                              value: Config.disableInfiniteAnimations
+                                  ? 0
+                                  : null,
                             ),
                           ],
                         );
@@ -580,10 +567,9 @@ class ChatInfoView extends StatelessWidget {
         return Obx(() {
           return PrimaryButton(
             title: 'btn_proceed'.l10n,
-            onPressed:
-                c.reporting.isEmpty.value
-                    ? null
-                    : () => Navigator.of(context).pop(true),
+            onPressed: c.reporting.isEmpty.value
+                ? null
+                : () => Navigator.of(context).pop(true),
           );
         });
       },

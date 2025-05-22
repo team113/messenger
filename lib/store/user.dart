@@ -110,18 +110,17 @@ class UserRepository extends DisposableInterface
       );
     }
 
-    final List<RxUser> users =
-        this.users.values
-            .where(
-              (u) =>
-                  (num != null && u.user.value.num == num) ||
-                  (name != null &&
-                      u.user.value.name?.val.toLowerCase().contains(
-                            name.val.toLowerCase(),
-                          ) ==
-                          true),
-            )
-            .toList();
+    final List<RxUser> users = this.users.values
+        .where(
+          (u) =>
+              (num != null && u.user.value.num == num) ||
+              (name != null &&
+                  u.user.value.name?.val.toLowerCase().contains(
+                        name.val.toLowerCase(),
+                      ) ==
+                      true),
+        )
+        .toList();
 
     Map<UserId, RxUser> toMap(RxUser? u) => {if (u != null) u.id: u};
 
@@ -367,10 +366,10 @@ class UserRepository extends DisposableInterface
           node.record == null
               ? null
               : BlocklistRecord(
-                userId: id,
-                reason: node.record!.reason,
-                at: node.record!.at,
-              ),
+                  userId: id,
+                  reason: node.record!.reason,
+                  at: node.record!.at,
+                ),
           node.myVer,
         );
       }
@@ -525,8 +524,8 @@ class UserRepository extends DisposableInterface
         node.attachments == null
             ? null
             : ChangedChatMessageAttachments(
-              node.attachments!.changed.map((e) => e.toModel()).toList(),
-            ),
+                node.attachments!.changed.map((e) => e.toModel()).toList(),
+              ),
       );
     } else {
       throw UnimplementedError('Unknown UserEvent: ${e.$$typename}');

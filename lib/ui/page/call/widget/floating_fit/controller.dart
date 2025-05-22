@@ -94,9 +94,10 @@ class FloatingFitController extends GetxController {
 
   @override
   void onInit() {
-    double floatingSize = (size.shortestSide *
-            (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
-        .clamp(_minHeight, 250);
+    double floatingSize =
+        (size.shortestSide *
+                (size.aspectRatio > 2 || size.aspectRatio < 0.5 ? 0.45 : 0.33))
+            .clamp(_minHeight, 250);
     width = RxDouble(floatingSize);
     height = RxDouble(floatingSize);
 
@@ -226,25 +227,21 @@ class FloatingFitController extends GetxController {
       this.left.value = left;
     } else if (align == Alignment.topRight) {
       this.top.value = top;
-      right.value =
-          width.value + left <= size.width
-              ? right.value = size.width - left - width.value
-              : 0;
+      right.value = width.value + left <= size.width
+          ? right.value = size.width - left - width.value
+          : 0;
     } else if (align == Alignment.bottomLeft) {
       this.left.value = left;
-      bottom.value =
-          top + height.value <= size.height
-              ? size.height - top - height.value
-              : 0;
+      bottom.value = top + height.value <= size.height
+          ? size.height - top - height.value
+          : 0;
     } else if (align == Alignment.bottomRight) {
-      right.value =
-          width.value + left <= size.width
-              ? size.width - left - width.value
-              : 0;
-      bottom.value =
-          top + height.value <= size.height
-              ? size.height - top - height.value
-              : 0;
+      right.value = width.value + left <= size.width
+          ? size.width - left - width.value
+          : 0;
+      bottom.value = top + height.value <= size.height
+          ? size.height - top - height.value
+          : 0;
     }
 
     bottomShifted = bottom.value ?? size.height - top - height.value;

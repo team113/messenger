@@ -128,47 +128,44 @@ class _SwappableFitState<T> extends State<SwappableFit<T>> {
                   height: size,
                   child: ListView(
                     scrollDirection: Axis.horizontal,
-                    children:
-                        _items.map((e) {
-                          if (e.item == _centered) {
-                            return const SizedBox();
-                          }
+                    children: _items.map((e) {
+                      if (e.item == _centered) {
+                        return const SizedBox();
+                      }
 
-                          return SizedBox(
-                            width: size,
-                            height: size,
-                            child:
-                                e.entry == null
-                                    ? KeyedSubtree(
-                                      key: e.itemKey,
-                                      child: widget.itemBuilder(e.item),
-                                    )
-                                    : null,
-                          );
-                        }).toList(),
+                      return SizedBox(
+                        width: size,
+                        height: size,
+                        child: e.entry == null
+                            ? KeyedSubtree(
+                                key: e.itemKey,
+                                child: widget.itemBuilder(e.item),
+                              )
+                            : null,
+                      );
+                    }).toList(),
                   ),
                 ),
               Expanded(
                 child: FitView(
-                  children:
-                      _items
-                          .where((e) {
-                            if (_centered != null && !widget.fit) {
-                              return e.item == _centered;
-                            }
+                  children: _items
+                      .where((e) {
+                        if (_centered != null && !widget.fit) {
+                          return e.item == _centered;
+                        }
 
-                            return true;
-                          })
-                          .map((e) {
-                            if (e.entry == null) {
-                              return KeyedSubtree(
-                                key: e.itemKey,
-                                child: widget.itemBuilder(e.item),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          })
-                          .toList(),
+                        return true;
+                      })
+                      .map((e) {
+                        if (e.entry == null) {
+                          return KeyedSubtree(
+                            key: e.itemKey,
+                            child: widget.itemBuilder(e.item),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      })
+                      .toList(),
                 ),
               ),
             ],

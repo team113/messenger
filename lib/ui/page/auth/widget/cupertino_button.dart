@@ -81,12 +81,11 @@ class _StyledCupertinoButtonState extends State<StyledCupertinoButton> {
             duration: const Duration(milliseconds: 100),
             style: (widget.style ?? style.fonts.small.regular.secondary),
             child: Opacity(
-              opacity:
-                  _clicked
-                      ? 0.5
-                      : _hovered
-                      ? 0.7
-                      : 1,
+              opacity: _clicked
+                  ? 0.5
+                  : _hovered
+                  ? 0.7
+                  : 1,
               child: Text(widget.label),
             ),
           ),

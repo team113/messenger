@@ -54,8 +54,10 @@ class PlatformUtilsImpl {
   PlatformUtilsImpl() {
     Timer.periodic(Duration(milliseconds: 2000), (_) {
       if (_lastDeltaPing != null) {
-        final difference =
-            DateTime.now().difference(_lastDeltaPing!).abs().inMilliseconds;
+        final difference = DateTime.now()
+            .difference(_lastDeltaPing!)
+            .abs()
+            .inMilliseconds;
 
         isDeltaSynchronized.value = difference <= 2200;
 
@@ -186,13 +188,10 @@ class PlatformUtilsImpl {
       Worker? worker;
 
       _focusController = StreamController<bool>.broadcast(
-        onListen:
-            () =>
-                worker = ever(
-                  router.lifecycle,
-                  (AppLifecycleState a) =>
-                      _focusController?.add(a.inForeground),
-                ),
+        onListen: () => worker = ever(
+          router.lifecycle,
+          (AppLifecycleState a) => _focusController?.add(a.inForeground),
+        ),
         onCancel: () {
           worker?.dispose();
           _focusController?.close();
@@ -437,8 +436,9 @@ class PlatformUtilsImpl {
         }
       }
 
-      final Directory directory =
-          temporary ? await temporaryDirectory : await downloadsDirectory;
+      final Directory directory = temporary
+          ? await temporaryDirectory
+          : await downloadsDirectory;
       String name = p.basenameWithoutExtension(filename);
       String ext = p.extension(filename);
       File file = File('${directory.path}/$filename');
@@ -558,10 +558,9 @@ class PlatformUtilsImpl {
             if (path == null) {
               final String name = p.basenameWithoutExtension(filename);
               final String extension = p.extension(filename);
-              final Directory directory =
-                  temporary
-                      ? await temporaryDirectory
-                      : await downloadsDirectory;
+              final Directory directory = temporary
+                  ? await temporaryDirectory
+                  : await downloadsDirectory;
 
               file = File('${directory.path}/$filename');
               for (int i = 1; await file!.exists(); ++i) {
@@ -643,7 +642,8 @@ class PlatformUtilsImpl {
     }
   }
 
-  /// Downloads a file from the provided [url] and opens [Share] dialog with it.
+  /// Downloads a file from the provided [url] and opens [SharePlus] dialog with
+  /// it.
   Future<void> share(String url, String name, {String? checksum}) async {
     // Provided file might already be cached.
     Uint8List? data;
@@ -655,10 +655,13 @@ class PlatformUtilsImpl {
       final Directory temp = await getTemporaryDirectory();
       final String path = '${temp.path}/$name';
       await (await dio).download(url, path);
-      await Share.shareXFiles([XFile(path)]);
+      await SharePlus.instance.share(ShareParams(files: [XFile(path)]));
+
       File(path).delete();
     } else {
-      await Share.shareXFiles([XFile.fromData(data, name: name)]);
+      await SharePlus.instance.share(
+        ShareParams(files: [XFile.fromData(data, name: name)]),
+      );
     }
   }
 
@@ -687,7 +690,6 @@ class PlatformUtilsImpl {
   /// Returns the [FilePickerResult] of the file picking of the provided [type].
   Future<FilePickerResult?> pickFiles({
     FileType type = FileType.any,
-    bool allowCompression = true,
     int compressionQuality = 30,
     bool allowMultiple = false,
     bool withData = false,
@@ -706,14 +708,14 @@ class PlatformUtilsImpl {
 
       return await FilePicker.platform.pickFiles(
         type: accounted,
-        allowCompression: allowCompression,
         compressionQuality: compressionQuality,
         allowMultiple: allowMultiple,
         withData: withData,
         withReadStream: withReadStream,
         lockParentWindow: lockParentWindow,
-        allowedExtensions:
-            accounted == FileType.custom ? allowedExtensions : null,
+        allowedExtensions: accounted == FileType.custom
+            ? allowedExtensions
+            : null,
       );
     } on PlatformException catch (e) {
       if (e.code == 'already_active') {
@@ -811,24 +813,21 @@ enum HapticKind { click, light }
 extension MobileExtensionOnContext on BuildContext {
   /// Returns `true` if [PlatformUtilsImpl.isMobile] and [MediaQuery]'s shortest
   /// side is less than `600p`, or otherwise always returns `false`.
-  bool get isMobile =>
-      PlatformUtils.isMobile
-          ? MediaQuery.sizeOf(this).shortestSide < 600
-          : false;
+  bool get isMobile => PlatformUtils.isMobile
+      ? MediaQuery.sizeOf(this).shortestSide < 600
+      : false;
 
   /// Returns `true` if [MediaQuery]'s width is less than `600p` on desktop and
   /// [MediaQuery]'s shortest side is less than `600p` on mobile.
-  bool get isNarrow =>
-      PlatformUtils.isDesktop
-          ? MediaQuery.sizeOf(this).width < 600
-          : MediaQuery.sizeOf(this).shortestSide < 600;
+  bool get isNarrow => PlatformUtils.isDesktop
+      ? MediaQuery.sizeOf(this).width < 600
+      : MediaQuery.sizeOf(this).shortestSide < 600;
 
   /// Returns `true` if [MediaQuery]'s width is less than `379p` on desktop and
   /// [MediaQuery]'s shortest side is less than `379p` on mobile.
-  bool get isTiny =>
-      PlatformUtils.isDesktop
-          ? MediaQuery.sizeOf(this).width < 379
-          : MediaQuery.sizeOf(this).shortestSide < 379;
+  bool get isTiny => PlatformUtils.isDesktop
+      ? MediaQuery.sizeOf(this).width < 379
+      : MediaQuery.sizeOf(this).shortestSide < 379;
 }
 
 /// Extension adding an ability to pop the current [ModalRoute].

@@ -186,26 +186,22 @@ extension _SessionDataDb on SessionData {
   /// Constructs a [SessionData] from the provided [VersionRow].
   static SessionData fromDb(VersionRow e) {
     return SessionData(
-      favoriteChatsListVersion:
-          e.favoriteChatsListVersion == null
-              ? null
-              : FavoriteChatsListVersion(e.favoriteChatsListVersion!),
+      favoriteChatsListVersion: e.favoriteChatsListVersion == null
+          ? null
+          : FavoriteChatsListVersion(e.favoriteChatsListVersion!),
       favoriteChatsSynchronized: e.favoriteChatsSynchronized,
-      chatContactsListVersion:
-          e.chatContactsListVersion == null
-              ? null
-              : ChatContactsListVersion(e.chatContactsListVersion!),
+      chatContactsListVersion: e.chatContactsListVersion == null
+          ? null
+          : ChatContactsListVersion(e.chatContactsListVersion!),
       favoriteContactsSynchronized: e.favoriteContactsSynchronized,
       contactsSynchronized: e.contactsSynchronized,
       blocklistSynchronized: e.blocklistSynchronized,
-      sessionsListVersion:
-          e.sessionsListVersion == null
-              ? null
-              : SessionsListVersion(e.sessionsListVersion!),
-      blocklistVersion:
-          e.blocklistVersion == null
-              ? null
-              : BlocklistVersion(e.blocklistVersion!),
+      sessionsListVersion: e.sessionsListVersion == null
+          ? null
+          : SessionsListVersion(e.sessionsListVersion!),
+      blocklistVersion: e.blocklistVersion == null
+          ? null
+          : BlocklistVersion(e.blocklistVersion!),
       blocklistCount: e.blocklistCount,
     );
   }

@@ -417,8 +417,8 @@ extension on AudioSource {
     AudioSourceKind.asset =>
       PlatformUtils.isWeb
           ? Media(
-            '${Config.origin}/assets/assets/${(this as AssetAudioSource).asset}?${Pubspec.ref}',
-          )
+              '${Config.origin}/assets/assets/${(this as AssetAudioSource).asset}?${Pubspec.ref}',
+            )
           : Media('asset:///assets/${(this as AssetAudioSource).asset}'),
     AudioSourceKind.file => Media('file:///${(this as FileAudioSource).file}'),
     AudioSourceKind.url => Media((this as UrlAudioSource).url),
