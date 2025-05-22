@@ -111,9 +111,7 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
           CustomPage(
             key: ValueKey('UserPage$id'),
             name: '${Routes.user}/$id',
-            child: UserView(
-              UserId(id),
-            ),
+            child: UserView(UserId(id)),
           ),
         );
       } else if (route.startsWith('${Routes.work}/')) {

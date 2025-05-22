@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '/domain/model/chat_item.dart';
 import '../chat/controller.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/util/platform_utils.dart';
@@ -53,12 +52,6 @@ class UserView extends StatelessWidget {
 
   /// ID of the [User] this [UserView] represents.
   final UserId id;
-
-  /// ID of this [Chat].
-  // final ChatId chatId;
-
-  /// ID of a [ChatItem] to scroll to initially in this [ChatView].
-  // final ChatItemId? itemId;
 
   @override
   Widget build(BuildContext context) {
@@ -305,8 +298,7 @@ class UserView extends StatelessWidget {
             onPressed: () {},
             onPressedWithDetails: (u) {
               PlatformUtils.copy(
-                text:
-                    c.contact.value?.contact.value.name.val ?? c.name.text,
+                text: c.contact.value?.contact.value.name.val ?? c.name.text,
               );
               MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
             },
@@ -355,90 +347,80 @@ class UserView extends StatelessWidget {
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
 
-    final  chatId = c.user?.dialog.value?.id;
-
+    final chatId = c.user?.dialog.value?.id;
+    final bool muted = c.user?.dialog.value?.chat.value.muted != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        chatId != null
+            ? GetBuilder<ChatController>(
+              key: const Key('ChatView'),
+              init: ChatController(
+                chatId,
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                Get.find(),
+                onContext: () => context,
+              ),
+              tag: chatId.val,
+              global: !Get.isRegistered<ChatController>(tag: chatId.val),
+              builder: (c) {
+                final bool favorite =
+                    c.chat?.chat.value.favoritePosition != null;
 
-        GetBuilder<ChatController>(
-          key: const Key('ChatView'),
-          init: ChatController(
-            chatId!,
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            Get.find(),
-            onContext: () => context,
-          ),
-          tag: chatId.val,
-          global: !Get.isRegistered<ChatController>(tag: chatId.val),
-          builder: (c) {
-            final bool muted = c.chat?.chat.value.muted != null;
-
-            final bool favorite = c.chat?.chat.value.favoritePosition != null;
-
-            return Column(
-              children: [
-                ActionButton(
-                  key: Key(
-                    favorite ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
-                  ),
-                  text:
-                      favorite
-                          ? 'btn_delete_from_favorites'.l10n
-                          : 'btn_add_to_favorites'.l10n,
-                  trailing: SvgIcon(
-                    favorite
-                        ? SvgIcons.favoriteSmall
-                        : SvgIcons.unfavoriteSmall,
-                  ),
-                  onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                ),
-                ActionButton(
-                  key: Key(
-                    muted
-                        ? 'UnmuteChatButton'
-                        : 'MuteChatButton',
-                  ),
-                  text: muted
-                      ? PlatformUtils.isMobile
+                return Column(
+                  children: [
+                    ActionButton(
+                      key: Key(
+                        favorite
+                            ? 'UnfavoriteChatButton'
+                            : 'FavoriteChatButton',
+                      ),
+                      text:
+                          favorite
+                              ? 'btn_delete_from_favorites'.l10n
+                              : 'btn_add_to_favorites'.l10n,
+                      trailing: SvgIcon(
+                        favorite
+                            ? SvgIcons.favoriteSmall
+                            : SvgIcons.unfavoriteSmall,
+                      ),
+                      onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+                    ),
+                  ],
+                );
+              },
+            )
+            : SizedBox(),
+        ActionButton(
+          key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
+          text:
+              muted
+                  ? PlatformUtils.isMobile
                       ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'
-                      .l10n
-                      : PlatformUtils.isMobile
-                      ? 'btn_mute'.l10n
-                      : 'btn_mute_chat'.l10n,
-                  trailing:  SvgIcon( muted
-                      ? SvgIcons.unmuteSmall
-                      : SvgIcons.muteSmall,),
+                      : 'btn_unmute_chat'.l10n
+                  : PlatformUtils.isMobile
+                  ? 'btn_mute'.l10n
+                  : 'btn_mute_chat'.l10n,
+          trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
 
-                  onPressed:
-                  muted
-                      ? c.unmuteChat
-                      : c.muteChat,
-                ),
-                ActionButton(
-                  key: const Key(
-                    'ClearHistoryButton',
-                  ),
-                  text: 'btn_clear_chat'.l10n,
-                  trailing: const SvgIcon(SvgIcons.cleanHistory),
-                  onPressed:  () => _clearChat(c, context),
-                ),
-                ActionButton(
-                  key: const Key('HideChatButton'),
-                  text: 'btn_delete_chat'.l10n,
-                  trailing: const SvgIcon(SvgIcons.delete),
-                  onPressed:
-                      () => _hideChat(c, context),
-                ),
-              ],
-            );
-          },
+          onPressed: muted ? c.unmuteChat : c.muteChat,
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          text: 'btn_clear_chat'.l10n,
+          trailing: const SvgIcon(SvgIcons.cleanHistory),
+          onPressed: () => _clearChat(c, context),
+        ),
+        ActionButton(
+          key: const Key('HideChatButton'),
+          text: 'btn_delete_chat'.l10n,
+          trailing: const SvgIcon(SvgIcons.delete),
+          onPressed: () => _hideChat(c, context),
         ),
         // TODO: Uncomment, when contacts are implemented.
         // ActionButton(
@@ -544,7 +526,7 @@ class UserView extends StatelessWidget {
   }
 
   /// Opens a confirmation popup clearing this [Chat].
-  Future<void> _clearChat(ChatController c, BuildContext context) async {
+  Future<void> _clearChat(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
@@ -552,7 +534,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.user?.dialog.value?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
@@ -565,7 +547,7 @@ class UserView extends StatelessWidget {
   }
 
   /// Opens a confirmation popup hiding this [Chat].
-  Future<void> _hideChat(ChatController c, BuildContext context) async {
+  Future<void> _hideChat(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
     final bool? result = await MessagePopup.alert(
@@ -573,7 +555,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.user?.dialog.value?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),

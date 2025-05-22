@@ -58,7 +58,6 @@ import '/ui/widget/svg/svg.dart';
 import '/ui/widget/system_info_prompt.dart';
 import '/ui/widget/text_field.dart';
 import '/ui/widget/widget_button.dart';
-import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'forward/view.dart';
@@ -370,11 +369,7 @@ class ChatView extends StatelessWidget {
                             children = [];
                           }
 
-                              return Row(
-                                children: [
-                                  ...children,
-                                ],
-                              );
+                              return Row(children: [...children]);
                             }),
                           ],
                         ),
@@ -975,8 +970,6 @@ class ChatView extends StatelessWidget {
 
     return const SizedBox();
   }
-
-
 
   // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.

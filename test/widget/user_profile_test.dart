@@ -465,6 +465,9 @@ void main() async {
       await tester.pumpAndSettle(const Duration(seconds: 2));
 
       expect(find.text('user name'), findsAny);
+
+      expect(find.byKey(Key('NumCopyable')), findsNothing);
+      expect(find.byKey(Key('UserScrollable')), findsOneWidget);
       await tester.dragUntilVisible(
         find.byKey(const Key('NumCopyable')),
         find.byKey(const Key('UserScrollable')),
