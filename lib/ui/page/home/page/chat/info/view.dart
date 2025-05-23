@@ -20,7 +20,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
+import '/ui/widget/line_divider.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -33,7 +33,6 @@ import '/themes.dart';
 import '/ui/page/home/page/chat//controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -91,7 +90,7 @@ class ChatInfoView extends StatelessWidget {
             const SizedBox(height: 8),
             if (c.isMonolog) ...[
               _avatar(c, context),
-              const NotesBlock.info(),
+              _actionsMonolog(c, context),
             ] else ...[
               _profile(c, context),
               SelectionContainer.disabled(child: _members(c, context)),
@@ -306,20 +305,45 @@ class ChatInfoView extends StatelessWidget {
   /// Returns the [Block] displaying a [Chat.avatar].
   Widget _avatar(ChatInfoController c, BuildContext context) {
     return Obx(() {
-      final Avatar? avatar = c.chat?.avatar.value;
-
+      final style = Theme.of(context).style;
       return Block(
         children: [
+          Center(
+            child: Text(
+              'label_chat_monolog'.l10n,
+              style: style.fonts.big.regular.onBackground,
+            ),
+          ),
+
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(
               c.chat,
               key: Key('ChatAvatar_${c.chat!.id}'),
               loading: c.avatarUpload.value.isLoading,
               error: c.avatarUpload.value.errorMessage,
-              onUpload: c.pickAvatar,
-              onEdit: avatar != null ? c.editAvatar : null,
-              onDelete: c.chat?.avatar.value != null ? c.deleteAvatar : null,
             ),
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Text(
+              'label_chat_monolog_subtitle'.l10n,
+              style: style.fonts.small.regular.secondary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          LineDivider('label_notes_divider'.l10n),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Flexible(
+                child: Text(
+                  'label_chat_monolog_features'.l10n,
+                  style: style.fonts.small.regular.secondary,
+                  textAlign: TextAlign.left,
+                  softWrap: true,
+                ),
+              ),
+            ],
           ),
         ],
       );
@@ -517,18 +541,25 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),
           child: const SvgIcon(SvgIcons.chat),
         ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
-        const SizedBox(width: 20),
+        const SizedBox(width: 8),
+        c.isMonolog == false
+            ? Row(
+                children: [
+                  const SizedBox(width: 20),
+                  AnimatedButton(
+                    onPressed: () => c.call(true),
+                    child: const SvgIcon(SvgIcons.chatVideoCall),
+                  ),
+                  const SizedBox(width: 28),
+                  AnimatedButton(
+                    key: const Key('AudioCall'),
+                    onPressed: () => c.call(false),
+                    child: const SvgIcon(SvgIcons.chatAudioCall),
+                  ),
+                  const SizedBox(width: 20),
+                ],
+              )
+            : SizedBox(),
       ],
     );
   }
@@ -577,6 +608,88 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.reportChat();
+    }
+  }
+
+  /// Returns the action buttons for monolog
+  Widget _actionsMonolog(ChatInfoController c, BuildContext context) {
+    return Block(
+      children: [
+        Obx(() {
+          final bool favorite = c.chat?.chat.value.favoritePosition != null;
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ActionButton(
+                key: Key(
+                  favorite ? 'UnfavoriteChatButton' : 'FavoriteChatButton',
+                ),
+                text: favorite
+                    ? 'btn_delete_from_favorites'.l10n
+                    : 'btn_add_to_favorites'.l10n,
+                trailing: SvgIcon(
+                  favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
+                ),
+                onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+              ),
+              ActionButton(
+                key: const Key('ClearHistoryButton'),
+                text: 'btn_clear_chat'.l10n,
+                trailing: const SvgIcon(SvgIcons.cleanHistory),
+                onPressed: () => _clearChat(c, context),
+              ),
+              ActionButton(
+                key: const Key('HideChatButton'),
+                text: 'btn_delete_chat'.l10n,
+                trailing: const SvgIcon(SvgIcons.delete),
+                onPressed: () => _hideChat(c, context),
+              ),
+            ],
+          );
+        }),
+      ],
+    );
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
     }
   }
 }

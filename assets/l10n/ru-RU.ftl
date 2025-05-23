@@ -307,6 +307,8 @@ btn_video_message = Видеосообщение
 btn_work_with_us = Работайте с нами
 btn_write_message = Написать сообщение
 btn_your_profile = Ваш профиль
+btn_clear_chat = Очистить чат
+btn_delete_chat = Удалить чат
 colon_space = :{" "}
 comma_separated_a_b_c = {$a},{" "}{$b},{" "}{$c}
 comma_space = ,{" "}
@@ -1296,6 +1298,14 @@ label_your_direct_link = Прямая ссылка на Ваш чат
 label_your_name = Ваше имя
 label_your_password = Ваш пароль
 label_your_status = Ваш статус
+label_identifier = Идентификатор
+label_add_to_favorites = Add to favorites
+label_notes_divider = Функции
+label_chat_monolog_subtitle = Чат с самим собой
+label_chat_monolog_features =
+    - доступно только вам
+    - неограниченное количество сообщений
+    - любой контент (текст, видео, картинки)
 plus = +
 question_mark = ?
 space = {" "}
