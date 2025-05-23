@@ -231,6 +231,12 @@ class AuthRepository extends DisposableInterface
     Log.debug('refreshSession($secret)', '$runtimeType');
 
     return _graphQlProvider.clientGuard.protect(() async {
+      try {
+        await _graphQlProvider.getMyUser(raw: true);
+      } on AuthorizationException {
+        // No-op, as this is expected.
+      }
+
       final response =
           (await _graphQlProvider.refreshSession(secret)).refreshSession
               as RefreshSession$Mutation$RefreshSession$CreateSessionOk;

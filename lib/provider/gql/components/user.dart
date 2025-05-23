@@ -47,14 +47,15 @@ mixin UserGraphQlMixin {
   /// ### Authentication
   ///
   /// Mandatory.
-  Future<GetMyUser$Query> getMyUser() async {
-    Log.debug('getMyUser()', '$runtimeType');
+  Future<GetMyUser$Query> getMyUser({bool raw = false}) async {
+    Log.debug('getMyUser(raw: $raw)', '$runtimeType');
 
     QueryResult res = await client.query(
       QueryOptions(
         operationName: 'GetMyUser',
         document: GetMyUserQuery().document,
       ),
+      raw: raw ? RawClientOptions(AccessTokenSecret('')) : null,
     );
     return GetMyUser$Query.fromJson(res.data!);
   }
