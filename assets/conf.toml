@@ -3,7 +3,6 @@
 #
 # Default:
 #   remote = true
-remote = false
 
 [server.http]
 # URL address of HTTP backend server.
@@ -12,8 +11,7 @@ remote = false
 #
 # Default:
 #   url = "http://localhost"
-url = "https://messenger.soc.stg.t11913.org"
-port = 443
+
 # Port of HTTP backend server.
 #
 # Unused for web, browser location is used instead.
@@ -33,8 +31,6 @@ port = 443
 #
 # Default:
 #   url = "ws://localhost"
-url = "wss://messenger.soc.stg.t11913.org"
-port = 443
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
