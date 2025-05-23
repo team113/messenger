@@ -106,7 +106,6 @@ class HomeRouterDelegate extends RouterDelegate<RouteConfiguration>
         );
       } else if (route.startsWith('${Routes.user}/')) {
         final id = route.replaceFirst('${Routes.user}/', '');
-
         pages.add(
           CustomPage(
             key: ValueKey('UserPage$id'),

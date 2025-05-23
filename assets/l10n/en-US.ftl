@@ -1271,8 +1271,6 @@ label_your_direct_link = Direct link to your chat
 label_your_name = Your name
 label_your_password = Your password
 label_your_status = Your status
-
-
 plus = +
 question_mark = ?
 space = {" "}
