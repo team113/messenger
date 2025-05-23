@@ -26,11 +26,6 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite loader displayed under members list. ([#1246])
         - Moving info block to the block with photo. ([#1248])
         - Adding block of monolog chat control. ([#1248])
-        
-
-    
-      
-      
 
 [#1050]: /../../issues/1050
 [#1244]: /../../issues/1244
