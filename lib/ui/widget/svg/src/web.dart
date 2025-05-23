@@ -24,6 +24,7 @@ import 'dart:io';
 import 'dart:js_interop' as js;
 import 'dart:js_interop_unsafe';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -259,7 +260,7 @@ class _BrowserSvgState extends State<_BrowserSvg> {
 
   /// Indicates whether the current renderer is `CanvasKit`.
   bool get rendererCanvasKit =>
-      js.globalContext.getProperty('flutterCanvasKit'.toJS) != null;
+      kIsWasm || js.globalContext.getProperty('flutterCanvasKit'.toJS) != null;
 
   @override
   void initState() {

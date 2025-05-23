@@ -25,6 +25,7 @@ class ContextMenuInterceptor extends StatelessWidget {
     EdgeInsets margin = EdgeInsets.zero,
     required this.child,
     bool enabled = true,
+    bool forceEnabled = false,
     bool debug = false,
   });
 
