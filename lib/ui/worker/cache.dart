@@ -27,7 +27,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_thumbhash/flutter_thumbhash.dart' as t;
 import 'package:get/get.dart' hide Response;
 import 'package:mutex/mutex.dart';
-import 'package:open_filex/open_filex.dart';
+import 'package:open_file/open_file.dart';
 import 'package:path/path.dart' as p;
 
 import '/domain/model/cache_info.dart';
@@ -366,7 +366,7 @@ class CacheWorker extends DisposableService {
       final File file = downloading!.file!;
 
       if (await file.exists() && await file.length() == size) {
-        await OpenFilex.open(file.path);
+        await OpenFile.open(file.path);
         return true;
       } else {
         downloading.markAsNotStarted();

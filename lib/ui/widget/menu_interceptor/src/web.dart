@@ -29,6 +29,7 @@ class ContextMenuInterceptor extends StatelessWidget {
     this.margin = EdgeInsets.zero,
     required this.child,
     this.enabled = true,
+    this.forceEnabled = false,
     this.debug = false,
   }) {
     if (!_registered) {
@@ -45,6 +46,9 @@ class ContextMenuInterceptor extends StatelessWidget {
   /// Indicator whether this widget should be active or not.
   final bool enabled;
 
+  /// Indicator whether this widget should be active no matter what or not.
+  final bool forceEnabled;
+
   /// Indicator whether a semi-transparent red background should be renderer or
   /// not, used for debug purposes.
   final bool debug;
@@ -55,7 +59,7 @@ class ContextMenuInterceptor extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!enabled || kIsWasm) {
+    if (!forceEnabled && (!enabled || kIsWasm)) {
       return child;
     }
 

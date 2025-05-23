@@ -80,6 +80,7 @@ import 'ui/page/support/view.dart';
 import 'ui/page/unknown/view.dart';
 import 'ui/page/work/view.dart';
 import 'ui/widget/lifecycle_observer.dart';
+import 'ui/widget/menu_interceptor/menu_interceptor.dart';
 import 'ui/widget/progress_indicator.dart';
 import 'ui/worker/call.dart';
 import 'ui/worker/chat.dart';
@@ -945,17 +946,23 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         onPointerDown: (_) => PlatformUtils.keepActive(),
         onPointerHover: (_) => PlatformUtils.keepActive(),
         onPointerSignal: (_) => PlatformUtils.keepActive(),
-        child: Scaffold(
-          body: Navigator(
-            key: navigatorKey,
-            observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
-            pages: _pages,
-            onDidRemovePage: (Page<Object?> page) {
-              final bool success = page.canPop;
-              if (success) {
-                _state.pop(page.name);
-              }
-            },
+
+        // TODO: This is a workaround to fix performance issues in WebAssembly.
+        child: ContextMenuInterceptor(
+          enabled: kIsWasm,
+          forceEnabled: kIsWasm,
+          child: Scaffold(
+            body: Navigator(
+              key: navigatorKey,
+              observers: [SentryNavigatorObserver(), ModalNavigatorObserver()],
+              pages: _pages,
+              onDidRemovePage: (Page<Object?> page) {
+                final bool success = page.canPop;
+                if (success) {
+                  _state.pop(page.name);
+                }
+              },
+            ),
           ),
         ),
       ),

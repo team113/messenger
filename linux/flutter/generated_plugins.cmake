@@ -12,6 +12,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   medea_jason
   media_kit_libs_linux
   media_kit_video
+  open_file_linux
   screen_retriever_linux
   sentry_flutter
   sqlite3_flutter_libs

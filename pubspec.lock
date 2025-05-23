@@ -351,10 +351,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dartdoc
-      sha256: eb152ab07c585adb11cc24b7b93280a02f6ac5ff724cca4e6cabb24e8be88c82
+      sha256: f978526530e42dbb831295af743c057d94533e89c27ce1f4023b252f3d85b8be
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.3"
+    version: "8.3.4"
   dbus:
     dependency: transitive
     description:
@@ -1478,15 +1478,70 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "7.1.0"
-  open_filex:
+  open_file:
     dependency: "direct main"
     description:
-      path: "."
-      ref: HEAD
-      resolved-ref: ac2fe2d9af55a9e3b23363f9d9e49e9316232cb4
-      url: "https://github.com/raldhafiri/open_filex"
-    source: git
-    version: "4.4.0"
+      name: open_file
+      sha256: d17e2bddf5b278cb2ae18393d0496aa4f162142ba97d1a9e0c30d476adf99c0e
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.5.10"
+  open_file_android:
+    dependency: transitive
+    description:
+      name: open_file_android
+      sha256: "58141fcaece2f453a9684509a7275f231ac0e3d6ceb9a5e6de310a7dff9084aa"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.6"
+  open_file_ios:
+    dependency: transitive
+    description:
+      name: open_file_ios
+      sha256: "02996f01e5f6863832068e97f8f3a5ef9b613516db6897f373b43b79849e4d07"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  open_file_linux:
+    dependency: transitive
+    description:
+      name: open_file_linux
+      sha256: d189f799eecbb139c97f8bc7d303f9e720954fa4e0fa1b0b7294767e5f2d7550
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.5"
+  open_file_mac:
+    dependency: transitive
+    description:
+      name: open_file_mac
+      sha256: "1440b1e37ceb0642208cfeb2c659c6cda27b25187a90635c9d1acb7d0584d324"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  open_file_platform_interface:
+    dependency: transitive
+    description:
+      name: open_file_platform_interface
+      sha256: "101b424ca359632699a7e1213e83d025722ab668b9fd1412338221bf9b0e5757"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
+  open_file_web:
+    dependency: transitive
+    description:
+      name: open_file_web
+      sha256: e3dbc9584856283dcb30aef5720558b90f88036360bd078e494ab80a80130c4f
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.4"
+  open_file_windows:
+    dependency: transitive
+    description:
+      name: open_file_windows
+      sha256: d26c31ddf935a94a1a3aa43a23f4fff8a5ff4eea395fe7a8cb819cf55431c875
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.0.3"
   package_config:
     dependency: transitive
     description:
@@ -1600,14 +1655,13 @@ packages:
     source: hosted
     version: "9.4.7"
   permission_handler_html:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: permission_handler_html
-      ref: HEAD
-      resolved-ref: "42e1c85b7d2c12528be4ae667db9b3318c77bda7"
-      url: "https://github.com/raldhafiri/flutter-permission-handler.git"
-    source: git
-    version: "0.1.2"
+      name: permission_handler_html
+      sha256: "38f000e83355abb3392140f6bc3030660cfaef189e1f87824facb76300b4ff24"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3+5"
   permission_handler_platform_interface:
     dependency: transitive
     description:
@@ -1660,8 +1714,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: HEAD
-      resolved-ref: babc68284f910743048d4b897dd708f272445907
+      ref: "95fdef6470cd488de2544ed3f882641eb52ba9dd"
+      resolved-ref: "95fdef6470cd488de2544ed3f882641eb52ba9dd"
       url: "https://github.com/SleepySquash/platform_detect.git"
     source: git
     version: "2.0.13"
@@ -2059,10 +2113,10 @@ packages:
     dependency: "direct main"
     description:
       name: sqlite3
-      sha256: "310af39c40dd0bb2058538333c9d9840a2725ae0b9f77e4fd09ad6696aa8f66e"
+      sha256: c0503c69b44d5714e6abbf4c1f51a3c3cc42b75ce785f44404765e4635481d38
       url: "https://pub.dev"
     source: hosted
-    version: "2.7.5"
+    version: "2.7.6"
   sqlite3_flutter_libs:
     dependency: "direct main"
     description:
@@ -2072,13 +2126,12 @@ packages:
     source: hosted
     version: "0.5.33"
   sqlparser:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
-      path: sqlparser
-      ref: develop
-      resolved-ref: c8f37069831a9405b604d5c49b7531ccd86f2a46
-      url: "https://github.com/simolus3/drift"
-    source: git
+      name: sqlparser
+      sha256: "27dd0a9f0c02e22ac0eb42a23df9ea079ce69b52bb4a3b478d64e0ef34a263ee"
+      url: "https://pub.dev"
+    source: hosted
     version: "0.41.0"
   stack_trace:
     dependency: transitive
@@ -2356,10 +2409,10 @@ packages:
     dependency: transitive
     description:
       name: vector_graphics_compiler
-      sha256: "1b4b9e706a10294258727674a340ae0d6e64a7231980f9f9a3d12e4b42407aad"
+      sha256: "557a315b7d2a6dbb0aaaff84d857967ce6bdc96a63dc6ee2a57ce5a6ee5d3331"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.16"
+    version: "1.1.17"
   vector_math:
     dependency: transitive
     description:
@@ -2444,10 +2497,10 @@ packages:
     dependency: "direct main"
     description:
       name: web_socket_channel
-      sha256: "58c6666b342a38816b2e7e50ed0f1e261959630becd4c879c4f26bfa14aa5a42"
+      sha256: d645757fb0f4773d602444000a8131ff5d48c9e47adfe9772652dd1a4f2d45c8
       url: "https://pub.dev"
     source: hosted
-    version: "2.4.5"
+    version: "3.0.3"
   webdriver:
     dependency: transitive
     description:

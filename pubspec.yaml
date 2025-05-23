@@ -78,7 +78,7 @@ dependencies:
   media_kit_video: ^1.1.6
   mime: ^2.0.0
   mutex: ^3.0.1
-  open_filex: ^4.5.0
+  open_file: ^3.5.10
   path: ^1.8.2
   path_provider: ^2.1.3
   path_provider_android: ^2.1.0
@@ -149,16 +149,6 @@ dev_dependencies:
 dependency_overrides:
   # TODO: Remove when `flutter_gherkin` updates.
   analyzer: ^7.4.5
-  # drift:
-  #   git:
-  #     url: https://github.com/simolus3/drift
-  #     path: drift
-  #     ref: develop
-  # drift_dev:
-  #   git:
-  #     url: https://github.com/simolus3/drift
-  #     path: drift_dev
-  #     ref: develop
   # TODO: Remove when `graphql` updates.
   graphql:
     git:
@@ -175,11 +165,6 @@ dependency_overrides:
     git:
       url: https://github.com/SleepySquash/image_picker.git
       path: packages/image_picker/image_picker_ios
-  # TODO: Remove when javaherisaber/open_filex#14 is merged:
-  #       https://github.com/javaherisaber/open_filex/pull/14
-  open_filex:
-    git:
-      url: https://github.com/raldhafiri/open_filex
   # TODO: Remove when `media_kit` updates.
   js: ^0.7.1
   # TODO: Remove, when `media_kit` publishes its latest version to pub.dev.
@@ -212,28 +197,16 @@ dependency_overrides:
     git:
       url: https://github.com/media-kit/media-kit
       path: media_kit_video
-  sqlparser:
-    git:
-      url: https://github.com/simolus3/drift
-      path: sqlparser
-      ref: develop
-  # TODO: Remove when Baseflow/flutter-permission-handler#1303 is merged:
-  #       https://github.com/Baseflow/flutter-permission-handler/pull/1303
-  permission_handler_html:
-    git:
-      url: https://github.com/raldhafiri/flutter-permission-handler.git
-      path: permission_handler_html
+  # TODO: Remove, when Workiva/platform_detect#77 is merged:
+  #       https://github.com/Workiva/platform_detect/pull/77
   platform_detect:
     git:
       url: https://github.com/SleepySquash/platform_detect.git
+      ref: 95fdef6470cd488de2544ed3f882641eb52ba9dd
   # TODO: Remove when `flutter_gherkin` updates.
   source_gen: ^2.0.0
   # TODO: Remove when `medea_jason` updates.
   uuid: ^4.3.3
-  # TODO: Unpin, when `graphql_flutter` updates.
-  web_socket_channel: ^2.4.5
-  # TODO: Unpin, when `permission_handler_html` and `open_filex` update.
-  web: ^1.0.0
 
 flutter:
   uses-material-design: true
