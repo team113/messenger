@@ -375,6 +375,36 @@ class UserController extends GetxController {
     }
   }
 
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    if (dialog != null) {
+      try {
+        await _chatService.favoriteChat(dialog);
+      } on UnfavoriteChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
+  /// Removes the [chat] from the favorites.
+  Future<void> unfavoriteChat() async {
+    final ChatId? dialog = user?.user.value.dialog;
+    if (dialog != null) {
+      try {
+        await _chatService.unfavoriteChat(dialog);
+      } on UnfavoriteChatException catch (e) {
+        MessagePopup.error(e);
+      } catch (e) {
+        MessagePopup.error(e);
+        rethrow;
+      }
+    }
+  }
+
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
     final ChatId? dialog = user?.user.value.dialog;

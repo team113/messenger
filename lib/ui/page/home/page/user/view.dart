@@ -20,7 +20,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-import '../chat/controller.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/util/platform_utils.dart';
 import '/ui/widget/line_divider.dart';
@@ -347,54 +346,25 @@ class UserView extends StatelessWidget {
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
 
-    final chatId = c.user?.dialog.value?.id;
+    final bool favorite =
+        c.user?.dialog.value?.chat.value.favoritePosition != null;
+
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
-        chatId != null
-            ? GetBuilder<ChatController>(
-                key: const Key('ChatView'),
-                init: ChatController(
-                  chatId,
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  Get.find(),
-                  onContext: () => context,
-                ),
-                tag: chatId.val,
-                global: !Get.isRegistered<ChatController>(tag: chatId.val),
-                builder: (c) {
-                  final bool favorite =
-                      c.chat?.chat.value.favoritePosition != null;
+        ActionButton(
+          key: Key(favorite ? 'UnfavoriteChatButton' : 'FavoriteChatButton'),
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
+          ),
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+        ),
 
-                  return Column(
-                    children: [
-                      ActionButton(
-                        key: Key(
-                          favorite
-                              ? 'UnfavoriteChatButton'
-                              : 'FavoriteChatButton',
-                        ),
-                        text: favorite
-                            ? 'btn_delete_from_favorites'.l10n
-                            : 'btn_add_to_favorites'.l10n,
-                        trailing: SvgIcon(
-                          favorite
-                              ? SvgIcons.favoriteSmall
-                              : SvgIcons.unfavoriteSmall,
-                        ),
-                        onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
-                      ),
-                    ],
-                  );
-                },
-              )
-            : SizedBox(),
         ActionButton(
           key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
           text: muted
