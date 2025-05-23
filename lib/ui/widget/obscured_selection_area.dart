@@ -15,6 +15,7 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get/get.dart';
@@ -85,6 +86,11 @@ class _ObscuredSelectionAreaState extends State<ObscuredSelectionArea> {
         PlatformUtils.isWeb && (WebUtils.isSafari || WebUtils.isFirefox);
 
     Widget child() => KeyedSubtree(key: _key, child: widget.child);
+
+    if (kIsWasm) {
+      return child();
+    }
+
     Widget area() => SelectionArea(
       magnifierConfiguration: widget.magnifierConfiguration,
       focusNode: widget.focusNode,
