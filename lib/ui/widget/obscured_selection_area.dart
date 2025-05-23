@@ -86,11 +86,6 @@ class _ObscuredSelectionAreaState extends State<ObscuredSelectionArea> {
         PlatformUtils.isWeb && (WebUtils.isSafari || WebUtils.isFirefox);
 
     Widget child() => KeyedSubtree(key: _key, child: widget.child);
-
-    if (kIsWasm) {
-      return child();
-    }
-
     Widget area() => SelectionArea(
       magnifierConfiguration: widget.magnifierConfiguration,
       focusNode: widget.focusNode,
