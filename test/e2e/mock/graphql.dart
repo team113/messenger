@@ -163,9 +163,10 @@ class MockGraphQlClient extends GraphQlClient {
 
   @override
   Future<QueryResult> query(
-    QueryOptions options, [
-    Exception Function(Map<String, dynamic>)? handleException,
-  ]) async {
+    QueryOptions options, {
+    RawClientOptions? raw,
+    Exception Function(Map<String, dynamic>)? onException,
+  }) async {
     if (delay != null) {
       await Future.delayed(delay!);
     }
@@ -175,7 +176,7 @@ class MockGraphQlClient extends GraphQlClient {
       throw const ConnectionException('Mocked');
     }
 
-    return super.query(options, handleException);
+    return super.query(options, raw: raw, onException: onException);
   }
 
   @override

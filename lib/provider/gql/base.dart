@@ -191,18 +191,29 @@ class GraphQlClient {
   /// returns a [Future] which resolves with the [QueryResult] or throws an
   /// [Exception].
   Future<QueryResult> query(
-    QueryOptions options, [
-    Exception Function(Map<String, dynamic>)? handleException,
-  ]) {
-    return _middleware(() async {
-      return _transaction(options.operationName, () async {
-        final QueryResult result = await _queryLimiter.execute(
-          () async => await (await client).query(options).timeout(timeout),
-        );
-        GraphQlProviderExceptions.fire(result, handleException);
+    QueryOptions options, {
+    RawClientOptions? raw,
+    Exception Function(Map<String, dynamic>)? onException,
+  }) async {
+    if (raw != null) {
+      return await _transaction(options.operationName, () async {
+        final QueryResult result = await (await _newClient(
+          raw,
+        )).query(options).timeout(timeout);
+        GraphQlProviderExceptions.fire(result, onException);
         return result;
       });
-    });
+    } else {
+      return await _middleware(() async {
+        return _transaction(options.operationName, () async {
+          final QueryResult result = await _queryLimiter.execute(
+            () async => await (await client).query(options).timeout(timeout),
+          );
+          GraphQlProviderExceptions.fire(result, onException);
+          return result;
+        });
+      });
+    }
   }
 
   /// Resolves a single mutation according to the [MutationOptions] specified
