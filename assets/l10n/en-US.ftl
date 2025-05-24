@@ -181,6 +181,7 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
+btn_clear_chat = Clear chat
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -592,6 +593,7 @@ label_add_phone = Add phone
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
+label_add_to_favorites = Add to favorites
 label_ago = {$years ->
     [0] {$months ->
             [0] {$weeks ->
@@ -702,6 +704,11 @@ label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_monolog = Your notes
 label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
+label_chat_monolog_features =
+    - available only for you
+    - unlimited number of messages
+    - any content (text, video, pictures)
+label_chat_monolog_subtitle = Chat with yourself
 label_chat_name_hint = Chat name
 label_chats = Chats
 label_chats_and_groups = Chats and groups: {$count}
@@ -870,6 +877,7 @@ label_hint_drag_n_drop_video =
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
 label_hotkey = Hotkey
+label_identifier = Identifier
 label_identifiers = Identifiers
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
@@ -990,6 +998,7 @@ label_no_updates_are_available_title = No updates are available
 label_no_users = No users
 label_no_welcome_message = Welcome message has not been added
 label_nobody = No one
+label_notes_divider = Features
 label_nothing_found = Nothing was found
 label_notifications = Notifications
 label_num = Gapopa ID
