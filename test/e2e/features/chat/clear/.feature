@@ -23,8 +23,8 @@ Feature: Clear chat
     And Bob has dialog with me
     And I am in chat with Bob
     And I see some messages in chat
+    And I open chat's info
 
-    When I tap `MoreButton` button
-    And I tap `ClearHistoryButton` button
+    When I tap `ClearHistoryButton` button
     And I tap `Proceed` button
     Then I see no messages in chat

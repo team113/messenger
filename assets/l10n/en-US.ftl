@@ -588,12 +588,12 @@ label_add_email_description = A confirmation code will be sent to the indicated 
 label_add_email_hint = Write your email address
 label_add_number = Add phone
 label_add_number_hint = Write your number in format of +33 478 88 88 88
-label_add_to_favorites = Add to favorites
 label_add_participants = Add participants
 label_add_phone = Add phone
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
+label_add_to_favorites = Add to favorites
 label_ago = {$years ->
     [0] {$months ->
             [0] {$weeks ->
