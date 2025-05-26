@@ -1,25 +1,25 @@
 # Task Description
 
 ## Overview
-[Describe your task here]
+Implement functionality to **save the scroll position when re-entering a chat**. The scroll position should be remembered during navigation within the app but not persisted across app restarts. This ensures a seamless user experience when switching between chats or navigating back to a previously opened chat.
 
 ## Requirements
-- [ ] Requirement 1
-- [ ] Requirement 2
-- [ ] Requirement 3
+- [ ] Save scroll position for each chat when navigating away
+- [ ] Restore scroll position when returning to the same chat
+- [ ] Do not persist scroll position across app restarts
 
 ## Technical Details
 - Flutter version: 3.32.0
 - Dart version: 3.8.0
-- Target platforms: [List platforms]
+- Target platforms: Android, iOS, Windows, Linux, MacOS, Web
 
 ## Deadline
-**Due Date**: [YYYY-MM-DD]
+**Due Date**: 2025-05-28
 
 ## Acceptance Criteria
-1. [ ] Criterion 1
-2. [ ] Criterion 2
-3. [ ] Criterion 3
+1. [ ] Scroll position is saved when user leaves a chat and restored when re-entering it
+2. [ ] Each chat maintains its own scroll position independently
+3. [ ] Scroll position is cleared upon app restart (not persisted to disk)
 
 ## Notes
 - Follow the project's code style guidelines
@@ -32,4 +32,4 @@
 - [ ] Unit tests
 - [ ] Documentation
 - [ ] Code review
-- [ ] Final testing 
+- [ ] Final testing
