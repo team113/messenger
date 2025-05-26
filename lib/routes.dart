@@ -945,8 +945,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
         onPointerDown: (_) => PlatformUtils.keepActive(),
         onPointerHover: (_) => PlatformUtils.keepActive(),
         onPointerSignal: (_) => PlatformUtils.keepActive(),
-
-        // TODO: This is a workaround to fix performance issues in WebAssembly.
         child: Scaffold(
           body: Navigator(
             key: navigatorKey,
