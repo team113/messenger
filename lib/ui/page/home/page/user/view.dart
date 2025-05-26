@@ -19,7 +19,6 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
 import '/api/backend/schema.dart' show Presence;
 import '/util/platform_utils.dart';
 import '/ui/widget/widget_button.dart';

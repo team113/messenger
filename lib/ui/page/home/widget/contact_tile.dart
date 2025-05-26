@@ -194,7 +194,7 @@ class ContactTile extends StatelessWidget {
                       ],
                     ),
                   ),
-                  ...trailing,
+                  ...trailing
                 ],
               ),
             ),

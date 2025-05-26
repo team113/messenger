@@ -72,6 +72,19 @@ class MemberTile extends StatelessWidget {
       user: user,
       myUser: myUser,
       dense: true,
+      subtitle: [
+        _me
+            ? Text(
+                myUser!.online ? 'label_online'.l10n : 'label_offline'.l10n,
+                style: style.fonts.normal.regular.secondary,
+              )
+            : Text(
+                user!.user.value.online
+                    ? 'label_online'.l10n
+                    : 'label_offline'.l10n,
+                style: style.fonts.normal.regular.secondary,
+              ),
+      ],
       onTap: _me ? null : onTap,
       padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
       trailing: [
@@ -129,10 +142,7 @@ class MemberTile extends StatelessWidget {
                       }
                     },
               child: _me
-                  ? Text(
-                      'label_you'.l10n,
-                      style: style.fonts.normal.regular.secondary,
-                    )
+                  ? SizedBox()
                   : const SvgIcon(
                       SvgIcons.delete,
                       key: Key('DeleteMemberButton'),

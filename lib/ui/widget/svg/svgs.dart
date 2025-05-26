@@ -108,6 +108,12 @@ class SvgIcons {
     height: 5.67,
   );
 
+  static const SvgData addUserWhite = SvgData(
+    'assets/icons/add_user_white.svg',
+    width: 19,
+    height: 18,
+  );
+
   static const SvgData callStart = SvgData(
     'assets/icons/call_start.svg',
     width: 15.98,
@@ -454,6 +460,12 @@ class SvgIcons {
     'assets/icons/add_user.svg',
     width: 19.35,
     height: 18.32,
+  );
+
+  static const SvgData addUserSmall = SvgData(
+    'assets/icons/add_user_small.svg',
+    width: 40.35,
+    height: 40.32,
   );
 
   static const SvgData chatMore = SvgData(

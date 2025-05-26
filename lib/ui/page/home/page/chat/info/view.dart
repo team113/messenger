@@ -21,6 +21,8 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../../widget/field_button.dart';
+import '/util/platform_utils.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -468,13 +470,17 @@ class ChatInfoView extends StatelessWidget {
           );
         }),
         const SizedBox(height: 16),
-        WidgetButton(
+        /// Change Icon
+        FieldButton(
           key: const Key('AddMemberButton'),
           onPressed: () => AddChatMemberView.show(context, chatId: id),
           child: Text(
             'btn_add_member'.l10n,
-            style: style.fonts.small.regular.primary,
+            style: style.fonts.small.regular.onPrimary,
           ),
+          trailing: const SvgIcon(SvgIcons.addUserSmall),
+
+          warning: true,
         ),
       ],
     );
@@ -482,10 +488,47 @@ class ChatInfoView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [Chat].
   Widget _actions(ChatInfoController c, BuildContext context) {
+    final bool muted = c.chat?.chat.value.muted != null;
+
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 8),
+        ActionButton(
+          key: Key(favorite ? 'UnfavoriteChatButton' : 'FavoriteChatButton'),
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
+          text: favorite
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          trailing: SvgIcon(
+            favorite ? SvgIcons.favoriteSmall : SvgIcons.unfavoriteSmall,
+          ),
+        ),
+        ActionButton(
+          key: Key(muted ? 'UnmuteChatButton' : 'MuteChatButton'),
+          onPressed: muted ? c.unmuteChat : c.muteChat,
+          text: muted
+              ? PlatformUtils.isMobile
+                    ? 'btn_unmute'.l10n
+                    : 'btn_unmute_chat'.l10n
+              : PlatformUtils.isMobile
+              ? 'btn_mute'.l10n
+              : 'btn_mute_chat'.l10n,
+          trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          onPressed: () => _clearChat(c, context),
+          text: 'btn_clear_chat'.l10n,
+          trailing: const SvgIcon(SvgIcons.cleanHistory),
+        ),
+        ActionButton(
+          onPressed: () => _hideChat(c, context),
+          text: 'btn_delete_chat'.l10n,
+          trailing: const SvgIcon(SvgIcons.delete19),
+        ),
         ActionButton(
           onPressed: () => _reportChat(c, context),
           text: 'btn_report'.l10n,
@@ -577,6 +620,48 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.reportChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
     }
   }
 }

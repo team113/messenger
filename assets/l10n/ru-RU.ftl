@@ -181,6 +181,7 @@ btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_check_for_updates = Проверить наличие обновлений
 btn_clear_cache = Очистить кэш
+btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить

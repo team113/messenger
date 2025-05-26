@@ -10,7 +10,7 @@
 # ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
 # FOR A PARTICULAR PURPOSE. See the GNU Affero General Public License v3.0 for
 # more details.
-#
+
 # You should have received a copy of the GNU Affero General Public License v3.0
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
@@ -181,6 +181,7 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
+btn_clear_chat = Clear chat
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
