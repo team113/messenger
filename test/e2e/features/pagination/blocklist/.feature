@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Blocklist pagination
-
+  @heavy_load
   Scenario: Blocklist pagination works correctly
     Given user Alice
     And Alice has 16 blocked users

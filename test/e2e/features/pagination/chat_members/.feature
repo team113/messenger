@@ -9,9 +9,9 @@
 # You should have received a copy of the GNU Affero General Public License v3.0
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
-@skip
-Feature: Chat members pagination
 
+Feature: Chat members pagination
+  @heavy_load
   Scenario: Chat members pagination works correctly
     Given user Alice
     And Alice has "Members" group with 16 members

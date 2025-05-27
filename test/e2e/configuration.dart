@@ -244,7 +244,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
-        // seeChatMembers,
+        seeChatMembers,
         seeChatMessage,
         seeChatMessages,
         seeChatSelection,
@@ -354,7 +354,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
-      ..tagExpression = 'not @disabled'
+      ..tagExpression = 'not @disabled and not @heavy_load'
+      ..stopAfterTestFailed = false
       // ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
