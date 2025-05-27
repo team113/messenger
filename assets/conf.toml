@@ -3,7 +3,6 @@
 #
 # Default:
 #   remote = true
-remote = false
 
 [server.http]
 # URL address of HTTP backend server.
@@ -19,8 +18,6 @@ remote = false
 #
 # Default:
 #   port = 80
-url = "https://messenger.soc.stg.t11913.org"
-port = 443
 
 # GraphQL API endpoint of HTTP backend server.
 #
@@ -34,8 +31,7 @@ port = 443
 #
 # Default:
 #   url = "ws://localhost"
-url = "wss://messenger.soc.stg.t11913.org"
-port = 443
+
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
