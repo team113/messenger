@@ -181,6 +181,7 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
+btn_clear_chat = Clear chat
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm

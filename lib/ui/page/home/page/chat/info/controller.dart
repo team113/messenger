@@ -107,7 +107,23 @@ class ChatInfoController extends GetxController {
   final RxBool profileEditing = RxBool(false);
 
   /// [Chat.name] field state.
-  late final TextFieldState name;
+  late final TextFieldState name = TextFieldState(
+    text: chat?.chat.value.name?.val,
+    onFocus: (s) async {
+      if (s.text.isNotEmpty) {
+        try {
+          ChatName(s.text);
+        } on FormatException {
+          s.error.value = 'err_incorrect_input'.l10n;
+        } catch (e) {
+          s.error.value = e.toString();
+        }
+      }
+    },
+    onSubmitted: (_) async {
+      await submitName();
+    },
+  );
 
   /// [GlobalKey] of an [AvatarWidget] displayed used to open a [GalleryPopup].
   final GlobalKey avatarKey = GlobalKey();
@@ -197,22 +213,6 @@ class ChatInfoController extends GetxController {
   @override
   void onInit() {
     membersScrollController.addListener(_scrollListener);
-
-    name = TextFieldState(
-      text: chat?.chat.value.name?.val,
-      onFocus: (s) async {
-        if (s.text.isNotEmpty) {
-          try {
-            ChatName(s.text);
-          } on FormatException {
-            s.error.value = 'err_incorrect_input'.l10n;
-          } catch (e) {
-            s.error.value = e.toString();
-          }
-        }
-      },
-    );
-
     super.onInit();
   }
 

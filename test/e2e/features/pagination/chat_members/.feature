@@ -13,6 +13,7 @@
 Feature: Chat members pagination
 
   Scenario: Chat members pagination works correctly
+
     Given user Alice
     And Alice has "Members" group with 16 members
     And I sign in as Alice

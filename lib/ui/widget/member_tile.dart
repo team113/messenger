@@ -67,11 +67,19 @@ class MemberTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-
+    final bool isOnline = _me
+        ? myUser?.online ?? false
+        : user?.user.value.online ?? false;
     return ContactTile(
       user: user,
       myUser: myUser,
       dense: true,
+      subtitle: [
+        Text(
+          isOnline ? 'label_online'.l10n : 'label_offline'.l10n,
+          style: style.fonts.normal.regular.secondary,
+        ),
+      ],
       onTap: _me ? null : onTap,
       padding: const EdgeInsets.fromLTRB(12, 4, 0, 4),
       trailing: [
@@ -129,10 +137,7 @@ class MemberTile extends StatelessWidget {
                       }
                     },
               child: _me
-                  ? Text(
-                      'label_you'.l10n,
-                      style: style.fonts.normal.regular.secondary,
-                    )
+                  ? const SizedBox()
                   : const SvgIcon(
                       SvgIcons.delete,
                       key: Key('DeleteMemberButton'),
