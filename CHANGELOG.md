@@ -31,7 +31,6 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
     - Chat info page:
         - Infinite loader displayed under members list. ([#1246])
-    
 
 [#1050]: /../../issues/1050
 [#1244]: /../../issues/1244
