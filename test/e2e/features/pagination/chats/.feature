@@ -16,6 +16,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Chats pagination
+
   Scenario: Chats pagination works correctly
     Given user Alice
     And Alice has 16 groups
