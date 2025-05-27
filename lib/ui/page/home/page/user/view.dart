@@ -177,7 +177,6 @@ class UserView extends StatelessWidget {
           );
         }),
         const SizedBox(height: 4),
-
         Obx(() {
           final String? subtitle = c.user?.user.value.getSubtitle();
 
@@ -349,8 +348,8 @@ class UserView extends StatelessWidget {
 
     final bool favorite =
         c.user?.dialog.value?.chat.value.favoritePosition != null;
-
     final bool muted = c.user?.dialog.value?.chat.value.muted != null;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -376,7 +375,6 @@ class UserView extends StatelessWidget {
               ? 'btn_mute'.l10n
               : 'btn_mute_chat'.l10n,
           trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
-
           onPressed: muted ? c.unmuteChat : c.muteChat,
         ),
         ActionButton(

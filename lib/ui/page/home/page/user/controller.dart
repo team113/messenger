@@ -375,7 +375,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Marks the [chat] as favorited.
+  /// Marks the [User.dialog] as favorited.
   Future<void> favoriteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
     if (dialog != null) {
@@ -390,7 +390,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Removes the [chat] from the favorites.
+  /// Removes the [User.dialog] from the favorites.
   Future<void> unfavoriteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
     if (dialog != null) {
