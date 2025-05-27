@@ -22,7 +22,6 @@ import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/widget/line_divider.dart';
 
-
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
   const NotesBlock({super.key, this.info = false});
