@@ -11,6 +11,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
 
+### Changed
+- UI: 
+    - Chat info page:
+        - Changing avatar block design. ([#1249])
+        - Add display of online/offline status for chat participants. ([#1249]) 
+        - Design of the "add members" button has been changed. ([#1249])
+        - Add chat control buttons. ([#1249])
+    - Chat page:
+        - Сhat control button removed. ([#1249])
+
 ### Fixed
 
 - UI:
@@ -28,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1243]: /../../pull/1243
 [#1244]: /../../issues/1244
 [#1246]: /../../pull/1246
+[#1249]: /../../issues/1249
 
 
 
