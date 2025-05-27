@@ -18,7 +18,7 @@ All user visible changes to this project will be documented in this file. This p
         - Duplicate Gapopa id changed. ([#1250])
         - Add chat control buttons. ([#1250])
     - Chat page: 
-        -  Chat control button removed. ([#1250])
+        - Chat control button removed. ([#1250])
 
 ### Fixed
 

@@ -20,10 +20,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+
 import '/api/backend/schema.dart' show Presence;
-import '/util/platform_utils.dart';
-import '/ui/widget/line_divider.dart';
-import '/ui/widget/widget_button.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/user.dart';
 import '/l10n/l10n.dart';
@@ -37,11 +35,14 @@ import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/obscured_selection_area.dart';
+import '/ui/widget/line_divider.dart';
 import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
+import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
+import '/util/platform_utils.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
 
