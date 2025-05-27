@@ -21,7 +21,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -316,7 +315,6 @@ class ChatInfoView extends StatelessWidget {
               style: style.fonts.big.regular.onBackground,
             ),
           ),
-
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(
               c.chat,

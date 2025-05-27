@@ -17,10 +17,11 @@
 
 import 'package:flutter/material.dart';
 
-import '/ui/widget/line_divider.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/block.dart';
+import '/ui/widget/line_divider.dart';
+
 
 /// [Block] describing [Chat]-monolog usage examples.
 class NotesBlock extends StatelessWidget {
@@ -41,7 +42,6 @@ class NotesBlock extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
       title: info ? 'label_info'.l10n : 'label_chat_monolog'.l10n,
-
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
         Center(
