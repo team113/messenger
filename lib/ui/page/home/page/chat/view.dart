@@ -17,7 +17,6 @@
 
 import 'dart:async';
 import 'dart:math';
-
 import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -25,7 +24,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_list_view/flutter_list_view.dart';
 import 'package:get/get.dart';
-
 import '/domain/model/application_settings.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/chat.dart';
@@ -961,7 +959,6 @@ class ChatView extends StatelessWidget {
 
     return const SizedBox();
   }
-
 
   // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.

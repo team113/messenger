@@ -15,7 +15,6 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -50,7 +49,6 @@ import '/ui/widget/primary_button.dart';
 import '/ui/widget/progress_indicator.dart';
 import '/ui/widget/svg/svg.dart';
 import '/ui/widget/text_field.dart';
-import '/ui/widget/widget_button.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 
@@ -134,110 +132,9 @@ class ChatInfoView extends StatelessWidget {
 
   /// Builds the profile [Block] with editing functionality.
   Widget _profile(ChatInfoController c, BuildContext context) {
-    final style = Theme.of(context).style;
-
     return Obx(() {
-      final Widget name;
-
-      if (c.profileEditing.value) {
-        name = Column(
-          key: const Key('Name'),
-          children: [
-            const SizedBox(height: 8),
-            ReactiveTextField(
-              key: const Key('RenameChatField'),
-              state: c.name,
-              label: 'label_name'.l10n,
-              hint: c.chat?.title,
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              formatters: [LengthLimitingTextInputFormatter(100)],
-            ),
-          ],
-        );
-      } else {
-        name = SizedBox(
-          width: double.infinity,
-          child: Center(
-            child: Text(
-              '${c.chat?.title}',
-              style: style.fonts.larger.regular.onBackground,
-            ),
-          ),
-        );
-      }
-
-      final Widget button;
-
-      if (c.profileEditing.value) {
-        button = Column(
-          key: const Key('Button'),
-          children: [
-            const SizedBox(height: 8),
-            Stack(
-              children: [
-                PrimaryButton(
-                  key: Key('SaveEditingButton'),
-                  title: 'btn_save'.l10n,
-                  onPressed: () {
-                    c.profileEditing.toggle();
-                    c.submitName();
-                    c.submitAvatar();
-                  },
-                  style: style.fonts.normal.regular.onPrimary,
-                ),
-                const Positioned(
-                  left: 16,
-                  top: 0,
-                  bottom: 0,
-                  child: IgnorePointer(
-                    child: SvgIcon(SvgIcons.sentWhite, height: 13, width: 13),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-          ],
-        );
-      } else {
-        button = SizedBox(width: double.infinity);
-      }
-
       return Block(
-        overlay: [
-          Positioned(
-            top: 16,
-            right: 0,
-            child: WidgetButton(
-              onPressed: c.profileEditing.value
-                  ? c.closeEditing
-                  : c.profileEditing.toggle,
-              child: SizedBox(
-                width: 16,
-                height: 16,
-                child: Center(
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 200),
-                    child: c.profileEditing.value
-                        ? SvgIcon(
-                            key: Key('CloseEditingButton'),
-                            SvgIcons.closePrimary,
-                            width: 12,
-                            height: 12,
-                          )
-                        : SvgIcon(key: Key('EditProfileButton'), SvgIcons.edit),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
         children: [
-          const SizedBox(height: 8),
-          AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: name,
-          ),
           const SizedBox(height: 16),
           SelectionContainer.disabled(
             child: BigAvatarWidget.chat(
@@ -245,20 +142,12 @@ class ChatInfoView extends StatelessWidget {
               key: Key('ChatAvatar_${c.chat!.id}'),
               loading: c.avatarUpload.value.isLoading,
               error: c.avatarUpload.value.errorMessage,
-              onUpload: c.profileEditing.value
-                  ? c.canEdit
-                        ? c.pickAvatar
-                        : null
+              onUpload: c.canEdit ? c.pickAvatar : null,
+              onEdit: c.canEdit && c.chat?.avatar.value != null
+                  ? c.editAvatar
                   : null,
-              onEdit: c.profileEditing.value
-                  ? c.canEdit && c.chat?.avatar.value != null
-                        ? c.editAvatar
-                        : null
-                  : null,
-              onDelete: c.profileEditing.value
-                  ? c.canEdit && c.chat?.avatar.value != null
-                        ? c.deleteAvatar
-                        : null
+              onDelete: c.canEdit && c.chat?.avatar.value != null
+                  ? c.deleteAvatar
                   : null,
               builder: (child) {
                 if (c.avatarCrop.value == null &&
@@ -266,7 +155,6 @@ class ChatInfoView extends StatelessWidget {
                     c.avatarDeleted.value == false) {
                   return child;
                 }
-
                 return AvatarWidget(
                   radius: AvatarRadius.largest,
                   shape: BoxShape.rectangle,
@@ -295,11 +183,15 @@ class ChatInfoView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 16),
-          AnimatedSizeAndFade(
-            fadeDuration: const Duration(milliseconds: 250),
-            sizeDuration: const Duration(milliseconds: 250),
-            child: button,
+          ReactiveTextField(
+            key: const Key('RenameChatField'),
+            state: c.name,
+            label: 'label_name'.l10n,
+            hint: c.chat?.title,
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            formatters: [LengthLimitingTextInputFormatter(100)],
           ),
+          const SizedBox(height: 8),
         ],
       );
     });
@@ -470,17 +362,18 @@ class ChatInfoView extends StatelessWidget {
           );
         }),
         const SizedBox(height: 16),
-        /// Change Icon
-        FieldButton(
-          key: const Key('AddMemberButton'),
-          onPressed: () => AddChatMemberView.show(context, chatId: id),
-          child: Text(
-            'btn_add_member'.l10n,
-            style: style.fonts.small.regular.onPrimary,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: FieldButton(
+            key: const Key('AddMemberButton'),
+            onPressed: () => AddChatMemberView.show(context, chatId: id),
+            trailing: const SvgIcon(SvgIcons.addUserSmall),
+            warning: true,
+            child: Text(
+              'btn_add_member'.l10n,
+              style: style.fonts.small.regular.onPrimary,
+            ),
           ),
-          trailing: const SvgIcon(SvgIcons.addUserSmall),
-
-          warning: true,
         ),
       ],
     );

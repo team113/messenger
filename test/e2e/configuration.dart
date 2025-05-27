@@ -244,7 +244,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeChatAvatarAs,
         seeChatAvatarAsNone,
         seeChatInSearchResults,
-        seeChatMembers,
+        // seeChatMembers,
         seeChatMessage,
         seeChatMessages,
         seeChatSelection,

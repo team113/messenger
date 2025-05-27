@@ -57,7 +57,6 @@ class WidgetButton extends StatelessWidget {
         onLongPress: onLongPress,
         behavior: behavior,
         child: Container(color: style.colors.transparent, child: child),
-
       ),
     );
   }
