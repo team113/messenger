@@ -137,7 +137,7 @@ class MemberTile extends StatelessWidget {
                       }
                     },
               child: _me
-                  ? SizedBox()
+                  ? const SizedBox()
                   : const SvgIcon(
                       SvgIcons.delete,
                       key: Key('DeleteMemberButton'),
