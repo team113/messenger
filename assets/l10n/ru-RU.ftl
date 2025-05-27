@@ -181,6 +181,7 @@ btn_change_avatar = Изменить аватар
 btn_change_password = Сменить пароль
 btn_check_for_updates = Проверить наличие обновлений
 btn_clear_cache = Очистить кэш
+btn_clear_chat = Очистить чат
 btn_clear_history = Очистить историю
 btn_close = Закрыть
 btn_confirm = Подтвердить
@@ -600,6 +601,7 @@ label_add_phone = Добавить телефон
 label_add_phone_confirmation_sent = На указанный Вами номер телефона был отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_confirmation_sent_again = На указанный Вами номер телефона повторно отправлен код подтверждения. Код подтверждения действителен в течение 30 минут. Пожалуйста, введите его ниже.
 label_add_phone_description = На указанный Вами номер телефона будет отправлен код подтверждения.
+label_add_to_favorites = Добавить в избранное
 label_ago = {$years ->
     [0] {$months ->
             [0] {$weeks ->
@@ -723,6 +725,11 @@ label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_monolog = Ваши заметки
 label_chat_monolog_description = Отображаются только Вам. Могут содержать любое количество сообщений. Могут содержать любой контент.
+label_chat_monolog_features =
+    - доступно только вам
+    - неограниченное количество сообщений
+    - любой контент (текст, видео, картинки)
+label_chat_monolog_subtitle = Чат с самим собой
 label_chat_name_hint = Название чата
 label_chats = Чаты
 label_chats_and_groups = Чаты и группы: {$count}
@@ -856,6 +863,7 @@ label_entrance = Вход
 label_error = Ошибка
 label_expandable_more = ещё
 label_favorite_contacts = Избранные
+label_features = Функции
 label_file_downloaded = Файл скачан
 label_files_downloaded = Файлы скачаны
 label_files_saved_to_gallery = Файлы добавлены в галерею
@@ -892,6 +900,7 @@ label_hint_drag_n_drop_video =
     • вынести одно или несколько видео в отдельную панель.
 label_hint_from_gapopa = Подсказка от Gapopa
 label_hotkey = Горячие клавиши
+label_identifier = Идентификатор
 label_identifiers = Идентификаторы
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.

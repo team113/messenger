@@ -11,6 +11,16 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
 
+### Changed
+
+- UI:
+    - Chat page:
+        - Changing your notes block. ([#1248])
+        - Removing the Actions button from the appbar. ([#1248])
+    - Chat info page:
+        - Moving info block to the block with photo. ([#1248])
+        - Adding block of monolog chat control. ([#1248])
+
 ### Fixed
 
 - UI:
@@ -28,6 +38,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1243]: /../../pull/1243
 [#1244]: /../../issues/1244
 [#1246]: /../../pull/1246
+[#1248]: /../../issues/1248
 
 
 
