@@ -11,11 +11,11 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Chat members pagination
-  @heavy_load
+
   Scenario: Chat members pagination works correctly
+
     Given user Alice
     And Alice has "Members" group with 16 members
-    And I pause for 10 seconds
     And I sign in as Alice
     And I pause for 2 seconds
     And I am in "Members" group
