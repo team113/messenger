@@ -20,7 +20,6 @@ import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '../../../widget/field_button.dart';
 import '/util/platform_utils.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
@@ -41,6 +40,7 @@ import '/ui/page/home/widget/avatar.dart';
 import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
+import '/ui/page/home/widget/field_button.dart';
 import '/ui/page/home/widget/highlighted_container.dart';
 import '/ui/widget/animated_button.dart';
 import '/ui/widget/member_tile.dart';
