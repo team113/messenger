@@ -51,7 +51,7 @@ class NotesBlock extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        LineDivider('label_notes_divider'.l10n),
+        LineDivider('label_features'.l10n),
         const SizedBox(height: 12),
         Text(
           'label_chat_monolog_features'.l10n,

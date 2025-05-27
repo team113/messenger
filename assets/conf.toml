@@ -31,6 +31,7 @@
 #
 # Default:
 #   url = "ws://localhost"
+
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
