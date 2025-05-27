@@ -144,10 +144,10 @@ extension _RectDb on Rect {
 extension _RectJson on Rect {
   static Rect fromJson(Map<String, dynamic> json) {
     return Rect.fromLTRB(
-      json['left'],
-      json['top'],
-      json['right'],
-      json['bottom'],
+      (json['left'] as num).toDouble(),
+      (json['top'] as num).toDouble(),
+      (json['right'] as num).toDouble(),
+      (json['bottom'] as num).toDouble(),
     );
   }
 

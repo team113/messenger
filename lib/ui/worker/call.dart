@@ -930,12 +930,12 @@ extension KeyboardKeyToStringExtension on PhysicalKeyboardKey {
         PhysicalKeyboardKey.arrowUp: '↑',
         PhysicalKeyboardKey.controlLeft: '⌃',
         PhysicalKeyboardKey.shiftLeft: '⇧',
-        PhysicalKeyboardKey.altLeft: Platform.isMacOS ? '⌥' : 'Alt',
-        PhysicalKeyboardKey.metaLeft: Platform.isMacOS ? '⌘' : '⊞',
+        PhysicalKeyboardKey.altLeft: PlatformUtils.isMacOS ? '⌥' : 'Alt',
+        PhysicalKeyboardKey.metaLeft: PlatformUtils.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.controlRight: '⌃',
         PhysicalKeyboardKey.shiftRight: '⇧',
-        PhysicalKeyboardKey.altRight: Platform.isMacOS ? '⌥' : 'Alt',
-        PhysicalKeyboardKey.metaRight: Platform.isMacOS ? '⌘' : '⊞',
+        PhysicalKeyboardKey.altRight: PlatformUtils.isMacOS ? '⌥' : 'Alt',
+        PhysicalKeyboardKey.metaRight: PlatformUtils.isMacOS ? '⌘' : '⊞',
         PhysicalKeyboardKey.fn: 'fn',
       };
 }

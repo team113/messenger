@@ -153,7 +153,11 @@
 
 </head>
 
-<body>
+<!-- TODO: Should not disable context menu on the body tag all.
+           This is due to WebAssembly being slow when using
+           `ContextMenuInterceptor` -->
+
+<body oncontextmenu="return false;">
   <!-- This script adds the flutter initialization JS code -->
   <script src="flutter_bootstrap.js"></script>
 

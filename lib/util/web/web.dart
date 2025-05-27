@@ -937,6 +937,10 @@ extension _RectExtension on Rect {
   };
 
   /// Constructs a [Rect] from the provided [data].
-  static Rect fromJson(Map<dynamic, dynamic> data) =>
-      Rect.fromLTWH(data['left'], data['top'], data['width'], data['height']);
+  static Rect fromJson(Map<dynamic, dynamic> data) => Rect.fromLTWH(
+    (data['left'] as num).toDouble(),
+    (data['top'] as num).toDouble(),
+    (data['width'] as num).toDouble(),
+    (data['height'] as num).toDouble(),
+  );
 }
