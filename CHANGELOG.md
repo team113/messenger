@@ -11,6 +11,15 @@ All user visible changes to this project will be documented in this file. This p
 
 [Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
 
+### Changed
+
+- UI:
+    - Chat info page:
+        - Duplicate Gapopa id changed. ([#1250])
+        - Add chat control buttons. ([#1250])
+    - Chat page: 
+        -  Chat control button removed. ([#1250])
+
 ### Fixed
 
 - UI:
@@ -22,9 +31,7 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
     - Chat info page:
         - Infinite loader displayed under members list. ([#1246])
-    - User page:
-      - Duplicate Gapopa id changed. ([#1250])
-      - Add chat control buttons. ([#1250])
+    
 
 [#1050]: /../../issues/1050
 [#1244]: /../../issues/1244
