@@ -12,6 +12,7 @@ All user visible changes to this project will be documented in this file. This p
 [Diff](/../../compare/v0.5.0...v0.6.0) | [Milestone](/../../milestone/40)
 
 ### Changed
+
 - UI: 
     - Chat info page:
         - Changing avatar block design. ([#1249])
