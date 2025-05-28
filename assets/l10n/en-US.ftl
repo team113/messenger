@@ -181,6 +181,7 @@ btn_change_avatar = Change avatar
 btn_change_password = Change password
 btn_check_for_updates = Check for updates
 btn_clear_cache = Clear cache
+btn_clear_chat = Clear chat
 btn_clear_history = Clear history
 btn_close = Close
 btn_confirm = Confirm
@@ -592,6 +593,7 @@ label_add_phone = Add phone
 label_add_phone_confirmation_sent = A confirmation code has been sent to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_confirmation_sent_again = A confirmation code has been sent again to the indicated phone number. The confirmation code is valid for 30 minutes. Please enter it below.
 label_add_phone_description = A confirmation code will be sent to the indicated phone number.
+label_add_to_favorites = Add to favorites
 label_ago = {$years ->
     [0] {$months ->
             [0] {$weeks ->
@@ -870,6 +872,7 @@ label_hint_drag_n_drop_video =
     • move one or more videos to a separate panel.
 label_hint_from_gapopa = Hint from Gapopa
 label_hotkey = Hotkey
+label_identifier = Identifier
 label_identifiers = Identifiers
 label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
