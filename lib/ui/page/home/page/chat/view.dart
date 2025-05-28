@@ -354,13 +354,13 @@ class ChatView extends StatelessWidget {
                                   onPressed: () => c.call(true),
                                   child: const SvgIcon(SvgIcons.chatVideoCall),
                                 ),
-                                const SizedBox(width: 28),
+                                const SizedBox(width: 20),
                                 AnimatedButton(
                                   key: const Key('AudioCall'),
                                   onPressed: () => c.call(false),
                                   child: const SvgIcon(SvgIcons.chatAudioCall),
                                 ),
-                                const SizedBox(width: 10),
+                                const SizedBox(width: 18),
                               ],
                             ];
                           } else {
@@ -369,7 +369,7 @@ class ChatView extends StatelessWidget {
                             children = [];
                           }
 
-                          return Row(children: [...children]);
+                          return Row(children: children);
                         }),
                       ],
                     ),

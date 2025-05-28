@@ -287,7 +287,7 @@ class UserView extends StatelessWidget {
         const SizedBox(height: 8),
         ReactiveTextField(
           state: TextFieldState(
-            text: c.contact.value?.contact.value.name.val ?? c.name.text,
+            text: c.user?.user.value.num.toString(),
             editable: false,
           ),
           label: 'label_num'.l10n,
@@ -386,7 +386,7 @@ class UserView extends StatelessWidget {
         ActionButton(
           key: const Key('HideChatButton'),
           text: 'btn_delete_chat'.l10n,
-          trailing: const SvgIcon(SvgIcons.delete),
+          trailing: const SvgIcon(SvgIcons.delete19),
           onPressed: () => _hideChat(c, context),
         ),
         // TODO: Uncomment, when contacts are implemented.
@@ -410,7 +410,7 @@ class UserView extends StatelessWidget {
         // ),
         ActionButton(
           text: 'btn_report'.l10n,
-          trailing: const SvgIcon(SvgIcons.report16),
+          trailing: const SvgIcon(SvgIcons.report),
           onPressed: () => _reportUser(c, context),
         ),
         Obx(() {
@@ -492,7 +492,7 @@ class UserView extends StatelessWidget {
     }
   }
 
-  /// Opens a confirmation popup clearing this [Chat].
+  /// Opens a confirmation popup clearing this [User.dialog].
   Future<void> _clearChat(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
@@ -513,7 +513,7 @@ class UserView extends StatelessWidget {
     }
   }
 
-  /// Opens a confirmation popup hiding this [Chat].
+  /// Opens a confirmation popup hiding this [User.dialog].
   Future<void> _hideChat(UserController c, BuildContext context) async {
     final style = Theme.of(context).style;
 
