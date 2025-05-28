@@ -185,6 +185,7 @@
       </div>
     </div>
   </div>
+
   <!-- Request notifications permission on the first user interaction. -->
   <script>
     var click = document.onclick;
@@ -197,6 +198,7 @@
       document.onclick = click;
     }
   </script>
+
   <!-- TODO: Remove when https://bugzilla.mozilla.org/show_bug.cgi?id=934640 is
              resolved -->
   <!-- Polyfill for `indexedDB.databases()`.
@@ -239,6 +241,7 @@
       };
     }
   </script>
+
   <!-- Animate the blinking loader -->
   <script>
     let interval;
@@ -275,6 +278,7 @@
       }
     });
   </script>
+
   <!-- TODO: Styles page related, should be removed at some point. -->
   <script defer src="/script/FileSaver.min.js"></script>
   <script>
@@ -282,6 +286,7 @@
       saveAs(url, name);
     }
   </script>
+
   <!-- Clean the whole IndexedDB. -->
   <script>
     async function cleanIndexedDB(except) {
@@ -293,6 +298,7 @@
       }
     }
   </script>
+
   <!-- Initialize the Firebase Cloud Messaging. -->
   <script>
     if ("serviceWorker" in navigator) {
@@ -301,6 +307,7 @@
       });
     }
   </script>
+
   <!-- Return the currently held locks of Navigator. -->
   <script>
     async function getLocks() {
@@ -308,11 +315,26 @@
       return locks.held;
     }
   </script>
+
   <!-- Indicate whether Web Locks API is available. -->
   <script>
     function locksAvailable() {
       return navigator.locks !== undefined;
     }
+  </script>
+
+  <!-- TODO: Remove when is flutter/flutter#114324 fixed:
+             https://github.com/flutter/flutter/issues/114324 -->
+  <!-- Disable swipe back/forward gesture on iOS due to invalid animation. -->
+  <script>
+    document.addEventListener(
+      'touchstart',
+      (startEvent) => {
+        if (startEvent.touches.length > 1) return;
+        startEvent.preventDefault();
+      },
+      { passive: false }
+    );
   </script>
 </body>
 

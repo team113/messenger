@@ -22,12 +22,15 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
     - Chat info page:
         - Infinite loader displayed under members list. ([#1246])
+- Web:
+    - Invalid animation when swiping pages back in Safari on iOS. ([#1267])
 
 [#1050]: /../../issues/1050
 [#1244]: /../../issues/1244
 [#1243]: /../../pull/1243
 [#1244]: /../../issues/1244
 [#1246]: /../../pull/1246
+[#1267]: /../../pull/1267
 
 
 
