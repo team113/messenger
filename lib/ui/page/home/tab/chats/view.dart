@@ -284,7 +284,7 @@ class ChatsTabView extends StatelessWidget {
                             : null,
                         onPressed: () {
                           if (c.searching.value) {
-                            c.closeSearch();
+                            c.closeSearch(c.groupCreating.isFalse);
                           } else if (c.selecting.value) {
                             c.toggleSelecting();
                           } else if (c.groupCreating.value) {
