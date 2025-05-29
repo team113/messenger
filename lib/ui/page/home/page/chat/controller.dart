@@ -142,6 +142,9 @@ class ChatController extends GetxController {
   /// Offset that should be applied to a [FlutterListView] on initialization.
   double initOffset = 0;
 
+  ///
+  static final Map<String, double> _scrollPositions = {};
+
   /// Status of a [chat] fetching.
   ///
   /// May be:
@@ -611,6 +614,21 @@ class ChatController extends GetxController {
     }
 
     super.onReady();
+
+    _restoreScrollPositionAfterBuild();
+  }
+
+  /// Restores the saved scroll offset for the current chat after the first frame is rendered.
+  /// to the widget tree.
+  void _restoreScrollPositionAfterBuild() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (listController.hasClients) {
+        final offset = getScrollOffset(id.val);
+        if (offset != null) {
+          listController.jumpTo(offset);
+        }
+      }
+    });
   }
 
   @override
@@ -629,9 +647,11 @@ class ChatController extends GetxController {
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
     _bottomLoaderEndTimer?.cancel();
+
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
+
     _searchDebounce?.dispose();
 
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
@@ -1348,6 +1368,12 @@ class ChatController extends GetxController {
     }
   }
 
+  /// Returns the last known scroll position for the given [id] from the [scrollPosition] map.
+  ///
+  /// If no scroll position has been saved for the provided [id], this returns `null`.
+  /// Returns the stored scroll offset for a given chat ID.
+  static double? getScrollOffset(String id) => _scrollPositions[id];
+
   /// Adds the specified [event] files to the [send] field.
   Future<void> dropFiles(PerformDropEvent event) async {
     for (final DropItem item in event.session.items) {
@@ -2052,6 +2078,16 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
+      _updateLastKnownOffset();
+    }
+  }
+
+  /// Stores the current scroll offset of the list controller
+  /// into the [scrollPosition] map using the chat ID as the key.
+  /// This method should only be called when [listController.hasClients] is true.
+  void _updateLastKnownOffset() {
+    if (listController.hasClients) {
+      _scrollPositions[id.val] = listController.offset;
     }
   }
 
