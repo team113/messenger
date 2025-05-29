@@ -1,11 +1,3 @@
-<To use "Bugfix" PR template add `&template=Bugfix.md` to this page's URL>
-
-<To use "Roadmap" PR template add `&template=Roadmap.md` to this page's URL>
-
-<To use "Release" PR template add `&template=Release.md` to this page's URL>
-
-<Remove everything above before submitting this PR>
-
 
 Resolves <paste issue reference>  
 <and/or>  

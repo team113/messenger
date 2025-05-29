@@ -142,8 +142,13 @@ class ChatController extends GetxController {
   /// Offset that should be applied to a [FlutterListView] on initialization.
   double initOffset = 0;
 
-  ///
+  /// Stores the scroll position (in pixels) for each user-chat combination, keyed by a unique string (e.g., 'chatId:userId').
+  /// Useful for maintaining independent scroll positions for different users in shared chat contexts (like groups).
   static final Map<String, double> _scrollPositions = {};
+
+  /// A unique key combining the userId and chatId (formatted as 'userIdchatId'),
+  /// used to identify and persist the scroll position for each user in a chat.
+  late String scrollKey;
 
   /// Status of a [chat] fetching.
   ///
@@ -615,6 +620,10 @@ class ChatController extends GetxController {
 
     super.onReady();
 
+    /// `_chatService.monolog.val` is the [UserId] (unique per user) and `id.val` is the [ChatId].
+    /// Together they form a unique `scrollKey` for mapping scroll positions per user per chat.
+    scrollKey = _chatService.monolog.val + id.val;
+
     _restoreScrollPositionAfterBuild();
   }
 
@@ -623,7 +632,7 @@ class ChatController extends GetxController {
   void _restoreScrollPositionAfterBuild() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (listController.hasClients) {
-        final offset = getScrollOffset(id.val);
+        final offset = getScrollOffset(scrollKey);
         if (offset != null) {
           listController.jumpTo(offset);
         }
@@ -2085,9 +2094,9 @@ class ChatController extends GetxController {
   /// Stores the current scroll offset of the list controller
   /// into the [scrollPosition] map using the chat ID as the key.
   /// This method should only be called when [listController.hasClients] is true.
-  void _updateLastKnownOffset() {
+  void _updateLastKnownOffset() async {
     if (listController.hasClients) {
-      _scrollPositions[id.val] = listController.offset;
+      _scrollPositions[scrollKey] = listController.offset;
     }
   }
 

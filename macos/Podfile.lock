@@ -143,7 +143,7 @@ PODS:
   - sqlite3_flutter_libs (0.0.1):
     - Flutter
     - FlutterMacOS
-    - sqlite3 (~> 3.49.1)
+    - sqlite3 (~> 3.49.2)
     - sqlite3/dbstatvtab
     - sqlite3/fts5
     - sqlite3/math
@@ -288,54 +288,54 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
-  app_links: afe860c55c7ef176cea7fb630a2b7d7736de591d
-  audio_session: eaca2512cf2b39212d724f35d11f46180ad3a33e
-  connectivity_plus: 4adf20a405e25b42b9c9f87feff8f4b6fde18a4e
-  cupertino_http: 94ac07f5ff090b8effa6c5e2c47871d48ab7c86c
-  device_info_plus: 4fb280989f669696856f8b129e4a5e3cd6c48f76
-  file_picker: 7584aae6fa07a041af2b36a2655122d42f578c1a
-  file_selector_macos: 6280b52b459ae6c590af5d78fc35c7267a3c4b31
+  app_links: 86a57d95d4dec830373b8c85c21d1c59a4a5dc21
+  audio_session: 728ae3823d914f809c485d390274861a24b0904e
+  connectivity_plus: 0a976dfd033b59192912fa3c6c7b54aab5093802
+  cupertino_http: 947a233f40cfea55167a49f2facc18434ea117ba
+  device_info_plus: 1b14eed9bf95428983aed283a8d51cce3d8c4215
+  file_picker: e716a70a9fe5fd9e09ebc922d7541464289443af
+  file_selector_macos: cc3858c981fe6889f364731200d6232dac1d812d
   Firebase: 973c28133496aab0223e9ea99f0abafb9f91ad58
-  firebase_core: 3dcdf8453dfb144a023ee70f49e0463b97177f71
-  firebase_messaging: 96fe41b2f8b5bee4e0f21df8d716cb8c9293448c
+  firebase_core: 1b573eac37729348cdc472516991dd7e269ae37e
+  firebase_messaging: 0620038ea399ceae2218c9087fca00a28f576209
   FirebaseCore: 99fe0c4b44a39f37d99e6404e02009d2db5d718d
   FirebaseCoreInternal: df24ce5af28864660ecbd13596fc8dd3a8c34629
   FirebaseInstallations: 6c963bd2a86aca0481eef4f48f5a4df783ae5917
   FirebaseMessaging: 487b634ccdf6f7b7ff180fdcb2a9935490f764e8
-  flutter_custom_cursor: 37e588711a2746f5cf48adb58b582cacff11c0c6
-  flutter_local_notifications: 4bf37a31afde695b56091b4ae3e4d9c7a7e6cda0
-  flutter_native_badge_foundation: c799df79b0f6dd65d086f80d63d5e28dc1315ad3
+  flutter_custom_cursor: 629957115075c672287bd0fa979d863ccf6024f7
+  flutter_local_notifications: 4ccab5b7a22835214a6672e3f9c5e8ae207dab36
+  flutter_native_badge_foundation: e2adb104d13821f6553e664d72522ad3a0011eab
   FlutterMacOS: 8f6f14fa908a6fb3fba0cd85dbd81ec4b251fb24
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
   HotKey: 400beb7caa29054ea8d864c96f5ba7e5b4852277
-  hotkey_manager_macos: a4317849af96d2430fa89944d3c58977ca089fbe
-  irondash_engine_context: 893c7d96d20ce361d7e996f39d360c4c2f9869ba
-  just_audio: 4e391f57b79cad2b0674030a00453ca5ce817eed
-  macos_haptic_feedback: 298e5c06ffc3838e80c557b24a74937a060798e6
-  medea_flutter_webrtc: 251c07106b23626be784acc5fbe3cd0a8bfd1701
-  medea_jason: a7785e2a5fa9125b48bd7956bc496151055029ff
-  media_kit_libs_macos_video: 85a23e549b5f480e72cae3e5634b5514bc692f65
-  media_kit_video: fa6564e3799a0a28bff39442334817088b7ca758
+  hotkey_manager_macos: 1e2edb0c7ae4fe67108af44a9d3445de41404160
+  irondash_engine_context: da62996ee25616d2f01bbeb85dc115d813359478
+  just_audio: a42c63806f16995daf5b219ae1d679deb76e6a79
+  macos_haptic_feedback: 6b19c192ff0e8137774eccb8a42227af688da8ee
+  medea_flutter_webrtc: 526d144ce0f86b0c49d4fdbafc65953b32e85736
+  medea_jason: 0b3cf910124cbfe99a2c0e21759a9ea40397668f
+  media_kit_libs_macos_video: b3e2bbec2eef97c285f2b1baa7963c67c753fb82
+  media_kit_video: c75b07f14d59706c775778e4dd47dd027de8d1e5
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
-  objective_c: ec13431e45ba099cb734eb2829a5c1cd37986cba
-  open_file_mac: 01874b6d6a2c1485ac9b126d7105b99102dea2cf
-  package_info_plus: f0052d280d17aa382b932f399edf32507174e870
-  path_provider_foundation: 080d55be775b7414fd5a5ef3ac137b97b097e564
+  objective_c: e5f8194456e8fc943e034d1af00510a1bc29c067
+  open_file_mac: 0e554648e2a87ce59e9438e3e5ca3e552e90d89a
+  package_info_plus: 12f1c5c2cfe8727ca46cbd0b26677728972d9a5b
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  screen_brightness_macos: 2a3ee243f8051c340381e8e51bcedced8360f421
-  screen_retriever_macos: 452e51764a9e1cdb74b3c541238795849f21557f
+  screen_brightness_macos: 2d6d3af2165592d9a55ffcd95b7550970e41ebda
+  screen_retriever_macos: 776e0fa5d42c6163d2bf772d22478df4b302b161
   Sentry: da60d980b197a46db0b35ea12cb8f39af48d8854
-  sentry_flutter: 27892878729f42701297c628eb90e7c6529f3684
-  share_plus: 510bf0af1a42cd602274b4629920c9649c52f4cc
-  shared_preferences_foundation: 9e1978ff2562383bd5676f64ec4e9aa8fa06a6f7
+  sentry_flutter: 2df8b0aab7e4aba81261c230cbea31c82a62dd1b
+  share_plus: 1fa619de8392a4398bfaf176d441853922614e89
+  shared_preferences_foundation: fcdcbc04712aee1108ac7fda236f363274528f78
   sqlite3: 3c950dc86011117c307eb0b28c4a7bb449dce9f1
-  sqlite3_flutter_libs: f6acaa2172e6bb3e2e70c771661905080e8ebcf2
-  super_native_extensions: c2795d6d9aedf4a79fae25cb6160b71b50549189
-  url_launcher_macos: 0fba8ddabfc33ce0a9afe7c5fef5aab3d8d2d673
-  volume_controller: 5c068e6d085c80dadd33fc2c918d2114b775b3dd
-  wakelock_plus: 21ddc249ac4b8d018838dbdabd65c5976c308497
-  window_manager: 1d01fa7ac65a6e6f83b965471b1a7fdd3f06166c
+  sqlite3_flutter_libs: e702a3214d49107c89b40bd2777c14057531d149
+  super_native_extensions: 85efee3a7495b46b04befcfc86ed12069264ebf3
+  url_launcher_macos: c82c93949963e55b228a30115bd219499a6fe404
+  volume_controller: 90a5978956cf18ebb7739bf5382fc1b0cfef66d0
+  wakelock_plus: 4783562c9a43d209c458cb9b30692134af456269
+  window_manager: 3a1844359a6295ab1e47659b1a777e36773cd6e8
 
 PODFILE CHECKSUM: 1eb246b7252feb97518a5c5b6e33b324dc30a54d
 
