@@ -621,6 +621,8 @@ class ChatsTabController extends GetxController {
   void startGroupCreating() {
     groupCreating.value = true;
     _toggleSearch();
+    search.value?.search.clear();
+    search.value?.query.value = '';
     router.navigation.value = false;
     search.value?.populate();
   }
