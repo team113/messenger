@@ -136,6 +136,9 @@ class SearchController extends GetxController {
   /// Worker to react on the [contactsSearch] status changes.
   Worker? _contactsSearchWorker;
 
+  /// Worker to react on the [ChatService.status] changes.
+  Worker? _chatStatusWorker;
+
   /// Subscriptions to the [usersSearch] updates.
   StreamSubscription? _usersSearchSubscription;
 
@@ -219,6 +222,18 @@ class SearchController extends GetxController {
       populate();
     });
 
+    _chatService.ensureInitialized();
+    if (!_chatService.status.value.isSuccess) {
+      _chatStatusWorker = ever(_chatService.status, (status) {
+        if (status.isSuccess) {
+          _ensureScrollable();
+          populate();
+          _chatStatusWorker?.dispose();
+          _chatStatusWorker = null;
+        }
+      });
+    }
+
     _ensureScrollable();
     populate();
 
@@ -238,6 +253,7 @@ class SearchController extends GetxController {
     _contactsSearchWorker = null;
     _usersSearchSubscription?.cancel();
     _contactsSearchSubscription?.cancel();
+    _chatStatusWorker?.dispose();
     super.onClose();
   }
 
