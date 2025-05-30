@@ -2316,7 +2316,7 @@ class RxChatImpl extends RxChat {
                       }
                     }
 
-                    _chatRepository.onMemberRemoved(id, action.user.id);
+                    _chatRepository.onMemberRemoved?.call(id, action.user.id);
                     shouldPutChat = true;
                     break;
 

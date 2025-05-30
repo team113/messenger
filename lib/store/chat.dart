@@ -94,15 +94,15 @@ class ChatRepository extends DisposableInterface
     required this.me,
   });
 
-  /// Callback, called when an [User] identified by the provided [userId] is
+  /// Callback, called when an [User] identified by the provided [UserId] is
   /// removed from the specified [Chat].
-  late final Future<void> Function(ChatId id, UserId userId) onMemberRemoved;
+  Future<void> Function(ChatId id, UserId userId)? onMemberRemoved;
 
   /// [UserId] of the currently authenticated [MyUser].
   final UserId me;
 
   @override
-  final Rx<RxStatus> status = Rx(RxStatus.empty());
+  final Rx<RxStatus> status = Rx(RxStatus.loading());
 
   @override
   final RxObsMap<ChatId, RxChatImpl> chats = RxObsMap<ChatId, RxChatImpl>();
@@ -204,19 +204,21 @@ class ChatRepository extends DisposableInterface
 
   @override
   Future<void> init({
-    required Future<void> Function(ChatId, UserId) onMemberRemoved,
+    Future<void> Function(ChatId, UserId)? onMemberRemoved,
+    bool? pagination,
   }) async {
     Log.debug('init(onMemberRemoved)', '$runtimeType');
 
-    this.onMemberRemoved = onMemberRemoved;
-
-    status.value = RxStatus.loading();
+    this.onMemberRemoved = onMemberRemoved ?? this.onMemberRemoved;
 
     // Popup shouldn't listen to recent chats remote updates, as it's happening
     // inside single [Chat].
-    if (!WebUtils.isPopup) {
+    if (!WebUtils.isPopup && _remoteSubscription == null) {
       _initRemoteSubscription();
       _initFavoriteSubscription();
+    }
+
+    if ((pagination ?? !WebUtils.isPopup) && _paginatedSubscription == null) {
       _initRemotePagination();
 
       _paginatedSubscription = paginated.changes.listen((e) {
@@ -585,7 +587,7 @@ class ChatRepository extends DisposableInterface
       rethrow;
     }
 
-    await onMemberRemoved.call(chatId, userId);
+    await onMemberRemoved?.call(chatId, userId);
   }
 
   @override

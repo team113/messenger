@@ -22,6 +22,8 @@ All user visible changes to this project will be documented in this file. This p
         - Infinite typing indicator occurring sometimes. ([#1243], [#1244])
     - Chat info page:
         - Infinite loader displayed under members list. ([#1246])
+    - Media panel:
+        - Users sometimes not being listed in add participant modal. ([#1272])
 - Web:
     - Invalid animation when swiping pages back in Safari on iOS. ([#1267])
 
@@ -31,6 +33,7 @@ All user visible changes to this project will be documented in this file. This p
 [#1244]: /../../issues/1244
 [#1246]: /../../pull/1246
 [#1267]: /../../pull/1267
+[#1272]: /../../pull/1272
 
 
 
