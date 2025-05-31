@@ -612,6 +612,7 @@ class ChatController extends GetxController {
   @override
   void onReady() {
     listController.addListener(_listControllerListener);
+
     listController.sliverController.stickyIndex.addListener(_updateSticky);
     AudioUtils.ensureInitialized();
     _fetchChat();
@@ -636,17 +637,20 @@ class ChatController extends GetxController {
         String scrollKey = me!.val + id.val;
         ChatScrollInfo? csi = scrollId[scrollKey];
 
-        listController.sliverController.jumpToIndex(
-          csi!.index,
-          offset: csi.scrollOffset,
-          offsetBasedOnBottom: csi.offsetBasedOnBottom,
-        );
+        if (csi != null) {
+          listController.sliverController.jumpToIndex(
+            csi.index,
+            offset: csi.scrollOffset,
+            offsetBasedOnBottom: csi.offsetBasedOnBottom,
+          );
+        }
       }
     });
   }
 
   @override
   void onClose() {
+    updateScrollInfo();
     _messagesSubscription?.cancel();
     _readWorker?.dispose();
     _selectingWorker?.dispose();
@@ -2084,19 +2088,18 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
-      _updateScrollInfo();
     }
   }
 
   /// Saves the current scroll position (index and offset) for the active chat
   /// using a unique key based on user ID and chat ID.
-  void _updateScrollInfo() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+  void updateScrollInfo() {
+    if (_topVisibleItem != null) {
       scrollId[me!.val + id.val] = ChatScrollInfo(
         index: _topVisibleItem!.index,
         scrollOffset: _topVisibleItem!.offset,
       );
-    });
+    }
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
