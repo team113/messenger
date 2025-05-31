@@ -142,14 +142,6 @@ class ChatController extends GetxController {
   /// Offset that should be applied to a [FlutterListView] on initialization.
   double initOffset = 0;
 
-  /// Stores the scroll position (in pixels) for each user-chat combination, keyed by a unique string (e.g., 'chatId:userId').
-  /// Useful for maintaining independent scroll positions for different users in shared chat contexts (like groups).
-  static final Map<String, double> _scrollPositions = {};
-
-  /// A unique key combining the userId and chatId (formatted as 'userIdchatId'),
-  /// used to identify and persist the scroll position for each user in a chat.
-  late String scrollKey;
-
   /// Status of a [chat] fetching.
   ///
   /// May be:
@@ -444,6 +436,16 @@ class ChatController extends GetxController {
   /// if any.
   ChatContactId? get _contactId => user?.user.value.contacts.firstOrNull?.id;
 
+  /// Stores scroll metadata for each chat using a unique identifier
+  /// composed of both userId and chatId.
+  ///
+  /// This ensures that scroll positions are uniquely tracked per user-chat combination,
+  /// which is useful in scenarios like shared devices or multi-user sessions.
+  ///
+  /// The value is a [ChatScrollInfo] object containing scroll offset, index,
+  /// and a flag indicating whether to preserve bottom offset behavior.
+  static Map<String, ChatScrollInfo> scrollId = {};
+
   @override
   void onInit() {
     if (PlatformUtils.isMobile && !PlatformUtils.isWeb) {
@@ -620,22 +622,25 @@ class ChatController extends GetxController {
 
     super.onReady();
 
-    /// `_chatService.monolog.val` is the [UserId] (unique per user) and `id.val` is the [ChatId].
-    /// Together they form a unique `scrollKey` for mapping scroll positions per user per chat.
-    scrollKey = _chatService.monolog.val + id.val;
-
-    _restoreScrollPositionAfterBuild();
+    _restorePreviousScroll();
   }
 
-  /// Restores the saved scroll offset for the current chat after the first frame is rendered.
-  /// to the widget tree.
-  void _restoreScrollPositionAfterBuild() {
+  /// Restores the scroll position of the current chat after the UI frame is built.
+  /// This method retrieves the previously saved [ChatScrollInfo] using a unique
+  /// key composed of the current user ID (`me!.val`) and chat ID (`id.val`).
+  /// It then scrolls the list to the stored index and offset using [jumpToIndex],
+  /// optionally using offset from the bottom if specified.
+  void _restorePreviousScroll() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (listController.hasClients) {
-        final offset = getScrollOffset(scrollKey);
-        if (offset != null) {
-          listController.jumpTo(offset);
-        }
+        String scrollKey = me!.val + id.val;
+        ChatScrollInfo? csi = scrollId[scrollKey];
+
+        listController.sliverController.jumpToIndex(
+          csi!.index,
+          offset: csi.scrollOffset,
+          offsetBasedOnBottom: csi.offsetBasedOnBottom,
+        );
       }
     });
   }
@@ -656,11 +661,9 @@ class ChatController extends GetxController {
     _stickyTimer?.cancel();
     _bottomLoaderStartTimer?.cancel();
     _bottomLoaderEndTimer?.cancel();
-
     listController.removeListener(_listControllerListener);
     listController.sliverController.stickyIndex.removeListener(_updateSticky);
     listController.dispose();
-
     _searchDebounce?.dispose();
 
     edit.value?.field.focus.removeListener(_stopTypingOnUnfocus);
@@ -1377,12 +1380,6 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Returns the last known scroll position for the given [id] from the [scrollPosition] map.
-  ///
-  /// If no scroll position has been saved for the provided [id], this returns `null`.
-  /// Returns the stored scroll offset for a given chat ID.
-  static double? getScrollOffset(String id) => _scrollPositions[id];
-
   /// Adds the specified [event] files to the [send] field.
   Future<void> dropFiles(PerformDropEvent event) async {
     for (final DropItem item in event.session.items) {
@@ -2087,17 +2084,19 @@ class ChatController extends GetxController {
       _updateSticky();
       _updateFabStates();
       _loadMessages();
-      _updateLastKnownOffset();
+      _updateScrollInfo();
     }
   }
 
-  /// Stores the current scroll offset of the list controller
-  /// into the [scrollPosition] map using the chat ID as the key.
-  /// This method should only be called when [listController.hasClients] is true.
-  void _updateLastKnownOffset() async {
-    if (listController.hasClients) {
-      _scrollPositions[scrollKey] = listController.offset;
-    }
+  /// Saves the current scroll position (index and offset) for the active chat
+  /// using a unique key based on user ID and chat ID.
+  void _updateScrollInfo() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollId[me!.val + id.val] = ChatScrollInfo(
+        index: _topVisibleItem!.index,
+        scrollOffset: _topVisibleItem!.offset,
+      );
+    });
   }
 
   /// Updates the [canGoDown] and [canGoBack] indicators based on the
@@ -2418,6 +2417,22 @@ class ChatController extends GetxController {
       toggleSearch(true);
     }
   }
+}
+
+/// This class is used to persist and restore scroll state, especially when navigating
+/// between chats or rebuilding the widget tree. It includes:
+/// This helps ensure a smooth user experience by restoring the user's position
+/// accurately in chat threads, even with large numbers of messages.
+class ChatScrollInfo {
+  final double scrollOffset;
+  final int index;
+  final bool offsetBasedOnBottom;
+
+  const ChatScrollInfo({
+    this.scrollOffset = 0.0,
+    this.index = 0,
+    this.offsetBasedOnBottom = true,
+  });
 }
 
 /// ID of a [ListElement] containing its [PreciseDateTime] and [ChatItemId].
