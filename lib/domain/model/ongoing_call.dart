@@ -1331,6 +1331,8 @@ class OngoingCall {
       if (screenDevice != null) {
         constraints.deviceId(screenDevice.deviceId());
       }
+      constraints.idealWidth(1920);
+      constraints.idealHeight(1200);
       constraints.idealFrameRate(30);
       settings.displayVideo(constraints);
     }
