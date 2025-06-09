@@ -374,6 +374,7 @@ class UserView extends StatelessWidget {
         //   ),
         // ),
         ActionButton(
+          key: const Key('ReportButton'),
           text: 'btn_report'.l10n,
           trailing: const SvgIcon(SvgIcons.report16),
           onPressed: () => _reportUser(c, context),
@@ -438,11 +439,14 @@ class UserView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          key: const Key('ReportField'),
+            state: c.reporting, label: 'label_reason'.l10n),
       ],
       button: (context) {
         return Obx(() {
           return PrimaryButton(
+            key: const Key('Proceed_report'),
             title: 'btn_proceed'.l10n,
             onPressed: c.reporting.isEmpty.value
                 ? null

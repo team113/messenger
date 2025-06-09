@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Blocklist
-
+  @smoke
   Scenario: Blocked user cannot send me a message
     Given I am Alice
     And user Bob

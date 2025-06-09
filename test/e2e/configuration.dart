@@ -58,6 +58,7 @@ import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/change_user_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
 import 'steps/chat_is_muted.dart';
@@ -164,6 +165,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         blockedCountUsers,
         cancelFileDownload,
         changeChatAvatar,
+        // changeUserAvatar,
         chatIsFavorite,
         chatIsIndeedHidden,
         chatIsMuted,
@@ -354,7 +356,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         UsersParameter(),
         WidgetKeyParameter(),
       ]
-      ..tagExpression = 'not @disabled'
+      ..tagExpression = 'not @disabled and @smoke'
       // ..tagExpression = '@problem'
       ..createWorld = (config) => Future.sync(() => CustomWorld());
 
