@@ -17,6 +17,7 @@
 
 import '/api/backend/schema.graphql.dart';
 import '/domain/model/session.dart';
+import 'my_user.dart';
 
 /// Extension adding models construction from a [RefreshTokenMixin].
 extension RefreshTokenConversion on RefreshTokenMixin {
@@ -38,7 +39,7 @@ extension SignUpCredentials on SignUp$Mutation$CreateUser$CreateSessionOk {
     return Credentials(
       accessToken.toModel(),
       refreshToken.toModel(),
-      session.id,
+      session.toModel(),
       user.id,
     );
   }
@@ -53,7 +54,7 @@ extension SignInCredentials on SignIn$Mutation$CreateSession$CreateSessionOk {
     return Credentials(
       accessToken.toModel(),
       refreshToken.toModel(),
-      session.id,
+      session.toModel(),
       user.id,
     );
   }
@@ -69,7 +70,7 @@ extension RefreshSessionCredentials
     return Credentials(
       accessToken.toModel(),
       refreshToken.toModel(),
-      session.id,
+      session.toModel(),
       user.id,
     );
   }

@@ -1168,7 +1168,7 @@ Widget _devices(BuildContext context, MyProfileController c) {
             final List<RxSession> sessions = c.sessions.toList();
 
             final RxSession? current = sessions.firstWhereOrNull(
-              (e) => e.id == c.credentials.value?.sessionId,
+              (e) => e.id == c.credentials.value?.session.id,
             );
 
             if (current != null) {
