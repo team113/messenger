@@ -111,8 +111,6 @@ btn_call_decline = Decline
 btn_call_disable_audio = Disable audio
 btn_call_disable_video = Disable video
 btn_call_do_not_cut_video = Do not cut video
-btn_call_drop_video_here =
-    You can add a video to a separate panel by simply dragging and dropping
 btn_call_enable_audio = Enable audio
 btn_call_enable_video = Enable video
 btn_call_end = End call
@@ -694,7 +692,6 @@ label_camera = Camera
 label_chat = Chat
 label_change_password = Change password
 label_chat_call_declined = Declined call
-label_chat_call_dropped = Dropped call
 label_chat_call_ended = Ended call
 label_chat_call_missed = Missed call
 label_chat_call_moved = Moved call

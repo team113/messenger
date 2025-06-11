@@ -111,8 +111,6 @@ btn_call_decline = Отклонить
 btn_call_disable_audio = Отключить аудио
 btn_call_disable_video = Отключить видео
 btn_call_do_not_cut_video = Не обрезать видео
-btn_call_drop_video_here =
-    Добавить видео в отдельную панель можно простым перетаскиванием
 btn_call_enable_audio = Включить аудио
 btn_call_enable_video = Включить видео
 btn_call_end = Завершить звонок
@@ -715,7 +713,6 @@ label_camera = Камера
 label_chat = Чат
 label_change_password = Изменить пароль
 label_chat_call_declined = Отклонённый звонок
-label_chat_call_dropped = Отменённый звонок
 label_chat_call_ended = Завершённый звонок
 label_chat_call_missed = Пропущенный звонок
 label_chat_call_moved = Перемещённый звонок
