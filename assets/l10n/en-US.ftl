@@ -905,7 +905,6 @@ label_language = Language
 label_language_and_background = Language, background, ...
 label_language_entry = {$code}, {$name}
 label_last_seen = Last seen
-label_latest_version_available = New application version is available
 label_latest_version_is_installed = Latest version is installed
 label_leave_group = Leave group
 label_legal_information = Legal information
