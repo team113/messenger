@@ -104,7 +104,6 @@ btn_call_audio_on = Включить микрофон
 btn_call_audio_on_desc =
     Включить
     микрофон
-btn_call_cancel = Отменить
 btn_call_center = Центрировать
 btn_call_cut_video = Обрезать видео
 btn_call_decline = Отклонить

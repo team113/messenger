@@ -648,10 +648,6 @@ class AuthService extends DisposableService {
 
   /// Refreshes [Credentials] of the account with the provided [userId] or of
   /// the active one, if [userId] is not provided.
-  ///
-  /// If [proceedIfStillFresh] is `false`, then the session won't be refreshed
-  /// when [_shouldRefresh] is `false`. Otherwise the session will refresh each
-  /// time this method invokes.
   Future<void> refreshSession({
     UserId? userId,
     DateTime? proceedIfRefreshBefore,

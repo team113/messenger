@@ -104,7 +104,6 @@ btn_call_audio_on = Unmute
 btn_call_audio_on_desc =
     Unmute
     microphone
-btn_call_cancel = Cancel call
 btn_call_center = Center
 btn_call_cut_video = Cut video
 btn_call_decline = Decline

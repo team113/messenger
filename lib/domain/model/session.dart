@@ -203,7 +203,7 @@ class RefreshToken {
   /// the same for all the [RefreshToken]s obtained.
   final PreciseDateTime expireAt;
 
-  /// Returns a [Map] containing data of these [RefreshToken].
+  /// Returns a [Map] containing data of this [RefreshToken].
   Map<String, dynamic> toJson() => _$RefreshTokenToJson(this);
 
   @override
