@@ -875,7 +875,7 @@ label_image_downloaded = Image downloaded.
 label_image_saved_to_gallery = Image saved to gallery.
 label_in_message = In message
 label_incoming_call = Incoming call
-label_info = Info
+label_information = Info
 label_installation_error = Installation error
 label_installation_error_description = Web App is already installed or not available in your browser
 label_interface = Interface
@@ -1200,7 +1200,6 @@ label_unread_messages = {$quantity ->
 }
 label_unmuted = Unmuted
 label_update_available = Update available
-label_update_is_available = Update is available
 label_use_direct_links_to_find_users = You'll see there users you've chated with
 label_use_search = Use search to find a user
 label_user = User

@@ -897,7 +897,7 @@ label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении
 label_incoming_call = Входящий звонок
-label_info = Информация
+label_information = Информация
 label_installation_error = Ошибка установки
 label_installation_error_description = Веб приложение уже установлено или недоступно в Вашем браузере
 label_interface = Интерфейс
@@ -1229,7 +1229,6 @@ label_unread_messages = {$quantity ->
 }
 label_unmuted = Включен звук
 label_update_available = Доступно обновление
-label_update_is_available = Доступно обновление
 label_use_direct_links_to_find_users = Здесь будут отображены пользователи, с которыми Вы общались
 label_use_search = Используйте поиск, чтобы найти пользователя
 label_user = Пользователь

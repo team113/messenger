@@ -1277,7 +1277,16 @@ Widget _downloads(BuildContext context, MyProfileController c) {
 
   return Column(
     children: [
-      LineDivider('label_version_semicolon'.l10nfmt({'version': Pubspec.ref})),
+      WidgetButton(
+        onPressed: () {},
+        onPressedWithDetails: (u) {
+          PlatformUtils.copy(text: Pubspec.ref);
+          MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
+        },
+        child: LineDivider(
+          'label_version_semicolon'.l10nfmt({'version': Pubspec.ref}),
+        ),
+      ),
       SizedBox(height: 16),
       if (!PlatformUtils.isWeb)
         latestButton
