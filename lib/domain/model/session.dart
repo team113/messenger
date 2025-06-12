@@ -61,7 +61,7 @@ class Session implements Comparable<Session> {
     return result;
   }
 
-  /// Returns a [Map] representing this [User].
+  /// Returns a [Map] representing this [Session].
   Map<String, dynamic> toJson() => _$SessionToJson(this);
 }
 
@@ -85,7 +85,7 @@ class SessionId extends NewType<String> {
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
 
-  /// Constructs a [SessionId] from the provided [val].
+  /// Constructs a [UserAgent] from the provided [val].
   factory UserAgent.fromJson(String val) = UserAgent;
 
   /// Returns a [String] representing this [UserAgent].
