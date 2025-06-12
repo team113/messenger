@@ -893,6 +893,7 @@ label_hint_drag_n_drop_video =
 label_hint_from_gapopa = Подсказка от Gapopa
 label_hotkey = Горячие клавиши
 label_identifiers = Идентификаторы
+label_identifier = Идентификатор
 label_image_downloaded = Изображение загружено.
 label_image_saved_to_gallery = Изображение сохранено в галерею.
 label_in_message = В сообщении

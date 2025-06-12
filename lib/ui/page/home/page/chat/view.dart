@@ -417,6 +417,11 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
+                                } else if (c.chat?.chat.value.isGroup != true) {
+                                  // This condition is needed to no display
+                                  // 'MoreButton' in dialog
+                                  // TODO: delete 'MoreButton' in chat too when updated chat design
+                                  child = const SizedBox();
                                 } else {
                                   child = ContextMenuRegion(
                                     key: c.moreKey,
@@ -1309,7 +1314,6 @@ class ChatView extends StatelessWidget {
       await c.block();
     }
   }
-
   // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.
   // Future<void> _removeFromContacts(

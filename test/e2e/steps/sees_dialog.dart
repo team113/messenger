@@ -15,10 +15,12 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:collection/collection.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/api/backend/schema.dart' show ChatKind;
+import 'package:messenger/domain/model/chat.dart';
 import 'package:messenger/provider/gql/graphql.dart';
+import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 
 import '../parameters/users.dart';
 import '../world/custom_world.dart';
@@ -77,4 +79,27 @@ final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   },
   configuration: StepDefinitionConfiguration()
     ..timeout = const Duration(minutes: 5),
+);
+
+/// Indicates whether a dialog [Chat] with the provided name is not displayed
+/// in the list of chats.
+///
+/// The [Chat] object represents a dialog between users.
+///
+/// Examples:
+/// - Then I see no dialog with "Bob"
+final StepDefinitionGeneric seesNoDialogWithUser = then1<String, CustomWorld>(
+  'I see no dialog with {string}',
+  (String name, context) async {
+    await context.world.appDriver.waitUntil(() async {
+      await context.world.appDriver.waitForAppToSettle();
+
+      final controller = Get.find<ChatsTabController>();
+      final ChatId chatId = context.world.sessions[name]!.dialog!;
+      final ChatEntry? dialog = controller.chats.firstWhereOrNull(
+        (c) => c.chat.value.id == chatId,
+      );
+      return dialog?.chat.value.isHidden == true;
+    });
+  },
 );

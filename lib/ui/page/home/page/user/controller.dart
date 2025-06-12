@@ -25,6 +25,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '/domain/repository/chat.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -77,6 +78,9 @@ class UserController extends GetxController {
 
   /// Reactive [User] itself.
   RxUser? user;
+
+  /// Reactive [Chat] with this user.
+  RxChat? chat;
 
   /// Status of the [user] fetching.
   ///
@@ -347,7 +351,35 @@ class UserController extends GetxController {
     }
   }
 
-  /// Marks the [user] as favorited.
+  /// Marks the [chat] as favorited.
+  Future<void> favoriteChat() async {
+    try {
+      if (chat != null) {
+        await _chatService.favoriteChat(chat!.id);
+      }
+    } on FavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Removes the [chat] from the unfavorites.
+  Future<void> unfavoriteChat() async {
+    try {
+      if (chat != null) {
+        await _chatService.unfavoriteChat(chat!.id);
+      }
+    } on UnfavoriteChatContactException catch (e) {
+      MessagePopup.error(e);
+    } catch (e) {
+      MessagePopup.error(e);
+      rethrow;
+    }
+  }
+
+  /// Marks the [ChatContact] as favorited.
   Future<void> favoriteContact() async {
     try {
       if (contactId != null) {
@@ -361,7 +393,7 @@ class UserController extends GetxController {
     }
   }
 
-  /// Removes the [user] from the favorites.
+  /// Removes the [ChatContact] from the favorites.
   Future<void> unfavoriteContact() async {
     try {
       if (contactId != null) {
@@ -378,10 +410,10 @@ class UserController extends GetxController {
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
-
     if (dialog != null) {
       try {
         await _chatService.toggleChatMute(dialog, MuteDuration.forever());
+        await _fetchUser();
       } on ToggleChatMuteException catch (e) {
         MessagePopup.error(e);
       } catch (e) {
@@ -550,6 +582,23 @@ class UserController extends GetxController {
     }
   }
 
+  /// Fetches the [chat] value from the [_chatService].
+  Future<void> _fetchChat() async {
+    if (user == null) return;
+    try {
+      final chatId = user!.user.value.dialog;
+      final FutureOr<RxChat?> fetched = _chatService.get(chatId);
+      chat = fetched is RxChat? ? fetched : await fetched;
+    } catch (e) {
+      _ready.throwable = e;
+      _ready.finish(status: const SpanStatus.internalError());
+
+      await MessagePopup.error(e);
+      router.pop();
+      rethrow;
+    }
+  }
+
   /// Listens to the [contact] or [user] changes updating the [name].
   void _updateWorker() {
     if (user != null && contact.value != null) {
@@ -571,6 +620,7 @@ class UserController extends GetxController {
           name.unchecked = user.name?.val ?? user.num.toString();
         }
       });
+      if (chat == null) _fetchChat();
     }
   }
 }

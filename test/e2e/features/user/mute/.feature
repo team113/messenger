@@ -15,16 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Clear chat
+Feature: Dialog muting and unmuting
 
-  Scenario: User clears chat
+  Background: User is in diaolog chat with Bob
     Given I am Alice
-    And users Bob and Charlie
-    And I have "Group" group with Bob and Charlie
-    And I am in "Group" group
-    And I see some messages in chat
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
 
-    When I tap `MoreButton` button
-    And I tap `ClearHistoryButton` button
-    And I tap `Proceed` button
-    Then I see no messages in chat
+  Scenario: User mutes and unmutes dialog
+    When I go to Bob's page
+    And I scroll `UserScrollable` to bottom
+    And I pause for 1 seconds
+    And I tap `MuteDialogButton` button
+    Then I see "Bob" dialog with me as muted
+
+    When I tap `MuteDialogButton` button
+    Then I see "Bob" dialog with me as unmuted
