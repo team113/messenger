@@ -39,7 +39,7 @@ class NotesBlock extends StatelessWidget {
     return Block(
       crossAxisAlignment: CrossAxisAlignment.start,
       padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-      title: info ? 'label_info'.l10n : 'label_chat_monolog'.l10n,
+      title: info ? 'label_information'.l10n : 'label_chat_monolog'.l10n,
       titleStyle: style.fonts.large.regular.onBackground,
       children: [
         Text(

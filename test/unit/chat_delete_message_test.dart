@@ -84,7 +84,12 @@ void main() async {
         const RefreshTokenSecret('token'),
         PreciseDateTime.now().add(const Duration(days: 1)),
       ),
-      const SessionId('me'),
+      Session(
+        id: const SessionId('me'),
+        ip: IpAddress('localhost'),
+        userAgent: UserAgent(''),
+        lastActivatedAt: PreciseDateTime.now(),
+      ),
       const UserId('me'),
     ),
   );
