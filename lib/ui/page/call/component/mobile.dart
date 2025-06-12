@@ -618,7 +618,7 @@ Widget mobileCall(CallController c, BuildContext context) {
                   ),
                 padding(AudioButton(c).build(hinted: false, opaque: true)),
                 padding(VideoButton(c).build(hinted: false, opaque: true)),
-                padding(CancelButton(c).build(hinted: false, opaque: true)),
+                padding(EndCallButton(c).build(hinted: false, opaque: true)),
               ];
             } else {
               widgets = [

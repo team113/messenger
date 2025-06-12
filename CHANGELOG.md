@@ -6,6 +6,22 @@ All user visible changes to this project will be documented in this file. This p
 
 
 
+## [0.6.0] · 2025-??-??
+[0.6.0]: /../../tree/v0.6.0
+
+[Diff](/../../compare/v0.5.1...v0.6.0) | [Milestone](/../../milestone/41)
+
+### Fixed
+
+- UI:
+    - Chat page:
+        - Screenshots made to clipboard not pasted as attachments. ([#1280])
+
+[#1280]: /../../pull/1280
+
+
+
+
 ## [0.5.1] · 2025-06-03
 [0.5.1]: /../../tree/v0.5.1
 

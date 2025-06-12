@@ -18,6 +18,7 @@
 import 'package:flutter/material.dart';
 
 import '/themes.dart';
+import '/ui/page/home/page/chat/widget/selection_text.dart';
 
 /// [Text] centered within a line.
 class LineDivider extends StatelessWidget {
@@ -26,7 +27,8 @@ class LineDivider extends StatelessWidget {
     super.key,
     this.primary = false,
     this.bold = false,
-  }) : span = null;
+  }) : span = null,
+       selectable = false;
 
   /// Builds a [LineDivider] with the [TextSpan] in the center.
   const LineDivider.rich(
@@ -34,7 +36,17 @@ class LineDivider extends StatelessWidget {
     super.key,
     this.primary = false,
     this.bold = false,
-  }) : label = null;
+  }) : label = null,
+       selectable = false;
+
+  /// Builds a [LineDivider] with the [SelectionText] in the center.
+  const LineDivider.selectable(
+    TextSpan this.span, {
+    super.key,
+    this.primary = false,
+    this.bold = false,
+  }) : label = null,
+       selectable = true;
 
   /// Label to put in the centered [Text].
   final String? label;
@@ -47,6 +59,10 @@ class LineDivider extends StatelessWidget {
 
   /// Indicator whether this [LineDivider] should be opaque.
   final bool bold;
+
+  /// Indicator whether the [TextSpan] used should use [SelectionText] instead
+  /// of [Text.rich].
+  final bool selectable;
 
   @override
   Widget build(BuildContext context) {
@@ -78,13 +94,23 @@ class LineDivider extends StatelessWidget {
         ],
         if (span != null) ...[
           const SizedBox(width: 8),
-          Text.rich(
-            span!,
-            style: primary
-                ? style.fonts.small.regular.primary
-                : style.fonts.small.regular.secondary,
-            textAlign: TextAlign.center,
-          ),
+          if (selectable)
+            SelectionArea(
+              child: SelectionText.rich(
+                span!,
+                style: primary
+                    ? style.fonts.small.regular.primary
+                    : style.fonts.small.regular.secondary,
+              ),
+            )
+          else
+            Text.rich(
+              span!,
+              style: primary
+                  ? style.fonts.small.regular.primary
+                  : style.fonts.small.regular.secondary,
+              textAlign: TextAlign.center,
+            ),
           const SizedBox(width: 8),
         ],
         Expanded(

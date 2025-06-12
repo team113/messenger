@@ -149,7 +149,7 @@ class UpgradePopupView extends StatelessWidget {
               header = ModalPopupHeader(
                 text: critical
                     ? 'label_critical_update_is_available'.l10n
-                    : 'label_update_is_available'.l10n,
+                    : 'label_update_available'.l10n,
               );
               children = [
                 Flexible(

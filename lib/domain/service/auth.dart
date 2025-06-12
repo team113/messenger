@@ -157,7 +157,7 @@ class AuthService extends DisposableService {
             PreciseDateTime.now().toUtc(),
           ) ==
           true) {
-        await refreshSession();
+        await refreshSession(proceedIfRefreshBefore: DateTime.now());
       } else {
         _unauthorized();
         router.auth();
@@ -648,7 +648,10 @@ class AuthService extends DisposableService {
 
   /// Refreshes [Credentials] of the account with the provided [userId] or of
   /// the active one, if [userId] is not provided.
-  Future<void> refreshSession({UserId? userId}) async {
+  Future<void> refreshSession({
+    UserId? userId,
+    DateTime? proceedIfRefreshBefore,
+  }) async {
     final int attempt = _refreshAttempt++;
 
     final FutureOr<bool> futureOrBool = WebUtils.isLocked;
@@ -760,8 +763,24 @@ class AuthService extends DisposableService {
             }
           }
 
-          // [Credentials] are fresh.
-          return _refreshRetryDelay = _initialRetryDelay;
+          bool shouldProceed = false;
+
+          final Credentials? creds = credentials.value;
+          if (creds != null && proceedIfRefreshBefore != null) {
+            shouldProceed = proceedIfRefreshBefore.isAfter(
+              creds.session.lastActivatedAt.val,
+            );
+          }
+
+          if (!shouldProceed) {
+            // [Credentials] are fresh.
+            return _refreshRetryDelay = _initialRetryDelay;
+          }
+
+          Log.debug(
+            'refreshSession($userId |-> $attempt): should refresh is `false`, yet proceeding as ${creds?.session.lastActivatedAt.val.toUtc()} is after ${proceedIfRefreshBefore?.toUtc()}',
+            '$runtimeType',
+          );
         }
 
         if (oldCreds == null) {
