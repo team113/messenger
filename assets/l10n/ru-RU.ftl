@@ -642,11 +642,7 @@ label_cache_and_downloads = Кэш
 label_cache_limit_gb = Лимит кэша: {$gb} ГБ
 label_call_active = Активный звонок
 label_call_calling = Звоним
-label_call_connecting = Подготовка соединения
 label_call_joining = Подключение
-label_call_permissions_description =
-    Необходим для отображения звонков напрямую в телефоне
-label_call_permissions_title = Добавьте аккаунт для вызова
 label_call_title =
     {$title} | {$state ->
         [joining] Подключение...
@@ -659,7 +655,6 @@ label_call_title =
     }
 label_call_window = Окно звонка
 label_calls = Звонки
-label_calls_displaying = В отдельном окне или в приложении
 label_camera = Камера
 label_chat = Чат
 label_change_password = Изменить пароль

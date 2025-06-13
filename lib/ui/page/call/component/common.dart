@@ -581,9 +581,7 @@ Widget callTitle(CallController c) {
         : c.state.value == OngoingCallState.joining
         ? 'label_call_joining'.l10n
         : isOutgoing
-        ? isDialog
-              ? 'label_call_calling'.l10n
-              : 'label_call_connecting'.l10n
+        ? 'label_call_calling'.l10n
         : c.withVideo == true
         ? 'label_video_call'.l10nfmt(args)
         : 'label_audio_call'.l10nfmt(args);

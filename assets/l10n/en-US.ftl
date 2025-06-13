@@ -621,11 +621,7 @@ label_cache_and_downloads = Cache
 label_cache_limit_gb = Cache limit: {$gb} GB
 label_call_active = Active call
 label_call_calling = Calling
-label_call_connecting = Connection preparing
 label_call_joining = Joining
-label_call_permissions_description =
-    Required to display calls in your phone natively
-label_call_permissions_title = Add phone account
 label_call_title =
     {$title} | {$state ->
         [joining] Joining...
@@ -638,7 +634,6 @@ label_call_title =
     }
 label_call_window = Call window
 label_calls = Calls
-label_calls_displaying = In separate window or within app
 label_camera = Camera
 label_chat = Chat
 label_change_password = Change password
