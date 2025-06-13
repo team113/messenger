@@ -1,4 +1,4 @@
-# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+#3# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Blocklist
-  @smoke
+
   Scenario: Blocked user cannot send me a message
     Given I am Alice
     And user Bob

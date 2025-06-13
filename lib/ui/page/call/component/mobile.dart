@@ -252,7 +252,8 @@ Widget mobileCall(CallController c, BuildContext context) {
                         .firstWhereOrNull((e) => e.user.id != c.me.id.userId)
                         ?.user;
 
-                    return CallCoverWidget(c.chat.value?.callCover, user: user);
+                    return CallCoverWidget(
+                        c.chat.value?.callCover, user: user);
                   } else {
                     if (c.chat.value?.avatar.value != null) {
                       final Avatar avatar = c.chat.value!.avatar.value!;

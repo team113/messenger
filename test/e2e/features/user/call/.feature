@@ -15,19 +15,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User subscription in ChatTab
+Feature: Call user
 
-
-  Background: User is in dialog with Bob
+  Scenario: I am calling user
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
+    And Bob sees no dialog with me in recent chats
 
-  Scenario: User sees Bob changing his name on ChatTab
+    And I wait until `HomeView` is present
+    And I go to Bob's page
+    And popup windows are disabled
 
-    When Bob updates his name with "Hello world!"
-    Then I wait until text "Hello world!" is present
-
-    When Bob updates his name with "Me Bob, me funny, haha"
-    Then I wait until text "Me Bob, me funny, haha" is present
+    When I tap `AudioCall` button
+    Then Bob sees dialog with me in recent chats

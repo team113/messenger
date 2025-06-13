@@ -87,7 +87,8 @@ class _PopupCallViewState extends State<PopupCallView> {
           );
         }
 
-        return CallView(c.call!, key: ValueKey(widget.chatId));
+        return CallView(
+            c.call!, key: ValueKey(widget.chatId));
       },
     );
   }

@@ -15,19 +15,13 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User subscription in ChatTab
+Feature: Chat button
 
-
-  Background: User is in dialog with Bob
+  Scenario: I go to chat with user
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
-    And I am in chat with Bob
+    And I wait until `HomeView` is present
+    And I go to Bob's page
 
-  Scenario: User sees Bob changing his name on ChatTab
-
-    When Bob updates his name with "Hello world!"
-    Then I wait until text "Hello world!" is present
-
-    When Bob updates his name with "Me Bob, me funny, haha"
-    Then I wait until text "Me Bob, me funny, haha" is present
+    When I tap `GoToChat` button
+    Then I am in chat with Bob

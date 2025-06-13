@@ -16,7 +16,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: User subscription
-  @smoke
+
   Scenario: User sees Bob changing his name
     Given I am Alice
     And user Bob

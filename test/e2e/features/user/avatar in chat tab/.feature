@@ -15,19 +15,15 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: User subscription in ChatTab
+Feature: User change avatar in ChatTab
 
-
-  Background: User is in dialog with Bob
+  Scenario: User sees Bob changing his avatar on ChatTab
     Given I am Alice
     And user Bob
     And Bob has dialog with me
     And I am in chat with Bob
 
-  Scenario: User sees Bob changing his name on ChatTab
-
-    When Bob updates his name with "Hello world!"
-    Then I wait until text "Hello world!" is present
-
-    When Bob updates his name with "Me Bob, me funny, haha"
-    Then I wait until text "Me Bob, me funny, haha" is present
+    When Bob update his avatar with "tree.jpg"
+    And I pause for 3 seconds
+    And Bob sends "I am change avatar" message to me
+    Then Then I see some messages in chat
