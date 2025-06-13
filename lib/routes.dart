@@ -536,7 +536,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
 
       return [
         MaterialPage(
-          key: ValueKey('PopupCallView${id.val}'),
           name: '${Routes.call}/${id.val}',
           child: PopupCallView(
             chatId: id,
@@ -547,7 +546,6 @@ class AppRouterDelegate extends RouterDelegate<RouteConfiguration>
               final ScopedDriftProvider scoped = deps.put(
                 ScopedDriftProvider.from(deps.put(ScopedDatabase(me))),
               );
-
               deps.put(UserDriftProvider(Get.find(), scoped));
               deps.put(ChatItemDriftProvider(Get.find(), scoped));
               deps.put(ChatMemberDriftProvider(Get.find(), scoped));

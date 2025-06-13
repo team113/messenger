@@ -1,4 +1,4 @@
-#3# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,21 +15,19 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blocklist
+Feature: User subscription in ChatTab
 
-  Scenario: Blocked user cannot send me a message
+
+  Background: User is in dialog with Bob
     Given I am Alice
     And user Bob
     And Bob has dialog with me
-    And I wait until `HomeView` is present
+    And I am in chat with Bob
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` to bottom
-    And I pause for 2 seconds
-    And I tap `Block` button
-    And I tap `Proceed` button
-    Then Bob sends message to me and receives blocked exception
+  Scenario: User sees Bob changing his name on ChatTab
 
-    When I scroll `UserScrollable` to top
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    When Bob updates his name with "Hello world!"
+    Then I wait until text "Hello world!" is present
+
+    When Bob updates his name with "Me Bob, me funny, haha"
+    Then I wait until text "Me Bob, me funny, haha" is present

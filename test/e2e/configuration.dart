@@ -58,6 +58,7 @@ import 'steps/accounts.dart';
 import 'steps/appcast.dart';
 import 'steps/attach_file.dart';
 import 'steps/change_chat_avatar.dart';
+import 'steps/change_user_avatar.dart';
 import 'steps/chat_is_favorite.dart';
 import 'steps/chat_is_hidden.dart';
 import 'steps/chat_is_muted.dart';
@@ -118,6 +119,7 @@ import 'steps/see_favorite_contact.dart';
 import 'steps/see_favorite_monolog.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
+import 'steps/see_user_avatar.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
 import 'steps/sees_muted_chat.dart';
@@ -139,7 +141,9 @@ import 'steps/tap_widget_n_times.dart';
 import 'steps/text_field.dart';
 import 'steps/update_app_version.dart';
 import 'steps/update_avatar.dart';
+import 'steps/updates_description.dart';
 import 'steps/updates_name.dart';
+import 'steps/updates_status.dart';
 import 'steps/users.dart';
 import 'steps/wait_to_settle.dart';
 import 'steps/wait_until_attachment.dart';
@@ -164,6 +168,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         blockedCountUsers,
         cancelFileDownload,
         changeChatAvatar,
+        changeUserAvatar,
         chatIsFavorite,
         chatIsIndeedHidden,
         chatIsMuted,
@@ -267,6 +272,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seesAs,
         seesDialogWithMe,
         seesNoDialogWithMe,
+        seeUserAvatarAs,
         seeUserInSearchResults,
         selectMessageText,
         sendsAttachmentToMe,
@@ -303,7 +309,9 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         untilTextExistsWithin,
         updateAppVersion,
         updateAvatar,
+        updateDescription,
         updateName,
+        updateStatus,
         user,
         userWithPassword,
         waitForAppToSettle,
@@ -361,6 +369,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
 /// Application's initialization function.
 Future<void> appInitializationFn(World world) {
   PlatformUtils = PlatformUtilsMock();
+
   Get.put<GeoLocationProvider>(MockGeoLocationProvider());
   Get.put<GraphQlProvider>(MockGraphQlProvider());
 

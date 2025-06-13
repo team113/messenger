@@ -296,6 +296,7 @@ class UserView extends StatelessWidget {
         if (bio != null) ...[
           const SizedBox(height: 16),
           ExpandableText(
+            key: const Key('Bio'),
             bio.val,
             expandText: 'label_expandable_more'.l10n,
             collapseText: '',
@@ -323,11 +324,13 @@ class UserView extends StatelessWidget {
         Expanded(child: title),
         const SizedBox(width: 8),
         AnimatedButton(
+          key: const Key('GoToChat'),
           onPressed: () => router.chat(ChatId.local(c.user!.user.value.id)),
           child: const SvgIcon(SvgIcons.chat),
         ),
         const SizedBox(width: 28),
         AnimatedButton(
+          key: const Key('VideoCall'),
           onPressed: () => c.call(true),
           child: const SvgIcon(SvgIcons.chatVideoCall),
         ),
@@ -374,6 +377,7 @@ class UserView extends StatelessWidget {
         //   ),
         // ),
         ActionButton(
+          key: const Key('Report'),
           text: 'btn_report'.l10n,
           trailing: const SvgIcon(SvgIcons.report16),
           onPressed: () => _reportUser(c, context),
@@ -438,11 +442,16 @@ class UserView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reporting, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          key: const Key('ReportField'),
+          state: c.reporting,
+          label: 'label_reason'.l10n,
+        ),
       ],
       button: (context) {
         return Obx(() {
           return PrimaryButton(
+            key: const Key('ProceedReport'),
             title: 'btn_proceed'.l10n,
             onPressed: c.reporting.isEmpty.value
                 ? null

@@ -1,4 +1,4 @@
-#3# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,9 +15,9 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blocklist
+Feature: Complain user
 
-  Scenario: Blocked user cannot send me a message
+  Scenario: Complaint about the user is being sent
     Given I am Alice
     And user Bob
     And Bob has dialog with me
@@ -26,10 +26,9 @@ Feature: Blocklist
     When I go to Bob's page
     And I scroll `UserScrollable` to bottom
     And I pause for 2 seconds
-    And I tap `Block` button
-    And I tap `Proceed` button
-    Then Bob sends message to me and receives blocked exception
+    And I tap `Report` button
+    And I fill `ReportField` field with "Spam"
+    And I pause for 2 seconds
+    And I tap `ProceedReport` button
+    Then I wait until `ProceedReport` is absent
 
-    When I scroll `UserScrollable` to top
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception

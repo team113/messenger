@@ -1,4 +1,4 @@
-#3# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
+# Copyright © 2022-2025 IT ENGINEERING MANAGEMENT INC,
 #                       <https://github.com/team113>
 #
 # This program is free software: you can redistribute it and/or modify it under
@@ -15,21 +15,16 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Blocklist
+Feature: Call user
 
-  Scenario: Blocked user cannot send me a message
+  Scenario: I am calling user
     Given I am Alice
     And user Bob
-    And Bob has dialog with me
+    And Bob sees no dialog with me in recent chats
+
     And I wait until `HomeView` is present
+    And I go to Bob's page
+    And popup windows are disabled
 
-    When I go to Bob's page
-    And I scroll `UserScrollable` to bottom
-    And I pause for 2 seconds
-    And I tap `Block` button
-    And I tap `Proceed` button
-    Then Bob sends message to me and receives blocked exception
-
-    When I scroll `UserScrollable` to top
-    And I tap `Unblock` button
-    Then Bob sends message to me and receives no exception
+    When I tap `AudioCall` button
+    Then Bob sees dialog with me in recent chats

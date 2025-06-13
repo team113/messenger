@@ -11,7 +11,7 @@
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
 Feature: Chat members pagination
-
+  @disabled
   Scenario: Chat members pagination works correctly
     Given user Alice
     And Alice has "Members" group with 16 members

@@ -195,6 +195,7 @@ class ChatView extends StatelessWidget {
                               onPressed: onDetailsTap,
                               child: Center(
                                 child: AvatarWidget.fromRxChat(
+                                  key: const Key('AvatarInChatTab'),
                                   c.chat,
                                   radius: AvatarRadius.medium,
                                 ),

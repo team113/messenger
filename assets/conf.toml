@@ -3,7 +3,6 @@
 #
 # Default:
 #   remote = true
-
 [server.http]
 # URL address of HTTP backend server.
 #
@@ -11,7 +10,6 @@
 #
 # Default:
 #   url = "http://localhost"
-
 # Port of HTTP backend server.
 #
 # Unused for web, browser location is used instead.
@@ -31,7 +29,6 @@
 #
 # Default:
 #   url = "ws://localhost"
-
 # Port of WebSocket backend server.
 #
 # Unused for web, browser location is used instead.
