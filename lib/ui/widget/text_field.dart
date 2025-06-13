@@ -72,21 +72,25 @@ class ReactiveTextField extends StatelessWidget {
   });
 
   /// [ReactiveTextField] with trailing copy button
-  factory ReactiveTextField.copyable({required String text, String? label}) =>
-      ReactiveTextField(
-        state: TextFieldState(text: text, editable: false),
-        label: label,
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        formatters: [LengthLimitingTextInputFormatter(100)],
-        trailing: WidgetButton(
-          onPressed: () {},
-          onPressedWithDetails: (u) {
-            PlatformUtils.copy(text: text);
-            MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
-          },
-          child: Center(child: SvgIcon(SvgIcons.copy)),
-        ),
-      );
+  factory ReactiveTextField.copyable({
+    Key? key,
+    required String text,
+    String? label,
+  }) => ReactiveTextField(
+    key: key,
+    state: TextFieldState(text: text, editable: false),
+    label: label,
+    floatingLabelBehavior: FloatingLabelBehavior.always,
+    formatters: [LengthLimitingTextInputFormatter(100)],
+    trailing: WidgetButton(
+      onPressed: () {},
+      onPressedWithDetails: (u) {
+        PlatformUtils.copy(text: text);
+        MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
+      },
+      child: Center(child: SvgIcon(SvgIcons.copy)),
+    ),
+  );
 
   /// Reactive state of this [ReactiveTextField].
   final ReactiveFieldState state;

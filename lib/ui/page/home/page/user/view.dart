@@ -198,7 +198,12 @@ class UserView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // const SizedBox(height: 12),
-              PresenceLabel(presence: c.user!.user.value.presence),
+              PresenceLabel(
+                key: Key(
+                  c.user?.user.value.presence?.name.capitalizeFirst ?? '',
+                ),
+                presence: c.user!.user.value.presence,
+              ),
               const SizedBox(height: 4),
             ],
           );
@@ -252,6 +257,7 @@ class UserView extends StatelessWidget {
         LineDivider('label_identifier'.l10n),
         const SizedBox(height: 8),
         ReactiveTextField.copyable(
+          key: const Key('NumCopyable'),
           text: '${c.user!.user.value.num}',
           label: 'label_num'.l10n,
         ),
@@ -293,91 +299,87 @@ class UserView extends StatelessWidget {
 
   /// Returns the action buttons to do with this [User].
   Widget _actions(UserController c, BuildContext context) {
-    return Obx(() {
-      // TODO: Uncomment, when contacts are implemented.
-      // final bool contact = c.contact.value != null;
-      // final bool favorite =
-      //     c.contact.value?.contact.value.favoritePosition != null;
-      final bool favoriteChat = c.chat?.chat.value.favoritePosition != null;
-      final bool muted = c.chat?.chat.value.muted != null;
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 8),
+    // TODO: Uncomment, when contacts are implemented.
+    // final bool contact = c.contact.value != null;
+    // final bool favorite =
+    //     c.contact.value?.contact.value.favoritePosition != null;
+    final bool favoriteChat = c.chat?.chat.value.favoritePosition != null;
+    final bool muted = c.chat?.chat.value.muted != null;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 8),
 
-          // TODO: Uncomment, when contacts are implemented.
-          // ActionButton(
-          //   text: contact
-          //       ? 'btn_delete_from_contacts'.l10n
-          //       : 'btn_add_to_contacts'.l10n,
-          //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
-          //   trailing: SvgIcon(
-          //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
-          //   ),
-          // ),
-          ActionButton(
-            key: const Key('FavoriteDialogButton'),
-            text: favoriteChat
-                ? 'btn_delete_from_favorites'.l10n
-                : 'btn_add_to_favorites'.l10n,
-            onPressed: favoriteChat ? c.unfavoriteChat : c.favoriteChat,
-            trailing: SvgIcon(
-              favoriteChat ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
-            ),
-            padding: _Constants.actionButtonPadding,
+        // TODO: Uncomment, when contacts are implemented.
+        // ActionButton(
+        //   text: contact
+        //       ? 'btn_delete_from_contacts'.l10n
+        //       : 'btn_add_to_contacts'.l10n,
+        //   onPressed: contact ? c.removeFromContacts : c.addToContacts,
+        //   trailing: SvgIcon(
+        //     contact ? SvgIcons.deleteContact16 : SvgIcons.addContact16,
+        //   ),
+        // ),
+        ActionButton(
+          key: const Key('FavoriteDialogButton'),
+          text: favoriteChat
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          onPressed: favoriteChat ? c.unfavoriteChat : c.favoriteChat,
+          trailing: SvgIcon(
+            favoriteChat ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
-          ActionButton(
-            key: const Key('MuteDialogButton'),
-            text: muted
-                ? PlatformUtils.isMobile
-                      ? 'btn_unmute'.l10n
-                      : 'btn_unmute_chat'.l10n
-                : PlatformUtils.isMobile
-                ? 'btn_mute'.l10n
-                : 'btn_mute_chat'.l10n,
-            onPressed: muted ? c.unmuteChat : c.muteChat,
-            trailing: SvgIcon(
-              muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall,
-            ),
-            padding: _Constants.actionButtonPadding,
-          ),
-          ActionButton(
-            key: const Key('ClearHistoryButton'),
-            text: 'btn_clear_history'.l10n,
-            onPressed: () => _clearChat(c, context),
-            trailing: SvgIcon(SvgIcons.cleanHistory),
-            padding: _Constants.actionButtonPadding,
-          ),
-          ActionButton(
-            key: const Key('DeleteDialogButton'),
-            text: 'btn_delete_chat'.l10n,
-            onPressed: () => _hideChat(c, context),
-            trailing: SvgIcon(SvgIcons.delete),
-            padding: _Constants.actionButtonPadding,
-          ),
-          ActionButton(
-            text: 'btn_report'.l10n,
-            trailing: const SvgIcon(SvgIcons.report16),
-            onPressed: () => _reportUser(c, context),
-            padding: _Constants.actionButtonPadding,
-          ),
-          Obx(() {
-            if (c.isBlocked != null) {
-              return const SizedBox();
-            }
+          padding: _Constants.actionButtonPadding,
+        ),
+        ActionButton(
+          key: const Key('MuteDialogButton'),
+          text: muted
+              ? PlatformUtils.isMobile
+                    ? 'btn_unmute'.l10n
+                    : 'btn_unmute_chat'.l10n
+              : PlatformUtils.isMobile
+              ? 'btn_mute'.l10n
+              : 'btn_mute_chat'.l10n,
+          onPressed: muted ? c.unmuteChat : c.muteChat,
+          trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
+          padding: _Constants.actionButtonPadding,
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          text: 'btn_clear_history'.l10n,
+          onPressed: () => _clearChat(c, context),
+          trailing: SvgIcon(SvgIcons.cleanHistory),
+          padding: _Constants.actionButtonPadding,
+        ),
+        ActionButton(
+          key: const Key('DeleteDialogButton'),
+          text: 'btn_delete_chat'.l10n,
+          onPressed: () => _hideChat(c, context),
+          trailing: SvgIcon(SvgIcons.delete),
+          padding: _Constants.actionButtonPadding,
+        ),
+        ActionButton(
+          text: 'btn_report'.l10n,
+          trailing: const SvgIcon(SvgIcons.report16),
+          onPressed: () => _reportUser(c, context),
+          padding: _Constants.actionButtonPadding,
+        ),
+        Obx(() {
+          if (c.isBlocked != null) {
+            return const SizedBox();
+          }
 
-            return ActionButton(
-              key: const Key('Block'),
-              text: 'btn_block'.l10n,
-              onPressed: () => _blockUser(c, context),
-              trailing: const SvgIcon(SvgIcons.blockSmallRed),
-              danger: true,
-              padding: _Constants.actionButtonPadding,
-            );
-          }),
-        ],
-      );
-    });
+          return ActionButton(
+            key: const Key('Block'),
+            text: 'btn_block'.l10n,
+            onPressed: () => _blockUser(c, context),
+            trailing: const SvgIcon(SvgIcons.blockSmallRed),
+            danger: true,
+            padding: _Constants.actionButtonPadding,
+          );
+        }),
+      ],
+    );
   }
 
   /// Opens a confirmation popup blocking the [User].
