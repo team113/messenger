@@ -213,7 +213,7 @@ class ContactTile extends StatelessWidget {
           user?.title ??
           myUser?.name?.val ??
           myUser?.num.toString() ??
-          (myUser == null ? 'dot'.l10n * 3 : 'btn_your_profile'.l10n),
+          'dot'.l10n,
       overflow: TextOverflow.ellipsis,
       maxLines: 1,
       style: selected

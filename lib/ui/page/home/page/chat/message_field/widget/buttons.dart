@@ -55,34 +55,6 @@ abstract class ChatButton {
       other is ChatButton && runtimeType == other.runtimeType;
 }
 
-/// [ChatButton] recording an audio massage.
-class AudioMessageButton extends ChatButton {
-  const AudioMessageButton([super.onPressed]);
-
-  @override
-  String get hint => 'btn_audio_message'.l10n;
-
-  @override
-  SvgData get asset => SvgIcons.audioMessage;
-
-  @override
-  SvgData get assetMini => SvgIcons.audioMessageSmall;
-}
-
-/// [ChatButton] recording a video massage.
-class VideoMessageButton extends ChatButton {
-  const VideoMessageButton([super.onPressed]);
-
-  @override
-  String get hint => 'btn_video_message'.l10n;
-
-  @override
-  SvgData get asset => SvgIcons.videoMessage;
-
-  @override
-  SvgData get assetMini => SvgIcons.videoMessageSmall;
-}
-
 /// [ChatButton] attaching a file.
 class AttachmentButton extends ChatButton {
   const AttachmentButton([super.onPressed]);
@@ -149,23 +121,6 @@ class GalleryButton extends ChatButton {
   SvgData get assetMini => SvgIcons.gallerySmall;
 }
 
-/// [ChatButton] making a gift.
-class DonateButton extends ChatButton {
-  const DonateButton([super.onPressed]);
-
-  @override
-  String get hint => 'btn_gift'.l10n;
-
-  @override
-  SvgData get asset => SvgIcons.gift;
-
-  @override
-  Offset get offset => const Offset(0, -1);
-
-  @override
-  SvgData get assetMini => SvgIcons.giftSmall;
-}
-
 /// [ChatButton] attaching a file.
 class FileButton extends ChatButton {
   const FileButton([super.onPressed]);
@@ -178,23 +133,6 @@ class FileButton extends ChatButton {
 
   @override
   SvgData get assetMini => SvgIcons.fileOutlinedSmall;
-}
-
-/// [ChatButton] opening the stickers.
-class StickerButton extends ChatButton {
-  const StickerButton([super.onPressed]);
-
-  @override
-  String get hint => 'btn_sticker'.l10n;
-
-  @override
-  SvgData get asset => SvgIcons.smile;
-
-  @override
-  Offset get offset => const Offset(0, -1);
-
-  @override
-  SvgData get assetMini => SvgIcons.smileSmall;
 }
 
 /// [ChatButton] making an audio call.
