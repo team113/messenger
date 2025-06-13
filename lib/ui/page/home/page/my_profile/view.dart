@@ -27,7 +27,7 @@ import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-import '/api/backend/schema.dart' show Presence;
+import '/ui/page/home/widget/presence_label.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -406,8 +406,6 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 Widget _profile(BuildContext context, MyProfileController c) {
   final style = Theme.of(context).style;
 
-  final presence = c.myUser.value?.presence ?? Presence.present;
-
   return Block(
     title: 'label_profile'.l10n,
     children: [
@@ -444,26 +442,7 @@ Widget _profile(BuildContext context, MyProfileController c) {
         },
         child: Row(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: switch (presence) {
-                  Presence.present => style.colors.acceptAuxiliary,
-                  Presence.away => style.colors.warning,
-                  (_) => style.colors.secondary,
-                },
-              ),
-              width: 8,
-              height: 8,
-            ),
-            SizedBox(width: 5),
-            Expanded(
-              child: Text(switch (presence) {
-                Presence.present => 'label_presence_present'.l10n,
-                Presence.away => 'label_presence_away'.l10n,
-                (_) => '',
-              }, textAlign: TextAlign.left),
-            ),
+            Expanded(child: PresenceLabel(presence: c.myUser.value?.presence)),
             Text('btn_change'.l10n, style: style.fonts.medium.regular.primary),
             SizedBox(width: 5),
           ],
@@ -580,22 +559,9 @@ Widget _addInfo(BuildContext context, MyProfileController c) {
           );
         }),
         const SizedBox(height: 21),
-        ReactiveTextField(
-          state: TextFieldState(
-            text: '${c.myUser.value?.num}',
-            editable: false,
-          ),
+        ReactiveTextField.copyable(
+          text: '${c.myUser.value?.num}',
           label: 'label_num'.l10n,
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          formatters: [LengthLimitingTextInputFormatter(100)],
-          trailing: WidgetButton(
-            onPressed: () {},
-            onPressedWithDetails: (u) {
-              PlatformUtils.copy(text: '${c.myUser.value?.num}');
-              MessagePopup.success('label_copied'.l10n, at: u.globalPosition);
-            },
-            child: Center(child: SvgIcon(SvgIcons.copy)),
-          ),
         ),
         const SizedBox(height: 21),
         ...widgets,

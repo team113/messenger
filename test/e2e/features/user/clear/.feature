@@ -15,16 +15,20 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Clear chat
+Feature: Clear dialog
 
-  Scenario: User clears chat
+  Scenario: User clears dialog
     Given I am Alice
-    And users Bob and Charlie
-    And I have "Group" group with Bob and Charlie
-    And I am in "Group" group
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
     And I see some messages in chat
 
-    When I tap `MoreButton` button
+    When I go to Bob's page
+    And I scroll `UserScrollable` to bottom
+    And I pause for 1 seconds
     And I tap `ClearHistoryButton` button
     And I tap `Proceed` button
+    And I pause for 1 seconds
+    And I am in chat with Bob
     Then I see no messages in chat

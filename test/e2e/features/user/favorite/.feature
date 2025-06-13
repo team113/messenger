@@ -15,16 +15,21 @@
 # along with this program. If not, see
 # <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-Feature: Clear chat
+Feature: Favorite dialog
 
-  Scenario: User clears chat
+  Background: User is in diaolog chat with Bob
     Given I am Alice
-    And users Bob and Charlie
-    And I have "Group" group with Bob and Charlie
-    And I am in "Group" group
-    And I see some messages in chat
+    And user Bob
+    And Bob has dialog with me
+    And I am in chat with Bob
 
-    When I tap `MoreButton` button
-    And I tap `ClearHistoryButton` button
-    And I tap `Proceed` button
-    Then I see no messages in chat
+  Scenario: User adds dialog to favorites
+    When I go to Bob's page
+    And I scroll `UserScrollable` to bottom
+    And I pause for 1 seconds
+    And I tap `FavoriteDialogButton` button
+    And I see "Bob" dialog with me as favorite
+    Then I see "Bob" dialog first in favorites list
+
+    When I tap `FavoriteDialogButton` button
+    Then I see "Bob" dialog with me as unfavorite

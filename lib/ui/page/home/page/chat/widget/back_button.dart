@@ -43,6 +43,7 @@ class StyledBackButton extends StatelessWidget {
       return Padding(
         padding: const EdgeInsets.only(right: 8),
         child: AnimatedButton(
+          key: const Key('BackButton'),
           onPressed: onPressed ?? () => Navigator.maybePop(context),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
