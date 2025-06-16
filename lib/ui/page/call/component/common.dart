@@ -444,40 +444,6 @@ class DeclineButton extends CallButton {
   }
 }
 
-/// [RoundFloatingButton] canceling an outgoing call.
-class CancelButton extends CallButton {
-  const CancelButton(super.c);
-
-  @override
-  String get hint => 'btn_call_cancel'.l10n;
-
-  @override
-  Widget build({
-    bool hinted = true,
-    bool blur = false,
-    bool big = false,
-    bool expanded = false,
-    bool opaque = false,
-  }) {
-    final style = Theme.of(router.context!).style;
-
-    return CallButtonWidget(
-      hint: hint,
-      asset: SvgIcons.callEndBig,
-      color: opaque
-          ? style.colors.declineOpacity88
-          : style.colors.declineOpacity50,
-      hinted: hinted,
-      expanded: expanded,
-      withBlur: blur,
-      big: big,
-      constrained: c.isMobile,
-      opaque: opaque,
-      onPressed: c.drop,
-    );
-  }
-}
-
 /// [CallButton] ending the call.
 class EndCallButton extends CallButton {
   const EndCallButton(super.c);
@@ -490,7 +456,12 @@ class EndCallButton extends CallButton {
       c.isMobile ? 'btn_call_end_desc'.l10n : 'btn_call_end'.l10n;
 
   @override
-  Widget build({bool hinted = true, bool big = false, bool expanded = false}) {
+  Widget build({
+    bool hinted = true,
+    bool big = false,
+    bool expanded = false,
+    bool opaque = false,
+  }) {
     final style = Theme.of(router.context!).style;
 
     return CallButtonWidget(
@@ -501,6 +472,7 @@ class EndCallButton extends CallButton {
       expanded: expanded,
       big: big,
       constrained: c.isMobile,
+      opaque: opaque,
       onPressed: c.drop,
     );
   }
@@ -609,9 +581,7 @@ Widget callTitle(CallController c) {
         : c.state.value == OngoingCallState.joining
         ? 'label_call_joining'.l10n
         : isOutgoing
-        ? isDialog
-              ? 'label_call_calling'.l10n
-              : 'label_call_connecting'.l10n
+        ? 'label_call_calling'.l10n
         : c.withVideo == true
         ? 'label_video_call'.l10nfmt(args)
         : 'label_audio_call'.l10nfmt(args);

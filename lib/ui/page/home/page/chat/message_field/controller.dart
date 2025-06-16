@@ -469,9 +469,21 @@ class MessageFieldController extends GetxController {
             .lastOrNull;
 
         if (file != null) {
-          final String? name = await e.getSuggestedName();
+          String? name = await e.getSuggestedName();
 
           Log.debug('_pasteItem() -> suggested name is: $name', '$runtimeType');
+
+          if (name == null && force) {
+            final String? mime = file.mimeTypes?.firstOrNull
+                ?.split('/')
+                .lastOrNull;
+
+            if (mime != null) {
+              name ??= '${DateTime.now().millisecondsSinceEpoch}.$mime';
+            } else {
+              name ??= '${DateTime.now().millisecondsSinceEpoch}';
+            }
+          }
 
           if (name != null) {
             final bool isMacOS = PlatformUtils.isMacOS && !PlatformUtils.isWeb;

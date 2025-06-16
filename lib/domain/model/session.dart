@@ -25,6 +25,7 @@ import 'precise_date_time/precise_date_time.dart';
 part 'session.g.dart';
 
 /// Session of a [MyUser] being signed-in.
+@JsonSerializable()
 class Session implements Comparable<Session> {
   const Session({
     required this.id,
@@ -32,6 +33,10 @@ class Session implements Comparable<Session> {
     required this.userAgent,
     required this.lastActivatedAt,
   });
+
+  /// Constructs a [Session] from the provided [json].
+  factory Session.fromJson(Map<String, dynamic> json) =>
+      _$SessionFromJson(json);
 
   /// Unique ID of this [Session].
   final SessionId id;
@@ -55,11 +60,20 @@ class Session implements Comparable<Session> {
 
     return result;
   }
+
+  /// Returns a [Map] representing this [Session].
+  Map<String, dynamic> toJson() => _$SessionToJson(this);
 }
 
 /// Type of [Session]'s ID.
 class SessionId extends NewType<String> {
   const SessionId(super.val);
+
+  /// Constructs a [SessionId] from the provided [val].
+  factory SessionId.fromJson(String val) = SessionId;
+
+  /// Returns a [String] representing this [SessionId].
+  String toJson() => val;
 }
 
 /// Type of [MyUser]'s user agent.
@@ -70,11 +84,23 @@ class SessionId extends NewType<String> {
 /// - contain at least one non-space-like character.
 class UserAgent extends NewType<String> {
   const UserAgent(super.val);
+
+  /// Constructs a [UserAgent] from the provided [val].
+  factory UserAgent.fromJson(String val) = UserAgent;
+
+  /// Returns a [String] representing this [UserAgent].
+  String toJson() => val;
 }
 
 /// Either an IPv4 or IPv6 address.
 class IpAddress extends NewType<String> {
   const IpAddress(super.val);
+
+  /// Constructs a [IpAddress] from the provided [val].
+  factory IpAddress.fromJson(String val) = IpAddress;
+
+  /// Returns a [String] representing this [IpAddress].
+  String toJson() => val;
 }
 
 /// Geographical location information regarding certain [IpAddress].
@@ -105,8 +131,13 @@ class IpGeoLocation {
 }
 
 /// Token used for authenticating a [Session].
+@JsonSerializable()
 class AccessToken {
   const AccessToken(this.secret, this.expireAt);
+
+  /// Constructs [AccessToken] from the provided [json].
+  factory AccessToken.fromJson(Map<String, dynamic> json) =>
+      _$AccessTokenFromJson(json);
 
   /// Secret part of this [AccessToken].
   ///
@@ -125,6 +156,9 @@ class AccessToken {
   /// authentication error occurs.
   final PreciseDateTime expireAt;
 
+  /// Returns a [Map] containing data of these [AccessToken].
+  Map<String, dynamic> toJson() => _$AccessTokenToJson(this);
+
   @override
   String toString() => 'AccessToken(secret: ***, expireAt: $expireAt)';
 }
@@ -132,11 +166,22 @@ class AccessToken {
 /// Type of [AccessToken]'s secret.
 class AccessTokenSecret extends NewType<String> {
   const AccessTokenSecret(super.val);
+
+  /// Constructs a [AccessTokenSecret] from the provided [val].
+  factory AccessTokenSecret.fromJson(String val) = AccessTokenSecret;
+
+  /// Returns a [String] representing this [AccessTokenSecret].
+  String toJson() => val;
 }
 
 /// Token used for refreshing a [Session].
+@JsonSerializable()
 class RefreshToken {
   const RefreshToken(this.secret, this.expireAt);
+
+  /// Constructs [RefreshToken] from the provided [json].
+  factory RefreshToken.fromJson(Map<String, dynamic> json) =>
+      _$RefreshTokenFromJson(json);
 
   /// Secret part of this [RefreshToken].
   ///
@@ -158,6 +203,9 @@ class RefreshToken {
   /// the same for all the [RefreshToken]s obtained.
   final PreciseDateTime expireAt;
 
+  /// Returns a [Map] containing data of this [RefreshToken].
+  Map<String, dynamic> toJson() => _$RefreshTokenToJson(this);
+
   @override
   String toString() => 'RefreshToken(secret: $secret, expireAt: $expireAt)';
 }
@@ -165,12 +213,19 @@ class RefreshToken {
 /// Type of [RefreshToken]'s secret.
 class RefreshTokenSecret extends NewType<String> {
   const RefreshTokenSecret(super.val);
+
+  /// Constructs a [RefreshTokenSecret] from the provided [val].
+  factory RefreshTokenSecret.fromJson(String val) = RefreshTokenSecret;
+
+  /// Returns a [String] representing this [RefreshTokenSecret].
+  String toJson() => val;
 }
 
 /// Container of a [AccessToken] and a [RefreshToken] representing the current
 /// [MyUser] credentials.
+@JsonSerializable()
 class Credentials {
-  const Credentials(this.access, this.refresh, this.sessionId, this.userId);
+  const Credentials(this.access, this.refresh, this.session, this.userId);
 
   /// Created or refreshed [AccessToken] for authenticating the [Session].
   ///
@@ -180,45 +235,48 @@ class Credentials {
   /// [RefreshToken] of these [Credentials].
   final RefreshToken refresh;
 
-  /// ID of the [Session] these [Credentials] represent.
-  final SessionId sessionId;
+  /// [Session] these [Credentials] represent.
+  final Session session;
 
   /// ID of the currently authenticated [MyUser].
   final UserId userId;
 
-  /// Constructs [Credentials] from the provided [data].
-  factory Credentials.fromJson(Map<dynamic, dynamic> data) {
-    return Credentials(
-      AccessToken(
-        AccessTokenSecret(data['access']['secret']),
-        PreciseDateTime.parse(data['access']['expireAt']),
-      ),
-      RefreshToken(
-        RefreshTokenSecret(data['refresh']['secret']),
-        PreciseDateTime.parse(data['refresh']['expireAt']),
-      ),
-      SessionId(data['sessionId'] ?? ''),
-      UserId(data['userId']),
-    );
+  /// Constructs [Credentials] from the provided [json].
+  factory Credentials.fromJson(Map<String, dynamic> json) {
+    try {
+      return _$CredentialsFromJson(json);
+    } catch (_) {
+      // TODO: Remove when clients migrate from old `Credentials` storage.
+      try {
+        return Credentials(
+          AccessToken(
+            AccessTokenSecret(json['access']['secret']),
+            PreciseDateTime.parse(json['access']['expireAt']),
+          ),
+          RefreshToken(
+            RefreshTokenSecret(json['refresh']['secret']),
+            PreciseDateTime.parse(json['refresh']['expireAt']),
+          ),
+          Session(
+            id: SessionId(json['sessionId'] ?? ''),
+            ip: IpAddress('127.0.0.0'),
+            userAgent: UserAgent(''),
+            lastActivatedAt: PreciseDateTime.now(),
+          ),
+          UserId(json['userId']),
+        );
+      } catch (_) {
+        // No-op.
+      }
+
+      rethrow;
+    }
   }
 
   /// Returns a [Map] containing data of these [Credentials].
-  Map<String, dynamic> toJson() {
-    return {
-      'access': {
-        'secret': access.secret.val,
-        'expireAt': access.expireAt.toString(),
-      },
-      'refresh': {
-        'secret': refresh.secret.val,
-        'expireAt': refresh.expireAt.toString(),
-      },
-      'sessionId': sessionId.val,
-      'userId': userId.val,
-    };
-  }
+  Map<String, dynamic> toJson() => _$CredentialsToJson(this);
 
   @override
   String toString() =>
-      'Credentials(userId: $userId, sessionId: $sessionId, access: $access refresh: $refresh)';
+      'Credentials(userId: $userId, sessionId: ${session.id}, access: $access refresh: $refresh)';
 }

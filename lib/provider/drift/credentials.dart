@@ -23,6 +23,7 @@ import 'package:mutex/mutex.dart';
 
 import '/domain/model/session.dart';
 import '/domain/model/user.dart';
+import '/util/log.dart';
 import '/util/obs/obs.dart';
 import 'drift.dart';
 
@@ -78,7 +79,17 @@ class CredentialsDriftProvider extends DriftProviderBase {
   Future<List<Credentials>> all() async {
     final result = await safe((db) async {
       final stmt = await db.select(db.tokens).get();
-      return stmt.map((e) => _CredentialsDb.fromDb(e)).toList();
+      return stmt
+          .map((e) {
+            try {
+              return _CredentialsDb.fromDb(e);
+            } catch (e) {
+              Log.error('Unable to decode `Credentials`: $e', '$runtimeType');
+              return null;
+            }
+          })
+          .nonNulls
+          .toList();
     }, exclusive: false);
 
     return result ?? [];

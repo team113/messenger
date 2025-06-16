@@ -275,7 +275,7 @@ class UpgradeWorker extends DisposableService {
       if (_lastBootstrapJs != null && _lastBootstrapJs != bootstrapJs) {
         _schedulePopup(
           Release(
-            name: 'label_latest_version_available'.l10n,
+            name: 'label_update_available'.l10n,
             description: null,
             publishedAt: DateTime.now(),
             assets: [],
