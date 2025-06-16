@@ -19,7 +19,6 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
 import '/ui/widget/line_divider.dart';
 import '/ui/page/home/widget/presence_label.dart';
 import '/util/platform_utils.dart';
@@ -44,11 +43,6 @@ import '/ui/widget/text_field.dart';
 import '/util/message_popup.dart';
 import 'controller.dart';
 import 'widget/blocklist_record.dart';
-
-/// Reperesnt contsnats for UserView
-abstract class _Constants {
-  static const EdgeInsets actionButtonPadding = EdgeInsets.only(bottom: 6);
-}
 
 /// View of the [Routes.user] page.
 class UserView extends StatelessWidget {
@@ -302,8 +296,9 @@ class UserView extends StatelessWidget {
     // final bool contact = c.contact.value != null;
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
-    final bool favorite = c.chat?.chat.value.favoritePosition != null;
-    final bool muted = c.chat?.chat.value.muted != null;
+    final bool favorite =
+        c.user?.dialog.value?.chat.value.favoritePosition != null;
+    final bool muted = c.user?.dialog.value?.chat.value.muted != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -328,7 +323,6 @@ class UserView extends StatelessWidget {
           trailing: SvgIcon(
             favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
-          padding: _Constants.actionButtonPadding,
         ),
         ActionButton(
           key: const Key('MuteDialogButton'),
@@ -341,27 +335,23 @@ class UserView extends StatelessWidget {
               : 'btn_mute_chat'.l10n,
           onPressed: muted ? c.unmuteChat : c.muteChat,
           trailing: SvgIcon(muted ? SvgIcons.unmuteSmall : SvgIcons.muteSmall),
-          padding: _Constants.actionButtonPadding,
         ),
         ActionButton(
           key: const Key('ClearHistoryButton'),
           text: 'btn_clear_history'.l10n,
           onPressed: () => _clearChat(c, context),
           trailing: SvgIcon(SvgIcons.cleanHistory),
-          padding: _Constants.actionButtonPadding,
         ),
         ActionButton(
           key: const Key('DeleteDialogButton'),
           text: 'btn_delete_chat'.l10n,
           onPressed: () => _hideChat(c, context),
           trailing: SvgIcon(SvgIcons.delete),
-          padding: _Constants.actionButtonPadding,
         ),
         ActionButton(
           text: 'btn_report'.l10n,
           trailing: const SvgIcon(SvgIcons.report16),
           onPressed: () => _reportUser(c, context),
-          padding: _Constants.actionButtonPadding,
         ),
         Obx(() {
           if (c.isBlocked != null) {
@@ -374,7 +364,6 @@ class UserView extends StatelessWidget {
             onPressed: () => _blockUser(c, context),
             trailing: const SvgIcon(SvgIcons.blockSmallRed),
             danger: true,
-            padding: _Constants.actionButtonPadding,
           );
         }),
       ],
@@ -452,7 +441,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
@@ -473,7 +462,7 @@ class UserView extends StatelessWidget {
       description: [
         TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
         TextSpan(
-          text: c.chat?.title,
+          text: c.user?.title,
           style: style.fonts.normal.regular.onBackground,
         ),
         TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),

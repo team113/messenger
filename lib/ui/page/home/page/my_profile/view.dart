@@ -17,17 +17,15 @@
 
 import 'dart:math';
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
+import 'package:collection/collection.dart';
 import 'package:flutter_xlider/flutter_xlider.dart';
 import 'package:get/get.dart';
 import 'package:hotkey_manager/hotkey_manager.dart';
 import 'package:pwa_install/pwa_install.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
-
-import '/ui/page/home/widget/presence_label.dart';
 import '/config.dart';
 import '/domain/model/attachment.dart';
 import '/domain/model/cache_info.dart';
@@ -55,6 +53,7 @@ import '/ui/page/home/widget/big_avatar.dart';
 import '/ui/page/home/widget/block.dart';
 import '/ui/page/home/widget/direct_link.dart';
 import '/ui/page/home/widget/field_button.dart';
+import '/ui/page/home/widget/presence_label.dart';
 import '/ui/page/login/privacy_policy/view.dart';
 import '/ui/page/login/terms_of_use/view.dart';
 import '/ui/widget/animated_switcher.dart';

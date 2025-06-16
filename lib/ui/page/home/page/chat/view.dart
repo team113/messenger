@@ -255,7 +255,9 @@ class ChatView extends StatelessWidget {
                           ],
                         );
                       }),
-                      padding: const EdgeInsets.only(left: 4),
+                      padding: c.chat?.chat.value.isDialog == true
+                          ? const EdgeInsets.only(left: 4, right: 12)
+                          : const EdgeInsets.only(left: 4),
                       leading: [
                         Obx(() {
                           if (c.searching.value) {
@@ -417,10 +419,12 @@ class ChatView extends StatelessWidget {
                                       ),
                                     ),
                                   );
-                                } else if (c.chat?.chat.value.isGroup != true) {
+                                } else if (c.chat?.chat.value.isDialog ==
+                                    true) {
                                   // This condition is needed to no display
                                   // 'MoreButton' in dialog
-                                  // TODO: delete 'MoreButton' in chat too when updated chat design
+                                  // TODO: delete 'MoreButton' in chat too when
+                                  // updated chat design
                                   child = const SizedBox();
                                 } else {
                                   child = ContextMenuRegion(
@@ -475,7 +479,8 @@ class ChatView extends StatelessWidget {
                                           SvgIcons.searchWhite,
                                         ),
                                       ),
-                                      // TODO: Uncomment, when contacts are implemented.
+                                      // TODO: Uncomment, when contacts are
+                                      // implemented.
                                       // if (dialog)
                                       //   ContextMenuButton(
                                       //     key: Key(
@@ -1314,6 +1319,7 @@ class ChatView extends StatelessWidget {
       await c.block();
     }
   }
+
   // TODO: Uncomment, when contacts are implemented.
   /// Opens a confirmation popup deleting the [User] from address book.
   // Future<void> _removeFromContacts(

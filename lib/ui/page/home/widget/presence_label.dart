@@ -21,9 +21,9 @@ import '/api/backend/schema.graphql.dart';
 import '/l10n/l10n.dart';
 import '/themes.dart';
 
-/// A widget that displays the presence status.
+/// Widget that displays the presence status.
 class PresenceLabel extends StatelessWidget {
-  const PresenceLabel({super.key, required this.presence});
+  const PresenceLabel({super.key, this.presence});
 
   /// The presence to display.
   ///
@@ -34,7 +34,7 @@ class PresenceLabel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
-    final presenceChecked = presence ?? Presence.present;
+    final Presence presence = this.presence ?? Presence.present;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -42,7 +42,7 @@ class PresenceLabel extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: switch (presenceChecked) {
+            color: switch (presence) {
               Presence.present => style.colors.acceptAuxiliary,
               Presence.away => style.colors.warning,
               (_) => style.colors.secondary,
@@ -53,7 +53,7 @@ class PresenceLabel extends StatelessWidget {
         ),
         SizedBox(width: 5),
         Flexible(
-          child: Text(switch (presenceChecked) {
+          child: Text(switch (presence) {
             Presence.present => 'label_presence_present'.l10n,
             Presence.away => 'label_presence_away'.l10n,
             (_) => '',

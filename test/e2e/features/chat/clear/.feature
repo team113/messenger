@@ -20,7 +20,7 @@ Feature: Clear chat
   Scenario: User clears chat
     Given I am Alice
     And users Bob and Charlie
-    And I have "Group" group with Bob and Charlie
+    And I have "Group" group
     And I am in "Group" group
     And I see some messages in chat
 

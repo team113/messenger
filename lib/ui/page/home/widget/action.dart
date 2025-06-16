@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 
 import '/themes.dart';
 import 'field_button.dart';
-import 'paddings.dart';
 
 /// Stylized [FieldButton] representing a single action.
 class ActionButton extends StatelessWidget {
@@ -29,7 +28,6 @@ class ActionButton extends StatelessWidget {
     this.onPressed,
     this.trailing,
     this.danger = false,
-    this.padding,
   });
 
   /// Text to display in this [ActionButton].
@@ -45,18 +43,12 @@ class ActionButton extends StatelessWidget {
   /// (destructive) style.
   final bool danger;
 
-  /// [ActionButton] padding.
-  ///
-  /// If it is not provided (i.e. null), the paddding will default to
-  /// Insets.dense.add(const EdgeInsets.only(bottom: 8))
-  final EdgeInsets? padding;
-
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
     return Padding(
-      padding: padding ?? Insets.dense.add(const EdgeInsets.only(bottom: 8)),
+      padding: const EdgeInsets.only(bottom: 6),
       child: FieldButton(
         onPressed: onPressed,
         text: text,

@@ -81,7 +81,6 @@ class ReactiveTextField extends StatelessWidget {
     state: TextFieldState(text: text, editable: false),
     label: label,
     floatingLabelBehavior: FloatingLabelBehavior.always,
-    formatters: [LengthLimitingTextInputFormatter(100)],
     trailing: WidgetButton(
       onPressed: () {},
       onPressedWithDetails: (u) {
