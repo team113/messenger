@@ -697,8 +697,8 @@ label_chat_call_moved = Moved call
 label_chat_call_ongoing = Active call
 label_chat_call_unanswered = Unanswered call
 label_chat_monolog = Your notes
-label_chat_monolog_description = Only you can see this chat. May contain any amount of messages. May contain any type of content.
 label_chat_name_hint = Chat name
+label_chat_with_yourself = Chat with yourself
 label_chats = Chats
 label_chats_and_groups = Chats and groups: {$count}
 label_chats_section_hint = Audio and video call buttons
@@ -943,6 +943,10 @@ label_money_freelance =
     - the payment is sent based on a service agreement and/or an invoice.
     - the payment is made with cryptocurrency USDT (TRC-20).
 label_monolog_created = Chat created
+label_monolog_features = Features:
+label_monolog_features_description =     - available for you
+    - unlimited number of messages
+    - any content (text, video, pictures).
 label_mute_for = {$days ->
     [0] {$hours ->
             [0] {$minutes ->

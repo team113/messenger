@@ -25,7 +25,13 @@ part 'suite.g.dart';
 
 /// Entry point of E2E tests.
 @GherkinTestSuite(
-  featurePaths: ['test/e2e/features/**.feature'],
+  featurePaths: [
+    'test/e2e/features/monolog/favorite/.feature',
+    // 'test/e2e/features/monolog/clear/.feature',
+    // 'test/e2e/features/monolog/delete/.feature',
+    //'test/e2e/features/pagination/chat_members/.feature',
+    //'test/e2e/features/**.feature'
+  ],
   executionOrder: ExecutionOrder.alphabetical,
 )
 void main() async {

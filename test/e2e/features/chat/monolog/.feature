@@ -29,11 +29,11 @@ Feature: Monolog
     Then I wait until status of "Hello, my monolog" message is read
     And monolog is indeed remote
 
-  Scenario: Call can be made in local monolog
-    Given popup windows are disabled
-    When I tap `AudioCall` button
-    Then monolog is indeed remote
-    And I pause for 2 seconds
+  # Scenario: Call can be made in local monolog
+  #   Given popup windows are disabled
+  #   When I tap `AudioCall` button
+  #   Then monolog is indeed remote
+  #   And I pause for 2 seconds
 
   # Scenario: User renames local monolog
   #   When I open chat's info

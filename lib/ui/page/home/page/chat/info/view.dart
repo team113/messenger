@@ -15,12 +15,17 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+
+import 'package:animated_size_and_fade/animated_size_and_fade.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../widget/chat_title.dart';
+import '../widget/monolog_description.dart';
+
+import '/ui/page/home/page/chat//controller.dart';
 import '/config.dart';
 import '/domain/model/avatar.dart';
 import '/domain/model/chat.dart';
@@ -30,10 +35,8 @@ import '/domain/repository/user.dart';
 import '/l10n/l10n.dart';
 import '/routes.dart';
 import '/themes.dart';
-import '/ui/page/home/page/chat//controller.dart';
 import '/ui/page/home/page/chat/info/add_member/controller.dart';
 import '/ui/page/home/page/chat/widget/back_button.dart';
-import '/ui/page/home/page/chat/widget/notes_block.dart';
 import '/ui/page/home/widget/action.dart';
 import '/ui/page/home/widget/app_bar.dart';
 import '/ui/page/home/widget/avatar.dart';
@@ -86,18 +89,20 @@ class ChatInfoView extends StatelessWidget {
               body: Center(child: Text('label_no_chat_found'.l10n)),
             );
           }
-
           final List<Widget> blocks = [
             const SizedBox(height: 8),
             if (c.isMonolog) ...[
               _avatar(c, context),
-              const NotesBlock.info(),
+              SelectionContainer.disabled(
+                child: Block(children: [_monologActions(c, context)]),
+              ),
+              //const NotesBlock.info(),
             ] else ...[
               _profile(c, context),
               SelectionContainer.disabled(child: _members(c, context)),
               SelectionContainer.disabled(child: _link(c, context)),
               SelectionContainer.disabled(
-                child: Block(children: [_actions(c, context)]),
+                child: Block(children: [_groupActions(c, context)]),
               ),
             ],
             const SizedBox(height: 8),
@@ -153,15 +158,7 @@ class ChatInfoView extends StatelessWidget {
           ],
         );
       } else {
-        name = SizedBox(
-          width: double.infinity,
-          child: Center(
-            child: Text(
-              '${c.chat?.title}',
-              style: style.fonts.larger.regular.onBackground,
-            ),
-          ),
-        );
+        name = ChatTitle(title: c.chat?.title ?? '');
       }
 
       final Widget button;
@@ -307,6 +304,33 @@ class ChatInfoView extends StatelessWidget {
   Widget _avatar(ChatInfoController c, BuildContext context) {
     return Obx(() {
       final Avatar? avatar = c.chat?.avatar.value;
+
+      if (c.isMonolog) {
+        return Column(
+          children: <Widget>[
+            Block(
+              title: 'label_chat_monolog'.l10n,
+              children: <Widget>[
+                SelectionContainer.disabled(
+                  child: BigAvatarWidget.chat(
+                    c.chat,
+                    key: Key('ChatAvatar_${c.chat!.id}'),
+                    loading: c.avatarUpload.value.isLoading,
+                    error: c.avatarUpload.value.errorMessage,
+                    //onUpload: c.pickAvatar,
+                    onEdit: avatar != null ? c.editAvatar : null,
+                    onDelete: c.chat?.avatar.value != null
+                        ? c.deleteAvatar
+                        : null,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const MonologDescription(),
+              ],
+            ),
+          ],
+        );
+      }
 
       return Block(
         children: [
@@ -480,8 +504,8 @@ class ChatInfoView extends StatelessWidget {
     );
   }
 
-  /// Returns the action buttons to do with this [Chat].
-  Widget _actions(ChatInfoController c, BuildContext context) {
+  /// Returns the action buttons to do with this [Chat] when as group.
+  Widget _groupActions(ChatInfoController c, BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -496,6 +520,40 @@ class ChatInfoView extends StatelessWidget {
           text: 'btn_leave_group'.l10n,
           danger: true,
           trailing: const SvgIcon(SvgIcons.leaveGroupRed),
+        ),
+      ],
+    );
+  }
+
+  /// Returns the action buttons to do with this [Chat] when as monolog.
+  Widget _monologActions(ChatInfoController c, BuildContext context) {
+    final bool favoriteChat = c.chat?.chat.value.favoritePosition != null;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        const SizedBox(height: 8),
+        ActionButton(
+          key: const Key('FavoriteMonologButton'),
+          text: favoriteChat
+              ? 'btn_delete_from_favorites'.l10n
+              : 'btn_add_to_favorites'.l10n,
+          onPressed: favoriteChat ? c.unfavoriteChat : c.favoriteChat,
+          trailing: SvgIcon(
+            favoriteChat ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+          ),
+        ),
+        ActionButton(
+          key: const Key('ClearHistoryButton'),
+          text: 'btn_clear_history'.l10n,
+          onPressed: () => _clearChat(c, context),
+          trailing: SvgIcon(SvgIcons.cleanHistory),
+        ),
+        ActionButton(
+          key: const Key('DeleteDialogButton'),
+          text: 'btn_delete_chat'.l10n,
+          onPressed: () => _hideChat(c, context),
+          trailing: SvgIcon(SvgIcons.delete),
         ),
       ],
     );
@@ -517,17 +575,19 @@ class ChatInfoView extends StatelessWidget {
           onPressed: () => router.dialog(c.chat!.chat.value, c.me),
           child: const SvgIcon(SvgIcons.chat),
         ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          onPressed: () => c.call(true),
-          child: const SvgIcon(SvgIcons.chatVideoCall),
-        ),
-        const SizedBox(width: 28),
-        AnimatedButton(
-          key: const Key('AudioCall'),
-          onPressed: () => c.call(false),
-          child: const SvgIcon(SvgIcons.chatAudioCall),
-        ),
+        if (c.chat?.chat.value.isMonolog == false) ...[
+          const SizedBox(width: 28),
+          AnimatedButton(
+            onPressed: () => c.call(true),
+            child: const SvgIcon(SvgIcons.chatVideoCall),
+          ),
+          const SizedBox(width: 28),
+          AnimatedButton(
+            key: const Key('AudioCall'),
+            onPressed: () => c.call(false),
+            child: const SvgIcon(SvgIcons.chatAudioCall),
+          ),
+        ],
         const SizedBox(width: 20),
       ],
     );
@@ -577,6 +637,48 @@ class ChatInfoView extends StatelessWidget {
 
     if (result == true) {
       await c.reportChat();
+    }
+  }
+
+  /// Opens a confirmation popup hiding this [Chat].
+  Future<void> _hideChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_delete_chat'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_deleted1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_deleted2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.hideChat();
+    }
+  }
+
+  /// Opens a confirmation popup clearing this [Chat].
+  Future<void> _clearChat(ChatInfoController c, BuildContext context) async {
+    final style = Theme.of(context).style;
+
+    final bool? result = await MessagePopup.alert(
+      'label_clear_history'.l10n,
+      description: [
+        TextSpan(text: 'alert_chat_will_be_cleared1'.l10n),
+        TextSpan(
+          text: c.chat?.title,
+          style: style.fonts.normal.regular.onBackground,
+        ),
+        TextSpan(text: 'alert_chat_will_be_cleared2'.l10n),
+      ],
+    );
+
+    if (result == true) {
+      await c.clearChat();
     }
   }
 }

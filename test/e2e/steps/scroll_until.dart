@@ -81,6 +81,7 @@ final StepDefinitionGeneric<CustomWorld> scrollToBottom =
       StepContext<CustomWorld> context,
     ) async {
       await _scrollScrollableTo(key, context, (p) => p.maxScrollExtent);
+      await context.world.appDriver.waitForAppToSettle();
     });
 
 /// Scrolls the provided [Scrollable] to the top.

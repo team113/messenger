@@ -66,6 +66,7 @@ import 'controller.dart';
 import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'widget/back_button.dart';
+import 'widget/cancle_button.dart';
 import 'widget/chat_forward.dart';
 import 'widget/chat_item.dart';
 import 'widget/chat_subtitle.dart';
@@ -300,6 +301,23 @@ class ChatView extends StatelessWidget {
                             );
                           }
 
+                          if (c.chat?.chat.value.isMonolog == true) {
+                            return Obx(() {
+                              if (c.selecting.value) {
+                                return AnimatedButton(
+                                  child: SafeAnimatedSwitcher(
+                                    duration: 250.milliseconds,
+                                    child: CancelButton(
+                                      onPressed: c.selecting.toggle,
+                                    ),
+                                  ),
+                                );
+                              }
+
+                              return const SizedBox();
+                            });
+                          }
+
                           final bool blocked = c.chat?.blocked == true;
                           final bool inCall = c.chat?.inCall.value ?? false;
 
@@ -400,22 +418,8 @@ class ChatView extends StatelessWidget {
                                 final Widget child;
 
                                 if (c.selecting.value) {
-                                  child = AnimatedButton(
-                                    key: const Key('CancelSelecting'),
+                                  child = CancelButton(
                                     onPressed: c.selecting.toggle,
-                                    child: Container(
-                                      padding: const EdgeInsets.only(left: 10),
-                                      height: double.infinity,
-                                      child: const Padding(
-                                        padding: EdgeInsets.fromLTRB(
-                                          10,
-                                          0,
-                                          21,
-                                          0,
-                                        ),
-                                        child: SvgIcon(SvgIcons.closePrimary),
-                                      ),
-                                    ),
                                   );
                                 } else {
                                   child = ContextMenuRegion(

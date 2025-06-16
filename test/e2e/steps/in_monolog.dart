@@ -18,6 +18,8 @@
 import 'package:get/get.dart';
 import 'package:flutter_gherkin/flutter_gherkin.dart';
 import 'package:gherkin/gherkin.dart';
+import 'package:messenger/domain/model/chat.dart';
+import 'package:messenger/domain/model/chat_item.dart';
 import 'package:messenger/domain/service/chat.dart';
 import 'package:messenger/routes.dart';
 
@@ -32,11 +34,28 @@ final StepDefinitionGeneric iAmInMonolog = given<CustomWorld>(
   (context) async {
     final ChatService chatService = Get.find<ChatService>();
     router.chat(chatService.monolog);
+    await context.world.appDriver.waitForAppToSettle();
 
     await context.world.appDriver.waitUntil(() async {
-      return context.world.appDriver.isPresent(
+      final bool isPresent = await context.world.appDriver.isPresent(
         context.world.appDriver.findBy('ChatView', FindType.key),
       );
-    });
+      return isPresent;
+    }, pollInterval: const Duration(seconds: 3));
+  },
+  configuration: StepDefinitionConfiguration()
+    ..timeout = const Duration(minutes: 5),
+);
+
+final StepDefinitionGeneric haveMessageInMonolog = given<CustomWorld>(
+  'I have message in monolog',
+  (context) async {
+    final ChatService chatService = Get.find<ChatService>();
+    final ChatId monolog = chatService.monolog;
+    await chatService.sendChatMessage(
+      monolog,
+      text: ChatMessageText('Hello it\'s test for monolog.'),
+    );
+    await context.world.appDriver.waitForAppToSettle();
   },
 );

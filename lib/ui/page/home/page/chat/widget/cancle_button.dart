@@ -17,32 +17,29 @@
 
 import 'package:flutter/material.dart';
 
-import '/l10n/l10n.dart';
-import '/themes.dart';
-import '/ui/page/home/widget/block.dart';
-import 'monolog_description.dart';
+import '/ui/widget/animated_button.dart';
+import '/ui/widget/svg/svgs.dart';
 
-/// [Block] describing [Chat]-monolog usage examples.
-class NotesBlock extends StatelessWidget {
-  const NotesBlock({super.key, this.info = false});
+/// [AnimatedButton] with close icon
+class CancelButton extends StatelessWidget {
+  const CancelButton({super.key, required this.onPressed});
 
-  /// Builds the [NotesBlock] with [info] mode.
-  const NotesBlock.info({super.key}) : info = true;
-
-  /// Indicator whether the title of this [NotesBlock] should reflect it being
-  /// an information.
-  final bool info;
+  /// Callback, called when the button is pressed.
+  final VoidCallback onPressed;
 
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).style;
-
-    return Block(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 0),
-      title: info ? 'label_information'.l10n : 'label_chat_monolog'.l10n,
-      titleStyle: style.fonts.large.regular.onBackground,
-      children: [const MonologDescription(), const SizedBox(height: 24)],
+    return AnimatedButton(
+      key: const Key('CancelSelecting'),
+      onPressed: onPressed,
+      child: Container(
+        padding: const EdgeInsets.only(left: 10),
+        height: double.infinity,
+        child: const Padding(
+          padding: EdgeInsets.fromLTRB(10, 0, 21, 0),
+          child: SvgIcon(SvgIcons.closePrimary),
+        ),
+      ),
     );
   }
 }

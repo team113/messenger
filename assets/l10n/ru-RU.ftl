@@ -718,8 +718,8 @@ label_chat_call_moved = Перемещённый звонок
 label_chat_call_ongoing = Активный звонок
 label_chat_call_unanswered = Неотвеченный звонок
 label_chat_monolog = Ваши заметки
-label_chat_monolog_description = Отображаются только Вам. Могут содержать любое количество сообщений. Могут содержать любой контент.
 label_chat_name_hint = Название чата
+label_chat_with_yourself = Чат с собой
 label_chats = Чаты
 label_chats_and_groups = Чаты и группы: {$count}
 label_chats_section_hint = Кнопки аудио и видео звонка
@@ -965,6 +965,10 @@ label_money_freelance =
     - оплата отправляется на основании договора о предоставлении услуг и/или инвойса;
     - оплата осуществляется криптовалютой USDT (TRC-20).
 label_monolog_created = Чат создан
+label_monolog_features = Возможности чата с собой:
+label_monolog_features_description =    - Всегда под рукой
+    - Безлимитные сообщения
+    - Любой контент (текст, видео, картинки)
 label_mute_for = {$days ->
     [0] {$hours ->
             [0] {$minutes ->

@@ -120,6 +120,7 @@ import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
 import 'steps/sees_as_online.dart';
 import 'steps/sees_dialog.dart';
+import 'steps/monolog_is_hidden.dart';
 import 'steps/sees_muted_chat.dart';
 import 'steps/select_text.dart';
 import 'steps/sends_attachment.dart';
@@ -214,6 +215,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         longPressMonolog,
         longPressWidget,
         monologAvailability,
+        monologIsHidden,
         myNameIs,
         myNameIsNot,
         noInternetConnection,
@@ -261,6 +263,7 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeFavoriteChatPosition,
         seeMonologAsFavorite,
         seeMonologInSearchResults,
+        haveMessageInMonolog,
         seeNamedChat,
         seeNoChatsDismissed,
         seeNoContactsDismissed,

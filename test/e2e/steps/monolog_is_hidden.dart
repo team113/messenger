@@ -15,31 +15,30 @@
 // along with this program. If not, see
 // <https://www.gnu.org/licenses/agpl-3.0.html>.
 
-import 'package:flutter_gherkin/flutter_gherkin.dart';
+import 'package:get/get.dart';
 import 'package:gherkin/gherkin.dart';
 import 'package:messenger/domain/model/chat.dart';
-import 'package:messenger/routes.dart';
+import 'package:messenger/domain/service/chat.dart';
 
 import '../world/custom_world.dart';
 
-/// Routes the [router] to the currently opened [Chat]'s info page.
+//// Indicates whether a dialog [Chat] with the provided name is not displayed
+/// in the list of chats.
+///
+/// The [Chat] object represents a dialog between users.Add commentMore actions
 ///
 /// Examples:
-/// - Then I open chat's info
-final StepDefinitionGeneric openChatInfo = then<CustomWorld>(
-  'I open chat\'s info',
+/// - Then I see no dialog with "Bob"
+final StepDefinitionGeneric monologIsHidden = then<CustomWorld>(
+  'Monolog is indeed hidden',
   (context) async {
-    final ChatId chatId = ChatId(router.route.split('/').last);
-    router.chatInfo(chatId);
-    await context.world.appDriver.waitForAppToSettle();
-
     await context.world.appDriver.waitUntil(() async {
-      final bool isPresent = await context.world.appDriver.isPresent(
-        context.world.appDriver.findBy('ChatInfoView', FindType.key),
-      );
-      return isPresent;
-    }, pollInterval: const Duration(seconds: 2));
+      await context.world.appDriver.waitForAppToSettle();
+
+      final chatService = Get.find<ChatService>();
+      final monolog = await chatService.get(chatService.monolog);
+
+      return monolog?.chat.value.isHidden == true;
+    });
   },
-  configuration: StepDefinitionConfiguration()
-    ..timeout = const Duration(minutes: 5),
 );
