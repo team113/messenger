@@ -760,7 +760,6 @@ label_direct_chat_link_description =
     применяются Ваши настройки конфиденциальности.
 label_direct_chat_link_in_chat_description =
     Пользователи, пришедшие по прямой ссылке, автоматически становятся полноправными участниками группы.
-label_disabled = Отключены
 label_discard_changes_question = Отменить изменения?
 label_display_audio_and_video_call_buttons = Отображать кнопки аудио и видео звонка
 label_display_timestamps = Отображать метки времени
@@ -785,7 +784,6 @@ label_email_or_phone_not_set2 = Восстановление доступа к �
 label_email_example = example@gmail.com
 label_email_visible = Ваш E-mail видят:{" "}
 label_empty_message = Пустое сообщение
-label_enabled = Включены
 label_end_session = Завершить сессию
 label_enter_confirmation_code = Проверочный код
 label_enter_confirmation_code_hint = Введите проверочный код
@@ -812,8 +810,6 @@ label_forwarded_messages = {$count ->
     [1] Пересланное сообщение
    *[other] Пересланные сообщения
 }
-label_gb_occupied = Занято {$count} ГБ
-label_gb_of_gb_occupied = Занято {$a} из {$b} ГБ
 label_group_created = Группа создана
 label_group_created_by = {$author} создал(а) группу
 label_group_created_by1 = {$author}
@@ -899,7 +895,6 @@ label_media_no_device_available = Нет доступных устройств
 label_media_output = Спикер
 label_media_section_hint = Микрофон, спикер, камера
 label_media_settings = Настройки медиа
-label_menu = Меню
 label_message = Сообщение
 label_message_editing = Редактирование сообщения
 label_message_will_deleted_for_you = Сообщение будет удалено только для Вас.

@@ -738,7 +738,6 @@ label_direct_chat_link_description =
     settings are respected.
 label_direct_chat_link_in_chat_description =
     Users who come via a direct link automatically become full members of the group.
-label_disabled = Disabled
 label_discard_changes_question = Discard changes?
 label_display_audio_and_video_call_buttons = Display audio and video call buttons
 label_display_timestamps = Display timestamps
@@ -763,7 +762,6 @@ label_email_or_phone_not_set2 = Access to the account cannot be restored.
 label_email_visible = Yor E-mail visible to:{" "}
 label_email_example = example@gmail.com
 label_empty_message = Empty message
-label_enabled = Enabled
 label_end_session = End session
 label_enter_confirmation_code = Confirmation code
 label_enter_confirmation_code_hint = Enter confirmation code
@@ -790,8 +788,6 @@ label_forwarded_messages = {$count ->
     [1] Forwarded message
    *[other] Forwarded messages
 }
-label_gb_occupied = {$count} GB occupied
-label_gb_of_gb_occupied = {$a} of {$b} GB occupied
 label_group_created = Group created
 label_group_created_by = {$author} created the group
 label_group_created_by1 = {$author}
@@ -877,7 +873,6 @@ label_media_no_device_available = No device is available
 label_media_output = Speaker
 label_media_section_hint = Microphone, speaker, camera
 label_media_settings = Media settings
-label_menu = Menu
 label_message = Message
 label_message_editing = Message editing
 label_message_will_deleted_for_you = The message will be deleted only for you.

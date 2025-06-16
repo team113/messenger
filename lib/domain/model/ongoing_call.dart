@@ -918,24 +918,18 @@ class OngoingCall {
   }
 
   /// Leaves this [OngoingCall].
-  ///
-  /// Throws a [LeaveChatCallException].
   Future<void> leave(CallService calls) async {
     Log.debug('leave()', '$runtimeType');
     await calls.leave(chatId.value, deviceId);
   }
 
   /// Declines this [OngoingCall].
-  ///
-  /// Throws a [DeclineChatCallException].
   Future<void> decline(CallService calls) async {
     Log.debug('decline()', '$runtimeType');
     await calls.decline(chatId.value);
   }
 
   /// Joins this [OngoingCall].
-  ///
-  /// Throws a [JoinChatCallException], [CallDoesNotExistException].
   Future<void> join(
     CallService calls, {
     bool withAudio = true,

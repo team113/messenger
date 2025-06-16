@@ -169,14 +169,6 @@ class CallAlreadyExistsException
   String toMessage() => 'err_call_already_exists'.l10n;
 }
 
-/// Cannot join an [OngoingCall] as it doesn't exist on the client-side.
-class CallDoesNotExistException
-    with LocalizedExceptionMixin
-    implements Exception {
-  @override
-  String toMessage() => 'err_call_not_found'.l10n;
-}
-
 /// Cannot join or start an [OngoingCall] as the authenticated [MyUser] has
 /// already joined it.
 class CallAlreadyJoinedException
