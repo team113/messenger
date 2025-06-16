@@ -41,76 +41,54 @@ class AnimatedTyping extends StatefulWidget {
 }
 
 /// State of an [AnimatedTyping] maintaining the [_controller].
-class _AnimatedTypingState extends State<AnimatedTyping>
-    with SingleTickerProviderStateMixin {
-  /// [AnimationController] animating the circles.
-  late final AnimationController _controller;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this, debugLabel: '$runtimeType')
-      ..repeat(period: widget.period);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
+class _AnimatedTypingState extends State<AnimatedTyping> {
   @override
   Widget build(BuildContext context) {
     final style = Theme.of(context).style;
 
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (BuildContext context, _) {
-        final Color begin = widget.inverted
-            ? style.colors.onPrimary
-            : style.colors.primary;
-        final Color end = style.colors.primaryHighlightLightest;
+    final Color begin = widget.inverted
+        ? style.colors.onPrimary
+        : style.colors.primary;
+    final Color end = style.colors.primaryHighlightLightest;
 
-        const double size = 3;
-        const double spacing = 1.6;
+    const double size = 3;
+    const double spacing = 1.6;
 
-        final Color? color1 = ColorTween(
-          begin: begin,
-          end: end,
-        ).lerp(sin(pi * const Interval(0.0, 0.3).transform(_controller.value)));
-        final Color? color2 = ColorTween(
-          begin: begin,
-          end: end,
-        ).lerp(sin(pi * const Interval(0.3, 0.6).transform(_controller.value)));
-        final Color? color3 = ColorTween(
-          begin: begin,
-          end: end,
-        ).lerp(sin(pi * const Interval(0.6, 1).transform(_controller.value)));
+    final Color? color1 = ColorTween(
+      begin: begin,
+      end: end,
+    ).lerp(sin(pi * const Interval(0.0, 0.3).transform(0)));
+    final Color? color2 = ColorTween(
+      begin: begin,
+      end: end,
+    ).lerp(sin(pi * const Interval(0.3, 0.6).transform(0)));
+    final Color? color3 = ColorTween(
+      begin: begin,
+      end: end,
+    ).lerp(sin(pi * const Interval(0.6, 1).transform(0)));
 
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: color1),
-            ),
-            const SizedBox(width: spacing),
-            Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: color2),
-            ),
-            const SizedBox(width: spacing),
-            Container(
-              width: size,
-              height: size,
-              decoration: BoxDecoration(shape: BoxShape.circle, color: color3),
-            ),
-            const SizedBox(width: spacing),
-          ],
-        );
-      },
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color1),
+        ),
+        const SizedBox(width: spacing),
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color2),
+        ),
+        const SizedBox(width: spacing),
+        Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(shape: BoxShape.circle, color: color3),
+        ),
+        const SizedBox(width: spacing),
+      ],
     );
   }
 }

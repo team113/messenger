@@ -42,7 +42,6 @@ import '/domain/repository/call.dart'
     show
         CallAlreadyExistsException,
         CallAlreadyJoinedException,
-        CallDoesNotExistException,
         CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
@@ -372,8 +371,6 @@ class ChatsTabController extends GetxController {
     } on JoinChatCallException catch (e) {
       MessagePopup.error(e);
     } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
-    } on CallDoesNotExistException catch (e) {
       MessagePopup.error(e);
     } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
