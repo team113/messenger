@@ -25,7 +25,6 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '/domain/repository/chat.dart';
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -39,6 +38,7 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallAlreadyJoinedException,
         CallIsInPopupException;
+import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -410,6 +410,7 @@ class UserController extends GetxController {
   /// Mutes a [Chat]-dialog with the [user].
   Future<void> muteChat() async {
     final ChatId? dialog = user?.user.value.dialog;
+
     if (dialog != null) {
       try {
         await _chatService.toggleChatMute(dialog, MuteDuration.forever());

@@ -197,7 +197,6 @@ class UserView extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // const SizedBox(height: 12),
               PresenceLabel(
                 key: Key(
                   c.user?.user.value.presence?.name.capitalizeFirst ?? '',
@@ -303,7 +302,7 @@ class UserView extends StatelessWidget {
     // final bool contact = c.contact.value != null;
     // final bool favorite =
     //     c.contact.value?.contact.value.favoritePosition != null;
-    final bool favoriteChat = c.chat?.chat.value.favoritePosition != null;
+    final bool favorite = c.chat?.chat.value.favoritePosition != null;
     final bool muted = c.chat?.chat.value.muted != null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -322,12 +321,12 @@ class UserView extends StatelessWidget {
         // ),
         ActionButton(
           key: const Key('FavoriteDialogButton'),
-          text: favoriteChat
+          text: favorite
               ? 'btn_delete_from_favorites'.l10n
               : 'btn_add_to_favorites'.l10n,
-          onPressed: favoriteChat ? c.unfavoriteChat : c.favoriteChat,
+          onPressed: favorite ? c.unfavoriteChat : c.favoriteChat,
           trailing: SvgIcon(
-            favoriteChat ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
+            favorite ? SvgIcons.favorite16 : SvgIcons.unfavorite16,
           ),
           padding: _Constants.actionButtonPadding,
         ),
