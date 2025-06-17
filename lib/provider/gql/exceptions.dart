@@ -378,9 +378,9 @@ class JoinChatCallException with LocalizedExceptionMixin implements Exception {
   String toMessage() {
     switch (code) {
       case JoinChatCallErrorCode.noCall:
-        return 'err_call_not_found'.l10n;
       case JoinChatCallErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case JoinChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -426,9 +426,9 @@ class DeclineChatCallException
   String toMessage() {
     switch (code) {
       case DeclineChatCallErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case DeclineChatCallErrorCode.alreadyJoined:
-        return 'err_call_already_joined'.l10n;
+        return toString();
+
       case DeclineChatCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -846,11 +846,10 @@ class ToggleChatCallHandException
   String toMessage() {
     switch (code) {
       case ToggleChatCallHandErrorCode.notCallMember:
-        return 'err_not_call_member'.l10n;
       case ToggleChatCallHandErrorCode.noCall:
-        return 'err_call_not_found'.l10n;
       case ToggleChatCallHandErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
+        return toString();
+
       case ToggleChatCallHandErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -873,17 +872,13 @@ class RedialChatCallMemberException
   String toMessage() {
     switch (code) {
       case RedialChatCallMemberErrorCode.notCallMember:
-        return 'err_not_call_member'.l10n;
       case RedialChatCallMemberErrorCode.noCall:
-        return 'err_call_not_found'.l10n;
       case RedialChatCallMemberErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case RedialChatCallMemberErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
       case RedialChatCallMemberErrorCode.notChatMember:
-        return 'err_not_member'.l10n;
       case RedialChatCallMemberErrorCode.notGroup:
-        return 'err_contact_not_group'.l10n;
+        return toString();
+
       case RedialChatCallMemberErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }
@@ -1113,16 +1108,16 @@ class TransformDialogCallIntoGroupCallException
     switch (code) {
       case TransformDialogCallIntoGroupCallErrorCode.blocked:
         return 'err_blocked_by_multiple'.l10n;
-      case TransformDialogCallIntoGroupCallErrorCode.notDialog:
-        return 'err_not_dialog'.l10n;
-      case TransformDialogCallIntoGroupCallErrorCode.noCall:
-        return 'err_call_not_found'.l10n;
+
       case TransformDialogCallIntoGroupCallErrorCode.wrongMembersCount:
         return 'err_wrong_members_count'.l10n;
+
+      case TransformDialogCallIntoGroupCallErrorCode.notDialog:
+      case TransformDialogCallIntoGroupCallErrorCode.noCall:
       case TransformDialogCallIntoGroupCallErrorCode.unknownChat:
-        return 'err_unknown_chat'.l10n;
       case TransformDialogCallIntoGroupCallErrorCode.unknownUser:
-        return 'err_unknown_user'.l10n;
+        return toString();
+
       case TransformDialogCallIntoGroupCallErrorCode.artemisUnknown:
         return 'err_unknown'.l10n;
     }

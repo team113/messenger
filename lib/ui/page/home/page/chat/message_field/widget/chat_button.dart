@@ -26,7 +26,6 @@ class ChatButtonWidget extends StatelessWidget {
   /// Constructs a [ChatButtonWidget] from the provided [ChatButton].
   ChatButtonWidget(ChatButton button, {super.key})
     : onPressed = button.onPressed,
-      onLongPress = null,
       icon = Transform.translate(
         offset: button.offset,
         child: SvgIcon(button.asset),
@@ -37,19 +36,12 @@ class ChatButtonWidget extends StatelessWidget {
       );
 
   /// Constructs a send/forward [ChatButtonWidget].
-  ChatButtonWidget.send({
-    super.key,
-    bool forwarding = false,
-    this.onPressed,
-    this.onLongPress,
-  }) : icon = SvgIcon(forwarding ? SvgIcons.forward : SvgIcons.send),
-       disabledIcon = null;
+  ChatButtonWidget.send({super.key, this.onPressed})
+    : icon = SvgIcon(SvgIcons.send),
+      disabledIcon = null;
 
   /// Callback, called when this [ChatButtonWidget] is pressed.
   final void Function()? onPressed;
-
-  /// Callback, called when this [ChatButtonWidget] is long-pressed.
-  final void Function()? onLongPress;
 
   /// Icon to display.
   final Widget icon;
@@ -63,7 +55,6 @@ class ChatButtonWidget extends StatelessWidget {
 
     return AnimatedButton(
       onPressed: disabled ? null : onPressed,
-      onLongPress: onLongPress,
       enabled: !disabled,
       child: SizedBox(
         width: 50,

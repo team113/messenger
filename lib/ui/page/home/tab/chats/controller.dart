@@ -38,11 +38,6 @@ import '/domain/model/ongoing_call.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyExistsException,
-        CallAlreadyJoinedException,
-        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
@@ -354,12 +349,6 @@ class ChatsTabController extends GetxController {
       await _callService.call(id, withVideo: withVideo);
     } on JoinChatCallException catch (e) {
       MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyExistsException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
     }
   }
 
@@ -369,10 +358,6 @@ class ChatsTabController extends GetxController {
     try {
       await _callService.join(id, withVideo: withVideo);
     } on JoinChatCallException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
       MessagePopup.error(e);
     }
   }

@@ -45,7 +45,6 @@ import '/domain/model/chat_call.dart';
 import '/domain/model/chat_info.dart';
 import '/domain/model/chat_item.dart';
 import '/domain/model/chat_item_quote.dart';
-import '/domain/model/chat_item_quote_input.dart';
 import '/domain/model/chat_message_input.dart';
 import '/domain/model/contact.dart';
 import '/domain/model/mute_duration.dart';
@@ -53,11 +52,6 @@ import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/sending_status.dart';
 import '/domain/model/user.dart';
 import '/domain/model/welcome_message.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyExistsException,
-        CallAlreadyJoinedException,
-        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/paginated.dart';
 import '/domain/repository/settings.dart';
@@ -98,8 +92,6 @@ import '/util/log.dart';
 import '/util/message_popup.dart';
 import '/util/obs/obs.dart';
 import '/util/platform_utils.dart';
-import 'forward/controller.dart';
-import 'forward/view.dart';
 import 'message_field/controller.dart';
 import 'view.dart';
 
@@ -474,55 +466,35 @@ class ChatController extends GetxController {
           return;
         }
 
-        if (send.forwarding.value) {
-          if (send.replied.isNotEmpty) {
-            if (send.replied.any((e) => e is ChatCall)) {
-              MessagePopup.error('err_cant_forward_calls'.l10n);
-              return;
-            }
+        if (send.field.text.trim().isNotEmpty ||
+            send.attachments.isNotEmpty ||
+            send.replied.isNotEmpty) {
+          _chatService
+              .sendChatMessage(
+                chat?.chat.value.id ?? id,
+                text: send.field.text.trim().isEmpty
+                    ? null
+                    : ChatMessageText(send.field.text.trim()),
+                repliesTo: send.replied.map((e) => e.value).toList(),
+                attachments: send.attachments.map((e) => e.value).toList(),
+              )
+              .then(
+                (_) => AudioUtils.once(
+                  AudioSource.asset('audio/message_sent.mp3'),
+                ),
+              )
+              .onError<PostChatMessageException>(
+                (_, __) => _showBlockedPopup(),
+                test: (e) => e.code == PostChatMessageErrorCode.blocked,
+              )
+              .onError<UploadAttachmentException>(
+                (e, _) => MessagePopup.error(e),
+              )
+              .onError<ConnectionException>((e, _) {});
 
-            await ChatForwardView.show(
-              onContext?.call() ?? router.context!,
-              id,
-              send.replied
-                  .map((e) => ChatItemQuoteInput(item: e.value))
-                  .toList(),
-              text: send.field.text,
-              attachments: send.attachments.map((e) => e.value).toList(),
-              onSent: send.clear,
-            );
-          }
-        } else {
-          if (send.field.text.trim().isNotEmpty ||
-              send.attachments.isNotEmpty ||
-              send.replied.isNotEmpty) {
-            _chatService
-                .sendChatMessage(
-                  chat?.chat.value.id ?? id,
-                  text: send.field.text.trim().isEmpty
-                      ? null
-                      : ChatMessageText(send.field.text.trim()),
-                  repliesTo: send.replied.map((e) => e.value).toList(),
-                  attachments: send.attachments.map((e) => e.value).toList(),
-                )
-                .then(
-                  (_) => AudioUtils.once(
-                    AudioSource.asset('audio/message_sent.mp3'),
-                  ),
-                )
-                .onError<PostChatMessageException>(
-                  (_, __) => _showBlockedPopup(),
-                  test: (e) => e.code == PostChatMessageErrorCode.blocked,
-                )
-                .onError<UploadAttachmentException>(
-                  (e, _) => MessagePopup.error(e),
-                )
-                .onError<ConnectionException>((e, _) {});
+          send.clear(unfocus: false);
 
-            send.clear(unfocus: false);
-
-            chat?.setDraft();
-          }
+          chat?.setDraft();
         }
       },
     );
@@ -657,12 +629,6 @@ class ChatController extends GetxController {
       await _callService.call(id, withVideo: withVideo);
     } on JoinChatCallException catch (e) {
       MessagePopup.error(e);
-    } on CallAlreadyExistsException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
     }
   }
 
@@ -671,10 +637,6 @@ class ChatController extends GetxController {
     try {
       await _callService.join(id, withVideo: false);
     } on JoinChatCallException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     }
   }

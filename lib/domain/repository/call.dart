@@ -25,9 +25,7 @@ import '../model/chat_item.dart';
 import '../model/my_user.dart';
 import '../model/ongoing_call.dart';
 import '/domain/model/user.dart';
-import '/l10n/l10n.dart';
 import '/store/event/chat_call.dart';
-import '/util/localized_exception.dart';
 import '/util/obs/obs.dart';
 import '/util/web/web_utils.dart';
 
@@ -160,32 +158,11 @@ abstract class AbstractCallRepository {
   Stream<ChatCallEvents> heartbeat(ChatItemId id, ChatCallDeviceId deviceId);
 }
 
-/// Cannot create a new [OngoingCall] in the specified [Chat], because it exists
-/// already.
-class CallAlreadyExistsException
-    with LocalizedExceptionMixin
-    implements Exception {
-  @override
-  String toMessage() => 'err_call_already_exists'.l10n;
-}
-
 /// Cannot join or start an [OngoingCall] as the authenticated [MyUser] has
 /// already joined it.
-class CallAlreadyJoinedException
-    with LocalizedExceptionMixin
-    implements Exception {
+class CallAlreadyJoinedException implements Exception {
   const CallAlreadyJoinedException(this.deviceId);
 
   /// [ChatCallDeviceId] of the already joined device.
   final ChatCallDeviceId deviceId;
-
-  @override
-  String toMessage() => 'err_call_already_joined'.l10n;
-}
-
-/// Cannot join or start an [OngoingCall] as it's maintained in a separate
-/// popup window.
-class CallIsInPopupException with LocalizedExceptionMixin implements Exception {
-  @override
-  String toMessage() => 'err_call_is_in_popup'.l10n;
 }

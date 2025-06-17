@@ -450,7 +450,7 @@ class ChatsTabView extends StatelessWidget {
                                   subtitle: [
                                     const SizedBox(height: 5),
                                     Text(
-                                      'label_required'.l10n,
+                                      'label_you'.l10n,
                                       style:
                                           style.fonts.small.regular.onPrimary,
                                     ),

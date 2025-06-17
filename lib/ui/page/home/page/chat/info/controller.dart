@@ -34,11 +34,6 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/native_file.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyExistsException,
-        CallAlreadyJoinedException,
-        CallIsInPopupException;
 import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/domain/service/auth.dart';
@@ -252,13 +247,7 @@ class ChatInfoController extends GetxController {
   Future<void> call(bool withVideo) async {
     try {
       await _callService.call(chatId, withVideo: withVideo);
-    } on CallAlreadyExistsException catch (e) {
-      MessagePopup.error(e);
     } on JoinChatCallException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
       MessagePopup.error(e);
     }
   }

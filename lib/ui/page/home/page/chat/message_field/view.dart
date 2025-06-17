@@ -527,14 +527,9 @@ class MessageFieldView extends StatelessWidget {
                       return SafeAnimatedSwitcher(
                         duration: 300.milliseconds,
                         child: ChatButtonWidget.send(
-                          key:
-                              sendKey ??
-                              (c.forwarding.value
-                                  ? Key('Forward')
-                                  : Key('Send')),
-                          forwarding: c.forwarding.value,
+                          key: sendKey ?? Key('Send'),
+
                           onPressed: c.field.submit,
-                          onLongPress: canForward ? c.forwarding.toggle : null,
                         ),
                       );
                     }),

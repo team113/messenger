@@ -284,15 +284,10 @@ err_blocked = You've been added to the blocklist of this user.
 err_blocked_by = {$user} has added you to their blocklist.
 err_blocked_by_multiple = One or more of the selected users have added you to their blocklist.
 err_blocklist_reason_does_not_meet_regexp = Blocklist reason must be 2 to 100 symbols long.
-err_call_already_exists = Call already exists
-err_call_already_joined = Already joined the call
-err_call_is_in_popup = Call is used in a separate popup
-err_call_not_found = Call not found
 err_call_popup_was_blocked =
     Call popup was blocked.
     Allow the popup windows to display call as a popup
 err_camera_permission_denied = Camera permission is denied. Please, ensure application has camera permissions.
-err_cant_forward_calls = Call forwarding is not allowed
 err_chat_direct_link_occupied = Link is occupied.
 err_confirmation_required = A password must be provided to acomplish that action.
 err_contact_not_group = Chat with the provided ID is not a group
@@ -1016,7 +1011,6 @@ label_replies = [{$count} {$count ->
     *[other] replies
     }]
 label_report = Report
-label_required = Required
 label_requirements = Requirements
 label_requirements_backend_developer =
     - Knowledge of Rust;
