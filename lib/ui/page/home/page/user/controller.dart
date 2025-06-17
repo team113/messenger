@@ -19,11 +19,13 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '/api/backend/schema.dart' show Presence;
 import '/config.dart';
 import '/domain/model/chat.dart';
@@ -37,7 +39,6 @@ import '/domain/repository/call.dart'
         CallAlreadyExistsException,
         CallAlreadyJoinedException,
         CallIsInPopupException;
-import '/domain/repository/chat.dart';
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
