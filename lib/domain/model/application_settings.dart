@@ -23,8 +23,6 @@ class ApplicationSettings {
     this.showIntroduction,
     this.sideBarWidth,
     this.callButtons = const [],
-    this.showDragAndDropVideosHint = false,
-    this.showDragAndDropButtonsHint = false,
     this.pinnedActions = const [],
     this.callButtonsPosition = CallButtonsPosition.appBar,
     this.workWithUsTabEnabled = true,
@@ -48,14 +46,6 @@ class ApplicationSettings {
   /// [CallButton]s placed in a [Dock] of an [OngoingCall].
   List<String> callButtons;
 
-  /// Indicator whether a drag and drop videos hint should be displayed in an
-  /// [OngoingCall].
-  bool? showDragAndDropVideosHint;
-
-  /// Indicator whether a drag and drop buttons hint should be displayed in an
-  /// [OngoingCall].
-  bool? showDragAndDropButtonsHint;
-
   /// [ChatButton]s pinned to the [MessageFieldView] in [Chat].
   List<String> pinnedActions;
 
@@ -77,8 +67,6 @@ class ApplicationSettings {
         showIntroduction == other.showIntroduction &&
         sideBarWidth == other.sideBarWidth &&
         callButtons.toString() == other.callButtons.toString() &&
-        showDragAndDropVideosHint == other.showDragAndDropVideosHint &&
-        showDragAndDropButtonsHint == other.showDragAndDropButtonsHint &&
         pinnedActions.toString() == other.pinnedActions.toString() &&
         callButtonsPosition == other.callButtonsPosition &&
         workWithUsTabEnabled == other.workWithUsTabEnabled &&
@@ -92,8 +80,6 @@ class ApplicationSettings {
     showIntroduction,
     sideBarWidth,
     callButtons.toString(),
-    showDragAndDropVideosHint,
-    showDragAndDropButtonsHint,
     pinnedActions.toString(),
     callButtonsPosition,
     workWithUsTabEnabled,

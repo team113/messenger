@@ -367,7 +367,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
+                  label: 'label_one_time_code'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -531,7 +531,7 @@ class LoginView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
+                  label: 'label_one_time_code'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),
@@ -575,7 +575,7 @@ class LoginView extends StatelessWidget {
                 SignButton(
                   key: const Key('EmailButton'),
                   title: 'btn_email'.l10n,
-                  subtitle: 'label_one_time_password'.l10n,
+                  subtitle: 'label_one_time_code'.l10n,
                   onPressed: () =>
                       c.stage.value = LoginViewStage.signInWithEmail,
                   icon: const SvgIcon(SvgIcons.email),

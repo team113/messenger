@@ -459,32 +459,6 @@ class CallController extends GetxController {
   /// Returns a name of the current [OngoingCall]'s caller.
   String? get callerName => _currentCall.value.caller?.title;
 
-  /// Indicates whether a drag and drop videos hint should be displayed.
-  bool get showDragAndDropVideosHint =>
-      _settingsRepository
-          .applicationSettings
-          .value
-          ?.showDragAndDropVideosHint ??
-      true;
-
-  /// Sets the drag and drop videos hint indicator to the provided [value].
-  set showDragAndDropVideosHint(bool value) {
-    _settingsRepository.setShowDragAndDropVideosHint(value);
-  }
-
-  /// Indicates whether a drag and drop buttons hint should be displayed.
-  bool get showDragAndDropButtonsHint =>
-      _settingsRepository
-          .applicationSettings
-          .value
-          ?.showDragAndDropButtonsHint ??
-      true;
-
-  /// Sets the drag and drop buttons hint indicator to the provided [value].
-  set showDragAndDropButtonsHint(bool value) {
-    _settingsRepository.setShowDragAndDropButtonsHint(value);
-  }
-
   /// Indicates whether the connection to the [OngoingCall] updates was lost and
   /// an ongoing reconnection is happening.
   RxBool get connectionLost => _currentCall.value.connectionLost;

@@ -190,7 +190,6 @@ class MessageInfo extends StatelessWidget {
                             )
                           else
                             ...users.map((e) {
-                              final DateTime time = reads.first.at.val;
                               return ContactTile(
                                 user: e,
                                 dense: true,
@@ -202,9 +201,7 @@ class MessageInfo extends StatelessWidget {
                                 subtitle: [
                                   const SizedBox(height: 3),
                                   Text(
-                                    'label_read_at'.l10nfmt({
-                                      'date': time.yMdHm,
-                                    }),
+                                    'label_read_by'.l10n,
                                     style: style.fonts.small.regular.secondary,
                                   ),
                                 ],
