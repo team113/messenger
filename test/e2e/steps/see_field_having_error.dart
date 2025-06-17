@@ -52,18 +52,13 @@ Future<void> _fieldHavingError(
 }) async {
   await context.world.appDriver.waitUntil(() async {
     final field = context.world.appDriver.findByKeySkipOffstage(key);
-    print('==== _fieldHavingError... field = $field');
 
     if (await context.world.appDriver.isPresent(field)) {
-      print('==== _fieldHavingError... isPresent(field)');
-
       final error = context.world.appDriver.findByDescendant(
         field,
         context.world.appDriver.findByKeySkipOffstage('HasError'),
         firstMatchOnly: true,
       );
-
-      print('==== _fieldHavingError... isPresent(field)... error: $error');
 
       switch (hasError) {
         case true:
