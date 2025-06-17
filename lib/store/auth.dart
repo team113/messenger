@@ -215,10 +215,6 @@ class AuthRepository extends DisposableInterface
       if (!keepProfile) _myUserProvider.delete(id),
       _credentialsProvider.delete(id),
     ]);
-
-    if (!keepProfile) {
-      //
-    }
   }
 
   @override
