@@ -173,13 +173,6 @@ class SettingsRepository extends DisposableInterface
   }
 
   @override
-  Future<void> setShowDragAndDropButtonsHint(bool show) async {
-    Log.debug('setShowDragAndDropButtonsHint($show)', '$runtimeType');
-
-    // No-op.
-  }
-
-  @override
   Future<void> setCallRect(ChatId chatId, Rect prefs) async {
     Log.debug('setCallRect($chatId, $prefs)', '$runtimeType');
     await _callRectLocal.upsert(chatId, prefs);
