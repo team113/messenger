@@ -68,9 +68,6 @@ abstract class AbstractSettingsRepository {
   /// Sets the [ApplicationSettings.callButtons] value.
   Future<void> setCallButtons(List<String> buttons);
 
-  /// Sets the [ApplicationSettings.showDragAndDropVideosHint] value.
-  Future<void> setShowDragAndDropVideosHint(bool show);
-
   /// Sets the provided [Rect] preferences of an [OngoingCall] happening in the
   /// specified [Chat].
   Future<void> setCallRect(ChatId chatId, Rect prefs);
