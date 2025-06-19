@@ -19,7 +19,6 @@ import 'dart:async';
 
 import 'package:get/get.dart';
 
-import '/api/backend/schema.dart';
 import '/domain/model/chat.dart';
 import '/domain/model/chat_call.dart';
 import '/domain/model/chat_item.dart';
@@ -29,8 +28,6 @@ import '/domain/repository/call.dart';
 import '/domain/repository/chat.dart';
 import '/domain/service/auth.dart';
 import '/domain/service/chat.dart';
-import '/provider/gql/exceptions.dart'
-    show TransformDialogCallIntoGroupCallException;
 import '/store/event/chat_call.dart';
 import '/util/log.dart';
 import '/util/obs/obs.dart';
@@ -69,12 +66,18 @@ class CallService extends DisposableService {
     );
 
     final Rx<OngoingCall>? stored = _callsRepo[chatId];
+    final WebStoredCall? webStored = WebUtils.getCall(chatId);
+    final ChatCallDeviceId? webDevice = webStored?.deviceId;
 
-    if (WebUtils.containsCall(chatId)) {
-      throw CallIsInPopupException();
+    if (webDevice != null) {
+      // Call seems to already exist in the Web, thus try to leave and remove
+      // the existing one.
+      WebUtils.removeCall(chatId);
+      await _callsRepo.leave(chatId, webDevice);
     } else if (stored != null &&
         stored.value.state.value != OngoingCallState.ended) {
-      throw CallAlreadyExistsException();
+      // No-op, as already exists.
+      return;
     }
 
     try {
@@ -91,12 +94,13 @@ class CallService extends DisposableService {
         call.value.connect(this);
       }
     } on CallAlreadyJoinedException catch (e) {
-      _callsRepo.leave(chatId, e.deviceId);
-      _callsRepo.remove(chatId);
-
-      // TODO: Try joining the [OngoingCall] again, instead of throwing the
-      //       exception here.
-      rethrow;
+      await _callsRepo.leave(chatId, e.deviceId);
+      return await join(
+        chatId,
+        withAudio: withAudio,
+        withVideo: withVideo,
+        withScreen: withScreen,
+      );
     } catch (e) {
       // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -117,8 +121,14 @@ class CallService extends DisposableService {
       '$runtimeType',
     );
 
-    if (WebUtils.containsCall(chatId) && !WebUtils.isPopup) {
-      throw CallIsInPopupException();
+    final WebStoredCall? webStored = WebUtils.getCall(chatId);
+    final ChatCallDeviceId? webDevice = webStored?.deviceId;
+
+    if (webDevice != null && !WebUtils.isPopup) {
+      // Call seems to already exist in the Web, thus try to leave and remove
+      // the existing one.
+      WebUtils.removeCall(chatId);
+      await _callsRepo.leave(chatId, webDevice);
     }
 
     try {
@@ -155,13 +165,6 @@ class CallService extends DisposableService {
       } else {
         call?.value.connect(this);
       }
-    } on CallAlreadyJoinedException catch (e) {
-      _callsRepo.leave(chatId, e.deviceId);
-      _callsRepo.remove(chatId);
-
-      // TODO: Try joining the [OngoingCall] again, instead of throwing the
-      //       exception here.
-      rethrow;
     } catch (e) {
       // If any other error occurs, it's guaranteed that the broken call will be
       // removed.
@@ -285,18 +288,11 @@ class CallService extends DisposableService {
       '$runtimeType',
     );
 
-    final Rx<OngoingCall>? call = _callsRepo[chatId];
-    if (call != null) {
-      await _callsRepo.transformDialogCallIntoGroupCall(
-        chatId,
-        additionalMemberIds,
-        groupName,
-      );
-    } else {
-      throw const TransformDialogCallIntoGroupCallException(
-        TransformDialogCallIntoGroupCallErrorCode.noCall,
-      );
-    }
+    await _callsRepo.transformDialogCallIntoGroupCall(
+      chatId,
+      additionalMemberIds,
+      groupName,
+    );
   }
 
   /// Returns heartbeat subscription used to keep [MyUser] in an [OngoingCall].

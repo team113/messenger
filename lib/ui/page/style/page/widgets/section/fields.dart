@@ -26,9 +26,7 @@ import '/domain/model/user.dart';
 import '/routes.dart';
 import '/themes.dart';
 import '/ui/page/home/page/chat/message_field/controller.dart';
-import '/ui/page/home/page/my_profile/widget/bio.dart';
 import '/ui/page/home/page/my_profile/widget/copyable.dart';
-import '/ui/page/home/page/my_profile/widget/name.dart';
 import '/ui/page/home/page/user/widget/blocklist_record.dart';
 import '/ui/page/home/page/user/widget/status.dart';
 import '/ui/page/home/widget/app_bar.dart';
@@ -180,8 +178,6 @@ class FieldsSection {
           onChanged: () {},
         ),
       ),
-      const Headline(child: UserNameField(null)),
-      const Headline(child: UserBioField(null)),
       const Headline(
         child: UserStatusCopyable(UserTextStatus.unchecked('Status')),
       ),

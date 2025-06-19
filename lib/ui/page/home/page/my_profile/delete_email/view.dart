@@ -96,10 +96,7 @@ class DeleteEmailView extends StatelessWidget {
               );
             }),
             const SizedBox(height: 16),
-            ReactiveTextField(
-              state: c.code,
-              hint: 'label_confirmation_code'.l10n,
-            ),
+            ReactiveTextField(state: c.code, hint: 'label_one_time_code'.l10n),
             const SizedBox(height: 25),
             PrimaryButton(
               key: const Key('Proceed'),

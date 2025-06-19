@@ -111,7 +111,7 @@ class AddEmailView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('ConfirmationCode'),
                   state: c.code,
-                  label: 'label_confirmation_code'.l10n,
+                  label: 'label_one_time_code'.l10n,
                   formatters: [FilteringTextInputFormatter.digitsOnly],
                   type: TextInputType.number,
                 ),

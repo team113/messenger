@@ -192,7 +192,7 @@ class AccountsView extends StatelessWidget {
                 ReactiveTextField(
                   key: const Key('EmailCodeField'),
                   state: c.emailCode,
-                  label: 'label_confirmation_code'.l10n,
+                  label: 'label_one_time_code'.l10n,
                   type: TextInputType.number,
                 ),
                 const SizedBox(height: 25),

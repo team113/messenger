@@ -379,7 +379,7 @@ Widget _block(BuildContext context, MyProfileController c, int i) {
 
     case ProfileTab.download:
       return block(
-        title: 'label_download_application'.l10n,
+        title: 'label_download_and_update'.l10n,
         children: [_downloads(context, c)],
       );
 

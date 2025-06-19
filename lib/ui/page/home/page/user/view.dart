@@ -17,6 +17,7 @@
 
 import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
@@ -389,8 +390,29 @@ class UserView extends StatelessWidget {
       ],
       additional: [
         const SizedBox(height: 25),
-        ReactiveTextField(state: c.reason, label: 'label_reason'.l10n),
+        ReactiveTextField(
+          state: c.reason,
+          label: 'label_reason'.l10n,
+          formatters: [LengthLimitingTextInputFormatter(100)],
+        ),
       ],
+      button: (context) {
+        return Obx(() {
+          return PrimaryButton(
+            key: const Key('Proceed'),
+            onPressed: c.reason.error.value == null
+                ? () {
+                    if (c.reason.error.value != null) {
+                      return;
+                    }
+
+                    Navigator.of(context).pop(true);
+                  }
+                : null,
+            title: 'btn_proceed'.l10n,
+          );
+        });
+      },
     );
 
     if (result == true) {

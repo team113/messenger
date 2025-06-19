@@ -33,7 +33,6 @@ import '../widget/dock_decorator.dart';
 import '../widget/double_bounce_indicator.dart';
 import '../widget/drop_box.dart';
 import '../widget/drop_box_area.dart';
-import '../widget/hint.dart';
 import '../widget/launchpad.dart';
 import '../widget/notification.dart';
 import '../widget/participant/decorator.dart';
@@ -53,7 +52,6 @@ import '/l10n/l10n.dart';
 import '/themes.dart';
 import '/ui/page/home/widget/animated_slider.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_delayed_switcher.dart';
 import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/context_menu/menu.dart';
 import '/ui/widget/context_menu/region.dart';
@@ -379,7 +377,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                 c.relocateSecondary();
               },
               onDragStarted: (b) {
-                c.showDragAndDropButtonsHint = false;
                 c.draggedButton.value = b;
                 c.draggedFromDock = false;
               },
@@ -441,7 +438,6 @@ Widget desktopCall(CallController c, BuildContext context) {
                       ),
                       data: e,
                       onDragStarted: () {
-                        c.showDragAndDropButtonsHint = false;
                         c.draggedFromDock = true;
                         c.draggedButton.value = e;
                       },
@@ -481,46 +477,6 @@ Widget desktopCall(CallController c, BuildContext context) {
             ],
           ),
         ),
-
-        // Display the more hint, if not dismissed.
-        Obx(() {
-          return SafeAnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.showDragAndDropButtonsHint && c.displayMore.value
-                ? Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimatedDelayedSwitcher(
-                          delay: const Duration(milliseconds: 500),
-                          duration: const Duration(milliseconds: 200),
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            child: Container(
-                              width: 290,
-                              padding: EdgeInsets.only(
-                                top:
-                                    10 +
-                                    (WebUtils.isPopup
-                                        ? 0
-                                        : CallController.titleHeight),
-                              ),
-                              child: HintWidget(
-                                text: 'label_hint_drag_n_drop_buttons'.l10n,
-                                onTap: () =>
-                                    c.showDragAndDropButtonsHint = false,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const Flexible(child: SizedBox(height: 420)),
-                      ],
-                    ),
-                  )
-                : Container(),
-          );
-        }),
       ];
 
       List<Widget> ui = [
@@ -663,47 +619,6 @@ Widget desktopCall(CallController c, BuildContext context) {
             ),
           ),
         ),
-
-        // Show a hint if any renderer is draggable.
-        Obx(() {
-          final bool hideSecondary = c.size.width < 500 && c.size.height < 500;
-          final bool mayDragVideo =
-              !hideSecondary &&
-              (c.focused.length > 1 ||
-                  (c.focused.isEmpty &&
-                      c.primary.length + c.secondary.length > 1));
-
-          return SafeAnimatedSwitcher(
-            duration: 150.milliseconds,
-            child: c.showDragAndDropVideosHint && mayDragVideo
-                ? Padding(
-                    padding: EdgeInsets.only(
-                      top:
-                          c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value == Alignment.topCenter
-                          ? 10 + c.secondaryHeight.value
-                          : 10,
-                      right:
-                          c.secondary.isNotEmpty &&
-                              c.secondaryAlignment.value ==
-                                  Alignment.centerRight
-                          ? 10 + c.secondaryWidth.value
-                          : 10,
-                    ),
-                    child: Align(
-                      alignment: Alignment.topRight,
-                      child: SizedBox(
-                        width: 320,
-                        child: HintWidget(
-                          text: 'label_hint_drag_n_drop_video'.l10n,
-                          onTap: () => c.showDragAndDropVideosHint = false,
-                        ),
-                      ),
-                    ),
-                  )
-                : const SizedBox(),
-          );
-        }),
 
         // Sliding from the top info header.
         if (WebUtils.isPopup)
@@ -1146,7 +1061,6 @@ Widget _primaryView(CallController c) {
           onLeave: (b) => c.primaryTargets.value = 0,
           onDragStarted: (r) {
             c.draggedRenderer.value = r.participant;
-            c.showDragAndDropVideosHint = false;
             c.primaryDrags.value = 1;
             c.keepUi(false);
           },
@@ -1761,7 +1675,6 @@ Widget _secondaryView(CallController c, BuildContext context) {
             onLeave: (b) => c.secondaryTargets.value = 0,
             onDragStarted: (r) {
               c.draggedRenderer.value = r.participant;
-              c.showDragAndDropVideosHint = false;
               c.secondaryDrags.value = 1;
               c.displayMore.value = false;
               c.keepUi(false);

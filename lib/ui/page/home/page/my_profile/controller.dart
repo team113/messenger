@@ -58,7 +58,6 @@ import '/util/media_utils.dart';
 import '/util/message_popup.dart';
 import '/util/platform_utils.dart';
 import 'add_email/view.dart';
-import 'add_phone/controller.dart';
 import 'crop_avatar/view.dart';
 import 'welcome_field/controller.dart';
 
@@ -422,11 +421,11 @@ class MyProfileController extends GetxController {
               }
             });
 
-        await AddPhoneView.show(
-          router.context!,
-          timeout: true,
-          phone: phone,
-        ).then((_) => modalVisible = false);
+        // await AddPhoneView.show(
+        //   router.context!,
+        //   timeout: true,
+        //   phone: phone,
+        // ).then((_) => modalVisible = false);
       },
     );
 

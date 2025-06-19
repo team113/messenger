@@ -33,11 +33,6 @@ import '/domain/model/mute_duration.dart';
 import '/domain/model/my_user.dart';
 import '/domain/model/precise_date_time/precise_date_time.dart';
 import '/domain/model/user.dart';
-import '/domain/repository/call.dart'
-    show
-        CallAlreadyExistsException,
-        CallAlreadyJoinedException,
-        CallIsInPopupException;
 import '/domain/repository/contact.dart';
 import '/domain/repository/user.dart';
 import '/domain/service/call.dart';
@@ -105,7 +100,19 @@ class UserController extends GetxController {
   final GlobalKey moreKey = GlobalKey();
 
   /// [TextFieldState] for blocking reason.
-  final TextFieldState reason = TextFieldState();
+  final TextFieldState reason = TextFieldState(
+    onFocus: (s) {
+      s.error.value = null;
+
+      if (s.text.isNotEmpty) {
+        try {
+          BlocklistReason(s.text);
+        } on FormatException {
+          s.error.value = 'err_blocklist_reason_does_not_meet_regexp'.l10n;
+        }
+      }
+    },
+  );
 
   /// [TextFieldState] for report reason.
   final TextFieldState reporting = TextFieldState();
@@ -271,12 +278,6 @@ class UserController extends GetxController {
       await _callService.call(user!.user.value.dialog, withVideo: withVideo);
     } on JoinChatCallException catch (e) {
       MessagePopup.error(e);
-    } on CallAlreadyJoinedException catch (e) {
-      MessagePopup.error(e);
-    } on CallAlreadyExistsException catch (e) {
-      MessagePopup.error(e);
-    } on CallIsInPopupException catch (e) {
-      MessagePopup.error(e);
     }
   }
 
@@ -288,6 +289,10 @@ class UserController extends GetxController {
 
   /// Blocks the [user] for the authenticated [MyUser].
   Future<void> block() async {
+    if (reason.error.value != null) {
+      return;
+    }
+
     blocklistStatus.value = RxStatus.loading();
     try {
       final String text = reason.text.trim();
@@ -298,7 +303,7 @@ class UserController extends GetxController {
       );
       reason.clear();
     } on FormatException {
-      MessagePopup.error('err_blocklist_reason_does_not_meet_regexp'.l10n);
+      reason.error.value = 'err_blocklist_reason_does_not_meet_regexp'.l10n;
     } catch (e) {
       MessagePopup.error('err_data_transfer'.l10n);
     } finally {
