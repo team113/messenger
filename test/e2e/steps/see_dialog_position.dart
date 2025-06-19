@@ -37,7 +37,7 @@ final StepDefinitionGeneric seeFavoriteDialogPosition =
         await context.world.appDriver.waitUntil(() async {
           await context.world.appDriver.waitForAppToSettle();
 
-          final controller = Get.find<ChatsTabController>();
+          final ChatsTabController controller = Get.find<ChatsTabController>();
           final ChatId chatId = context.world.sessions[user.name]!.dialog!;
           final Iterable<ChatEntry> favorites = controller.chats.where(
             (c) => c.chat.value.favoritePosition != null,

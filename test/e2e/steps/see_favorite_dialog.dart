@@ -38,7 +38,7 @@ final StepDefinitionGeneric seeDialogAsFavorite =
 
           switch (status) {
             case FavoriteStatus.favorite:
-              final isPresent = await context.world.appDriver.isPresent(
+              final bool isPresent = await context.world.appDriver.isPresent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'FavoriteIndicator_$chatId',
                 ),
@@ -47,7 +47,7 @@ final StepDefinitionGeneric seeDialogAsFavorite =
               return isPresent;
 
             case FavoriteStatus.unfavorite:
-              final isPresent = await context.world.appDriver.isAbsent(
+              final bool isPresent = await context.world.appDriver.isAbsent(
                 context.world.appDriver.findByKeySkipOffstage(
                   'FavoriteIndicator_$chatId',
                 ),

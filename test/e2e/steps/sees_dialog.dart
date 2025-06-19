@@ -33,7 +33,7 @@ import 'package:messenger/ui/page/home/tab/chats/controller.dart';
 final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees dialog with me in recent chats',
   (TestUser user, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider();
 
     try {
       await context.world.appDriver.waitUntil(() async {
@@ -66,7 +66,7 @@ final StepDefinitionGeneric seesDialogWithMe = then1<TestUser, CustomWorld>(
 final StepDefinitionGeneric seesNoDialogWithMe = then1<TestUser, CustomWorld>(
   '{user} sees no dialog with me in recent chats',
   (TestUser user, context) async {
-    final provider = GraphQlProvider();
+    final GraphQlProvider provider = GraphQlProvider();
     provider.token = context.world.sessions[user.name]?.token;
     final dialog = (await provider.recentChats(first: 120)).recentChats.edges
         .firstWhereOrNull(
@@ -94,7 +94,7 @@ final StepDefinitionGeneric seesNoDialogWithUser = then1<TestUser, CustomWorld>(
     await context.world.appDriver.waitUntil(() async {
       await context.world.appDriver.waitForAppToSettle();
 
-      final controller = Get.find<ChatsTabController>();
+      final ChatsTabController controller = Get.find<ChatsTabController>();
       final ChatId chatId = context.world.sessions[user.name]!.dialog!;
       final ChatEntry? dialog = controller.chats.firstWhereOrNull(
         (c) => c.chat.value.id == chatId,
