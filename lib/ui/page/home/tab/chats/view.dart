@@ -1122,8 +1122,8 @@ class ChatsTabView extends StatelessWidget {
                             ),
                             Center(
                               child: Text(
-                                'btn_undo_delete'.l10n,
-                                style: style.fonts.big.regular.onPrimary,
+                                'btn_cancel'.l10n,
+                                style: style.fonts.medium.regular.onPrimary,
                               ),
                             ),
                           ],

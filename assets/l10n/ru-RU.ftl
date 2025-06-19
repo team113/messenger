@@ -261,7 +261,6 @@ btn_terminate_all_other_sessions = Завершить все остальные 
 btn_terminate_this_session = Завершить данную сессию
 btn_unblock = Разблокировать
 btn_unblock_short = Разблок.
-btn_undo_delete = Отменить удаление
 btn_unmute = Включить звук
 btn_unmute_chat = Включить звук
 btn_unmute_chats = Включить звук

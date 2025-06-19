@@ -261,7 +261,6 @@ btn_terminate_this_session = Terminate this session
 btn_terms_and_conditions = Terms and conditions
 btn_unblock = Unblock
 btn_unblock_short = Unblock
-btn_undo_delete = Undo delete
 btn_unmute = Unmute
 btn_unmute_chat = Unmute chat
 btn_unmute_chats = Unmute chats
