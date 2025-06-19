@@ -622,7 +622,7 @@ class LoginController extends GetxController {
     } on UpdateUserPasswordException catch (e) {
       switch (e.code) {
         case UpdateUserPasswordErrorCode.wrongOldPassword:
-          repeatPassword.error.value = 'err_wrong_old_password'.l10n;
+          repeatPassword.error.value = 'err_wrong_password'.l10n;
         case UpdateUserPasswordErrorCode.wrongCode:
           recoveryCode.error.value = 'err_wrong_code'.l10n;
         case UpdateUserPasswordErrorCode.confirmationRequired:

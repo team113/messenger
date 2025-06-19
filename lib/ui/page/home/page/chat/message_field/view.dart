@@ -43,7 +43,6 @@ import '/ui/page/home/widget/gallery_popup.dart';
 import '/ui/page/home/widget/init_callback.dart';
 import '/ui/page/home/widget/retry_image.dart';
 import '/ui/widget/animated_button.dart';
-import '/ui/widget/animated_switcher.dart';
 import '/ui/widget/animations.dart';
 import '/ui/widget/future_or_builder.dart';
 import '/ui/widget/safe_area/safe_area.dart';
@@ -523,21 +522,10 @@ class MessageFieldView extends StatelessWidget {
 
                 if (sendable || c.buttons.isEmpty) {
                   children = [
-                    Obx(() {
-                      return SafeAnimatedSwitcher(
-                        duration: 300.milliseconds,
-                        child: ChatButtonWidget.send(
-                          key:
-                              sendKey ??
-                              (c.forwarding.value
-                                  ? Key('Forward')
-                                  : Key('Send')),
-                          forwarding: c.forwarding.value,
-                          onPressed: c.field.submit,
-                          onLongPress: canForward ? c.forwarding.toggle : null,
-                        ),
-                      );
-                    }),
+                    ChatButtonWidget.send(
+                      key: sendKey ?? Key('Send'),
+                      onPressed: c.field.submit,
+                    ),
                   ];
                 } else {
                   children = c.buttons

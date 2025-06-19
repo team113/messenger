@@ -450,7 +450,7 @@ class ChatsTabView extends StatelessWidget {
                                   subtitle: [
                                     const SizedBox(height: 5),
                                     Text(
-                                      'label_required'.l10n,
+                                      'label_you'.l10n,
                                       style:
                                           style.fonts.small.regular.onPrimary,
                                     ),
@@ -1122,8 +1122,8 @@ class ChatsTabView extends StatelessWidget {
                             ),
                             Center(
                               child: Text(
-                                'btn_undo_delete'.l10n,
-                                style: style.fonts.big.regular.onPrimary,
+                                'btn_cancel'.l10n,
+                                style: style.fonts.medium.regular.onPrimary,
                               ),
                             ),
                           ],

@@ -37,7 +37,14 @@ import '/domain/repository/chat.dart';
 import '/domain/repository/settings.dart';
 import '/provider/drift/call_credentials.dart';
 import '/provider/drift/chat_credentials.dart';
-import '/provider/gql/exceptions.dart' show DeclineChatCallException;
+import '/provider/gql/exceptions.dart'
+    show
+        DeclineChatCallException,
+        LeaveChatCallException,
+        JoinChatCallException,
+        ToggleChatCallHandException,
+        RedialChatCallMemberException,
+        TransformDialogCallIntoGroupCallException;
 import '/provider/gql/graphql.dart';
 import '/store/user.dart';
 import '/util/log.dart';
@@ -274,7 +281,7 @@ class CallRepository extends DisposableInterface
     }
 
     if (calls[chatId] != null) {
-      throw CallAlreadyExistsException();
+      return calls[chatId]!;
     }
 
     final Rx<OngoingCall> call = Rx<OngoingCall>(
@@ -364,28 +371,54 @@ class CallRepository extends DisposableInterface
       return null;
     }
 
-    final response = await _graphQlProvider.joinChatCall(
-      ongoing.value.chatId.value,
-      ongoing.value.creds!,
-    );
+    try {
+      final response = await _graphQlProvider.joinChatCall(
+        ongoing.value.chatId.value,
+        ongoing.value.creds!,
+      );
 
-    ongoing.value.deviceId = response.deviceId;
+      ongoing.value.deviceId = response.deviceId;
 
-    final ChatCall? chatCall = _chatCall(response.event);
-    if (chatCall != null) {
-      ongoing.value.call.value = chatCall;
-      transferCredentials(chatCall.chatId, chatCall.id);
-    } else {
-      throw CallAlreadyJoinedException(response.deviceId);
+      final ChatCall? chatCall = _chatCall(response.event);
+      if (chatCall != null) {
+        ongoing.value.call.value = chatCall;
+        transferCredentials(chatCall.chatId, chatCall.id);
+      } else {
+        throw CallAlreadyJoinedException(response.deviceId);
+      }
+
+      return ongoing;
+    } on JoinChatCallException catch (e) {
+      switch (e.code) {
+        case JoinChatCallErrorCode.noCall:
+        case JoinChatCallErrorCode.unknownChat:
+          WebUtils.removeCall(chatId);
+          remove(chatId);
+          return null;
+
+        case JoinChatCallErrorCode.artemisUnknown:
+          rethrow;
+      }
     }
-
-    return ongoing;
   }
 
   @override
   Future<void> leave(ChatId chatId, ChatCallDeviceId deviceId) async {
     Log.debug('leave($chatId, $deviceId)', '$runtimeType');
-    await _graphQlProvider.leaveChatCall(chatId, deviceId);
+
+    try {
+      await _graphQlProvider.leaveChatCall(chatId, deviceId);
+    } on LeaveChatCallException catch (e) {
+      switch (e.code) {
+        case LeaveChatCallErrorCode.unknownDevice:
+        case LeaveChatCallErrorCode.unknownChat:
+          // No-op.
+          break;
+
+        case LeaveChatCallErrorCode.artemisUnknown:
+          rethrow;
+      }
+    }
   }
 
   @override
@@ -401,6 +434,9 @@ class CallRepository extends DisposableInterface
           break;
 
         case DeclineChatCallErrorCode.unknownChat:
+          // No-op, can't remove such call.
+          break;
+
         case DeclineChatCallErrorCode.artemisUnknown:
           rethrow;
       }
@@ -412,7 +448,22 @@ class CallRepository extends DisposableInterface
   @override
   Future<void> toggleHand(ChatId chatId, bool raised) async {
     Log.debug('toggleHand($chatId, $raised)', '$runtimeType');
-    await _graphQlProvider.toggleChatCallHand(chatId, raised);
+
+    try {
+      await _graphQlProvider.toggleChatCallHand(chatId, raised);
+    } on ToggleChatCallHandException catch (e) {
+      switch (e.code) {
+        case ToggleChatCallHandErrorCode.notCallMember:
+        case ToggleChatCallHandErrorCode.noCall:
+        case ToggleChatCallHandErrorCode.unknownChat:
+          WebUtils.removeCall(chatId);
+          remove(chatId);
+          break;
+
+        case ToggleChatCallHandErrorCode.artemisUnknown:
+          rethrow;
+      }
+    }
   }
 
   @override
@@ -435,6 +486,24 @@ class CallRepository extends DisposableInterface
 
     try {
       await _graphQlProvider.redialChatCallMember(chatId, memberId);
+    } on RedialChatCallMemberException catch (e) {
+      switch (e.code) {
+        case RedialChatCallMemberErrorCode.notCallMember:
+        case RedialChatCallMemberErrorCode.noCall:
+        case RedialChatCallMemberErrorCode.unknownChat:
+        case RedialChatCallMemberErrorCode.notChatMember:
+          WebUtils.removeCall(chatId);
+          remove(chatId);
+          break;
+
+        case RedialChatCallMemberErrorCode.unknownUser:
+        case RedialChatCallMemberErrorCode.notGroup:
+          // No-op.
+          break;
+
+        case RedialChatCallMemberErrorCode.artemisUnknown:
+          rethrow;
+      }
     } catch (_) {
       ongoing?.value.members.remove(id);
     }
@@ -458,11 +527,34 @@ class CallRepository extends DisposableInterface
       '$runtimeType',
     );
 
-    await _graphQlProvider.transformDialogCallIntoGroupCall(
-      chatId,
-      additionalMemberIds,
-      groupName,
-    );
+    try {
+      await _graphQlProvider.transformDialogCallIntoGroupCall(
+        chatId,
+        additionalMemberIds,
+        groupName,
+      );
+    } on TransformDialogCallIntoGroupCallException catch (e) {
+      switch (e.code) {
+        case TransformDialogCallIntoGroupCallErrorCode.noCall:
+        case TransformDialogCallIntoGroupCallErrorCode.unknownChat:
+          WebUtils.removeCall(chatId);
+          remove(chatId);
+          break;
+
+        case TransformDialogCallIntoGroupCallErrorCode.notDialog:
+          // No-op.
+          break;
+
+        case TransformDialogCallIntoGroupCallErrorCode.unknownUser:
+          // TODO(temp): What to do here?
+          break;
+
+        case TransformDialogCallIntoGroupCallErrorCode.wrongMembersCount:
+        case TransformDialogCallIntoGroupCallErrorCode.blocked:
+        case TransformDialogCallIntoGroupCallErrorCode.artemisUnknown:
+          rethrow;
+      }
+    }
   }
 
   @override

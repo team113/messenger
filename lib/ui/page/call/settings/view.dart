@@ -66,7 +66,7 @@ class CallSettingsView extends StatelessWidget {
                 controller: c.scrollController,
                 shrinkWrap: true,
                 children: [
-                  ModalPopupHeader(text: 'label_media'.l10n),
+                  ModalPopupHeader(text: 'label_media_devices'.l10n),
                   Padding(
                     padding: padding,
                     child: Obx(() {

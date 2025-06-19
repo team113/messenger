@@ -137,9 +137,6 @@ class MessageFieldController extends GetxController {
   /// Replied [ChatItem] being hovered.
   final Rx<ChatItem?> hoveredReply = Rx(null);
 
-  /// Indicator whether forwarding mode is enabled.
-  final RxBool forwarding = RxBool(false);
-
   /// [ScrollController] to pass to a [Scrollbar].
   final ScrollController scrollController = ScrollController();
 
@@ -354,7 +351,6 @@ class MessageFieldController extends GetxController {
   void clear({bool unfocus = true}) {
     replied.clear();
     attachments.clear();
-    forwarding.value = false;
     field.clear(unfocus: unfocus);
     field.unsubmit();
     onChanged?.call();
