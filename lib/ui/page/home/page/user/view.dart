@@ -191,9 +191,7 @@ class UserView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PresenceLabel(
-                key: Key(
-                  c.user?.user.value.presence?.name.capitalizeFirst ?? '',
-                ),
+                key: Key(c.user?.user.value.presence?.name.capitalized ?? ''),
                 presence: c.user!.user.value.presence,
               ),
               const SizedBox(height: 4),

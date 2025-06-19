@@ -16,8 +16,11 @@ All user visible changes to this project will be documented in this file. This p
 - UI:
     - Chat page:
         - Screenshots made to clipboard not pasted as attachments. ([#1280])
+    - Auth page:
+        - Inability to proceed to recover access with username not being empty. ([#1285])
 
 [#1280]: /../../pull/1280
+[#1285]: /../../pull/1285
 
 
 

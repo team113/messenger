@@ -118,6 +118,7 @@ import 'steps/see_favorite_chat.dart';
 import 'steps/see_favorite_contact.dart';
 import 'steps/see_favorite_dialog.dart';
 import 'steps/see_favorite_monolog.dart';
+import 'steps/see_field_having_error.dart';
 import 'steps/see_search_results.dart';
 import 'steps/see_sessions.dart';
 import 'steps/sees_as_online.dart';
@@ -265,6 +266,8 @@ final FlutterTestConfiguration gherkinTestConfiguration =
         seeDraftInDialog,
         seeFavoriteChatPosition,
         seeFavoriteDialogPosition,
+        seeFieldHavingAnError,
+        seeFieldHavingNoError,
         seeMonologAsFavorite,
         seeMonologInSearchResults,
         seeNamedChat,

@@ -369,3 +369,15 @@ extension L10nSizeInBytesExtension on int? {
     });
   }
 }
+
+/// Extension capitalizing the first letter of the [String].
+extension CapitalizedString on String {
+  /// Returns this [String] with its first letter capitalized.
+  String get capitalized {
+    if (length <= 1) {
+      return substring(0).toUpperCase();
+    }
+
+    return '${substring(0, 1).toUpperCase()}${substring(1, length)}';
+  }
+}
